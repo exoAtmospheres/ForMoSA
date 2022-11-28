@@ -4,43 +4,14 @@ ForMoSA v6 run script
 Pre_layer to open the config file and extract all the needed information.
 Easy to understand and simple access for the new uses. THIS IS THE GOAL
 
-@author: P. Palma-Bifani
-'''
-# ----------------------------------------------------------------------------------------------------------------------
-'''
-TO-DOs:
-
-- run Hip 654
-- make different default config files for the different grids and different run_ForMoSA_default.py
-
-- make ForMoSA a package (almost)
-- Check ForMoSA Licence
-- Check ForMoSA Pip install and read the docs
-- with example of setup (jupyter) and webpage and all that...
-- add timeing bars and stuff like that: F2 interp_grid, Run ForMoSA
-
-Licallo & Library:
-- licallo setup bash to run code
-- create way and path to copy licalo <-> mac
-- run all the SINFONI library 
-
-Science Code Updates:
-- Save bayesian inference for model comparison and selection..
-- do better work with uncertainties? -> included in flux calibration but beyond too?
-- make dynasty and ultranest work
-- make flux calibration uncertainty work
-- make cpd work
-
-- create good plotting script for spectra, residuals, cornerplots, comparisons, etc...
-
-THIS IS A SIGNIFICANT PRODUCT OF MY PHD!!!!!!!!!
+@authors: S. Petrus & P. Palma-Bifani 
 '''
 # ----------------------------------------------------------------------------------------------------------------------
 ## IMPORTS
 import sys
 
 # Import ForMoSA
-base_path = '/Users/simonpetrus/PycharmProjects/ForMoSA_v.1.0/'     # Give the path to ForMoSA to be able to import it. No need when this will be a pip package
+base_path = '/Users/ppalmabifani/Desktop/exoAtm/c0_ForMoSA/ForMoSA/'     # Give the path to ForMoSA to be able to import it. No need when this will be a pip package
 sys.path.insert(1, base_path)
 from master_main_utilities import yesno
 from master_main_utilities import GlobFile
