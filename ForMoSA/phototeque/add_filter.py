@@ -1,13 +1,12 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-
-# pathr='/Users/petruss/Documents/ForMoSA_3.0/Phototeque/SPHERE_K2.txt'
-pathr='/Users/simonpetrus/Downloads/WISE_WISE.W2.dat'
-filer = open(pathr, 'r')
+pathr='/Your/Path/here/'
+name = 'Filter_Name'
+filter = open(pathr+name+'.txt', 'r')
 x = []
 y = []
-for line in filer:
+for line in filter:
     if np.logical_or(line[0] == '#', line[0] == '\n'):
         pass
     else:
@@ -17,4 +16,4 @@ for line in filer:
 
 plt.plot(x,y)
 plt.show()
-np.savez('/Users/simonpetrus/Documents/FORMOSA_DEV/Phototeque/WISE_W2', x_filt=x, y_filt=y)
+np.savez('phototeque/'+name, x_filt=x, y_filt=y)

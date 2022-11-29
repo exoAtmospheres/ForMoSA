@@ -11,12 +11,12 @@ Easy to understand and simple access for the new uses. THIS IS THE GOAL
 import sys
 
 # Import ForMoSA
-base_path = '/Users/ppalmabifani/Desktop/exoAtm/c0_ForMoSA/ForMoSA/'     # Give the path to ForMoSA to be able to import it. No need when this will be a pip package
-sys.path.insert(1, base_path)
-from main_utilities import yesno
-from main_utilities import GlobFile
-from adapt.adapt_obs_mod import launch_adapt
-from nested_sampling.nested_sampling import launch_nested_sampling
+#base_path = '/Users/ppalmabifani/Desktop/exoAtm/c0_ForMoSA/ForMoSA/'     # Give the path to ForMoSA to be able to import it. No need when this will be a pip package
+#sys.path.insert(1, base_path)
+from ForMoSA.main_utilities import yesno
+from ForMoSA.main_utilities import GlobFile
+from ForMoSA.adapt.adapt_obs_mod import launch_adapt
+from ForMoSA.nested_sampling.nested_sampling import launch_nested_sampling
 
 # ----------------------------------------------------------------------------------------------------------------------
 ## USER configuration path

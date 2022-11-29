@@ -240,7 +240,7 @@ def extract_model(global_params, wav_mod_nativ, flx_mod_nativ, res_mod_nativ, co
     # Calculate each photometry point.
     mod_pho = []
     for pho_ind, pho in enumerate(obs_pho_ins):
-        filter_pho = np.load('/Users/simonpetrus/PycharmProjects/ForMoSA_v.1.0/Phototeque/' + pho + '.npz')
+        filter_pho = np.load('phototeque/' + pho + '.npz')
         x_filt = filter_pho['x_filt']
         y_filt = filter_pho['y_filt']
         filter_interp = interp1d(x_filt, y_filt, fill_value="extrapolate")
