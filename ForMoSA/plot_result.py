@@ -2,7 +2,6 @@ from __future__ import print_function, division
 import numpy as np
 import corner
 import matplotlib.pyplot as plt
-import math
 import xarray as xr
 import pickle
 from matplotlib.figure import Figure
@@ -91,7 +90,7 @@ def corner_posterior(global_params, save='no'):
             else:
                 ind_theta_r = np.where(theta_index == 'r')
                 r_picked = result[ind_theta_r[0]]
-            lum = math.log10(4 * np.pi * (r_picked * 69911000.) ** 2 * result[0] ** 4 * 5.670e-8 / 3.83e26)
+            lum = np.log10(4 * np.pi * (r_picked * 69911000.) ** 2 * result[0] ** 4 * 5.670e-8 / 3.83e26)
             result = np.concatenate((result, np.asarray([lum])))
         posterior_to_plot.append(result)
     if global_params.r != 'NA':
