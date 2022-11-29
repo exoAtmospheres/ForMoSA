@@ -13,8 +13,8 @@ import sys
 # Import ForMoSA
 base_path = '/Users/ppalmabifani/Desktop/exoAtm/c0_ForMoSA/ForMoSA/'     # Give the path to ForMoSA to be able to import it. No need when this will be a pip package
 sys.path.insert(1, base_path)
-from master_main_utilities import yesno
-from master_main_utilities import GlobFile
+from main_utilities import yesno
+from main_utilities import GlobFile
 from adapt.adapt_obs_mod import launch_adapt
 from nested_sampling.nested_sampling import launch_nested_sampling
 
