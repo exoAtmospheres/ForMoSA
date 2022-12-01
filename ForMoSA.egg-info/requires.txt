@@ -1,0 +1,11 @@
+astropy<5
+configobj
+corner
+extinction
+nestle
+matplotlib
+numpy
+PyAstronomy
+scipy
+spectres
+xarray

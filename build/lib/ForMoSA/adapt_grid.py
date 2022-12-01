@@ -4,7 +4,7 @@ import xarray as xr
 import time
 # import matplotlib.pyplot as plt
 
-from extraction_functions import adapt_model, decoupe
+from adapt.extraction_functions import adapt_model, decoupe
 
 # ----------------------------------------------------------------------------------------------------------------------
 

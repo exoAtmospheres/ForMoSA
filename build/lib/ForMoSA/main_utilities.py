@@ -1,6 +1,8 @@
 from configobj import ConfigObj
 
 # ----------------------------------------------------------------------------------------------------------------------
+
+
 def yesno(text):
     ''' Function to interact with the terminal and decide for different options when running ForMoSA
     Parameters:

@@ -6,7 +6,7 @@ def add_filter(pathr, filter_name, plot_filt=False):
     '''
     Function to add filters to the personal phototeque
 
-    
+
     
     '''
     filter = open(pathr+filter_name+'.txt', 'r')

@@ -2,6 +2,7 @@ import numpy as np
 import extinction
 from scipy.interpolate import interp1d
 from PyAstronomy.pyasl import dopplerShift, rotBroad
+import matplotlib.pyplot as plt
 
 # ----------------------------------------------------------------------------------------------------------------------
 

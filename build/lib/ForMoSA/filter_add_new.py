@@ -23,4 +23,4 @@ def add_filter(pathr, filter_name, plot_filt=False):
         plt.plot(x,y)
         plt.show()
 
-    np.savez('phototeque/'+filter_name, x_filt=x, y_filt=y)
+    np.savez('phototeque/'+name, x_filt=x, y_filt=y)

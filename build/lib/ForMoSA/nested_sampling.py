@@ -3,9 +3,10 @@ import nestle
 import time
 import xarray as xr
 import pickle
+import matplotlib.pyplot as plt
 
-from nested_modif_spec import modif_spec
-from nested_prior_function import uniform_prior, gaussian_prior
+from nested_sampling.modif_spec import modif_spec
+from nested_sampling.prior_function import uniform_prior, gaussian_prior
 
 
 def loglike(theta, theta_index, global_params, for_plot='no'):
