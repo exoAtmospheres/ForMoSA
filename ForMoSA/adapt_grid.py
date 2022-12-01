@@ -2,7 +2,6 @@ from __future__ import print_function, division
 import numpy as np
 import xarray as xr
 import time
-# import matplotlib.pyplot as plt
 
 from extraction_functions import adapt_model, decoupe
 

@@ -15,8 +15,8 @@ import sys
 #sys.path.insert(1, base_path)
 from ForMoSA.main_utilities import yesno
 from ForMoSA.main_utilities import GlobFile
-from ForMoSA.adapt.adapt_obs_mod import launch_adapt
-from ForMoSA.nested_sampling.nested_sampling import launch_nested_sampling
+from ForMoSA.adapt_obs_mod import launch_adapt
+from ForMoSA.nested_sampling import launch_nested_sampling
 
 # ----------------------------------------------------------------------------------------------------------------------
 ## USER configuration path

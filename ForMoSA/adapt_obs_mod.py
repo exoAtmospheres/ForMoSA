@@ -6,7 +6,6 @@ import xarray as xr
 
 from extraction_functions import extract_observation
 from adapt_grid import adapt_grid
-
 # ----------------------------------------------------------------------------------------------------------------------
 
 
@@ -88,7 +87,7 @@ def launch_adapt(global_params, justobs='no'):
 
 
 if __name__ == '__main__':
-    from master_main_utilities import GlobFile
+    from main_utilities import GlobFile
 
     # USER configuration path
     print()
