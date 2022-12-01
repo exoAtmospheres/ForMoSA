@@ -9,8 +9,8 @@ import sys
 # Import ForMoSA
 #base_path = '/Users/simonpetrus/PycharmProjects/ForMoSA_v.1.0/'     # Give the path to ForMoSA to be able to import it. No need when this will be a pip package
 #sys.path.insert(1, base_path)
-from main_utilities import GlobFile
-from nested_modif_spec import modif_spec
+from ForMoSA.main_utilities import GlobFile
+from ForMoSA.nested_modif_spec import modif_spec
 
 # ----------------------------------------------------------------------------------------------------------------------
 
