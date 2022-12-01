@@ -4,7 +4,6 @@ from astropy.io import fits
 from scipy.ndimage import gaussian_filter
 from scipy.interpolate import interp1d
 from spectres import spectres
-import matplotlib.pyplot as plt
 
 # ----------------------------------------------------------------------------------------------------------------------
 

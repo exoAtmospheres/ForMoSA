@@ -8,4 +8,4 @@ numpy
 PyAstronomy
 scipy
 spectres
-xarray
+xarray>=0.20.2

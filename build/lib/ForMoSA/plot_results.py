@@ -7,10 +7,10 @@ import pickle
 from matplotlib.figure import Figure
 import sys
 # Import ForMoSA
-base_path = '/Users/simonpetrus/PycharmProjects/ForMoSA_v.1.0/'     # Give the path to ForMoSA to be able to import it. No need when this will be a pip package
-sys.path.insert(1, base_path)
-from master_main_utilities import GlobFile
-from nested_sampling.modif_spec import modif_spec
+#base_path = '/Users/simonpetrus/PycharmProjects/ForMoSA_v.1.0/'     # Give the path to ForMoSA to be able to import it. No need when this will be a pip package
+#sys.path.insert(1, base_path)
+from main_utilities import GlobFile
+from nested_modif_spec import modif_spec
 
 # ----------------------------------------------------------------------------------------------------------------------
 
@@ -97,9 +97,9 @@ def corner_posterior(global_params, save='no'):
         tot_list_param_title.append(r'log(L/L$\mathrm{_{\odot}}$)')
 
     posterior_to_plot = np.array(posterior_to_plot)
-    corner.corner(posterior_to_plot,
-                  fig=figure_corner,
-                  weights=weights,
+    figure = corner.corner(posterior_to_plot,
+                            fig=figure_corner,
+                            weights=weights,
                   labels=tot_list_param_title,
                   range=[0.9999] * len(tot_list_param_title),
                   bins=50,
@@ -118,6 +118,7 @@ def corner_posterior(global_params, save='no'):
     if save != 'no':
         figure_corner.savefig(global_params.result_path + '/result_' + global_params.ns_algo + '_corner.pdf',
                               bbox_inches='tight', dpi=300)
+    
 
 # ----------------------------------------------------------------------------------------------------------------------
 
