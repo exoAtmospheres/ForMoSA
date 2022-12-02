@@ -1,9 +1,11 @@
 # ForMoSA
 
-This is the public version
+Currently under testing process. This is version 1.0.x. 
+
+**Soon available for the comunity.**
 
 ***
-To install:
+#### **To install:**
 
 $ conda create -n formosa_env python=3.7
 
