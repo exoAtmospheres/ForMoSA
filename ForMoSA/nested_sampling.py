@@ -270,7 +270,7 @@ def launch_nested_sampling(global_params):
 
 
 if __name__ == '__main__':
-    from master_main_utilities import GlobFile
+    from main_utilities import GlobFile
 
     # USER configuration path
     print()
