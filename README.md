@@ -26,3 +26,13 @@ $ python
 $ import ForMoSA.main
 
 This will change in future updates together with the plotting modules.
+
+
+***
+#### **To have a preliminary look into the results:**
+
+- Copy the example.ipynb file
+- Edit your path to outcome files and to save the results
+- Run the cells
+
+All plotting modules are flexible. You can access the axes and the plot class. 
