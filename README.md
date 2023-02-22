@@ -38,3 +38,14 @@ This will change in future updates together with the plotting modules.
 - Run the cells
 
 All plotting modules are flexible. You can access the axes and the plot class. 
+
+
+***
+***
+
+Why do we write **ForMoSA** like this? 
+
+Short for **For**ward **Mo**deling tool for **S**pectral **A**nalysis
+
+***
+***
