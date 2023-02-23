@@ -9,7 +9,16 @@ from ForMoSA.nested_prior_function import uniform_prior, gaussian_prior
 
 
 def loglike(theta, theta_index, global_params, for_plot='no'):
+    """
+    
 
+    Args:
+        
+    Returns:
+        
+
+    Author: Simon Petrus
+    """
     # Recovery of the spectroscopy and photometry data
     spectrum_obs = np.load(global_params.result_path + '/spectrum_obs.npz', allow_pickle=True)
     wav_obs_merge = spectrum_obs['obs_merge'][0]
@@ -136,7 +145,16 @@ def loglike(theta, theta_index, global_params, for_plot='no'):
 
 
 def prior_transform(theta, theta_index, global_params):
+    """
+    
 
+    Args:
+        
+    Returns:
+        
+
+    Author: Simon Petrus
+    """
     prior = []
     if global_params.par1 != 'NA':
         prior_law = global_params.par1[0]
@@ -216,7 +234,16 @@ def prior_transform(theta, theta_index, global_params):
 
 
 def launch_nested_sampling(global_params):
+    """
+    
 
+    Args:
+        
+    Returns:
+        
+
+    Author: Simon Petrus
+    """
     ds = xr.open_dataset(global_params.model_path, decode_cf=False, engine='netcdf4')
 
     # Count the number of free parameters and identify the parameter position in theta

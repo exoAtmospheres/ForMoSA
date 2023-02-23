@@ -22,7 +22,7 @@ def yesno(text):
 class GlobFile:
     '''Import config variables and make them GLOBAL FORMOSA VARIABLES
     
-    Author: P. Palma-Bifani'''
+    Author: Paulina Palma-Bifani'''
 
     def __init__(self, config_file_path):
         # Generate the confog object
