@@ -1,8 +1,8 @@
 '''
-ForMoSA v6 run script
+ForMoSA run script
 
-Pre_layer to open the config file and extract all the needed information.
-Easy to understand and simple access for the new uses. THIS IS THE GOAL
+Here we open the config file and extract all the needed information.
+Easy to understand and simple access for the new users.
 
 @authors: S. Petrus & P. Palma-Bifani 
 '''
@@ -13,10 +13,10 @@ import sys
 # Import ForMoSA
 #base_path = '/Users/ppalmabifani/Desktop/exoAtm/c0_ForMoSA/ForMoSA/'     # Give the path to ForMoSA to be able to import it. No need when this will be a pip package
 #sys.path.insert(1, base_path)
-from ForMoSA.main_utilities import yesno
-from ForMoSA.main_utilities import GlobFile
-from ForMoSA.adapt_obs_mod import launch_adapt
-from ForMoSA.nested_sampling import launch_nested_sampling
+from main_utilities import yesno
+from main_utilities import GlobFile
+from adapt.adapt_obs_mod import launch_adapt
+from nested_sampling.nested_sampling import launch_nested_sampling
 
 # ----------------------------------------------------------------------------------------------------------------------
 ## USER configuration path
@@ -33,6 +33,7 @@ print()
 # ----------------------------------------------------------------------------------------------------------------------
 ## CONFIG_FILE reading and defining global parameters
 global_params = GlobFile(config_file_path)                          # To access any param.: global_params.parameter_name
+
 # ----------------------------------------------------------------------------------------------------------------------
 ## Run ForMoSA
 print('- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -')
@@ -48,7 +49,6 @@ if y_n_par == 'y':
     launch_adapt(global_params, justobs='no')
 else:
     launch_adapt(global_params, justobs='yes')
-
 
 print()
 print('- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -')
