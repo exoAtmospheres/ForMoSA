@@ -234,43 +234,43 @@ class PlottingForMoSA():
         n=0
         for i in range(col):
             for j in range(2):
-                axs[i, j].plot(self.posterior_to_plot[:,i], color='k', alpha=0.8)
+                axs[i, j].plot(self.posterior_to_plot[:,i], color=self.color_out, alpha=0.8)
                 axs[i, j].set_ylabel(self.posteriors_names[i])
                 n+=1
         
         return fig, axs
 
 
-    def plot_radar(self,):
+    def plot_radar(self,ranges,label='',quantiles=[0.16, 0.5, 0.84],chiffres=[0,2,2,2]):
         '''
         To check overall the distribution of the parameters 
-        '''
-        quantiles=[0.16, 0.5, 0.84]
-        cifrassignificativas=[0,2,2,2]
-        ranges = [(1200,2000),(2.5,4.7),(0,10),(-50,200)]
-        angles = np.linspace(0,360,len(names_params))
 
+        Inputs:
+        ranges
+        '''
+
+        self._get_posteriors()
 
         fig1 = plt.figure(figsize=(6, 6))
-        radar = ComplexRadar(fig1, names_params, ranges)
+        radar = ComplexRadar(fig1, self.posteriors_names, ranges)
 
         list_posteriors=[]
         list_uncert_down=[]
         list_uncert_up=[]
-        for l in range(len(samples[1,:])):
-            q16, q50, q84 = corner.quantile(samples[:,l], quantiles)
-            latex_value_1 = round(q50, cifrassignificativas[l])
+        for l in range(len(self.posterior_to_plot[1,:])):
+            q16, q50, q84 = corner.quantile(self.posterior_to_plot[:,l], quantiles)
+            latex_value_1 = round(q50, chiffres[l])
 
             list_posteriors.append(latex_value_1)
             list_uncert_down.append(q16)
             list_uncert_up.append(q84)
 
-        radar.plot(list_posteriors, 'o-', color=color_outputs, label='BT-Settl')
-        radar.fill_between(list_uncert_down,list_uncert_up, color=color_outputs, alpha=0.2)
+        radar.plot(list_posteriors, 'o-', color=self.color_out, label=label)
+        radar.fill_between(list_uncert_down,list_uncert_up, color=self.color_out, alpha=0.2)
 
         radar.ax.legend(loc='center', bbox_to_anchor=(0.5, -0.20),frameon=False, ncol=2)
         
-        return 
+        return fig1, radar.ax
 
 
     def _get_spectra(self,):
