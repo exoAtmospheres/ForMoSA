@@ -131,7 +131,7 @@ class PlottingForMoSA():
         tot_list_param_title = []
         theta_index = []
         if self.global_params.par1 != 'NA':
-            tot_list_param_title.append(attrs['title'][0] + ' ' + attrs['title'][0])
+            tot_list_param_title.append(attrs['title'][0] + ' ' + attrs['unit'][0])
             theta_index.append('par1')
         if self.global_params.par2 != 'NA':
             tot_list_param_title.append(attrs['title'][1] + ' ' + attrs['unit'][1])
@@ -164,19 +164,19 @@ class PlottingForMoSA():
         if self.global_params.ld != 'NA' and self.global_params.ld[0] != 'constant':
             tot_list_param_title.append(extra_parameters[5][1] + ' ' + extra_parameters[5][2])
             theta_index.append('ld')
-        theta_index = np.asarray(theta_index)
+        self.theta_index = np.asarray(theta_index)
 
         posterior_to_plot = []
-        for res, result in enumerate(samples):
+        for res, results in enumerate(samples):
             if self.global_params.r != 'NA':
                 if self.global_params.r[0] == "constant":
                     r_picked = float(self.global_params.r[1])
                 else:
-                    ind_theta_r = np.where(theta_index == 'r')
-                    r_picked = result[ind_theta_r[0]]
-                lum = np.log10(4 * np.pi * (r_picked * 69911000.) ** 2 * result[0] ** 4 * 5.670e-8 / 3.83e26)
-                result = np.concatenate((result, np.asarray([lum])))
-            posterior_to_plot.append(result)
+                    ind_theta_r = np.where(self.theta_index == 'r')
+                    r_picked = results[ind_theta_r[0]]
+                lum = np.log10(4 * np.pi * (r_picked * 69911000.) ** 2 * results[0] ** 4 * 5.670e-8 / 3.83e26)
+                results = np.concatenate((results, np.asarray(lum)))
+            posterior_to_plot.append(results)
         if self.global_params.r != 'NA':
             tot_list_param_title.append(r'log(L/L$\mathrm{_{\odot}}$)')
 
@@ -186,7 +186,7 @@ class PlottingForMoSA():
 
 
 
-    def plot_corner(self, levels_sig=[0.997, 0.95, 0.68], bins=100, quantiles=(0.16, 0.5, 0.84)):
+    def plot_corner(self, levels_sig=[0.997, 0.95, 0.68], bins=100, quantiles=(0.16, 0.5, 0.84), burn_in=0):
         '''
         See the corner plots
         '''
@@ -194,8 +194,8 @@ class PlottingForMoSA():
 
         self._get_posteriors()
 
-        fig = corner.corner(self.posterior_to_plot,
-                        weights=self.weights,
+        fig = corner.corner(self.posterior_to_plot[burn_in:],
+                        weights=self.weights[burn_in:],
                         labels=self.posteriors_names,
                         range=[0.999999 for p in self.posteriors_names],
                         levels=levels_sig,
@@ -234,9 +234,12 @@ class PlottingForMoSA():
         n=0
         for i in range(col):
             for j in range(2):
-                axs[i, j].plot(self.posterior_to_plot[:,i], color=self.color_out, alpha=0.8)
-                axs[i, j].set_ylabel(self.posteriors_names[i])
-                n+=1
+                axs[i, j].plot(self.posterior_to_plot[:,n], color=self.color_out, alpha=0.8)
+                axs[i, j].set_ylabel(self.posteriors_names[n])
+                if n == len(self.posteriors_names)-1:
+                    break
+                else:
+                    n+=1
         
         return fig, axs
 
@@ -248,22 +251,22 @@ class PlottingForMoSA():
         Inputs:
         ranges
         '''
+        print('ForMoSA - Radar plot')
 
         self._get_posteriors()
 
-        fig1 = plt.figure(figsize=(6, 6))
-        radar = ComplexRadar(fig1, self.posteriors_names, ranges)
-
-        list_posteriors=[]
-        list_uncert_down=[]
-        list_uncert_up=[]
+        list_posteriors = []
+        list_uncert_down = []
+        list_uncert_up = []
         for l in range(len(self.posterior_to_plot[1,:])):
             q16, q50, q84 = corner.quantile(self.posterior_to_plot[:,l], quantiles)
-            latex_value_1 = round(q50, chiffres[l])
-
-            list_posteriors.append(latex_value_1)
+            
+            list_posteriors.append(q50)
             list_uncert_down.append(q16)
             list_uncert_up.append(q84)
+
+        fig1 = plt.figure(figsize=(6, 6))
+        radar = ComplexRadar(fig1, self.posteriors_names, ranges)
 
         radar.plot(list_posteriors, 'o-', color=self.color_out, label=label)
         radar.fill_between(list_uncert_down,list_uncert_up, color=self.color_out, alpha=0.2)
@@ -273,16 +276,16 @@ class PlottingForMoSA():
         return fig1, radar.ax
 
 
-    def _get_spectra(self,):
+    def _get_spectra(self,theta):
         '''
         To get the data and best model asociated 
         Use numba: https://numba.pydata.org/
 
-        (Adapted from Simon Petrus plotting functions)
+        (Adapted from Simon Petrus)
         '''
         #def get_spec(theta, theta_index, global_params, for_plot='no'):
         # Recovery of the spectroscopy and photometry data
-        spectrum_obs = np.load(global_params.result_path + '/spectrum_obs.npz', allow_pickle=True)
+        spectrum_obs = np.load(self.global_params.result_path + '/spectrum_obs.npz', allow_pickle=True)
         wav_obs_merge = spectrum_obs['obs_merge'][0]
         flx_obs_merge = spectrum_obs['obs_merge'][1]
         err_obs_merge = spectrum_obs['obs_merge'][2]
@@ -296,8 +299,8 @@ class PlottingForMoSA():
             err_obs_phot = np.asarray([])
 
         # Recovery of the spectroscopy and photometry model
-        path_grid_m = global_params.adapt_store_path + '/adapted_grid_merge_' + global_params.grid_name + '_nonan.nc'
-        path_grid_p = global_params.adapt_store_path + 'adapted_grid_phot_' + global_params.grid_name + '_nonan.nc'
+        path_grid_m = self.global_params.adapt_store_path + '/adapted_grid_merge_' + self.global_params.grid_name + '_nonan.nc'
+        path_grid_p = self.global_params.adapt_store_path + '/adapted_grid_phot_' + self.global_params.grid_name + '_nonan.nc'
         ds = xr.open_dataset(path_grid_m, decode_cf=False, engine='netcdf4')
         grid_merge = ds['grid']
         ds.close()
@@ -305,7 +308,7 @@ class PlottingForMoSA():
         grid_phot = ds['grid']
         ds.close()
 
-        if global_params.par3 == 'NA':
+        if self.global_params.par3 == 'NA':
             if len(grid_merge['wavelength']) != 0:
                 flx_mod_merge = grid_merge.interp(par1=theta[0], par2=theta[1],
                                                           method="linear", kwargs={"fill_value": "extrapolate"})
@@ -316,7 +319,7 @@ class PlottingForMoSA():
                                                         method="linear", kwargs={"fill_value": "extrapolate"})
             else:
                 flx_mod_phot = []
-        elif global_params.par4 == 'NA':
+        elif self.global_params.par4 == 'NA':
             if len(grid_merge['wavelength']) != 0:
                 flx_mod_merge = grid_merge.interp(par1=theta[0], par2=theta[1], par3=theta[2],
                                                           method="linear", kwargs={"fill_value": "extrapolate"})
@@ -327,7 +330,7 @@ class PlottingForMoSA():
                                                         method="linear", kwargs={"fill_value": "extrapolate"})
             else:
                 flx_mod_phot = []
-        elif global_params.par5 == 'NA':
+        elif self.global_params.par5 == 'NA':
             if len(grid_merge['wavelength']) != 0:
                 flx_mod_merge = grid_merge.interp(par1=theta[0], par2=theta[1], par3=theta[2], par4=theta[3],
                                                           method="linear", kwargs={"fill_value": "extrapolate"})
@@ -353,7 +356,7 @@ class PlottingForMoSA():
                 flx_mod_phot = []
 
         # Modification of the synthetic spectrum with the extra-grid parameters
-        modif_spec_chi2 = modif_spec(global_params, theta, theta_index,
+        modif_spec_chi2 = modif_spec(self.global_params, theta, self.theta_index,
                                      wav_obs_merge, flx_obs_merge, err_obs_merge, flx_mod_merge,
                                      wav_obs_phot, flx_obs_phot, err_obs_phot, flx_mod_phot)
 
@@ -372,91 +375,47 @@ class PlottingForMoSA():
 
         Author: Simon Petrus
         '''
-        figure_fit = plt.figure(figsize=(10, 5))
+        fig = plt.figure(figsize=(10, 5))
 
-        inter_ext_g = 0.1
-        inter_ext_d = 0.1
-        inter_ext_h = 0.05
-        inter_ext_b = 0.15
+        fig.set_xlabel(r'Wavelength (um)', labelpad=5)
+        fig.set_ylabel(r'Flux (W.m-2.um-1)', labelpad=5)
 
-        b_fits = inter_ext_b
-        g_fits = inter_ext_g
-        l_fits = 1-inter_ext_g-inter_ext_d
-        h_fits = 1-inter_ext_b-inter_ext_h
-        fits = figure_fit.add_axes([g_fits, b_fits, l_fits, h_fits])
-        fits.set_xlabel(r'Wavelength (um)', labelpad=5)
-        fits.set_ylabel(r'Flux (W.m-2.um-1)', labelpad=5)
+        ds = xr.open_dataset(self.global_params.model_path, decode_cf=False, engine='netcdf4')
 
-        ds = xr.open_dataset(global_params.model_path, decode_cf=False, engine='netcdf4')
-
-        with open(global_params.result_path + '/result_' + global_params.ns_algo + '.pic', 'rb') as ns_result:
+        with open(self.global_params.result_path + '/result_' + self.global_params.ns_algo + '.pic', 'rb') as ns_result:
             result = pickle.load(ns_result)
         samples = result.samples
         logl = result.logl
         ind = np.where(logl == max(logl))
         theta_best = samples[ind][0]
 
-        if global_params.par1 != 'NA':
-            theta_index = ['par1']
-        if global_params.par2 != 'NA':
-            theta_index.append('par2')
-        if global_params.par3 != 'NA':
-            theta_index.append('par3')
-        if global_params.par4 != 'NA':
-            theta_index.append('par4')
-        if global_params.par5 != 'NA':
-            theta_index.append('par5')
-        n_free_parameters = len(ds.attrs['key'])
-        if global_params.r != 'NA' and global_params.r[0] != 'constant':
-            n_free_parameters += 1
-            theta_index.append('r')
-        if global_params.d != 'NA' and global_params.d[0] != 'constant':
-            n_free_parameters += 1
-            theta_index.append('d')
-        if global_params.rv != 'NA' and global_params.rv[0] != 'constant':
-            n_free_parameters += 1
-            theta_index.append('rv')
-        if global_params.av != 'NA' and global_params.av[0] != 'constant':
-            n_free_parameters += 1
-            theta_index.append('av')
-        if global_params.vsini != 'NA' and global_params.vsini[0] != 'constant':
-            n_free_parameters += 1
-            theta_index.append('vsini')
-        if global_params.ld != 'NA' and global_params.ld[0] != 'constant':
-            n_free_parameters += 1
-            theta_index.append('ld')
-        theta_index = np.asarray(theta_index)
-        spectra = get_spec(theta_best, theta_index, global_params, for_plot='yes')
+        spectra = self._get_spectra(theta, for_plot='yes')
 
-        if global_params.model_name == 'SONORA':
+        if self.global_params.model_name == 'SONORA':
             col_pair = 'peru'
-        if global_params.model_name == 'ATMO':
+        if self.global_params.model_name == 'ATMO':
             col_pair = 'darkgreen'
-        if global_params.model_name == 'BTSETTL':
+        if self.global_params.model_name == 'BTSETTL':
             col_pair = 'firebrick'
-        if global_params.model_name == 'EXOREM':
+        if self.global_params.model_name == 'EXOREM':
             col_pair = 'mediumblue'
-        if global_params.model_name == 'DRIFTPHOENIX':
+        if self.global_params.model_name == 'DRIFTPHOENIX':
             col_pair = 'darkviolet'
-        fits.plot(spectra[0], spectra[1], c='k')
-        fits.scatter(spectra[4], spectra[5], c='k')
-        fits.plot(spectra[0], spectra[3], c=col_pair)
-        fits.scatter(spectra[4], spectra[7], c=col_pair)
+        fig.plot(spectra[0], spectra[1], c='k')
+        fig.scatter(spectra[4], spectra[5], c='k')
+        fig.plot(spectra[0], spectra[3], c=col_pair)
+        fig.scatter(spectra[4], spectra[7], c=col_pair)
 
-        for ns_u_ind, ns_u in enumerate(global_params.wav_fit.split('/')):
+        for ns_u_ind, ns_u in enumerate(self.global_params.wav_fit.split('/')):
             min_ns_u = float(ns_u.split(',')[0])
             max_ns_u = float(ns_u.split(',')[1])
-            fits.fill_between([min_ns_u, max_ns_u],
+            fig.fill_between([min_ns_u, max_ns_u],
                               [min(min(spectra[1]), min(spectra[3]))],
                               [max(max(spectra[1]), max(spectra[3]))],
                               color='y',
-                              alpha=0.2
-                              )
+                              alpha=0.2)
 
-        # plt.show()
-        #if save != 'no':
-        #   figure_fit.savefig(global_params.result_path + '/result_' + global_params.ns_algo + '_fit.pdf',
-        #                       bbox_inches='tight', dpi=300)
+        return fig
 
 
     def plot_PT(self,):
