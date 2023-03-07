@@ -34,9 +34,8 @@ This will change in future updates together with the plotting modules.
 ***
 #### **To have a preliminary look into the results:**
 
-- Copy the DEMO/outputs/output_plots.ipynb file
-- Edit your path and input parameters acording to your case
-- Run the cells
+Copy the DEMO/outputs/output_plots.ipynb file.
+Edit your path and input parameters acording to your case and run the cells.
 
 All plotting modules are flexible. You can access the axes and the plot class. 
 
