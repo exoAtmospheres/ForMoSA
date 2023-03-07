@@ -1,6 +1,6 @@
 
 from __future__ import print_function, division
-import sys
+import sys, os, yaml
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib
@@ -379,9 +379,12 @@ class PlottingForMoSA():
 
         fig = plt.figure(figsize=figsize)
         fig.tight_layout()
-        size = (7,1)
-        ax = plt.subplot2grid(size, (0, 0),rowspan=5 ,colspan=5)
-        axr= plt.subplot2grid(size, (5, 0),rowspan=2 ,colspan=5)
+        size = (7,11)
+        ax = plt.subplot2grid(size, (0, 0),rowspan=5 ,colspan=10)
+        axr= plt.subplot2grid(size, (5, 0),rowspan=2 ,colspan=10)
+        axr2= plt.subplot2grid(size, (5, 10),rowspan=2 ,colspan=1)
+
+
 
         with open(self.global_params.result_path + '/result_' + self.global_params.ns_algo + '.pic', 'rb') as ns_result:
             result = pickle.load(ns_result)
@@ -400,7 +403,9 @@ class PlottingForMoSA():
         residuals = spectra[3] - spectra[1]
         sigma_res = np.std(residuals)
         axr.plot(spectra[0], residuals/sigma_res, c=self.color_out, alpha=0.8, label='model-data')
-
+        axr.axhline(y=0, color='k', alpha=0.5, linestyle='--')
+        axr2.hist(residuals/sigma_res, bins=100 ,color=self.color_out, alpha=0.5, density=True, orientation='horizontal', label='density')
+        axr2.axis('off')
 
         axr.set_xlabel(r'Wavelength (µm)')
         ax.set_ylabel(r'Flux (W m-2 µm-1)')
@@ -408,19 +413,116 @@ class PlottingForMoSA():
         
         ax.legend(frameon=False)
         axr.legend(frameon=False)
+        axr2.legend(frameon=False,handlelength=0)
 
         # define the data as global
         self.spectra = spectra
         self.residuals = residuals
 
-        return fig
+        return fig, ax, axr, axr2
 
 
-    def plot_PT(self,):
+    def plot_PT(self,figsize=(10,7)):
         '''
         Plot the Pressure-Temperature profiles 
+        Calculates the most probable temperature profile
+
+        Return: 
+
+        Adapted from Nathan Zimniak
+        Author: Paulina Palma-Bifani
         '''
-        print('ForMoSA - PT profile')
+        print('ForMoSA - Pressure-Temperature profile')
+
+        model = 'ExoREM'
+        path_temp_profile = '/Users/ppalmabifani/Desktop/exoAtm/c0_ForMoSA/ForMoSA/DEMO/outputs/pt_profiles/temperature_grid_xarray_ExoREM.nc'
+
+        with open(self.global_params.result_path + '/result_' + self.global_params.ns_algo + '.pic', 'rb') as f1:
+            result = pickle.load(f1)
+            samples = result.samples
+
+        # put nans where data is not realistic
+        out=[]
+        for i in range(0, len(samples)):
+            if samples[i][0] < 400 or samples[i][0] > 2000:
+                out.append(i)
+            elif samples[i][1] < 3.00 or samples[i][1] > 5.00:
+                out.append(i)
+            elif 10**samples[i][2] < 0.32 or 10**samples[i][2] > 10.00:
+                out.append(i)
+            elif samples[i][3] < 0.10 or samples[i][3] > 0.80:
+                out.append(i)
+        for i in out:
+            samples[i] = np.nan
+        samples = samples[~np.isnan(samples).any(axis=1)]
+        #Crée une liste pour chaque paramètre
+        Teffs, loggs, MHs, COs = [], [], [], []
+        if model == 'ATMO':
+            gammas = []
+        for i in range(0, len(samples)):
+            Teffs.append(samples[i][0])
+            loggs.append(samples[i][1])
+            if model == 'ExoREM':
+                MHs.append(10**(samples[i][2]))
+                COs.append(samples[i][3])
+            if model == 'ATMO':
+                MHs.append(samples[i][2])
+                COs.append(samples[i][4])
+                gammas.append(samples[i][3])
+
+        #Charge la grille de profils de température
+        temperature_grid_xa = xr.open_dataarray(path_temp_profile)
+        #Crée les profils de température associés aux points de la grille
+        P = temperature_grid_xa.coords['P']
+        temperature_profiles = np.full((len(samples), len(P)), np.nan)
+        for i in range(0, len(samples)):
+            if model == 'ExoREM':
+                temperature_profiles[i][:] = temperature_grid_xa.interp(Teff=Teffs[i], logg=loggs[i], MH=MHs[i], CO=COs[i])#, kwargs={'fill_value':'extrapolate'})
+            elif model == 'ATMO':
+                temperature_profiles[i][:] = temperature_grid_xa.interp(Teff=Teffs[i], logg=loggs[i], MH=MHs[i], CO=COs[i], gamma=gammas[i])#, kwargs={'fill_value':'extrapolate'})
+        if model == 'ATMO':
+            #Calcule le 2eme facteur de robustesse (pour ATMO)
+            nbNans = [0]*len(P)
+            for i in range(0, len(temperature_profiles[0,:])):
+                for j in range(0, len(temperature_profiles[:,0])):
+                    if str(temperature_profiles[j,i]) == "nan":
+                        nbNans[i] = nbNans[i]+1
+            FdR2 = (len(samples)-np.array(nbNans))/len(samples)
+            FdR1 = temperature_grid_xa.attrs['Facteur de robustesse 1']
+            FdR = FdR1*FdR2
+            #Extrapole les températures
+            for i in range(0, len(samples)):
+                newT = xr.DataArray(list(temperature_profiles[i][:]), [('pressure', list(np.array(P)))])
+                newT = newT.interpolate_na(dim = 'pressure', method='linear', fill_value='extrapolate')
+                temperature_profiles[i][:] = list(newT)
+        #Calcule le profil le plus probable
+        Tfit = []
+        for i in range(0, len(P)):
+            Tfit.append(np.percentile(temperature_profiles[:,i], 50))
+        #Calcule les percentiles 68 et 96 du profil le plus probable
+        Tinf68, Tsup68, Tinf95, Tsup95 = [], [], [], []
+        for i in range(0, len(P)):
+            Tinf68.append(np.percentile(temperature_profiles[:,i], 16))
+            Tsup68.append(np.percentile(temperature_profiles[:,i], 84))
+            Tinf95.append(np.percentile(temperature_profiles[:,i], 2))
+            Tsup95.append(np.percentile(temperature_profiles[:,i], 98))
+        #Plot le profil le plus probable et les percentiles associés
+
+        fig = plt.figure(figsize=figsize)
+        ax = plt.axes()
+        ax.fill_betweenx(P, Tinf95, Tsup95, color=self.color_out, alpha=0.2, label='2 $\sigma$')
+        ax.fill_betweenx(P, Tinf68, Tsup68, color=self.color_out, alpha=0.3, label='1 $\sigma$')
+        ax.plot(Tfit, P, c=self.color_out, label='PT profile')
+        ax.set_yscale('log')
+        ax.invert_yaxis()
+        ax.set_xlim(left=0)
+        ax.set_ylim([max(P), min(P)])
+        ax.minorticks_on()
+        ax.set_xlabel('Temperature (K)')
+        ax.set_ylabel('Pressure (Pa)')
+        ax.legend(frameon=False)
+
+        return fig
        
 
     
