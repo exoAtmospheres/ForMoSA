@@ -404,7 +404,8 @@ class PlottingForMoSA():
         ax.set_ylabel(r'Flux (W m-2 µm-1)')
         axr.set_ylabel(r'Residuals ($\sigma$)')
         
-        plt.legend(frameon=False)
+        ax.legend(frameon=False)
+        axr.legend(frameon=False)
 
         # define the data as global
         self.spectra = spectra
