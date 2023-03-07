@@ -364,7 +364,7 @@ class PlottingForMoSA():
 
 
     
-    def plot_fit(self,):
+    def plot_fit(self, figsize=(10, 5), uncert='yes'):
         '''
         Plot the best fit comparing with the data.
 
@@ -373,14 +373,13 @@ class PlottingForMoSA():
             save: If ='yes' save the figure in a pdf format
         Returns:
 
-        Author: Simon Petrus
+        Author: Paulina Palma-Bifani
         '''
-        fig = plt.figure(figsize=(10, 5))
-
-        fig.set_xlabel(r'Wavelength (um)', labelpad=5)
-        fig.set_ylabel(r'Flux (W.m-2.um-1)', labelpad=5)
-
-        ds = xr.open_dataset(self.global_params.model_path, decode_cf=False, engine='netcdf4')
+        fig = plt.figure(figsize=figsize)
+        fig.tight_layout()
+        size = (7,1)
+        ax = plt.subplot2grid(size, (0, 0),rowspan=5 ,colspan=5)
+        axr= plt.subplot2grid(size, (5, 0),rowspan=2 ,colspan=5)
 
         with open(self.global_params.result_path + '/result_' + self.global_params.ns_algo + '.pic', 'rb') as ns_result:
             result = pickle.load(ns_result)
@@ -389,31 +388,27 @@ class PlottingForMoSA():
         ind = np.where(logl == max(logl))
         theta_best = samples[ind][0]
 
-        spectra = self._get_spectra(theta, for_plot='yes')
+        spectra = self._get_spectra(theta_best)
 
-        if self.global_params.model_name == 'SONORA':
-            col_pair = 'peru'
-        if self.global_params.model_name == 'ATMO':
-            col_pair = 'darkgreen'
-        if self.global_params.model_name == 'BTSETTL':
-            col_pair = 'firebrick'
-        if self.global_params.model_name == 'EXOREM':
-            col_pair = 'mediumblue'
-        if self.global_params.model_name == 'DRIFTPHOENIX':
-            col_pair = 'darkviolet'
-        fig.plot(spectra[0], spectra[1], c='k')
-        fig.scatter(spectra[4], spectra[5], c='k')
-        fig.plot(spectra[0], spectra[3], c=col_pair)
-        fig.scatter(spectra[4], spectra[7], c=col_pair)
+        if uncert=='yes':
+            ax.errorbar(spectra[0], spectra[1], yerr=spectra[2], c='k', alpha=0.2)
+        ax.plot(spectra[0], spectra[1], c='k', label = 'data')
+        ax.plot(spectra[0], spectra[3], c=self.color_out, alpha=0.8, label='model')
 
-        for ns_u_ind, ns_u in enumerate(self.global_params.wav_fit.split('/')):
-            min_ns_u = float(ns_u.split(',')[0])
-            max_ns_u = float(ns_u.split(',')[1])
-            fig.fill_between([min_ns_u, max_ns_u],
-                              [min(min(spectra[1]), min(spectra[3]))],
-                              [max(max(spectra[1]), max(spectra[3]))],
-                              color='y',
-                              alpha=0.2)
+        residuals = spectra[3] - spectra[1]
+        sigma_res = np.std(residuals)
+        axr.plot(spectra[0], residuals/sigma_res, c=self.color_out, alpha=0.8, label='model-data')
+
+
+        axr.set_xlabel(r'Wavelength (µm)')
+        ax.set_ylabel(r'Flux (W m-2 µm-1)')
+        axr.set_ylabel(r'Residuals ($\sigma$)')
+        
+        plt.legend(frameon=False)
+
+        # define the data as global
+        self.spectra = spectra
+        self.residuals = residuals
 
         return fig
 
