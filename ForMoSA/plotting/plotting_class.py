@@ -375,6 +375,8 @@ class PlottingForMoSA():
 
         Author: Paulina Palma-Bifani
         '''
+        print('ForMoSA - Best fit and residuals plot')
+
         fig = plt.figure(figsize=figsize)
         fig.tight_layout()
         size = (7,1)
