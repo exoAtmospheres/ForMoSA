@@ -21,7 +21,8 @@ $ conda install xarray dask netCDF4 bottleneck
 
 
 ***
-#### **To lunch it (at least for now) you can do:**
+#### (NOT if repository is cloned! -> See DEMO for this case) 
+#### **To lunch it you can do:**
 
 $ python
 
@@ -33,9 +34,8 @@ This will change in future updates together with the plotting modules.
 ***
 #### **To have a preliminary look into the results:**
 
-- Copy the example.ipynb file
-- Edit your path to outcome files and to save the results
-- Run the cells
+Copy the DEMO/outputs/output_plots.ipynb file.
+Edit your path and input parameters acording to your case and run the cells.
 
 All plotting modules are flexible. You can access the axes and the plot class. 
 
@@ -47,5 +47,4 @@ Why do we write **ForMoSA** like this?
 
 Short for **For**ward **Mo**deling tool for **S**pectral **A**nalysis
 
-***
-***
+
