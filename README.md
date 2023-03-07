@@ -21,7 +21,7 @@ $ conda install xarray dask netCDF4 bottleneck
 
 
 ***
-####(NOT if repository is cloned!) 
+#### (NOT if repository is cloned! -> See DEMO for this case) 
 #### **To lunch it you can do:**
 
 $ python
