@@ -422,20 +422,16 @@ class PlottingForMoSA():
         return fig, ax, axr, axr2
 
 
-    def plot_PT(self,figsize=(10,7)):
+    def plot_PT(self,path_temp_profile, figsize=(6,5), model = 'ExoREM'):
         '''
         Plot the Pressure-Temperature profiles 
         Calculates the most probable temperature profile
 
-        Return: 
+        Return: fig, ax
 
-        Adapted from Nathan Zimniak
-        Author: Paulina Palma-Bifani
+        Author: Nathan Zimniak and Paulina Palma-Bifani
         '''
         print('ForMoSA - Pressure-Temperature profile')
-
-        model = 'ExoREM'
-        path_temp_profile = '/Users/ppalmabifani/Desktop/exoAtm/c0_ForMoSA/ForMoSA/DEMO/outputs/pt_profiles/temperature_grid_xarray_ExoREM.nc'
 
         with open(self.global_params.result_path + '/result_' + self.global_params.ns_algo + '.pic', 'rb') as f1:
             result = pickle.load(f1)
@@ -510,9 +506,9 @@ class PlottingForMoSA():
 
         fig = plt.figure(figsize=figsize)
         ax = plt.axes()
-        ax.fill_betweenx(P, Tinf95, Tsup95, color=self.color_out, alpha=0.2, label='2 $\sigma$')
-        ax.fill_betweenx(P, Tinf68, Tsup68, color=self.color_out, alpha=0.3, label='1 $\sigma$')
-        ax.plot(Tfit, P, c=self.color_out, label='PT profile')
+        ax.fill_betweenx(P, Tinf95, Tsup95, color=self.color_out, alpha=0.1, label='2 $\sigma$')
+        ax.fill_betweenx(P, Tinf68, Tsup68, color=self.color_out, alpha=0.2, label='1 $\sigma$')
+        ax.plot(Tfit, P, c=self.color_out, label='Best fit')
         ax.set_yscale('log')
         ax.invert_yaxis()
         ax.set_xlim(left=0)
@@ -527,10 +523,148 @@ class PlottingForMoSA():
 
     
 
+    def plot_Clouds(self, cloud_prop, path_cloud_profile, figsize=(6,5)):
+        ''' 
+        Cloud profiles calculations
 
-    
-
+        Inputs: 
+        - cloud_prop (str) : choose the cloud 
+               'eddy_diffusion_coefficient',
+               'vmr_CH4',
+               'vmr_CO',
+               'vmr_CO2',
+               'vmr_FeH',
+               'vmr_H2O',
+               'vmr_H2S',
+               'vmr_HCN',
+               'vmr_K',
+               'vmr_Na',
+               'vmr_NH3',
+               'vmr_PH3',
+               'vmr_TiO',
+               'vmr_VO',
+               'cloud_opacity_Fe',
+               'cloud_opacity_Mg2SiO4',
+               'cloud_particle_radius_Fe',
+               'cloud_particle_radius_Mg2SiO4',
+               'cloud_vmr_Fe',
+               'cloud_vmr_Mg2SiO4'
         
+        Return: fig, ax
+
+        Author: Nathan Zimniak and Paulina Palma-Bifani
+        '''
+        print('ForMoSA - Cloud profile')
+        
+        with open(self.global_params.result_path + '/result_' + self.global_params.ns_algo + '.pic', 'rb') as f1:
+            result = pickle.load(f1)
+            samples = result.samples
+        
+        #Supprime les points hors de la grille
+        out=[]
+        for i in range(0, len(samples)):
+            if samples[i][0] < 400 or samples[i][0] > 2000:
+                out.append(i)
+            elif samples[i][1] < 3.00 or samples[i][1] > 5.00:
+                out.append(i)
+            elif 10**samples[i][2] < 0.32 or 10**samples[i][2] > 10.00:
+                out.append(i)
+            elif samples[i][3] < 0.10 or samples[i][3] > 0.80:
+                out.append(i)
+        for i in out:
+            samples[i] = np.nan
+        samples = samples[~np.isnan(samples).any(axis=1)]
+        #Crée une liste pour chaque paramètre
+        Teffs, loggs, MHs, COs = [], [], [], []
+        for i in range(0, len(samples)):
+            Teffs.append(samples[i][0])
+            loggs.append(samples[i][1])
+            MHs.append(10**(samples[i][2]))
+            COs.append(samples[i][3])
+        #Charge la grille de profils d'une propriété d'un nuage
+        cloud_props_grids_xa = xr.open_dataset(path_cloud_profile)
+        cloud_prop_grid_xa = cloud_props_grids_xa['P_' + cloud_prop]
+        #Crée les profils d'une propriété d'un nuage associés aux points de la grille
+        P = cloud_prop_grid_xa.coords['P']
+        cloud_prop_profiles = np.full((len(samples), len(P)), np.nan)
+        for i in range(0, len(samples)):
+            cloud_prop_profiles[i][:] = cloud_prop_grid_xa.interp(Teff=Teffs[i], logg=loggs[i], MH=MHs[i], CO=COs[i])#, kwargs={'fill_value':'extrapolate'})
+        #Calcule le profil le plus probable
+        propfit = []
+        for i in range(0, len(P)):
+            propfit.append(np.percentile(cloud_prop_profiles[:,i], 50))
+        #Calcule les percentiles 68 et 96 du profil le plus probable
+        propinf68, propsup68, propinf95, propsup95 = [], [], [], []
+        for i in range(0, len(P)):
+            propinf68.append(np.percentile(cloud_prop_profiles[:,i], 16))
+            propsup68.append(np.percentile(cloud_prop_profiles[:,i], 84))
+            propinf95.append(np.percentile(cloud_prop_profiles[:,i], 2))
+            propsup95.append(np.percentile(cloud_prop_profiles[:,i], 98))
+
+        #Plot le profil le plus probable et les percentiles associés
+        fig = plt.figure()
+        ax = plt.axes()
+
+        ax.fill_betweenx(P, propinf95, propsup95, color=self.color_out, alpha=0.1, label='2 $\sigma$')
+        ax.fill_betweenx(P, propinf68, propsup68, color=self.color_out, alpha=0.2, label='1 $\sigma$')
+        ax.plot(propfit, P, color=self.color_out, label='Best fit')
+
+        ax.set_yscale('log')
+        ax.invert_yaxis()
+        ax.set_xlim(left=0)
+        ax.set_ylim([max(P), min(P)])
+        ax.minorticks_on()
+        if cloud_prop == 'T':
+            ax.set_xlabel('Temperature (K)')
+        elif cloud_prop == 'eddy_diffusion_coefficient':
+            ax.set_xlabel('Eddy diffusion coefficient ($m^2.s^{-1}$)')
+        elif cloud_prop == 'vmr_CH4':
+            ax.set_xlabel('$CH_4$ volume mixing ratio')
+        elif cloud_prop == 'vmr_CO':
+            ax.set_xlabel('CO volume mixing ratio')
+        elif cloud_prop == 'vmr_CO2':
+            ax.set_xlabel('$CO_2$ volume mixing ratio')
+        elif cloud_prop == 'vmr_FeH':
+            ax.set_xlabel('FeH volume mixing ratio')
+        elif cloud_prop == 'vmr_H2O':
+            ax.set_xlabel('$H_2O$ volume mixing ratio')
+        elif cloud_prop == 'vmr_H2S':
+            ax.set_xlabel('$H_2S$ volume mixing ratio')
+        elif cloud_prop == 'vmr_HCN':
+            ax.set_xlabel('HCN volume mixing ratio')
+        elif cloud_prop == 'vmr_K':
+            ax.set_xlabel('K volume mixing ratio')
+        elif cloud_prop == 'vmr_Na':
+            ax.set_xlabel('Na volume mixing ratio')
+        elif cloud_prop == 'vmr_NH3':
+            ax.set_xlabel('$NH_3$ volume mixing ratio')
+        elif cloud_prop == 'vmr_PH3':
+            ax.set_xlabel('$PH_3$ volume mixing ratio')
+        elif cloud_prop == 'vmr_TiO':
+            ax.set_xlabel('TiO volume mixing ratio')
+        elif cloud_prop == 'vmr_VO':
+            ax.set_xlabel('VO volume mixing ratio')
+        elif cloud_prop == 'cloud_opacity_Fe':
+            ax.set_xlabel('Fe cloud opacity')
+        elif cloud_prop == 'cloud_opacity_Mg2SiO4':
+            ax.set_xlabel('$Mg_2SiO_4$ cloud opacity')
+        elif cloud_prop == 'cloud_particle_radius_Fe':
+            ax.set_xlabel('Fe cloud particle radius (m)')
+        elif cloud_prop == 'cloud_particle_radius_Mg2SiO4':
+            ax.set_xlabel('$Mg_2SiO_4$ cloud particle radius (m)')
+        elif cloud_prop == 'cloud_vmr_Fe':
+            ax.set_xlabel('Fe cloud volume mixing ratio')
+        elif cloud_prop == 'cloud_vmr_Mg2SiO4':
+            ax.set_xlabel('$Mg_2SiO_4$ cloud volume mixing ratio')
+        ax.set_ylabel('Pressure (Pa)')
+
+        ax.legend(frameon=False)
+
+        return fig, ax
+
+
+
+
 
 
 
