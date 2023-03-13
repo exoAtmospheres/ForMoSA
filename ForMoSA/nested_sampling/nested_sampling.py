@@ -289,9 +289,18 @@ def launch_nested_sampling(global_params):
         print('########     The code spent ' + str(tmpstot2) + ' sec to run   ########')
         print(result.summary())
         print('\n\n')
+    
+    if global_params.ns_algo == 'dynesty':
+        from dynesty import NestedSampler
+
+        # initialize our nested sampler
+        sampler = NestedSampler(loglike, ptform, ndim)
 
     with open(global_params.result_path + '/result_' + global_params.ns_algo + '.pic', 'wb') as f1:
         pickle.dump(result, f1)
+    
+    print(' ')
+    print('-> Voilà, on est prêt')
 
 # ----------------------------------------------------------------------------------------------------------------------
 

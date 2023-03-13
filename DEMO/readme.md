@@ -1,7 +1,28 @@
 ## DEMO tutorial
 
-Works when the github repository is cloned.
-Assuming you created a conda environment following the general instructions, you can lunch formosa from your terminal as:
+(Works when the github repository is cloned.)
+Here we assume you created a conda environment following the general instructions.
+
+***
+***
+
+# OPTION 1
+
+Copy the config (*.ini) file from the example and edit it as needed. 
+
+Adapt your observations file to the right format following the inputs/create_obs_fitsfile.py example.
+
+You can follow interactive_formosa.ipynb to perform a modeling and plot the outcomes. 
+
+
+***
+***
+
+# OPTION 2
+
+You can lunch formosa from your terminal as following. 
+
+You still need to clone the config (*.ini) file, adapt it to your case and save your data in the right format. 
 
 ***
 $ conda activate formosa_env
