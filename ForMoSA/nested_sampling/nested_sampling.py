@@ -25,16 +25,16 @@ def loglike(theta, theta_index, global_params, for_plot='no'):
     flx_obs_merge = spectrum_obs['obs_merge'][1]
     err_obs_merge = spectrum_obs['obs_merge'][2]
     if 'obs_pho' in spectrum_obs.keys():
-        wav_obs_phot = np.asarray(spectrum_obs['obs_pho'][0])
-        flx_obs_phot = np.asarray(spectrum_obs['obs_pho'][1])
-        err_obs_phot = np.asarray(spectrum_obs['obs_pho'][2])
+        wav_obs_phot = np.asarray(spectrum_obs['obs_pho'][0], dtype=float)
+        flx_obs_phot = np.asarray(spectrum_obs['obs_pho'][1], dtype=float)
+        err_obs_phot = np.asarray(spectrum_obs['obs_pho'][2], dtype=float)
     else:
-        wav_obs_phot = np.asarray([])
-        flx_obs_phot = np.asarray([])
-        err_obs_phot = np.asarray([])
+        wav_obs_phot = np.asarray([], dtype=float)
+        flx_obs_phot = np.asarray([], dtype=float)
+        err_obs_phot = np.asarray([], dtype=float)
 
     # Recovery of the spectroscopy and photometry model
-    path_grid_m = global_params.adapt_store_path + '/adapted_grid_merge_' + global_params.grid_name + '_nonan.nc'
+    path_grid_m = global_params.adapt_store_path + 'adapted_grid_merge_' + global_params.grid_name + '_nonan.nc'
     path_grid_p = global_params.adapt_store_path + 'adapted_grid_phot_' + global_params.grid_name + '_nonan.nc'
     ds = xr.open_dataset(path_grid_m, decode_cf=False, engine='netcdf4')
     grid_merge = ds['grid']
@@ -105,6 +105,7 @@ def loglike(theta, theta_index, global_params, for_plot='no'):
 
         # Re-merging of the data and interpolated synthetic spectrum to a wavelength grid defined by the parameter 'wav_fit'
         ind_merge = np.where((wav_obs_merge >= min_ns_u) & (wav_obs_merge <= max_ns_u))
+        wav_obs_phot = np.array(wav_obs_phot,dtype=float)
         ind_phot = np.where((wav_obs_phot >= min_ns_u) & (wav_obs_phot <= max_ns_u))
         if ns_u_ind == 0:
             wav_obs_merge_ns_u = wav_obs_merge[ind_merge]
@@ -130,14 +131,22 @@ def loglike(theta, theta_index, global_params, for_plot='no'):
                                  wav_obs_merge_ns_u,  flx_obs_merge_ns_u,  err_obs_merge_ns_u,  flx_mod_merge_ns_u,
                                  wav_obs_phot_ns_u,  flx_obs_phot_ns_u, err_obs_phot_ns_u,  flx_mod_phot_ns_u)
 
+    #print(modif_spec_chi2)
     # Merging the spectroscopy with photometry in order to calculate the likelihood
-    flx_obs_chi2 = np.concatenate((modif_spec_chi2[1], flx_obs_phot_ns_u))
-    err_obs_chi2 = np.concatenate((modif_spec_chi2[2], err_obs_phot_ns_u))
-    flx_mod_chi2 = np.concatenate((modif_spec_chi2[3], modif_spec_chi2[4]))
-
+    flx_obs_chi2 = np.array(np.concatenate((modif_spec_chi2[1], flx_obs_phot_ns_u)),dtype=float)
+    err_obs_chi2 = np.array(np.concatenate((modif_spec_chi2[2], err_obs_phot_ns_u)),dtype=float)
+    flx_mod_chi2 = np.array(np.concatenate((modif_spec_chi2[3], modif_spec_chi2[5])),dtype=float)
+    #print('flx, mod, chi2', flx_mod_chi2)
+    #print('array-0',modif_spec_chi2[0])
+    #print('array-1',modif_spec_chi2[1])
+    #print('array-2',modif_spec_chi2[2])
+    #print('array-3',modif_spec_chi2[3])
+    #print('array-4',modif_spec_chi2[4])
+    #print('array-5',modif_spec_chi2[5])
     # Calculation of the chi2 (used to calculate the likelihood)
     chisq = np.sum(((flx_obs_chi2 - flx_mod_chi2) / err_obs_chi2) ** 2)
-    
+    #print(chisq)
+
     if for_plot == 'no':
         return -chisq/2.
     else:
@@ -282,8 +291,7 @@ def launch_nested_sampling(global_params):
         tmpstot1 = time.time()
         loglike_gp = lambda theta: loglike(theta, theta_index, global_params)
         prior_transform_gp = lambda theta: prior_transform(theta, theta_index, global_params)
-        result = nestle.sample(loglike_gp, prior_transform_gp, n_free_parameters, callback=nestle.print_progress,
-                               npoints=int(float(global_params.npoint)))
+        result = nestle.sample(loglike_gp, prior_transform_gp, n_free_parameters, callback=nestle.print_progress,npoints=int(float(global_params.npoint)))
         tmpstot2 = time.time()-tmpstot1
         print('\n')
         print('########     The code spent ' + str(tmpstot2) + ' sec to run   ########')
@@ -294,7 +302,7 @@ def launch_nested_sampling(global_params):
         from dynesty import NestedSampler
 
         # initialize our nested sampler
-        sampler = NestedSampler(loglike, ptform, ndim)
+        #sampler = NestedSampler(loglike, ptform, ndim)
 
     with open(global_params.result_path + '/result_' + global_params.ns_algo + '.pic', 'wb') as f1:
         pickle.dump(result, f1)

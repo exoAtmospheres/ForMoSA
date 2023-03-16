@@ -116,8 +116,7 @@ def adapt_grid(global_params, wav_obs_spec, wav_obs_phot):
                                 model_to_adapt = grid_np[:, p1_i, p2_i, p3_i, p4_i]
                                 nan_mod_ind = ~np.isnan(model_to_adapt)
                                 if len(np.where(nan_mod_ind is False)[0]) == 0:
-                                    flx_mod_extract, mod_pho = adapt_model(global_params, wav_mod_nativ,
-                                                                           model_to_adapt, attr['res'])
+                                    flx_mod_extract, mod_pho = adapt_model(global_params, wav_mod_nativ, model_to_adapt, attr['res'])
                                     grid_new_np[:, p1_i, p2_i, p3_i, p4_i] = flx_mod_extract
                                     grid_phot_new_np[:, p1_i, p2_i, p3_i, p4_i] = mod_pho
                                 else:

@@ -283,6 +283,7 @@ class PlottingForMoSA():
 
         (Adapted from Simon Petrus)
         '''
+        self._get_posteriors()
         #def get_spec(theta, theta_index, global_params, for_plot='no'):
         # Recovery of the spectroscopy and photometry data
         spectrum_obs = np.load(self.global_params.result_path + '/spectrum_obs.npz', allow_pickle=True)
@@ -290,13 +291,13 @@ class PlottingForMoSA():
         flx_obs_merge = spectrum_obs['obs_merge'][1]
         err_obs_merge = spectrum_obs['obs_merge'][2]
         if 'obs_pho' in spectrum_obs.keys():
-            wav_obs_phot = np.asarray(spectrum_obs['obs_pho'][0])
-            flx_obs_phot = np.asarray(spectrum_obs['obs_pho'][1])
-            err_obs_phot = np.asarray(spectrum_obs['obs_pho'][2])
+            wav_obs_phot = np.asarray(spectrum_obs['obs_pho'][0], dtype=float)
+            flx_obs_phot = np.asarray(spectrum_obs['obs_pho'][1], dtype=float)
+            err_obs_phot = np.asarray(spectrum_obs['obs_pho'][2], dtype=float)
         else:
-            wav_obs_phot = np.asarray([])
-            flx_obs_phot = np.asarray([])
-            err_obs_phot = np.asarray([])
+            wav_obs_phot = np.asarray([], dtype=float)
+            flx_obs_phot = np.asarray([], dtype=float)
+            err_obs_phot = np.asarray([], dtype=float)
 
         # Recovery of the spectroscopy and photometry model
         path_grid_m = self.global_params.adapt_store_path + '/adapted_grid_merge_' + self.global_params.grid_name + '_nonan.nc'
@@ -400,12 +401,19 @@ class PlottingForMoSA():
         ax.plot(spectra[0], spectra[1], c='k', label = 'data')
         ax.plot(spectra[0], spectra[3], c=self.color_out, alpha=0.8, label='model')
 
+
         residuals = spectra[3] - spectra[1]
         sigma_res = np.std(residuals)
         axr.plot(spectra[0], residuals/sigma_res, c=self.color_out, alpha=0.8, label='model-data')
         axr.axhline(y=0, color='k', alpha=0.5, linestyle='--')
         axr2.hist(residuals/sigma_res, bins=100 ,color=self.color_out, alpha=0.5, density=True, orientation='horizontal', label='density')
         axr2.axis('off')
+
+        ax.plot(spectra[4],spectra[5],'ko', alpha=0.7)
+        ax.plot(spectra[4],spectra[7],'o', color=self.color_out)
+        residuals_phot = spectra[7]-spectra[5]
+        axr.plot(spectra[4], residuals_phot/sigma_res, 'o', c=self.color_out, alpha=0.8)
+
 
         axr.set_xlabel(r'Wavelength (µm)')
         ax.set_ylabel(r'Flux (W m-2 µm-1)')

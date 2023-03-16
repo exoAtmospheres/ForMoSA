@@ -1,4 +1,5 @@
 from __future__ import division
+import os
 import numpy as np
 from astropy.io import fits
 from scipy.ndimage import gaussian_filter
@@ -79,13 +80,13 @@ def extract_observation(global_params, wav_mod_nativ, res_mod_nativ, cont='no'):
     for c, cut in enumerate(obs_cut):
         # If we want to decrease the resolution of the data:
         if cont == 'no':
-            if global_params.adapt_method == 'by_reso':
+            if global_params.adapt_method == 'by_sample':
                 obs_cut[c][1] = resolution_decreasing(global_params, cut, wav_mod_nativ, [], res_mod_nativ, 'obs')
             else:
                 pass
         # If we want to estimate the continuum of the data:
         else:
-            obs_cut[c][1] = continuum_estimate(global_params, cut[0], cut[0], cut[1], cut[3], 'obs')
+            obs_cut[c][1] = continuum_estimate(global_params, cut[0], cut[0], cut[1], np.array(cut[3], dtype=float), 'obs')
 
     return obs_cut, obs_pho, obs_cut_ins, obs_pho_ins
 
@@ -126,6 +127,12 @@ def adapt_observation_range(global_params):
         err = err[nan_mod_ind]
         res = res[nan_mod_ind]
         ins = ins[nan_mod_ind]
+
+        for i in range(len(res)):
+            if res[i]=='P':
+                pass
+            else: 
+                res[i]= float(res[i])
 
     # Select the wavelength range(s) for the extraction
     if global_params.wav_for_adapt == '':
@@ -226,7 +233,7 @@ def extract_model(global_params, wav_mod_nativ, flx_mod_nativ, res_mod_nativ, co
     for c, cut in enumerate(obs_cut):
         # If we want to decrease the resolution of the data:
         if cont == 'no':
-            if global_params.adapt_method == 'by_reso':
+            if global_params.adapt_method == 'by_sample':
                 mod_cut_flx = resolution_decreasing(global_params, cut, wav_mod_nativ, flx_mod_nativ, res_mod_nativ,
                                                     'mod')
             else:
@@ -239,7 +246,9 @@ def extract_model(global_params, wav_mod_nativ, flx_mod_nativ, res_mod_nativ, co
     # Calculate each photometry point.
     mod_pho = []
     for pho_ind, pho in enumerate(obs_pho_ins):
-        filter_pho = np.load('phototeque/' + pho + '.npz')
+        path_list = __file__.split("/")[:-2]
+        separator = '/'
+        filter_pho = np.load(separator.join(path_list)+'/phototeque/' + pho + '.npz')
         x_filt = filter_pho['x_filt']
         y_filt = filter_pho['y_filt']
         filter_interp = interp1d(x_filt, y_filt, fill_value="extrapolate")
@@ -318,6 +327,7 @@ def resolution_decreasing(global_params, cut, wav_mod_nativ, flx_mod_nativ, res_
     Author: Simon Petrus
     """
     # Estimate of the FWHM of the data as a function of the wavelength
+    cut[3] = np.array(cut[3],dtype=float)
     fwhm_obs = 2 * cut[0] / cut[3]
 
     # Estimate of the FWHM of the model as a function of the wavelength

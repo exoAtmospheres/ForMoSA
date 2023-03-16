@@ -28,6 +28,7 @@ class GlobFile:
         # Generate the confog object
         config = ConfigObj(config_file_path, encoding='utf8')
         # self.obsname = obsname
+        self.config=config
 
         ## Read CONFIG:
         # [config_path] (4)

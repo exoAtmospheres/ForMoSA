@@ -43,14 +43,14 @@ def launch_adapt(global_params, justobs='no'):
             wav_obs_extract = obs_cut[c][0]
             flx_obs_extract = obs_cut[c][1]
             err_obs_extract = obs_cut[c][2]
-            res_obs_extract = obs_cut[c][3]
+            res_obs_extract = np.array(obs_cut[c][3],dtype=float)
             ins_obs_extract = obs_cut_ins[c]
 
         else:
             wav_obs_extract = np.concatenate((wav_obs_extract, obs_cut[c][0]))
             flx_obs_extract = np.concatenate((flx_obs_extract, obs_cut[c][1]))
             err_obs_extract = np.concatenate((err_obs_extract, obs_cut[c][2]))
-            res_obs_extract = np.concatenate((res_obs_extract, obs_cut[c][3]))
+            res_obs_extract = np.concatenate((res_obs_extract, np.array(obs_cut[c][3],dtype=float)))
             ins_obs_extract = np.concatenate((ins_obs_extract, obs_cut_ins[c]))
 
     obs_merge = [wav_obs_extract, flx_obs_extract, err_obs_extract, res_obs_extract]
