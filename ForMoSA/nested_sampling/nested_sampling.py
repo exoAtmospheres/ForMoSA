@@ -156,7 +156,7 @@ def loglike(theta, theta_index, global_params, for_plot='no'):
         return modif_spec_chi2
 
 
-def prior_transform(theta, theta_index, global_params):
+def prior_transform(theta, theta_index, lim_param_grid, global_params):
     """
     
 
@@ -170,77 +170,119 @@ def prior_transform(theta, theta_index, global_params):
     prior = []
     if global_params.par1 != 'NA':
         prior_law = global_params.par1[0]
-        if prior_law == 'uniform':
-            prior.append(uniform_prior([float(global_params.par1[1]), float(global_params.par1[2])], theta[0]))
-        if prior_law == 'gaussian':
-            prior.append(gaussian_prior([float(global_params.par1[1]), float(global_params.par1[2])], theta[0]))
+        if prior_law != 'constant':
+            if prior_law == 'uniform':
+                prior_par1 = uniform_prior([float(global_params.par1[1]), float(global_params.par1[2])], theta[0])
+            if prior_law == 'gaussian':
+                prior_par1 = gaussian_prior([float(global_params.par1[1]), float(global_params.par1[2])], theta[0])
+            if prior_par1 < lim_param_grid[0][0]:
+                prior_par1 = lim_param_grid[0][0]
+            elif prior_par1 > lim_param_grid[0][1]:
+                prior_par1 = lim_param_grid[0][1]
+            prior.append(prior_par1)
     if global_params.par2 != 'NA':
         prior_law = global_params.par2[0]
-        if prior_law == 'uniform':
-            prior.append(uniform_prior([float(global_params.par2[1]), float(global_params.par2[2])], theta[1]))
-        if prior_law == 'gaussian':
-            prior.append(gaussian_prior([float(global_params.par2[1]), float(global_params.par2[2])], theta[1]))
+        if prior_law != 'constant':
+            if prior_law == 'uniform':
+                prior_par2 = uniform_prior([float(global_params.par2[1]), float(global_params.par2[2])], theta[1])
+            if prior_law == 'gaussian':
+                prior_par2 = gaussian_prior([float(global_params.par2[1]), float(global_params.par2[2])], theta[1])
+            if prior_par2 < lim_param_grid[1][0]:
+                prior_par2 = lim_param_grid[1][0]
+            elif prior_par2 > lim_param_grid[1][1]:
+                prior_par2 = lim_param_grid[1][1]
+            prior.append(prior_par2)
     if global_params.par3 != 'NA':
         prior_law = global_params.par3[0]
-        if prior_law == 'uniform':
-            prior.append(uniform_prior([float(global_params.par3[1]), float(global_params.par3[2])], theta[2]))
-        if prior_law == 'gaussian':
-            prior.append(gaussian_prior([float(global_params.par3[1]), float(global_params.par3[2])], theta[2]))
+        if prior_law != 'constant':
+            if prior_law == 'uniform':
+                prior_par3 = uniform_prior([float(global_params.par3[1]), float(global_params.par3[2])], theta[2])
+            if prior_law == 'gaussian':
+                prior_par3 = gaussian_prior([float(global_params.par3[1]), float(global_params.par3[2])], theta[2])
+            if prior_par3 < lim_param_grid[2][0]:
+                prior_par3 = lim_param_grid[2][0]
+            elif prior_par3 > lim_param_grid[2][1]:
+                prior_par3 = lim_param_grid[2][1]
+            prior.append(prior_par3)
     if global_params.par4 != 'NA':
         prior_law = global_params.par4[0]
-        if prior_law == 'uniform':
-            prior.append(uniform_prior([float(global_params.par4[1]), float(global_params.par4[2])], theta[3]))
-        if prior_law == 'gaussian':
-            prior.append(gaussian_prior([float(global_params.par4[1]), float(global_params.par4[2])], theta[3]))
+        if prior_law != 'constant':
+            if prior_law == 'uniform':
+                prior_par4 = uniform_prior([float(global_params.par4[1]), float(global_params.par4[2])], theta[3])
+            if prior_law == 'gaussian':
+                prior_par4 = gaussian_prior([float(global_params.par4[1]), float(global_params.par4[2])], theta[3])
+            if prior_par4 < lim_param_grid[3][0]:
+                prior_par4 = lim_param_grid[3][0]
+            elif prior_par4 > lim_param_grid[3][1]:
+                prior_par4 = lim_param_grid[3][1]
+            prior.append(prior_par4)
     if global_params.par5 != 'NA':
         prior_law = global_params.par5[0]
-        if prior_law == 'uniform':
-            prior.append(uniform_prior([float(global_params.par5[1]), float(global_params.par5[2])], theta[4]))
-        if prior_law == 'gaussian':
-            prior.append(gaussian_prior([float(global_params.par5[1]), float(global_params.par5[2])], theta[4]))
+        if prior_law != 'constant':
+            if prior_law == 'uniform':
+                prior_par5 = uniform_prior([float(global_params.par5[1]), float(global_params.par5[2])], theta[4])
+            if prior_law == 'gaussian':
+                prior_par5 = gaussian_prior([float(global_params.par5[1]), float(global_params.par5[2])], theta[4])
+            if prior_par5 < lim_param_grid[4][0]:
+                prior_par5 = lim_param_grid[4][0]
+            elif prior_par5 > lim_param_grid[4][1]:
+                prior_par5 = lim_param_grid[4][1]
+            prior.append(prior_par5)
 
     if global_params.r != 'NA':
         prior_law = global_params.r[0]
-        ind_theta_r = np.where(theta_index == 'r')
-        if prior_law == 'uniform':
-            prior.append(uniform_prior([float(global_params.r[1]), float(global_params.r[2])], theta[ind_theta_r[0][0]]))
-        if prior_law == 'gaussian':
-            prior.append(gaussian_prior([float(global_params.r[1]), float(global_params.r[2])], theta[ind_theta_r[0][0]]))
+        if prior_law != 'constant':
+            ind_theta_r = np.where(theta_index == 'r')
+            if prior_law == 'uniform':
+                prior_r = uniform_prior([float(global_params.r[1]), float(global_params.r[2])], theta[ind_theta_r[0][0]])
+            if prior_law == 'gaussian':
+                prior_r = gaussian_prior([float(global_params.r[1]), float(global_params.r[2])], theta[ind_theta_r[0][0]])
+            prior.append(prior_r)
     if global_params.d != 'NA':
         prior_law = global_params.d[0]
-        ind_theta_d = np.where(theta_index == 'd')
-        if prior_law == 'uniform':
-            prior.append(uniform_prior([float(global_params.d[1]), float(global_params.d[2])], theta[ind_theta_d[0][0]]))
-        if prior_law == 'gaussian':
-            prior.append(gaussian_prior([float(global_params.d[1]), float(global_params.d[2])], theta[ind_theta_d[0][0]]))
+        if prior_law != 'constant':
+            ind_theta_d = np.where(theta_index == 'd')
+            if prior_law == 'uniform':
+                prior_d = uniform_prior([float(global_params.d[1]), float(global_params.d[2])], theta[ind_theta_d[0][0]])
+            if prior_law == 'gaussian':
+                prior_d = gaussian_prior([float(global_params.d[1]), float(global_params.d[2])], theta[ind_theta_d[0][0]])
+            prior.append(prior_d)
     if global_params.rv != 'NA':
         prior_law = global_params.rv[0]
-        ind_theta_rv = np.where(theta_index == 'rv')
-        if prior_law == 'uniform':
-            prior.append(uniform_prior([float(global_params.rv[1]), float(global_params.rv[2])], theta[ind_theta_rv[0][0]]))
-        if prior_law == 'gaussian':
-            prior.append(gaussian_prior([float(global_params.rv[1]), float(global_params.rv[2])], theta[ind_theta_rv[0][0]]))
+        if prior_law != 'constant':
+            ind_theta_rv = np.where(theta_index == 'rv')
+            if prior_law == 'uniform':
+                prior_rv = uniform_prior([float(global_params.rv[1]), float(global_params.rv[2])], theta[ind_theta_rv[0][0]])
+            if prior_law == 'gaussian':
+                prior_rv = gaussian_prior([float(global_params.rv[1]), float(global_params.rv[2])], theta[ind_theta_rv[0][0]])
+            prior.append(prior_rv)
     if global_params.av != 'NA':
         prior_law = global_params.av[0]
-        ind_theta_av = np.where(theta_index == 'av')
-        if prior_law == 'uniform':
-            prior.append(uniform_prior([float(global_params.av[1]), float(global_params.av[2])], theta[ind_theta_av[0][0]]))
-        if prior_law == 'gaussian':
-            prior.append(gaussian_prior([float(global_params.av[1]), float(global_params.av[2])], theta[ind_theta_av[0][0]]))
+        if prior_law != 'constant':
+            ind_theta_av = np.where(theta_index == 'av')
+            if prior_law == 'uniform':
+                prior_av = uniform_prior([float(global_params.av[1]), float(global_params.av[2])], theta[ind_theta_av[0][0]])
+            if prior_law == 'gaussian':
+                prior_av = gaussian_prior([float(global_params.av[1]), float(global_params.av[2])], theta[ind_theta_av[0][0]])
+            prior.append(prior_av)
     if global_params.vsini != 'NA':
         prior_law = global_params.vsini[0]
-        ind_theta_vsini = np.where(theta_index == 'vsini')
-        if prior_law == 'uniform':
-            prior.append(uniform_prior([float(global_params.vsini[1]), float(global_params.vsini[2])], theta[ind_theta_vsini[0][0]]))
-        if prior_law == 'gaussian':
-            prior.append(gaussian_prior([float(global_params.vsini[1]), float(global_params.vsini[2])], theta[ind_theta_vsini[0][0]]))
+        if prior_law != 'constant':
+            ind_theta_vsini = np.where(theta_index == 'vsini')
+            if prior_law == 'uniform':
+                prior_vsini = uniform_prior([float(global_params.vsini[1]), float(global_params.vsini[2])], theta[ind_theta_vsini[0][0]])
+            if prior_law == 'gaussian':
+                prior_vsini = gaussian_prior([float(global_params.vsini[1]), float(global_params.vsini[2])], theta[ind_theta_vsini[0][0]])
+            prior.append(prior_vsini)
     if global_params.ld != 'NA':
         prior_law = global_params.ld[0]
-        ind_theta_ld = np.where(theta_index == 'ld')
-        if prior_law == 'uniform':
-            prior.append(uniform_prior([float(global_params.ld[1]), float(global_params.ld[2])], theta[ind_theta_ld[0][0]]))
-        if prior_law == 'gaussian':
-            prior.append(gaussian_prior([float(global_params.ld[1]), float(global_params.ld[2])], theta[ind_theta_ld[0][0]]))
+        if prior_law != 'constant':
+            ind_theta_ld = np.where(theta_index == 'ld')
+            if prior_law == 'uniform':
+                prior_ld = uniform_prior([float(global_params.ld[1]), float(global_params.ld[2])], theta[ind_theta_ld[0][0]])
+            if prior_law == 'gaussian':
+                prior_ld = gaussian_prior([float(global_params.ld[1]), float(global_params.ld[2])], theta[ind_theta_ld[0][0]])
+            prior.append(prior_ld)
 
     return prior
 
@@ -261,14 +303,22 @@ def launch_nested_sampling(global_params):
     # Count the number of free parameters and identify the parameter position in theta
     if global_params.par1 != 'NA':
         theta_index = ['par1']
+        lim_param_grid = [[min(ds['par1'].values), max(ds['par1'].values)]]
+    else:
+        theta_index = []
+        lim_param_grid = []
     if global_params.par2 != 'NA':
         theta_index.append('par2')
+        lim_param_grid.append([min(ds['par2'].values), max(ds['par2'].values)])
     if global_params.par3 != 'NA':
         theta_index.append('par3')
+        lim_param_grid.append([min(ds['par3'].values), max(ds['par3'].values)])
     if global_params.par4 != 'NA':
         theta_index.append('par4')
+        lim_param_grid.append([min(ds['par4'].values), max(ds['par4'].values)])
     if global_params.par5 != 'NA':
         theta_index.append('par5')
+        lim_param_grid.append([min(ds['par5'].values), max(ds['par5'].values)])
     n_free_parameters = len(ds.attrs['key'])
     if global_params.r != 'NA' and global_params.r[0] != 'constant':
         n_free_parameters += 1
@@ -293,7 +343,7 @@ def launch_nested_sampling(global_params):
     if global_params.ns_algo == 'nestle':
         tmpstot1 = time.time()
         loglike_gp = lambda theta: loglike(theta, theta_index, global_params)
-        prior_transform_gp = lambda theta: prior_transform(theta, theta_index, global_params)
+        prior_transform_gp = lambda theta: prior_transform(theta, theta_index, lim_param_grid, global_params)
         result = nestle.sample(loglike_gp, prior_transform_gp, n_free_parameters, callback=nestle.print_progress,npoints=int(float(global_params.npoint)))
         tmpstot2 = time.time()-tmpstot1
         print('\n')
