@@ -129,7 +129,8 @@ def adapt_observation_range(global_params):
         ins = ins[nan_mod_ind]
 
         for i in range(len(res)):
-            if res[i]=='P':
+            #if res[i] == 'P':
+            if float(res[i]) == 0.0:
                 pass
             else: 
                 res[i]= float(res[i])
@@ -145,7 +146,8 @@ def adapt_observation_range(global_params):
         ind = np.where((float(rangee[0]) <= wav) & (wav <= float(rangee[1])))
 
         # Photometry part of the data
-        ind_photometry = np.where(res[ind] == 'P')
+        #ind_photometry = np.where(res[ind] == 'P')
+        ind_photometry = np.where(res[ind] == 0.0)
         obs_pho = [wav[ind][ind_photometry], flx[ind][ind_photometry], err[ind][ind_photometry],
                    res[ind][ind_photometry]]
         obs_pho_ins = ins[ind][ind_photometry]
