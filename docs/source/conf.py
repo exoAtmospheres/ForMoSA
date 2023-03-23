@@ -12,7 +12,7 @@ import sys
 sys.path.insert(0, os.path.abspath('../..')) # location of orbitize files with docstrings
 sys.path.insert(0, os.path.abspath('../../ForMoSA')) # location of orbitize files with docstrings
 
-###import ForMoSA
+import ForMoSA
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
@@ -58,7 +58,7 @@ project = 'ForMoSA'
 copyright = '2023, S. Petrus, P. Palma-Bifani, M. Bonnefoy, G. Chauvin, et al.'
 author = 'Simon Petrus, Paulina Palma-Bifani, Mickaël Bonnefoy, Gaël Chauvin, et al.'
 
-### version = ForMoSA.__version__
+version = ForMoSA.__version__
 
 
 language = 'English'
