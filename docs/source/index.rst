@@ -23,16 +23,28 @@ User Guide:
 
 .. toctree::
    :maxdepth: 2
+<<<<<<< HEAD
 
    installation
    demo
    support
    api
 
+=======
+   :caption: Contents:
+   install
+   support
+>>>>>>> 352dbd6d5d3db59d585a4618f7939ac7c60e9119
 
 Changelog:
 ++++++++++
 
 **1.0.4
 
+<<<<<<< HEAD
 This is the first official release.
+=======
+* :ref:`genindex`
+* :ref:`modindex`
+* :ref:`search`
+>>>>>>> 352dbd6d5d3db59d585a4618f7939ac7c60e9119
