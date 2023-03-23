@@ -61,7 +61,7 @@ author = 'Simon Petrus, Paulina Palma-Bifani, Mickaël Bonnefoy, Gaël Chauvin, 
 ### version = ForMoSA.__version__
 
 
-language = None
+language = 'English'
 
 # -- Options for HTML output -------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output

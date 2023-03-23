@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" >
+<html class="writer-html5" lang="English" >
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -17,7 +17,6 @@
         <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="_static/doctools.js"></script>
         <script src="_static/sphinx_highlight.js"></script>
-        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -102,31 +101,7 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  
-<style>
-/* CSS overrides for sphinx_rtd_theme */
-
-/* 24px margin */
-.nbinput.nblast.container,
-.nboutput.nblast.container {
-    margin-bottom: 19px;  /* padding has already 5px */
-}
-
-/* ... except between code cells! */
-.nblast.container + .nbinput.container {
-    margin-top: -19px;
-}
-
-.admonition > p:before {
-    margin-right: 4px;  /* make room for the exclamation icon */
-}
-
-/* Fix math alignment, see https://github.com/rtfd/sphinx_rtd_theme/pull/686 */
-.math {
-    text-align: unset;
-}
-</style>
-<div class="section" id="module-ForMoSA">
+  <div class="section" id="module-ForMoSA">
 <span id="id1"></span><span id="nested-sampling"></span><h1>Nested Sampling<a class="headerlink" href="#module-ForMoSA" title="Permalink to this heading"></a></h1>
 <div class="section" id="module-ForMoSA.nested_sampling.nested_sampling">
 <span id="nested-main"></span><h2>Nested Main:<a class="headerlink" href="#module-ForMoSA.nested_sampling.nested_sampling" title="Permalink to this heading"></a></h2>
@@ -165,15 +140,15 @@ and distance or analytically).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>flx_obs_merge</strong> – Flux of the data (spectroscopy)</p></li>
-<li><p><strong>err_obs_merge</strong> – Error of the data (spectroscopy)</p></li>
-<li><p><strong>new_flx_merge</strong> – Flux of the interpolated synthetic spectrum (spectroscopy)</p></li>
-<li><p><strong>flx_obs_phot</strong> – Flux of the data (photometry)</p></li>
-<li><p><strong>err_obs_phot</strong> – Error of the data (photometry)</p></li>
-<li><p><strong>new_flx_phot</strong> – Flux of the interpolated synthetic spectrum (photometry)</p></li>
-<li><p><strong>r_picked</strong> – Radius randomly picked by the nested sampling (in RJup)</p></li>
-<li><p><strong>d_picked</strong> – Distance randomly picked by the nested sampling (in pc)</p></li>
-<li><p><strong>analytic</strong> – = ‘yes’ if Ck needs to be calculated analytically by the formula from Cushing et al. (2008)</p></li>
+<li><p><strong>flx_obs_merge</strong> -- Flux of the data (spectroscopy)</p></li>
+<li><p><strong>err_obs_merge</strong> -- Error of the data (spectroscopy)</p></li>
+<li><p><strong>new_flx_merge</strong> -- Flux of the interpolated synthetic spectrum (spectroscopy)</p></li>
+<li><p><strong>flx_obs_phot</strong> -- Flux of the data (photometry)</p></li>
+<li><p><strong>err_obs_phot</strong> -- Error of the data (photometry)</p></li>
+<li><p><strong>new_flx_phot</strong> -- Flux of the interpolated synthetic spectrum (photometry)</p></li>
+<li><p><strong>r_picked</strong> -- Radius randomly picked by the nested sampling (in RJup)</p></li>
+<li><p><strong>d_picked</strong> -- Distance randomly picked by the nested sampling (in pc)</p></li>
+<li><p><strong>analytic</strong> -- = 'yes' if Ck needs to be calculated analytically by the formula from Cushing et al. (2008)</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -196,11 +171,11 @@ Note: Observation can change due to side effects of the shifting.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>wav_obs_merge</strong> – Wavelength grid of the data</p></li>
-<li><p><strong>flx_obs_merge</strong> – Flux of the data</p></li>
-<li><p><strong>err_obs_merge</strong> – Error of the data</p></li>
-<li><p><strong>new_flx_merge</strong> – Flux of the interpolated synthetic spectrum</p></li>
-<li><p><strong>rv_picked</strong> – Radial velocity randomly picked by the nested sampling (in km.s-1)</p></li>
+<li><p><strong>wav_obs_merge</strong> -- Wavelength grid of the data</p></li>
+<li><p><strong>flx_obs_merge</strong> -- Flux of the data</p></li>
+<li><p><strong>err_obs_merge</strong> -- Error of the data</p></li>
+<li><p><strong>new_flx_merge</strong> -- Flux of the interpolated synthetic spectrum</p></li>
+<li><p><strong>rv_picked</strong> -- Radial velocity randomly picked by the nested sampling (in km.s-1)</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -231,17 +206,17 @@ flx_post_doppler: New flux of the interpolated synthetic spectrum</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>global_params</strong> – Class containing each parameter</p></li>
-<li><p><strong>theta</strong> – Parameter values randomly picked by the nested sampling</p></li>
-<li><p><strong>theta_index</strong> – Parameter index identificator</p></li>
-<li><p><strong>wav_obs_merge</strong> – Wavelength grid of the data (spectroscopy)</p></li>
-<li><p><strong>flx_obs_merge</strong> – Flux of the data (spectroscopy)</p></li>
-<li><p><strong>err_obs_merge</strong> – Error of the data (spectroscopy)</p></li>
-<li><p><strong>new_flx_merge</strong> – Flux of the interpolated synthetic spectrum (spectroscopy)</p></li>
-<li><p><strong>wav_obs_phot</strong> – Wavelength grid of the data (photometry)</p></li>
-<li><p><strong>flx_obs_phot</strong> – Flux of the data (photometry)</p></li>
-<li><p><strong>err_obs_phot</strong> – Error of the data (photometry)</p></li>
-<li><p><strong>new_flx_phot</strong> – Flux of the interpolated synthetic spectrum (photometry)</p></li>
+<li><p><strong>global_params</strong> -- Class containing each parameter</p></li>
+<li><p><strong>theta</strong> -- Parameter values randomly picked by the nested sampling</p></li>
+<li><p><strong>theta_index</strong> -- Parameter index identificator</p></li>
+<li><p><strong>wav_obs_merge</strong> -- Wavelength grid of the data (spectroscopy)</p></li>
+<li><p><strong>flx_obs_merge</strong> -- Flux of the data (spectroscopy)</p></li>
+<li><p><strong>err_obs_merge</strong> -- Error of the data (spectroscopy)</p></li>
+<li><p><strong>new_flx_merge</strong> -- Flux of the interpolated synthetic spectrum (spectroscopy)</p></li>
+<li><p><strong>wav_obs_phot</strong> -- Wavelength grid of the data (photometry)</p></li>
+<li><p><strong>flx_obs_phot</strong> -- Flux of the data (photometry)</p></li>
+<li><p><strong>err_obs_phot</strong> -- Error of the data (photometry)</p></li>
+<li><p><strong>new_flx_phot</strong> -- Flux of the interpolated synthetic spectrum (photometry)</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -269,11 +244,11 @@ extinction.fm07.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>wav_obs_merge</strong> – Wavelength grid of the data (spectroscopy)</p></li>
-<li><p><strong>wav_obs_phot</strong> – Wavelength of the data (photometry)</p></li>
-<li><p><strong>new_flx_merge</strong> – Flux of the interpolated synthetic spectrum (spectroscopy)</p></li>
-<li><p><strong>new_flx_phot</strong> – Flux of the interpolated synthetic spectrum (photometry)</p></li>
-<li><p><strong>av_picked</strong> – Extinction randomly picked by the nested sampling (in mag)</p></li>
+<li><p><strong>wav_obs_merge</strong> -- Wavelength grid of the data (spectroscopy)</p></li>
+<li><p><strong>wav_obs_phot</strong> -- Wavelength of the data (photometry)</p></li>
+<li><p><strong>new_flx_merge</strong> -- Flux of the interpolated synthetic spectrum (spectroscopy)</p></li>
+<li><p><strong>new_flx_phot</strong> -- Flux of the interpolated synthetic spectrum (photometry)</p></li>
+<li><p><strong>av_picked</strong> -- Extinction randomly picked by the nested sampling (in mag)</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -295,10 +270,10 @@ extinction.fm07.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>wav_obs_merge</strong> – Wavelength grid of the data</p></li>
-<li><p><strong>new_flx_merge</strong> – Flux of the interpolated synthetic spectrum</p></li>
-<li><p><strong>ld_picked</strong> – Limd darkening randomly picked by the nested sampling</p></li>
-<li><p><strong>vsini_picked</strong> – v.sin(i) randomly picked by the nested sampling (in km.s-1)</p></li>
+<li><p><strong>wav_obs_merge</strong> -- Wavelength grid of the data</p></li>
+<li><p><strong>new_flx_merge</strong> -- Flux of the interpolated synthetic spectrum</p></li>
+<li><p><strong>ld_picked</strong> -- Limd darkening randomly picked by the nested sampling</p></li>
+<li><p><strong>vsini_picked</strong> -- v.sin(i) randomly picked by the nested sampling (in km.s-1)</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
