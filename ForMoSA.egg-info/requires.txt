@@ -6,6 +6,6 @@ nestle
 matplotlib
 numpy
 PyAstronomy
-scipy
+scipy==1.7.3
 spectres
 xarray>=0.20.2

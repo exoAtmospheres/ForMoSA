@@ -4,7 +4,7 @@ with open("README.md", "r") as fh:
     long_description = fh.read()
 
 setup(name='ForMoSA',
-      version='1.0.3',
+      version='1.0.5',
       description='ForMoSA: Forward Modeling Tool for Spectral Analysis',
       url='https://github.com/exoAtmospheres/ForMoSA',
       author='P. Palma-Bifani, S. Petrus',
@@ -20,7 +20,7 @@ setup(name='ForMoSA',
         'matplotlib',
       	'numpy', 
         'PyAstronomy',
-        'scipy',
+        'scipy==1.7.3',
         'spectres',
         'xarray>=0.20.2'],
       include_package_data = True,

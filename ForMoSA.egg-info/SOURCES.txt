@@ -2,17 +2,8 @@ LICENSE
 README.md
 setup.py
 ForMoSA/__init__.py
-ForMoSA/adapt_grid.py
-ForMoSA/adapt_obs_mod.py
-ForMoSA/extraction_functions.py
-ForMoSA/filter_add_new.py
 ForMoSA/main.py
 ForMoSA/main_utilities.py
-ForMoSA/nested_modif_spec.py
-ForMoSA/nested_prior_function.py
-ForMoSA/nested_sampling.py
-ForMoSA/plot_functions.py
-ForMoSA/plot_results.py
 ForMoSA.egg-info/PKG-INFO
 ForMoSA.egg-info/SOURCES.txt
 ForMoSA.egg-info/dependency_links.txt
