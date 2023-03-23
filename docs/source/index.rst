@@ -3,40 +3,36 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Title
-=====
-You can use ``backticks`` for showing ``highlighted`` code.
 
-Section
--------
-`A cool website`_
+ForMoSA: Forward Modeling Tool for Spectral Analysis
+====================================================
 
-.. _A cool website: http://sphinx-doc.org
-
-Subsection
-~~~~~~~~~~
-A cool bit of code::
-
-   Some cool Code
-
-.. code-block:: rst
-
-   A bit of **rst** which should be *highlighted* properly.
+Welcome to ForMoSA, an open-source Python package.
+Using a forward modeling approach, we designed this tool to model exoplanetary atmospheres.
+We encourage the community to exploit its capabilities!
 
 
-Welcome to ForMoSA's documentation!
-===================================
+Attribution:
+++++++++++++
+
+When using ForMoSA please cite `Petrus et al (2023) <>`_.
+
+
+User Guide:
++++++++++++
 
 .. toctree::
    :maxdepth: 2
-   :caption: Contents:
-   install
+
+   installation
+   demo
    support
+   api
 
 
-Indices and tables
-==================
+Changelog:
+++++++++++
 
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
+**1.0.4
+
+This is the first official release.
