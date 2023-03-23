@@ -33,8 +33,7 @@ extensions = [
     'sphinx.ext.todo',
     'sphinx.ext.mathjax',
     'sphinx.ext.napoleon', # allows Google style-guide docs to render more prettily
-    'sphinx.ext.viewcode',
-    'nbsphinx'
+    'sphinx.ext.viewcode'
     ]
 
 # Disable notebook timeout
