@@ -6,12 +6,13 @@
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
+#import ForMoSA
 
 import os
 import sys
 sys.path.insert(0, os.path.abspath('../..')) # location of orbitize files with docstrings
+sys.path.insert(0, os.path.abspath('../../ForMoSA')) # location of orbitize files with docstrings
 
-import ForMoSA
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
@@ -36,10 +37,10 @@ extensions = [
     ]
 
 # Disable notebook timeout
-nbsphinx_timeout = -1
+#nbsphinx_timeout = -1
 
 # Allow notebook errors
-nbsphinx_allow_errors = True
+#nbsphinx_allow_errors = True
 
 # Add any paths that contain templates here, relative to this directory.
 
@@ -57,7 +58,7 @@ project = 'ForMoSA'
 copyright = '2023, S. Petrus, P. Palma-Bifani, M. Bonnefoy, G. Chauvin, et al.'
 author = 'Simon Petrus, Paulina Palma-Bifani, Mickaël Bonnefoy, Gaël Chauvin, et al.'
 
-version = ForMoSA.__version__
+#version = ForMoSA.__version__
 
 
 language = 'English'

@@ -1,0 +1,12 @@
+channels:
+  - conda-forge
+dependencies:
+  - python==3.7
+  - sphinx>=1.4
+  - numpy
+  - pandoc
+  - nbconvert
+  - ipykernel
+  - pip:
+    - nbsphinx
+    - prompt-toolkit==2.0.1
