@@ -11,7 +11,7 @@ from adapt.extraction_functions import adapt_model, decoupe
 def adapt_grid(global_params, wav_obs_spec, wav_obs_phot):
     """
     Adapt the synthetic spectra of a grid to make them comparable with data.
-
+    
     Args:
         global_params: Class containing each parameter
         wav_obs_spec: Merged wavelength grid of the data
@@ -279,3 +279,5 @@ def adapt_grid(global_params, wav_obs_spec, wav_obs_phot):
                           mode='w')
     print()
     print('-> The possible holes have been interpolated.')
+
+    return None

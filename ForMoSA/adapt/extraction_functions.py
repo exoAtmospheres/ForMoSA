@@ -183,7 +183,7 @@ def adapt_model(global_params, wav_mod_nativ, flx_mod_nativ, res_mod_nativ):
         res_mod_nativ: Spectral resolution of the model as a function of the wavelength grid
     Returns:
         output_model: Flux of the spectrum with a decreased spectral resolution, re-sampled on the data wavelength grid
-
+    
     Author: Simon Petrus
     """
     # Extract the synthetic spectra from the model grid
@@ -280,7 +280,7 @@ def convolve_and_sample(wv_channels, sigmas_wvs, model_wvs, model_fluxes, num_si
         num_sigma (float): number of +/- sigmas to evaluate the LSF to.
     Returns:
         output_model: the fluxes in each of the wavelength channels (length of N_output)
-
+        
     Author: Jason Wang
     """
     model_in_range = np.where((model_wvs >= np.min(wv_channels)) & (model_wvs < np.max(wv_channels)))
