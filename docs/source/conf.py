@@ -6,13 +6,13 @@
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
-#import ForMoSA
 
 import os
 import sys
 sys.path.insert(0, os.path.abspath('../..')) # location of orbitize files with docstrings
 sys.path.insert(0, os.path.abspath('../../ForMoSA')) # location of orbitize files with docstrings
 
+import ForMoSA
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
