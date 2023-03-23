@@ -10,7 +10,6 @@
 import os
 import sys
 sys.path.insert(0, os.path.abspath('../..')) # location of orbitize files with docstrings
-sys.path.insert(0, os.path.abspath('../../ForMoSA')) # location of orbitize files with docstrings
 
 import ForMoSA
 
