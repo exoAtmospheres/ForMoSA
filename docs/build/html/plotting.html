@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" >
+<html class="writer-html5" lang="English" >
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -17,7 +17,6 @@
         <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="_static/doctools.js"></script>
         <script src="_static/sphinx_highlight.js"></script>
-        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -35,6 +34,9 @@
           <a href="index.html" class="icon icon-home">
             ForMoSA
           </a>
+              <div class="version">
+                1.0.3
+              </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
@@ -95,31 +97,7 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  
-<style>
-/* CSS overrides for sphinx_rtd_theme */
-
-/* 24px margin */
-.nbinput.nblast.container,
-.nboutput.nblast.container {
-    margin-bottom: 19px;  /* padding has already 5px */
-}
-
-/* ... except between code cells! */
-.nblast.container + .nbinput.container {
-    margin-top: -19px;
-}
-
-.admonition > p:before {
-    margin-right: 4px;  /* make room for the exclamation icon */
-}
-
-/* Fix math alignment, see https://github.com/rtfd/sphinx_rtd_theme/pull/686 */
-.math {
-    text-align: unset;
-}
-</style>
-<div class="section" id="module-ForMoSA">
+  <div class="section" id="module-ForMoSA">
 <span id="plotting-class"></span><span id="plotting"></span><h1>Plotting Class<a class="headerlink" href="#module-ForMoSA" title="Permalink to this heading"></a></h1>
 <span class="target" id="module-ForMoSA.plotting.plotting_class"></span><dl class="py class">
 <dt class="sig sig-object py" id="ForMoSA.plotting.plotting_class.ComplexRadar">
@@ -146,26 +124,26 @@
 <p>Inputs:
 - cloud_prop (str) : choose the cloud</p>
 <blockquote>
-<div><p>‘eddy_diffusion_coefficient’,
-‘vmr_CH4’,
-‘vmr_CO’,
-‘vmr_CO2’,
-‘vmr_FeH’,
-‘vmr_H2O’,
-‘vmr_H2S’,
-‘vmr_HCN’,
-‘vmr_K’,
-‘vmr_Na’,
-‘vmr_NH3’,
-‘vmr_PH3’,
-‘vmr_TiO’,
-‘vmr_VO’,
-‘cloud_opacity_Fe’,
-‘cloud_opacity_Mg2SiO4’,
-‘cloud_particle_radius_Fe’,
-‘cloud_particle_radius_Mg2SiO4’,
-‘cloud_vmr_Fe’,
-‘cloud_vmr_Mg2SiO4’</p>
+<div><p>'eddy_diffusion_coefficient',
+'vmr_CH4',
+'vmr_CO',
+'vmr_CO2',
+'vmr_FeH',
+'vmr_H2O',
+'vmr_H2S',
+'vmr_HCN',
+'vmr_K',
+'vmr_Na',
+'vmr_NH3',
+'vmr_PH3',
+'vmr_TiO',
+'vmr_VO',
+'cloud_opacity_Fe',
+'cloud_opacity_Mg2SiO4',
+'cloud_particle_radius_Fe',
+'cloud_particle_radius_Mg2SiO4',
+'cloud_vmr_Fe',
+'cloud_vmr_Mg2SiO4'</p>
 </div></blockquote>
 <p>Return: fig, ax</p>
 <p>Author: Nathan Zimniak and Paulina Palma-Bifani</p>
@@ -199,8 +177,8 @@ Calculates the most probable temperature profile</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>global_params</strong> – Class containing each parameter used in ForMoSA</p></li>
-<li><p><strong>save</strong> – If =’yes’ save the figure in a pdf format</p></li>
+<li><p><strong>global_params</strong> -- Class containing each parameter used in ForMoSA</p></li>
+<li><p><strong>save</strong> -- If ='yes' save the figure in a pdf format</p></li>
 </ul>
 </dd>
 </dl>

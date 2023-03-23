@@ -12,7 +12,7 @@ import sys
 sys.path.insert(0, os.path.abspath('../..')) # location of orbitize files with docstrings
 sys.path.insert(0, os.path.abspath('../../ForMoSA')) # location of orbitize files with docstrings
 
-###import ForMoSA
+import ForMoSA
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
@@ -33,8 +33,7 @@ extensions = [
     'sphinx.ext.todo',
     'sphinx.ext.mathjax',
     'sphinx.ext.napoleon', # allows Google style-guide docs to render more prettily
-    'sphinx.ext.viewcode',
-    'nbsphinx'
+    'sphinx.ext.viewcode'
     ]
 
 # Disable notebook timeout
@@ -59,10 +58,10 @@ project = 'ForMoSA'
 copyright = '2023, S. Petrus, P. Palma-Bifani, M. Bonnefoy, G. Chauvin, et al.'
 author = 'Simon Petrus, Paulina Palma-Bifani, Mickaël Bonnefoy, Gaël Chauvin, et al.'
 
-### version = ForMoSA.__version__
+version = ForMoSA.__version__
 
 
-language = None
+language = 'English'
 
 # -- Options for HTML output -------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output

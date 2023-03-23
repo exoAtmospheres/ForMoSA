@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" >
+<html class="writer-html5" lang="English" >
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -17,7 +17,6 @@
         <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="_static/doctools.js"></script>
         <script src="_static/sphinx_highlight.js"></script>
-        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -36,6 +35,9 @@
           <a href="index.html" class="icon icon-home">
             ForMoSA
           </a>
+              <div class="version">
+                1.0.3
+              </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
@@ -103,31 +105,7 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  
-<style>
-/* CSS overrides for sphinx_rtd_theme */
-
-/* 24px margin */
-.nbinput.nblast.container,
-.nboutput.nblast.container {
-    margin-bottom: 19px;  /* padding has already 5px */
-}
-
-/* ... except between code cells! */
-.nblast.container + .nbinput.container {
-    margin-top: -19px;
-}
-
-.admonition > p:before {
-    margin-right: 4px;  /* make room for the exclamation icon */
-}
-
-/* Fix math alignment, see https://github.com/rtfd/sphinx_rtd_theme/pull/686 */
-.math {
-    text-align: unset;
-}
-</style>
-<div class="section" id="module-ForMoSA.adapt">
+  <div class="section" id="module-ForMoSA.adapt">
 <span id="adapt-the-data"></span><span id="adapt"></span><h1>Adapt the data<a class="headerlink" href="#module-ForMoSA.adapt" title="Permalink to this heading"></a></h1>
 <div class="section" id="module-ForMoSA.adapt.adapt_grid">
 <span id="adapt-grid"></span><h2>Adapt Grid:<a class="headerlink" href="#module-ForMoSA.adapt.adapt_grid" title="Permalink to this heading"></a></h2>
@@ -138,9 +116,9 @@
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>global_params</strong> – Class containing each parameter</p></li>
-<li><p><strong>wav_obs_spec</strong> – Merged wavelength grid of the data</p></li>
-<li><p><strong>wav_obs_phot</strong> – Wavelengths of the photometry points</p></li>
+<li><p><strong>global_params</strong> -- Class containing each parameter</p></li>
+<li><p><strong>wav_obs_spec</strong> -- Merged wavelength grid of the data</p></li>
+<li><p><strong>wav_obs_phot</strong> -- Wavelengths of the photometry points</p></li>
 </ul>
 </dd>
 </dl>
@@ -159,8 +137,8 @@ spectra from a model grid.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>global_params</strong> – Class containing each parameter</p></li>
-<li><p><strong>justobs</strong> – If the grid need to be adapted justobs=’no’</p></li>
+<li><p><strong>global_params</strong> -- Class containing each parameter</p></li>
+<li><p><strong>justobs</strong> -- If the grid need to be adapted justobs='no'</p></li>
 </ul>
 </dd>
 </dl>
@@ -179,10 +157,10 @@ calculated too. Then each sub-spectrum are merged.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>global_params</strong> – Class containing each parameter used in ForMoSA</p></li>
-<li><p><strong>wav_mod_nativ</strong> – Wavelength grid of the model</p></li>
-<li><p><strong>flx_mod_nativ</strong> – Flux of the model</p></li>
-<li><p><strong>res_mod_nativ</strong> – Spectral resolution of the model as a function of the wavelength grid</p></li>
+<li><p><strong>global_params</strong> -- Class containing each parameter used in ForMoSA</p></li>
+<li><p><strong>wav_mod_nativ</strong> -- Wavelength grid of the model</p></li>
+<li><p><strong>flx_mod_nativ</strong> -- Flux of the model</p></li>
+<li><p><strong>res_mod_nativ</strong> -- Spectral resolution of the model as a function of the wavelength grid</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -199,20 +177,20 @@ calculated too. Then each sub-spectrum are merged.</p>
 <dt class="sig sig-object py" id="ForMoSA.adapt.extraction_functions.adapt_observation_range">
 <span class="sig-prename descclassname"><span class="pre">ForMoSA.adapt.extraction_functions.</span></span><span class="sig-name descname"><span class="pre">adapt_observation_range</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">global_params</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ForMoSA/adapt/extraction_functions.html#adapt_observation_range"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ForMoSA.adapt.extraction_functions.adapt_observation_range" title="Permalink to this definition"></a></dt>
 <dd><p>Extract the wavelengths (um  -  vacuum), flux (W.m-2.um.1), errors (W.m-2.um.1), spectral resolution, and
-instrument/filter names from the observation file. The wavelength range is define by the parameter “wav_for_adapt”.</p>
+instrument/filter names from the observation file. The wavelength range is define by the parameter &quot;wav_for_adapt&quot;.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>global_params</strong> – Class containing each parameter</p>
+<dd class="field-odd"><p><strong>global_params</strong> -- Class containing each parameter</p>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p><dl class="simple">
-<dt>List containing the sub-spectra defined by the parameter “wav_for_adapt”.</dt><dd><p>[[wav_1, flx_1, err_1, reso_1], …, [wav_n, flx_n, err_n, reso_n]]</p>
+<dt>List containing the sub-spectra defined by the parameter &quot;wav_for_adapt&quot;.</dt><dd><p>[[wav_1, flx_1, err_1, reso_1], ..., [wav_n, flx_n, err_n, reso_n]]</p>
 </dd>
-<dt>obs_pho: List containing the photometry (‘P’ replace the spectral resolution here).</dt><dd><p>[wav_phot, flx_phot, err_phot, ‘P’]</p>
+<dt>obs_pho: List containing the photometry ('P' replace the spectral resolution here).</dt><dd><p>[wav_phot, flx_phot, err_phot, 'P']</p>
 </dd>
-<dt>obs_cut_ins: List containing different instruments used for the data (1 per wavelength).</dt><dd><p>[[instru_1], …, [instru_n]]</p>
+<dt>obs_cut_ins: List containing different instruments used for the data (1 per wavelength).</dt><dd><p>[[instru_1], ..., [instru_n]]</p>
 </dd>
-<dt>obs_pho_ins: List containing different filters used for the data (1 per photometric point).</dt><dd><p>[filter_phot_1, filter_phot_2, …, filter_phot_n]</p>
+<dt>obs_pho_ins: List containing different filters used for the data (1 per photometric point).</dt><dd><p>[filter_phot_1, filter_phot_2, ..., filter_phot_n]</p>
 </dd>
 </dl>
 </p>
@@ -234,12 +212,12 @@ the wavelength grid of the data.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>global_params</strong> – Class containing each parameter used in ForMoSA</p></li>
-<li><p><strong>wav_cut</strong> – Wavelength grid of the sub-spectrum data</p></li>
-<li><p><strong>wav</strong> – Wavelength grid of the spectrum for which you want to estimate the continuum</p></li>
-<li><p><strong>flx</strong> – Flux of the spectrum for which you want to estimate the continuum</p></li>
-<li><p><strong>res</strong> – Spectral resolution of the spectrum for which you want to estimate the continuum</p></li>
-<li><p><strong>obs_or_mod</strong> – Parameter to identify if you want to manage a data or a model spectrum. ‘obs’ or ‘mod’</p></li>
+<li><p><strong>global_params</strong> -- Class containing each parameter used in ForMoSA</p></li>
+<li><p><strong>wav_cut</strong> -- Wavelength grid of the sub-spectrum data</p></li>
+<li><p><strong>wav</strong> -- Wavelength grid of the spectrum for which you want to estimate the continuum</p></li>
+<li><p><strong>flx</strong> -- Flux of the spectrum for which you want to estimate the continuum</p></li>
+<li><p><strong>res</strong> -- Spectral resolution of the spectrum for which you want to estimate the continuum</p></li>
+<li><p><strong>obs_or_mod</strong> -- Parameter to identify if you want to manage a data or a model spectrum. 'obs' or 'mod'</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -260,11 +238,11 @@ spectral channel.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>wv_channels</strong> – the wavelengths desired (length of N_output)</p></li>
-<li><p><strong>sigmas_wvs</strong> – the LSF gaussian stddev of each wv_channels [IN UNITS OF model_wvs] (length of N_output)</p></li>
-<li><p><strong>model_wvs</strong> – the wavelengths of the model (length of N_model)</p></li>
-<li><p><strong>model_fluxes</strong> – the fluxes of the model (length of N_model)</p></li>
-<li><p><strong>num_sigma</strong> (<em>float</em>) – number of +/- sigmas to evaluate the LSF to.</p></li>
+<li><p><strong>wv_channels</strong> -- the wavelengths desired (length of N_output)</p></li>
+<li><p><strong>sigmas_wvs</strong> -- the LSF gaussian stddev of each wv_channels [IN UNITS OF model_wvs] (length of N_output)</p></li>
+<li><p><strong>model_wvs</strong> -- the wavelengths of the model (length of N_model)</p></li>
+<li><p><strong>model_fluxes</strong> -- the fluxes of the model (length of N_model)</p></li>
+<li><p><strong>num_sigma</strong> (<em>float</em>) -- number of +/- sigmas to evaluate the LSF to.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -283,7 +261,7 @@ spectral channel.</p>
 <dd><p>Re-arranged a number of seconds in the hours-minutes-seconds format.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>second</strong> – number of second</p>
+<dd class="field-odd"><p><strong>second</strong> -- number of second</p>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>hours-minutes-seconds format</p>
@@ -303,19 +281,19 @@ calculated too.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>global_params</strong> – Class containing each parameter used in ForMoSA</p></li>
-<li><p><strong>wav_mod_nativ</strong> – Wavelength grid of the model</p></li>
-<li><p><strong>flx_mod_nativ</strong> – Flux of the model</p></li>
-<li><p><strong>res_mod_nativ</strong> – Spectral resolution of the model as a function of the wavelength grid</p></li>
-<li><p><strong>cont</strong> – If the function is used to estimate the continuum cont=’yes’</p></li>
+<li><p><strong>global_params</strong> -- Class containing each parameter used in ForMoSA</p></li>
+<li><p><strong>wav_mod_nativ</strong> -- Wavelength grid of the model</p></li>
+<li><p><strong>flx_mod_nativ</strong> -- Flux of the model</p></li>
+<li><p><strong>res_mod_nativ</strong> -- Spectral resolution of the model as a function of the wavelength grid</p></li>
+<li><p><strong>cont</strong> -- If the function is used to estimate the continuum cont='yes'</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p><dl class="simple">
-<dt>List containing the sub-spectra defined by the parameter “wav_for_adapt”.</dt><dd><p>[flx_1, …, flx_n, err_n, reso_n]</p>
+<dt>List containing the sub-spectra defined by the parameter &quot;wav_for_adapt&quot;.</dt><dd><p>[flx_1, ..., flx_n, err_n, reso_n]</p>
 </dd>
 </dl>
-<p>mod_pho: List containing the photometry (‘P’ replace the spectral resolution here).</p>
+<p>mod_pho: List containing the photometry ('P' replace the spectral resolution here).</p>
 </p>
 </dd>
 <dt class="field-odd">Return type</dt>
@@ -328,26 +306,26 @@ calculated too.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="ForMoSA.adapt.extraction_functions.extract_observation">
 <span class="sig-prename descclassname"><span class="pre">ForMoSA.adapt.extraction_functions.</span></span><span class="sig-name descname"><span class="pre">extract_observation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">global_params</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wav_mod_nativ</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">res_mod_nativ</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cont</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'no'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ForMoSA/adapt/extraction_functions.html#extract_observation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ForMoSA.adapt.extraction_functions.extract_observation" title="Permalink to this definition"></a></dt>
-<dd><p>Take back the extracted data spectrum from the function ‘adapt_observation_range’ and decrease its spectral
+<dd><p>Take back the extracted data spectrum from the function 'adapt_observation_range' and decrease its spectral
 resolution.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>global_params</strong> – Class containing each parameter</p></li>
-<li><p><strong>wav_mod_nativ</strong> – Wavelength grid of the model</p></li>
-<li><p><strong>res_mod_nativ</strong> – Spectral resolution of the model</p></li>
-<li><p><strong>cont</strong> – If the function is used to estimate the continuum cont=’yes’</p></li>
+<li><p><strong>global_params</strong> -- Class containing each parameter</p></li>
+<li><p><strong>wav_mod_nativ</strong> -- Wavelength grid of the model</p></li>
+<li><p><strong>res_mod_nativ</strong> -- Spectral resolution of the model</p></li>
+<li><p><strong>cont</strong> -- If the function is used to estimate the continuum cont='yes'</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p><dl class="simple">
-<dt>List containing the sub-spectra defined by the parameter “wav_for_adapt” with decreased resolution</dt><dd><p>[[wav_1, flx_1, err_1, reso_1], …, [wav_n, flx_n, err_n, reso_n]]</p>
+<dt>List containing the sub-spectra defined by the parameter &quot;wav_for_adapt&quot; with decreased resolution</dt><dd><p>[[wav_1, flx_1, err_1, reso_1], ..., [wav_n, flx_n, err_n, reso_n]]</p>
 </dd>
-<dt>obs_pho: List containing the photometry (‘P’ replace the spectral resolution here).</dt><dd><p>[wav_phot, flx_phot, err_phot, ‘P’]</p>
+<dt>obs_pho: List containing the photometry ('P' replace the spectral resolution here).</dt><dd><p>[wav_phot, flx_phot, err_phot, 'P']</p>
 </dd>
-<dt>obs_cut_ins: List containing different instruments used for the data (1 per wavelength).</dt><dd><p>[[instru_range_1], …, [instru_range_n]]</p>
+<dt>obs_cut_ins: List containing different instruments used for the data (1 per wavelength).</dt><dd><p>[[instru_range_1], ..., [instru_range_n]]</p>
 </dd>
-<dt>obs_pho_ins: List containing different filters used for the data (1 per photometric point).</dt><dd><p>[filter_phot_1, filter_phot_2, …, filter_phot_n]</p>
+<dt>obs_pho_ins: List containing different filters used for the data (1 per photometric point).</dt><dd><p>[filter_phot_1, filter_phot_2, ..., filter_phot_n]</p>
 </dd>
 </dl>
 </p>
@@ -366,8 +344,8 @@ resolution.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>array</strong> – Array to explore</p></li>
-<li><p><strong>value</strong> – Desire value</p></li>
+<li><p><strong>array</strong> -- Array to explore</p></li>
+<li><p><strong>value</strong> -- Desire value</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -387,17 +365,17 @@ resolution.</p>
 wavelengths for the data, the model, and for a custom spectral resolution (optional) and estimates the highest one
 for each wavelength (the lowest spectral resolution). It then calculates a sigma to decrease the resolution of the
 spectrum to this lowest FWHM for each wavelength and resample it on the wavelength grid of the data using the
-function ‘convolve_and_sample’.</p>
+function 'convolve_and_sample'.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>global_params</strong> – Class containing each parameter used in ForMoSA</p></li>
-<li><p><strong>cut</strong> – Sub-spectra defined by the parameter “wav_for_adapt”.
-[[wav_1, flx_1, err_1, reso_1], …, [wav_n, flx_n, err_n, reso_n]]</p></li>
-<li><p><strong>wav_mod_nativ</strong> – Wavelength grid of the model</p></li>
-<li><p><strong>flx_mod_nativ</strong> – Flux of the model</p></li>
-<li><p><strong>res_mod_nativ</strong> – Spectral resolution of the model as a function of the wavelength grid</p></li>
-<li><p><strong>obs_or_mod</strong> – Parameter to identify if you want to manage a data or a model spectrum. ‘obs’ or ‘mod’</p></li>
+<li><p><strong>global_params</strong> -- Class containing each parameter used in ForMoSA</p></li>
+<li><p><strong>cut</strong> -- Sub-spectra defined by the parameter &quot;wav_for_adapt&quot;.
+[[wav_1, flx_1, err_1, reso_1], ..., [wav_n, flx_n, err_n, reso_n]]</p></li>
+<li><p><strong>wav_mod_nativ</strong> -- Wavelength grid of the model</p></li>
+<li><p><strong>flx_mod_nativ</strong> -- Flux of the model</p></li>
+<li><p><strong>res_mod_nativ</strong> -- Spectral resolution of the model as a function of the wavelength grid</p></li>
+<li><p><strong>obs_or_mod</strong> -- Parameter to identify if you want to manage a data or a model spectrum. 'obs' or 'mod'</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
