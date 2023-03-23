@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ForMoSA.main_utilities &mdash; ForMoSA  documentation</title>
+      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+    <link rel="shortcut icon" href="../../_static/favicon.ico"/>
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/sphinx_highlight.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            ForMoSA
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../demo.html">DEMO</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api.html">ForMoSA API</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">ForMoSA</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">ForMoSA.main_utilities</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for ForMoSA.main_utilities</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">configobj</span> <span class="kn">import</span> <span class="n">ConfigObj</span>
+
+<span class="c1"># ----------------------------------------------------------------------------------------------------------------------</span>
+<div class="viewcode-block" id="yesno"><a class="viewcode-back" href="../../main_utilities.html#ForMoSA.main_utilities.yesno">[docs]</a><span class="k">def</span> <span class="nf">yesno</span><span class="p">(</span><span class="n">text</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39; Function to interact with the terminal and decide for different options when running ForMoSA</span>
+<span class="sd">    Parameters:</span>
+<span class="sd">    - text (str)= (y/n) answer in the terminall in interactive mode</span>
+<span class="sd">    Returns:</span>
+<span class="sd">    - repeat yesno, if no match for y or n</span>
+<span class="sd">    - asw (str) = answer y or n</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+    <span class="n">asw</span> <span class="o">=</span> <span class="nb">input</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">asw</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;y&#39;</span><span class="p">,</span> <span class="s1">&#39;n&#39;</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="n">asw</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">yesno</span><span class="p">()</span></div>
+
+<span class="c1"># ----------------------------------------------------------------------------------------------------------------------</span>
+
+
+<div class="viewcode-block" id="GlobFile"><a class="viewcode-back" href="../../main_utilities.html#ForMoSA.main_utilities.GlobFile">[docs]</a><span class="k">class</span> <span class="nc">GlobFile</span><span class="p">:</span>
+    <span class="sd">&#39;&#39;&#39;Import config variables and make them GLOBAL FORMOSA VARIABLES</span>
+<span class="sd">    </span>
+<span class="sd">    Author: Paulina Palma-Bifani&#39;&#39;&#39;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config_file_path</span><span class="p">):</span>
+        <span class="c1"># Generate the confog object</span>
+        <span class="n">config</span> <span class="o">=</span> <span class="n">ConfigObj</span><span class="p">(</span><span class="n">config_file_path</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s1">&#39;utf8&#39;</span><span class="p">)</span>
+        <span class="c1"># self.obsname = obsname</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">=</span><span class="n">config</span>
+
+        <span class="c1">## Read CONFIG:</span>
+        <span class="c1"># [config_path] (4)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">observation_path</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s1">&#39;config_path&#39;</span><span class="p">][</span><span class="s1">&#39;observation_path&#39;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">adapt_store_path</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s1">&#39;config_path&#39;</span><span class="p">][</span><span class="s1">&#39;adapt_store_path&#39;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">result_path</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s1">&#39;config_path&#39;</span><span class="p">][</span><span class="s1">&#39;result_path&#39;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">model_path</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s1">&#39;config_path&#39;</span><span class="p">][</span><span class="s1">&#39;model_path&#39;</span><span class="p">]</span>
+        <span class="n">grid_name</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s1">&#39;config_path&#39;</span><span class="p">][</span><span class="s1">&#39;model_path&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">)</span>
+        <span class="n">grid_name</span> <span class="o">=</span> <span class="n">grid_name</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">grid_name</span> <span class="o">=</span> <span class="n">grid_name</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;.nc&#39;</span><span class="p">)</span>
+        <span class="n">grid_name</span> <span class="o">=</span> <span class="n">grid_name</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">grid_name</span> <span class="o">=</span> <span class="n">grid_name</span>
+        <span class="n">model_name</span> <span class="o">=</span> <span class="n">grid_name</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">)</span>
+        <span class="n">model_name</span> <span class="o">=</span> <span class="n">model_name</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">model_name</span> <span class="o">=</span> <span class="n">model_name</span>
+
+        <span class="c1"># [config_adapt] (5)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">wav_for_adapt</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s1">&#39;config_adapt&#39;</span><span class="p">][</span><span class="s1">&#39;wav_for_adapt&#39;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">adapt_method</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s1">&#39;config_adapt&#39;</span><span class="p">][</span><span class="s1">&#39;adapt_method&#39;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">custom_reso</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s1">&#39;config_adapt&#39;</span><span class="p">][</span><span class="s1">&#39;custom_reso&#39;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">continuum_sub</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s1">&#39;config_adapt&#39;</span><span class="p">][</span><span class="s1">&#39;continuum_sub&#39;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">wav_for_continuum</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s1">&#39;config_adapt&#39;</span><span class="p">][</span><span class="s1">&#39;wav_for_continuum&#39;</span><span class="p">]</span>
+
+        <span class="c1"># [config_inversion] (3)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">wav_fit</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s1">&#39;config_inversion&#39;</span><span class="p">][</span><span class="s1">&#39;wav_fit&#39;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ns_algo</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s1">&#39;config_inversion&#39;</span><span class="p">][</span><span class="s1">&#39;ns_algo&#39;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">npoint</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s1">&#39;config_inversion&#39;</span><span class="p">][</span><span class="s1">&#39;npoint&#39;</span><span class="p">]</span>
+
+        <span class="c1"># [config_parameter] (11)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">par1</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s1">&#39;config_parameter&#39;</span><span class="p">][</span><span class="s1">&#39;par1&#39;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">par2</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s1">&#39;config_parameter&#39;</span><span class="p">][</span><span class="s1">&#39;par2&#39;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">par3</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s1">&#39;config_parameter&#39;</span><span class="p">][</span><span class="s1">&#39;par3&#39;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">par4</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s1">&#39;config_parameter&#39;</span><span class="p">][</span><span class="s1">&#39;par4&#39;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">par5</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s1">&#39;config_parameter&#39;</span><span class="p">][</span><span class="s1">&#39;par5&#39;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">r</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s1">&#39;config_parameter&#39;</span><span class="p">][</span><span class="s1">&#39;r&#39;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">d</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s1">&#39;config_parameter&#39;</span><span class="p">][</span><span class="s1">&#39;d&#39;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">rv</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s1">&#39;config_parameter&#39;</span><span class="p">][</span><span class="s1">&#39;rv&#39;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">av</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s1">&#39;config_parameter&#39;</span><span class="p">][</span><span class="s1">&#39;av&#39;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">vsini</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s1">&#39;config_parameter&#39;</span><span class="p">][</span><span class="s1">&#39;vsini&#39;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ld</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s1">&#39;config_parameter&#39;</span><span class="p">][</span><span class="s1">&#39;ld&#39;</span><span class="p">]</span></div>
+
+        <span class="c1"># # [config_nestle] (10 but 3 relevant)  (n_ prefix for params)</span>
+        <span class="c1"># self.n_mechanic = config[&#39;config_nestle&#39;][&#39;mechanic&#39;]</span>
+        <span class="c1"># self.n_method = config[&#39;config_nestle&#39;][&#39;method&#39;]</span>
+        <span class="c1"># self.n_maxiter = int(config[&#39;config_nestle&#39;][&#39;maxiter&#39;])</span>
+        <span class="c1"># self.n_maxcall = eval(config[&#39;config_nestle&#39;][&#39;maxcall&#39;])</span>
+        <span class="c1"># self.n_dlogz = eval(config[&#39;config_nestle&#39;][&#39;dlogz&#39;])</span>
+        <span class="c1"># self.n_decline_factor = eval(config[&#39;config_nestle&#39;][&#39;decline_factor&#39;])</span>
+        <span class="c1"># self.n_update_interval = eval(config[&#39;config_nestle&#39;][&#39;update_interval&#39;])</span>
+        <span class="c1"># self.n_npdim = eval(config[&#39;config_nestle&#39;][&#39;npdim&#39;])</span>
+        <span class="c1"># self.n_rstate = eval(config[&#39;config_nestle&#39;][&#39;rstate&#39;])</span>
+
+        <span class="c1"># [config_dinesty] &amp; [config_ultranest] CHECK THIS</span>
+
+        <span class="c1"># ## create OUTPUTS Sub-Directories: interpolated grids and results</span>
+        <span class="c1"># stock_result_sub_dir = self.stock_result_raw + self.name_obs + &#39;_&#39; + self.model_name[</span>
+        <span class="c1">#                                                                      :-4] + self.data_type  # sub_directory: obsname_grid_datatype</span>
+        <span class="c1"># self.stock_interp_grid = stock_result_sub_dir + &#39;/interp_grid&#39;  # sub_sub directory to save interp grid (one interpolation for grid and data type, full wavelength covarage)</span>
+        <span class="c1">#</span>
+        <span class="c1"># self.path_grid_management = self.base_path + stock_result_sub_dir + &#39;/interp_grid/grid_management&#39;</span>
+        <span class="c1"># os.makedirs(self.base_path + stock_result_sub_dir + &#39;/interp_grid&#39; + &#39;/grid_management&#39;, exist_ok=True)</span>
+        <span class="c1">#</span>
+        <span class="c1"># subsub_dir_name = self.nest_samp_algo + &#39;_&#39; + self.NS_using_band + &#39;_Res&#39; + str(</span>
+        <span class="c1">#     self.R_by_wl[2]) + &#39;_&#39;  # subsub_directory: nestle_band_ResOBS_params_date</span>
+        <span class="c1"># subsub_dir_name = subsub_dir_name + self.free_params + &#39;_t&#39; + time.strftime(&quot;%Y%m%d_%H%M%S&quot;)</span>
+        <span class="c1"># stock_result_subsub_dir = stock_result_sub_dir + &#39;/&#39; + subsub_dir_name</span>
+        <span class="c1"># self.stock_result = self.base_path + stock_result_subsub_dir</span>
+        <span class="c1"># os.makedirs(self.base_path + stock_result_subsub_dir)</span>
+
+        <span class="c1"># ## Save CONFIG file with updated params for current run in OUTPUT subsub directory</span>
+        <span class="c1">#</span>
+        <span class="c1"># print(&#39;- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -&#39;)</span>
+        <span class="c1"># print(&#39;-&gt; Saving new configuration&#39;)</span>
+        <span class="c1"># print()</span>
+        <span class="c1">#</span>
+        <span class="c1"># config_current = self.result_path + &#39;/past_config.ini&#39;</span>
+        <span class="c1"># config.filename = config_current</span>
+        <span class="c1"># config[&#39;config_path&#39;][&#39;stock_interp_grid&#39;] = stock_interp_grid</span>
+        <span class="c1"># config[&#39;config_path&#39;][&#39;stock_result&#39;] = stock_result_subsub_dir</span>
+        <span class="c1"># config.write()</span>
+        <span class="c1">#</span>
+        <span class="c1"># print(&#39;Saved config: --- &#39; + config_current + &#39; ---&#39;)</span>
+        <span class="c1"># print()</span>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, S. Petrus, P. Palma-Bifani, M. Bonnefoy, G. Chauvin, et al..</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

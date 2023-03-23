@@ -1,11 +1,12 @@
 <!DOCTYPE html>
-<html class="writer-html5" lang="Python" >
+<html class="writer-html5" lang="en" >
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>&lt;no title&gt; &mdash; ForMoSA 1.0.0 documentation</title>
+  <title>ForMoSA API &mdash; ForMoSA  documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+    <link rel="shortcut icon" href="_static/favicon.ico"/>
   <!--[if lt IE 9]>
     <script src="_static/js/html5shiv.min.js"></script>
   <![endif]-->
@@ -16,10 +17,12 @@
         <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="_static/doctools.js"></script>
         <script src="_static/sphinx_highlight.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="prev" title="&lt;no title&gt;" href="installation.html" /> 
+    <link rel="next" title="Main Utilities" href="main_utilities.html" />
+    <link rel="prev" title="DEMO" href="demo.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -41,10 +44,18 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <!-- Local TOC -->
-              <div class="local-toc"><ul class="simple">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="demo.html">DEMO</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">ForMoSA API</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="main_utilities.html">Main Utilities</a></li>
+<li class="toctree-l2"><a class="reference internal" href="adapt.html">Adapt the data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="nested_sampling.html">Nested Sampling</a></li>
+<li class="toctree-l2"><a class="reference internal" href="plotting.html">Plotting Class</a></li>
 </ul>
-</div>
+</li>
+</ul>
+
         </div>
       </div>
     </nav>
@@ -59,9 +70,9 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
-      <li class="breadcrumb-item active">&lt;no title&gt;</li>
+      <li class="breadcrumb-item active">ForMoSA API</li>
       <li class="wy-breadcrumbs-aside">
-            <a href="_sources/support.rst.txt" rel="nofollow"> View page source</a>
+            <a href="_sources/api.rst.txt" rel="nofollow"> View page source</a>
       </li>
   </ul>
   <hr/>
@@ -69,22 +80,54 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <p>Support</p>
-<p>The easiest way to get help with the project is to open an issue on the GitHub repository.</p>
-<p>Github: <a class="reference external" href="https://github.com/exoAtmospheres/ForMoSA/issues">https://github.com/exoAtmospheres/ForMoSA/issues</a></p>
-<p>You can send us an email directly too.</p>
+  
+<style>
+/* CSS overrides for sphinx_rtd_theme */
+
+/* 24px margin */
+.nbinput.nblast.container,
+.nboutput.nblast.container {
+    margin-bottom: 19px;  /* padding has already 5px */
+}
+
+/* ... except between code cells! */
+.nblast.container + .nbinput.container {
+    margin-top: -19px;
+}
+
+.admonition > p:before {
+    margin-right: 4px;  /* make room for the exclamation icon */
+}
+
+/* Fix math alignment, see https://github.com/rtfd/sphinx_rtd_theme/pull/686 */
+.math {
+    text-align: unset;
+}
+</style>
+<div class="section" id="formosa-api">
+<span id="api"></span><h1>ForMoSA API<a class="headerlink" href="#formosa-api" title="Permalink to this heading"></a></h1>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="main_utilities.html">Main Utilities</a></li>
+<li class="toctree-l1"><a class="reference internal" href="adapt.html">Adapt the data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="nested_sampling.html">Nested Sampling</a></li>
+<li class="toctree-l1"><a class="reference internal" href="plotting.html">Plotting Class</a></li>
+</ul>
+</div>
+</div>
 
 
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="installation.html" class="btn btn-neutral float-left" title="&lt;no title&gt;" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="demo.html" class="btn btn-neutral float-left" title="DEMO" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="main_utilities.html" class="btn btn-neutral float-right" title="Main Utilities" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2023, S. Petrus &amp; P. Palma-Bifani.</p>
+    <p>&#169; Copyright 2023, S. Petrus, P. Palma-Bifani, M. Bonnefoy, G. Chauvin, et al..</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
