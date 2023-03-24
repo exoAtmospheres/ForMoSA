@@ -1,6 +1,5 @@
-<p align="left"><img src="docs/source/ForMoSA.png" alt="ForMoSA" width="150"/></p>
+<p align="left"><img src="docs/source/ForMoSA.png" alt="ForMoSA" width="250"/></p>
 
-# ForMoSA
 
 Refer to our [ReadTheDocs](https://formosa.readthedocs.io/en/latest/index.html) page for installation instructions, demo and documentation details.
 
