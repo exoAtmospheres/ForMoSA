@@ -2,7 +2,6 @@
 
 Adapt the data
 ==============
-.. module:: ForMoSA.adapt
 
 Adapt Grid:
 +++++++++++

@@ -18,6 +18,12 @@ To install and use our package follow the following sequence of commands.
 
     $ pip install ForMoSA
 
+`ForMoSA PyPI <https://pypi.org/project/ForMoSA/>`_
+
+You may get some errors at this point when running ForMoSA. Run the following two lines on your environment to solve known bugs.
+
+.. code-block:: bash
+
     $ pip install importlib-metadata==4.13.0
 
     $ conda install xarray dask netCDF4 bottleneck
@@ -25,4 +31,4 @@ To install and use our package follow the following sequence of commands.
 Issues?
 +++++++
 
-If you run into any problem, please create an issue on `GitHub <https://github.com/exoAtmospheres/ForMoSA/issues>`_.
+If you run into any other problem, please create an issue on `GitHub <https://github.com/exoAtmospheres/ForMoSA/issues>`_.

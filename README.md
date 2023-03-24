@@ -1,50 +1,17 @@
-# ForMoSA
+<p align="left"><img src="docs/source/ForMoSA.png" alt="ForMoSA" width="250"/></p>
 
-Currently under testing process. This is version 1.0.x. 
 
-**Soon available for the comunity.**
+Refer to our [ReadTheDocs](https://formosa.readthedocs.io/en/latest/index.html) page for installation instructions, demo and documentation details.
 
-***
-#### **To install:**
 
-We strongly recomend creating an environment for ForMoSA and import the following packages (those specific versions) to it. 
-
-$ conda create -n formosa_env python=3.7
-
-$ conda activate formosa_env
-
-$ pip install ForMoSA==1.0.x
-
-$ pip install importlib-metadata==4.13.0
-
-$ conda install xarray dask netCDF4 bottleneck
-
+[![Documentation Status](https://readthedocs.org/projects/formosa/badge/?version=latest)](https://formosa.readthedocs.io/en/latest/?badge=latest)
+[![PyPI version](https://badge.fury.io/py/formosa.svg)](https://badge.fury.io/py/formosa)
+[![PyPI downloads](https://img.shields.io/pypi/dm/formosa.svg)](https://pypistats.org/packages/formosa)
+[![License](https://img.shields.io/badge/License-BSD_2--Clause-orange.svg)](https://opensource.org/licenses/BSD-2-Clause)
 
 ***
-#### (NOT if repository is cloned! -> See DEMO for this case) 
-#### **To lunch it you can do:**
 
-$ python
+This package is currently under testing process. 
 
-$ import ForMoSA.main
-
-This will change in future updates together with the plotting modules.
-
-
-***
-#### **To have a preliminary look into the results:**
-
-Copy the DEMO/outputs/output_plots.ipynb file.
-Edit your path and input parameters acording to your case and run the cells.
-
-All plotting modules are flexible. You can access the axes and the plot class. 
-
-
-***
-***
-
-Why do we write **ForMoSA** like this? 
-
-Short for **For**ward **Mo**deling tool for **S**pectral **A**nalysis
-
+**Soon available for the comunity, stay tunned.**
 

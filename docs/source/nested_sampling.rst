@@ -2,7 +2,6 @@
 
 Nested Sampling
 ===============
-.. module:: ForMoSA
 
 Nested Main:
 ++++++++++++
