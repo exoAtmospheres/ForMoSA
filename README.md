@@ -13,5 +13,5 @@ Refer to our [ReadTheDocs](https://formosa.readthedocs.io/en/latest/index.html) 
 
 This package is currently under testing process. 
 
-**Soon available for the comunity, stay tunned.**
+**Soon available for the comunity, stay tunned!**
 
