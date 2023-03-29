@@ -10,7 +10,7 @@ def get_requires():
     return reqs
 
 setup(name='ForMoSA',
-      version='1.0.9',
+      version='1.0.10',
       description='ForMoSA: Forward Modeling Tool for Spectral Analysis',
       url='https://github.com/exoAtmospheres/ForMoSA',
       author='P. Palma-Bifani, S. Petrus',
@@ -20,4 +20,4 @@ setup(name='ForMoSA',
       install_requires=get_requires(),
       include_package_data = True,
       zip_safe=False,
-      python_requires='==3.7')
+      python_requires='^3.7')
