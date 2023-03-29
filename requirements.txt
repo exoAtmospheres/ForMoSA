@@ -9,4 +9,3 @@ PyAstronomy==0.18.0
 scipy==1.7.3
 spectres
 xarray==0.20.2
-pickle
