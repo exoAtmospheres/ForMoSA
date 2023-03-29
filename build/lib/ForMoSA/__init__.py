@@ -1,6 +1,5 @@
-__version__ = "1.0.9"
+import os
 
-from . import adapt
-from . import nested_sampling
-from . import phototeque
-from . import plotting
+__version__ = "1.0.13"
+
+__all__ = ['adapt', 'nested_sampling','plotting']

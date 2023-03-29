@@ -18,6 +18,8 @@ To install and use our package follow the following sequence of commands.
 
     $ pip install ForMoSA
 
+    $ pip install pyyaml
+
 `ForMoSA PyPI <https://pypi.org/project/ForMoSA/>`_
 
 You may get some errors at this point when running ForMoSA. Run the following two lines on your environment to solve known bugs.

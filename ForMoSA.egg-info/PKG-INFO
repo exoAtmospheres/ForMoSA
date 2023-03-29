@@ -1,0 +1,10 @@
+Metadata-Version: 2.1
+Name: ForMoSA
+Version: 1.0.13
+Summary: ForMoSA: Forward Modeling Tool for Spectral Analysis
+Home-page: https://github.com/exoAtmospheres/ForMoSA
+Author: P. Palma-Bifani, S. Petrus
+Author-email: paulina.palma-bifani@oca.eu
+License: BSD 2-Clause License
+Requires-Python: >=3.7
+License-File: LICENSE
