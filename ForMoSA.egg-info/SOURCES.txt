@@ -1,0 +1,12 @@
+LICENSE
+README.md
+setup.py
+ForMoSA/__init__.py
+ForMoSA/main.py
+ForMoSA/main_utilities.py
+ForMoSA.egg-info/PKG-INFO
+ForMoSA.egg-info/SOURCES.txt
+ForMoSA.egg-info/dependency_links.txt
+ForMoSA.egg-info/not-zip-safe
+ForMoSA.egg-info/requires.txt
+ForMoSA.egg-info/top_level.txt

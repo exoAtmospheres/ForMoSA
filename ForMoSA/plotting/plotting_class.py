@@ -389,8 +389,8 @@ class PlottingForMoSA():
 
         with open(self.global_params.result_path + '/result_' + self.global_params.ns_algo + '.pic', 'rb') as ns_result:
             result = pickle.load(ns_result)
-        samples = result.samples
-        logl = result.logl
+            samples = result.samples
+            logl = result.logl
         ind = np.where(logl == max(logl))
         theta_best = samples[ind][0]
 
@@ -409,10 +409,11 @@ class PlottingForMoSA():
         axr2.hist(residuals/sigma_res, bins=100 ,color=self.color_out, alpha=0.5, density=True, orientation='horizontal', label='density')
         axr2.axis('off')
 
-        ax.plot(spectra[4],spectra[5],'ko', alpha=0.7)
-        ax.plot(spectra[4],spectra[7],'o', color=self.color_out)
-        residuals_phot = spectra[7]-spectra[5]
-        axr.plot(spectra[4], residuals_phot/sigma_res, 'o', c=self.color_out, alpha=0.8)
+        if len(spectra[4]) != 0:
+            ax.plot(spectra[4],spectra[5],'ko', alpha=0.7)
+            ax.plot(spectra[4],spectra[7],'o', color=self.color_out)
+            residuals_phot = spectra[7]-spectra[5]
+            axr.plot(spectra[4], residuals_phot/sigma_res, 'o', c=self.color_out, alpha=0.8)
 
 
         axr.set_xlabel(r'Wavelength (µm)')
@@ -526,7 +527,7 @@ class PlottingForMoSA():
         ax.set_ylabel('Pressure (Pa)')
         ax.legend(frameon=False)
 
-        return fig
+        return fig, ax
        
 
     
