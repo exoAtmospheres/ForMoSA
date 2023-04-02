@@ -84,9 +84,9 @@ def button_config_file_path(dico_interface_tk, choose_mode='choose'):
 def button_vali_config_file_path_fct(dico_interface_tk):
 
     if dico_interface_tk['config_file_path_entry_select'].get()[-1] != '/':
-        dico_interface_tk['config_file_path_entry_select'].get() + '/'
+        dico_interface_tk['config_file_path_folder'] = dico_interface_tk['config_file_path_entry_select'].get() + '/'
     else:
-        dico_interface_tk['config_file_path_entry_select'].get()
+        dico_interface_tk['config_file_path_folder'] = dico_interface_tk['config_file_path_entry_select'].get()
     dico_interface_tk['config_file_path'] = dico_interface_tk['config_file_path_folder'] + 'configuration_file.ini'
 
     if not os.path.exists(dico_interface_tk['config_file_path_folder'] + 'dico_interface_param.json'):
