@@ -4,8 +4,8 @@ import os
 import xarray as xr
 # import matplotlib.pyplot as plt
 
-from adapt.extraction_functions import extract_observation
-from adapt.adapt_grid import adapt_grid
+from ForMoSA.adapt.extraction_functions import extract_observation
+from ForMoSA.adapt.adapt_grid import adapt_grid
 # ----------------------------------------------------------------------------------------------------------------------
 
 

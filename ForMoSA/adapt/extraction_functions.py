@@ -394,13 +394,15 @@ def continuum_estimate(global_params, wav_cut, wav, flx, res, obs_or_mod):
         wav_for_continuum = global_params.wav_for_continuum.split('/')
         for wav_for_cont_cut_ind, wav_for_cont_cut in enumerate(wav_for_continuum):
             wav_for_cont_cut = wav_for_cont_cut.split(',')
-            if wav_for_cont_cut_ind == 0:
-                ind_cont_cut = np.where(wav <= float(wav_for_cont_cut[0]))
-            elif wav_for_cont_cut_ind == len(wav_for_continuum)-1:
-                ind_cont_cut = np.where(float(wav_for_cont_cut[0]) <= wav)
-            else:
-                ind_cont_cut = np.where((float(wav_for_cont_cut[0]) <= wav) &
-                                        (wav <= float(wav_for_cont_cut[1])))
+            # if wav_for_cont_cut_ind == 0:
+            #     ind_cont_cut = np.where(wav <= float(wav_for_cont_cut[0]))
+            # elif wav_for_cont_cut_ind == len(wav_for_continuum)-1:
+            #     ind_cont_cut = np.where(float(wav_for_cont_cut[0]) <= wav)
+            # else:
+            #     ind_cont_cut = np.where((float(wav_for_cont_cut[0]) <= wav) &
+            #                             (wav <= float(wav_for_cont_cut[1])))
+            ind_cont_cut = np.where((float(wav_for_cont_cut[0]) <= wav) &
+                                    (wav <= float(wav_for_cont_cut[1])))
             if wav_for_cont_cut_ind == 0:
                 wav_for_cont_final = wav[ind_cont_cut]
                 flx_for_cont_final = flx[ind_cont_cut]
@@ -423,6 +425,7 @@ def continuum_estimate(global_params, wav_cut, wav, flx, res, obs_or_mod):
 
     fwhm_conv = np.sqrt(fwhm_continuum**2 - fwhm**2)
     sigma = fwhm_conv / (dwav * 2.355)
+
     continuum = gaussian_filter(flx, sigma)
 
     return continuum

@@ -10,8 +10,8 @@ import xarray as xr
 import pickle
 
 # Import ForMoSA
-from main_utilities import GlobFile
-from nested_sampling.nested_modif_spec import modif_spec
+from ForMoSA.main_utilities import GlobFile
+from ForMoSA.nested_sampling.nested_modif_spec import modif_spec
 
 
 # ----------------------------------------------------------------------------------------------------------------------
@@ -195,24 +195,24 @@ class PlottingForMoSA():
         self._get_posteriors()
 
         fig = corner.corner(self.posterior_to_plot[burn_in:],
-                        weights=self.weights[burn_in:],
-                        labels=self.posteriors_names,
-                        range=[0.999999 for p in self.posteriors_names],
-                        levels=levels_sig,
-                        bins=bins,
-                        smooth=1,
-                        quantiles=quantiles,
-                        top_ticks=False,
-                        plot_datapoints=False,
-                        plot_density=True,
-                        plot_contours=True,
-                        fill_contours=True,
-                        show_titles=True,
-                        title_fmt='.2f',
-                        title_kwargs=dict(fontsize=10),
-                        contour_kwargs=dict(colors=self.color_out, linewidths=0.7),
-                        pcolor_kwargs=dict(color='red'),
-                        label_kwargs=dict(fontsize=10))
+                            weights=self.weights[burn_in:],
+                            labels=self.posteriors_names,
+                            range=[0.999999 for p in self.posteriors_names],
+                            levels=levels_sig,
+                            bins=bins,
+                            smooth=1,
+                            quantiles=quantiles,
+                            top_ticks=False,
+                            plot_datapoints=False,
+                            plot_density=True,
+                            plot_contours=True,
+                            fill_contours=True,
+                            show_titles=True,
+                            title_fmt='.2f',
+                            title_kwargs=dict(fontsize=10),
+                            contour_kwargs=dict(colors=self.color_out, linewidths=0.7),
+                            pcolor_kwargs=dict(color='red'),
+                            label_kwargs=dict(fontsize=10))
 
         fig.supxlabel(self.outputs_string, va='top')
 
@@ -597,19 +597,19 @@ class PlottingForMoSA():
         cloud_prop_profiles = np.full((len(samples), len(P)), np.nan)
         for i in range(0, len(samples)):
             cloud_prop_profiles[i][:] = cloud_prop_grid_xa.interp(Teff=Teffs[i], logg=loggs[i], MH=MHs[i], CO=COs[i])#, kwargs={'fill_value':'extrapolate'})
-        #Calcule le profil le plus probable
+        # Calcule le profil le plus probable
         propfit = []
         for i in range(0, len(P)):
-            propfit.append(np.percentile(cloud_prop_profiles[:,i], 50))
-        #Calcule les percentiles 68 et 96 du profil le plus probable
+            propfit.append(np.percentile(cloud_prop_profiles[:, i], 50))
+        # Calcule les percentiles 68 et 96 du profil le plus probable
         propinf68, propsup68, propinf95, propsup95 = [], [], [], []
         for i in range(0, len(P)):
-            propinf68.append(np.percentile(cloud_prop_profiles[:,i], 16))
-            propsup68.append(np.percentile(cloud_prop_profiles[:,i], 84))
-            propinf95.append(np.percentile(cloud_prop_profiles[:,i], 2))
-            propsup95.append(np.percentile(cloud_prop_profiles[:,i], 98))
+            propinf68.append(np.percentile(cloud_prop_profiles[:, i], 16))
+            propsup68.append(np.percentile(cloud_prop_profiles[:, i], 84))
+            propinf95.append(np.percentile(cloud_prop_profiles[:, i], 2))
+            propsup95.append(np.percentile(cloud_prop_profiles[:, i], 98))
 
-        #Plot le profil le plus probable et les percentiles associés
+        # Plot le profil le plus probable et les percentiles associés
         fig = plt.figure()
         ax = plt.axes()
 
@@ -669,41 +669,3 @@ class PlottingForMoSA():
         ax.legend(frameon=False)
 
         return fig, ax
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
