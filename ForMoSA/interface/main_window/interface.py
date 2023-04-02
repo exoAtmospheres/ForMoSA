@@ -22,7 +22,7 @@ def generate_config_file_interface(dico_interface_tk):
     d_height = int((screenheight - windheight) / 2)
     dico_interface_tk['root_config_file_path'].geometry(str(windwidth) + "x" + str(windheight) + "+" +
                                                         str(d_width) + "+" + str(d_height))
-    dico_interface_tk['root_config_file_path'].title('Selection of the configuration_file.ini')
+    dico_interface_tk['root_config_file_path'].title('ForMoSA interface')
     # --------------------------------------------------------------------
     # --------------------------------------------------------------------
     # Frame of the title
