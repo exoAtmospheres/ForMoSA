@@ -18,6 +18,10 @@ To install and use our package follow the following sequence of commands.
 
     $ pip install ForMoSA
 
+    $ pip install pyyaml
+
+    $ conda install xarray dask netCDF4 bottleneck
+
 `ForMoSA PyPI <https://pypi.org/project/ForMoSA/>`_
 
 You may get some errors at this point when running ForMoSA. Run the following two lines on your environment to solve known bugs.
@@ -25,8 +29,6 @@ You may get some errors at this point when running ForMoSA. Run the following tw
 .. code-block:: bash
 
     $ pip install importlib-metadata==4.13.0
-
-    $ conda install xarray dask netCDF4 bottleneck
 
 Issues?
 +++++++

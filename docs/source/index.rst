@@ -36,6 +36,16 @@ User Guide:
 Version Track:
 ++++++++++++++
 
-**1.0.0
+**1.0.13**
 
-This is the first official release.
+First version distributed, presented at `Cloud Academy 3. <https://alienearths.space/cloud-academy-3/>`_.
+
+**1.0.5**
+
+First operational release.
+
+
+Acknowledgments:
+++++++++++++++++
+Our sincere thanks to `Code/Astro <https://semaphorep.github.io/codeastro/>`_. 
+By attending that workshop in 2020 and being TA for three years, the dream of ForMoSA being an open source Python package became a reality.
