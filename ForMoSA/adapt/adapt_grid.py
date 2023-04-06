@@ -3,7 +3,7 @@ import numpy as np
 import xarray as xr
 import time
 
-from ForMoSA.adapt.extraction_functions import adapt_model, decoupe
+from adapt.extraction_functions import adapt_model, decoupe
 
 # ----------------------------------------------------------------------------------------------------------------------
 

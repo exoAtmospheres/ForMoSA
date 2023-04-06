@@ -6,7 +6,6 @@ import json
 import os
 import ForMoSA
 
-
 def openurl(url):
     webbrowser.open_new(url)
 

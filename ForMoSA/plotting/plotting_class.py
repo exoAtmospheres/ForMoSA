@@ -10,8 +10,8 @@ import xarray as xr
 import pickle
 
 # Import ForMoSA
-from ForMoSA.main_utilities import GlobFile
-from ForMoSA.nested_sampling.nested_modif_spec import modif_spec
+from main_utilities import GlobFile
+from nested_sampling.nested_modif_spec import modif_spec
 
 
 # ----------------------------------------------------------------------------------------------------------------------

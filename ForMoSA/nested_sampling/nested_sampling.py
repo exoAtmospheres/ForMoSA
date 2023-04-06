@@ -4,8 +4,8 @@ import time
 import xarray as xr
 import pickle
 
-from ForMoSA.nested_sampling.nested_modif_spec import modif_spec
-from ForMoSA.nested_sampling.nested_prior_function import uniform_prior, gaussian_prior
+from nested_sampling.nested_modif_spec import modif_spec
+from nested_sampling.nested_prior_function import uniform_prior, gaussian_prior
 
 
 def loglike(theta, theta_index, global_params, for_plot='no'):

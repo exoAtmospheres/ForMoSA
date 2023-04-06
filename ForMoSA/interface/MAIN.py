@@ -1,4 +1,4 @@
-from ForMoSA.interface.main_window.interface import generate_config_file_interface
+from main_window.interface import generate_config_file_interface
 
 
 dico_interface_tk = {}
