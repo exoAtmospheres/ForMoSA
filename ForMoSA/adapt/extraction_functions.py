@@ -79,14 +79,14 @@ def extract_observation(global_params, wav_mod_nativ, res_mod_nativ, cont='no'):
     # Reduce the spectral resolution for each sub-spectrum.
     for c, cut in enumerate(obs_cut):
         # If we want to decrease the resolution of the data:
-        if cont == 'no':
-            if global_params.adapt_method == 'by_sample':
-                obs_cut[c][1] = resolution_decreasing(global_params, cut, wav_mod_nativ, [], res_mod_nativ, 'obs')
+        if len(cut[0])!=0:
+            if cont == 'no':
+                if global_params.adapt_method == 'by_sample':
+                    obs_cut[c][1] = resolution_decreasing(global_params, cut, wav_mod_nativ, [], res_mod_nativ, 'obs')
+            
+            # If we want to estimate the continuum of the data:
             else:
-                pass
-        # If we want to estimate the continuum of the data:
-        else:
-            obs_cut[c][1] = continuum_estimate(global_params, cut[0], cut[0], cut[1], np.array(cut[3], dtype=float), 'obs')
+                obs_cut[c][1] = continuum_estimate(global_params, cut[0], cut[0], cut[1], np.array(cut[3], dtype=float), 'obs')
 
     return obs_cut, obs_pho, obs_cut_ins, obs_pho_ins
 
@@ -140,7 +140,7 @@ def adapt_observation_range(global_params):
         wav_for_adapt_tab = [str(min(wav)) + ',' + str(max(wav))]
     else:
         wav_for_adapt_tab = global_params.wav_for_adapt.split('/')
-
+        
     for range_ind, rangee in enumerate(wav_for_adapt_tab):
         rangee = rangee.split(',')
         ind = np.where((float(rangee[0]) <= wav) & (wav <= float(rangee[1])))
@@ -233,18 +233,18 @@ def extract_model(global_params, wav_mod_nativ, flx_mod_nativ, res_mod_nativ, co
     mod_cut = []
     for c, cut in enumerate(obs_cut):
         # If we want to decrease the resolution of the data:
-        if cont == 'no':
-            if global_params.adapt_method == 'by_sample':
-                mod_cut_flx = resolution_decreasing(global_params, cut, wav_mod_nativ, flx_mod_nativ, res_mod_nativ,
-                                                    'mod')
-            if global_params.adapt_method == 'no_spec':
-                mod_cut_flx = []
-
+        if len(cut[0])!=0:
+            if cont == 'no':
+                if global_params.adapt_method == 'by_sample':
+                    mod_cut_flx = resolution_decreasing(global_params, cut, wav_mod_nativ, flx_mod_nativ, res_mod_nativ,'mod')
+                else:
+                    mod_cut_flx = spectres(cut[0], wav_mod_nativ, flx_mod_nativ)
+            
+            # If we want to estimate the continuum of the data:
             else:
-                mod_cut_flx = spectres(cut[0], wav_mod_nativ, flx_mod_nativ)
-        # If we want to estimate the continuum of the data:
+                mod_cut_flx = continuum_estimate(global_params, cut[0], wav_mod_nativ, flx_mod_nativ, res_mod_nativ, 'mod')
         else:
-            mod_cut_flx = continuum_estimate(global_params, cut[0], wav_mod_nativ, flx_mod_nativ, res_mod_nativ, 'mod')
+            mod_cut_flx=[]
         mod_cut.append(mod_cut_flx)
 
     # Calculate each photometry point.

@@ -263,4 +263,4 @@ def modif_spec(global_params, theta, theta_index,
         print('You need to define a v.sin(i) AND a limb darkening, or set them both to NA')
         exit()
 
-    return wav_obs_merge, flx_obs_merge, err_obs_merge, new_flx_merge, wav_obs_phot, flx_obs_phot, err_obs_phot, new_flx_phot
+    return wav_obs_merge, flx_obs_merge, err_obs_merge, new_flx_merge, wav_obs_phot, flx_obs_phot, err_obs_phot, new_flx_phot, ck

@@ -139,6 +139,8 @@ def loglike(theta, theta_index, global_params, for_plot='no'):
     flx_obs_chi2 = np.array(np.concatenate((modif_spec_chi2[1], modif_spec_chi2[5])), dtype=float)
     err_obs_chi2 = np.array(np.concatenate((modif_spec_chi2[2], modif_spec_chi2[6])), dtype=float)
     flx_mod_chi2 = np.array(np.concatenate((modif_spec_chi2[3], modif_spec_chi2[7])), dtype=float)
+    ck = modif_spec_chi2[8]
+    # wav_obs_merge, flx_obs_merge, err_obs_merge, new_flx_merge, wav_obs_phot, flx_obs_phot, err_obs_phot, new_flx_phot, ck
     #print('flx, mod, chi2', flx_mod_chi2)
     #print('array-0',modif_spec_chi2[0])
     #print('array-1',modif_spec_chi2[1])

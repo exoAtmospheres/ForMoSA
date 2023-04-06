@@ -8,10 +8,14 @@ from matplotlib.figure import Figure
 import corner
 import xarray as xr
 import pickle
+from scipy.interpolate import interp1d
+import extinction
+from PyAstronomy.pyasl import dopplerShift, rotBroad
 
 # Import ForMoSA
 from main_utilities import GlobFile
 from nested_sampling.nested_modif_spec import modif_spec
+from adapt.extraction_functions import resolution_decreasing
 
 
 # ----------------------------------------------------------------------------------------------------------------------
@@ -272,7 +276,7 @@ class PlottingForMoSA():
         radar.fill_between(list_uncert_down,list_uncert_up, color=self.color_out, alpha=0.2)
 
         radar.ax.legend(loc='center', bbox_to_anchor=(0.5, -0.20),frameon=False, ncol=2)
-        
+
         return fig1, radar.ax
 
 
@@ -360,8 +364,69 @@ class PlottingForMoSA():
         modif_spec_chi2 = modif_spec(self.global_params, theta, self.theta_index,
                                      wav_obs_merge, flx_obs_merge, err_obs_merge, flx_mod_merge,
                                      wav_obs_phot, flx_obs_phot, err_obs_phot, flx_mod_phot)
-
+        
         return modif_spec_chi2
+    
+
+    def get_FULL_spectra(self, res_out=1000, r_picked='NA', d_picked='NA', rv_picked=0, av_picked=0, vsini_picked=0, ld_picked=0):
+        '''
+        To get the data and best model asociated 
+        Use numba: https://numba.pydata.org/
+
+        @ Paulina Palma-Bifani
+        '''
+        self._get_posteriors()
+
+        # Recover best fit values
+        theta = []
+        for l in range(len(self.posterior_to_plot[1,:])):
+            _, q50, _ = corner.quantile(self.posterior_to_plot[:,l], [0.16, 0.5, 0.84])
+            theta.append(q50)
+
+        # Define the wavelength grid for the full spectra as resolution and wavelength range function
+        my_string = self.global_params.wav_for_adapt
+        wav = [float(x) for x in my_string.split(',')]
+        #num_wavelengths = int(np.log(wav[1]/wav[0]) / np.log(1 + res_out/10000)) + 1
+        #wavelengths = np.array(wav[0] * (1 + res_out/10000) ** np.arange(num_wavelengths))
+        wavelengths = np.linspace(wav[0],wav[1],res_out)
+
+        # Recover the original grid
+        ds = xr.open_dataset(self.global_params.model_path, decode_cf=False, engine="netcdf4")
+        wav_mod_nativ = ds["wavelength"].values
+        grid = ds['grid']
+        ds.close()
+        
+        if self.global_params.par3 == 'NA':
+            flx_mod_nativ = grid.interp(par1=theta[0], par2=theta[1],method="linear", kwargs={"fill_value": "extrapolate"})
+        elif self.global_params.par4 == 'NA':
+            flx_mod_nativ = grid.interp(par1=theta[0], par2=theta[1], par3=theta[2],method="linear", kwargs={"fill_value": "extrapolate"})
+        elif self.global_params.par5 == 'NA':
+            flx_mod_nativ = grid.interp(par1=theta[0], par2=theta[1], par3=theta[2], par4=theta[3],method="linear", kwargs={"fill_value": "extrapolate"}) 
+        else:
+            flx_mod_nativ = grid.interp(par1=theta[0], par2=theta[1], par3=theta[2], par4=theta[3],par5=theta[4],method="linear", kwargs={"fill_value": "extrapolate"})
+           
+        # Interpolate to desire wavelength range
+        interp_mod_to_obs = interp1d(wav_mod_nativ, flx_mod_nativ, fill_value='extrapolate')
+        flx_mod_final = interp_mod_to_obs(wavelengths)
+
+        #scale flux
+        modif_spec_chi2 = self._get_spectra(theta)
+        ck =  modif_spec_chi2[8]
+        flx_mod_final *=ck
+        print(ck)
+
+        # Modification of the synthetic spectrum with the extra-grid parameters
+        if rv_picked != 0:
+            new_wav = wavelengths * ((rv_picked / 299792.458) + 1)
+            rv_interp = interp1d(new_wav, flx_mod_final, fill_value="extrapolate")
+            flx_mod_final = rv_interp(wavelengths)
+        if av_picked != 0:
+            dered_merge = extinction.fm07(wavelengths * 10000, av_picked, unit='aa')
+            flx_mod_final *= 10**(-0.4*dered_merge)
+        if vsini_picked !=0 and ld_picked != 0:
+            flx_mod_final = rotBroad(wavelengths, flx_mod_final, ld_picked, vsini_picked)
+
+        return wavelengths, flx_mod_final
 
 
     
@@ -419,6 +484,7 @@ class PlottingForMoSA():
             sigma_res = np.std(residuals_phot)
             axr.plot(spectra[4], residuals_phot/sigma_res, 'o', c=self.color_out, alpha=0.8, label='Photometry model-data')
             axr.axhline(y=0, color='k', alpha=0.5, linestyle='--')
+        
 
         axr.set_xlabel(r'Wavelength (µm)')
         ax.set_ylabel(r'Flux (W m-2 µm-1)')
