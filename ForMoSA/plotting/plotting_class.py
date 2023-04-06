@@ -396,37 +396,41 @@ class PlottingForMoSA():
 
         spectra = self._get_spectra(theta_best)
 
-        if uncert=='yes':
-            ax.errorbar(spectra[0], spectra[1], yerr=spectra[2], c='k', alpha=0.2)
-        ax.plot(spectra[0], spectra[1], c='k', label = 'data')
-        ax.plot(spectra[0], spectra[3], c=self.color_out, alpha=0.8, label='model')
+        if len(spectra[0]) != 0:
+            if uncert=='yes':
+                ax.errorbar(spectra[0], spectra[1], yerr=spectra[2], c='k', alpha=0.2)
+            ax.plot(spectra[0], spectra[1], c='k', label = 'data')
+            ax.plot(spectra[0], spectra[3], c=self.color_out, alpha=0.8, label='model')
 
 
-        residuals = spectra[3] - spectra[1]
-        sigma_res = np.std(residuals)
-        axr.plot(spectra[0], residuals/sigma_res, c=self.color_out, alpha=0.8, label='model-data')
-        axr.axhline(y=0, color='k', alpha=0.5, linestyle='--')
-        axr2.hist(residuals/sigma_res, bins=100 ,color=self.color_out, alpha=0.5, density=True, orientation='horizontal', label='density')
-        axr2.axis('off')
+            residuals = spectra[3] - spectra[1]
+            sigma_res = np.std(residuals)
+            axr.plot(spectra[0], residuals/sigma_res, c=self.color_out, alpha=0.8, label='model-data')
+            axr.axhline(y=0, color='k', alpha=0.5, linestyle='--')
+            axr2.hist(residuals/sigma_res, bins=100 ,color=self.color_out, alpha=0.5, density=True, orientation='horizontal', label='density')
+            axr2.legend(frameon=False,handlelength=0)
+
 
         if len(spectra[4]) != 0:
-            ax.plot(spectra[4],spectra[5],'ko', alpha=0.7)
-            ax.plot(spectra[4],spectra[7],'o', color=self.color_out)
+            ax.plot(spectra[4],spectra[5],'ko', alpha=0.7, label='Photometry data')
+            ax.plot(spectra[4],spectra[7],'o', color=self.color_out, label='Photometry model')
+            
             residuals_phot = spectra[7]-spectra[5]
-            axr.plot(spectra[4], residuals_phot/sigma_res, 'o', c=self.color_out, alpha=0.8)
-
+            sigma_res = np.std(residuals_phot)
+            axr.plot(spectra[4], residuals_phot/sigma_res, 'o', c=self.color_out, alpha=0.8, label='Photometry model-data')
+            axr.axhline(y=0, color='k', alpha=0.5, linestyle='--')
 
         axr.set_xlabel(r'Wavelength (µm)')
         ax.set_ylabel(r'Flux (W m-2 µm-1)')
         axr.set_ylabel(r'Residuals ($\sigma$)')
         
+        axr2.axis('off')
         ax.legend(frameon=False)
         axr.legend(frameon=False)
-        axr2.legend(frameon=False,handlelength=0)
-
+        
         # define the data as global
         self.spectra = spectra
-        self.residuals = residuals
+        #self.residuals = residuals
 
         return fig, ax, axr, axr2
 

@@ -2,22 +2,30 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
-def add_filter(pathr, filter_name, plot_filt=False):
+def add_filter(pathr, filter_name,unit, plot_filt=False):
     '''
     Function to add filters to the personal phototeque
-
 
     
     '''
     filter = open(pathr+filter_name+'.txt', 'r')
-    x = []
+    if unit == 'A':
+        conv = 1e4
+    if unit == 'micron':
+        conv= 1
+    if unit == 'nm':
+        conv= 1e3
+    else:
+        print("add the unit of the wavelenght (A, micron, nm)")
+
+    x = [] # units = µm
     y = []
     for line in filter:
         if np.logical_or(line[0] == '#', line[0] == '\n'):
             pass
         else:
             line = line.strip().split()
-            x.append(float(line[0])/10000)
+            x.append(float(line[0])/conv)
             y.append(float(line[1]))
     if plot_filt==True:
         plt.plot(x,y)

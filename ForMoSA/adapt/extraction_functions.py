@@ -188,7 +188,6 @@ def adapt_model(global_params, wav_mod_nativ, flx_mod_nativ, res_mod_nativ):
     """
     # Extract the synthetic spectra from the model grid
     mod_cut, mod_pho = extract_model(global_params, wav_mod_nativ, flx_mod_nativ, res_mod_nativ)
-
     # Estimate and subtraction of the continuum (if needed)
     if global_params.continuum_sub != 'NA':
         mod_cut_c, mod_pho_c = extract_model(global_params, wav_mod_nativ, flx_mod_nativ, res_mod_nativ, 'yes')
@@ -238,6 +237,9 @@ def extract_model(global_params, wav_mod_nativ, flx_mod_nativ, res_mod_nativ, co
             if global_params.adapt_method == 'by_sample':
                 mod_cut_flx = resolution_decreasing(global_params, cut, wav_mod_nativ, flx_mod_nativ, res_mod_nativ,
                                                     'mod')
+            if global_params.adapt_method == 'no_spec':
+                mod_cut_flx = []
+
             else:
                 mod_cut_flx = spectres(cut[0], wav_mod_nativ, flx_mod_nativ)
         # If we want to estimate the continuum of the data:
