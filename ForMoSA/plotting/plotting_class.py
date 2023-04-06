@@ -368,7 +368,7 @@ class PlottingForMoSA():
         return modif_spec_chi2
     
 
-    def get_FULL_spectra(self, res_out=1000, r_picked='NA', d_picked='NA', rv_picked=0, av_picked=0, vsini_picked=0, ld_picked=0):
+    def get_FULL_spectra(self, res_out=1000,rv_picked=0, av_picked=0, vsini_picked=0, ld_picked=0):
         '''
         To get the data and best model asociated 
         Use numba: https://numba.pydata.org/
