@@ -113,7 +113,7 @@ class PlottingForMoSA():
         '''
         with open(self.global_params.result_path + '/result_' + self.global_params.ns_algo + '.pic', 'rb') as open_pic:
             result = pickle.load(open_pic)
-            samples = result.samples
+            self.samples = result.samples
             self.weights = result.weights
 
             # To test the quality of the fit
@@ -129,7 +129,9 @@ class PlottingForMoSA():
                             ['rv', 'RV', r'(km.s$\mathrm{^{-1}}$)'],
                             ['av', 'Av', '(mag)'],
                             ['vsini', 'v.sin(i)', r'(km.s$\mathrm{^{-1}}$)'],
-                            ['ld', 'limb darkening', '']
+                            ['ld', 'limb darkening', ''],
+                            ['bb_T', 'bb_T', '(K)'],
+                            ['bb_R', 'bb_R', r'(R$\mathrm{_{Jup}}$)']
                             ]
 
         tot_list_param_title = []
@@ -168,21 +170,29 @@ class PlottingForMoSA():
         if self.global_params.ld != 'NA' and self.global_params.ld[0] != 'constant':
             tot_list_param_title.append(extra_parameters[5][1] + ' ' + extra_parameters[5][2])
             theta_index.append('ld')
+        ## cpd bb
+        if self.global_params.bb_T != 'NA' and self.global_params.bb_T[0] != 'constant':
+            tot_list_param_title.append(extra_parameters[6][1] + ' ' + extra_parameters[6][2])
+            theta_index.append('bb_T')
+        if self.global_params.bb_R != 'NA' and self.global_params.bb_R[0] != 'constant':
+            tot_list_param_title.append(extra_parameters[7][1] + ' ' + extra_parameters[7][2])
+            theta_index.append('bb_R')
         self.theta_index = np.asarray(theta_index)
 
-        posterior_to_plot = []
-        for res, results in enumerate(samples):
-            if self.global_params.r != 'NA':
-                if self.global_params.r[0] == "constant":
-                    r_picked = float(self.global_params.r[1])
-                else:
-                    ind_theta_r = np.where(self.theta_index == 'r')
-                    r_picked = results[ind_theta_r[0]]
-                lum = np.log10(4 * np.pi * (r_picked * 69911000.) ** 2 * results[0] ** 4 * 5.670e-8 / 3.83e26)
-                results = np.concatenate((results, np.asarray(lum)))
-            posterior_to_plot.append(results)
-        if self.global_params.r != 'NA':
+        posterior_to_plot = self.samples
+        if self.global_params.r != 'NA' and self.global_params.r[0] != 'constant':
+            posterior_to_plot = []
             tot_list_param_title.append(r'log(L/L$\mathrm{_{\odot}}$)')
+            
+            for res, results in enumerate(self.samples): 
+                ind_theta_r = np.where(self.theta_index == 'r')
+                r_picked = results[ind_theta_r[0]]
+                
+                lum = np.log10(4 * np.pi * (r_picked * 69911000.) ** 2 * results[0] ** 4 * 5.670e-8 / 3.83e26)
+                #print(lum)
+                results = np.concatenate((results, np.asarray(lum)))
+                #print(results)
+                posterior_to_plot.append(results)
 
         self.posterior_to_plot = np.array(posterior_to_plot)
         self.posteriors_names = tot_list_param_title

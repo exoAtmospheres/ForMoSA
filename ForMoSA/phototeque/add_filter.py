@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 def add_filter(pathr, filter_name,unit, plot_filt=False):
     '''
     Function to add filters to the personal phototeque
+    http://svo2.cab.inta-csic.es/theory/fps/
 
     
     '''

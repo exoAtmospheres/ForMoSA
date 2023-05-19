@@ -69,6 +69,10 @@ class GlobFile:
         self.av = config['config_parameter']['av']
         self.vsini = config['config_parameter']['vsini']
         self.ld = config['config_parameter']['ld']
+        self.bb_T = config['config_parameter']['bb_T']
+        self.bb_R = config['config_parameter']['bb_R']
+
+        self.ck = None
 
         # # [config_nestle] (10 but 3 relevant)  (n_ prefix for params)
         # self.n_mechanic = config['config_nestle']['mechanic']

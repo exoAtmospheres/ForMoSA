@@ -10,3 +10,5 @@ def creat_fitsfile(name_file):
     fileop.columns=['WAV', 'FLX', 'ERR', 'RES', 'INS']
     t = Table.from_pandas(fileop)
     t.write(name_file+'.fits')
+    
+    

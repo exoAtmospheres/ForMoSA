@@ -90,14 +90,12 @@ def loglike(theta, theta_index, global_params, for_plot='no'):
                 flx_mod_phot_cut = []
         else:
             if len(grid_merge_cut['wavelength']) != 0:
-                flx_mod_merge_cut = grid_merge_cut.interp(par1=theta[0], par2=theta[1], par3=theta[2], par4=theta[3],
-                                                          par5=theta[4],
+                flx_mod_merge_cut = grid_merge_cut.interp(par1=theta[0], par2=theta[1], par3=theta[2], par4=theta[3],par5=theta[4],
                                                           method="linear", kwargs={"fill_value": "extrapolate"})
             else:
                 flx_mod_merge_cut = []
             if len(grid_phot_cut['wavelength']) != 0:
-                flx_mod_phot_cut = grid_phot_cut.interp(par1=theta[0], par2=theta[1], par3=theta[2], par4=theta[3],
-                                                        par5=theta[4],
+                flx_mod_phot_cut = grid_phot_cut.interp(par1=theta[0], par2=theta[1], par3=theta[2], par4=theta[3],npar5=theta[4],
                                                         method="linear", kwargs={"fill_value": "extrapolate"})
             else:
                 flx_mod_phot_cut = []
@@ -140,6 +138,8 @@ def loglike(theta, theta_index, global_params, for_plot='no'):
     err_obs_chi2 = np.array(np.concatenate((modif_spec_chi2[2], modif_spec_chi2[6])), dtype=float)
     flx_mod_chi2 = np.array(np.concatenate((modif_spec_chi2[3], modif_spec_chi2[7])), dtype=float)
     ck = modif_spec_chi2[8]
+    #print('ck', ck)
+    
     # wav_obs_merge, flx_obs_merge, err_obs_merge, new_flx_merge, wav_obs_phot, flx_obs_phot, err_obs_phot, new_flx_phot, ck
     #print('flx, mod, chi2', flx_mod_chi2)
     #print('array-0',modif_spec_chi2[0])
@@ -285,7 +285,26 @@ def prior_transform(theta, theta_index, lim_param_grid, global_params):
             if prior_law == 'gaussian':
                 prior_ld = gaussian_prior([float(global_params.ld[1]), float(global_params.ld[2])], theta[ind_theta_ld[0][0]])
             prior.append(prior_ld)
-
+    ## adding the CPD params, bb_T and bb_R
+    if global_params.bb_T != 'NA':
+        prior_law = global_params.bb_T[0]
+        if prior_law != 'constant':
+            ind_theta_bb_T = np.where(theta_index == 'bb_T')
+            if prior_law == 'uniform':
+                prior_bb_T = uniform_prior([float(global_params.bb_T[1]), float(global_params.bb_T[2])], theta[ind_theta_bb_T[0][0]])
+            if prior_law == 'gaussian':
+                prior_bb_T = gaussian_prior([float(global_params.bb_T[1]), float(global_params.bb_T[2])], theta[ind_theta_bb_T[0][0]])
+            prior.append(prior_bb_T)
+    if global_params.bb_R != 'NA':
+        prior_law = global_params.bb_R[0]
+        if prior_law != 'constant':
+            ind_theta_bb_R = np.where(theta_index == 'bb_R')
+            if prior_law == 'uniform':
+                prior_bb_R = uniform_prior([float(global_params.bb_R[1]), float(global_params.bb_R[2])], theta[ind_theta_bb_R[0][0]])
+            if prior_law == 'gaussian':
+                prior_bb_R = gaussian_prior([float(global_params.bb_R[1]), float(global_params.bb_R[2])], theta[ind_theta_bb_R[0][0]])
+            prior.append(prior_bb_R)
+    #print(prior)
     return prior
 
 
@@ -340,7 +359,15 @@ def launch_nested_sampling(global_params):
     if global_params.ld != 'NA' and global_params.ld[0] != 'constant':
         n_free_parameters += 1
         theta_index.append('ld')
+    ## adding cpd
+    if global_params.bb_T != 'NA' and global_params.bb_T[0] != 'constant':
+        n_free_parameters += 1
+        theta_index.append('bb_T')
+    if global_params.bb_R != 'NA' and global_params.bb_R[0] != 'constant':
+        n_free_parameters += 1
+        theta_index.append('bb_R')
     theta_index = np.asarray(theta_index)
+    #print(theta_index, n_free_parameters)
 
     if global_params.ns_algo == 'nestle':
         tmpstot1 = time.time()

@@ -1,6 +1,8 @@
 import numpy as np
 import extinction
 from scipy.interpolate import interp1d
+import astropy.units as u
+import astropy.constants as const
 from PyAstronomy.pyasl import dopplerShift, rotBroad
 
 # ----------------------------------------------------------------------------------------------------------------------
@@ -161,6 +163,49 @@ def vsini_fct(wav_obs_merge, new_flx_merge, ld_picked, vsini_picked):
 
 # ----------------------------------------------------------------------------------------------------------------------
 
+def bb_cpd_fct(wav_obs_merge, wav_obs_phot, new_flx_merge, new_flx_phot, distance, bb_T_picked, bb_R_picked):
+    ''' Function to add the effect of a cpd (circum planetary disc) to the models
+    Args:  
+    - wav_obs_merge       () :
+    - wav_obs_phot    () :
+    - new_flx_merge   () :
+    - new_flx_phot () :
+    - bb_temp   () :
+    - bb_rad    () : radius in units of planetary radius
+    
+    Returns:
+    - new_flx   () :
+    - new_flx_f () :
+    '''
+
+    bb_T_picked *= u.K
+    bb_R_picked *= u.Rjup
+    distance *= u.pc
+
+    def planck(wav, T):
+        a = 2.0*const.h*const.c**2
+        b = const.h*const.c/(wav*const.k_B*T)
+        intensity = a/ ( (wav**5) * (np.exp(b) - 1.0) )
+        return intensity
+    
+    bb_intensity    = planck(wav_obs_merge*u.um, bb_T_picked)
+    bb_intensity_f    = planck(wav_obs_phot*u.um, bb_T_picked)
+
+    #flux_bb_lambda   = ( np.pi * (bb_R_picked)**2 / ( ck*u.km **2) * bb_intensity ).to(u.W/u.m**2/u.micron)
+    flux_bb_lambda   = ( 4*np.pi*bb_R_picked**2/(distance**2) * bb_intensity ).to(u.W/u.m**2/u.micron)
+
+    #flux_bb_lambda_f = ( np.pi * (bb_R_picked)**2 / ( ck*u.km **2) * bb_intensity_f ).to(u.W/u.m**2/u.micron)
+    flux_bb_lambda_f = ( 4*np.pi*bb_R_picked**2/(distance**2) * bb_intensity_f ).to(u.W/u.m**2/u.micron)
+
+
+    # add to model flux of the atmosphere
+    new_flx_merge  += flux_bb_lambda.value
+    new_flx_phot   += flux_bb_lambda_f.value
+    # 
+    return new_flx_merge, new_flx_phot
+
+# ----------------------------------------------------------------------------------------------------------------------
+
 
 def modif_spec(global_params, theta, theta_index,
                wav_obs_merge, flx_obs_merge, err_obs_merge, new_flx_merge,
@@ -171,6 +216,7 @@ def modif_spec(global_params, theta, theta_index,
         - Doppler shifting
         - Application of a substellar extinction
         - Application of a rotational velocity
+        - Application of a circumplanetary disk (CPD)
 
     Args:
         global_params: Class containing each parameter
@@ -194,7 +240,7 @@ def modif_spec(global_params, theta, theta_index,
         err_obs_phot: Error of the data (photometry)
         new_flx_phot: New flux of the interpolated synthetic spectrum (photometry)
 
-    Author: Simon Petrus
+    Author: Simon Petrus and Paulina Palma-Bifani
     """
     # Calculation of the dilution factor Ck and re-normalization of the interpolated synthetic spectrum.
     # From the radius and the distance.
@@ -262,5 +308,33 @@ def modif_spec(global_params, theta, theta_index,
     else:
         print('You need to define a v.sin(i) AND a limb darkening, or set them both to NA')
         exit()
+    
+    # Adding a CPD
+    if global_params.bb_T != "NA" and global_params.bb_R != "NA":
+        # posteriors T_eff, R_disk
+        # Enter 1 or 2 bb
+        if global_params.bb_T[0] == 'constant':
+            bb_T_picked = float(global_params.bb_T[1])
+            bb_R_picked = float(global_params.bb_R[1])
+        else:
+            ind_theta_bb_T = np.where(theta_index == 'bb_T')
+            ind_theta_bb_R = np.where(theta_index == 'bb_R')
+            bb_T_picked = theta[ind_theta_bb_T[0][0]]
+            bb_R_picked = theta[ind_theta_bb_R[0][0]]
+        if global_params.d[0] == "constant":
+            d_picked = float(global_params.d[1])
+        else:
+            ind_theta_d = np.where(theta_index == 'd')
+            d_picked = theta[ind_theta_d[0][0]]
+
+        new_flx_merge, new_flx_phot = bb_cpd_fct(wav_obs_merge, wav_obs_phot, new_flx_merge, new_flx_phot, d_picked, bb_T_picked, bb_R_picked)
+
+    elif global_params.bb_T == "NA" and global_params.bb_R == "NA":
+        pass
+
+    else:
+        print('You need to define a blackbody radius and blackbody temperature, or set them to "NA"')
+        exit()
+
 
     return wav_obs_merge, flx_obs_merge, err_obs_merge, new_flx_merge, wav_obs_phot, flx_obs_phot, err_obs_phot, new_flx_phot, ck
