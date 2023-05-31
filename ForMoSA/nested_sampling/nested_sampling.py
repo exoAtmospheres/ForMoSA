@@ -95,7 +95,7 @@ def loglike(theta, theta_index, global_params, for_plot='no'):
             else:
                 flx_mod_merge_cut = []
             if len(grid_phot_cut['wavelength']) != 0:
-                flx_mod_phot_cut = grid_phot_cut.interp(par1=theta[0], par2=theta[1], par3=theta[2], par4=theta[3],npar5=theta[4],
+                flx_mod_phot_cut = grid_phot_cut.interp(par1=theta[0], par2=theta[1], par3=theta[2], par4=theta[3],par5=theta[4],
                                                         method="linear", kwargs={"fill_value": "extrapolate"})
             else:
                 flx_mod_phot_cut = []
