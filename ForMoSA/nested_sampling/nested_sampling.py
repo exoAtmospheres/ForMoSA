@@ -373,12 +373,18 @@ def launch_nested_sampling(global_params):
         tmpstot1 = time.time()
         loglike_gp = lambda theta: loglike(theta, theta_index, global_params)
         prior_transform_gp = lambda theta: prior_transform(theta, theta_index, lim_param_grid, global_params)
-        result = nestle.sample(loglike_gp, prior_transform_gp, n_free_parameters, callback=nestle.print_progress,npoints=int(float(global_params.npoint)))
+        result = nestle.sample(loglike_gp, prior_transform_gp, n_free_parameters, callback=nestle.print_progress,npoints=int(float(global_params.npoint)), dlogz=global_params.n_dlogz)
         tmpstot2 = time.time()-tmpstot1
         print('\n')
         print('########     The code spent ' + str(tmpstot2) + ' sec to run   ########')
         print(result.summary())
         print('\n\n')
+
+    if global_params.ns_algo == 'ultranest':
+        from dynesty import NestedSampler
+
+        # initialize our nested sampler
+        #sampler = NestedSampler(loglike, ptform, ndim)
     
     if global_params.ns_algo == 'dynesty':
         from dynesty import NestedSampler

@@ -74,16 +74,16 @@ class GlobFile:
 
         self.ck = None
 
-        # # [config_nestle] (10 but 3 relevant)  (n_ prefix for params)
-        # self.n_mechanic = config['config_nestle']['mechanic']
-        # self.n_method = config['config_nestle']['method']
-        # self.n_maxiter = int(config['config_nestle']['maxiter'])
-        # self.n_maxcall = eval(config['config_nestle']['maxcall'])
-        # self.n_dlogz = eval(config['config_nestle']['dlogz'])
-        # self.n_decline_factor = eval(config['config_nestle']['decline_factor'])
-        # self.n_update_interval = eval(config['config_nestle']['update_interval'])
-        # self.n_npdim = eval(config['config_nestle']['npdim'])
-        # self.n_rstate = eval(config['config_nestle']['rstate'])
+        # [config_nestle] (10 but 3 relevant)  (n_ prefix for params)
+        self.n_mechanic = config['config_nestle']['mechanic']
+        self.n_method = config['config_nestle']['method']
+        #self.n_maxiter = eval(config['config_nestle']['maxiter'])
+        #self.n_maxcall = eval(config['config_nestle']['maxcall'])
+        self.n_dlogz = eval(config['config_nestle']['dlogz'])
+        self.n_decline_factor = eval(config['config_nestle']['decline_factor'])
+        self.n_update_interval = eval(config['config_nestle']['update_interval'])
+        self.n_npdim = eval(config['config_nestle']['npdim'])
+        self.n_rstate = eval(config['config_nestle']['rstate'])
 
         # [config_dinesty] & [config_ultranest] CHECK THIS
 
