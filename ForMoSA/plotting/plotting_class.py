@@ -204,8 +204,6 @@ class PlottingForMoSA():
         self.posteriors_names = tot_list_param_title
 
 
-
-
     def plot_corner(self, levels_sig=[0.997, 0.95, 0.68], bins=100, quantiles=(0.16, 0.5, 0.84), burn_in=0):
         '''
         See the corner plots
@@ -396,8 +394,6 @@ class PlottingForMoSA():
         # Define the wavelength grid for the full spectra as resolution and wavelength range function
         my_string = self.global_params.wav_for_adapt
         wav = [float(x) for x in my_string.split(',')]
-        #num_wavelengths = int(np.log(wav[1]/wav[0]) / np.log(1 + res_out/10000)) + 1
-        #wavelengths = np.array(wav[0] * (1 + res_out/10000) ** np.arange(num_wavelengths))
         wavelengths = np.linspace(wav[0],wav[1],res_out)
 
         # Recover the original grid
@@ -419,24 +415,10 @@ class PlottingForMoSA():
         interp_mod_to_obs = interp1d(wav_mod_nativ, flx_mod_nativ, fill_value='extrapolate')
         flx_mod_final = interp_mod_to_obs(wavelengths)
 
-        #scale flux
-        #modif_spec_chi2 = self._get_spectra(self.theta_best)
-        #ck =  modif_spec_chi2[8]
-        #flx_mod_final *=ck
-        #print(ck)
-
-        #if self.global_params.r != 'NA' and self.global_params.r[0] != 'constant':
-        #    r_picked *= 69911
-        #    d_picked *= 3.086e+13
-        #    ck = (r_picked/d_picked)**2
-        #else:
-        #    modif_spec_chi2 = self._get_spectra(self.theta_best)
-        #    ck =  modif_spec_chi2[8]
-
         wav_final, _, _, flx_final, _, _, _, _, ck = modif_spec(self.global_params, self.theta_best, self.theta_index,
                                                                                     wavelengths, flx_mod_final, flx_mod_final*0.05, flx_mod_final,
                                                                                     [], [], [], [])
-        
+    
         return wav_final, flx_final
 
 
@@ -478,7 +460,6 @@ class PlottingForMoSA():
             axr2.hist(residuals/sigma_res, bins=100 ,color=self.color_out, alpha=0.5, density=True, orientation='horizontal', label='density')
             axr2.legend(frameon=False,handlelength=0)
 
-
         if len(spectra[4]) != 0:
             ax.plot(spectra[4],spectra[5],'ko', alpha=0.7, label='Photometry data')
             ax.plot(spectra[4],spectra[7],'o', color=self.color_out, label='Photometry model')
@@ -488,7 +469,6 @@ class PlottingForMoSA():
             axr.plot(spectra[4], residuals_phot/sigma_res, 'o', c=self.color_out, alpha=0.8, label='Photometry model-data')
             axr.axhline(y=0, color='k', alpha=0.5, linestyle='--')
         
-
         axr.set_xlabel(r'Wavelength (µm)')
         ax.set_ylabel(r'Flux (W m-2 µm-1)')
         axr.set_ylabel(r'Residuals ($\sigma$)')
@@ -602,8 +582,6 @@ class PlottingForMoSA():
 
         return fig, ax
        
-
-    
 
     def plot_Clouds(self, cloud_prop, path_cloud_profile, figsize=(6,5)):
         ''' 
