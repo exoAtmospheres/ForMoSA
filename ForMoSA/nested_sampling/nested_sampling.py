@@ -151,6 +151,7 @@ def loglike(theta, theta_index, global_params, for_plot='no'):
     # Calculation of the chi2 (used to calculate the likelihood)
     chisq = np.sum(((flx_obs_chi2 - flx_mod_chi2) / err_obs_chi2) ** 2)
     #print(chisq)
+    #print(chisq)
 
     if for_plot == 'no':
         return -chisq/2.
@@ -304,7 +305,6 @@ def prior_transform(theta, theta_index, lim_param_grid, global_params):
             if prior_law == 'gaussian':
                 prior_bb_R = gaussian_prior([float(global_params.bb_R[1]), float(global_params.bb_R[2])], theta[ind_theta_bb_R[0][0]])
             prior.append(prior_bb_R)
-    #print(prior)
     return prior
 
 
@@ -373,7 +373,14 @@ def launch_nested_sampling(global_params):
         tmpstot1 = time.time()
         loglike_gp = lambda theta: loglike(theta, theta_index, global_params)
         prior_transform_gp = lambda theta: prior_transform(theta, theta_index, lim_param_grid, global_params)
-        result = nestle.sample(loglike_gp, prior_transform_gp, n_free_parameters, callback=nestle.print_progress,npoints=int(float(global_params.npoint)), dlogz=global_params.n_dlogz)
+        result = nestle.sample(loglike_gp, prior_transform_gp, n_free_parameters, 
+                               callback=nestle.print_progress,
+                               npoints=int(float(global_params.npoint)), 
+                               method=global_params.n_method,
+                               maxiter=global_params.n_maxiter,
+                               maxcall=global_params.n_maxcall,
+                               dlogz=global_params.n_dlogz,
+                               decline_factor=global_params.n_decline_factor)
         tmpstot2 = time.time()-tmpstot1
         print('\n')
         print('########     The code spent ' + str(tmpstot2) + ' sec to run   ########')
@@ -381,7 +388,37 @@ def launch_nested_sampling(global_params):
         print('\n\n')
 
     if global_params.ns_algo == 'ultranest':
-        from dynesty import NestedSampler
+        import ultranest, ultranest.stepsampler
+
+        tmpstot1 = time.time()
+        
+        loglike_gp = lambda theta: loglike(theta, theta_index, global_params)
+
+        prior_transform_gp = lambda theta: prior_transform(theta, theta_index, lim_param_grid, global_params)
+
+        sampler = ultranest.ReactiveNestedSampler(theta_index,loglike=loglike_gp, transform=prior_transform_gp,
+                                                  wrapped_params=[False, False, False, False])#,
+                                                #log_dir=global_params.result_path, resume=True)
+        #result = sampler.run(min_num_live_points=100, max_ncalls=100000)
+
+        # have to choose the number of steps the slice sampler should take
+        # after first results, this should be increased and checked for consistency.
+        nsteps = 2 * len(theta_index)
+        # create step sampler:
+        sampler.stepsampler = ultranest.stepsampler.SliceSampler(nsteps=nsteps,
+                                                                 generate_direction=ultranest.stepsampler.generate_mixture_random_direction,
+                                                                 # adaptive_nsteps=False,
+                                                                 # max_nsteps=40
+                                                                 )
+        sampler.print_results()
+        #sampler.plot_corner()
+
+        tmpstot2 = time.time()-tmpstot1
+        print('\n')
+        print('########     Ultranest   ########')
+        print('########     The code spent ' + str(tmpstot2) + ' sec to run   ########')
+        print(result.summary())
+        print('\n\n')
 
         # initialize our nested sampler
         #sampler = NestedSampler(loglike, ptform, ndim)

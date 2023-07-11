@@ -1,0 +1,5 @@
+14:47:10 [ultranest] [DEBUG] ReactiveNestedSampler: dims=4+0, resume=True, log_dir=/Users/ppalmabifani/Desktop/exoAtm/c0_ForMoSA/ForMoSA/DEMO/outputs_ultranest/, backend=hdf5, vectorized=False, nbootstraps=30, ndraw=128..65536
+14:47:10 [ultranest] [INFO] Sampling 400 live points from prior ...
+14:47:23 [ultranest] [DEBUG] run_iter dlogz=0.5, dKL=0.5, frac_remain=0.01, Lepsilon=0.0010, min_ess=400
+14:47:23 [ultranest] [DEBUG] max_iters=-1, max_ncalls=-1, max_num_improvement_loops=-1, min_num_live_points=400, cluster_num_live_points=40
+14:47:23 [ultranest] [DEBUG] minimal_widths_sequence: [(-inf, 400.0), (inf, 400.0)]
