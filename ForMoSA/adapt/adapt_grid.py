@@ -10,21 +10,25 @@ from adapt.extraction_functions import adapt_model, decoupe
 
 def adapt_grid(global_params, wav_obs_spec, wav_obs_phot):
     """
-    Adapt the synthetic spectra of a grid to make them comparable with data.
+    Adapt the synthetic spectra of a grid to make them comparable with data in terms of wavelength range and resolution.
+    Save interpolated grid for spectra and photometry to be used for the nested sampling.
     
     Args:
-        global_params: Class containing each parameter
-        wav_obs_spec: Merged wavelength grid of the data
-        wav_obs_phot: Wavelengths of the photometry points
+        global_params (class): Class containing input parameters define on the config file
+        wav_obs_spec  (array): 1D array containing the wavelength of the input spectroscopic data data
+        wav_obs_phot  (array): Wavelengths of the photometry points
     Returns:
+        None
 
     Author: Simon Petrus
     """
+    # Open the grid
     ds = xr.open_dataset(global_params.model_path, decode_cf=False, engine="netcdf4")
     wav_mod_nativ = ds["wavelength"].values
     grid = ds['grid']
     attr = ds.attrs
     grid_np = grid.to_numpy()
+    # Read the grid
     if len(attr['par']) == 2:
         grid_new_np = np.full((len(wav_obs_spec),
                                len(grid["par1"].values),
@@ -69,6 +73,7 @@ def adapt_grid(global_params, wav_obs_spec, wav_obs_phot):
                                     len(grid["par4"].values),
                                     len(grid["par5"].values)), np.nan)
         tot_par = len(grid["par1"].values) * len(grid["par2"].values) * len(grid["par3"].values) * len(grid["par4"].values) * len(grid["par5"].values)
+    # Extraction of the models using adapt_model() function
     i_tot = 1
     follow_print_title = ''
     for par_t in attr['title']:
@@ -90,7 +95,6 @@ def adapt_grid(global_params, wav_obs_spec, wav_obs_phot):
                                         grid_new_np[:, p1_i, p2_i, p3_i, p4_i, p5_i] = flx_mod_extract
                                         grid_phot_new_np[:, p1_i, p2_i, p3_i, p4_i, p5_i] = mod_pho
                                     else:
-
                                         print('The extraction of the model : '+attr['title'][0]+'=' + str(p1) +
                                               ', '+attr['title'][1]+'=' + str(p2) +
                                               ', '+attr['title'][2]+'=' + str(p3) +
@@ -120,7 +124,6 @@ def adapt_grid(global_params, wav_obs_spec, wav_obs_phot):
                                     grid_new_np[:, p1_i, p2_i, p3_i, p4_i] = flx_mod_extract
                                     grid_phot_new_np[:, p1_i, p2_i, p3_i, p4_i] = mod_pho
                                 else:
-
                                     print('The extraction of the model : ' + attr['title'][0] + '=' + str(p1) +
                                           ', ' + attr['title'][1] + '=' + str(p2) +
                                           ', ' + attr['title'][2] + '=' + str(p3) +
@@ -146,12 +149,10 @@ def adapt_grid(global_params, wav_obs_spec, wav_obs_phot):
                         model_to_adapt = grid_np[:, p1_i, p2_i, p3_i]
                         nan_mod_ind = ~np.isnan(model_to_adapt)
                         if len(np.where(nan_mod_ind is False)[0]) == 0:
-                            flx_mod_extract, mod_pho = adapt_model(global_params, wav_mod_nativ, model_to_adapt,
-                                                                   attr['res'])
+                            flx_mod_extract, mod_pho = adapt_model(global_params, wav_mod_nativ, model_to_adapt, attr['res'])
                             grid_new_np[:, p1_i, p2_i, p3_i] = flx_mod_extract
                             grid_phot_new_np[:, p1_i, p2_i, p3_i] = mod_pho
                         else:
-
                             print('The extraction of the model : ' + attr['title'][0] + '=' + str(p1) +
                                   ', ' + attr['title'][1] + '=' + str(p2) +
                                   ', ' + attr['title'][2] + '=' + str(p3) +
@@ -179,7 +180,6 @@ def adapt_grid(global_params, wav_obs_spec, wav_obs_phot):
                     grid_new_np[:, p1_i, p2_i] = flx_mod_extract
                     grid_phot_new_np[:, p1_i, p2_i] = mod_pho
                 else:
-
                     print('The extraction of the model : ' + attr['title'][0] + '=' + str(p1) +
                           ', ' + attr['title'][1] + '=' + str(p2) +
                           '   failed')
@@ -196,7 +196,7 @@ def adapt_grid(global_params, wav_obs_spec, wav_obs_phot):
                 line_clear = '\x1b[2K'
                 print(line_up, end=line_clear)
                 i_tot += 1
-
+    # Defining the interpolated grid for spectra and photometry
     if len(attr['par']) == 2:
         ds_new = xr.Dataset(data_vars=dict(grid=(["wavelength", "par1", "par2"], grid_new_np)),
                             coords={"wavelength": wav_obs_spec,
@@ -237,7 +237,6 @@ def adapt_grid(global_params, wav_obs_spec, wav_obs_phot):
                                          "par3": grid["par3"].values,
                                          "par4": grid["par4"].values},
                                  attrs=attr)
-
     if len(attr['par']) == 5:
         ds_new = xr.Dataset(data_vars=dict(grid=(["wavelength", "par1", "par2", "par3", "par4", "par5"], grid_new_np)),
                             coords={"wavelength": wav_obs_spec,
@@ -256,19 +255,15 @@ def adapt_grid(global_params, wav_obs_spec, wav_obs_phot):
                                          "par4": grid["par4"].values,
                                          "par5": grid["par5"].values},
                                  attrs=attr)
-
-    print()
-    print()
     print()
     print('-> The possible holes in the grid are interpolated: ')
     print()
+    # interpolation of nan values
     for key_ind, key in enumerate(attr['key']):
         print(str(key_ind+1) + '/' + str(len(attr['key'])))
-        ds_new = ds_new.interpolate_na(dim=key, method="linear", fill_value="extrapolate", limit=None,
-                                       max_gap=None)
-        ds_new_phot = ds_new_phot.interpolate_na(dim=key, method="linear", fill_value="extrapolate", limit=None,
-                                                 max_gap=None)
-
+        ds_new = ds_new.interpolate_na(dim=key, method="linear", fill_value="extrapolate", limit=None, max_gap=None)
+        ds_new_phot = ds_new_phot.interpolate_na(dim=key, method="linear", fill_value="extrapolate", limit=None, max_gap=None)
+    # Save interpolated grid
     ds_new.to_netcdf(global_params.adapt_store_path + '/adapted_grid_merge_' + global_params.grid_name + '_nonan.nc',
                      format='NETCDF4',
                      engine='netcdf4',
