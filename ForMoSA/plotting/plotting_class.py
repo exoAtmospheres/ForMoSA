@@ -379,6 +379,7 @@ class PlottingForMoSA():
                                      wav_obs_merge, flx_obs_merge, err_obs_merge, flx_mod_merge,
                                      wav_obs_phot, flx_obs_phot, err_obs_phot, flx_mod_phot)
         
+
         return modif_spec_chi2
     
 
@@ -414,9 +415,12 @@ class PlottingForMoSA():
         # Interpolate to desire wavelength range
         interp_mod_to_obs = interp1d(wav_mod_nativ, flx_mod_nativ, fill_value='extrapolate')
         flx_mod_final = interp_mod_to_obs(wavelengths)
+        
+        spectra = self._get_spectra(self.theta_best)
+
 
         wav_final, _, _, flx_final, _, _, _, _, ck = modif_spec(self.global_params, self.theta_best, self.theta_index,
-                                                                                    wavelengths, flx_mod_final, flx_mod_final*0.05, flx_mod_final,
+                                                                                    wavelengths, flx_mod_final*spectra[-1], flx_mod_final*spectra[-1]*0.05, flx_mod_final,
                                                                                     [], [], [], [])
     
         return wav_final, flx_final

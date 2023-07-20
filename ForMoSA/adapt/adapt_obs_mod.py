@@ -2,7 +2,6 @@ from __future__ import print_function, division
 import numpy as np
 import os
 import xarray as xr
-# import matplotlib.pyplot as plt
 
 from adapt.extraction_functions import extract_observation
 from adapt.adapt_grid import adapt_grid
@@ -18,6 +17,7 @@ def launch_adapt(global_params, justobs='no'):
         global_params: Class containing each parameter
         justobs: If the grid need to be adapted justobs='no'
     Returns:
+        None
 
     Author: Simon Petrus
     """
