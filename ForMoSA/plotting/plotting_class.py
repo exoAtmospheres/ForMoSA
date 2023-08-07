@@ -1,6 +1,6 @@
 
 from __future__ import print_function, division
-import sys, os, yaml
+import sys, os, yaml, time
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib
@@ -13,11 +13,12 @@ import pickle
 from scipy.interpolate import interp1d
 import extinction
 from PyAstronomy.pyasl import dopplerShift, rotBroad
+from spectres import spectres
 
 # Import ForMoSA
 from main_utilities import GlobFile
 from nested_sampling.nested_modif_spec import modif_spec
-from adapt.extraction_functions import resolution_decreasing
+from adapt.extraction_functions import resolution_decreasing,adapt_model, decoupe
 
 
 # ----------------------------------------------------------------------------------------------------------------------
@@ -383,7 +384,7 @@ class PlottingForMoSA():
         return modif_spec_chi2
     
 
-    def get_FULL_spectra(self, res_out=1000,rv_picked=0, av_picked=0, vsini_picked=0, ld_picked=0, bb_T_picked=0, bb_R_picked=0):
+    def get_FULL_spectra(self, theta, grid_used = 'original', res_out=1000, re_interp=False):
         '''
         To get the data and best model asociated 
         Use numba: https://numba.pydata.org/
@@ -392,35 +393,45 @@ class PlottingForMoSA():
         '''
         self._get_posteriors()
 
+        
         # Define the wavelength grid for the full spectra as resolution and wavelength range function
         my_string = self.global_params.wav_for_adapt
         wav = [float(x) for x in my_string.split(',')]
         wavelengths = np.linspace(wav[0],wav[1],res_out)
 
         # Recover the original grid
-        ds = xr.open_dataset(self.global_params.model_path, decode_cf=False, engine="netcdf4")
+        if grid_used == 'original':
+            path_grid = self.global_params.model_path
+        else: 
+            path_grid = grid_used
+        ds = xr.open_dataset(path_grid, decode_cf=False, engine="netcdf4")
         wav_mod_nativ = ds["wavelength"].values
         grid = ds['grid']
         ds.close()
         
         if self.global_params.par3 == 'NA':
-            flx_mod_nativ = grid.interp(par1=self.theta_best[0], par2=self.theta_best[1],method="linear", kwargs={"fill_value": "extrapolate"})
+            flx_mod_nativ = grid.interp(par1=theta[0], par2=theta[1],method="linear", kwargs={"fill_value": "extrapolate"})
         elif self.global_params.par4 == 'NA':
-            flx_mod_nativ = grid.interp(par1=self.theta_best[0], par2=self.theta_best[1], par3=self.theta_best[2],method="linear", kwargs={"fill_value": "extrapolate"})
+            flx_mod_nativ = grid.interp(par1=theta[0], par2=theta[1], par3=theta[2],method="linear", kwargs={"fill_value": "extrapolate"})
         elif self.global_params.par5 == 'NA':
-            flx_mod_nativ = grid.interp(par1=self.theta_best[0], par2=self.theta_best[1], par3=self.theta_best[2], par4=self.theta_best[3],method="linear", kwargs={"fill_value": "extrapolate"}) 
+            flx_mod_nativ = grid.interp(par1=theta[0], par2=theta[1], par3=theta[2], par4=theta[3],method="linear", kwargs={"fill_value": "extrapolate"}) 
         else:
-            flx_mod_nativ = grid.interp(par1=self.theta_best[0], par2=self.theta_best[1], par3=self.theta_best[2], par4=self.theta_best[3],par5=self.theta_best[4],method="linear", kwargs={"fill_value": "extrapolate"})
-           
+            flx_mod_nativ = grid.interp(par1=theta[0], par2=theta[1], par3=theta[2], par4=theta[3],par5=theta[4],method="linear", kwargs={"fill_value": "extrapolate"})
+        
         # Interpolate to desire wavelength range
         interp_mod_to_obs = interp1d(wav_mod_nativ, flx_mod_nativ, fill_value='extrapolate')
         flx_mod_final = interp_mod_to_obs(wavelengths)
         
-        spectra = self._get_spectra(self.theta_best)
+        spectra = self._get_spectra(theta)
+        ck = float(spectra[-1])
 
+        wavelengths = np.asarray(wavelengths, dtype=float)
+        flx_mod_final = np.asarray(flx_mod_final, dtype=float)
+        flx_mod_final_calib = np.asarray(flx_mod_final*ck, dtype=float)
+        print(flx_mod_final[100],ck)
 
-        wav_final, _, _, flx_final, _, _, _, _, ck = modif_spec(self.global_params, self.theta_best, self.theta_index,
-                                                                                    wavelengths, flx_mod_final*spectra[-1], flx_mod_final*spectra[-1]*0.05, flx_mod_final,
+        wav_final, _, _, flx_final, _, _, _, _, _ = modif_spec(self.global_params, theta, self.theta_index,
+                                                                                    wavelengths, flx_mod_final_calib, flx_mod_final_calib, flx_mod_final_calib,
                                                                                     [], [], [], [])
     
         return wav_final, flx_final
@@ -725,3 +736,5 @@ class PlottingForMoSA():
         ax.legend(frameon=False)
 
         return fig, ax
+
+

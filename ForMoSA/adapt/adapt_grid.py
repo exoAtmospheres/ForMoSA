@@ -259,6 +259,7 @@ def adapt_grid(global_params, wav_obs_spec, wav_obs_phot):
     print('-> The possible holes in the grid are interpolated: ')
     print()
     # interpolation of nan values
+
     for key_ind, key in enumerate(attr['key']):
         print(str(key_ind+1) + '/' + str(len(attr['key'])))
         ds_new = ds_new.interpolate_na(dim=key, method="linear", fill_value="extrapolate", limit=None, max_gap=None)
@@ -276,3 +277,6 @@ def adapt_grid(global_params, wav_obs_spec, wav_obs_phot):
     print('-> The possible holes have been interpolated.')
 
     return None
+
+
+
