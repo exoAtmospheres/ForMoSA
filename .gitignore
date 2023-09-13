@@ -1,2 +1,4 @@
 # ignore atmospheric grids
 *.nc
+.ipynb_checkponts
+*.pyc
