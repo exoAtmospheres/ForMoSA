@@ -255,6 +255,10 @@ class PlottingForMoSA():
             for j in range(2):
                 axs[i, j].plot(self.posterior_to_plot[:,n], color=self.color_out, alpha=0.8)
                 axs[i, j].set_ylabel(self.posteriors_names[n])
+                if self.posteriors_names[n]=='log(L/L$\\mathrm{_{\\odot}}$)':
+                    pass
+                else:
+                    axs[i, j].axhline(self.theta_best[n],color='k',linestyle='--')
                 if n == len(self.posteriors_names)-1:
                     break
                 else:
@@ -384,7 +388,7 @@ class PlottingForMoSA():
         return modif_spec_chi2
     
 
-    def get_FULL_spectra(self, theta, grid_used = 'original', res_out=1000, re_interp=False):
+    def get_FULL_spectra(self, theta, grid_used = 'original', wavelengths=[],res_out=1000, re_interp=False):
         '''
         To get the data and best model asociated 
         Use numba: https://numba.pydata.org/
@@ -393,11 +397,11 @@ class PlottingForMoSA():
         '''
         self._get_posteriors()
 
-        
-        # Define the wavelength grid for the full spectra as resolution and wavelength range function
-        my_string = self.global_params.wav_for_adapt
-        wav = [float(x) for x in my_string.split(',')]
-        wavelengths = np.linspace(wav[0],wav[1],res_out)
+        if len(wavelengths)==0:
+            # Define the wavelength grid for the full spectra as resolution and wavelength range function
+            my_string = self.global_params.wav_for_adapt
+            wav = [float(x) for x in my_string.split(',')]
+            wavelengths = np.linspace(wav[0],wav[1],res_out)
 
         # Recover the original grid
         if grid_used == 'original':
@@ -428,13 +432,14 @@ class PlottingForMoSA():
         wavelengths = np.asarray(wavelengths, dtype=float)
         flx_mod_final = np.asarray(flx_mod_final, dtype=float)
         flx_mod_final_calib = np.asarray(flx_mod_final*ck, dtype=float)
-        print(flx_mod_final[100],ck)
+        #print(flx_mod_final[100],ck)
+        err_mod_final_calib = flx_mod_final_calib*0.1
 
         wav_final, _, _, flx_final, _, _, _, _, _ = modif_spec(self.global_params, theta, self.theta_index,
-                                                                                    wavelengths, flx_mod_final_calib, flx_mod_final_calib, flx_mod_final_calib,
+                                                                                    wavelengths, flx_mod_final_calib, err_mod_final_calib, flx_mod_final_calib/ck,
                                                                                     [], [], [], [])
     
-        return wav_final, flx_final
+        return wav_final, flx_final, ck
 
 
     
@@ -485,7 +490,7 @@ class PlottingForMoSA():
             axr.axhline(y=0, color='k', alpha=0.5, linestyle='--')
         
         axr.set_xlabel(r'Wavelength (µm)')
-        ax.set_ylabel(r'Flux (W m-2 µm-1)')
+        ax.set_ylabel(r'Flux (W m$^{-2}$ µm$^{-1}$)')
         axr.set_ylabel(r'Residuals ($\sigma$)')
         
         axr2.axis('off')

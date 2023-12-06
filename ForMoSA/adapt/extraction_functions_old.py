@@ -1,4 +1,5 @@
 from __future__ import division
+import os
 import numpy as np
 from astropy.io import fits
 from scipy.ndimage import gaussian_filter
@@ -78,42 +79,14 @@ def extract_observation(global_params, wav_mod_nativ, res_mod_nativ, cont='no'):
     # Reduce the spectral resolution for each sub-spectrum.
     for c, cut in enumerate(obs_cut):
         # If we want to decrease the resolution of the data:
-        if len(cut[0]) != 0:
+        if len(cut[0])!=0:
             if cont == 'no':
                 if global_params.adapt_method == 'by_sample':
-                    obs_cut[c][1] = resolution_decreasing(global_params, cut, wav_mod_nativ, [], res_mod_nativ,
-                                                          'obs')
+                    obs_cut[c][1] = resolution_decreasing(global_params, cut, wav_mod_nativ, [], res_mod_nativ, 'obs')
+            
             # If we want to estimate the continuum of the data:
             else:
-                for w_ind, wav_for_cont in enumerate(global_params.wav_for_continuum.split('/')):
-                    wav_obs_for_cont_ind = np.where((float(wav_for_cont.split(',')[0]) < cut[0]) &
-                                                    (cut[0] < float(wav_for_cont.split(',')[1])))
-                    if w_ind == 0:
-                        wav_obs_for_cont = cut[0][wav_obs_for_cont_ind]
-                        flx_obs_for_cont = cut[1][wav_obs_for_cont_ind]
-                    else:
-                        wav_obs_for_cont = np.concatenate((wav_obs_for_cont, cut[0][wav_obs_for_cont_ind]))
-                        flx_obs_for_cont = np.concatenate((flx_obs_for_cont, cut[1][wav_obs_for_cont_ind]))
-                wave_reso_tab = []
-                wav_reso = min(wav_obs_for_cont)
-                while wav_reso < max(wav_obs_for_cont):
-                    wave_reso_tab.append(wav_reso)
-                    wav_reso += wav_reso / float(global_params.continuum_sub)
-                wave_reso_tab = np.asarray(wave_reso_tab)
-
-                flx_obs_cont = spectres(wave_reso_tab, wav_obs_for_cont, flx_obs_for_cont, fill=np.nan, verbose=False)
-                for w_ind, wav_for_cont in enumerate(global_params.wav_for_continuum.split('/')):
-                    wav_final_cont_ind = np.where((float(wav_for_cont.split(',')[0]) < wave_reso_tab) &
-                                                    (wave_reso_tab < float(wav_for_cont.split(',')[1])))
-                    if w_ind == 0:
-                        wav_final_cont = wave_reso_tab[wav_final_cont_ind]
-                        flx_final_cont = flx_obs_cont[wav_final_cont_ind]
-                    else:
-                        wav_final_cont = np.concatenate((wav_final_cont, wave_reso_tab[wav_final_cont_ind]))
-                        flx_final_cont = np.concatenate((flx_final_cont, flx_obs_cont[wav_final_cont_ind]))
-                interp_reso = interp1d(wav_final_cont[~np.isnan(flx_final_cont)], flx_final_cont[~np.isnan(flx_final_cont)], fill_value="extrapolate")
-                flx_obs_cont = interp_reso(cut[0])
-                obs_cut[c][1] = flx_obs_cont
+                obs_cut[c][1] = continuum_estimate(global_params, cut[0], cut[0], cut[1], np.array(cut[3], dtype=float), 'obs')
 
     return obs_cut, obs_pho, obs_cut_ins, obs_pho_ins
 
@@ -146,8 +119,6 @@ def adapt_observation_range(global_params):
         err = hdul[1].data['ERR']     # error (W.m-2.um.1)
         res = hdul[1].data['RES']     # spectral resolution
         ins = hdul[1].data['INS']     # instrument/filter name
-        # from PyAstronomy import pyasl
-        # wav = pyasl.airtovac2(wav*10000, mode='ciddor')/10000
 
         # Filter the NaN values
         nan_mod_ind = ~np.isnan(flx)
@@ -158,10 +129,11 @@ def adapt_observation_range(global_params):
         ins = ins[nan_mod_ind]
 
         for i in range(len(res)):
+            #if res[i] == 'P':
             if float(res[i]) == 0.0:
                 pass
             else: 
-                res[i] = float(res[i])
+                res[i]= float(res[i])
 
     # Select the wavelength range(s) for the extraction
     if global_params.wav_for_adapt == '':
@@ -174,6 +146,7 @@ def adapt_observation_range(global_params):
         ind = np.where((float(rangee[0]) <= wav) & (wav <= float(rangee[1])))
 
         # Photometry part of the data
+        #ind_photometry = np.where(res[ind] == 'P')
         ind_photometry = np.where(res[ind] == 0.0)
         obs_pho = [wav[ind][ind_photometry], flx[ind][ind_photometry], err[ind][ind_photometry],
                    res[ind][ind_photometry]]
@@ -214,50 +187,12 @@ def adapt_model(global_params, wav_mod_nativ, flx_mod_nativ, res_mod_nativ):
     Author: Simon Petrus
     """
     # Extract the synthetic spectra from the model grid
-    mod_cut, mod_pho, obs_cut = extract_model(global_params, wav_mod_nativ, flx_mod_nativ, res_mod_nativ)
+    mod_cut, mod_pho = extract_model(global_params, wav_mod_nativ, flx_mod_nativ, res_mod_nativ)
     # Estimate and subtraction of the continuum (if needed)
     if global_params.continuum_sub != 'NA':
-        for c, cut in enumerate(obs_cut):
-            #mod_cut_c, mod_pho_c = extract_model(global_params, wav_mod_nativ, flx_mod_nativ, res_mod_nativ, 'yes')
-            for w_ind, wav_for_cont in enumerate(global_params.wav_for_continuum.split('/')):
-                wav_mod_for_cont_ind = np.where((float(wav_for_cont.split(',')[0]) < wav_mod_nativ) &
-                                                (wav_mod_nativ < float(wav_for_cont.split(',')[1])))
-                if w_ind == 0:
-                    wav_mod_for_cont = wav_mod_nativ[wav_mod_for_cont_ind]
-                    flx_mod_for_cont = flx_mod_nativ[wav_mod_for_cont_ind]
-                else:
-                    wav_mod_for_cont = np.concatenate((wav_mod_for_cont, wav_mod_nativ[wav_mod_for_cont_ind]))
-                    flx_mod_for_cont = np.concatenate((flx_mod_for_cont, flx_mod_nativ[wav_mod_for_cont_ind]))
-            wave_reso_tab = []
-            wav_reso = min(wav_mod_for_cont)
-            while wav_reso < max(wav_mod_for_cont):
-                wave_reso_tab.append(wav_reso)
-                wav_reso += wav_reso / float(global_params.continuum_sub)
-            wave_reso_tab = np.asarray(wave_reso_tab)
-
-            flx_obs_cont = spectres(wave_reso_tab, wav_mod_for_cont, flx_mod_for_cont, fill=np.nan, verbose=False)
-            for w_ind, wav_for_cont in enumerate(global_params.wav_for_continuum.split('/')):
-                wav_final_cont_ind = np.where((float(wav_for_cont.split(',')[0]) < wave_reso_tab) &
-                                              (wave_reso_tab < float(wav_for_cont.split(',')[1])))
-                if w_ind == 0:
-                    wav_final_cont = wave_reso_tab[wav_final_cont_ind]
-                    flx_final_cont = flx_obs_cont[wav_final_cont_ind]
-                else:
-                    wav_final_cont = np.concatenate((wav_final_cont, wave_reso_tab[wav_final_cont_ind]))
-                    flx_final_cont = np.concatenate((flx_final_cont, flx_obs_cont[wav_final_cont_ind]))
-            if len(flx_final_cont[~np.isnan(flx_final_cont)]) != 0:
-                interp_reso = interp1d(wav_final_cont[~np.isnan(flx_final_cont)], flx_final_cont[~np.isnan(flx_final_cont)],
-                                       fill_value="extrapolate")
-                flx_obs_cont = interp_reso(obs_cut[c][0])
-            else:
-                flx_obs_cont = obs_cut[c][0]*np.nan
-            # import matplotlib.pyplot as plt
-            # plt.plot(obs_cut[c][0], mod_cut[c])
-            # plt.plot(obs_cut[c][0], flx_obs_cont)
-            # plt.show()
-            # exit()
-            #
-            mod_cut[c] -= flx_obs_cont
+        mod_cut_c, mod_pho_c = extract_model(global_params, wav_mod_nativ, flx_mod_nativ, res_mod_nativ, 'yes')
+        for c, cut in enumerate(mod_cut_c):
+            mod_cut[c] -= mod_cut_c[c]
 
     # Merging of each sub-spectrum
     for c, cut in enumerate(mod_cut):
@@ -298,31 +233,18 @@ def extract_model(global_params, wav_mod_nativ, flx_mod_nativ, res_mod_nativ, co
     mod_cut = []
     for c, cut in enumerate(obs_cut):
         # If we want to decrease the resolution of the data:
-        if len(cut[0]) != 0:
+        if len(cut[0])!=0:
             if cont == 'no':
                 if global_params.adapt_method == 'by_sample':
-                    mod_cut_flx = resolution_decreasing(global_params, cut, wav_mod_nativ, flx_mod_nativ, res_mod_nativ,
-                                                        'mod')
+                    mod_cut_flx = resolution_decreasing(global_params, cut, wav_mod_nativ, flx_mod_nativ, res_mod_nativ,'mod')
                 else:
-                    res_tab = cut[3]
-                    wave_reso_tab = []
-                    wav_reso = min(cut[0])
-                    while wav_reso < max(cut[0]):
-                        wave_reso_tab.append(wav_reso)
-                        wav_reso += wav_reso/res_tab[find_nearest(cut[0], wav_reso)]
-                    wave_reso_tab = np.asarray(wave_reso_tab)
-                    mod_cut_flx = spectres(wave_reso_tab, wav_mod_nativ, flx_mod_nativ)
-                    interp_reso = interp1d(wave_reso_tab, mod_cut_flx, fill_value="extrapolate")
-                    mod_cut_flx = interp_reso(cut[0])
-                    # exit()
-                    # mod_cut_flx = spectres(cut[0], wav_mod_nativ, flx_mod_nativ)
+                    mod_cut_flx = spectres(cut[0], wav_mod_nativ, flx_mod_nativ)
             
             # If we want to estimate the continuum of the data:
             else:
-                mod_cut_flx = continuum_estimate(global_params, cut[0], wav_mod_nativ, flx_mod_nativ, res_mod_nativ,
-                                                 'mod')
+                mod_cut_flx = continuum_estimate(global_params, cut[0], wav_mod_nativ, flx_mod_nativ, res_mod_nativ, 'mod')
         else:
-            mod_cut_flx = []
+            mod_cut_flx=[]
         mod_cut.append(mod_cut_flx)
 
     # Calculate each photometry point.
@@ -342,7 +264,7 @@ def extract_model(global_params, wav_mod_nativ, flx_mod_nativ, res_mod_nativ, co
         flx_filt = flx_filt / y_filt_tot
         mod_pho.append(flx_filt)
 
-    return mod_cut, mod_pho, obs_cut
+    return mod_cut, mod_pho
 
 # ----------------------------------------------------------------------------------------------------------------------
 
@@ -393,7 +315,6 @@ def resolution_decreasing(global_params, cut, wav_mod_nativ, flx_mod_nativ, res_
     wavelengths for the data, the model, and for a custom spectral resolution (optional) and estimates the highest one
     for each wavelength (the lowest spectral resolution). It then calculates a sigma to decrease the resolution of the
     spectrum to this lowest FWHM for each wavelength and resample it on the wavelength grid of the data using the
-    spectrum to this lowest FWHM for each wavelength and resample it on the wavelength grid of the data using the
     function 'convolve_and_sample'.
 
     Args:
@@ -410,7 +331,7 @@ def resolution_decreasing(global_params, cut, wav_mod_nativ, flx_mod_nativ, res_
     Author: Simon Petrus
     """
     # Estimate of the FWHM of the data as a function of the wavelength
-    cut[3] = np.array(cut[3], dtype=float)
+    cut[3] = np.array(cut[3],dtype=float)
     fwhm_obs = 2 * cut[0] / cut[3]
 
     # Estimate of the FWHM of the model as a function of the wavelength
@@ -475,6 +396,13 @@ def continuum_estimate(global_params, wav_cut, wav, flx, res, obs_or_mod):
         wav_for_continuum = global_params.wav_for_continuum.split('/')
         for wav_for_cont_cut_ind, wav_for_cont_cut in enumerate(wav_for_continuum):
             wav_for_cont_cut = wav_for_cont_cut.split(',')
+            # if wav_for_cont_cut_ind == 0:
+            #     ind_cont_cut = np.where(wav <= float(wav_for_cont_cut[0]))
+            # elif wav_for_cont_cut_ind == len(wav_for_continuum)-1:
+            #     ind_cont_cut = np.where(float(wav_for_cont_cut[0]) <= wav)
+            # else:
+            #     ind_cont_cut = np.where((float(wav_for_cont_cut[0]) <= wav) &
+            #                             (wav <= float(wav_for_cont_cut[1])))
             ind_cont_cut = np.where((float(wav_for_cont_cut[0]) <= wav) &
                                     (wav <= float(wav_for_cont_cut[1])))
             if wav_for_cont_cut_ind == 0:
