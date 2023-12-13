@@ -1,0 +1,10 @@
+ _ _ _
+
+13/12/2023 
+Matthieu Ravet 
+
+Comments:
+    - First official release notes : Implementation of MOSAIC (Multimodal framework + likelihood functions).
+    See /ForMoSA/DEMO/inputs/MOSAIC/ folder for more info
+
+_ _ _ 

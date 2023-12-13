@@ -15,7 +15,7 @@ import sys
 #sys.path.insert(1, base_path)
 from main_utilities import yesno
 from main_utilities import GlobFile
-from adapt.adapt_obs_mod import launch_adapt
+from adapt.adapt_obs_mod import launch_adapt, launch_adapt_MOSAIC
 from nested_sampling.nested_sampling import launch_nested_sampling
 
 # ----------------------------------------------------------------------------------------------------------------------
@@ -40,15 +40,22 @@ print('- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -')
 print('-> Initializing ForMoSA')
 print()
 
+
 if len(sys.argv) == 1:
     y_n_par = yesno('Do you want to adapt the grid too your data? (y/n)')
 else:
     y_n_par = sys.argv[2]
 
 if y_n_par == 'y':
-    launch_adapt(global_params, justobs='no')
+    if global_params.observation_format == 'MOSAIC':
+        launch_adapt_MOSAIC(global_params, justobs='no')
+    else:
+        launch_adapt(global_params, justobs='no')
 else:
-    launch_adapt(global_params, justobs='yes')
+    if global_params.observation_format == 'MOSAIC':
+        launch_adapt_MOSAIC(global_params, justobs='yes')
+    else:
+        launch_adapt(global_params, justobs='yes')
 
 print()
 print('- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -')

@@ -49,7 +49,7 @@ def find_nearest(array, value):
 # ----------------------------------------------------------------------------------------------------------------------
 
 
-def extract_observation(global_params, wav_mod_nativ, res_mod_nativ, cont='no'):
+def extract_observation(global_params, wav_mod_nativ, res_mod_nativ, cont='no', obs_name='', indobs=0):
     """
     Take back the extracted data spectrum from the function 'adapt_observation_range' and decrease its spectral
     resolution.
@@ -59,6 +59,8 @@ def extract_observation(global_params, wav_mod_nativ, res_mod_nativ, cont='no'):
         wav_mod_nativ: Wavelength grid of the model
         res_mod_nativ: Spectral resolution of the model
         cont: If the function is used to estimate the continuum cont='yes'
+        obs_name: Name of the current observation looping (only relevant in MOSAIC, else set to '')
+        indobs: Index of the current observation looping (only relevant in MOSAIC, else set to 0)
     Returns:
         obs_cut: List containing the sub-spectra defined by the parameter "wav_for_adapt" with decreased resolution
                  [[wav_1, flx_1, err_1, reso_1], ..., [wav_n, flx_n, err_n, reso_n]]
@@ -68,61 +70,37 @@ def extract_observation(global_params, wav_mod_nativ, res_mod_nativ, cont='no'):
                  [[instru_range_1], ..., [instru_range_n]]
         obs_pho_ins: List containing different filters used for the data (1 per photometric point).
                  [filter_phot_1, filter_phot_2, ..., filter_phot_n]
+     Optional :
+        obs_cut_cov : List containing the sub-covariance matrices defined by the parameter "wav_for_adapt"
+                 [cov_1, cov_2, ..., cov_n]   
 
     Author: Simon Petrus
     """
 
     # Extract the wavelengths, flux, errors, spectral resolution, and instrument/filter names from the observation file.
-    obs_cut, obs_pho, obs_cut_ins, obs_pho_ins = adapt_observation_range(global_params)
+    obs_cut, obs_pho, obs_cut_ins, obs_pho_ins, obs_cut_cov = adapt_observation_range(global_params)
 
     # Reduce the spectral resolution for each sub-spectrum.
     for c, cut in enumerate(obs_cut):
         # If we want to decrease the resolution of the data:
-        if len(cut[0]) != 0:
-            if cont == 'no':
-                if global_params.adapt_method == 'by_sample':
-                    obs_cut[c][1] = resolution_decreasing(global_params, cut, wav_mod_nativ, [], res_mod_nativ,
-                                                          'obs')
-            # If we want to estimate the continuum of the data:
+        if cont == 'no':
+            if global_params.adapt_method == 'by_reso':
+                obs_cut[c][1] = resolution_decreasing(global_params, cut, wav_mod_nativ, [], res_mod_nativ, 'obs', obs_name=obs_name, indobs=indobs)
             else:
-                for w_ind, wav_for_cont in enumerate(global_params.wav_for_continuum.split('/')):
-                    wav_obs_for_cont_ind = np.where((float(wav_for_cont.split(',')[0]) < cut[0]) &
-                                                    (cut[0] < float(wav_for_cont.split(',')[1])))
-                    if w_ind == 0:
-                        wav_obs_for_cont = cut[0][wav_obs_for_cont_ind]
-                        flx_obs_for_cont = cut[1][wav_obs_for_cont_ind]
-                    else:
-                        wav_obs_for_cont = np.concatenate((wav_obs_for_cont, cut[0][wav_obs_for_cont_ind]))
-                        flx_obs_for_cont = np.concatenate((flx_obs_for_cont, cut[1][wav_obs_for_cont_ind]))
-                wave_reso_tab = []
-                wav_reso = min(wav_obs_for_cont)
-                while wav_reso < max(wav_obs_for_cont):
-                    wave_reso_tab.append(wav_reso)
-                    wav_reso += wav_reso / float(global_params.continuum_sub)
-                wave_reso_tab = np.asarray(wave_reso_tab)
+                pass
+        # If we want to estimate the continuum of the data:
+        else:
+            obs_cut[c][1] = continuum_estimate(global_params, cut[0], cut[0], cut[1], cut[3], 'obs', obs_name=obs_name, indobs=indobs)
 
-                flx_obs_cont = spectres(wave_reso_tab, wav_obs_for_cont, flx_obs_for_cont, fill=np.nan, verbose=False)
-                for w_ind, wav_for_cont in enumerate(global_params.wav_for_continuum.split('/')):
-                    wav_final_cont_ind = np.where((float(wav_for_cont.split(',')[0]) < wave_reso_tab) &
-                                                    (wave_reso_tab < float(wav_for_cont.split(',')[1])))
-                    if w_ind == 0:
-                        wav_final_cont = wave_reso_tab[wav_final_cont_ind]
-                        flx_final_cont = flx_obs_cont[wav_final_cont_ind]
-                    else:
-                        wav_final_cont = np.concatenate((wav_final_cont, wave_reso_tab[wav_final_cont_ind]))
-                        flx_final_cont = np.concatenate((flx_final_cont, flx_obs_cont[wav_final_cont_ind]))
-                interp_reso = interp1d(wav_final_cont[~np.isnan(flx_final_cont)], flx_final_cont[~np.isnan(flx_final_cont)], fill_value="extrapolate")
-                flx_obs_cont = interp_reso(cut[0])
-                obs_cut[c][1] = flx_obs_cont
 
-    return obs_cut, obs_pho, obs_cut_ins, obs_pho_ins
+    return obs_cut, obs_pho, obs_cut_ins, obs_pho_ins, obs_cut_cov
 
 # ----------------------------------------------------------------------------------------------------------------------
 
 
 def adapt_observation_range(global_params):
     """
-    Extract the wavelengths (um  -  vacuum), flux (W.m-2.um.1), errors (W.m-2.um.1), spectral resolution, and
+    Extract the wavelengths (um  -  vacuum), flux (W.m-2.um.1), errors (W.m-2.um.1), covariance (W.m-2.um.1)**2, spectral resolution, and
     instrument/filter names from the observation file. The wavelength range is define by the parameter "wav_for_adapt".
 
     Args:
@@ -136,69 +114,101 @@ def adapt_observation_range(global_params):
                  [[instru_1], ..., [instru_n]]
         obs_pho_ins: List containing different filters used for the data (1 per photometric point).
                  [filter_phot_1, filter_phot_2, ..., filter_phot_n]
+    Optional :
+        obs_cut_cov : List containing the sub-covariance matrices defined by the parameter "wav_for_adapt"
+                 [cov_1, cov_2, ..., cov_n]
 
-    Author: Simon Petrus
+    Author: Simon Petrus and Matthieu Ravet
     """
     # Extraction
     with fits.open(global_params.observation_path) as hdul:
-        wav = hdul[1].data['WAV']     # wavelength (um  -  vacuum)
-        flx = hdul[1].data['FLX']     # flux (W.m-2.um.1)
-        err = hdul[1].data['ERR']     # error (W.m-2.um.1)
-        res = hdul[1].data['RES']     # spectral resolution
-        ins = hdul[1].data['INS']     # instrument/filter name
-        # from PyAstronomy import pyasl
-        # wav = pyasl.airtovac2(wav*10000, mode='ciddor')/10000
+
+        # Check the format of the file and extract data accordingly
+        try:
+            wav = hdul[1].data['WAVELENGTH']
+            flx = hdul[1].data['FLUX']
+            cov = hdul[1].data['COVARIANCE']
+            err = np.sqrt(np.diag(np.abs(cov)))
+            res = hdul[1].data['RESOLUTION']
+            ins = hdul[1].data['INSTRUMENT']
+        except:
+            wav = hdul[1].data['WAV']
+            flx = hdul[1].data['FLX']
+            err = hdul[1].data['ERR']
+            cov = np.diag(err**2)
+            res = hdul[1].data['RES']
+            ins = hdul[1].data['INS']
 
         # Filter the NaN values
         nan_mod_ind = ~np.isnan(flx)
         wav = wav[nan_mod_ind]
         flx = flx[nan_mod_ind]
-        err = err[nan_mod_ind]
+        cov = np.transpose(np.transpose(cov[nan_mod_ind])[nan_mod_ind])
         res = res[nan_mod_ind]
         ins = ins[nan_mod_ind]
+        err = err[nan_mod_ind]
 
-        for i in range(len(res)):
-            if float(res[i]) == 0.0:
-                pass
-            else: 
-                res[i] = float(res[i])
+        # Create empty list for the covariance matrix
+        obs_cut_cov = []
 
-    # Select the wavelength range(s) for the extraction
-    if global_params.wav_for_adapt == '':
-        wav_for_adapt_tab = [str(min(wav)) + ',' + str(max(wav))]
-    else:
-        wav_for_adapt_tab = global_params.wav_for_adapt.split('/')
-        
-    for range_ind, rangee in enumerate(wav_for_adapt_tab):
-        rangee = rangee.split(',')
-        ind = np.where((float(rangee[0]) <= wav) & (wav <= float(rangee[1])))
-
-        # Photometry part of the data
-        ind_photometry = np.where(res[ind] == 0.0)
-        obs_pho = [wav[ind][ind_photometry], flx[ind][ind_photometry], err[ind][ind_photometry],
-                   res[ind][ind_photometry]]
-        obs_pho_ins = ins[ind][ind_photometry]
-
-        # Spectroscopy part of the data
-        wav_spectro = np.delete(wav[ind], ind_photometry)
-        flx_spectro = np.delete(flx[ind], ind_photometry)
-        err_spectro = np.delete(err[ind], ind_photometry)
-        res_spectro = np.delete(res[ind], ind_photometry)
-        ins_spectro = np.delete(ins[ind], ind_photometry)
-
-        if range_ind == 0:
-            obs_cut = [[wav_spectro, flx_spectro, err_spectro, res_spectro]]
-            obs_cut_ins = [[ins_spectro]]
+        # Select the wavelength range(s) for the extraction
+        if global_params.wav_for_adapt == '':
+            wav_for_adapt_tab = [str(min(wav)) + ',' + str(max(wav))]
         else:
-            obs_cut.append([wav_spectro, flx_spectro, err_spectro, res_spectro])
-            obs_cut_ins.append([ins_spectro])
+            wav_for_adapt_tab = global_params.wav_for_adapt.split('/')
 
-    return obs_cut, obs_pho, obs_cut_ins, obs_pho_ins
+        for range_ind, rangee in enumerate(wav_for_adapt_tab):
+            rangee = rangee.split(',')
+            ind = np.where((float(rangee[0]) <= wav) & (wav <= float(rangee[1])))
+
+            # Photometry part of the data
+            ind_photometry = np.where(res[ind] == 0.0)
+            obs_pho = [wav[ind][ind_photometry], flx[ind][ind_photometry], err[ind][ind_photometry],
+                    res[ind][ind_photometry]]
+            obs_pho_ins = ins[ind][ind_photometry]
+
+            # Spectroscopy part of the data
+            wav_spectro = np.delete(wav[ind], ind_photometry)
+            flx_spectro = np.delete(flx[ind], ind_photometry)
+            res_spectro = np.delete(res[ind], ind_photometry)
+            res_spectro = np.array(res_spectro) # Convert to float (need to be corrected)
+            res_spectro = res_spectro.astype(np.float)
+            ins_spectro = np.delete(ins[ind], ind_photometry)
+            err_spectro = np.delete(err[ind], ind_photometry)
+            cov_spectro = np.array([cov[ind][i][ind] for i in range(0, len(ind[0]))])
+            cov_spectro = np.delete(cov_spectro, ind_photometry, axis=0)
+            cov_spectro = np.delete(cov_spectro, ind_photometry, axis=1)
+
+            #res_spectro = np.zeros(len(res_spe)) # Convert resolution to integer (need to be corrected)
+            #for i in range(len(res_spe)):
+                #res_spectro[i] = int(np.float(res_spe[i]))
+
+            if range_ind == 0:
+                obs_cut = [[wav_spectro, flx_spectro, err_spectro, res_spectro]]
+                obs_cut_ins = [[ins_spectro]]
+            else:
+                obs_cut.append([wav_spectro, flx_spectro, err_spectro, res_spectro])
+                obs_cut_ins.append([ins_spectro])
+
+            # Cuting the covariance matrix if nescessary
+            #obs_cut_cov.append([cov[ind][i][ind] for i in range(0, len(ind[0]))])
+            obs_cut_cov.append(list(cov_spectro))
+
+        for i, cov in enumerate(obs_cut_cov): # Reshaping the covariance file and the instrument file
+            obs_cut_cov[i] = np.array(cov)
+        for i, ins in enumerate(obs_cut_ins):
+            obs_cut_ins[i] = obs_cut_ins[i][0]
+        #for i, ins in enumerate(obs_pho_ins):
+            #obs_pho_ins[i] = obs_pho_ins[i][0]
+    
+
+        return obs_cut, obs_pho, obs_cut_ins, obs_pho_ins, obs_cut_cov   
+
 
 # ----------------------------------------------------------------------------------------------------------------------
 
 
-def adapt_model(global_params, wav_mod_nativ, flx_mod_nativ, res_mod_nativ):
+def adapt_model(global_params, wav_mod_nativ, flx_mod_nativ, res_mod_nativ, obs_name='', indobs=0):
     """
     Extracts a synthetic spectrum from a grid and decreases its spectral resolution. The photometry points are
     calculated too. Then each sub-spectrum are merged.
@@ -208,56 +218,27 @@ def adapt_model(global_params, wav_mod_nativ, flx_mod_nativ, res_mod_nativ):
         wav_mod_nativ: Wavelength grid of the model
         flx_mod_nativ: Flux of the model
         res_mod_nativ: Spectral resolution of the model as a function of the wavelength grid
+        obs_name: Name of the current observation looping (only relevant in MOSAIC, else set to '')
+        indobs: Index of the current observation looping (only relevant in MOSAIC, else set to 0)
     Returns:
         output_model: Flux of the spectrum with a decreased spectral resolution, re-sampled on the data wavelength grid
-    
+
     Author: Simon Petrus
     """
     # Extract the synthetic spectra from the model grid
-    mod_cut, mod_pho, obs_cut = extract_model(global_params, wav_mod_nativ, flx_mod_nativ, res_mod_nativ)
-    # Estimate and subtraction of the continuum (if needed)
-    if global_params.continuum_sub != 'NA':
-        for c, cut in enumerate(obs_cut):
-            #mod_cut_c, mod_pho_c = extract_model(global_params, wav_mod_nativ, flx_mod_nativ, res_mod_nativ, 'yes')
-            for w_ind, wav_for_cont in enumerate(global_params.wav_for_continuum.split('/')):
-                wav_mod_for_cont_ind = np.where((float(wav_for_cont.split(',')[0]) < wav_mod_nativ) &
-                                                (wav_mod_nativ < float(wav_for_cont.split(',')[1])))
-                if w_ind == 0:
-                    wav_mod_for_cont = wav_mod_nativ[wav_mod_for_cont_ind]
-                    flx_mod_for_cont = flx_mod_nativ[wav_mod_for_cont_ind]
-                else:
-                    wav_mod_for_cont = np.concatenate((wav_mod_for_cont, wav_mod_nativ[wav_mod_for_cont_ind]))
-                    flx_mod_for_cont = np.concatenate((flx_mod_for_cont, flx_mod_nativ[wav_mod_for_cont_ind]))
-            wave_reso_tab = []
-            wav_reso = min(wav_mod_for_cont)
-            while wav_reso < max(wav_mod_for_cont):
-                wave_reso_tab.append(wav_reso)
-                wav_reso += wav_reso / float(global_params.continuum_sub)
-            wave_reso_tab = np.asarray(wave_reso_tab)
+    mod_cut, mod_pho = extract_model(global_params, wav_mod_nativ, flx_mod_nativ, res_mod_nativ, obs_name=obs_name)
 
-            flx_obs_cont = spectres(wave_reso_tab, wav_mod_for_cont, flx_mod_for_cont, fill=np.nan, verbose=False)
-            for w_ind, wav_for_cont in enumerate(global_params.wav_for_continuum.split('/')):
-                wav_final_cont_ind = np.where((float(wav_for_cont.split(',')[0]) < wave_reso_tab) &
-                                              (wave_reso_tab < float(wav_for_cont.split(',')[1])))
-                if w_ind == 0:
-                    wav_final_cont = wave_reso_tab[wav_final_cont_ind]
-                    flx_final_cont = flx_obs_cont[wav_final_cont_ind]
-                else:
-                    wav_final_cont = np.concatenate((wav_final_cont, wave_reso_tab[wav_final_cont_ind]))
-                    flx_final_cont = np.concatenate((flx_final_cont, flx_obs_cont[wav_final_cont_ind]))
-            if len(flx_final_cont[~np.isnan(flx_final_cont)]) != 0:
-                interp_reso = interp1d(wav_final_cont[~np.isnan(flx_final_cont)], flx_final_cont[~np.isnan(flx_final_cont)],
-                                       fill_value="extrapolate")
-                flx_obs_cont = interp_reso(obs_cut[c][0])
-            else:
-                flx_obs_cont = obs_cut[c][0]*np.nan
-            # import matplotlib.pyplot as plt
-            # plt.plot(obs_cut[c][0], mod_cut[c])
-            # plt.plot(obs_cut[c][0], flx_obs_cont)
-            # plt.show()
-            # exit()
-            #
-            mod_cut[c] -= flx_obs_cont
+    # Estimate and subtraction of the continuum (if needed)
+    if global_params.observation_format == 'MOSAIC':
+        if global_params.continuum_sub[indobs] != 'NA':
+            mod_cut_c, mod_pho_c = extract_model(global_params, wav_mod_nativ, flx_mod_nativ, res_mod_nativ, 'yes',  obs_name=obs_name, indobs=indobs)
+            for c, cut in enumerate(mod_cut_c):
+                mod_cut[c] -= mod_cut_c[c]
+    else:
+         if global_params.continuum_sub != 'NA':
+            mod_cut_c, mod_pho_c = extract_model(global_params, wav_mod_nativ, flx_mod_nativ, res_mod_nativ, 'yes',  obs_name=obs_name, indobs=indobs)
+            for c, cut in enumerate(mod_cut_c):
+                mod_cut[c] -= mod_cut_c[c]       
 
     # Merging of each sub-spectrum
     for c, cut in enumerate(mod_cut):
@@ -271,7 +252,7 @@ def adapt_model(global_params, wav_mod_nativ, flx_mod_nativ, res_mod_nativ):
 # ----------------------------------------------------------------------------------------------------------------------
 
 
-def extract_model(global_params, wav_mod_nativ, flx_mod_nativ, res_mod_nativ, cont='no'):
+def extract_model(global_params, wav_mod_nativ, flx_mod_nativ, res_mod_nativ, cont='no', obs_name='', indobs=0):
     """
     Extracts a synthetic spectrum from a grid and decreases its spectral resolution. The photometry points are
     calculated too.
@@ -282,6 +263,8 @@ def extract_model(global_params, wav_mod_nativ, flx_mod_nativ, res_mod_nativ, co
         flx_mod_nativ: Flux of the model
         res_mod_nativ: Spectral resolution of the model as a function of the wavelength grid
         cont: If the function is used to estimate the continuum cont='yes'
+        obs_name: Name of the current observation looping (only relevant in MOSAIC, else set to '')
+        indobs: Index of the current observation looping (only relevant in MOSAIC, else set to 0)
     Returns:
         mod_cut: List containing the sub-spectra defined by the parameter "wav_for_adapt".
                  [flx_1, ..., flx_n, err_n, reso_n]
@@ -290,7 +273,12 @@ def extract_model(global_params, wav_mod_nativ, flx_mod_nativ, res_mod_nativ, co
     Author: Simon Petrus
     """
     # Take back the extracted data.
-    spectrum_obs = np.load(global_params.result_path + '/spectrum_obs.npz', allow_pickle=True)
+
+    if global_params.observation_format == 'MOSAIC':
+        spectrum_obs = np.load(os.path.join(global_params.result_path, f'spectrum_obs_{obs_name}.npz'), allow_pickle=True)
+    else:
+        spectrum_obs = np.load(global_params.result_path + '/spectrum_obs.npz', allow_pickle=True)
+
     obs_cut = spectrum_obs['obs_cut']
     obs_pho_ins = spectrum_obs['obs_pho_ins']
 
@@ -298,31 +286,16 @@ def extract_model(global_params, wav_mod_nativ, flx_mod_nativ, res_mod_nativ, co
     mod_cut = []
     for c, cut in enumerate(obs_cut):
         # If we want to decrease the resolution of the data:
-        if len(cut[0]) != 0:
-            if cont == 'no':
-                if global_params.adapt_method == 'by_sample':
-                    mod_cut_flx = resolution_decreasing(global_params, cut, wav_mod_nativ, flx_mod_nativ, res_mod_nativ,
-                                                        'mod')
-                else:
-                    res_tab = cut[3]
-                    wave_reso_tab = []
-                    wav_reso = min(cut[0])
-                    while wav_reso < max(cut[0]):
-                        wave_reso_tab.append(wav_reso)
-                        wav_reso += wav_reso/res_tab[find_nearest(cut[0], wav_reso)]
-                    wave_reso_tab = np.asarray(wave_reso_tab)
-                    mod_cut_flx = spectres(wave_reso_tab, wav_mod_nativ, flx_mod_nativ)
-                    interp_reso = interp1d(wave_reso_tab, mod_cut_flx, fill_value="extrapolate")
-                    mod_cut_flx = interp_reso(cut[0])
-                    # exit()
-                    # mod_cut_flx = spectres(cut[0], wav_mod_nativ, flx_mod_nativ)
-            
-            # If we want to estimate the continuum of the data:
+        if cont == 'no':
+            if global_params.adapt_method == 'by_reso':
+                mod_cut_flx = resolution_decreasing(global_params, cut, wav_mod_nativ, flx_mod_nativ, res_mod_nativ,
+                                                    'mod', obs_name=obs_name, indobs=indobs)
             else:
-                mod_cut_flx = continuum_estimate(global_params, cut[0], wav_mod_nativ, flx_mod_nativ, res_mod_nativ,
-                                                 'mod')
+                mod_cut_flx = spectres(cut[0], wav_mod_nativ, flx_mod_nativ)
+        # If we want to estimate the continuum of the data:
         else:
-            mod_cut_flx = []
+            mod_cut_flx = continuum_estimate(global_params, cut[0], wav_mod_nativ, flx_mod_nativ, res_mod_nativ, 'mod',
+                                             obs_name=obs_name, indobs=indobs)
         mod_cut.append(mod_cut_flx)
 
     # Calculate each photometry point.
@@ -330,7 +303,7 @@ def extract_model(global_params, wav_mod_nativ, flx_mod_nativ, res_mod_nativ, co
     for pho_ind, pho in enumerate(obs_pho_ins):
         path_list = __file__.split("/")[:-2]
         separator = '/'
-        filter_pho = np.load(separator.join(path_list)+'/phototeque/' + pho + '.npz')
+        filter_pho = np.load(separator.join(path_list) + '/phototeque/' + pho + '.npz')
         x_filt = filter_pho['x_filt']
         y_filt = filter_pho['y_filt']
         filter_interp = interp1d(x_filt, y_filt, fill_value="extrapolate")
@@ -342,7 +315,7 @@ def extract_model(global_params, wav_mod_nativ, flx_mod_nativ, res_mod_nativ, co
         flx_filt = flx_filt / y_filt_tot
         mod_pho.append(flx_filt)
 
-    return mod_cut, mod_pho, obs_cut
+    return mod_cut, mod_pho
 
 # ----------------------------------------------------------------------------------------------------------------------
 
@@ -358,9 +331,11 @@ def convolve_and_sample(wv_channels, sigmas_wvs, model_wvs, model_fluxes, num_si
         model_wvs: the wavelengths of the model (length of N_model)
         model_fluxes: the fluxes of the model (length of N_model)
         num_sigma (float): number of +/- sigmas to evaluate the LSF to.
+        obs_name: Name of the current observation looping (only relevant in MOSAIC, else set to '')
+        indobs: Index of the current observation looping (only relevant in MOSAIC, else set to 0)
     Returns:
         output_model: the fluxes in each of the wavelength channels (length of N_output)
-        
+
     Author: Jason Wang
     """
     model_in_range = np.where((model_wvs >= np.min(wv_channels)) & (model_wvs < np.max(wv_channels)))
@@ -387,12 +362,11 @@ def convolve_and_sample(wv_channels, sigmas_wvs, model_wvs, model_fluxes, num_si
 # ----------------------------------------------------------------------------------------------------------------------
 
 
-def resolution_decreasing(global_params, cut, wav_mod_nativ, flx_mod_nativ, res_mod_nativ, obs_or_mod):
+def resolution_decreasing(global_params, cut, wav_mod_nativ, flx_mod_nativ, res_mod_nativ, obs_or_mod, obs_name='', indobs=0):
     """
     Decrease the resolution of a spectrum (data or model). The function calculates the FWHM as a function of the
     wavelengths for the data, the model, and for a custom spectral resolution (optional) and estimates the highest one
     for each wavelength (the lowest spectral resolution). It then calculates a sigma to decrease the resolution of the
-    spectrum to this lowest FWHM for each wavelength and resample it on the wavelength grid of the data using the
     spectrum to this lowest FWHM for each wavelength and resample it on the wavelength grid of the data using the
     function 'convolve_and_sample'.
 
@@ -404,13 +378,14 @@ def resolution_decreasing(global_params, cut, wav_mod_nativ, flx_mod_nativ, res_
         flx_mod_nativ: Flux of the model
         res_mod_nativ: Spectral resolution of the model as a function of the wavelength grid
         obs_or_mod: Parameter to identify if you want to manage a data or a model spectrum. 'obs' or 'mod'
+        obs_name: Name of the current observation looping (only relevant in MOSAIC, else set to '')
+        indobs: Index of the current observation looping (only relevant in MOSAIC, else set to 0)
     Returns:
         output_model: Flux of the spectrum with a decreased spectral resolution, re-sampled on the data wavelength grid
 
     Author: Simon Petrus
     """
     # Estimate of the FWHM of the data as a function of the wavelength
-    cut[3] = np.array(cut[3], dtype=float)
     fwhm_obs = 2 * cut[0] / cut[3]
 
     # Estimate of the FWHM of the model as a function of the wavelength
@@ -443,7 +418,7 @@ def resolution_decreasing(global_params, cut, wav_mod_nativ, flx_mod_nativ, res_
 # ----------------------------------------------------------------------------------------------------------------------
 
 
-def continuum_estimate(global_params, wav_cut, wav, flx, res, obs_or_mod):
+def continuum_estimate(global_params, wav_cut, wav, flx, res, obs_or_mod, obs_name='', indobs=0):
     """
     Decrease the resolution of a spectrum (data or model). The function calculates the FWHM as a function of the
     wavelengths of the custom spectral resolution (estimated for the continuum). It then calculates a sigma to decrease
@@ -457,6 +432,8 @@ def continuum_estimate(global_params, wav_cut, wav, flx, res, obs_or_mod):
         flx: Flux of the spectrum for which you want to estimate the continuum
         res: Spectral resolution of the spectrum for which you want to estimate the continuum
         obs_or_mod: Parameter to identify if you want to manage a data or a model spectrum. 'obs' or 'mod'
+        obs_name: Name of the current observation looping (only relevant in MOSAIC, else set to '')
+        indobs: Index of the current observation looping (only relevant in MOSAIC, else set to 0)
     Returns:
         output_model: Estimated continuum of the spectrum re-sampled on the data wavelength grid
 
@@ -475,8 +452,13 @@ def continuum_estimate(global_params, wav_cut, wav, flx, res, obs_or_mod):
         wav_for_continuum = global_params.wav_for_continuum.split('/')
         for wav_for_cont_cut_ind, wav_for_cont_cut in enumerate(wav_for_continuum):
             wav_for_cont_cut = wav_for_cont_cut.split(',')
-            ind_cont_cut = np.where((float(wav_for_cont_cut[0]) <= wav) &
-                                    (wav <= float(wav_for_cont_cut[1])))
+            if wav_for_cont_cut_ind == 0:
+                ind_cont_cut = np.where(wav <= float(wav_for_cont_cut[0]))
+            elif wav_for_cont_cut_ind == len(wav_for_continuum)-1:
+                ind_cont_cut = np.where(float(wav_for_cont_cut[0]) <= wav)
+            else:
+                ind_cont_cut = np.where((float(wav_for_cont_cut[0]) <= wav) &
+                                        (wav <= float(wav_for_cont_cut[1])))
             if wav_for_cont_cut_ind == 0:
                 wav_for_cont_final = wav[ind_cont_cut]
                 flx_for_cont_final = flx[ind_cont_cut]
@@ -495,11 +477,13 @@ def continuum_estimate(global_params, wav_cut, wav, flx, res, obs_or_mod):
 
     fwhm = 2 * wav_median / np.median(res)
 
-    fwhm_continuum = 2 * wav_median / float(global_params.continuum_sub)
+    if global_params.observation_format == 'MOSAIC':
+        fwhm_continuum = 2 * wav_median / float(global_params.continuum_sub[indobs])
+    else:
+        fwhm_continuum = 2 * wav_median / float(global_params.continuum_sub)
 
     fwhm_conv = np.sqrt(fwhm_continuum**2 - fwhm**2)
     sigma = fwhm_conv / (dwav * 2.355)
-
     continuum = gaussian_filter(flx, sigma)
 
     return continuum

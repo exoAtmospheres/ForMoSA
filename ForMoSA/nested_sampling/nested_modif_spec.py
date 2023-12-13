@@ -1,9 +1,11 @@
 import numpy as np
+import xarray as xr
 import extinction
 from scipy.interpolate import interp1d
 import astropy.units as u
 import astropy.constants as const
 from PyAstronomy.pyasl import dopplerShift, rotBroad
+from adapt.extraction_functions import resolution_decreasing, convolve_and_sample
 
 # ----------------------------------------------------------------------------------------------------------------------
 
@@ -161,6 +163,7 @@ def vsini_fct(wav_obs_merge, new_flx_merge, ld_picked, vsini_picked):
 
     return new_flx_merge
 
+
 # ----------------------------------------------------------------------------------------------------------------------
 
 def bb_cpd_fct(wav_obs_merge, wav_obs_phot, new_flx_merge, new_flx_phot, distance, bb_T_picked, bb_R_picked):
@@ -204,6 +207,45 @@ def bb_cpd_fct(wav_obs_merge, wav_obs_phot, new_flx_merge, new_flx_phot, distanc
     # 
     return new_flx_merge, new_flx_phot
 
+
+# ----------------------------------------------------------------------------------------------------------------------
+
+
+def reso_fct(global_params, theta, theta_index, wav_obs_merge, new_flx_merge, reso_picked):
+    """
+    Function to scale the spectral resolution of the synthetic spectra. This option is currently in test and make use
+    of the functions defined in the 'adapt' section of ForMoSA, meaning that they will significantly decrease the speed of
+    your inversion as the grid needs to be re-interpolated
+
+    Args:
+        global_params: Class containing each parameter
+        theta: Parameter values randomly picked by the nested sampling
+        theta_index: Parameter index identificator
+        wav_obs_merge: Wavelength grid of the data
+        new_flx_merge: Flux of the interpolated synthetic spectrum
+        reso_picked: Spectral resolution randomly picked by the nested sampling
+    Returns:
+        new_flx_merge: New flux of the interpolated synthetic spectrum
+
+    Author: Matthieu Ravet
+    """
+
+    # Import the grid and set it with the right parameters
+    ds = xr.open_dataset(global_params.model_path, decode_cf=False, engine="netcdf4")
+    wav_mod_nativ = ds["wavelength"].values
+    grid = ds['grid']
+    attr = ds.attrs
+    grid_np = grid.to_numpy()
+    model_to_adapt = grid_np[:, theta]
+
+    # Modify the spectrum with the wanted spectral resolution
+    flx_mod_extract, mod_pho = adapt_model(global_params, wav_mod_nativ, model_to_adapt, attr['res'], obs_name=obs_name,
+                                        indobs=indobs)
+
+
+    return ...
+
+
 # ----------------------------------------------------------------------------------------------------------------------
 
 
@@ -217,7 +259,6 @@ def modif_spec(global_params, theta, theta_index,
         - Application of a substellar extinction
         - Application of a rotational velocity
         - Application of a circumplanetary disk (CPD)
-
     Args:
         global_params: Class containing each parameter
         theta: Parameter values randomly picked by the nested sampling
@@ -239,7 +280,6 @@ def modif_spec(global_params, theta, theta_index,
         flx_obs_phot: Flux of the data (photometry)
         err_obs_phot: Error of the data (photometry)
         new_flx_phot: New flux of the interpolated synthetic spectrum (photometry)
-
     Author: Simon Petrus and Paulina Palma-Bifani
     """
     # Calculation of the dilution factor Ck and re-normalization of the interpolated synthetic spectrum.

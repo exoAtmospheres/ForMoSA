@@ -28,11 +28,11 @@ class GlobFile:
         # Generate the confog object
         config = ConfigObj(config_file_path, encoding='utf8')
         # self.obsname = obsname
-        self.config=config
 
         ## Read CONFIG:
         # [config_path] (4)
         self.observation_path = config['config_path']['observation_path']
+        self.main_observation_path = config['config_path']['observation_path'] # Needs to be changed
         self.adapt_store_path = config['config_path']['adapt_store_path']
         self.result_path = config['config_path']['result_path']
         self.model_path = config['config_path']['model_path']
@@ -51,8 +51,10 @@ class GlobFile:
         self.custom_reso = config['config_adapt']['custom_reso']
         self.continuum_sub = config['config_adapt']['continuum_sub']
         self.wav_for_continuum = config['config_adapt']['wav_for_continuum']
+        self.observation_format = config['config_adapt']['observation_format']
 
         # [config_inversion] (3)
+        self.logL_type = config['config_inversion']['logL_type']
         self.wav_fit = config['config_inversion']['wav_fit']
         self.ns_algo = config['config_inversion']['ns_algo']
         self.npoint = config['config_inversion']['npoint']
@@ -73,7 +75,7 @@ class GlobFile:
         self.bb_R = config['config_parameter']['bb_R']
 
         self.ck = None
-
+        
         # [config_nestle] (10 but 3 relevant)  (n_ prefix for params)
         self.n_method = config['config_nestle']['method']
         self.n_maxiter = eval(config['config_nestle']['maxiter'])
@@ -112,4 +114,3 @@ class GlobFile:
         #
         # print('Saved config: --- ' + config_current + ' ---')
         # print()
-
