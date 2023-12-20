@@ -30,9 +30,9 @@ def loglike(theta, theta_index, global_params, for_plot='no'):
     """
 
     # Check if we are running with the MOSAIC mode
-
     if global_params.observation_format == 'MOSAIC':
         FINAL_logL = MOSAIC_logL(theta, theta_index, global_params)
+
 
     else:
         # Recovery of spectroscopy and photometry data
@@ -61,9 +61,6 @@ def loglike(theta, theta_index, global_params, for_plot='no'):
         ds = xr.open_dataset(path_grid_p, decode_cf=False, engine='netcdf4')
         grid_phot = ds['grid']
         ds.close()
-
-        # Initialize the complete covariance matrice (if necessary)
-        inv_cov_obs = []
 
         # Calculation of the likelihood for each sub-spectrum defined by the parameter 'wav_fit'
         for ns_u_ind, ns_u in enumerate(global_params.wav_fit.split('/')):
@@ -124,7 +121,6 @@ def loglike(theta, theta_index, global_params, for_plot='no'):
                 else:
                     flx_mod_phot_cut = []
 
-
             # Re-merging of the data and interpolated synthetic spectrum to a wavelength grid defined by the parameter 'wav_fit'
             ind_merge = np.where((wav_obs_merge >= min_ns_u) & (wav_obs_merge <= max_ns_u))
             ind_phot = np.where((wav_obs_phot >= min_ns_u) & (wav_obs_phot <= max_ns_u))
@@ -147,9 +143,35 @@ def loglike(theta, theta_index, global_params, for_plot='no'):
                 err_obs_phot_ns_u = np.concatenate((err_obs_phot_ns_u, err_obs_phot[ind_phot]))
                 flx_mod_phot_ns_u = np.concatenate((flx_mod_phot_ns_u, flx_mod_phot_cut))
 
+            A = time.time()
+            # Initialize the complete covariance matrice (if necessary)
+            # inv_cov_obs = []
+            # inv_cov_obs = np.empty(len(ind_merge[0]))
+            inv_cov_obs = np.empty((len(ind_merge[0]), len(ind_merge[0]),))
+            print(inv_cov_obs)
+            exit()
+            # print(inv_cov_obs_merge[ind_merge][1][ind_merge])
+            # print(inv_cov_obs_merge[ind_merge][1][ind_merge][0])
+            # exit()
+
+            inv_cov_obs[:] = inv_cov_obs_merge[ind_merge][:][ind_merge]
+            print(inv_cov_obs)
+            exit()
             # Re-merging the covariance matrices (if necessary)
             if inv_cov_obs_merge != []:
+                for i in range(0, len(ind_merge[0])):
+                    print(inv_cov_obs_merge[ind_merge][i][ind_merge])
+                    print(inv_cov_obs_merge[ind_merge][i+1][ind_merge])
+                    print(inv_cov_obs_merge[ind_merge][i+2][ind_merge])
+                    exit()
+
+
+
                 inv_cov_obs.append([inv_cov_obs_merge[ind_merge][i][ind_merge] for i in range(0, len(ind_merge[0]))])
+                print(inv_cov_obs[0])
+
+                exit()
+            print(time.time() - A)
 
         for i, inv_cov in enumerate(inv_cov_obs): # Reshaping the covariance file
             inv_cov_obs[i] = np.array(inv_cov)
