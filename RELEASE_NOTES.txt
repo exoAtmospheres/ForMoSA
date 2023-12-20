@@ -8,3 +8,11 @@ Comments:
     See /ForMoSA/DEMO/inputs/MOSAIC/ folder for more info
 
 _ _ _ 
+
+20/12/2023 
+Matthieu Ravet 
+
+Comments:
+    - Correction of the os import in adapt/extraction_functions.py
+
+_ _ _ 
