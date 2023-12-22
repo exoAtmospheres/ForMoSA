@@ -16,3 +16,15 @@ Comments:
     - Correction of the os import in adapt/extraction_functions.py
 
 _ _ _ 
+
+21/12/2023 
+Matthieu Ravet 
+
+Comments:
+    - No more covariance matrix if not provided in the impute observation file or if the covariance likelihood (chi2_covariance) is not used
+    - Cleaner version of the covariances treatment during both the importation and the inversion
+    - Correction of the importation of 'res_spectro' in adapt/extraction_functions.py
+    - New function in main_utilities to compute the diagonal merging of covariance matrix (~ 100x faster)
+    - Sorting of the glob.glob when using the MOSAIC (i.e. you can now number your observation files, ex: 1_obs1, 2_obs2, ...)
+
+_ _ _ 

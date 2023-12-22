@@ -6,7 +6,7 @@ import xarray as xr
 
 from adapt.extraction_functions import extract_observation
 from adapt.adapt_grid import adapt_grid
-from main_utilities import yesno
+from main_utilities import yesno, diag_mat
 import glob
 # ----------------------------------------------------------------------------------------------------------------------
 
@@ -45,45 +45,42 @@ def launch_adapt(global_params, justobs='no'):
             wav_obs_extract = obs_cut[c][0]
             flx_obs_extract = obs_cut[c][1]
             err_obs_extract = obs_cut[c][2]
-            res_obs_extract = np.array(obs_cut[c][3], dtype=float) # New addition
+            res_obs_extract = np.array(obs_cut[c][3], dtype=float) # New addition (may need to be corrected)
             ins_obs_extract = obs_cut_ins[c]
+            if obs_cut_cov != []: # Extract sub-covariance (if necessary)
+                cov_obs_extract = obs_cut_cov[c]
+            else:
+                cov_obs_extract = []
 
         else:
             wav_obs_extract = np.concatenate((wav_obs_extract, obs_cut[c][0]))
             flx_obs_extract = np.concatenate((flx_obs_extract, obs_cut[c][1]))
             err_obs_extract = np.concatenate((err_obs_extract, obs_cut[c][2]))
-            res_obs_extract = np.concatenate((res_obs_extract, np.array(obs_cut[c][3], dtype=float)))
+            res_obs_extract = np.concatenate((res_obs_extract, np.array(obs_cut[c][3], dtype=float))) # New addition (may need to be corrected)
             ins_obs_extract = np.concatenate((ins_obs_extract, obs_cut_ins[c]))
+            if cov_obs_extract != []:
+                cov_obs_extract = diag_mat([cov_obs_extract, obs_cut_cov[c]])
 
-    # Get the sizes of all covariance matrices
-    cov_sizes = [a.shape[0] for a in obs_cut_cov]
+        # Compute the inverse of the merged covariance matrix (note: inv(C1, C2) = (in(C1), in(C2)) if C1 and C2 are block matrix on the diagonal)
+        # if necessary
+        if cov_obs_extract != []:
+            inv_cov_obs = np.linalg.inv(cov_obs_extract)
+        else:
+            inv_cov_obs = []
 
-    # Merging all the covariance matrices
-    n = sum(cov_sizes)
-    cov_obs = np.zeros((n, n))
-    start_row = 0
-    start_col = 0
-    for a in obs_cut_cov:
-        n_i = a.shape[0]
-        cov_obs[start_row:start_row+n_i, start_col:start_col+n_i] = a
-        start_row += n_i
-        start_col += n_i
+        # Compile everything
+        obs_merge = [wav_obs_extract, flx_obs_extract, err_obs_extract, res_obs_extract]
 
-    # Compute the inverse of the merged covariance matrix (note: inv(C1, C2) = (in(C1), in(C2)) if C1 and C2 are block matrix on the diagonal)
-    inv_cov_obs = np.linalg.inv(cov_obs)
-
-    obs_merge = [wav_obs_extract, flx_obs_extract, err_obs_extract, res_obs_extract]
-
-    # Check-ups and warnings for negative values in the diagonal of the covariance matrix
-    if any(np.diag(cov_obs) < 0):
-        y_n_par = yesno("WARNING: Negative value(s) is(are) present on the diagonal of the covariance matrix. Do you still want to run the inversion? (y/n)") 
-    else:
-        y_n_par = 'y' 
-    if y_n_par != 'y':
-        print("Operation aborted.")
-        exit()
-    else:
-        print("Continuing...")
+        # Check-ups and warnings for negative values in the diagonal of the covariance matrix
+        if cov_obs_extract != [] and any(np.diag(cov_obs_extract) < 0):
+            y_n_par = yesno("WARNING: Negative value(s) is(are) present on the diagonal of the covariance matrix. Do you still want to run the inversion? (y/n)") 
+        else:
+            y_n_par = 'y' 
+        if y_n_par != 'y':
+            print("Operation aborted.")
+            exit()
+        else:
+            print("Continuing...")
 
 
     # Save the new data spectrum
@@ -152,7 +149,7 @@ def launch_adapt_MOSAIC(global_params, justobs='no'):
     print()
 
 
-    for indobs, obs in enumerate(glob.glob(main_obs_path)):
+    for indobs, obs in enumerate(sorted(glob.glob(main_obs_path))):
         
         global_params.observation_path = obs
         obs_name = os.path.splitext(os.path.basename(global_params.observation_path))[0]
@@ -181,45 +178,43 @@ def launch_adapt_MOSAIC(global_params, justobs='no'):
                 wav_obs_extract = obs_cut[c][0]
                 flx_obs_extract = obs_cut[c][1]
                 err_obs_extract = obs_cut[c][2]
-                res_obs_extract = np.array(obs_cut[c][3], dtype=float) # New addition
+                res_obs_extract = np.array(obs_cut[c][3], dtype=float) # New addition (may need to be corrected)
                 ins_obs_extract = obs_cut_ins[c]
+                if obs_cut_cov != []: # Extract sub-covariance (if necessary)
+                    cov_obs_extract = obs_cut_cov[c]
+                else:
+                    cov_obs_extract = []
 
             else:
                 wav_obs_extract = np.concatenate((wav_obs_extract, obs_cut[c][0]))
                 flx_obs_extract = np.concatenate((flx_obs_extract, obs_cut[c][1]))
                 err_obs_extract = np.concatenate((err_obs_extract, obs_cut[c][2]))
-                res_obs_extract = np.concatenate((res_obs_extract, np.array(obs_cut[c][3], dtype=float)))
+                res_obs_extract = np.concatenate((res_obs_extract, np.array(obs_cut[c][3], dtype=float))) # New addition (may need to be corrected)
                 ins_obs_extract = np.concatenate((ins_obs_extract, obs_cut_ins[c]))
+                if cov_obs_extract != []:
+                    cov_obs_extract = diag_mat([cov_obs_extract, obs_cut_cov[c]])
 
-        # Get the sizes of all covariance matrices
-        cov_sizes = [a.shape[0] for a in obs_cut_cov]
 
-        # Merging all the covariance matrices
-        n = sum(cov_sizes)
-        cov_obs = np.zeros((n, n))
-        start_row = 0
-        start_col = 0
-        for a in obs_cut_cov:
-            n_i = a.shape[0]
-            cov_obs[start_row:start_row+n_i, start_col:start_col+n_i] = a
-            start_row += n_i
-            start_col += n_i
+            # Compute the inverse of the merged covariance matrix (note: inv(C1, C2) = (in(C1), in(C2)) if C1 and C2 are block matrix on the diagonal)
+            # if necessary
+            if cov_obs_extract != []:
+                inv_cov_obs = np.linalg.inv(cov_obs_extract)
+            else:
+                inv_cov_obs = []
 
-        # Compute the inverse of the merged covariance matrix (note: inv(C1, C2) = (in(C1), in(C2)) if C1 and C2 are block matrix on the diagonal)
-        inv_cov_obs = np.linalg.inv(cov_obs)
+            # Compile everything
+            obs_merge = [wav_obs_extract, flx_obs_extract, err_obs_extract, res_obs_extract]
 
-        obs_merge = [wav_obs_extract, flx_obs_extract, err_obs_extract, res_obs_extract]
-
-        # Check-ups and warnings for negative values in the diagonal of the covariance matrix
-        if any(np.diag(cov_obs) < 0):
-            y_n_par = yesno(f"WARNING: Negative value(s) is(are) present on the diagonal of the covariance matrix of {obs_name}. Do you still want to run the inversion? (y/n)") 
-        else:
-            y_n_par = 'y' 
-        if y_n_par != 'y':
-            print("Operation aborted.")
-            exit()
-        else:
-            print("Continuing...")
+            # Check-ups and warnings for negative values in the diagonal of the covariance matrix
+            if cov_obs_extract != [] and any(np.diag(cov_obs_extract) < 0):
+                y_n_par = yesno("WARNING: Negative value(s) is(are) present on the diagonal of the covariance matrix. Do you still want to run the inversion? (y/n)") 
+            else:
+                y_n_par = 'y' 
+            if y_n_par != 'y':
+                print("Operation aborted.")
+                exit()
+            else:
+                print("Continuing...")
 
         # Save the new data spectrum
         np.savez(os.path.join(global_params.result_path, f'spectrum_obs_{obs_name}.npz'),

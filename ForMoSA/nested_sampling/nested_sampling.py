@@ -12,7 +12,7 @@ from nested_sampling.nested_modif_spec import modif_spec
 from nested_sampling.nested_prior_function import uniform_prior, gaussian_prior
 from nested_sampling.nested_logL_functions import logL_chi2_classic, logL_chi2_covariance, logL_CCF_Brogi, logL_CCF_Lockwood, logL_CCF_custom
 from nested_sampling.nested_MOSAIC import MOSAIC_logL
-from main_utilities import yesno
+from main_utilities import yesno, diag_mat
 
 c = 299792.458 # Speed of light in km/s
 
@@ -42,6 +42,7 @@ def loglike(theta, theta_index, global_params, for_plot='no'):
         flx_obs_merge = spectrum_obs['obs_merge'][1]
         err_obs_merge = spectrum_obs['obs_merge'][2]
         inv_cov_obs_merge = spectrum_obs['inv_cov_obs']
+        #print(inv_cov_obs_merge)
 
         if 'obs_pho' in spectrum_obs.keys():
             wav_obs_phot = np.asarray(spectrum_obs['obs_pho'][0])
@@ -62,11 +63,9 @@ def loglike(theta, theta_index, global_params, for_plot='no'):
         grid_phot = ds['grid']
         ds.close()
 
-        # Initialize the complete covariance matrice (if necessary)
-        inv_cov_obs = []
-
         # Calculation of the likelihood for each sub-spectrum defined by the parameter 'wav_fit'
         for ns_u_ind, ns_u in enumerate(global_params.wav_fit.split('/')):
+            
             min_ns_u = float(ns_u.split(',')[0])
             max_ns_u = float(ns_u.split(',')[1])
             ind_grid_merge_sel = np.where((grid_merge['wavelength'] >= min_ns_u) & (grid_merge['wavelength'] <= max_ns_u))
@@ -137,6 +136,10 @@ def loglike(theta, theta_index, global_params, for_plot='no'):
                 flx_obs_phot_ns_u = flx_obs_phot[ind_phot]
                 err_obs_phot_ns_u = err_obs_phot[ind_phot]
                 flx_mod_phot_ns_u = flx_mod_phot_cut
+                if inv_cov_obs_merge != []:  # Add covariance in the loop (if necessary)
+                    inv_cov_obs_merge_ns_u = inv_cov_obs_merge[np.ix_(ind_merge[0],ind_merge[0])]
+                else:
+                    inv_cov_obs_merge_ns_u = []
             else:
                 wav_obs_merge_ns_u = np.concatenate((wav_obs_merge_ns_u, wav_obs_merge[ind_merge]))
                 flx_obs_merge_ns_u = np.concatenate((flx_obs_merge_ns_u, flx_obs_merge[ind_merge]))
@@ -146,26 +149,8 @@ def loglike(theta, theta_index, global_params, for_plot='no'):
                 flx_obs_phot_ns_u = np.concatenate((flx_obs_phot_ns_u, flx_obs_phot[ind_phot]))
                 err_obs_phot_ns_u = np.concatenate((err_obs_phot_ns_u, err_obs_phot[ind_phot]))
                 flx_mod_phot_ns_u = np.concatenate((flx_mod_phot_ns_u, flx_mod_phot_cut))
-
-            # Re-merging the covariance matrices (if necessary)
-            if inv_cov_obs_merge != []:
-                inv_cov_obs.append([inv_cov_obs_merge[ind_merge][i][ind_merge] for i in range(0, len(ind_merge[0]))])
-
-        for i, inv_cov in enumerate(inv_cov_obs): # Reshaping the covariance file
-            inv_cov_obs[i] = np.array(inv_cov)
-
-        inv_cov_sizes = [a.shape[0] for a in inv_cov_obs]
-
-        # Merging all the covariance matrices
-        n = sum(inv_cov_sizes)
-        inv_cov_obs_merge_ns_u = np.zeros((n, n))
-        start_row = 0
-        start_col = 0
-        for a in inv_cov_obs:
-            n_i = a.shape[0]
-            inv_cov_obs_merge_ns_u[start_row:start_row+n_i, start_col:start_col+n_i] = a
-            start_row += n_i
-            start_col += n_i
+                if inv_cov_obs_merge_ns_u != []: # Merge the covariance matrices (if necessary)
+                    inv_cov_obs_merge_ns_u = diag_mat([inv_cov_obs_merge_ns_u, inv_cov_obs_merge[np.ix_(ind_merge[0],ind_merge[0])]]) 
 
         # Modification of the synthetic spectrum with the extra-grid parameters
         modif_spec_LL = modif_spec(global_params, theta, theta_index,
@@ -187,7 +172,7 @@ def loglike(theta, theta_index, global_params, for_plot='no'):
         # Computation of the spectroscopy logL
         if global_params.logL_type == 'chi2_classic':
             logL_spec = logL_chi2_classic(flx_obs-flx_mod, err)
-        if global_params.logL_type == 'chi2_covariance':
+        if global_params.logL_type == 'chi2_covariance' and inv_cov != []:
             logL_spec = logL_chi2_covariance(flx_obs-flx_mod, inv_cov)
         if global_params.logL_type == 'CCF_Brogi':
             logL_spec = logL_CCF_Brogi(flx_obs, flx_mod)
@@ -369,7 +354,7 @@ def launch_nested_sampling(global_params):
         print()
 
         main_obs_path = global_params.main_observation_path
-        for indobs, obs in enumerate(glob.glob(main_obs_path)):      
+        for indobs, obs in enumerate(sorted(glob.glob(main_obs_path))):      
             global_params.observation_path = obs
             obs_name = os.path.splitext(os.path.basename(global_params.observation_path))[0]
             print(obs_name + ' will be computed with ' + global_params.logL_type[indobs])

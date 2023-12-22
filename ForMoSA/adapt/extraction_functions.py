@@ -79,7 +79,7 @@ def extract_observation(global_params, wav_mod_nativ, res_mod_nativ, cont='no', 
     """
 
     # Extract the wavelengths, flux, errors, spectral resolution, and instrument/filter names from the observation file.
-    obs_cut, obs_pho, obs_cut_ins, obs_pho_ins, obs_cut_cov = adapt_observation_range(global_params)
+    obs_cut, obs_pho, obs_cut_ins, obs_pho_ins, obs_cut_cov = adapt_observation_range(global_params, obs_name=obs_name, indobs=indobs)
 
     # Reduce the spectral resolution for each sub-spectrum.
     for c, cut in enumerate(obs_cut):
@@ -99,7 +99,7 @@ def extract_observation(global_params, wav_mod_nativ, res_mod_nativ, cont='no', 
 # ----------------------------------------------------------------------------------------------------------------------
 
 
-def adapt_observation_range(global_params):
+def adapt_observation_range(global_params, obs_name='', indobs=0):
     """
     Extract the wavelengths (um  -  vacuum), flux (W.m-2.um.1), errors (W.m-2.um.1), covariance (W.m-2.um.1)**2, spectral resolution, and
     instrument/filter names from the observation file. The wavelength range is define by the parameter "wav_for_adapt".
@@ -136,15 +136,23 @@ def adapt_observation_range(global_params):
             wav = hdul[1].data['WAV']
             flx = hdul[1].data['FLX']
             err = hdul[1].data['ERR']
-            cov = np.diag(err**2)
+            cov = [] # Create an empty covariance matrix if not already present in the data (to not slow the inversion)
             res = hdul[1].data['RES']
             ins = hdul[1].data['INS']
+
+        # Only take the covariance if you use the chi2_covariance likelihood function (will need to be change when new likelihood functions using the
+        # covariance matrix will come)
+        if global_params.observation_format == 'MOSAIC' and global_params.logL_type[indobs] != 'chi2_covariance':
+            cov = []
+        elif global_params.logL_type != 'chi2_covariance':
+            cov = []
 
         # Filter the NaN values
         nan_mod_ind = ~np.isnan(flx)
         wav = wav[nan_mod_ind]
         flx = flx[nan_mod_ind]
-        cov = np.transpose(np.transpose(cov[nan_mod_ind])[nan_mod_ind])
+        if cov != []:
+            cov = np.transpose(np.transpose(cov[nan_mod_ind])[nan_mod_ind])
         res = res[nan_mod_ind]
         ins = ins[nan_mod_ind]
         err = err[nan_mod_ind]
@@ -172,17 +180,14 @@ def adapt_observation_range(global_params):
             wav_spectro = np.delete(wav[ind], ind_photometry)
             flx_spectro = np.delete(flx[ind], ind_photometry)
             res_spectro = np.delete(res[ind], ind_photometry)
-            res_spectro = np.array(res_spectro) # Convert to float (need to be corrected)
-            res_spectro = res_spectro.astype(np.float)
             ins_spectro = np.delete(ins[ind], ind_photometry)
             err_spectro = np.delete(err[ind], ind_photometry)
-            cov_spectro = np.array([cov[ind][i][ind] for i in range(0, len(ind[0]))])
-            cov_spectro = np.delete(cov_spectro, ind_photometry, axis=0)
-            cov_spectro = np.delete(cov_spectro, ind_photometry, axis=1)
-
-            #res_spectro = np.zeros(len(res_spe)) # Convert resolution to integer (need to be corrected)
-            #for i in range(len(res_spe)):
-                #res_spectro[i] = int(np.float(res_spe[i]))
+            if cov != []: # Check if the covariance exists
+                cov_spectro = cov[np.ix_(ind[0],ind[0])]
+                cov_spectro = np.delete(cov_spectro, ind_photometry, axis=0)
+                cov_spectro = np.delete(cov_spectro, ind_photometry, axis=1)
+            else:
+                cov_spectro = []
 
             if range_ind == 0:
                 obs_cut = [[wav_spectro, flx_spectro, err_spectro, res_spectro]]
@@ -191,16 +196,16 @@ def adapt_observation_range(global_params):
                 obs_cut.append([wav_spectro, flx_spectro, err_spectro, res_spectro])
                 obs_cut_ins.append([ins_spectro])
 
-            # Cuting the covariance matrix if nescessary
-            #obs_cut_cov.append([cov[ind][i][ind] for i in range(0, len(ind[0]))])
-            obs_cut_cov.append(list(cov_spectro))
+            # Cuting the covariance matrix if necessary
+            if cov_spectro != []: # Check if the covariance exists
+                obs_cut_cov.append(list(cov_spectro))
 
-        for i, cov in enumerate(obs_cut_cov): # Reshaping the covariance file and the instrument file
-            obs_cut_cov[i] = np.array(cov)
+        # Reshaping the covariance file (if necessary) and the instrument file
+        if obs_cut_cov != []:
+            for i, cov in enumerate(obs_cut_cov):
+                obs_cut_cov[i] = np.array(cov)
         for i, ins in enumerate(obs_cut_ins):
             obs_cut_ins[i] = obs_cut_ins[i][0]
-        #for i, ins in enumerate(obs_pho_ins):
-            #obs_pho_ins[i] = obs_pho_ins[i][0]
     
 
         return obs_cut, obs_pho, obs_cut_ins, obs_pho_ins, obs_cut_cov   

@@ -1,4 +1,5 @@
 from configobj import ConfigObj
+import numpy as np
 
 # ----------------------------------------------------------------------------------------------------------------------
 def yesno(text):
@@ -15,6 +16,28 @@ def yesno(text):
         return asw
     else:
         return yesno()
+
+# ----------------------------------------------------------------------------------------------------------------------
+def diag_mat(rem=[], result=np.empty((0, 0))):
+    ''' Function to concatenate and align iterativly block matrices (usefull during the extraction and the inversion)
+    Parameters:
+    - rem (list)= matrices to be add iterativly (use diag([mat1, mat2]))
+    - result (array)= final array with each sub-matrices aligned allong the diagonal
+    Returns:
+    - repeat diag_mat
+
+    Credits : ishigoya, Stack-overflow : https://stackoverflow.com/questions/42154606/python-numpy-how-to-construct-a-big-diagonal-arraymatrix-from-two-small-array
+    '''
+    if not rem:
+        return result
+    m = rem.pop(0)
+    result = np.block(
+        [
+            [result, np.zeros((result.shape[0], m.shape[1]))],
+            [np.zeros((m.shape[0], result.shape[1])), m],
+        ]
+    )
+    return diag_mat(rem, result)
 
 # ----------------------------------------------------------------------------------------------------------------------
 
