@@ -144,7 +144,7 @@ def adapt_observation_range(global_params, obs_name='', indobs=0):
         # covariance matrix will come)
         if global_params.observation_format == 'MOSAIC' and global_params.logL_type[indobs] != 'chi2_covariance':
             cov = []
-        elif global_params.logL_type != 'chi2_covariance':
+        elif global_params.observation_format != 'MOSAIC' and global_params.logL_type != 'chi2_covariance':
             cov = []
 
         # Filter the NaN values
