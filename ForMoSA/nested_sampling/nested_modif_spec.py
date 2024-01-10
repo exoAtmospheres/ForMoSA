@@ -282,30 +282,6 @@ def modif_spec(global_params, theta, theta_index,
         new_flx_phot: New flux of the interpolated synthetic spectrum (photometry)
     Author: Simon Petrus and Paulina Palma-Bifani
     """
-    # Calculation of the dilution factor Ck and re-normalization of the interpolated synthetic spectrum.
-    # From the radius and the distance.
-    if global_params.r != "NA" and global_params.d != "NA":
-        if global_params.r[0] == "constant":
-            r_picked = float(global_params.r[1])
-        else:
-            ind_theta_r = np.where(theta_index == 'r')
-            r_picked = theta[ind_theta_r[0][0]]
-        if global_params.d[0] == "constant":
-            d_picked = float(global_params.d[1])
-        else:
-            ind_theta_d = np.where(theta_index == 'd')
-            d_picked = theta[ind_theta_d[0][0]]
-        new_flx_merge, new_flx_phot, ck = calc_ck(flx_obs_merge, err_obs_merge, new_flx_merge,
-                                                  flx_obs_phot, err_obs_phot, new_flx_phot, r_picked, d_picked)
-    # Analytically
-    elif global_params.r == "NA" and global_params.d == "NA":
-        new_flx_merge, new_flx_phot, ck = calc_ck(flx_obs_merge, err_obs_merge, new_flx_merge,
-                                                  flx_obs_phot, err_obs_phot, new_flx_phot, 0, 0,
-                                                  analytic='yes')
-    else:
-        print('You need to define a radius AND a distance, or set them both to "NA"')
-        exit()
-
     # Correction of the radial velocity of the interpolated synthetic spectrum.
     if global_params.rv != "NA":
         if global_params.rv[0] == 'constant':
@@ -376,5 +352,28 @@ def modif_spec(global_params, theta, theta_index,
         print('You need to define a blackbody radius and blackbody temperature, or set them to "NA"')
         exit()
 
+    # Calculation of the dilution factor Ck and re-normalization of the interpolated synthetic spectrum.
+    # From the radius and the distance.
+    if global_params.r != "NA" and global_params.d != "NA":
+        if global_params.r[0] == "constant":
+            r_picked = float(global_params.r[1])
+        else:
+            ind_theta_r = np.where(theta_index == 'r')
+            r_picked = theta[ind_theta_r[0][0]]
+        if global_params.d[0] == "constant":
+            d_picked = float(global_params.d[1])
+        else:
+            ind_theta_d = np.where(theta_index == 'd')
+            d_picked = theta[ind_theta_d[0][0]]
+        new_flx_merge, new_flx_phot, ck = calc_ck(flx_obs_merge, err_obs_merge, new_flx_merge,
+                                                  flx_obs_phot, err_obs_phot, new_flx_phot, r_picked, d_picked)
+    # Analytically
+    elif global_params.r == "NA" and global_params.d == "NA":
+        new_flx_merge, new_flx_phot, ck = calc_ck(flx_obs_merge, err_obs_merge, new_flx_merge,
+                                                  flx_obs_phot, err_obs_phot, new_flx_phot, 0, 0,
+                                                  analytic='yes')
+    else:
+        print('You need to define a radius AND a distance, or set them both to "NA"')
+        exit()
 
     return wav_obs_merge, flx_obs_merge, err_obs_merge, new_flx_merge, wav_obs_phot, flx_obs_phot, err_obs_phot, new_flx_phot, ck
