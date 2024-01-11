@@ -17,22 +17,54 @@ from main_utilities import yesno, diag_mat
 c = 299792.458 # Speed of light in km/s
 
 
-def loglike(theta, theta_index, global_params, for_plot='no'):
+def import_obsmod(global_params):
     """
-    
+    Function to import spectra (model and data) before the inversion
 
     Args:
         
     Returns:
         
 
-    Authors: Simon Petrus and Matthieu Ravet
+    Authors: Matthieu Ravet (adapted from Simon Petrus)
     """
-
-    # Check if we are running with the MOSAIC mode
-
+    # Check if the MOSAIC mode is activated
     if global_params.observation_format == 'MOSAIC':
-        FINAL_logL = MOSAIC_logL(theta, theta_index, global_params)
+        main_obs_path = global_params.main_observation_path
+
+        main_file = []
+
+        for indobs, obs in enumerate(sorted(glob.glob(main_obs_path))):
+            
+            global_params.observation_path = obs
+            obs_name = os.path.splitext(os.path.basename(global_params.observation_path))[0]
+            spectrum_obs = np.load(os.path.join(global_params.result_path, f'spectrum_obs_{obs_name}.npz'), allow_pickle=True)
+
+            wav_obs_merge = spectrum_obs['obs_merge'][0]
+            flx_obs_merge = spectrum_obs['obs_merge'][1]
+            err_obs_merge = spectrum_obs['obs_merge'][2]
+            inv_cov_obs_merge = spectrum_obs['inv_cov_obs']
+
+            if 'obs_pho' in spectrum_obs.keys():
+                wav_obs_phot = np.asarray(spectrum_obs['obs_pho'][0])
+                flx_obs_phot = np.asarray(spectrum_obs['obs_pho'][1])
+                err_obs_phot = np.asarray(spectrum_obs['obs_pho'][2])
+            else:
+                wav_obs_phot = np.asarray([])
+                flx_obs_phot = np.asarray([])
+                err_obs_phot = np.asarray([])
+
+            # Recovery of the spectroscopy and photometry model
+            path_grid_m = os.path.join(global_params.adapt_store_path, f'adapted_grid_merge_{global_params.grid_name}_{obs_name}_nonan.nc')
+            path_grid_p = os.path.join(global_params.adapt_store_path, f'adapted_grid_phot_{global_params.grid_name}_{obs_name}_nonan.nc')
+            ds = xr.open_dataset(path_grid_m, decode_cf=False, engine='netcdf4')
+            grid_merge = ds['grid']
+            ds.close()
+            ds = xr.open_dataset(path_grid_p, decode_cf=False, engine='netcdf4')
+            grid_phot = ds['grid']
+            ds.close()
+
+            main_file.append([[wav_obs_merge, wav_obs_phot], [flx_obs_merge, flx_obs_phot], [err_obs_merge, err_obs_phot], inv_cov_obs_merge, grid_merge, grid_phot])
 
     else:
         # Recovery of spectroscopy and photometry data
@@ -42,7 +74,6 @@ def loglike(theta, theta_index, global_params, for_plot='no'):
         flx_obs_merge = spectrum_obs['obs_merge'][1]
         err_obs_merge = spectrum_obs['obs_merge'][2]
         inv_cov_obs_merge = spectrum_obs['inv_cov_obs']
-        #print(inv_cov_obs_merge)
 
         if 'obs_pho' in spectrum_obs.keys():
             wav_obs_phot = np.asarray(spectrum_obs['obs_pho'][0])
@@ -62,6 +93,46 @@ def loglike(theta, theta_index, global_params, for_plot='no'):
         ds = xr.open_dataset(path_grid_p, decode_cf=False, engine='netcdf4')
         grid_phot = ds['grid']
         ds.close()
+
+        main_file = [wav_obs_merge, wav_obs_phot], [flx_obs_merge, flx_obs_phot], [err_obs_merge, err_obs_phot], inv_cov_obs_merge, grid_merge, grid_phot
+
+    return main_file
+
+
+
+
+
+
+def loglike(theta, theta_index, global_params, main_file, for_plot='no'):
+    """
+    
+
+    Args:
+        
+    Returns:
+        
+
+    Authors: Simon Petrus and Matthieu Ravet
+    """
+
+    # Check if we are running with the MOSAIC mode
+
+    if global_params.observation_format == 'MOSAIC':
+        FINAL_logL = MOSAIC_logL(theta, theta_index, global_params, main_file)
+
+    else:
+        # Recovery of spectroscopy and photometry data
+        wav_obs_merge = main_file[0][0]
+        wav_obs_phot = main_file[0][1]
+        flx_obs_merge = main_file[1][0]
+        flx_obs_phot = main_file[1][1]
+        err_obs_merge = main_file[2][0]
+        err_obs_phot = main_file[2][1]
+        inv_cov_obs_merge = main_file[3]
+
+        # Recovery of the spectroscopy and photometry model
+        grid_merge = main_file[4]
+        grid_phot = main_file[5]
 
         # Calculation of the likelihood for each sub-spectrum defined by the parameter 'wav_fit'
         for ns_u_ind, ns_u in enumerate(global_params.wav_fit.split('/')):
@@ -418,9 +489,12 @@ def launch_nested_sampling(global_params):
     theta_index = np.asarray(theta_index)
     #print(theta_index, n_free_parameters)
 
+    # Import all the data (only done once)
+    main_file = import_obsmod(global_params)
+
     if global_params.ns_algo == 'nestle':
         tmpstot1 = time.time()
-        loglike_gp = lambda theta: loglike(theta, theta_index, global_params)
+        loglike_gp = lambda theta: loglike(theta, theta_index, global_params, main_file=main_file)
         prior_transform_gp = lambda theta: prior_transform(theta, theta_index, lim_param_grid, global_params)
         result = nestle.sample(loglike_gp, prior_transform_gp, n_free_parameters, 
                                callback=nestle.print_progress,

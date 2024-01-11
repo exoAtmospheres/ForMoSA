@@ -9,7 +9,7 @@ from nested_sampling.nested_logL_functions import logL_chi2_classic, logL_chi2_c
 from main_utilities import yesno, diag_mat
 
 
-def MOSAIC_logL(theta, theta_index, global_params):
+def MOSAIC_logL(theta, theta_index, global_params, main_file):
     """
     
 
@@ -28,34 +28,18 @@ def MOSAIC_logL(theta, theta_index, global_params):
 
     for indobs, obs in enumerate(sorted(glob.glob(main_obs_path))):
         
-        global_params.observation_path = obs
-        obs_name = os.path.splitext(os.path.basename(global_params.observation_path))[0]
-        spectrum_obs = np.load(os.path.join(global_params.result_path, f'spectrum_obs_{obs_name}.npz'), allow_pickle=True)
-
-        wav_obs_merge = spectrum_obs['obs_merge'][0]
-        flx_obs_merge = spectrum_obs['obs_merge'][1]
-        err_obs_merge = spectrum_obs['obs_merge'][2]
-        inv_cov_obs_merge = spectrum_obs['inv_cov_obs']
-        #print(inv_cov_obs_merge)
-
-        if 'obs_pho' in spectrum_obs.keys():
-            wav_obs_phot = np.asarray(spectrum_obs['obs_pho'][0])
-            flx_obs_phot = np.asarray(spectrum_obs['obs_pho'][1])
-            err_obs_phot = np.asarray(spectrum_obs['obs_pho'][2])
-        else:
-            wav_obs_phot = np.asarray([])
-            flx_obs_phot = np.asarray([])
-            err_obs_phot = np.asarray([])
+        # Recovery of spectroscopy and photometry data
+        wav_obs_merge = main_file[indobs][0][0]
+        wav_obs_phot = main_file[indobs][0][1]
+        flx_obs_merge = main_file[indobs][1][0]
+        flx_obs_phot = main_file[indobs][1][1]
+        err_obs_merge = main_file[indobs][2][0]
+        err_obs_phot = main_file[indobs][2][1]
+        inv_cov_obs_merge = main_file[indobs][3]
 
         # Recovery of the spectroscopy and photometry model
-        path_grid_m = os.path.join(global_params.adapt_store_path, f'adapted_grid_merge_{global_params.grid_name}_{obs_name}_nonan.nc')
-        path_grid_p = os.path.join(global_params.adapt_store_path, f'adapted_grid_phot_{global_params.grid_name}_{obs_name}_nonan.nc')
-        ds = xr.open_dataset(path_grid_m, decode_cf=False, engine='netcdf4')
-        grid_merge = ds['grid']
-        ds.close()
-        ds = xr.open_dataset(path_grid_p, decode_cf=False, engine='netcdf4')
-        grid_phot = ds['grid']
-        ds.close()
+        grid_merge = main_file[indobs][4]
+        grid_phot = main_file[indobs][5]
 
         # Calculation of the likelihood for each sub-spectrum defined by the parameter 'wav_fit'
         for ns_u_ind, ns_u in enumerate(global_params.wav_fit.split('/')):
@@ -144,7 +128,7 @@ def MOSAIC_logL(theta, theta_index, global_params):
                 err_obs_phot_ns_u = np.concatenate((err_obs_phot_ns_u, err_obs_phot[ind_phot]))
                 flx_mod_phot_ns_u = np.concatenate((flx_mod_phot_ns_u, flx_mod_phot_cut))
                 if inv_cov_obs_merge_ns_u != []: # Merge the covariance matrices (if necessary)
-                    inv_cov_obs_merge_ns_u = diag_mat([inv_cov_obs_merge_ns_u, inv_cov_obs_merge[np.ix_(ind_merge[0],ind_merge[0])]]) 
+                    inv_cov_obs_merge_ns_u = diag_mat([inv_cov_obs_merge_ns_u, inv_cov_obs_merge[np.ix_(ind_merge[0],ind_merge[0])]])
                     
         # Modification of the synthetic spectrum with the extra-grid parameters
         modif_spec_LL = modif_spec(global_params, theta, theta_index,
