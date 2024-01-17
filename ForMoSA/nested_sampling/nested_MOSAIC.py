@@ -159,6 +159,7 @@ def MOSAIC_logL(theta, theta_index, global_params, main_file):
         if global_params.logL_type[indobs] == 'CCF_custom':
             logL_spec = logL_CCF_custom(flx_obs, flx_mod, err)
 
-        FINAL_logL = logL_phot + logL_spec
+        # Add all the sub-likelihoods (hypothesis of independant obs)
+        FINAL_logL = logL_phot + logL_spec + FINAL_logL
 
     return FINAL_logL
