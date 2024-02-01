@@ -28,3 +28,13 @@ Comments:
     - Sorting of the glob.glob when using the MOSAIC (i.e. you can now number your observation files, ex: 1_obs1, 2_obs2, ...)
 
 _ _ _ 
+
+01/02/2024 
+Matthieu Ravet 
+
+Comments:
+    - Addition of checkups for the likelihoods (continuum checkups for the CCF and iterative checkups for the logL loop)
+    - Correction of the continuum substraction function to make it run with custom ranges
+    - Changes of the num_sigma parameter in extraction_functions to not smooth to much the models during the resolution decrease
+
+_ _ _ 

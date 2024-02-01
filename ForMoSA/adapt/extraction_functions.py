@@ -326,7 +326,7 @@ def extract_model(global_params, wav_mod_nativ, flx_mod_nativ, res_mod_nativ, co
 # ----------------------------------------------------------------------------------------------------------------------
 
 
-def convolve_and_sample(wv_channels, sigmas_wvs, model_wvs, model_fluxes, num_sigma=3):
+def convolve_and_sample(wv_channels, sigmas_wvs, model_wvs, model_fluxes, num_sigma=1):
     """
     Simulate the observations of a model. Convolves the model with a variable Gaussian LSF, sampled at each desired
     spectral channel.
@@ -459,7 +459,7 @@ def continuum_estimate(global_params, wav_cut, wav, flx, res, obs_or_mod, obs_na
         for wav_for_cont_cut_ind, wav_for_cont_cut in enumerate(wav_for_continuum):
             wav_for_cont_cut = wav_for_cont_cut.split(',')
             if wav_for_cont_cut_ind == 0:
-                ind_cont_cut = np.where(wav <= float(wav_for_cont_cut[0]))
+                ind_cont_cut = np.where(wav <= float(wav_for_cont_cut[1]))
             elif wav_for_cont_cut_ind == len(wav_for_continuum)-1:
                 ind_cont_cut = np.where(float(wav_for_cont_cut[0]) <= wav)
             else:

@@ -73,13 +73,16 @@ def launch_adapt(global_params, justobs='no'):
 
         # Check-ups and warnings for negative values in the diagonal of the covariance matrix
         if cov_obs_extract != [] and any(np.diag(cov_obs_extract) < 0):
+            print()
             y_n_par = yesno("WARNING: Negative value(s) is(are) present on the diagonal of the covariance matrix. Do you still want to run the inversion? (y/n)") 
         else:
             y_n_par = 'y' 
         if y_n_par != 'y':
             print("Operation aborted.")
+            print()
             exit()
         else:
+            print()
             print("Continuing...")
 
 
@@ -158,6 +161,7 @@ def launch_adapt_MOSAIC(global_params, justobs='no'):
 
         # Estimate and subtraction of the continuum (if needed) + check-ups
         if global_params.continuum_sub[indobs] != 'NA':
+            print()
             print(obs_name + ' will have a R=' + global_params.continuum_sub[indobs] + ' continuum removed')
             print()
             y_n_par = yesno('Is this what you want ? (y/n)')
@@ -207,13 +211,16 @@ def launch_adapt_MOSAIC(global_params, justobs='no'):
 
             # Check-ups and warnings for negative values in the diagonal of the covariance matrix
             if cov_obs_extract != [] and any(np.diag(cov_obs_extract) < 0):
+                print()
                 y_n_par = yesno("WARNING: Negative value(s) is(are) present on the diagonal of the covariance matrix. Do you still want to run the inversion? (y/n)") 
             else:
                 y_n_par = 'y' 
             if y_n_par != 'y':
                 print("Operation aborted.")
+                print()
                 exit()
             else:
+                print()
                 print("Continuing...")
 
         # Save the new data spectrum

@@ -150,16 +150,22 @@ def MOSAIC_logL(theta, theta_index, global_params, main_file):
         # Computation of the spectroscopy logL
         if global_params.logL_type[indobs] == 'chi2_classic':
             logL_spec = logL_chi2_classic(flx_obs-flx_mod, err)
-        if global_params.logL_type[indobs] == 'chi2_covariance' and inv_cov != []:
+        elif global_params.logL_type[indobs] == 'chi2_covariance' and inv_cov != []:
             logL_spec = logL_chi2_covariance(flx_obs-flx_mod, inv_cov)
-        if global_params.logL_type[indobs] == 'CCF_Brogi':
+        elif global_params.logL_type[indobs] == 'CCF_Brogi':
             logL_spec = logL_CCF_Brogi(flx_obs, flx_mod)
-        if global_params.logL_type[indobs] == 'CCF_Lockwood':
+        elif global_params.logL_type[indobs] == 'CCF_Lockwood':
             logL_spec = logL_CCF_Lockwood(flx_obs, flx_mod)
-        if global_params.logL_type[indobs] == 'CCF_custom':
+        elif global_params.logL_type[indobs] == 'CCF_custom':
             logL_spec = logL_CCF_custom(flx_obs, flx_mod, err)
+        else:
+            print()
+            print('One or more dataset does not run in the inversion')
+            print('Please choose the adapted likelihood function to your dataset')
+            print()
+            exit()
 
-        # Add all the sub-likelihoods (hypothesis of independant obs)
+        # Compute the final logL (sum of all likelihood under the hypothesis of independent instruments)
         FINAL_logL = logL_phot + logL_spec + FINAL_logL
 
     return FINAL_logL

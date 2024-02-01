@@ -116,7 +116,6 @@ def loglike(theta, theta_index, global_params, main_file, for_plot='no'):
     """
 
     # Check if we are running with the MOSAIC mode
-
     if global_params.observation_format == 'MOSAIC':
         FINAL_logL = MOSAIC_logL(theta, theta_index, global_params, main_file)
 
@@ -243,14 +242,20 @@ def loglike(theta, theta_index, global_params, main_file, for_plot='no'):
         # Computation of the spectroscopy logL
         if global_params.logL_type == 'chi2_classic':
             logL_spec = logL_chi2_classic(flx_obs-flx_mod, err)
-        if global_params.logL_type == 'chi2_covariance' and inv_cov != []:
+        elif global_params.logL_type == 'chi2_covariance' and inv_cov != []:
             logL_spec = logL_chi2_covariance(flx_obs-flx_mod, inv_cov)
-        if global_params.logL_type == 'CCF_Brogi':
+        elif global_params.logL_type == 'CCF_Brogi':
             logL_spec = logL_CCF_Brogi(flx_obs, flx_mod)
-        if global_params.logL_type == 'CCF_Lockwood':
+        elif global_params.logL_type == 'CCF_Lockwood':
             logL_spec = logL_CCF_Lockwood(flx_obs, flx_mod)
-        if global_params.logL_type == 'CCF_custom':
+        elif global_params.logL_type == 'CCF_custom':
             logL_spec = logL_CCF_custom(flx_obs, flx_mod, err)
+        else:
+            print()
+            print('One or more dataset does not run in the inversion')
+            print('Please choose the adapted likelihood function to your dataset')
+            print()
+            exit()
 
         FINAL_logL = logL_phot + logL_spec
 
@@ -418,25 +423,72 @@ def launch_nested_sampling(global_params):
     Author: Simon Petrus and Matthieu
     """
 
+    # LogL functions check-ups
+
+    # CHECK-UPS FOR MOSAIC
     if global_params.observation_format == 'MOSAIC':
-        # LogL functions check-up
         print('- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -')
-        print('-> Likelihood functions check-up')
+        print('-> Likelihood functions check-ups')
         print()
 
         main_obs_path = global_params.main_observation_path
         for indobs, obs in enumerate(sorted(glob.glob(main_obs_path))):      
             global_params.observation_path = obs
             obs_name = os.path.splitext(os.path.basename(global_params.observation_path))[0]
+
+            # Check the choice of likelihood (only for MOSAIC)
             print(obs_name + ' will be computed with ' + global_params.logL_type[indobs])
             print()
             y_n_par = yesno('Is this what you want ? (y/n)')
             if y_n_par == 'n':
                 print('Please input the desired logL function for ' + obs_name + ':')
                 global_params.logL_type[indobs] = input()
+
+            if global_params.logL_type[indobs] == 'CCF_Brogi' and global_params.continuum_sub[indobs] == 'NA':
+                print('You cannot use CCF mappings without substracting the continuum')
+                print()
+                exit()
+            elif global_params.logL_type[indobs] == 'CCF_Lockwood' and global_params.continuum_sub[indobs] == 'NA':
+                print('You cannot use CCF mappings without substracting the continuum')
+                print()
+                exit()
+            elif global_params.logL_type[indobs] == 'CCF_custom' and global_params.continuum_sub[indobs] == 'NA':
+                print('You cannot use CCF mappings without substracting the continuum')
+                print()
+                exit()
+                
             print()
             print()
             print()
+            print()
+        print('Done !')
+        print()
+        print()
+
+    # CHECK-UPS FOR CLASSIC MODE
+    else:
+        print('- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -')
+        print('-> Likelihood functions check-ups')
+        print()
+
+        if global_params.logL_type == 'CCF_Brogi' and global_params.continuum_sub == 'NA':
+            print('You cannot use CCF mappings without substracting the continuum')
+            print()
+            exit()
+        elif global_params.logL_type == 'CCF_Lockwood' and global_params.continuum_sub == 'NA':
+            print('You cannot use CCF mappings without substracting the continuum')
+            print()
+            exit()
+        elif global_params.logL_type == 'CCF_custom' and global_params.continuum_sub == 'NA':
+            print('You cannot use CCF mappings without substracting the continuum')
+            print()
+            exit()
+
+        print()
+        print('Done !')
+        print()
+        print()
+    
 
 
     ds = xr.open_dataset(global_params.model_path, decode_cf=False, engine='netcdf4')
@@ -487,7 +539,6 @@ def launch_nested_sampling(global_params):
         n_free_parameters += 1
         theta_index.append('bb_R')
     theta_index = np.asarray(theta_index)
-    #print(theta_index, n_free_parameters)
 
     # Import all the data (only done once)
     main_file = import_obsmod(global_params)
