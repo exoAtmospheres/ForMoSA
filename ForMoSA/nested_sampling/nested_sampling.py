@@ -10,7 +10,7 @@ from scipy.interpolate import interp1d, UnivariateSpline
 
 from nested_sampling.nested_modif_spec import modif_spec
 from nested_sampling.nested_prior_function import uniform_prior, gaussian_prior
-from nested_sampling.nested_logL_functions import logL_chi2_classic, logL_chi2_covariance, logL_CCF_Brogi, logL_CCF_Lockwood, logL_CCF_custom
+from nested_sampling.nested_logL_functions import *
 from nested_sampling.nested_MOSAIC import MOSAIC_logL
 from main_utilities import yesno, diag_mat
 
@@ -246,8 +246,8 @@ def loglike(theta, theta_index, global_params, main_file, for_plot='no'):
             logL_spec = logL_chi2_covariance(flx_obs-flx_mod, inv_cov)
         elif global_params.logL_type == 'CCF_Brogi':
             logL_spec = logL_CCF_Brogi(flx_obs, flx_mod)
-        elif global_params.logL_type == 'CCF_Lockwood':
-            logL_spec = logL_CCF_Lockwood(flx_obs, flx_mod)
+        elif global_params.logL_type == 'CCF_Zucker':
+            logL_spec = logL_CCF_Zucker(flx_obs, flx_mod)
         elif global_params.logL_type == 'CCF_custom':
             logL_spec = logL_CCF_custom(flx_obs, flx_mod, err)
         else:
@@ -448,7 +448,7 @@ def launch_nested_sampling(global_params):
                 print('You cannot use CCF mappings without substracting the continuum')
                 print()
                 exit()
-            elif global_params.logL_type[indobs] == 'CCF_Lockwood' and global_params.continuum_sub[indobs] == 'NA':
+            elif global_params.logL_type[indobs] == 'CCF_Zucker' and global_params.continuum_sub[indobs] == 'NA':
                 print('You cannot use CCF mappings without substracting the continuum')
                 print()
                 exit()
@@ -475,7 +475,7 @@ def launch_nested_sampling(global_params):
             print('You cannot use CCF mappings without substracting the continuum')
             print()
             exit()
-        elif global_params.logL_type == 'CCF_Lockwood' and global_params.continuum_sub == 'NA':
+        elif global_params.logL_type == 'CCF_Zucker' and global_params.continuum_sub == 'NA':
             print('You cannot use CCF mappings without substracting the continuum')
             print()
             exit()

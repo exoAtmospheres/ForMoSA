@@ -62,7 +62,7 @@ def logL_full_covariance(delta_flx, inv_cov):
 def logL_CCF_Brogi(flx_obs, flx_mod):
     """
     Function to compute logL based on the CCF mapping from Brogi et al. 2019
-    under the assumption of gaussian and spectrally constant noise + self-calibrated (no continuum)
+    under the assumption of gaussian and spectrally constant noise
     
     Args:
         - flx_obs: flux of the observation as a function of wavelength
@@ -83,9 +83,9 @@ def logL_CCF_Brogi(flx_obs, flx_mod):
     return logL
 
 
-def logL_CCF_Lockwood(flx_obs, flx_mod):
+def logL_CCF_Zucker(flx_obs, flx_mod):
     """
-    Function to compute logL based on the CCF mapping from Lockwood et al. 2014
+    Function to compute logL based on the CCF mapping from Zucker 2003
     under the assumption of gaussian and spectrally constant noise
     
     Args:
