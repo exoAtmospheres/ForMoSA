@@ -27,6 +27,12 @@ Please clone the main branch from our GitHub repository. Move to the desired loc
 
 
 ***
+Running the code
+===
+
+Follow the instructions in ForMoSA/DEMO
+
+***
 Issues?
 ===
 
