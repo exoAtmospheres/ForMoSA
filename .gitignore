@@ -1,4 +1,5 @@
 # ignore atmospheric grids
 *.nc
 .ipynb_checkponts
+*/__pycache__
 *.pyc
