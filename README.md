@@ -5,9 +5,8 @@
 Installation
 ===
 
-For all Users
-
 We strongly recommend using a ``conda`` environment ([learn mode here](https://conda.io/docs/user-guide/tasks/manage-environments.html)).
+
 To install and use our package, proceed with the following sequence of commands:
 	
     $ conda create -n formosa_env python=3.7
