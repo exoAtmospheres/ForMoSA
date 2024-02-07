@@ -14,9 +14,9 @@ def decoupe(second):
     Re-arranged a number of seconds in the hours-minutes-seconds format.
 
     Args:
-        second: number of second
+        second (float): number of second
     Returns:
-        hour, minute, second: hours-minutes-seconds format
+        hour, minute, second (float, float, float): hours-minutes-seconds format
 
     Author: Simon Petrus
     """
@@ -36,10 +36,10 @@ def find_nearest(array, value):
     Return the indice of the closest values from a desire value in an array.
 
     Args:
-        array: Array to explore
-        value: Desire value
+        array (array): Array to explore
+        value (float): Desire value
     Returns:
-        idx: Indice of the closest values from the desire value
+        idx     (int): Indice of the closest values from the desire value
 
     Author: Simon Petrus
     """
@@ -56,74 +56,70 @@ def extract_observation(global_params, wav_mod_nativ, res_mod_nativ, cont='no', 
     resolution.
 
     Args:
-        global_params: Class containing each parameter
-        wav_mod_nativ: Wavelength grid of the model
-        res_mod_nativ: Spectral resolution of the model
-        cont: If the function is used to estimate the continuum cont='yes'
-        obs_name: Name of the current observation looping (only relevant in MOSAIC, else set to '')
-        indobs: Index of the current observation looping (only relevant in MOSAIC, else set to 0)
+        global_params     (object): Class containing each parameter
+        wav_mod_nativ      (array): Wavelength grid of the model
+        res_mod_nativ (array(int)): Spectral resolution of the model
+        cont                 (str): Boolean string. If the function is used to estimate the continuum cont='yes'
+        obs_name             (str): Name of the current observation looping (only relevant in MOSAIC, else set to '')
+        indobs               (int): Index of the current observation looping (only relevant in MOSAIC, else set to 0)
     Returns:
-        obs_cut: List containing the sub-spectra defined by the parameter "wav_for_adapt" with decreased resolution
-                 [[wav_1, flx_1, err_1, reso_1], ..., [wav_n, flx_n, err_n, reso_n]]
-        obs_pho: List containing the photometry ('P' replace the spectral resolution here).
-                 [wav_phot, flx_phot, err_phot, 'P']
-        obs_cut_ins: List containing different instruments used for the data (1 per wavelength).
-                 [[instru_range_1], ..., [instru_range_n]]
-        obs_pho_ins: List containing different filters used for the data (1 per photometric point).
-                 [filter_phot_1, filter_phot_2, ..., filter_phot_n]
-     Optional :
-        obs_cut_cov : List containing the sub-covariance matrices defined by the parameter "wav_for_adapt"
-                 [cov_1, cov_2, ..., cov_n]   
+        obs_cut          (n-array): List containing the sub-spectra defined by the parameter "wav_for_adapt" with decreased resolution
+                                    [[wav_1, flx_1, err_1, reso_1], ..., [wav_n, flx_n, err_n, reso_n]]
+        obs_pho            (array): List containing the photometry (0 replace the spectral resolution here).
+                                    [wav_phot, flx_phot, err_phot, 0]
+        obs_cut_ins        (array): List containing different instruments used for the data (1 per wavelength).
+                                    [[instru_range_1], ..., [instru_range_n]]
+        obs_pho_ins        (array): List containing different filters used for the data (1 per photometric point).
+                                    [filter_phot_1, filter_phot_2, ..., filter_phot_n]
+        obs_cut_cov        (array): If used, return the list containing the sub-covariance matrices defined by the parameter "wav_for_adapt". Else, return empty array
+                                    [cov_1, cov_2, ..., cov_n]  
 
     Author: Simon Petrus
     """
-
     # Extract the wavelengths, flux, errors, spectral resolution, and instrument/filter names from the observation file.
-    obs_cut, obs_pho, obs_cut_ins, obs_pho_ins, obs_cut_cov = adapt_observation_range(global_params, obs_name=obs_name, indobs=indobs)
+    obs_cut, obs_pho, obs_cut_ins, obs_pho_ins, obs_cut_cov = adapt_observation_range(global_params, indobs=indobs)
 
     # Reduce the spectral resolution for each sub-spectrum.
     for c, cut in enumerate(obs_cut):
         # If we want to decrease the resolution of the data:
         if cont == 'no':
             if global_params.adapt_method == 'by_reso':
-                obs_cut[c][1] = resolution_decreasing(global_params, cut, wav_mod_nativ, [], res_mod_nativ, 'obs', obs_name=obs_name, indobs=indobs)
+                obs_cut[c][1] = resolution_decreasing(global_params, cut, wav_mod_nativ, np.array([]), res_mod_nativ, 'obs', obs_name=obs_name, indobs=indobs)
             else:
                 pass
         # If we want to estimate the continuum of the data:
         else:
             obs_cut[c][1] = continuum_estimate(global_params, cut[0], cut[0], cut[1], cut[3], 'obs', obs_name=obs_name, indobs=indobs)
 
-
     return obs_cut, obs_pho, obs_cut_ins, obs_pho_ins, obs_cut_cov
 
 # ----------------------------------------------------------------------------------------------------------------------
 
 
-def adapt_observation_range(global_params, obs_name='', indobs=0):
+def adapt_observation_range(global_params, indobs=0):
     """
-    Extract the wavelengths (um  -  vacuum), flux (W.m-2.um.1), errors (W.m-2.um.1), covariance (W.m-2.um.1)**2, spectral resolution, and
-    instrument/filter names from the observation file. The wavelength range is define by the parameter "wav_for_adapt".
+    Extract the information from the observation file, including the wavelengths (um - vacuum), flux (W.m-2.um.1), errors (W.m-2.um.1), covariance (W.m-2.um.1)**2, spectral resolution, and
+    instrument/filter name. The wavelength range is define by the parameter "wav_for_adapt".
 
     Args:
-        global_params: Class containing each parameter
+        global_params (object): Class containing each parameter
+        indobs           (int): Index of the current observation looping (only relevant in MOSAIC, else set to 0)
     Returns:
-        obs_cut: List containing the sub-spectra defined by the parameter "wav_for_adapt".
-                 [[wav_1, flx_1, err_1, reso_1], ..., [wav_n, flx_n, err_n, reso_n]]
-        obs_pho: List containing the photometry ('P' replace the spectral resolution here).
-                 [wav_phot, flx_phot, err_phot, 'P']
-        obs_cut_ins: List containing different instruments used for the data (1 per wavelength).
-                 [[instru_1], ..., [instru_n]]
-        obs_pho_ins: List containing different filters used for the data (1 per photometric point).
-                 [filter_phot_1, filter_phot_2, ..., filter_phot_n]
-    Optional :
-        obs_cut_cov : List containing the sub-covariance matrices defined by the parameter "wav_for_adapt"
-                 [cov_1, cov_2, ..., cov_n]
+        obs_cut      (n-array): List containing the sub-spectra defined by the parameter "wav_for_adapt".
+                                [[wav_1, flx_1, err_1, reso_1], ..., [wav_n, flx_n, err_n, reso_n]]
+        obs_pho        (array): List containing the photometry (0 replace the spectral resolution here).
+                                [wav_phot, flx_phot, err_phot, 0]
+        obs_cut_ins    (array): List containing different instruments used for the data (1 per wavelength).
+                                [[instru_1], ..., [instru_n]]
+        obs_pho_ins    (array): List containing different filters used for the data (1 per photometric point).
+                                [filter_phot_1, filter_phot_2, ..., filter_phot_n]
+        obs_cut_cov    (array): If used, return the list containing the sub-covariance matrices defined by the parameter "wav_for_adapt". Else, return empty array
+                                [cov_1, cov_2, ..., cov_n]
 
     Author: Simon Petrus and Matthieu Ravet
     """
     # Extraction
     with fits.open(global_params.observation_path) as hdul:
-
         # Check the format of the file and extract data accordingly
         try:
             wav = hdul[1].data['WAVELENGTH']
@@ -136,29 +132,28 @@ def adapt_observation_range(global_params, obs_name='', indobs=0):
             wav = hdul[1].data['WAV']
             flx = hdul[1].data['FLX']
             err = hdul[1].data['ERR']
-            cov = [] # Create an empty covariance matrix if not already present in the data (to not slow the inversion)
+            cov = np.zeros((len(wav),len(wav))) # Create an empty covariance matrix if not already present in the data (to not slow the inversion)
             res = hdul[1].data['RES']
             ins = hdul[1].data['INS']
 
-        # Only take the covariance if you use the chi2_covariance likelihood function (will need to be change when new likelihood functions using the
-        # covariance matrix will come)
+        # Only take the covariance if you use the chi2_covariance likelihood function
         if global_params.observation_format == 'MOSAIC' and global_params.logL_type[indobs] != 'chi2_covariance':
-            cov = []
+            cov = np.array([])
         elif global_params.observation_format != 'MOSAIC' and global_params.logL_type != 'chi2_covariance':
-            cov = []
+            cov = np.array([])
 
         # Filter the NaN values
         nan_mod_ind = ~np.isnan(flx)
         wav = wav[nan_mod_ind]
         flx = flx[nan_mod_ind]
-        if cov != []:
+        if cov != np.array([]):
             cov = np.transpose(np.transpose(cov[nan_mod_ind])[nan_mod_ind])
         res = res[nan_mod_ind]
         ins = ins[nan_mod_ind]
         err = err[nan_mod_ind]
 
         # Create empty list for the covariance matrix
-        obs_cut_cov = []
+        obs_cut_cov = np.array([])
 
         # Select the wavelength range(s) for the extraction
         if global_params.wav_for_adapt == '':
@@ -182,31 +177,31 @@ def adapt_observation_range(global_params, obs_name='', indobs=0):
             res_spectro = np.delete(res[ind], ind_photometry)
             ins_spectro = np.delete(ins[ind], ind_photometry)
             err_spectro = np.delete(err[ind], ind_photometry)
-            if cov != []: # Check if the covariance exists
+            if cov != np.array([]): # Check if the covariance exists
                 cov_spectro = cov[np.ix_(ind[0],ind[0])]
                 cov_spectro = np.delete(cov_spectro, ind_photometry, axis=0)
                 cov_spectro = np.delete(cov_spectro, ind_photometry, axis=1)
             else:
-                cov_spectro = []
+                cov_spectro = np.array([])
 
             if range_ind == 0:
                 obs_cut = [[wav_spectro, flx_spectro, err_spectro, res_spectro]]
                 obs_cut_ins = [[ins_spectro]]
             else:
-                obs_cut.append([wav_spectro, flx_spectro, err_spectro, res_spectro])
-                obs_cut_ins.append([ins_spectro])
+                obs_cut = np.append(obs_cut,[[wav_spectro, flx_spectro, err_spectro, res_spectro]], axis=0)
+                obs_cut_ins = np.append(obs_cut_ins,[[ins_spectro]],axis=0)
 
             # Cuting the covariance matrix if necessary
-            if cov_spectro != []: # Check if the covariance exists
-                obs_cut_cov.append(list(cov_spectro))
+            if cov_spectro != np.array([]): # Check if the covariance exists
+                print(np.shape(cov_spectro), type(cov_spectro), len(wav))
+                obs_cut_cov = np.append(obs_cut_cov, list(cov_spectro),axis=0)
 
         # Reshaping the covariance file (if necessary) and the instrument file
-        if obs_cut_cov != []:
+        if obs_cut_cov != np.array([]):
             for i, cov in enumerate(obs_cut_cov):
                 obs_cut_cov[i] = np.array(cov)
         for i, ins in enumerate(obs_cut_ins):
             obs_cut_ins[i] = obs_cut_ins[i][0]
-    
 
         return obs_cut, obs_pho, obs_cut_ins, obs_pho_ins, obs_cut_cov   
 
@@ -220,14 +215,15 @@ def adapt_model(global_params, wav_mod_nativ, flx_mod_nativ, res_mod_nativ, obs_
     calculated too. Then each sub-spectrum are merged.
 
     Args:
-        global_params: Class containing each parameter used in ForMoSA
-        wav_mod_nativ: Wavelength grid of the model
-        flx_mod_nativ: Flux of the model
-        res_mod_nativ: Spectral resolution of the model as a function of the wavelength grid
-        obs_name: Name of the current observation looping (only relevant in MOSAIC, else set to '')
-        indobs: Index of the current observation looping (only relevant in MOSAIC, else set to 0)
+        global_params  (object): Class containing each parameter used in ForMoSA
+        wav_mod_nativ   (array): Wavelength grid of the model
+        flx_mod_nativ   (array): Flux of the model
+        res_mod_nativ   (array): Spectral resolution of the model as a function of the wavelength grid
+        obs_name          (str): Name of the current observation looping (only relevant in MOSAIC, else set to '')
+        indobs            (int): Index of the current observation looping (only relevant in MOSAIC, else set to 0)
     Returns:
-        output_model: Flux of the spectrum with a decreased spectral resolution, re-sampled on the data wavelength grid
+        flx_mod_extract (array): Flux of the spectrum with a decreased spectral resolution, re-sampled on the data wavelength grid
+        mod_pho         (array): List containing the photometry ('0' replace the spectral resolution here).
 
     Author: Simon Petrus
     """
@@ -264,17 +260,16 @@ def extract_model(global_params, wav_mod_nativ, flx_mod_nativ, res_mod_nativ, co
     calculated too.
 
     Args:
-        global_params: Class containing each parameter used in ForMoSA
-        wav_mod_nativ: Wavelength grid of the model
-        flx_mod_nativ: Flux of the model
-        res_mod_nativ: Spectral resolution of the model as a function of the wavelength grid
-        cont: If the function is used to estimate the continuum cont='yes'
-        obs_name: Name of the current observation looping (only relevant in MOSAIC, else set to '')
-        indobs: Index of the current observation looping (only relevant in MOSAIC, else set to 0)
+        global_params (object): Class containing each parameter used in ForMoSA
+        wav_mod_nativ  (array): Wavelength grid of the model
+        flx_mod_nativ  (array): Flux of the model
+        res_mod_nativ  (array): Spectral resolution of the model as a function of the wavelength grid
+        cont             (str): Boolean string. If the function is used to estimate the continuum cont='yes'
+        obs_name         (str): Name of the current observation looping (only relevant in MOSAIC, else set to '')
+        indobs           (int): Index of the current observation looping (only relevant in MOSAIC, else set to 0)
     Returns:
-        mod_cut: List containing the sub-spectra defined by the parameter "wav_for_adapt".
-                 [flx_1, ..., flx_n, err_n, reso_n]
-        mod_pho: List containing the photometry ('P' replace the spectral resolution here).
+        mod_cut        (array): List containing the sub-spectra defined by the parameter "wav_for_adapt".
+        mod_pho        (array): List containing the photometry ('0' replace the spectral resolution here).
 
     Author: Simon Petrus
     """
@@ -289,7 +284,7 @@ def extract_model(global_params, wav_mod_nativ, flx_mod_nativ, res_mod_nativ, co
     obs_pho_ins = spectrum_obs['obs_pho_ins']
 
     # Reduce the spectral resolution for each sub-spectrum.
-    mod_cut = []
+    mod_cut = np.array([])
     for c, cut in enumerate(obs_cut):
         # If we want to decrease the resolution of the data:
         if cont == 'no':
@@ -302,10 +297,10 @@ def extract_model(global_params, wav_mod_nativ, flx_mod_nativ, res_mod_nativ, co
         else:
             mod_cut_flx = continuum_estimate(global_params, cut[0], wav_mod_nativ, flx_mod_nativ, res_mod_nativ, 'mod',
                                              obs_name=obs_name, indobs=indobs)
-        mod_cut.append(mod_cut_flx)
+        mod_cut = np.append(mod_cut, [mod_cut_flx], axis=0)
 
     # Calculate each photometry point.
-    mod_pho = []
+    mod_pho = np.array([])
     for pho_ind, pho in enumerate(obs_pho_ins):
         path_list = __file__.split("/")[:-2]
         separator = '/'
@@ -319,7 +314,7 @@ def extract_model(global_params, wav_mod_nativ, flx_mod_nativ, res_mod_nativ, co
         flx_filt = np.sum(flx_mod_nativ[ind] * y_filt[ind] * (wav_mod_nativ[ind][1] - wav_mod_nativ[ind][0]))
         y_filt_tot = np.sum(y_filt[ind] * (wav_mod_nativ[ind][1] - wav_mod_nativ[ind][0]))
         flx_filt = flx_filt / y_filt_tot
-        mod_pho.append(flx_filt)
+        mod_pho = np.append(mod_pho, flx_filt)
 
     return mod_cut, mod_pho
 
@@ -332,15 +327,13 @@ def convolve_and_sample(wv_channels, sigmas_wvs, model_wvs, model_fluxes, num_si
     spectral channel.
 
     Args:
-        wv_channels: the wavelengths desired (length of N_output)
-        sigmas_wvs: the LSF gaussian stddev of each wv_channels [IN UNITS OF model_wvs] (length of N_output)
-        model_wvs: the wavelengths of the model (length of N_model)
-        model_fluxes: the fluxes of the model (length of N_model)
-        num_sigma (float): number of +/- sigmas to evaluate the LSF to.
-        obs_name: Name of the current observation looping (only relevant in MOSAIC, else set to '')
-        indobs: Index of the current observation looping (only relevant in MOSAIC, else set to 0)
+        wv_channels (list(floats)): the wavelengths values desired
+        sigmas_wvs  (list(floats)): the LSF gaussian standard deviation of each wv_channels [IN UNITS OF model_wvs] 
+        model_wvs          (array): the wavelengths of the model 
+        model_fluxes       (array): the fluxes of the model 
+        num_sigma          (float): number of +/- sigmas to evaluate the LSF to.
     Returns:
-        output_model: the fluxes in each of the wavelength channels (length of N_output)
+        output_model       (array): the fluxes in each of the wavelength channels 
 
     Author: Jason Wang
     """
@@ -353,14 +346,12 @@ def convolve_and_sample(wv_channels, sigmas_wvs, model_wvs, model_fluxes, num_si
 
     filter_wv_coords = filter_coords * sigmas_wvs[:, None] + wv_channels[:, None]  # model wavelengths we want
     lsf = np.exp(-filter_coords ** 2 / 2) / np.sqrt(2 * np.pi)
-    if np.sum(lsf) != 0:
 
+    if np.sum(lsf) != 0:
         model_interp = interp1d(model_wvs, model_fluxes, kind='cubic', bounds_error=False)
         filter_model = model_interp(filter_wv_coords)
-
         output_model = np.nansum(filter_model * lsf, axis=1) / np.sum(lsf, axis=1)
     else:
-
         output_model = model_fluxes
 
     return output_model
@@ -377,19 +368,19 @@ def resolution_decreasing(global_params, cut, wav_mod_nativ, flx_mod_nativ, res_
     function 'convolve_and_sample'.
 
     Args:
-        global_params: Class containing each parameter used in ForMoSA
-        cut: Sub-spectra defined by the parameter "wav_for_adapt".
-             [[wav_1, flx_1, err_1, reso_1], ..., [wav_n, flx_n, err_n, reso_n]]
-        wav_mod_nativ: Wavelength grid of the model
-        flx_mod_nativ: Flux of the model
-        res_mod_nativ: Spectral resolution of the model as a function of the wavelength grid
-        obs_or_mod: Parameter to identify if you want to manage a data or a model spectrum. 'obs' or 'mod'
-        obs_name: Name of the current observation looping (only relevant in MOSAIC, else set to '')
-        indobs: Index of the current observation looping (only relevant in MOSAIC, else set to 0)
+        global_params (object): Class containing each parameter used in ForMoSA
+        cut             (list): Sub-spectra defined by the parameter "wav_for_adapt".
+                                [[wav_1, flx_1, err_1, reso_1], ..., [wav_n, flx_n, err_n, reso_n]]
+        wav_mod_nativ  (array): Wavelength grid of the model
+        flx_mod_nativ  (array): Flux of the model
+        res_mod_nativ  (array): Spectral resolution of the model as a function of the wavelength grid
+        obs_or_mod       (str): Parameter to identify if you want to manage a data or a model spectrum. 'obs' or 'mod'
+        obs_name         (str): Name of the current observation looping (only relevant in MOSAIC, else set to '')
+        indobs           (int): Index of the current observation looping (only relevant in MOSAIC, else set to 0)
     Returns:
-        output_model: Flux of the spectrum with a decreased spectral resolution, re-sampled on the data wavelength grid
+        flx_obs_final  (array): Flux of the spectrum with a decreased spectral resolution, re-sampled on the data wavelength grid
 
-    Author: Simon Petrus
+    Author: Simon Petrus / Adapted: Matthieu Ravet
     """
     # Estimate of the FWHM of the data as a function of the wavelength
     fwhm_obs = 2 * cut[0] / cut[3]
@@ -432,18 +423,18 @@ def continuum_estimate(global_params, wav_cut, wav, flx, res, obs_or_mod, obs_na
     the wavelength grid of the data.
 
     Args:
-        global_params: Class containing each parameter used in ForMoSA
-        wav_cut: Wavelength grid of the sub-spectrum data
-        wav: Wavelength grid of the spectrum for which you want to estimate the continuum
-        flx: Flux of the spectrum for which you want to estimate the continuum
-        res: Spectral resolution of the spectrum for which you want to estimate the continuum
-        obs_or_mod: Parameter to identify if you want to manage a data or a model spectrum. 'obs' or 'mod'
-        obs_name: Name of the current observation looping (only relevant in MOSAIC, else set to '')
-        indobs: Index of the current observation looping (only relevant in MOSAIC, else set to 0)
+        global_params (object): Class containing each parameter used in ForMoSA
+        wav_cut        (array): Wavelength grid of the sub-spectrum data
+        wav            (array): Wavelength grid of the spectrum for which you want to estimate the continuum
+        flx            (array): Flux of the spectrum for which you want to estimate the continuum
+        res              (int): Spectral resolution of the spectrum for which you want to estimate the continuum
+        obs_or_mod       (str): Parameter to identify if you want to manage a data or a model spectrum. 'obs' or 'mod'
+        obs_name         (str): Name of the current observation looping (only relevant in MOSAIC, else set to '')
+        indobs           (int): Index of the current observation looping (only relevant in MOSAIC, else set to 0)
     Returns:
-        output_model: Estimated continuum of the spectrum re-sampled on the data wavelength grid
+        continuum      (array): Estimated continuum of the spectrum re-sampled on the data wavelength grid
 
-    Author: Simon Petrus
+    Author: Simon Petrus / Adapted: Matthieu Ravet
     """
     # Adapt the model to the data grid wavelength
     if obs_or_mod == 'mod':

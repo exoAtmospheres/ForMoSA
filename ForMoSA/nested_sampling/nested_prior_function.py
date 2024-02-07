@@ -4,6 +4,12 @@ from scipy.special import ndtri
 def uniform_prior(prior_fct_arg, theta):
     '''
     Uniform prior for nested sampling
+
+    Args:
+        prior_fct_arg (array): prior values
+        theta         (float): parameter value
+    Returns:
+        value         (float): parameter value
     '''
     arg1 = float(prior_fct_arg[0])
     arg2 = float(prior_fct_arg[1])
@@ -13,6 +19,12 @@ def uniform_prior(prior_fct_arg, theta):
 def gaussian_prior(prior_fct_arg, theta):
     '''
     Gaussian prior for nested sampling
+
+    Args:
+        prior_fct_arg (array): prior values
+        theta         (float): parameter value
+    Returns:
+        value         (float): parameter value
     '''
     arg1 = float(prior_fct_arg[0])
     arg2 = float(prior_fct_arg[1])

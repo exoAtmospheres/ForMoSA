@@ -1,15 +1,12 @@
 from __future__ import print_function, division
 import numpy as np
-import os
+import os, glob
 import xarray as xr
-# import matplotlib.pyplot as plt
 
 from adapt.extraction_functions import extract_observation
 from adapt.adapt_grid import adapt_grid
 from main_utilities import yesno, diag_mat
-import glob
 # ----------------------------------------------------------------------------------------------------------------------
-
 
 def launch_adapt(global_params, justobs='no'):
     """
@@ -17,8 +14,8 @@ def launch_adapt(global_params, justobs='no'):
     spectra from a model grid.
 
     Args:
-        global_params: Class containing each parameter
-        justobs: If the grid need to be adapted justobs='no'
+        global_params (object): Class containing each parameter
+        justobs          (str): Boolean in string form. If the grid need to be adapted justobs='no', else justobs='yes'
     Returns:
 
     Author: Simon Petrus
@@ -47,11 +44,10 @@ def launch_adapt(global_params, justobs='no'):
             err_obs_extract = obs_cut[c][2]
             res_obs_extract = np.array(obs_cut[c][3], dtype=float) # New addition (may need to be corrected)
             ins_obs_extract = obs_cut_ins[c]
-            if obs_cut_cov != []: # Extract sub-covariance (if necessary)
+            if obs_cut_cov != np.array([]): # Extract sub-covariance (if necessary)
                 cov_obs_extract = obs_cut_cov[c]
             else:
-                cov_obs_extract = []
-
+                cov_obs_extract = np.array([])
         else:
             wav_obs_extract = np.concatenate((wav_obs_extract, obs_cut[c][0]))
             flx_obs_extract = np.concatenate((flx_obs_extract, obs_cut[c][1]))
@@ -80,8 +76,7 @@ def launch_adapt(global_params, justobs='no'):
             print("Operation aborted.")
             exit()
         else:
-            print("Continuing...")
-
+            print()
 
     # Save the new data spectrum
     np.savez(global_params.result_path + '/spectrum_obs',
@@ -102,15 +97,16 @@ def launch_adapt(global_params, justobs='no'):
             os.mkdir(global_params.adapt_store_path)
 
         print()
-        print()
-        print("-> To compare synthetic spectra with the observation we need to manage them. The following actions are performed:")
-        print("- extraction -")
-        print("- resizing on the observation's wavelength range -")
-        print("- adjustement of the spectral resolution -")
-        print("- substraction of the continuum (if needed) -")
+        print("-> Comparing synthetic spectra with observations. The following actions are performed:")
+        print("- - extraction ")
+        print("- - resizing on the observation's wavelength range ")
+        print("- - adjustement of the spectral resolution ")
+        print("- - substraction of the continuum (if needed) ")
         print()
 
         adapt_grid(global_params, obs_merge[0], obs_pho[0])
+    
+    return None
 
 
 # ----------------------------------------------------------------------------------------------------------------------
@@ -122,11 +118,12 @@ def launch_adapt_MOSAIC(global_params, justobs='no'):
     spectra from a model grid for each observation in the MOSAIC.
 
     Args:
-        global_params: Class containing each parameter
-        justobs: If the grid need to be adapted justobs='no'
+        global_params (object): Class containing each parameter
+        justobs          (str): Boolean string. If the grid need to be adapted justobs='no', else = 'yes'
     Returns:
+        None
 
-    Author: Matthieu Ravet (adapted from Simon Petrus)
+    Author: Matthieu Ravet / Adapted from Simon Petrus
     """
 
     # Get back information from the config file
@@ -139,15 +136,9 @@ def launch_adapt_MOSAIC(global_params, justobs='no'):
     main_obs_path = global_params.main_observation_path
 
     print()
+    print('- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -')
+    print("-> Starting MOSAIC            ")
     print()
-    print()
-    print()
-    print("         > Starting MOSAIC <             ")
-    print()
-    print()
-    print()
-    print()
-
 
     for indobs, obs in enumerate(sorted(glob.glob(main_obs_path))):
         
@@ -214,7 +205,7 @@ def launch_adapt_MOSAIC(global_params, justobs='no'):
                 print("Operation aborted.")
                 exit()
             else:
-                print("Continuing...")
+                print()
 
         # Save the new data spectrum
         np.savez(os.path.join(global_params.result_path, f'spectrum_obs_{obs_name}.npz'),
@@ -246,12 +237,9 @@ def launch_adapt_MOSAIC(global_params, justobs='no'):
 
             adapt_grid(global_params, obs_merge[0], obs_pho[0], obs_name=obs_name, indobs=indobs)
 
-
-
-
+    return None
 
 # ----------------------------------------------------------------------------------------------------------------------
-
 
 if __name__ == '__main__':
     from main_utilities import GlobFile

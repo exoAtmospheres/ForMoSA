@@ -32,7 +32,7 @@ def import_obsmod(global_params):
     if global_params.observation_format == 'MOSAIC':
         main_obs_path = global_params.main_observation_path
 
-        main_file = []
+        main_file = np.array([])
 
         for indobs, obs in enumerate(sorted(glob.glob(main_obs_path))):
             
@@ -64,7 +64,7 @@ def import_obsmod(global_params):
             grid_phot = ds['grid']
             ds.close()
 
-            main_file.append([[wav_obs_merge, wav_obs_phot], [flx_obs_merge, flx_obs_phot], [err_obs_merge, err_obs_phot], inv_cov_obs_merge, grid_merge, grid_phot])
+            main_file = np.append(main_file,[[[wav_obs_merge, wav_obs_phot], [flx_obs_merge, flx_obs_phot], [err_obs_merge, err_obs_phot], inv_cov_obs_merge, grid_merge, grid_phot]], axis=0)
 
     else:
         # Recovery of spectroscopy and photometry data
@@ -152,47 +152,47 @@ def loglike(theta, theta_index, global_params, main_file, for_plot='no'):
                     flx_mod_merge_cut = grid_merge_cut.interp(par1=theta[0], par2=theta[1],
                                                             method="linear", kwargs={"fill_value": "extrapolate"})
                 else:
-                    flx_mod_merge_cut = []
+                    flx_mod_merge_cut = np.array([])
                 if len(grid_phot_cut['wavelength']) != 0:
                     flx_mod_phot_cut = grid_phot_cut.interp(par1=theta[0], par2=theta[1],
                                                             method="linear", kwargs={"fill_value": "extrapolate"})
                 else:
-                    flx_mod_phot_cut = []
+                    flx_mod_phot_cut = np.array([])
             elif global_params.par4 == 'NA':
                 if len(grid_merge_cut['wavelength']) != 0:
                     flx_mod_merge_cut = grid_merge_cut.interp(par1=theta[0], par2=theta[1], par3=theta[2],
                                                             method="linear", kwargs={"fill_value": "extrapolate"})
                 else:
-                    flx_mod_merge_cut = []
+                    flx_mod_merge_cut = np.array([])
                 if len(grid_phot_cut['wavelength']) != 0:
                     flx_mod_phot_cut = grid_phot_cut.interp(par1=theta[0], par2=theta[1], par3=theta[2],
                                                             method="linear", kwargs={"fill_value": "extrapolate"})
                 else:
-                    flx_mod_phot_cut = []
+                    flx_mod_phot_cut = np.array([])
             elif global_params.par5 == 'NA':
                 if len(grid_merge_cut['wavelength']) != 0:
                     flx_mod_merge_cut = grid_merge_cut.interp(par1=theta[0], par2=theta[1], par3=theta[2], par4=theta[3],
                                                             method="linear", kwargs={"fill_value": "extrapolate"})
                 else:
-                    flx_mod_merge_cut = []
+                    flx_mod_merge_cut = np.array([])
                 if len(grid_phot_cut['wavelength']) != 0:
                     flx_mod_phot_cut = grid_phot_cut.interp(par1=theta[0], par2=theta[1], par3=theta[2], par4=theta[3],
                                                             method="linear", kwargs={"fill_value": "extrapolate"})
                 else:
-                    flx_mod_phot_cut = []
+                    flx_mod_phot_cut = np.array([])
             else:
                 if len(grid_merge_cut['wavelength']) != 0:
                     flx_mod_merge_cut = grid_merge_cut.interp(par1=theta[0], par2=theta[1], par3=theta[2], par4=theta[3],
                                                             par5=theta[4],
                                                             method="linear", kwargs={"fill_value": "extrapolate"})
                 else:
-                    flx_mod_merge_cut = []
+                    flx_mod_merge_cut = np.array([])
                 if len(grid_phot_cut['wavelength']) != 0:
                     flx_mod_phot_cut = grid_phot_cut.interp(par1=theta[0], par2=theta[1], par3=theta[2], par4=theta[3],
                                                             par5=theta[4],
                                                             method="linear", kwargs={"fill_value": "extrapolate"})
                 else:
-                    flx_mod_phot_cut = []
+                    flx_mod_phot_cut = np.array([])
 
 
             # Re-merging of the data and interpolated synthetic spectrum to a wavelength grid defined by the parameter 'wav_fit'
@@ -207,10 +207,10 @@ def loglike(theta, theta_index, global_params, main_file, for_plot='no'):
                 flx_obs_phot_ns_u = flx_obs_phot[ind_phot]
                 err_obs_phot_ns_u = err_obs_phot[ind_phot]
                 flx_mod_phot_ns_u = flx_mod_phot_cut
-                if inv_cov_obs_merge != []:  # Add covariance in the loop (if necessary)
+                if inv_cov_obs_merge != np.array([]):  # Add covariance in the loop (if necessary)
                     inv_cov_obs_merge_ns_u = inv_cov_obs_merge[np.ix_(ind_merge[0],ind_merge[0])]
                 else:
-                    inv_cov_obs_merge_ns_u = []
+                    inv_cov_obs_merge_ns_u = np.array([])
             else:
                 wav_obs_merge_ns_u = np.concatenate((wav_obs_merge_ns_u, wav_obs_merge[ind_merge]))
                 flx_obs_merge_ns_u = np.concatenate((flx_obs_merge_ns_u, flx_obs_merge[ind_merge]))
@@ -220,7 +220,7 @@ def loglike(theta, theta_index, global_params, main_file, for_plot='no'):
                 flx_obs_phot_ns_u = np.concatenate((flx_obs_phot_ns_u, flx_obs_phot[ind_phot]))
                 err_obs_phot_ns_u = np.concatenate((err_obs_phot_ns_u, err_obs_phot[ind_phot]))
                 flx_mod_phot_ns_u = np.concatenate((flx_mod_phot_ns_u, flx_mod_phot_cut))
-                if inv_cov_obs_merge_ns_u != []: # Merge the covariance matrices (if necessary)
+                if inv_cov_obs_merge_ns_u != np.array([]): # Merge the covariance matrices (if necessary)
                     inv_cov_obs_merge_ns_u = diag_mat([inv_cov_obs_merge_ns_u, inv_cov_obs_merge[np.ix_(ind_merge[0],ind_merge[0])]]) 
 
         # Modification of the synthetic spectrum with the extra-grid parameters
@@ -235,7 +235,7 @@ def loglike(theta, theta_index, global_params, main_file, for_plot='no'):
         ck = modif_spec_LL[8]
 
         # Computation of the photometry logL
-        if err_phot != []:
+        if err_phot != np.array([]):
             logL_phot = logL_chi2_classic(flx_obs_phot-flx_mod_phot, err_phot)
         else:
             logL_phot = 0
@@ -243,7 +243,7 @@ def loglike(theta, theta_index, global_params, main_file, for_plot='no'):
         # Computation of the spectroscopy logL
         if global_params.logL_type == 'chi2_classic':
             logL_spec = logL_chi2_classic(flx_obs-flx_mod, err)
-        if global_params.logL_type == 'chi2_covariance' and inv_cov != []:
+        if global_params.logL_type == 'chi2_covariance' and inv_cov != np.array([]):
             logL_spec = logL_chi2_covariance(flx_obs-flx_mod, inv_cov)
         if global_params.logL_type == 'CCF_Brogi':
             logL_spec = logL_CCF_Brogi(flx_obs, flx_mod)
@@ -270,7 +270,7 @@ def prior_transform(theta, theta_index, lim_param_grid, global_params):
         
     Author: Simon Petrus
     """
-    prior = []
+    prior = np.array([])
     if global_params.par1 != 'NA':
         prior_law = global_params.par1[0]
         if prior_law != 'constant':
@@ -278,11 +278,12 @@ def prior_transform(theta, theta_index, lim_param_grid, global_params):
                 prior_par1 = uniform_prior([float(global_params.par1[1]), float(global_params.par1[2])], theta[0])
             if prior_law == 'gaussian':
                 prior_par1 = gaussian_prior([float(global_params.par1[1]), float(global_params.par1[2])], theta[0])
+            print(prior_par1, lim_param_grid)
             if prior_par1 < lim_param_grid[0][0]:
                 prior_par1 = lim_param_grid[0][0]
             elif prior_par1 > lim_param_grid[0][1]:
                 prior_par1 = lim_param_grid[0][1]
-            prior.append(prior_par1)
+            prior = np.append(prior, prior_par1)
     if global_params.par2 != 'NA':
         prior_law = global_params.par2[0]
         if prior_law != 'constant':
@@ -294,7 +295,7 @@ def prior_transform(theta, theta_index, lim_param_grid, global_params):
                 prior_par2 = lim_param_grid[1][0]
             elif prior_par2 > lim_param_grid[1][1]:
                 prior_par2 = lim_param_grid[1][1]
-            prior.append(prior_par2)
+            prior = np.append(prior,prior_par2)
     if global_params.par3 != 'NA':
         prior_law = global_params.par3[0]
         if prior_law != 'constant':
@@ -306,7 +307,7 @@ def prior_transform(theta, theta_index, lim_param_grid, global_params):
                 prior_par3 = lim_param_grid[2][0]
             elif prior_par3 > lim_param_grid[2][1]:
                 prior_par3 = lim_param_grid[2][1]
-            prior.append(prior_par3)
+            prior = np.append(prior, prior_par3)
     if global_params.par4 != 'NA':
         prior_law = global_params.par4[0]
         if prior_law != 'constant':
@@ -318,7 +319,7 @@ def prior_transform(theta, theta_index, lim_param_grid, global_params):
                 prior_par4 = lim_param_grid[3][0]
             elif prior_par4 > lim_param_grid[3][1]:
                 prior_par4 = lim_param_grid[3][1]
-            prior.append(prior_par4)
+            prior = np.append(prior, prior_par4)
     if global_params.par5 != 'NA':
         prior_law = global_params.par5[0]
         if prior_law != 'constant':
@@ -330,7 +331,7 @@ def prior_transform(theta, theta_index, lim_param_grid, global_params):
                 prior_par5 = lim_param_grid[4][0]
             elif prior_par5 > lim_param_grid[4][1]:
                 prior_par5 = lim_param_grid[4][1]
-            prior.append(prior_par5)
+            prior = np.append(prior,prior_par5)
 
     if global_params.r != 'NA':
         prior_law = global_params.r[0]
@@ -340,7 +341,7 @@ def prior_transform(theta, theta_index, lim_param_grid, global_params):
                 prior_r = uniform_prior([float(global_params.r[1]), float(global_params.r[2])], theta[ind_theta_r[0][0]])
             if prior_law == 'gaussian':
                 prior_r = gaussian_prior([float(global_params.r[1]), float(global_params.r[2])], theta[ind_theta_r[0][0]])
-            prior.append(prior_r)
+            prior= np.append(prior,prior_r)
     if global_params.d != 'NA':
         prior_law = global_params.d[0]
         if prior_law != 'constant':
@@ -349,7 +350,7 @@ def prior_transform(theta, theta_index, lim_param_grid, global_params):
                 prior_d = uniform_prior([float(global_params.d[1]), float(global_params.d[2])], theta[ind_theta_d[0][0]])
             if prior_law == 'gaussian':
                 prior_d = gaussian_prior([float(global_params.d[1]), float(global_params.d[2])], theta[ind_theta_d[0][0]])
-            prior.append(prior_d)
+            prior = np.append(prior,prior_d)
     if global_params.rv != 'NA':
         prior_law = global_params.rv[0]
         if prior_law != 'constant':
@@ -358,7 +359,7 @@ def prior_transform(theta, theta_index, lim_param_grid, global_params):
                 prior_rv = uniform_prior([float(global_params.rv[1]), float(global_params.rv[2])], theta[ind_theta_rv[0][0]])
             if prior_law == 'gaussian':
                 prior_rv = gaussian_prior([float(global_params.rv[1]), float(global_params.rv[2])], theta[ind_theta_rv[0][0]])
-            prior.append(prior_rv)
+            prior = np.append(prior,prior_rv)
     if global_params.av != 'NA':
         prior_law = global_params.av[0]
         if prior_law != 'constant':
@@ -367,7 +368,7 @@ def prior_transform(theta, theta_index, lim_param_grid, global_params):
                 prior_av = uniform_prior([float(global_params.av[1]), float(global_params.av[2])], theta[ind_theta_av[0][0]])
             if prior_law == 'gaussian':
                 prior_av = gaussian_prior([float(global_params.av[1]), float(global_params.av[2])], theta[ind_theta_av[0][0]])
-            prior.append(prior_av)
+            prior = np.append(prior,prior_av)
     if global_params.vsini != 'NA':
         prior_law = global_params.vsini[0]
         if prior_law != 'constant':
@@ -376,7 +377,7 @@ def prior_transform(theta, theta_index, lim_param_grid, global_params):
                 prior_vsini = uniform_prior([float(global_params.vsini[1]), float(global_params.vsini[2])], theta[ind_theta_vsini[0][0]])
             if prior_law == 'gaussian':
                 prior_vsini = gaussian_prior([float(global_params.vsini[1]), float(global_params.vsini[2])], theta[ind_theta_vsini[0][0]])
-            prior.append(prior_vsini)
+            prior = np.append(prior,prior_vsini)
     if global_params.ld != 'NA':
         prior_law = global_params.ld[0]
         if prior_law != 'constant':
@@ -385,7 +386,7 @@ def prior_transform(theta, theta_index, lim_param_grid, global_params):
                 prior_ld = uniform_prior([float(global_params.ld[1]), float(global_params.ld[2])], theta[ind_theta_ld[0][0]])
             if prior_law == 'gaussian':
                 prior_ld = gaussian_prior([float(global_params.ld[1]), float(global_params.ld[2])], theta[ind_theta_ld[0][0]])
-            prior.append(prior_ld)
+            prior = np.append(prior,prior_ld)
     ## adding the CPD params, bb_T and bb_R
     if global_params.bb_T != 'NA':
         prior_law = global_params.bb_T[0]
@@ -395,7 +396,7 @@ def prior_transform(theta, theta_index, lim_param_grid, global_params):
                 prior_bb_T = uniform_prior([float(global_params.bb_T[1]), float(global_params.bb_T[2])], theta[ind_theta_bb_T[0][0]])
             if prior_law == 'gaussian':
                 prior_bb_T = gaussian_prior([float(global_params.bb_T[1]), float(global_params.bb_T[2])], theta[ind_theta_bb_T[0][0]])
-            prior.append(prior_bb_T)
+            prior = np.append(prior,prior_bb_T)
     if global_params.bb_R != 'NA':
         prior_law = global_params.bb_R[0]
         if prior_law != 'constant':
@@ -404,7 +405,7 @@ def prior_transform(theta, theta_index, lim_param_grid, global_params):
                 prior_bb_R = uniform_prior([float(global_params.bb_R[1]), float(global_params.bb_R[2])], theta[ind_theta_bb_R[0][0]])
             if prior_law == 'gaussian':
                 prior_bb_R = gaussian_prior([float(global_params.bb_R[1]), float(global_params.bb_R[2])], theta[ind_theta_bb_R[0][0]])
-            prior.append(prior_bb_R)
+            prior = np.append(prior,prior_bb_R)
     return prior
 
 
@@ -446,46 +447,46 @@ def launch_nested_sampling(global_params):
         theta_index = ['par1']
         lim_param_grid = [[min(ds['par1'].values), max(ds['par1'].values)]]
     else:
-        theta_index = []
-        lim_param_grid = []
+        theta_index = np.array([])
+        lim_param_grid = np.array([])
     if global_params.par2 != 'NA':
-        theta_index.append('par2')
-        lim_param_grid.append([min(ds['par2'].values), max(ds['par2'].values)])
+        theta_index = np.append(theta_index,'par2')
+        lim_param_grid = np.append(lim_param_grid,[[min(ds['par2'].values), max(ds['par2'].values)]], axis=0)
     if global_params.par3 != 'NA':
-        theta_index.append('par3')
-        lim_param_grid.append([min(ds['par3'].values), max(ds['par3'].values)])
+        theta_index = np.append(theta_index,'par3')
+        lim_param_grid = np.append(lim_param_grid,[[min(ds['par3'].values), max(ds['par3'].values)]], axis=0)
     if global_params.par4 != 'NA':
-        theta_index.append('par4')
-        lim_param_grid.append([min(ds['par4'].values), max(ds['par4'].values)])
+        theta_index = np.append(theta_index,'par4')
+        lim_param_grid = np.append(lim_param_grid,[[min(ds['par4'].values), max(ds['par4'].values)]], axis=0)
     if global_params.par5 != 'NA':
-        theta_index.append('par5')
-        lim_param_grid.append([min(ds['par5'].values), max(ds['par5'].values)])
+        theta_index = np.append(theta_index,'par5')
+        lim_param_grid = np.append(lim_param_grid,[[min(ds['par5'].values), max(ds['par5'].values)]], axis=0)
     n_free_parameters = len(ds.attrs['key'])
     if global_params.r != 'NA' and global_params.r[0] != 'constant':
         n_free_parameters += 1
-        theta_index.append('r')
+        theta_index = np.append(theta_index,'r')
     if global_params.d != 'NA' and global_params.d[0] != 'constant':
         n_free_parameters += 1
-        theta_index.append('d')
+        theta_index = np.append(theta_index,'d')
     if global_params.rv != 'NA' and global_params.rv[0] != 'constant':
         n_free_parameters += 1
-        theta_index.append('rv')
+        theta_index = np.append(theta_index,'rv')
     if global_params.av != 'NA' and global_params.av[0] != 'constant':
         n_free_parameters += 1
-        theta_index.append('av')
+        theta_index = np.append(theta_index,'av')
     if global_params.vsini != 'NA' and global_params.vsini[0] != 'constant':
         n_free_parameters += 1
-        theta_index.append('vsini')
+        theta_index = np.append(theta_index,'vsini')
     if global_params.ld != 'NA' and global_params.ld[0] != 'constant':
         n_free_parameters += 1
-        theta_index.append('ld')
+        theta_index = np.append(theta_index,'ld')
     ## adding cpd
     if global_params.bb_T != 'NA' and global_params.bb_T[0] != 'constant':
         n_free_parameters += 1
-        theta_index.append('bb_T')
+        theta_index = np.append(theta_index,'bb_T')
     if global_params.bb_R != 'NA' and global_params.bb_R[0] != 'constant':
         n_free_parameters += 1
-        theta_index.append('bb_R')
+        theta_index = np.append(theta_index,'bb_R')
     theta_index = np.asarray(theta_index)
     #print(theta_index, n_free_parameters)
 

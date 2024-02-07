@@ -11,19 +11,21 @@ from adapt.extraction_functions import adapt_model, decoupe
 
 def adapt_grid(global_params, wav_obs_spec, wav_obs_phot, obs_name='', indobs=0):
     """
-    Adapt the synthetic spectra of a grid to make them comparable with data.
+    Adapt the synthetic spectra of a grid to make them comparable with the data.
     
     Args:
-        global_params: Class containing each parameter
-        wav_obs_spec: Merged wavelength grid of the data
-        wav_obs_phot: Wavelengths of the photometry points
-        obs_name: Name of the current observation looping (only relevant in MOSAIC, else set to '')
-        indobs: Index of the current observation looping (only relevant in MOSAIC, else set to 0)
+        global_params (object): Class containing each parameter
+        wav_obs_spec   (array): Merged wavelength grid of the data
+        wav_obs_phot   (array): Wavelengths of the photometry points
+        obs_name         (str): Name of the current observation looping (only relevant in MOSAIC, else set to '')
+        indobs           (int): Index of the current observation looping (only relevant in MOSAIC, else set to 0)
     Returns:
+        None
 
-    Author: Simon Petrus
+    Author: Simon Petrus / Adapted: Matthieu Ravet & Paulina Palma-Bifani
     """
 
+    # Opening the grid of models depending on the number of parameters
     ds = xr.open_dataset(global_params.model_path, decode_cf=False, engine="netcdf4")
     wav_mod_nativ = ds["wavelength"].values
     grid = ds['grid']
@@ -73,6 +75,8 @@ def adapt_grid(global_params, wav_obs_spec, wav_obs_phot, obs_name='', indobs=0)
                                     len(grid["par4"].values),
                                     len(grid["par5"].values)), np.nan)
         tot_par = len(grid["par1"].values) * len(grid["par2"].values) * len(grid["par3"].values) * len(grid["par4"].values) * len(grid["par5"].values)
+    
+    # Every grid dimention gets interpolated
     i_tot = 1
     follow_print_title = ''
     for par_t in attr['title']:
@@ -202,6 +206,7 @@ def adapt_grid(global_params, wav_obs_spec, wav_obs_phot, obs_name='', indobs=0)
                 print(line_up, end=line_clear)
                 i_tot += 1
 
+    # Saving the new xr formated grids
     if len(attr['par']) == 2:
         ds_new = xr.Dataset(data_vars=dict(grid=(["wavelength", "par1", "par2"], grid_new_np)),
                             coords={"wavelength": wav_obs_spec,
@@ -242,7 +247,6 @@ def adapt_grid(global_params, wav_obs_spec, wav_obs_phot, obs_name='', indobs=0)
                                          "par3": grid["par3"].values,
                                          "par4": grid["par4"].values},
                                  attrs=attr)
-
     if len(attr['par']) == 5:
         ds_new = xr.Dataset(data_vars=dict(grid=(["wavelength", "par1", "par2", "par3", "par4", "par5"], grid_new_np)),
                             coords={"wavelength": wav_obs_spec,
@@ -262,8 +266,7 @@ def adapt_grid(global_params, wav_obs_spec, wav_obs_phot, obs_name='', indobs=0)
                                          "par5": grid["par5"].values},
                                  attrs=attr)
 
-    print()
-    print()
+    # Interpolation of possible grid-holes
     print()
     print('-> The possible holes in the grid are interpolated: ')
     print()
@@ -274,7 +277,7 @@ def adapt_grid(global_params, wav_obs_spec, wav_obs_phot, obs_name='', indobs=0)
         ds_new_phot = ds_new_phot.interpolate_na(dim=key, method="linear", fill_value="extrapolate", limit=None,
                                                  max_gap=None)
         
-    # Change paths if the MOSAIC mod is activated
+    # Saving the formated grids. Here we change the paths if the MOSAIC mod is activated.
     if global_params.observation_format == 'MOSAIC':
         ds_new.to_netcdf(os.path.join(global_params.adapt_store_path, f'adapted_grid_merge_{global_params.grid_name}_{obs_name}_nonan.nc'),
                         format='NETCDF4',
@@ -296,5 +299,6 @@ def adapt_grid(global_params, wav_obs_spec, wav_obs_phot, obs_name='', indobs=0)
 
     print()
     print('-> The possible holes have been interpolated.')
+    print()
 
     return None
