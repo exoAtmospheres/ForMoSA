@@ -1,4 +1,4 @@
-astropy<5
+astropy==4.1
 configobj
 corner
 extinction
