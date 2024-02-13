@@ -151,7 +151,7 @@ def MOSAIC_logL(theta, theta_index, global_params, main_file):
         if len(flx_obs) != 0:
             if global_params.logL_type[indobs] == 'chi2_classic':
                 logL_spec = logL_chi2_classic(flx_obs-flx_mod, err)
-            elif global_params.logL_type[indobs] == 'chi2_covariance' and inv_cov != []:
+            elif global_params.logL_type[indobs] == 'chi2_covariance' and len(inv_cov) != 0:
                 logL_spec = logL_chi2_covariance(flx_obs-flx_mod, inv_cov)
             elif global_params.logL_type[indobs] == 'CCF_Brogi':
                 logL_spec = logL_CCF_Brogi(flx_obs, flx_mod)
