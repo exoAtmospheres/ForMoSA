@@ -42,7 +42,7 @@ print()
 
 
 if len(sys.argv) == 1:
-    y_n_par = yesno('Do you want to adapt the grid too your data? (y/n)')
+    y_n_par = yesno('Do you want to adapt the grid to your data? (y/n)')
 else:
     y_n_par = sys.argv[2]
 

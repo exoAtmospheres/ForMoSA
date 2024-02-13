@@ -114,7 +114,7 @@ def MOSAIC_logL(theta, theta_index, global_params, main_file):
                 flx_obs_phot_ns_u = flx_obs_phot[ind_phot]
                 err_obs_phot_ns_u = err_obs_phot[ind_phot]
                 flx_mod_phot_ns_u = flx_mod_phot_cut
-                if inv_cov_obs_merge != []:  # Add covariance in the loop (if necessary)
+                if len(inv_cov_obs_merge) != 0:  # Add covariance in the loop (if necessary)
                     inv_cov_obs_merge_ns_u = inv_cov_obs_merge[np.ix_(ind_merge[0],ind_merge[0])]
                 else:
                     inv_cov_obs_merge_ns_u = []
@@ -127,7 +127,7 @@ def MOSAIC_logL(theta, theta_index, global_params, main_file):
                 flx_obs_phot_ns_u = np.concatenate((flx_obs_phot_ns_u, flx_obs_phot[ind_phot]))
                 err_obs_phot_ns_u = np.concatenate((err_obs_phot_ns_u, err_obs_phot[ind_phot]))
                 flx_mod_phot_ns_u = np.concatenate((flx_mod_phot_ns_u, flx_mod_phot_cut))
-                if inv_cov_obs_merge_ns_u != []: # Merge the covariance matrices (if necessary)
+                if len(inv_cov_obs_merge_ns_u) != 0: # Merge the covariance matrices (if necessary)
                     inv_cov_obs_merge_ns_u = diag_mat([inv_cov_obs_merge_ns_u, inv_cov_obs_merge[np.ix_(ind_merge[0],ind_merge[0])]])
                     
         # Modification of the synthetic spectrum with the extra-grid parameters
@@ -142,28 +142,31 @@ def MOSAIC_logL(theta, theta_index, global_params, main_file):
         ck = modif_spec_LL[8]
 
         # Computation of the photometry logL
-        if err_phot != []:
+        if len(flx_mod_phot) != 0:
             logL_phot = logL_chi2_classic(flx_obs_phot-flx_mod_phot, err_phot)
         else:
             logL_phot = 0
 
         # Computation of the spectroscopy logL
-        if global_params.logL_type[indobs] == 'chi2_classic':
-            logL_spec = logL_chi2_classic(flx_obs-flx_mod, err)
-        elif global_params.logL_type[indobs] == 'chi2_covariance' and inv_cov != []:
-            logL_spec = logL_chi2_covariance(flx_obs-flx_mod, inv_cov)
-        elif global_params.logL_type[indobs] == 'CCF_Brogi':
-            logL_spec = logL_CCF_Brogi(flx_obs, flx_mod)
-        elif global_params.logL_type[indobs] == 'CCF_Zucker':
-            logL_spec = logL_CCF_Zucker(flx_obs, flx_mod)
-        elif global_params.logL_type[indobs] == 'CCF_custom':
-            logL_spec = logL_CCF_custom(flx_obs, flx_mod, err)
+        if len(flx_obs) != 0:
+            if global_params.logL_type[indobs] == 'chi2_classic':
+                logL_spec = logL_chi2_classic(flx_obs-flx_mod, err)
+            elif global_params.logL_type[indobs] == 'chi2_covariance' and inv_cov != []:
+                logL_spec = logL_chi2_covariance(flx_obs-flx_mod, inv_cov)
+            elif global_params.logL_type[indobs] == 'CCF_Brogi':
+                logL_spec = logL_CCF_Brogi(flx_obs, flx_mod)
+            elif global_params.logL_type[indobs] == 'CCF_Zucker':
+                logL_spec = logL_CCF_Zucker(flx_obs, flx_mod)
+            elif global_params.logL_type[indobs] == 'CCF_custom':
+                logL_spec = logL_CCF_custom(flx_obs, flx_mod, err)
+            else:
+                print()
+                print('One or more dataset does not run in the inversion')
+                print('Please choose the adapted likelihood function to your dataset')
+                print()
+                exit()
         else:
-            print()
-            print('One or more dataset does not run in the inversion')
-            print('Please choose the adapted likelihood function to your dataset')
-            print()
-            exit()
+            logL_spec = 0
 
         # Compute the final logL (sum of all likelihood under the hypothesis of independent instruments)
         FINAL_logL = logL_phot + logL_spec + FINAL_logL

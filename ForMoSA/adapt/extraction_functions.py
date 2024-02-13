@@ -83,14 +83,15 @@ def extract_observation(global_params, wav_mod_nativ, res_mod_nativ, cont='no', 
     # Reduce the spectral resolution for each sub-spectrum.
     for c, cut in enumerate(obs_cut):
         # If we want to decrease the resolution of the data:
-        if cont == 'no':
-            if global_params.adapt_method == 'by_reso':
-                obs_cut[c][1] = resolution_decreasing(global_params, cut, wav_mod_nativ, [], res_mod_nativ, 'obs', obs_name=obs_name, indobs=indobs)
+        if len(cut[0]) != 0:
+            if cont == 'no':
+                if global_params.adapt_method == 'by_reso':
+                    obs_cut[c][1] = resolution_decreasing(global_params, cut, wav_mod_nativ, [], res_mod_nativ, 'obs', obs_name=obs_name, indobs=indobs)
+                else:
+                    pass
+            # If we want to estimate the continuum of the data:
             else:
-                pass
-        # If we want to estimate the continuum of the data:
-        else:
-            obs_cut[c][1] = continuum_estimate(global_params, cut[0], cut[0], cut[1], cut[3], 'obs', obs_name=obs_name, indobs=indobs)
+                obs_cut[c][1] = continuum_estimate(global_params, cut[0], cut[0], cut[1], cut[3], 'obs', obs_name=obs_name, indobs=indobs)
 
 
     return obs_cut, obs_pho, obs_cut_ins, obs_pho_ins, obs_cut_cov
@@ -150,7 +151,7 @@ def adapt_observation_range(global_params, obs_name='', indobs=0):
         nan_mod_ind = ~np.isnan(flx)
         wav = wav[nan_mod_ind]
         flx = flx[nan_mod_ind]
-        if cov != []:
+        if len(cov) != 0:
             cov = np.transpose(np.transpose(cov[nan_mod_ind])[nan_mod_ind])
         res = res[nan_mod_ind]
         ins = ins[nan_mod_ind]
@@ -181,7 +182,7 @@ def adapt_observation_range(global_params, obs_name='', indobs=0):
             res_spectro = np.delete(res[ind], ind_photometry)
             ins_spectro = np.delete(ins[ind], ind_photometry)
             err_spectro = np.delete(err[ind], ind_photometry)
-            if cov != []: # Check if the covariance exists
+            if len(cov) != 0: # Check if the covariance exists
                 cov_spectro = cov[np.ix_(ind[0],ind[0])]
                 cov_spectro = np.delete(cov_spectro, ind_photometry, axis=0)
                 cov_spectro = np.delete(cov_spectro, ind_photometry, axis=1)
@@ -196,11 +197,11 @@ def adapt_observation_range(global_params, obs_name='', indobs=0):
                 obs_cut_ins.append([ins_spectro])
 
             # Cuting the covariance matrix if necessary
-            if cov_spectro != []: # Check if the covariance exists
+            if len(cov_spectro) != 0: # Check if the covariance exists
                 obs_cut_cov.append(list(cov_spectro))
 
         # Reshaping the covariance file (if necessary) and the instrument file
-        if obs_cut_cov != []:
+        if len(obs_cut_cov) != 0:
             for i, cov in enumerate(obs_cut_cov):
                 obs_cut_cov[i] = np.array(cov)
         for i, ins in enumerate(obs_cut_ins):
@@ -241,7 +242,7 @@ def adapt_model(global_params, wav_mod_nativ, flx_mod_nativ, res_mod_nativ, obs_
             for c, cut in enumerate(mod_cut_c):
                 mod_cut[c] -= mod_cut_c[c]
     else:
-         if global_params.continuum_sub != 'NA':
+        if global_params.continuum_sub != 'NA':
             mod_cut_c, mod_pho_c = extract_model(global_params, wav_mod_nativ, flx_mod_nativ, res_mod_nativ, 'yes',  obs_name=obs_name, indobs=indobs)
             for c, cut in enumerate(mod_cut_c):
                 mod_cut[c] -= mod_cut_c[c]       
@@ -291,16 +292,20 @@ def extract_model(global_params, wav_mod_nativ, flx_mod_nativ, res_mod_nativ, co
     mod_cut = []
     for c, cut in enumerate(obs_cut):
         # If we want to decrease the resolution of the data:
-        if cont == 'no':
-            if global_params.adapt_method == 'by_reso':
-                mod_cut_flx = resolution_decreasing(global_params, cut, wav_mod_nativ, flx_mod_nativ, res_mod_nativ,
-                                                    'mod', obs_name=obs_name, indobs=indobs)
+        if len(cut[0]) != 0:
+            if cont == 'no':
+                if global_params.adapt_method == 'by_reso':
+                    mod_cut_flx = resolution_decreasing(global_params, cut, wav_mod_nativ, flx_mod_nativ, res_mod_nativ,
+                                                        'mod', obs_name=obs_name, indobs=indobs)
+                else:
+                    mod_cut_flx = spectres(cut[0], wav_mod_nativ, flx_mod_nativ)
+            # If we want to estimate the continuum of the data:
             else:
-                mod_cut_flx = spectres(cut[0], wav_mod_nativ, flx_mod_nativ)
-        # If we want to estimate the continuum of the data:
+                mod_cut_flx = continuum_estimate(global_params, cut[0], wav_mod_nativ, flx_mod_nativ, res_mod_nativ, 'mod',
+                                                obs_name=obs_name, indobs=indobs)
         else:
-            mod_cut_flx = continuum_estimate(global_params, cut[0], wav_mod_nativ, flx_mod_nativ, res_mod_nativ, 'mod',
-                                             obs_name=obs_name, indobs=indobs)
+            mod_cut_flx = []
+            
         mod_cut.append(mod_cut_flx)
 
     # Calculate each photometry point.

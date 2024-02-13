@@ -50,7 +50,7 @@ def launch_adapt(global_params, justobs='no'):
             err_obs_extract = obs_cut[c][2]
             res_obs_extract = np.array(obs_cut[c][3], dtype=float) # New addition (may need to be corrected)
             ins_obs_extract = obs_cut_ins[c]
-            if obs_cut_cov != []: # Extract sub-covariance (if necessary)
+            if len(obs_cut_cov) != 0: # Extract sub-covariance (if necessary)
                 cov_obs_extract = obs_cut_cov[c]
             else:
                 cov_obs_extract = []
@@ -61,12 +61,12 @@ def launch_adapt(global_params, justobs='no'):
             err_obs_extract = np.concatenate((err_obs_extract, obs_cut[c][2]))
             res_obs_extract = np.concatenate((res_obs_extract, np.array(obs_cut[c][3], dtype=float))) # New addition (may need to be corrected)
             ins_obs_extract = np.concatenate((ins_obs_extract, obs_cut_ins[c]))
-            if cov_obs_extract != []:
+            if len(cov_obs_extract) != 0:
                 cov_obs_extract = diag_mat([cov_obs_extract, obs_cut_cov[c]])
 
         # Compute the inverse of the merged covariance matrix (note: inv(C1, C2) = (in(C1), in(C2)) if C1 and C2 are block matrix on the diagonal)
         # if necessary
-        if cov_obs_extract != []:
+        if len(cov_obs_extract) != 0:
             inv_cov_obs = np.linalg.inv(cov_obs_extract)
         else:
             inv_cov_obs = []
@@ -75,7 +75,7 @@ def launch_adapt(global_params, justobs='no'):
         obs_merge = [wav_obs_extract, flx_obs_extract, err_obs_extract, res_obs_extract]
 
         # Check-ups and warnings for negative values in the diagonal of the covariance matrix
-        if cov_obs_extract != [] and any(np.diag(cov_obs_extract) < 0):
+        if len(cov_obs_extract) != 0 and any(np.diag(cov_obs_extract) < 0):
             print()
             y_n_par = yesno("WARNING: Negative value(s) is(are) present on the diagonal of the covariance matrix. Do you still want to run the inversion? (y/n)") 
         else:
@@ -190,7 +190,7 @@ def launch_adapt_MOSAIC(global_params, justobs='no'):
                 err_obs_extract = obs_cut[c][2]
                 res_obs_extract = np.array(obs_cut[c][3], dtype=float) # New addition (may need to be corrected)
                 ins_obs_extract = obs_cut_ins[c]
-                if obs_cut_cov != []: # Extract sub-covariance (if necessary)
+                if len(obs_cut_cov) != 0: # Extract sub-covariance (if necessary)
                     cov_obs_extract = obs_cut_cov[c]
                 else:
                     cov_obs_extract = []
@@ -201,13 +201,13 @@ def launch_adapt_MOSAIC(global_params, justobs='no'):
                 err_obs_extract = np.concatenate((err_obs_extract, obs_cut[c][2]))
                 res_obs_extract = np.concatenate((res_obs_extract, np.array(obs_cut[c][3], dtype=float))) # New addition (may need to be corrected)
                 ins_obs_extract = np.concatenate((ins_obs_extract, obs_cut_ins[c]))
-                if cov_obs_extract != []:
+                if len(cov_obs_extract) != 0:
                     cov_obs_extract = diag_mat([cov_obs_extract, obs_cut_cov[c]])
 
 
             # Compute the inverse of the merged covariance matrix (note: inv(C1, C2) = (in(C1), in(C2)) if C1 and C2 are block matrix on the diagonal)
             # if necessary
-            if cov_obs_extract != []:
+            if len(cov_obs_extract) != 0:
                 inv_cov_obs = np.linalg.inv(cov_obs_extract)
             else:
                 inv_cov_obs = []
@@ -216,7 +216,7 @@ def launch_adapt_MOSAIC(global_params, justobs='no'):
             obs_merge = [wav_obs_extract, flx_obs_extract, err_obs_extract, res_obs_extract]
 
             # Check-ups and warnings for negative values in the diagonal of the covariance matrix
-            if cov_obs_extract != [] and any(np.diag(cov_obs_extract) < 0):
+            if len(cov_obs_extract) != 0 and any(np.diag(cov_obs_extract) < 0):
                 print()
                 y_n_par = yesno("WARNING: Negative value(s) is(are) present on the diagonal of the covariance matrix. Do you still want to run the inversion? (y/n)") 
             else:
