@@ -163,12 +163,14 @@ def launch_adapt_MOSAIC(global_params, justobs='no'):
         global_params.observation_path = obs
         obs_name = os.path.splitext(os.path.basename(global_params.observation_path))[0]
         
-        obs_cut, obs_pho, obs_cut_ins, obs_pho_ins, obs_cut_cov = extract_observation(global_params, wav_mod_nativ, attr['res'])
+        obs_cut, obs_pho, obs_cut_ins, obs_pho_ins, obs_cut_cov = extract_observation(global_params, wav_mod_nativ, attr['res'], obs_name=obs_name,
+                                                                                      indobs=indobs)
 
         # Estimate and subtraction of the continuum (if needed) + check-ups
         if global_params.continuum_sub[indobs] != 'NA':
             print()
-            print(obs_name + ' will have a R=' + global_params.continuum_sub[indobs] + ' continuum removed')
+            print(obs_name + ' will have a R=' + global_params.continuum_sub[indobs] + ' continuum removed using a ' 
+                  + global_params.wav_for_continuum[indobs] + ' wavelength range')
             print()
             y_n_par = yesno('Is this what you want ? (y/n)')
             if y_n_par == 'n':

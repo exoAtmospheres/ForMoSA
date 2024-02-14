@@ -42,7 +42,7 @@ def MOSAIC_logL(theta, theta_index, global_params, main_file):
         grid_phot = main_file[indobs][5]
 
         # Calculation of the likelihood for each sub-spectrum defined by the parameter 'wav_fit'
-        for ns_u_ind, ns_u in enumerate(global_params.wav_fit.split('/')):
+        for ns_u_ind, ns_u in enumerate(global_params.wav_fit[indobs].split('/')):
             
             min_ns_u = float(ns_u.split(',')[0])
             max_ns_u = float(ns_u.split(',')[1])

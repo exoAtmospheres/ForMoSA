@@ -31,7 +31,7 @@ LOGLIKE :
         It is usefull when you have knowledge on your spectral covariances (covariance matrix C)
         - logL_type = 'CCF_Brogi' is the CCF mapping introduced by Brogi et al. 2019, i.e. logL = -N/2 * log(Sf2 - 2*R + Sg2). It
         is usefull when you assume gaussian and spectrally constant noise + self-calibrated (no continuum) data
-        - logL_type = 'CCF_Lockwood' is the CCF mapping introduced by Lockwood et al. 2014, i.e. logL = -N/2 * np.log(1-C2). It
+        - logL_type = 'CCF_Zucker' is the CCF mapping introduced by Zucker et al. 2003, i.e. logL = -N/2 * np.log(1-C2). It
         is usefull when you assume gaussian and spectrally constant noise + self-calibrated (no continuum) data   
         - logL_type = 'CCF_custom' is a CCF mapping created by Matthieu Ravet, i.e. logL = -N/(2*sigma2_weight) * (Sf2 + Sg2 - 2*R). It
         is usefull when you assume gaussian and spectrally constant noise + self-calibrated (no continuum) data    
@@ -46,20 +46,21 @@ MOSAIC :
     (in the .fits format of ForMoSA). Exemple " observation_path = '/home/mravet/Documents/These/FORMOSA/INPUTS/DATA/MULTI-MODAL/*' " /!\ note
     that the * at the end of the path is important
 
-    - wav_for_adapt : due to the way covariance matrix are imported in ForMoSA, you should here specify the ENTIRE wavelength range you want to
-    extract (typicaly the wavelength range covering all your observations). Exemple " wav_for_adapt = '2.25,4.17' "
+    - wav_for_adapt : You need to select multiple windows for each or your observations. Exemple " wav_for_adapt = '2.25,4.17' , '4.1,4.4' "
 
     - continuum_sub : you need to specify it for each observation now. Exemple " continuum_sub = 'NA', 'NA', 'NA' " if you don't want to substract
     the continuum for any observation or " continuum_sub = '100', 'NA', 'NA' " if you want to only substract a R=100 continuum for the first observation.
     /!\ as of now, the continuum removal is only done using the parameter wav_for_continuum = 'full', i.e. using all the wavelength range of the observation
     in the loop (an option to properly select the desired wavelength range will be added in the near future)
 
+    - wav_for_continuum : Similar to wav_for_adapt
+
     - logL_type : like with the continuum_sub parameter, you now need to specify the likelihood function you want to use for each observation.
     Exemple : " logL_type = 'chi2_classic', 'chi2_classic', 'chi2_covariance' ". A verification is here done before the inversion to check whether
     you inputed the right logL funtion with the desired observation (you can redefine your choice at this step)
 
     - wav_fit : this parameter works as intended. You can (and should) sub-divid you interval for each of you observation. For exemple :
-    " wav_fit = '2.25,2.5 / 2.85,4.17' "
+    " wav_fit = '2.25,2.5 / 2.85,4.17' , '4.1,4.4' "
 
     The grid is adapted for the needs of each observation separatly which mean you will end up with separate adapted_grid.nc and spectrum.npz.
     However, since the inversion is done in parallel, the output result_nestle.pic will be unique.
