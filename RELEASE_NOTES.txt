@@ -38,10 +38,19 @@ Comments:
     - Changes of the num_sigma parameter in extraction_functions to not smooth to much the models during the resolution decrease
 
 _ _ _ 
+
 15/02/2024 
 Matthieu Ravet 
 
 Comments:
     - TEST BRANCH
+
+_ _ _ 
+
+19/02/2024 
+Matthieu Ravet 
+
+Comments:
+    - Small correction in the rv and vsini loops (len(flx) != 0, if you run with photometry only, usefull for MOSAIC)
 
 _ _ _ 

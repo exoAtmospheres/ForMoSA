@@ -283,15 +283,16 @@ def modif_spec(global_params, theta, theta_index,
     Author: Simon Petrus and Paulina Palma-Bifani
     """
     # Correction of the radial velocity of the interpolated synthetic spectrum.
-    if global_params.rv != "NA":
-        if global_params.rv[0] == 'constant':
-            rv_picked = float(global_params.rv[1])
-        else:
-            ind_theta_rv = np.where(theta_index == 'rv')
-            rv_picked = theta[ind_theta_rv[0][0]]
-        wav_obs_merge, flx_obs_merge, err_obs_merge, new_flx_merge = doppler_fct(wav_obs_merge, flx_obs_merge,
-                                                                                 err_obs_merge, new_flx_merge,
-                                                                                 rv_picked)
+    if len(flx_obs_merge) != 0:
+        if global_params.rv != "NA":
+            if global_params.rv[0] == 'constant':
+                rv_picked = float(global_params.rv[1])
+            else:
+                ind_theta_rv = np.where(theta_index == 'rv')
+                rv_picked = theta[ind_theta_rv[0][0]]
+            wav_obs_merge, flx_obs_merge, err_obs_merge, new_flx_merge = doppler_fct(wav_obs_merge, flx_obs_merge,
+                                                                                    err_obs_merge, new_flx_merge,
+                                                                                    rv_picked)
 
     # Application of a synthetic interstellar extinction to the interpolated synthetic spectrum.
     if global_params.av != "NA":
@@ -304,26 +305,27 @@ def modif_spec(global_params, theta, theta_index,
 
 
     # Correction of the rotational velocity of the interpolated synthetic spectrum.
-    if global_params.vsini != "NA" and global_params.ld != "NA":
-        if global_params.vsini[0] == 'constant':
-            vsini_picked = float(global_params.vsini[1])
+    if len(flx_obs_merge) != 0:
+        if global_params.vsini != "NA" and global_params.ld != "NA":
+            if global_params.vsini[0] == 'constant':
+                vsini_picked = float(global_params.vsini[1])
+            else:
+                ind_theta_vsini = np.where(theta_index == 'vsini')
+                vsini_picked = theta[ind_theta_vsini[0][0]]
+            if global_params.ld[0] == 'constant':
+                ld_picked = float(global_params.ld[1])
+            else:
+                ind_theta_ld = np.where(theta_index == 'ld')
+                ld_picked = theta[ind_theta_ld[0][0]]
+
+            new_flx_merge = vsini_fct(wav_obs_merge, new_flx_merge, ld_picked, vsini_picked)
+
+        elif global_params.vsini == "NA" and global_params.ld == "NA":
+            pass
+
         else:
-            ind_theta_vsini = np.where(theta_index == 'vsini')
-            vsini_picked = theta[ind_theta_vsini[0][0]]
-        if global_params.ld[0] == 'constant':
-            ld_picked = float(global_params.ld[1])
-        else:
-            ind_theta_ld = np.where(theta_index == 'ld')
-            ld_picked = theta[ind_theta_ld[0][0]]
-
-        new_flx_merge = vsini_fct(wav_obs_merge, new_flx_merge, ld_picked, vsini_picked)
-
-    elif global_params.vsini == "NA" and global_params.ld == "NA":
-        pass
-
-    else:
-        print('You need to define a v.sin(i) AND a limb darkening, or set them both to NA')
-        exit()
+            print('You need to define a v.sin(i) AND a limb darkening, or set them both to NA')
+            exit()
     
     # Adding a CPD
     if global_params.bb_T != "NA" and global_params.bb_R != "NA":
