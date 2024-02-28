@@ -220,7 +220,11 @@ def loglike(theta, theta_index, global_params, main_file, for_plot='no'):
                 err_obs_phot_ns_u = np.concatenate((err_obs_phot_ns_u, err_obs_phot[ind_phot]))
                 flx_mod_phot_ns_u = np.concatenate((flx_mod_phot_ns_u, flx_mod_phot_cut))
                 if len(inv_cov_obs_merge_ns_u) != 0: # Merge the covariance matrices (if necessary)
-                    inv_cov_obs_merge_ns_u = diag_mat([inv_cov_obs_merge_ns_u, inv_cov_obs_merge[np.ix_(ind_merge[0],ind_merge[0])]]) 
+                    inv_cov_obs_merge_ns_u = diag_mat([inv_cov_obs_merge_ns_u, inv_cov_obs_merge[np.ix_(ind_merge[0],ind_merge[0])]])
+
+        # Making sure that the model are in array format
+        flx_mod_merge_ns_u, flx_mod_phot_ns_u = np.array(flx_mod_merge_ns_u), np.array(flx_mod_phot_ns_u)
+        
 
         # Modification of the synthetic spectrum with the extra-grid parameters
         modif_spec_LL = modif_spec(global_params, theta, theta_index,
