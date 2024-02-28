@@ -50,6 +50,7 @@ class GlobFile:
     def __init__(self, config_file_path):
         # Generate the confog object
         config = ConfigObj(config_file_path, encoding='utf8')
+        self.config=config
         # self.obsname = obsname
 
         ## Read CONFIG:
@@ -130,7 +131,7 @@ class GlobFile:
         # print()
         #
         # config_current = self.result_path + '/past_config.ini'
-        # config.filename = config_current
+        config.filename = ' '
         # config['config_path']['stock_interp_grid'] = stock_interp_grid
         # config['config_path']['stock_result'] = stock_result_subsub_dir
         # config.write()

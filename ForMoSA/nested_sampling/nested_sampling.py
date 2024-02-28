@@ -416,7 +416,7 @@ def prior_transform(theta, theta_index, lim_param_grid, global_params):
     return prior
 
 
-def launch_nested_sampling(global_params):
+def launch_nested_sampling(global_params, y_n_par='y'):
     """
     
     Args:
@@ -442,7 +442,7 @@ def launch_nested_sampling(global_params):
             # Check the choice of likelihood (only for MOSAIC)
             print(obs_name + ' will be computed with ' + global_params.logL_type[indobs])
             print()
-            y_n_par = yesno('Is this what you want ? (y/n)')
+            #y_n_par = yesno('Is this what you want ? (y/n)')
             if y_n_par == 'n':
                 print('Please input the desired logL function for ' + obs_name + ':')
                 global_params.logL_type[indobs] = input()
