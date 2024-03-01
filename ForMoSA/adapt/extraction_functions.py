@@ -205,11 +205,11 @@ def adapt_observation_range(global_params, obs_name='', indobs=0):
             wav = hdul[1].data['WAV']
             flx = hdul[1].data['FLX']
             err = hdul[1].data['ERR']
-            cov = [] # Create an empty covariance matrix if not already present in the data (to not slow the inversion)
+            cov = [] # Create an empty covariance matrix if not already present in the data (to not slow the inversion)
             res = hdul[1].data['RES']
             ins = hdul[1].data['INS']
 
-        # Only take the covariance if you use the chi2_covariance likelihood function (will need to be change when new likelihood functions using the
+        # Only take the covariance if you use the chi2_covariance likelihood function (will need to be change when new likelihood functions using the
         # covariance matrix will come)
         if global_params.observation_format == 'MOSAIC' and global_params.logL_type[indobs] != 'chi2_covariance':
             cov = []
@@ -225,10 +225,21 @@ def adapt_observation_range(global_params, obs_name='', indobs=0):
         res = res[nan_mod_ind]
         ins = ins[nan_mod_ind]
         err = err[nan_mod_ind]
+        
+        if global_params.multiply_transmission == 'True':
+            transm = hdul[1].data['TRANSM']
+            transm = transm[nan_mod_ind]
+        else:
+            transm = np.zeros(len(flx))
+            
+        if global_params.star_data == 'True':
+            star_flx = hdul[1].data['STAR FLX']
+        else:
+            star_flx = np.zeros(len(flx))
+            star_flx = star_flx[nan_mod_ind]
 
         # Create empty list for the covariance matrix
         obs_cut_cov = []
-
         # Select the wavelength range(s) for the extraction
         if global_params.wav_for_adapt == '':
             wav_for_adapt_tab = [str(min(wav)) + ',' + str(max(wav))]
@@ -248,7 +259,7 @@ def adapt_observation_range(global_params, obs_name='', indobs=0):
             # Photometry part of the data
             ind_photometry = np.where(res[ind] == 0.0)
             obs_pho = [wav[ind][ind_photometry], flx[ind][ind_photometry], err[ind][ind_photometry],
-                    res[ind][ind_photometry]]
+                    res[ind][ind_photometry], transm[ind][ind_photometry], star_flx[ind][ind_photometry]]
             obs_pho_ins = ins[ind][ind_photometry]
 
             # Spectroscopy part of the data
@@ -257,18 +268,28 @@ def adapt_observation_range(global_params, obs_name='', indobs=0):
             res_spectro = np.delete(res[ind], ind_photometry)
             ins_spectro = np.delete(ins[ind], ind_photometry)
             err_spectro = np.delete(err[ind], ind_photometry)
-            if len(cov) != 0: # Check if the covariance exists
+            if len(cov) != 0: # Check if the covariance exists
                 cov_spectro = cov[np.ix_(ind[0],ind[0])]
                 cov_spectro = np.delete(cov_spectro, ind_photometry, axis=0)
                 cov_spectro = np.delete(cov_spectro, ind_photometry, axis=1)
             else:
                 cov_spectro = []
+                
+            if transm != []:
+                transm_spectro = np.delete(transm[ind], ind_photometry)
+            else:
+                transm_spectro = np.zeros(len(wav_spectro))
+            
+            if star_flx != []:
+                star_flx_spectro = np.delete(star_flx[ind], ind_photometry)
+            else:
+                star_flx_spectro = np.zeros(len(wav_spectro))
 
             if range_ind == 0:
-                obs_cut = [[wav_spectro, flx_spectro, err_spectro, res_spectro]]
+                obs_cut = [[wav_spectro, flx_spectro, err_spectro, res_spectro, transm_spectro, star_flx_spectro]]
                 obs_cut_ins = [[ins_spectro]]
             else:
-                obs_cut.append([wav_spectro, flx_spectro, err_spectro, res_spectro])
+                obs_cut.append([wav_spectro, flx_spectro, err_spectro, res_spectro, transm_spectro, star_flx_spectro])
                 obs_cut_ins.append([ins_spectro])
 
             # Cuting the covariance matrix if necessary
@@ -281,8 +302,6 @@ def adapt_observation_range(global_params, obs_name='', indobs=0):
                 obs_cut_cov[i] = np.array(cov)
         for i, ins in enumerate(obs_cut_ins):
             obs_cut_ins[i] = obs_cut_ins[i][0]
-
-    
 
         return obs_cut, obs_pho, obs_cut_ins, obs_pho_ins, obs_cut_cov   
 
@@ -328,10 +347,13 @@ def adapt_model(global_params, wav_mod_nativ, flx_mod_nativ, res_mod_nativ, obs_
                         flx_mod_for_cont = np.concatenate((flx_mod_for_cont, flx_mod_nativ[wav_mod_for_cont_ind]))
                 wave_reso_tab = []
                 wav_reso = min(wav_mod_for_cont)
+            
                 while wav_reso < max(wav_mod_for_cont):
                     wave_reso_tab.append(wav_reso)
-                    wav_reso += wav_reso / float(global_params.continuum_sub[indobs])
+                    wav_reso += wav_reso / float(global_params.continuum_sub)
+                
                 wave_reso_tab = np.asarray(wave_reso_tab)
+                    
 
                 flx_obs_cont = spectres(wave_reso_tab, wav_mod_for_cont, flx_mod_for_cont, fill=np.nan, verbose=False)
                 for w_ind, wav_for_cont in enumerate(global_params.wav_for_continuum[indobs].split('/')):
@@ -369,10 +391,13 @@ def adapt_model(global_params, wav_mod_nativ, flx_mod_nativ, res_mod_nativ, obs_
                         flx_mod_for_cont = np.concatenate((flx_mod_for_cont, flx_mod_nativ[wav_mod_for_cont_ind]))
                 wave_reso_tab = []
                 wav_reso = min(wav_mod_for_cont)
+            
                 while wav_reso < max(wav_mod_for_cont):
                     wave_reso_tab.append(wav_reso)
                     wav_reso += wav_reso / float(global_params.continuum_sub)
+                
                 wave_reso_tab = np.asarray(wave_reso_tab)
+                    
 
                 flx_obs_cont = spectres(wave_reso_tab, wav_mod_for_cont, flx_mod_for_cont, fill=np.nan, verbose=False)
                 for w_ind, wav_for_cont in enumerate(global_params.wav_for_continuum.split('/')):
@@ -392,6 +417,110 @@ def adapt_model(global_params, wav_mod_nativ, flx_mod_nativ, res_mod_nativ, obs_
                     flx_obs_cont = obs_cut[c][0]*np.nan
 
                 mod_cut[c] -= flx_obs_cont      
+
+    # Merging of each sub-spectrum
+    for c, cut in enumerate(mod_cut):
+        if c == 0:
+            flx_mod_extract = mod_cut[c]
+        else:
+            flx_mod_extract = np.concatenate((flx_mod_extract, mod_cut[c]))
+
+    return flx_mod_extract, mod_pho
+
+
+# ----------------------------------------------------------------------------------------------------------------------
+
+
+def adapt_model_fast(global_params, wav_mod_nativ, wave_reso_tab, flx_mod_nativ, res_mod_nativ, obs_name='', indobs=0):
+    """
+    Extracts a synthetic spectrum from a grid and decreases its spectral resolution. The photometry points are
+    calculated too. Then each sub-spectrum are merged.
+
+    Args:
+        global_params  (object): Class containing each parameter used in ForMoSA
+        wav_mod_nativ   (array): Wavelength grid of the model
+        wave_reso_tab    (array): Wavelength grid of the model at specified resolution
+        flx_mod_nativ   (array): Flux of the model
+        res_mod_nativ   (array): Spectral resolution of the model as a function of the wavelength grid
+        obs_name          (str): Name of the current observation looping (only relevant in MOSAIC, else set to '')
+        indobs            (int): Index of the current observation looping (only relevant in MOSAIC, else set to 0)
+    Returns:
+        flx_mod_extract (array): Flux of the spectrum with a decreased spectral resolution, re-sampled on the data wavelength grid
+        mod_pho         (array): List containing the photometry ('0' replace the spectral resolution here).
+
+    Author: Simon Petrus
+    """
+    # Extract the synthetic spectra from the model grid
+    mod_cut, mod_pho, obs_cut = extract_model(global_params, wav_mod_nativ, flx_mod_nativ, res_mod_nativ, obs_name=obs_name)
+    # If MOSAIC
+    if global_params.observation_format == 'MOSAIC':
+        # Estimate and subtraction of the continuum (if needed)
+        if global_params.continuum_sub[indobs] != 'NA':
+            for c, cut in enumerate(obs_cut):
+                #mod_cut_c, mod_pho_c = extract_model(global_params, wav_mod_nativ, flx_mod_nativ, res_mod_nativ, 'yes')
+                for w_ind, wav_for_cont in enumerate(global_params.wav_for_continuum.split('/')):
+                    wav_mod_for_cont_ind = np.where((float(wav_for_cont.split(',')[0]) < wav_mod_nativ) &
+                                                    (wav_mod_nativ < float(wav_for_cont.split(',')[1])))
+                    if w_ind == 0:
+                        wav_mod_for_cont = wav_mod_nativ[wav_mod_for_cont_ind]
+                        flx_mod_for_cont = flx_mod_nativ[wav_mod_for_cont_ind]
+                    else:
+                        wav_mod_for_cont = np.concatenate((wav_mod_for_cont, wav_mod_nativ[wav_mod_for_cont_ind]))
+                        flx_mod_for_cont = np.concatenate((flx_mod_for_cont, flx_mod_nativ[wav_mod_for_cont_ind]))
+
+                flx_obs_cont = spectres(wave_reso_tab, wav_mod_for_cont, flx_mod_for_cont, fill=np.nan, verbose=False)
+                for w_ind, wav_for_cont in enumerate(global_params.wav_for_continuum[indobs].split('/')):
+                    wav_final_cont_ind = np.where((float(wav_for_cont.split(',')[0]) < wave_reso_tab) &
+                                                (wave_reso_tab < float(wav_for_cont.split(',')[1])))
+                    if w_ind == 0:
+                        wav_final_cont = wave_reso_tab[wav_final_cont_ind]
+                        flx_final_cont = flx_obs_cont[wav_final_cont_ind]
+                    else:
+                        wav_final_cont = np.concatenate((wav_final_cont, wave_reso_tab[wav_final_cont_ind]))
+                        flx_final_cont = np.concatenate((flx_final_cont, flx_obs_cont[wav_final_cont_ind]))
+                if len(flx_final_cont[~np.isnan(flx_final_cont)]) != 0:
+                    interp_reso = interp1d(wav_final_cont[~np.isnan(flx_final_cont)], flx_final_cont[~np.isnan(flx_final_cont)],
+                                        fill_value="extrapolate")
+                    flx_obs_cont = interp_reso(obs_cut[c][0])
+                else:
+                    flx_obs_cont = obs_cut[c][0]*np.nan
+                    
+                mod_cut[c] -= flx_obs_cont
+
+    # If classical mode
+    else:
+        # Estimate and subtraction of the continuum (if needed)
+        if global_params.continuum_sub != 'NA':
+            for c, cut in enumerate(obs_cut):
+                #mod_cut_c, mod_pho_c = extract_model(global_params, wav_mod_nativ, flx_mod_nativ, res_mod_nativ, 'yes')
+                for w_ind, wav_for_cont in enumerate(global_params.wav_for_continuum.split('/')):
+                    wav_mod_for_cont_ind = np.where((float(wav_for_cont.split(',')[0]) < wav_mod_nativ) &
+                                                    (wav_mod_nativ < float(wav_for_cont.split(',')[1])))
+                    if w_ind == 0:
+                        wav_mod_for_cont = wav_mod_nativ[wav_mod_for_cont_ind]
+                        flx_mod_for_cont = flx_mod_nativ[wav_mod_for_cont_ind]
+                    else:
+                        wav_mod_for_cont = np.concatenate((wav_mod_for_cont, wav_mod_nativ[wav_mod_for_cont_ind]))
+                        flx_mod_for_cont = np.concatenate((flx_mod_for_cont, flx_mod_nativ[wav_mod_for_cont_ind]))
+                
+                flx_obs_cont = spectres(wave_reso_tab, wav_mod_for_cont, flx_mod_for_cont, fill=np.nan, verbose=False)
+                for w_ind, wav_for_cont in enumerate(global_params.wav_for_continuum.split('/')):
+                    wav_final_cont_ind = np.where((float(wav_for_cont.split(',')[0]) < wave_reso_tab) &
+                                                (wave_reso_tab < float(wav_for_cont.split(',')[1])))
+                    if w_ind == 0:
+                        wav_final_cont = wave_reso_tab[wav_final_cont_ind]
+                        flx_final_cont = flx_obs_cont[wav_final_cont_ind]
+                    else:
+                        wav_final_cont = np.concatenate((wav_final_cont, wave_reso_tab[wav_final_cont_ind]))
+                        flx_final_cont = np.concatenate((flx_final_cont, flx_obs_cont[wav_final_cont_ind]))
+                if len(flx_final_cont[~np.isnan(flx_final_cont)]) != 0:
+                    interp_reso = interp1d(wav_final_cont[~np.isnan(flx_final_cont)], flx_final_cont[~np.isnan(flx_final_cont)],
+                                        fill_value="extrapolate")
+                    flx_obs_cont = interp_reso(obs_cut[c][0])
+                else:
+                    flx_obs_cont = obs_cut[c][0]*np.nan
+
+                mod_cut[c] -= flx_obs_cont     
 
     # Merging of each sub-spectrum
     for c, cut in enumerate(mod_cut):

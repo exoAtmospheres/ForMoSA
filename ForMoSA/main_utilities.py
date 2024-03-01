@@ -74,7 +74,10 @@ class GlobFile:
         self.custom_reso = config['config_adapt']['custom_reso']
         self.continuum_sub = config['config_adapt']['continuum_sub']
         self.wav_for_continuum = config['config_adapt']['wav_for_continuum']
+        self.method_for_continuum = config['config_adapt']['method_for_continuum']
         self.observation_format = config['config_adapt']['observation_format']
+        self.multiply_transmission = config['config_adapt']['multiply_transmission']
+        self.star_data = config['config_adapt']['star_data']
 
         # [config_inversion] (3)
         self.logL_type = config['config_inversion']['logL_type']
