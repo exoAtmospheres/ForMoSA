@@ -446,10 +446,6 @@ def launch_nested_sampling(global_params, y_n_par='y'):
             # Check the choice of likelihood (only for MOSAIC)
             print(obs_name + ' will be computed with ' + global_params.logL_type[indobs])
             print()
-            #y_n_par = yesno('Is this what you want ? (y/n)')
-            if y_n_par == 'n':
-                print('Please input the desired logL function for ' + obs_name + ':')
-                global_params.logL_type[indobs] = input()
 
             if global_params.logL_type[indobs] == 'CCF_Brogi' and global_params.continuum_sub[indobs] == 'NA':
                 print('You cannot use CCF mappings without substracting the continuum')
@@ -464,9 +460,6 @@ def launch_nested_sampling(global_params, y_n_par='y'):
                 print()
                 exit()
                 
-            print()
-            print()
-            print()
             print()
         print('Done !')
         print()
