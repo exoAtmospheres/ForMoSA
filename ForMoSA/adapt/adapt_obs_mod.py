@@ -77,16 +77,10 @@ def launch_adapt(global_params, justobs='no'):
         # Check-ups and warnings for negative values in the diagonal of the covariance matrix
         if len(cov_obs_extract) != 0 and any(np.diag(cov_obs_extract) < 0):
             print()
-            y_n_par = yesno("WARNING: Negative value(s) is(are) present on the diagonal of the covariance matrix. Do you still want to run the inversion? (y/n)") 
-        else:
-            y_n_par = 'y' 
-        if y_n_par != 'y':
+            print("WARNING: Negative value(s) is(are) present on the diagonal of the covariance matrix.") 
             print("Operation aborted.")
             print()
             exit()
-        else:
-            print()
-            print("Continuing...")
 
 
     # Save the new data spectrum
@@ -172,11 +166,6 @@ def launch_adapt_MOSAIC(global_params, justobs='no'):
             print(obs_name + ' will have a R=' + global_params.continuum_sub[indobs] + ' continuum removed using a ' 
                   + global_params.wav_for_continuum[indobs] + ' wavelength range')
             print()
-            y_n_par = yesno('Is this what you want ? (y/n)')
-            if y_n_par == 'n':
-                print('Please input the desired spectral resolution (or NA if you do not want to remove the continuum):')
-                global_params.continuum_sub[indobs] = input()
-            print()
             print()
             print()
         if global_params.continuum_sub[indobs] != 'NA':
@@ -220,16 +209,10 @@ def launch_adapt_MOSAIC(global_params, justobs='no'):
             # Check-ups and warnings for negative values in the diagonal of the covariance matrix
             if len(cov_obs_extract) != 0 and any(np.diag(cov_obs_extract) < 0):
                 print()
-                y_n_par = yesno("WARNING: Negative value(s) is(are) present on the diagonal of the covariance matrix. Do you still want to run the inversion? (y/n)") 
-            else:
-                y_n_par = 'y' 
-            if y_n_par != 'y':
+                print("WARNING: Negative value(s) is(are) present on the diagonal of the covariance matrix.") 
                 print("Operation aborted.")
                 print()
                 exit()
-            else:
-                print()
-                print("Continuing...")
 
         # Save the new data spectrum
         np.savez(os.path.join(global_params.result_path, f'spectrum_obs_{obs_name}.npz'),
