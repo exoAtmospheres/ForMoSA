@@ -85,7 +85,7 @@ Follow the instructions in ForMoSA/DEMO
 Issues?
 ===
 
-If you encounter any other problem, please create an issue on `GitHub <https://github.com/exoAtmospheres/ForMoSA/issues>`_.
+If you encounter any other problem, please create an issue on `GitHub [https://github.com/exoAtmospheres/ForMoSA/issues](https://github.com/exoAtmospheres/ForMoSA/issues)`.
 
 ***
 
