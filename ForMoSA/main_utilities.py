@@ -4,11 +4,11 @@ import numpy as np
 # ----------------------------------------------------------------------------------------------------------------------
 def yesno(text):
     ''' Function to interact with the terminal and decide for different options when running ForMoSA
-    Parameters:
-    - text (str)= (y/n) answer in the terminall in interactive mode
+    Args:
+        text    (str): (y/n) answer in the terminall in interactive mode
     Returns:
-    - repeat yesno, if no match for y or n
-    - asw (str) = answer y or n
+        asw     (str): answer y or n
+        (Loop to repeat question if answer is different to 'y' or 'n)
     '''
     print(text)
     asw = input()
@@ -21,10 +21,11 @@ def yesno(text):
 def diag_mat(rem=[], result=np.empty((0, 0))):
     ''' Function to concatenate and align iterativly block matrices (usefull during the extraction and the inversion)
     Parameters:
-    - rem (list)= matrices to be add iterativly (use diag([mat1, mat2]))
-    - result (array)= final array with each sub-matrices aligned allong the diagonal
+        rem        (list): matrices to be add iterativly (use diag([mat1, mat2]))
+        result    (array): final array with each sub-matrices aligned allong the diagonal
     Returns:
-    - repeat diag_mat
+        diag_mat (matrix): Generated diagonal matrix
+        (If rem input is empty, it wull return an empy array)
 
     Credits : ishigoya, Stack-overflow : https://stackoverflow.com/questions/42154606/python-numpy-how-to-construct-a-big-diagonal-arraymatrix-from-two-small-array
     '''
@@ -43,13 +44,16 @@ def diag_mat(rem=[], result=np.empty((0, 0))):
 
 
 class GlobFile:
-    '''Import config variables and make them GLOBAL FORMOSA VARIABLES
+    '''
+    Import all the parameters from the config file and make them GLOBAL FORMOSA VARIABLES
     
-    Author: Paulina Palma-Bifani'''
+    Author: Paulina Palma-Bifani
+    '''
 
     def __init__(self, config_file_path):
         # Generate the confog object
         config = ConfigObj(config_file_path, encoding='utf8')
+        self.config=config
         # self.obsname = obsname
 
         ## Read CONFIG:
@@ -102,7 +106,7 @@ class GlobFile:
 
         self.ck = None
         
-        # [config_nestle] (10 but 3 relevant)  (n_ prefix for params)
+        # [config_nestle] (5, some mutually exclusive)  (n_ prefix for params)
         self.n_method = config['config_nestle']['method']
         self.n_maxiter = eval(config['config_nestle']['maxiter'])
         self.n_maxcall = eval(config['config_nestle']['maxcall'])
@@ -133,7 +137,7 @@ class GlobFile:
         # print()
         #
         # config_current = self.result_path + '/past_config.ini'
-        # config.filename = config_current
+        config.filename = ' '
         # config['config_path']['stock_interp_grid'] = stock_interp_grid
         # config['config_path']['stock_result'] = stock_result_subsub_dir
         # config.write()

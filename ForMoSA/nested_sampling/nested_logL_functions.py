@@ -6,10 +6,10 @@ def logL_chi2_classic(delta_flx, err):
     under the assumption of gaussian and spectrally uncorrelated noise
     
     Args:
-        - delta_flx: residual data-model as a function of wavelength
-        - err: error (=standard deviation) of the observed spectrum as a function of wavelength
+        delta_flx   : residual data-model as a function of wavelength
+        err         : error (=standard deviation) of the observed spectrum as a function of wavelength
     Returns:
-        - logL: the loglikelihood value
+        logL        : the loglikelihood value
         
     Author: Matthieu Ravet
     """
@@ -26,10 +26,10 @@ def logL_chi2_covariance(delta_flx, inv_cov):
     under the assumption of gaussian and spectrally correlated noise
     
     Args:
-        - delta_flx: residual data-model as a function of wavelength
-        - inv_cov: inverse of the covariance matrix of the observed spectrum as a function of wavelength
+        delta_flx   : residual data-model as a function of wavelength
+        inv_cov     : inverse of the covariance matrix of the observed spectrum as a function of wavelength
     Returns:
-        - logL: the loglikelihood value
+        logL        : the loglikelihood value
         
     Author: Matthieu Ravet
     """
@@ -46,10 +46,10 @@ def logL_full_covariance(delta_flx, inv_cov):
     with GP extimation of the covariance matrix
     
     Args:
-        - delta_flx: residual data-model as a function of wavelength
-        - inv_cov: inverse of the covariance matrix of the observed spectrum as a function of wavelength
+        delta_flx   : residual data-model as a function of wavelength
+        inv_cov     : inverse of the covariance matrix of the observed spectrum as a function of wavelength
     Returns:
-        - logL: the loglikelihood value
+        logL        : the loglikelihood value
         
     Author: Matthieu Ravet
     """
@@ -65,10 +65,10 @@ def logL_CCF_Brogi(flx_obs, flx_mod):
     under the assumption of gaussian and spectrally constant noise
     
     Args:
-        - flx_obs: flux of the observation as a function of wavelength
-        - flx_mod: flux of the model as a function of wavelength
+        flx_obs     : flux of the observation as a function of wavelength
+        flx_mod     : flux of the model as a function of wavelength
     Returns:
-        - logL: the loglikelihood value
+        logL        : the loglikelihood value
         
     Author: Matthieu Ravet
     """
@@ -89,10 +89,10 @@ def logL_CCF_Zucker(flx_obs, flx_mod):
     under the assumption of gaussian and spectrally constant noise
     
     Args:
-        - flx_obs: flux of the observation as a function of wavelength
-        - flx_mod: flux of the model as a function of wavelength
+        flx_obs : flux of the observation as a function of wavelength
+        flx_mod : flux of the model as a function of wavelength
     Returns:
-        - logL: the loglikelihood value
+        logL    : the loglikelihood value
         
     Author: Matthieu Ravet
     """
@@ -114,11 +114,11 @@ def logL_CCF_custom(flx_obs, flx_mod, err_obs):
     under the assumption of gaussian and spectrally constant noise
     
     Args:
-        - flx_obs: flux of the observation as a function of wavelength
-        - flx_mod: flux of the model as a function of wavelength
-        - err_obs: errors of the observation as a function of wavelength
+        flx_obs : flux of the observation as a function of wavelength
+        flx_mod : flux of the model as a function of wavelength
+        err_obs : errors of the observation as a function of wavelength
     Returns:
-        - logL: the loglikelihood value
+        logL    : the loglikelihood value
         
     Author: Matthieu Ravet
     """

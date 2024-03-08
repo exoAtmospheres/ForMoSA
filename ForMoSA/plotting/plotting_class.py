@@ -592,8 +592,8 @@ class PlottingForMoSA():
 
         fig = plt.figure(figsize=figsize)
         ax = plt.axes()
-        ax.fill_betweenx(P, Tinf95, Tsup95, color=self.color_out, alpha=0.1, label='2 $\sigma$')
-        ax.fill_betweenx(P, Tinf68, Tsup68, color=self.color_out, alpha=0.2, label='1 $\sigma$')
+        ax.fill_betweenx(P, Tinf95, Tsup95, color=self.color_out, alpha=0.1, label=r'2 $\sigma$')
+        ax.fill_betweenx(P, Tinf68, Tsup68, color=self.color_out, alpha=0.2, label=r'1 $\sigma$')
         ax.plot(Tfit, P, c=self.color_out, label='Best fit')
         ax.set_yscale('log')
         ax.invert_yaxis()
@@ -689,8 +689,8 @@ class PlottingForMoSA():
         fig = plt.figure()
         ax = plt.axes()
 
-        ax.fill_betweenx(P, propinf95, propsup95, color=self.color_out, alpha=0.1, label='2 $\sigma$')
-        ax.fill_betweenx(P, propinf68, propsup68, color=self.color_out, alpha=0.2, label='1 $\sigma$')
+        ax.fill_betweenx(P, propinf95, propsup95, color=self.color_out, alpha=0.1, label=r'2 $\sigma$')
+        ax.fill_betweenx(P, propinf68, propsup68, color=self.color_out, alpha=0.2, label=r'1 $\sigma$')
         ax.plot(propfit, P, color=self.color_out, label='Best fit')
 
         ax.set_yscale('log')

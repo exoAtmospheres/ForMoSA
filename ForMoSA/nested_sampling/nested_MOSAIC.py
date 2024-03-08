@@ -11,12 +11,17 @@ from main_utilities import yesno, diag_mat
 
 def MOSAIC_logL(theta, theta_index, global_params, main_file):
     """
+    Function that calculates the logarithm of the likelihood for MOSAIC version. 
+    Main difference with standard logL function is that here we calculate logL by adding the different observations.
     
-
     Args:
+        theta           (list): Parameter values randomly picked by the nested sampling
+        theta_index     (list): Index for the parameter values randomly picked
+        global_params (object): Class containing every input from the .ini file.
+        main_file (list(list)): List containing the wavelengths, flux, errors, covariance, and grid information
         
     Returns:
-        
+        FINAL_logL     (float): Final evaluated loglikelihood for both spectra and photometry. 
 
     Authors: Simon Petrus and Matthieu Ravet
     """
@@ -165,8 +170,8 @@ def MOSAIC_logL(theta, theta_index, global_params, main_file):
                 logL_spec = logL_CCF_custom(flx_obs, flx_mod, err)
             else:
                 print()
-                print('One or more dataset does not run in the inversion')
-                print('Please choose the adapted likelihood function to your dataset')
+                print('WARNING: One or more dataset are not included when performing the inversion.')
+                print('Please adapt your likelihood function choice.')
                 print()
                 exit()
         else:

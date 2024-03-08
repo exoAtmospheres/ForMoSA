@@ -23,9 +23,10 @@ def import_obsmod(global_params):
     Function to import spectra (model and data) before the inversion
 
     Args:
+        global_params (object): Class containing every input from the .ini file.
         
     Returns:
-        
+        main_file (list(list)): return a list of lists with the wavelengths, flux, errors, covariance matrix and the grids for both spectroscopic and photometric data. 
 
     Authors: Matthieu Ravet (adapted from Simon Petrus)
     """
@@ -106,12 +107,19 @@ def import_obsmod(global_params):
 
 def loglike(theta, theta_index, global_params, main_file, for_plot='no'):
     """
+    Function that calculates the logarithm of the likelihood. 
+    The evaluation depends on the choice of likelihood.
     
-
     Args:
+        theta           (list): Parameter values randomly picked by the nested sampling
+        theta_index     (list): Index for the parameter values randomly picked
+        global_params (object): Class containing every input from the .ini file.
+        main_file (list(list)): List containing the wavelengths, flux, errors, covariance, and grid information
+        for_plot         (str): Default is 'no'. When this function is called from the plotting functions module, we use 'yes'
         
     Returns:
-        
+        FINAL_logL     (float): Final evaluated loglikelihood for both spectra and photometry. 
+        (If this function is used on the plotting module, it returns the outputs of the modif_spec function)
 
     Authors: Simon Petrus and Matthieu Ravet
     """
@@ -269,8 +277,8 @@ def loglike(theta, theta_index, global_params, main_file, for_plot='no'):
                 logL_spec = logL_CCF_custom(flx_obs, flx_mod, err)
             else:
                 print()
-                print('One or more dataset does not run in the inversion')
-                print('Please choose the adapted likelihood function to your dataset')
+                print('WARNING: One or more dataset are not included when performing the inversion.')
+                print('Please adapt your likelihood function choice.')
                 print()
                 exit()
         else:
@@ -285,13 +293,19 @@ def loglike(theta, theta_index, global_params, main_file, for_plot='no'):
         return modif_spec
 
 
-
 def prior_transform(theta, theta_index, lim_param_grid, global_params):
     """
+    Function that define the priors to be used for the inversion. 
+    We check that the boundaries are consistent with the grid extension.
     
     Args:
+        theta           (list): Parameter values randomly picked by the nested sampling
+        theta_index     (list): Index for the parameter values randomly picked
+        lim_param_grid  (list): Boundaries for the parameters explored
+        global_params (object): Class containing every input from the .ini file.
         
     Returns:
+        prior           (list): List containing all the prior information
         
     Author: Simon Petrus
     """
@@ -433,18 +447,25 @@ def prior_transform(theta, theta_index, lim_param_grid, global_params):
     return prior
 
 
-def launch_nested_sampling(global_params):
+def launch_nested_sampling(global_params, y_n_par='y'):
     """
-    
+    Function to launch the nested sampling. 
+    We first perform LogL function check-ups. 
+    Then the free parameters are counted and the data imported. 
+    Finally, depending on the nested sampling methode chosen in the config file, we perform the inversion.
+    (Methods succesfully implemented are Nestle and PyMultinest)
+
     Args:
-        
+        global_params (object): Class containing every input from the .ini file.
+        y_n_par          (str): Default is 'y'. This parameter is not used anymore...
+
     Returns:
+        None
         
     Author: Simon Petrus and Matthieu
     """
 
     # LogL functions check-ups
-
     # CHECK-UPS FOR MOSAIC
     if global_params.observation_format == 'MOSAIC':
         print('- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -')
@@ -458,31 +479,22 @@ def launch_nested_sampling(global_params):
 
             # Check the choice of likelihood (only for MOSAIC)
             print(obs_name + ' will be computed with ' + global_params.logL_type[indobs])
-            print()
-            y_n_par = yesno('Is this what you want ? (y/n)')
-            if y_n_par == 'n':
-                print('Please input the desired logL function for ' + obs_name + ':')
-                global_params.logL_type[indobs] = input()
 
             if global_params.logL_type[indobs] == 'CCF_Brogi' and global_params.continuum_sub[indobs] == 'NA':
-                print('You cannot use CCF mappings without substracting the continuum')
+                print('WARNING. You cannot use CCF mappings without substracting the continuum')
                 print()
                 exit()
             elif global_params.logL_type[indobs] == 'CCF_Zucker' and global_params.continuum_sub[indobs] == 'NA':
-                print('You cannot use CCF mappings without substracting the continuum')
+                print('WARNING. You cannot use CCF mappings without substracting the continuum')
                 print()
                 exit()
             elif global_params.logL_type[indobs] == 'CCF_custom' and global_params.continuum_sub[indobs] == 'NA':
-                print('You cannot use CCF mappings without substracting the continuum')
+                print('WARNING. You cannot use CCF mappings without substracting the continuum')
                 print()
                 exit()
                 
             print()
-            print()
-            print()
-            print()
         print('Done !')
-        print()
         print()
 
     # CHECK-UPS FOR CLASSIC MODE
@@ -492,15 +504,15 @@ def launch_nested_sampling(global_params):
         print()
 
         if global_params.logL_type == 'CCF_Brogi' and global_params.continuum_sub == 'NA':
-            print('You cannot use CCF mappings without substracting the continuum')
+            print('WARNING. You cannot use CCF mappings without substracting the continuum')
             print()
             exit()
         elif global_params.logL_type == 'CCF_Zucker' and global_params.continuum_sub == 'NA':
-            print('You cannot use CCF mappings without substracting the continuum')
+            print('WARNING. You cannot use CCF mappings without substracting the continuum')
             print()
             exit()
         elif global_params.logL_type == 'CCF_custom' and global_params.continuum_sub == 'NA':
-            print('You cannot use CCF mappings without substracting the continuum')
+            print('WARNING. You cannot use CCF mappings without substracting the continuum')
             print()
             exit()
 
@@ -508,8 +520,6 @@ def launch_nested_sampling(global_params):
         print('Done !')
         print()
         print()
-    
-
 
     ds = xr.open_dataset(global_params.model_path, decode_cf=False, engine='netcdf4')
 
@@ -562,7 +572,7 @@ def launch_nested_sampling(global_params):
 
     # Import all the data (only done once)
     main_file = import_obsmod(global_params)
-
+    
     if global_params.ns_algo == 'nestle':
         tmpstot1 = time.time()
         loglike_gp = lambda theta: loglike(theta, theta_index, global_params, main_file=main_file)
@@ -576,10 +586,58 @@ def launch_nested_sampling(global_params):
                                dlogz=global_params.n_dlogz,
                                decline_factor=global_params.n_decline_factor)
         tmpstot2 = time.time()-tmpstot1
-        print('\n')
-        print('########     The code spent ' + str(tmpstot2) + ' sec to run   ########')
+
+        with open(global_params.result_path + '/result_' + global_params.ns_algo + '.pic', 'wb') as f1:
+            pickle.dump(result, f1)
+
+        print(' ')
+        print('- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -')
+        print('-> Nestle  ')
+        print(' ')
+        print('The code spent ' + str(tmpstot2) + ' sec to run.')
         print(result.summary())
-        print('\n\n')
+        print('\n')
+
+    if global_params.ns_algo == 'pymultinest':
+        import pymultinest
+        #MPI Multiprocessing
+        if False: #try:
+            from mpi4py import MPI
+
+            comm = MPI.COMM_WORLD
+            rank = comm.Get_rank()
+        else: #except ImportError:
+            MPI = None
+            rank = 0
+            comm = None
+
+        tmpstot1 = time.time()
+        loglike_gp = lambda theta: loglike(theta, theta_index, global_params, main_file=main_file)
+        prior_transform_gp = lambda theta: prior_transform(theta, theta_index, lim_param_grid, global_params)
+        result = pymultinest.solve(
+                        LogLikelihood=loglike_gp,
+                        Prior=prior_transform_gp,
+                        n_dims=n_free_parameters,
+                        n_live_points=int(float(global_params.npoint)),
+                        outputfiles_basename=global_params.result_path + '/result_' + global_params.ns_algo + '_',
+                        resume=False
+                        )
+        tmpstot2 = time.time()-tmpstot1
+
+        with open(global_params.result_path + '/result_' + global_params.ns_algo + '.pic', 'wb') as f1:
+            pickle.dump(result, f1)
+
+        # Analyze the output data
+        print(' ')
+        print('- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -')
+        print('-> PyMultinest  ')
+        print(' ')
+        print('The code spent ' + str(tmpstot2) + ' sec to run.')
+        print('The evidence is: %(logZ).1f +- %(logZerr).1f' % result)
+        print('The parameter values are:')
+        for name, col in zip(theta_index, result['samples'].transpose()):
+            print('%15s : %.3f +- %.3f' % (name, col.mean(), col.std()))
+        print('\n')
 
     if global_params.ns_algo == 'ultranest':
         import ultranest, ultranest.stepsampler
@@ -608,14 +666,13 @@ def launch_nested_sampling(global_params):
         #sampler.plot_corner()
 
         tmpstot2 = time.time()-tmpstot1
-        print('\n')
-        print('########     Ultranest   ########')
-        print('########     The code spent ' + str(tmpstot2) + ' sec to run   ########')
+        print(' ')
+        print('- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -')
+        print('-> Ultranest  ')
+        print(' ')
+        print('The code spent ' + str(tmpstot2) + ' sec to run.')
         print(result.summary())
-        print('\n\n')
-
-        # initialize our nested sampler
-        #sampler = NestedSampler(loglike, ptform, ndim)
+        print('\n')
     
     if global_params.ns_algo == 'dynesty':
         from dynesty import NestedSampler
@@ -623,9 +680,6 @@ def launch_nested_sampling(global_params):
         # initialize our nested sampler
         #sampler = NestedSampler(loglike, ptform, ndim)
 
-    with open(global_params.result_path + '/result_' + global_params.ns_algo + '.pic', 'wb') as f1:
-        pickle.dump(result, f1)
-    
     print(' ')
     print('-> Voilà, on est prêt')
 

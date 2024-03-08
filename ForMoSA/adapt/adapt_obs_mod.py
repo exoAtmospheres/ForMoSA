@@ -81,16 +81,10 @@ def launch_adapt(global_params, justobs='no'):
         # Check-ups and warnings for negative values in the diagonal of the covariance matrix
         if len(cov_obs_extract) != 0 and any(np.diag(cov_obs_extract) < 0):
             print()
-            y_n_par = yesno("WARNING: Negative value(s) is(are) present on the diagonal of the covariance matrix. Do you still want to run the inversion? (y/n)") 
-        else:
-            y_n_par = 'y' 
-        if y_n_par != 'y':
+            print("WARNING: Negative value(s) is(are) present on the diagonal of the covariance matrix.") 
             print("Operation aborted.")
             print()
             exit()
-        else:
-            print()
-            print("Continuing...")
 
     # Save the new data spectrum
     np.savez(global_params.result_path + '/spectrum_obs',
@@ -111,7 +105,7 @@ def launch_adapt(global_params, justobs='no'):
             os.mkdir(global_params.adapt_store_path)
 
         print()
-        print()
+        print('- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -')
         print("-> To compare synthetic spectra with the observation we need to manage them. The following actions are performed:")
         print("- extraction -")
         print("- resizing on the observation's wavelength range -")
@@ -151,13 +145,8 @@ def launch_adapt_MOSAIC(global_params, justobs='no'):
     main_obs_path = global_params.main_observation_path
 
     print()
-    print()
-    print()
-    print()
-    print("         > Starting MOSAIC <             ")
-    print()
-    print()
-    print()
+    print('- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -')
+    print("-> Starting MOSAIC ")
     print()
 
 
@@ -174,13 +163,6 @@ def launch_adapt_MOSAIC(global_params, justobs='no'):
             print()
             print(obs_name + ' will have a R=' + global_params.continuum_sub[indobs] + ' continuum removed using a ' 
                   + global_params.wav_for_continuum[indobs] + ' wavelength range')
-            print()
-            y_n_par = yesno('Is this what you want ? (y/n)')
-            if y_n_par == 'n':
-                print('Please input the desired spectral resolution (or NA if you do not want to remove the continuum):')
-                global_params.continuum_sub[indobs] = input()
-            print()
-            print()
             print()
         if global_params.continuum_sub[indobs] != 'NA':
             obs_cut_c, obs_pho_c, obs_cut_ins_c, obs_pho_ins_c, obs_cut_cov = extract_observation(global_params, wav_mod_nativ,
@@ -227,16 +209,10 @@ def launch_adapt_MOSAIC(global_params, justobs='no'):
             # Check-ups and warnings for negative values in the diagonal of the covariance matrix
             if len(cov_obs_extract) != 0 and any(np.diag(cov_obs_extract) < 0):
                 print()
-                y_n_par = yesno("WARNING: Negative value(s) is(are) present on the diagonal of the covariance matrix. Do you still want to run the inversion? (y/n)") 
-            else:
-                y_n_par = 'y' 
-            if y_n_par != 'y':
+                print("WARNING: Negative value(s) is(are) present on the diagonal of the covariance matrix.") 
                 print("Operation aborted.")
                 print()
                 exit()
-            else:
-                print()
-                print("Continuing...")
 
         # Save the new data spectrum
         np.savez(os.path.join(global_params.result_path, f'spectrum_obs_{obs_name}.npz'),
@@ -257,19 +233,17 @@ def launch_adapt_MOSAIC(global_params, justobs='no'):
                 os.mkdir(global_params.adapt_store_path)
 
             print()
-            print()
+            print('- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -')
             print("-> To compare synthetic spectra with the observation we need to manage them. The following actions are performed:")
             print("- extraction -")
             print("- resizing on the observation's wavelength range -")
             print("- adjustement of the spectral resolution -")
             print("- substraction of the continuum (if needed) -")
             print()
-            print(f"-> Sarting adaptation of {obs_name}")
+            print('- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -')
+            print(f"-> Sarting the adaptation of {obs_name}")
 
             adapt_grid(global_params, obs_merge[0], obs_pho[0], obs_name=obs_name, indobs=indobs)
-
-
-
 
 
 # ----------------------------------------------------------------------------------------------------------------------

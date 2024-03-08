@@ -54,3 +54,14 @@ Comments:
     - Small correction in the rv and vsini loops (len(flx) != 0, if you run with photometry only, usefull for MOSAIC)
 
 _ _ _ 
+
+08/03/2025
+Paulina Palma-Bifani
+
+Comments: 
+    - I've modified the readme to include PyMultinest installation instructions.
+    I've modified the authors list and requirements too.
+    - I've added the lines Matthieu wrote about PyMultinest run.
+    - I've completed the docstrings for many functions. 
+    - I've modified the prints to have a consistent style over the code. 
+    - I'm working on adapting the plotting function to be consistent for: MOSAIC, pymultinest, have a fat-check plot generator, ect... 
