@@ -585,11 +585,15 @@ def launch_nested_sampling(global_params, y_n_par='y'):
                                maxcall=global_params.n_maxcall,
                                dlogz=global_params.n_dlogz,
                                decline_factor=global_params.n_decline_factor)
-        tmpstot2 = time.time()-tmpstot1
-
-        with open(global_params.result_path + '/result_' + global_params.ns_algo + '.pic', 'wb') as f1:
+        # Reformat the result file
+        with open(global_params.result_path + '/result_' + global_params.ns_algo + '_RAW.pic', 'wb') as f1:
             pickle.dump(result, f1)
-
+        logz = [result['logz'], result['logzerr']]
+        samples = result['samples']
+        weights = result['weights']
+        logvol = result['logvol']
+        logl = result['logl']
+        tmpstot2 = time.time()-tmpstot1
         print(' ')
         print('- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -')
         print('-> Nestle  ')
@@ -619,15 +623,56 @@ def launch_nested_sampling(global_params, y_n_par='y'):
                         Prior=prior_transform_gp,
                         n_dims=n_free_parameters,
                         n_live_points=int(float(global_params.npoint)),
-                        outputfiles_basename=global_params.result_path + '/result_' + global_params.ns_algo + '_',
+                        outputfiles_basename=global_params.result_path + '/result_' + global_params.ns_algo + '_RAW_',
                         resume=False
                         )
+        # Reformat the result file
+        with open(global_params.result_path + '/result_' + global_params.ns_algo + '_RAW_stats.dat',
+                  'rb') as open_dat:
+            for l, line in enumerate(open_dat):
+                if l == 0:
+                    line = line.strip().split()
+                    logz_multi = float(line[5])
+                    logzerr_multi = float(line[7])
+        sample_multi = []
+        logl_multi = []
+        logvol_multi = []
+        with open(global_params.result_path + '/result_' + global_params.ns_algo + '_RAW_ev.dat',
+                  'rb') as open_dat:
+            for l, line in enumerate(open_dat):
+                line = line.strip().split()
+                points = []
+                for p in line[:-3]:
+                    points.append(float(p))
+                sample_multi.append(points)
+                logl_multi.append(float(line[-3]))
+                logvol_multi.append(float(line[-2]))
+        sample_multi = np.asarray(sample_multi)
+        logl_multi = np.asarray(logl_multi)
+        logvol_multi = np.asarray(logvol_multi)
+        iter_multi = []
+        weights_multi = []
+        final_logl_multi = []
+        final_logvol_multi = []
+        with open(global_params.result_path + '/result_' + global_params.ns_algo + '_RAW_.txt',
+                  'rb') as open_dat:
+            for l, line in enumerate(open_dat):
+                line = line.strip().split()
+                points = []
+                for p in line[2:]:
+                    points.append(float(p))
+                if points in sample_multi:
+                    ind = np.where(sample_multi == points)
+                    iter_multi.append(points)
+                    weights_multi.append(float(line[0]))
+                    final_logl_multi.append(logl_multi[ind[0][0]])
+                    final_logvol_multi.append(logvol_multi[ind[0][0]])
+        logz = [logz_multi, logzerr_multi]
+        samples = np.asarray(iter_multi)
+        weights = np.asarray(weights_multi)
+        logvol = np.asarray(final_logvol_multi)
+        logl = np.asarray(final_logl_multi)
         tmpstot2 = time.time()-tmpstot1
-
-        with open(global_params.result_path + '/result_' + global_params.ns_algo + '.pic', 'wb') as f1:
-            pickle.dump(result, f1)
-
-        # Analyze the output data
         print(' ')
         print('- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -')
         print('-> PyMultinest  ')
@@ -679,6 +724,15 @@ def launch_nested_sampling(global_params, y_n_par='y'):
 
         # initialize our nested sampler
         #sampler = NestedSampler(loglike, ptform, ndim)
+
+    result_reformat = {"samples": samples,
+                       "weights": weights,
+                       "logl": logl,
+                       "logvol": logvol,
+                       "logz": logz,}
+
+    with open(global_params.result_path + '/result_' + global_params.ns_algo + '.pic', "wb") as tf:
+        pickle.dump(result_reformat, tf)
 
     print(' ')
     print('-> Voilà, on est prêt')

@@ -116,19 +116,25 @@ class PlottingForMoSA():
         '''
         with open(self.global_params.result_path + '/result_' + self.global_params.ns_algo + '.pic', 'rb') as open_pic:
             result = pickle.load(open_pic)
-        self.samples = result.samples
-        self.weights = result.weights
+        # self.samples = result.samples
+        self.samples = result['samples']
+        # self.weights = result.weights
+        self.weights = result['weights']
 
         # To test the quality of the fit
-        self.logl=result.logl
+        # self.logl=result.logl
+        self.logl=result['logl']
         ind = np.where(self.logl==max(self.logl))
         self.theta_best = self.samples[ind][0]
 
-        self.sample_logz    = round(result['logz'],1)
-        self.sample_logzerr = round(result['logzerr'],1)
-        self.sample_h       = round(result['h'],1)
-        self.outputs_string = 'logz = '+ str(self.sample_logz)+' ± '+str(self.sample_logzerr)+ ' ; h = '+str(self.sample_h)
-        
+        # self.sample_logz    = round(result['logz'],1)
+        # self.sample_logzerr = round(result['logzerr'],1)
+        self.sample_logz    = round(result['logz'][0],1)
+        self.sample_logzerr = round(result['logz'][1],1)
+        # self.sample_h       = round(result['h'],1)
+        # self.outputs_string = 'logz = '+ str(self.sample_logz)+' ± '+str(self.sample_logzerr)+ ' ; h = '+str(self.sample_h)
+        self.outputs_string = 'logz = '+ str(self.sample_logz)+' ± '+str(self.sample_logzerr)
+
         ds = xr.open_dataset(self.global_params.model_path, decode_cf=False, engine='netcdf4')
         attrs = ds.attrs
         extra_parameters = [['r', 'R', r'(R$\mathrm{_{Jup}}$)'],
@@ -521,7 +527,8 @@ class PlottingForMoSA():
 
         with open(self.global_params.result_path + '/result_' + self.global_params.ns_algo + '.pic', 'rb') as f1:
             result = pickle.load(f1)
-            samples = result.samples
+            # samples = result.samples
+            samples = result['samples']
 
         # put nans where data is not realistic
         out=[]
@@ -642,8 +649,9 @@ class PlottingForMoSA():
         
         with open(self.global_params.result_path + '/result_' + self.global_params.ns_algo + '.pic', 'rb') as f1:
             result = pickle.load(f1)
-            samples = result.samples
-        
+            # samples = result.samples
+            samples = result['samples']
+
         #Supprime les points hors de la grille
         out=[]
         for i in range(0, len(samples)):

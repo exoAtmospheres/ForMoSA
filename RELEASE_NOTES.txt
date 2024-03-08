@@ -55,7 +55,7 @@ Comments:
 
 _ _ _ 
 
-08/03/2025
+08/03/2024
 Paulina Palma-Bifani
 
 Comments: 
@@ -65,3 +65,25 @@ Comments:
     - I've completed the docstrings for many functions. 
     - I've modified the prints to have a consistent style over the code. 
     - I'm working on adapting the plotting function to be consistent for: MOSAIC, pymultinest, have a fat-check plot generator, ect... 
+
+_ _ _
+
+08/03/2024
+Simon Petrus
+
+Comments:
+    - adapt/extraction_functions.py -> I've corrected 2 bugs
+    - nested_sampling/nested_sampling.py -> I've reformated the result file provided by nestle and PyMultinest.
+    The output of these modules are saved with the extension RAW but a new dictionary is created with the name:
+    "result_PACKAGE.pic" containing 5 arguments:
+        - "samples": sample of the living points kept at each iteration.
+        - "weights": weights of the living points kept at each iteration.
+        - "logl": log(L) of the living points kept at each iteration.
+        - "logvol": log(prior volume) of the living points kept at each iteration.
+        - "logz": the evidence and its error [log(Z), log(Z)_err]
+        I notice that the result "h" is not saved anymore.
+    This dictionary is used in the plotting Class.
+    - plotting/plotting_class.py: I have adapted each function to make them enable to call/read the dictionary
+    "result_PACKAGE.pic".
+
+_ _ _

@@ -276,13 +276,13 @@ def adapt_observation_range(global_params, obs_name='', indobs=0):
                 cov_spectro = np.delete(cov_spectro, ind_photometry, axis=1)
             else:
                 cov_spectro = []
-                
-            if transm != []:
+
+            if len(transm) != 0:
                 transm_spectro = np.delete(transm[ind], ind_photometry)
             else:
                 transm_spectro = np.zeros(len(wav_spectro))
             
-            if star_flx != []:
+            if len(star_flx) != 0:
                 star_flx_spectro = np.delete(star_flx[ind], ind_photometry)
             else:
                 star_flx_spectro = np.zeros(len(wav_spectro))
