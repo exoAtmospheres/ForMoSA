@@ -48,7 +48,7 @@ First. Clone PyMultinest from GitHub and install it.
     $ cd PyMultiNest
     $ python setup.py install
 
-Second. Make sure your system has a C++ and a Fortran interpreter. If you need to install brew, follow [these instructions](https://brew.sh/)
+Second. Make sure your system has a C++ and a Fortran interpreter. If you need to install brew, follow [these instructions](https://brew.sh/).
 
     $ brew install cmake
     $ brew install gcc
