@@ -495,8 +495,6 @@ def launch_nested_sampling(global_params, y_n_par='y'):
         print('Done !')
         print()
         print()
-    
-
 
     ds = xr.open_dataset(global_params.model_path, decode_cf=False, engine='netcdf4')
 
@@ -549,7 +547,7 @@ def launch_nested_sampling(global_params, y_n_par='y'):
 
     # Import all the data (only done once)
     main_file = import_obsmod(global_params)
-
+    
     if global_params.ns_algo == 'nestle':
         tmpstot1 = time.time()
         loglike_gp = lambda theta: loglike(theta, theta_index, global_params, main_file=main_file)
@@ -566,6 +564,48 @@ def launch_nested_sampling(global_params, y_n_par='y'):
         print('\n')
         print('########     The code spent ' + str(tmpstot2) + ' sec to run   ########')
         print(result.summary())
+        print('\n\n')
+
+    if global_params.ns_algo == 'pymultinest':
+        import pymultinest
+        #MPI Multiprocessing
+        if False: #try:
+            from mpi4py import MPI
+
+            comm = MPI.COMM_WORLD
+            rank = comm.Get_rank()
+        else: #except ImportError:
+            MPI = None
+            rank = 0
+            comm = None
+
+
+        tmpstot1 = time.time()
+
+        loglike_gp = lambda theta: loglike(theta, theta_index, global_params, main_file=main_file)
+        prior_transform_gp = lambda theta: prior_transform(theta, theta_index, lim_param_grid, global_params)
+        result = pymultinest.solve(
+                        LogLikelihood=loglike_gp,
+                        Prior=prior_transform_gp,
+                        n_dims=n_free_parameters,
+                        n_live_points=int(float(global_params.npoint)),
+                        outputfiles_basename=global_params.result_path + '/result_' + global_params.ns_algo + '_',
+                        resume=False
+                        )
+                
+        tmpstot2 = time.time()-tmpstot1
+
+
+        # Analyze the output data
+        print('\n')
+        print('########     PyMultinest   ########')
+        print('########     The code spent ' + str(tmpstot2) + ' sec to run   ########')
+        print()
+        print('evidence: %(logZ).1f +- %(logZerr).1f' % result)
+        print()
+        print('parameter values:')
+        for name, col in zip(theta_index, result['samples'].transpose()):
+            print('%15s : %.3f +- %.3f' % (name, col.mean(), col.std()))
         print('\n\n')
 
     if global_params.ns_algo == 'ultranest':
