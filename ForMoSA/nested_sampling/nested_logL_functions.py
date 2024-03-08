@@ -14,7 +14,7 @@ def logL_chi2_classic(delta_flx, err):
     Author: Matthieu Ravet
     """
 
-    chi2 = np.sum((delta_flx / err) ** 2)
+    chi2 = np.nansum((delta_flx / err) ** 2)
     logL = - chi2 / 2
 
     return logL
@@ -74,9 +74,9 @@ def logL_CCF_Brogi(flx_obs, flx_mod):
     """
 
     N = len(flx_mod)
-    Sf2 = 1/N * np.sum(np.square(flx_obs))
-    Sg2 = 1/N * np.sum(np.square(flx_mod))
-    R = 1/N * np.sum(flx_obs * flx_mod)
+    Sf2 = 1/N * np.nansum(np.square(flx_obs))
+    Sg2 = 1/N * np.nansum(np.square(flx_mod))
+    R = 1/N * np.nansum(flx_obs * flx_mod)
 
     logL = -N/2 * np.log(Sf2 - 2*R + Sg2)
 
@@ -98,9 +98,9 @@ def logL_CCF_Zucker(flx_obs, flx_mod):
     """
 
     N = len(flx_mod)
-    Sf2 = 1/N * np.sum(np.square(flx_obs))
-    Sg2 = 1/N * np.sum(np.square(flx_mod))
-    R = 1/N * np.sum(flx_obs * flx_mod)
+    Sf2 = 1/N * np.nansum(np.square(flx_obs))
+    Sg2 = 1/N * np.nansum(np.square(flx_mod))
+    R = 1/N * np.nansum(flx_obs * flx_mod)
     C2 = (R**2)/(Sf2 * Sg2)
 
     logL = -N/2 * np.log(1-C2)
@@ -124,10 +124,10 @@ def logL_CCF_custom(flx_obs, flx_mod, err_obs):
     """
 
     N = len(flx_mod)
-    Sf2 = 1/N * np.sum(np.square(flx_obs))
-    Sg2 = 1/N * np.sum(np.square(flx_mod))
-    R = 1/N * np.sum(flx_obs * flx_mod)
-    sigma2_weight = 1/(1/N * np.sum(1/err_obs**2))
+    Sf2 = 1/N * np.nansum(np.square(flx_obs))
+    Sg2 = 1/N * np.nansum(np.square(flx_mod))
+    R = 1/N * np.nansum(flx_obs * flx_mod)
+    sigma2_weight = 1/(1/N * np.nansum(1/err_obs**2))
 
     logL = -N/(2*sigma2_weight) * (Sf2 + Sg2 - 2*R)
 

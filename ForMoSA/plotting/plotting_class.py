@@ -313,6 +313,8 @@ class PlottingForMoSA():
         wav_obs_merge = spectrum_obs['obs_merge'][0]
         flx_obs_merge = spectrum_obs['obs_merge'][1]
         err_obs_merge = spectrum_obs['obs_merge'][2]
+        transm_obs_merge = spectrum_obs['obs_merge'][4]
+        star_flx_obs_merge = spectrum_obs['obs_merge'][5]
         if 'obs_pho' in spectrum_obs.keys():
             wav_obs_phot = np.asarray(spectrum_obs['obs_pho'][0], dtype=float)
             flx_obs_phot = np.asarray(spectrum_obs['obs_pho'][1], dtype=float)
@@ -382,9 +384,9 @@ class PlottingForMoSA():
         # Modification of the synthetic spectrum with the extra-grid parameters
         modif_spec_chi2 = modif_spec(self.global_params, theta, self.theta_index,
                                      wav_obs_merge, flx_obs_merge, err_obs_merge, flx_mod_merge,
-                                     wav_obs_phot, flx_obs_phot, err_obs_phot, flx_mod_phot)
+                                     wav_obs_phot, flx_obs_phot, err_obs_phot, flx_mod_phot,
+                                     transm_obs_merge, star_flx_obs_merge)
         
-
         return modif_spec_chi2
     
 
@@ -465,7 +467,7 @@ class PlottingForMoSA():
 
 
         spectra = self._get_spectra(self.theta_best)
-
+        
         if len(spectra[0]) != 0:
             if uncert=='yes':
                 ax.errorbar(spectra[0], spectra[1], yerr=spectra[2], c='k', alpha=0.2)

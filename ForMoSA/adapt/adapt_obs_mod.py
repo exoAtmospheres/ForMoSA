@@ -49,6 +49,8 @@ def launch_adapt(global_params, justobs='no'):
             flx_obs_extract = obs_cut[c][1]
             err_obs_extract = obs_cut[c][2]
             res_obs_extract = np.array(obs_cut[c][3], dtype=float) # New addition (may need to be corrected)
+            transm_obs_extract = obs_cut[c][4]
+            star_flx_obs_extract = obs_cut[c][5]
             ins_obs_extract = obs_cut_ins[c]
             if len(obs_cut_cov) != 0: # Extract sub-covariance (if necessary)
                 cov_obs_extract = obs_cut_cov[c]
@@ -60,6 +62,8 @@ def launch_adapt(global_params, justobs='no'):
             flx_obs_extract = np.concatenate((flx_obs_extract, obs_cut[c][1]))
             err_obs_extract = np.concatenate((err_obs_extract, obs_cut[c][2]))
             res_obs_extract = np.concatenate((res_obs_extract, np.array(obs_cut[c][3], dtype=float))) # New addition (may need to be corrected)
+            transm_obs_extract = np.concatenate((transm_obs_extract, obs_cut[c][4]))
+            star_flx_obs_extract = np.concatenate((star_flx_obs_extract, obs_cut[c][5]))
             ins_obs_extract = np.concatenate((ins_obs_extract, obs_cut_ins[c]))
             if len(cov_obs_extract) != 0:
                 cov_obs_extract = diag_mat([cov_obs_extract, obs_cut_cov[c]])
@@ -72,7 +76,7 @@ def launch_adapt(global_params, justobs='no'):
             inv_cov_obs = []
 
         # Compile everything
-        obs_merge = [wav_obs_extract, flx_obs_extract, err_obs_extract, res_obs_extract]
+        obs_merge = [wav_obs_extract, flx_obs_extract, err_obs_extract, res_obs_extract, transm_obs_extract, star_flx_obs_extract]
 
         # Check-ups and warnings for negative values in the diagonal of the covariance matrix
         if len(cov_obs_extract) != 0 and any(np.diag(cov_obs_extract) < 0):
@@ -87,7 +91,6 @@ def launch_adapt(global_params, justobs='no'):
         else:
             print()
             print("Continuing...")
-
 
     # Save the new data spectrum
     np.savez(global_params.result_path + '/spectrum_obs',
@@ -191,6 +194,8 @@ def launch_adapt_MOSAIC(global_params, justobs='no'):
                 flx_obs_extract = obs_cut[c][1]
                 err_obs_extract = obs_cut[c][2]
                 res_obs_extract = np.array(obs_cut[c][3], dtype=float) # New addition (may need to be corrected)
+                transm_obs_extract = obs_cut[c][4]
+                star_flx_obs_extract = obs_cut[c][5]
                 ins_obs_extract = obs_cut_ins[c]
                 if len(obs_cut_cov) != 0: # Extract sub-covariance (if necessary)
                     cov_obs_extract = obs_cut_cov[c]
@@ -202,6 +207,8 @@ def launch_adapt_MOSAIC(global_params, justobs='no'):
                 flx_obs_extract = np.concatenate((flx_obs_extract, obs_cut[c][1]))
                 err_obs_extract = np.concatenate((err_obs_extract, obs_cut[c][2]))
                 res_obs_extract = np.concatenate((res_obs_extract, np.array(obs_cut[c][3], dtype=float))) # New addition (may need to be corrected)
+                transm_obs_extract = np.concatenate((transm_obs_extract, obs_cut[c][4]))
+                star_flx_obs_extract = np.concatenate((star_flx_obs_extract, obs_cut[c][5]))
                 ins_obs_extract = np.concatenate((ins_obs_extract, obs_cut_ins[c]))
                 if len(cov_obs_extract) != 0:
                     cov_obs_extract = diag_mat([cov_obs_extract, obs_cut_cov[c]])
@@ -215,7 +222,7 @@ def launch_adapt_MOSAIC(global_params, justobs='no'):
                 inv_cov_obs = []
 
             # Compile everything
-            obs_merge = [wav_obs_extract, flx_obs_extract, err_obs_extract, res_obs_extract]
+            obs_merge = [wav_obs_extract, flx_obs_extract, err_obs_extract, res_obs_extract, transm_obs_extract, star_flx_obs_extract]
 
             # Check-ups and warnings for negative values in the diagonal of the covariance matrix
             if len(cov_obs_extract) != 0 and any(np.diag(cov_obs_extract) < 0):

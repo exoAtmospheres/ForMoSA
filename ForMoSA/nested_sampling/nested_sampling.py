@@ -13,6 +13,7 @@ from nested_sampling.nested_prior_function import uniform_prior, gaussian_prior
 from nested_sampling.nested_logL_functions import *
 from nested_sampling.nested_MOSAIC import MOSAIC_logL
 from main_utilities import yesno, diag_mat
+import matplotlib.pyplot as plt
 
 c = 299792.458 # Speed of light in km/s
 
@@ -28,7 +29,7 @@ def import_obsmod(global_params):
 
     Authors: Matthieu Ravet (adapted from Simon Petrus)
     """
-    # Check if the MOSAIC mode is activated
+    # Check if the MOSAIC mode is activated
     if global_params.observation_format == 'MOSAIC':
         main_obs_path = global_params.main_observation_path
 
@@ -44,6 +45,8 @@ def import_obsmod(global_params):
             flx_obs_merge = spectrum_obs['obs_merge'][1]
             err_obs_merge = spectrum_obs['obs_merge'][2]
             inv_cov_obs_merge = spectrum_obs['inv_cov_obs']
+            transm_obs_merge = spectrum_obs['obs_merge'][4]
+            star_flx_obs_merge = spectrum_obs['obs_merge'][5]
 
             if 'obs_pho' in spectrum_obs.keys():
                 wav_obs_phot = np.asarray(spectrum_obs['obs_pho'][0])
@@ -74,6 +77,8 @@ def import_obsmod(global_params):
         flx_obs_merge = spectrum_obs['obs_merge'][1]
         err_obs_merge = spectrum_obs['obs_merge'][2]
         inv_cov_obs_merge = spectrum_obs['inv_cov_obs']
+        transm_obs_merge = spectrum_obs['obs_merge'][4]
+        star_flx_obs_merge = spectrum_obs['obs_merge'][5]
 
         if 'obs_pho' in spectrum_obs.keys():
             wav_obs_phot = np.asarray(spectrum_obs['obs_pho'][0])
@@ -94,13 +99,9 @@ def import_obsmod(global_params):
         grid_phot = ds['grid']
         ds.close()
 
-        main_file = [wav_obs_merge, wav_obs_phot], [flx_obs_merge, flx_obs_phot], [err_obs_merge, err_obs_phot], inv_cov_obs_merge, grid_merge, grid_phot
+        main_file = [wav_obs_merge, wav_obs_phot], [flx_obs_merge, flx_obs_phot], [err_obs_merge, err_obs_phot], inv_cov_obs_merge, grid_merge, grid_phot, transm_obs_merge, star_flx_obs_merge
 
     return main_file
-
-
-
-
 
 
 def loglike(theta, theta_index, global_params, main_file, for_plot='no'):
@@ -128,6 +129,9 @@ def loglike(theta, theta_index, global_params, main_file, for_plot='no'):
         err_obs_merge = main_file[2][0]
         err_obs_phot = main_file[2][1]
         inv_cov_obs_merge = main_file[3]
+        transm_obs_merge = main_file[6]
+        star_flx_obs_merge = main_file[7]
+    
 
         # Recovery of the spectroscopy and photometry model
         grid_merge = main_file[4]
@@ -140,6 +144,7 @@ def loglike(theta, theta_index, global_params, main_file, for_plot='no'):
             max_ns_u = float(ns_u.split(',')[1])
             ind_grid_merge_sel = np.where((grid_merge['wavelength'] >= min_ns_u) & (grid_merge['wavelength'] <= max_ns_u))
             ind_grid_phot_sel = np.where((grid_phot['wavelength'] >= min_ns_u) & (grid_phot['wavelength'] <= max_ns_u))
+            
 
             # Cutting of the grid on the wavelength grid defined by the parameter 'wav_fit'
             grid_merge_cut = grid_merge.sel(wavelength=grid_merge['wavelength'][ind_grid_merge_sel])
@@ -202,11 +207,13 @@ def loglike(theta, theta_index, global_params, main_file, for_plot='no'):
                 flx_obs_merge_ns_u = flx_obs_merge[ind_merge]
                 err_obs_merge_ns_u = err_obs_merge[ind_merge]
                 flx_mod_merge_ns_u = flx_mod_merge_cut
+                transm_obs_merge_ns_u = transm_obs_merge[ind_merge]
+                star_flx_obs_merge_ns_u = star_flx_obs_merge[ind_merge]
                 wav_obs_phot_ns_u = wav_obs_phot[ind_phot]
                 flx_obs_phot_ns_u = flx_obs_phot[ind_phot]
                 err_obs_phot_ns_u = err_obs_phot[ind_phot]
                 flx_mod_phot_ns_u = flx_mod_phot_cut
-                if len(inv_cov_obs_merge) != 0:  # Add covariance in the loop (if necessary)
+                if len(inv_cov_obs_merge) != 0:  # Add covariance in the loop (if necessary)
                     inv_cov_obs_merge_ns_u = inv_cov_obs_merge[np.ix_(ind_merge[0],ind_merge[0])]
                 else:
                     inv_cov_obs_merge_ns_u = []
@@ -215,27 +222,32 @@ def loglike(theta, theta_index, global_params, main_file, for_plot='no'):
                 flx_obs_merge_ns_u = np.concatenate((flx_obs_merge_ns_u, flx_obs_merge[ind_merge]))
                 err_obs_merge_ns_u = np.concatenate((err_obs_merge_ns_u, err_obs_merge[ind_merge]))
                 flx_mod_merge_ns_u = np.concatenate((flx_mod_merge_ns_u, flx_mod_merge_cut))
+                transm_obs_merge_ns_u = np.concatenate((transm_obs_merge_ns_u, transm_obs_merge[ind_merge]))
+                star_flx_obs_merge_ns_u = np.concatenate((star_flx_obs_merge_ns_u, star_flx_obs_merge[ind_grid_merge_sel]))
                 wav_obs_phot_ns_u = np.concatenate((wav_obs_phot_ns_u, wav_obs_phot[ind_phot]))
                 flx_obs_phot_ns_u = np.concatenate((flx_obs_phot_ns_u, flx_obs_phot[ind_phot]))
                 err_obs_phot_ns_u = np.concatenate((err_obs_phot_ns_u, err_obs_phot[ind_phot]))
                 flx_mod_phot_ns_u = np.concatenate((flx_mod_phot_ns_u, flx_mod_phot_cut))
-                if len(inv_cov_obs_merge_ns_u) != 0: # Merge the covariance matrices (if necessary)
+                if len(inv_cov_obs_merge_ns_u) != 0: # Merge the covariance matrices (if necessary)
                     inv_cov_obs_merge_ns_u = diag_mat([inv_cov_obs_merge_ns_u, inv_cov_obs_merge[np.ix_(ind_merge[0],ind_merge[0])]])
 
         # Making sure that the model are in array format
         flx_mod_merge_ns_u, flx_mod_phot_ns_u = np.array(flx_mod_merge_ns_u), np.array(flx_mod_phot_ns_u)
-        
 
         # Modification of the synthetic spectrum with the extra-grid parameters
         modif_spec_LL = modif_spec(global_params, theta, theta_index,
                                     wav_obs_merge_ns_u,  flx_obs_merge_ns_u,  err_obs_merge_ns_u,  flx_mod_merge_ns_u,
-                                    wav_obs_phot_ns_u,  flx_obs_phot_ns_u, err_obs_phot_ns_u,  flx_mod_phot_ns_u)
+                                    wav_obs_phot_ns_u,  flx_obs_phot_ns_u, err_obs_phot_ns_u,  flx_mod_phot_ns_u, 
+                                    transm_obs_merge_ns_u, star_flx_obs_merge_ns_u)
         
+
         flx_obs, flx_obs_phot = modif_spec_LL[1], modif_spec_LL[5]
         flx_mod, flx_mod_phot = modif_spec_LL[3], modif_spec_LL[7]
         err, err_phot = modif_spec_LL[2], modif_spec_LL[6]
         inv_cov = inv_cov_obs_merge_ns_u
         ck = modif_spec_LL[8]
+
+        
 
         # Computation of the photometry logL
         if len(flx_obs_phot) != 0:
@@ -265,6 +277,7 @@ def loglike(theta, theta_index, global_params, main_file, for_plot='no'):
             logL_spec = 0
 
         FINAL_logL = logL_phot + logL_spec
+        
 
     if for_plot == 'no':
         return FINAL_logL
@@ -443,7 +456,7 @@ def launch_nested_sampling(global_params):
             global_params.observation_path = obs
             obs_name = os.path.splitext(os.path.basename(global_params.observation_path))[0]
 
-            # Check the choice of likelihood (only for MOSAIC)
+            # Check the choice of likelihood (only for MOSAIC)
             print(obs_name + ' will be computed with ' + global_params.logL_type[indobs])
             print()
             y_n_par = yesno('Is this what you want ? (y/n)')
