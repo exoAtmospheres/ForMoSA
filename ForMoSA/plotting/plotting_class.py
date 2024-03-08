@@ -439,7 +439,7 @@ class PlottingForMoSA():
 
         wav_final, _, _, flx_final, _, _, _, _, _ = modif_spec(self.global_params, theta, self.theta_index,
                                                                                     wavelengths, flx_mod_final_calib, err_mod_final_calib, flx_mod_final_calib/ck,
-                                                                                    [], [], [], [])
+                                                                                    [], [], [], [], [], [])
     
         return wav_final, flx_final, ck
 
@@ -476,7 +476,8 @@ class PlottingForMoSA():
 
 
             residuals = spectra[3] - spectra[1]
-            sigma_res = np.std(residuals)
+            sigma_res = np.nanstd(residuals)
+            nans = np.isnan(residuals)
             axr.plot(spectra[0], residuals/sigma_res, c=self.color_out, alpha=0.8, label='model-data')
             axr.axhline(y=0, color='k', alpha=0.5, linestyle='--')
             axr2.hist(residuals/sigma_res, bins=100 ,color=self.color_out, alpha=0.5, density=True, orientation='horizontal', label='density')
@@ -487,7 +488,8 @@ class PlottingForMoSA():
             ax.plot(spectra[4],spectra[7],'o', color=self.color_out, label='Photometry model')
             
             residuals_phot = spectra[7]-spectra[5]
-            sigma_res = np.std(residuals_phot)
+            sigma_res = np.nanstd(residuals_phot)
+            nans = np.isnan(residuals_phot)
             axr.plot(spectra[4], residuals_phot/sigma_res, 'o', c=self.color_out, alpha=0.8, label='Photometry model-data')
             axr.axhline(y=0, color='k', alpha=0.5, linestyle='--')
         

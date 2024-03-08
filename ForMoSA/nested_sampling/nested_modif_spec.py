@@ -85,7 +85,7 @@ def lsq_fct(flx_obs_merge, err_obs_merge, star_flx_obs_merge, transm_obs_merge, 
     #
     # # # # #
     
-    return cp, cs
+    return cp, cs, flx_obs_merge
 
 
 def calc_ck(flx_obs_merge, err_obs_merge, new_flx_merge, flx_obs_phot, err_obs_phot, new_flx_phot, r_picked, d_picked,
@@ -448,20 +448,24 @@ def modif_spec(global_params, theta, theta_index,
         new_flx_merge, new_flx_phot, ck = calc_ck(flx_obs_merge, err_obs_merge, new_flx_merge,
                                                   flx_obs_phot, err_obs_phot, new_flx_phot, r_picked, d_picked)
     # Analytically
-    elif global_params.r == "NA" and global_params.d == "NA":
+    elif global_params.r == "NA" and global_params.d == "NA" and global_params.use_lsqr == 'False':
         new_flx_merge, new_flx_phot, ck = calc_ck(flx_obs_merge, err_obs_merge, new_flx_merge,
                                                   flx_obs_phot, err_obs_phot, new_flx_phot, 0, 0,
                                                   analytic='yes')
-    else:
+
+    elif global_params.r == "NA" and global_params.d == "NA" and global_params.use_lsqr == 'True':   
+        # global_params.use_lsqr = 'True', so no need to re-normalize the interpolated sythetic spectrum because the least squares automatically does it
+            
+        _, new_flx_phot, ck = calc_ck(flx_obs_merge, err_obs_merge, new_flx_merge, 
+                           flx_obs_phot, err_obs_phot, new_flx_phot, 0, 0,
+                           analytic='yes')
+        
+        cp, cs, flx_obs_merge = lsq_fct(flx_obs_merge, err_obs_merge, star_flx_obs_merge, transm_obs_merge, new_flx_merge)
+        new_flx_merge = cp + cs
+        
+    else:   # either global_params.r or global_params.d is set to 'NA' 
         print('You need to define a radius AND a distance, or set them both to "NA"')
         exit()
-
-        
-    time1 = time.time()
-    # Calculation of the contributions of the planet and the star
-    if global_params.use_lsqr == 'True':
-        cp, cs = lsq_fct(flx_obs_merge, err_obs_merge, star_flx_obs_merge, transm_obs_merge, new_flx_merge)
-        new_flx_merge = cp + cs
 
 
     return wav_obs_merge, flx_obs_merge, err_obs_merge, new_flx_merge, wav_obs_phot, flx_obs_phot, err_obs_phot, new_flx_phot, ck
