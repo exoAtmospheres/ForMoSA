@@ -17,19 +17,19 @@ def calc_ck(flx_obs_merge, err_obs_merge, new_flx_merge, flx_obs_phot, err_obs_p
     and distance or analytically).
 
     Args:
-        flx_obs_merge: Flux of the data (spectroscopy)
-        err_obs_merge: Error of the data (spectroscopy)
-        new_flx_merge: Flux of the interpolated synthetic spectrum (spectroscopy)
-        flx_obs_phot: Flux of the data (photometry)
-        err_obs_phot: Error of the data (photometry)
-        new_flx_phot: Flux of the interpolated synthetic spectrum (photometry)
-        r_picked: Radius randomly picked by the nested sampling (in RJup)
-        d_picked: Distance randomly picked by the nested sampling (in pc)
-        analytic: = 'yes' if Ck needs to be calculated analytically by the formula from Cushing et al. (2008)
+        flx_obs_merge   : Flux of the data (spectroscopy)
+        err_obs_merge   : Error of the data (spectroscopy)
+        new_flx_merge   : Flux of the interpolated synthetic spectrum (spectroscopy)
+        flx_obs_phot    : Flux of the data (photometry)
+        err_obs_phot    : Error of the data (photometry)
+        new_flx_phot    : Flux of the interpolated synthetic spectrum (photometry)
+        r_picked        : Radius randomly picked by the nested sampling (in RJup)
+        d_picked        : Distance randomly picked by the nested sampling (in pc)
+        analytic        : = 'yes' if Ck needs to be calculated analytically by the formula from Cushing et al. (2008)
     Returns:
-        new_flx_merge: Re-normalysed model spectrum
-        new_flx_phot: Re-normalysed model photometry
-        ck: Ck calculated
+        new_flx_merge   : Re-normalysed model spectrum
+        new_flx_phot    : Re-normalysed model photometry
+        ck              : Ck calculated
 
     Author: Simon Petrus
     """
@@ -72,16 +72,16 @@ def doppler_fct(wav_obs_merge, flx_obs_merge, err_obs_merge, new_flx_merge, rv_p
     Note: Observation can change due to side effects of the shifting.
 
     Args:
-        wav_obs_merge: Wavelength grid of the data
-        flx_obs_merge: Flux of the data
-        err_obs_merge: Error of the data
-        new_flx_merge: Flux of the interpolated synthetic spectrum
-        rv_picked: Radial velocity randomly picked by the nested sampling (in km.s-1)
+        wav_obs_merge       : Wavelength grid of the data
+        flx_obs_merge       : Flux of the data
+        err_obs_merge       : Error of the data
+        new_flx_merge       : Flux of the interpolated synthetic spectrum
+        rv_picked           : Radial velocity randomly picked by the nested sampling (in km.s-1)
     Returns:
-        wav_obs_merge: New wavelength grid of the data
-        flx_obs_merge: New flux of the data
-        err_obs_merge: New error of the data
-        flx_post_doppler: New flux of the interpolated synthetic spectrum
+        wav_obs_merge       : New wavelength grid of the data
+        flx_obs_merge       : New flux of the data
+        err_obs_merge       : New error of the data
+        flx_post_doppler    : New flux of the interpolated synthetic spectrum
 
     Author: Simon Petrus
     """
@@ -113,14 +113,14 @@ def reddening_fct(wav_obs_merge, wav_obs_phot, new_flx_merge, new_flx_phot, av_p
     extinction.fm07.
 
     Args:
-        wav_obs_merge: Wavelength grid of the data (spectroscopy)
-        wav_obs_phot: Wavelength of the data (photometry)
-        new_flx_merge: Flux of the interpolated synthetic spectrum (spectroscopy)
-        new_flx_phot: Flux of the interpolated synthetic spectrum (photometry)
-        av_picked: Extinction randomly picked by the nested sampling (in mag)
+        wav_obs_merge   : Wavelength grid of the data (spectroscopy)
+        wav_obs_phot    : Wavelength of the data (photometry)
+        new_flx_merge   : Flux of the interpolated synthetic spectrum (spectroscopy)
+        new_flx_phot    : Flux of the interpolated synthetic spectrum (photometry)
+        av_picked       : Extinction randomly picked by the nested sampling (in mag)
     Returns:
-        new_flx_merge: New flux of the interpolated synthetic spectrum (spectroscopy)
-        new_flx_phot: New flux of the interpolated synthetic spectrum (photometry)
+        new_flx_merge   : New flux of the interpolated synthetic spectrum (spectroscopy)
+        new_flx_phot    : New flux of the interpolated synthetic spectrum (photometry)
 
     Author: Simon Petrus
     """
@@ -142,12 +142,12 @@ def vsini_fct(wav_obs_merge, new_flx_merge, ld_picked, vsini_picked):
     extinction.fm07.
 
     Args:
-        wav_obs_merge: Wavelength grid of the data
-        new_flx_merge: Flux of the interpolated synthetic spectrum
-        ld_picked: Limd darkening randomly picked by the nested sampling
-        vsini_picked: v.sin(i) randomly picked by the nested sampling (in km.s-1)
+        wav_obs_merge   : Wavelength grid of the data
+        new_flx_merge   : Flux of the interpolated synthetic spectrum
+        ld_picked       : Limd darkening randomly picked by the nested sampling
+        vsini_picked    : v.sin(i) randomly picked by the nested sampling (in km.s-1)
     Returns:
-        new_flx_merge: New flux of the interpolated synthetic spectrum
+        new_flx_merge   : New flux of the interpolated synthetic spectrum
 
     Author: Simon Petrus
     """
@@ -169,16 +169,18 @@ def vsini_fct(wav_obs_merge, new_flx_merge, ld_picked, vsini_picked):
 def bb_cpd_fct(wav_obs_merge, wav_obs_phot, new_flx_merge, new_flx_phot, distance, bb_T_picked, bb_R_picked):
     ''' Function to add the effect of a cpd (circum planetary disc) to the models
     Args:  
-    - wav_obs_merge       () :
-    - wav_obs_phot    () :
-    - new_flx_merge   () :
-    - new_flx_phot () :
-    - bb_temp   () :
-    - bb_rad    () : radius in units of planetary radius
+        wav_obs_merge   : Wavelength grid of the data (spectroscopy)
+        wav_obs_phot    : Wavelength of the data (photometry)
+        new_flx_merge   : Flux of the interpolated synthetic spectrum (spectroscopy)
+        new_flx_phot    : Flux of the interpolated synthetic spectrum (photometry)
+        bb_temp         : Temperature value randomly picked by the nested sampling in K units
+        bb_rad          : Radius randomly picked by the nested sampling in units of planetary radius
     
     Returns:
-    - new_flx   () :
-    - new_flx_f () :
+        new_flx_merge   : New flux of the interpolated synthetic spectrum (spectroscopy)
+        new_flx_phot    : New flux of the interpolated synthetic spectrum (photometry)
+
+    Author: P. Palma-Bifani
     '''
 
     bb_T_picked *= u.K
@@ -213,19 +215,20 @@ def bb_cpd_fct(wav_obs_merge, wav_obs_phot, new_flx_merge, new_flx_phot, distanc
 
 def reso_fct(global_params, theta, theta_index, wav_obs_merge, new_flx_merge, reso_picked):
     """
+    WORKING!
     Function to scale the spectral resolution of the synthetic spectra. This option is currently in test and make use
     of the functions defined in the 'adapt' section of ForMoSA, meaning that they will significantly decrease the speed of
     your inversion as the grid needs to be re-interpolated
 
     Args:
-        global_params: Class containing each parameter
-        theta: Parameter values randomly picked by the nested sampling
-        theta_index: Parameter index identificator
-        wav_obs_merge: Wavelength grid of the data
-        new_flx_merge: Flux of the interpolated synthetic spectrum
-        reso_picked: Spectral resolution randomly picked by the nested sampling
+        global_params   : Class containing each parameter
+        theta           : Parameter values randomly picked by the nested sampling
+        theta_index     : Parameter index identificator
+        wav_obs_merge   : Wavelength grid of the data
+        new_flx_merge   : Flux of the interpolated synthetic spectrum
+        reso_picked     : Spectral resolution randomly picked by the nested sampling
     Returns:
-        new_flx_merge: New flux of the interpolated synthetic spectrum
+        None
 
     Author: Matthieu Ravet
     """
@@ -242,8 +245,7 @@ def reso_fct(global_params, theta, theta_index, wav_obs_merge, new_flx_merge, re
     flx_mod_extract, mod_pho = adapt_model(global_params, wav_mod_nativ, model_to_adapt, attr['res'], obs_name=obs_name,
                                         indobs=indobs)
 
-
-    return ...
+    return 
 
 
 # ----------------------------------------------------------------------------------------------------------------------
@@ -259,27 +261,29 @@ def modif_spec(global_params, theta, theta_index,
         - Application of a substellar extinction
         - Application of a rotational velocity
         - Application of a circumplanetary disk (CPD)
+    
     Args:
-        global_params: Class containing each parameter
-        theta: Parameter values randomly picked by the nested sampling
-        theta_index: Parameter index identificator
-        wav_obs_merge: Wavelength grid of the data (spectroscopy)
-        flx_obs_merge: Flux of the data (spectroscopy)
-        err_obs_merge: Error of the data (spectroscopy)
-        new_flx_merge: Flux of the interpolated synthetic spectrum (spectroscopy)
-        wav_obs_phot: Wavelength grid of the data (photometry)
-        flx_obs_phot: Flux of the data (photometry)
-        err_obs_phot: Error of the data (photometry)
-        new_flx_phot: Flux of the interpolated synthetic spectrum (photometry)
+        global_params   : Class containing each parameter
+        theta           : Parameter values randomly picked by the nested sampling
+        theta_index     : Parameter index identificator
+        wav_obs_merge   : Wavelength grid of the data (spectroscopy)
+        flx_obs_merge   : Flux of the data (spectroscopy)
+        err_obs_merge   : Error of the data (spectroscopy)
+        new_flx_merge   : Flux of the interpolated synthetic spectrum (spectroscopy)
+        wav_obs_phot    : Wavelength grid of the data (photometry)
+        flx_obs_phot    : Flux of the data (photometry)
+        err_obs_phot    : Error of the data (photometry)
+        new_flx_phot    : Flux of the interpolated synthetic spectrum (photometry)
     Returns:
-        wav_obs_merge: New wavelength grid of the data (may change with the Doppler shift)
-        flx_obs_merge: New flux of the data (may change with the Doppler shift)
-        err_obs_merge: New error of the data (may change with the Doppler shift)
-        new_flx_merge: New flux of the interpolated synthetic spectrum (spectroscopy)
-        wav_obs_phot: Wavelength grid of the data (photometry)
-        flx_obs_phot: Flux of the data (photometry)
-        err_obs_phot: Error of the data (photometry)
-        new_flx_phot: New flux of the interpolated synthetic spectrum (photometry)
+        wav_obs_merge   : New wavelength grid of the data (may change with the Doppler shift)
+        flx_obs_merge   : New flux of the data (may change with the Doppler shift)
+        err_obs_merge   : New error of the data (may change with the Doppler shift)
+        new_flx_merge   : New flux of the interpolated synthetic spectrum (spectroscopy)
+        wav_obs_phot    : Wavelength grid of the data (photometry)
+        flx_obs_phot    : Flux of the data (photometry)
+        err_obs_phot    : Error of the data (photometry)
+        new_flx_phot    : New flux of the interpolated synthetic spectrum (photometry)
+    
     Author: Simon Petrus and Paulina Palma-Bifani
     """
     # Correction of the radial velocity of the interpolated synthetic spectrum.
@@ -303,7 +307,6 @@ def modif_spec(global_params, theta, theta_index,
             av_picked = theta[ind_theta_av[0][0]]
         new_flx_merge, new_flx_phot = reddening_fct(wav_obs_merge, wav_obs_phot, new_flx_merge, new_flx_phot, av_picked)
 
-
     # Correction of the rotational velocity of the interpolated synthetic spectrum.
     if len(flx_obs_merge) != 0:
         if global_params.vsini != "NA" and global_params.ld != "NA":
@@ -324,7 +327,7 @@ def modif_spec(global_params, theta, theta_index,
             pass
 
         else:
-            print('You need to define a v.sin(i) AND a limb darkening, or set them both to NA')
+            print('WARNING: You need to define a v.sin(i) AND a limb darkening, or set them both to NA')
             exit()
     
     # Adding a CPD
@@ -351,7 +354,7 @@ def modif_spec(global_params, theta, theta_index,
         pass
 
     else:
-        print('You need to define a blackbody radius and blackbody temperature, or set them to "NA"')
+        print('WARNING: You need to define a blackbody radius and blackbody temperature, or set them to "NA"')
         exit()
 
     # Calculation of the dilution factor Ck and re-normalization of the interpolated synthetic spectrum.
@@ -375,7 +378,7 @@ def modif_spec(global_params, theta, theta_index,
                                                   flx_obs_phot, err_obs_phot, new_flx_phot, 0, 0,
                                                   analytic='yes')
     else:
-        print('You need to define a radius AND a distance, or set them both to "NA"')
+        print('WARNING: You need to define a radius AND a distance, or set them both to "NA"')
         exit()
 
     return wav_obs_merge, flx_obs_merge, err_obs_merge, new_flx_merge, wav_obs_phot, flx_obs_phot, err_obs_phot, new_flx_phot, ck

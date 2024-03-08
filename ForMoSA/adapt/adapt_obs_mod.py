@@ -102,7 +102,7 @@ def launch_adapt(global_params, justobs='no'):
             os.mkdir(global_params.adapt_store_path)
 
         print()
-        print()
+        print('- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -')
         print("-> To compare synthetic spectra with the observation we need to manage them. The following actions are performed:")
         print("- extraction -")
         print("- resizing on the observation's wavelength range -")
@@ -142,13 +142,8 @@ def launch_adapt_MOSAIC(global_params, justobs='no'):
     main_obs_path = global_params.main_observation_path
 
     print()
-    print()
-    print()
-    print()
-    print("         > Starting MOSAIC <             ")
-    print()
-    print()
-    print()
+    print('- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -')
+    print("-> Starting MOSAIC ")
     print()
 
 
@@ -165,8 +160,6 @@ def launch_adapt_MOSAIC(global_params, justobs='no'):
             print()
             print(obs_name + ' will have a R=' + global_params.continuum_sub[indobs] + ' continuum removed using a ' 
                   + global_params.wav_for_continuum[indobs] + ' wavelength range')
-            print()
-            print()
             print()
         if global_params.continuum_sub[indobs] != 'NA':
             obs_cut_c, obs_pho_c, obs_cut_ins_c, obs_pho_ins_c, obs_cut_cov = extract_observation(global_params, wav_mod_nativ,
@@ -233,19 +226,17 @@ def launch_adapt_MOSAIC(global_params, justobs='no'):
                 os.mkdir(global_params.adapt_store_path)
 
             print()
-            print()
+            print('- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -')
             print("-> To compare synthetic spectra with the observation we need to manage them. The following actions are performed:")
             print("- extraction -")
             print("- resizing on the observation's wavelength range -")
             print("- adjustement of the spectral resolution -")
             print("- substraction of the continuum (if needed) -")
             print()
-            print(f"-> Sarting adaptation of {obs_name}")
+            print('- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -')
+            print(f"-> Sarting the adaptation of {obs_name}")
 
             adapt_grid(global_params, obs_merge[0], obs_pho[0], obs_name=obs_name, indobs=indobs)
-
-
-
 
 
 # ----------------------------------------------------------------------------------------------------------------------

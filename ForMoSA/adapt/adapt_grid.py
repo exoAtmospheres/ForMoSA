@@ -264,8 +264,7 @@ def adapt_grid(global_params, wav_obs_spec, wav_obs_phot, obs_name='', indobs=0)
                                  attrs=attr)
 
     print()
-    print()
-    print()
+    print('- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -')
     print('-> The possible holes in the grid are interpolated: ')
     print()
     for key_ind, key in enumerate(attr['key']):
@@ -296,6 +295,6 @@ def adapt_grid(global_params, wav_obs_spec, wav_obs_phot, obs_name='', indobs=0)
                             mode='w')        
 
     print()
-    print('-> The possible holes have been interpolated.')
+    print('The possible holes have been interpolated!')
 
     return None
