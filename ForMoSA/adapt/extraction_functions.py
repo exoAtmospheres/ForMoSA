@@ -339,7 +339,7 @@ def adapt_model(global_params, wav_mod_nativ, wave_reso_tab, flx_mod_nativ, res_
         if global_params.continuum_sub[indobs] != 'NA':
             for c, cut in enumerate(obs_cut):
                 #mod_cut_c, mod_pho_c = extract_model(global_params, wav_mod_nativ, flx_mod_nativ, res_mod_nativ, 'yes')
-                for w_ind, wav_for_cont in enumerate(global_params.wav_for_continuum.split('/')):
+                for w_ind, wav_for_cont in enumerate(global_params.wav_for_continuum[indobs].split('/')):
                     wav_mod_for_cont_ind = np.where((float(wav_for_cont.split(',')[0]) < wav_mod_nativ) &
                                                     (wav_mod_nativ < float(wav_for_cont.split(',')[1])))
                     if w_ind == 0:

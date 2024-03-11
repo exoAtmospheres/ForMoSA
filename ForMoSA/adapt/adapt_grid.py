@@ -32,27 +32,50 @@ def adapt_grid(global_params, wav_obs_spec, wav_obs_phot, obs_name='', indobs=0)
     attr = ds.attrs
     grid_np = grid.to_numpy()
     
-
-    if global_params.continuum_sub != 'NA':
-        for w_ind, wav_for_cont in enumerate(global_params.wav_for_continuum.split('/')):
-            wav_mod_for_cont_ind = np.where((float(wav_for_cont.split(',')[0]) < wav_mod_nativ) &
-                                            (wav_mod_nativ < float(wav_for_cont.split(',')[1])))
-            if w_ind == 0:
-                wav_mod_for_cont = wav_mod_nativ[wav_mod_for_cont_ind]
-            else:
-                wav_mod_for_cont = np.concatenate((wav_mod_for_cont, wav_mod_nativ[wav_mod_for_cont_ind]))
+    # If MOSAIC
+    if global_params.observation_format == 'MOSAIC':
+        if global_params.continuum_sub[indobs] != 'NA':
+            for w_ind, wav_for_cont in enumerate(global_params.wav_for_continuum[indobs].split('/')):
+                wav_mod_for_cont_ind = np.where((float(wav_for_cont.split(',')[0]) < wav_mod_nativ) &
+                                                (wav_mod_nativ < float(wav_for_cont.split(',')[1])))
+                if w_ind == 0:
+                    wav_mod_for_cont = wav_mod_nativ[wav_mod_for_cont_ind]
+                else:
+                    wav_mod_for_cont = np.concatenate((wav_mod_for_cont, wav_mod_nativ[wav_mod_for_cont_ind]))
+                    
+            wav_reso = min(wav_mod_for_cont)
+            n = 0
+            while wav_reso < max(wav_mod_for_cont):
+                last_wav_reso = wav_reso
+                wav_reso += wav_reso / float(global_params.continuum_sub[indobs])
+                n += 1
                 
-        wav_reso = min(wav_mod_for_cont)
-        n = 0
-        while wav_reso < max(wav_mod_for_cont):
-            last_wav_reso = wav_reso
-            wav_reso += wav_reso / float(global_params.continuum_sub)
-            n += 1
-            
-        wav_min = min(wav_mod_for_cont)
-        wav_reso_tab = np.logspace(np.log10(wav_min), np.log10(last_wav_reso), num = n)
+            wav_min = min(wav_mod_for_cont)
+            wav_reso_tab = np.logspace(np.log10(wav_min), np.log10(last_wav_reso), num = n)
+        else:
+            wav_reso_tab = []
+    # If Classical mode
     else:
-        wav_reso_tab = []
+        if global_params.continuum_sub != 'NA':
+            for w_ind, wav_for_cont in enumerate(global_params.wav_for_continuum.split('/')):
+                wav_mod_for_cont_ind = np.where((float(wav_for_cont.split(',')[0]) < wav_mod_nativ) &
+                                                (wav_mod_nativ < float(wav_for_cont.split(',')[1])))
+                if w_ind == 0:
+                    wav_mod_for_cont = wav_mod_nativ[wav_mod_for_cont_ind]
+                else:
+                    wav_mod_for_cont = np.concatenate((wav_mod_for_cont, wav_mod_nativ[wav_mod_for_cont_ind]))
+                    
+            wav_reso = min(wav_mod_for_cont)
+            n = 0
+            while wav_reso < max(wav_mod_for_cont):
+                last_wav_reso = wav_reso
+                wav_reso += wav_reso / float(global_params.continuum_sub)
+                n += 1
+                
+            wav_min = min(wav_mod_for_cont)
+            wav_reso_tab = np.logspace(np.log10(wav_min), np.log10(last_wav_reso), num = n)
+        else:
+            wav_reso_tab = []
 
     
     if len(attr['par']) == 2:
