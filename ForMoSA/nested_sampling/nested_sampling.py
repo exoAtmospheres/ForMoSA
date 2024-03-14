@@ -68,7 +68,7 @@ def import_obsmod(global_params):
             grid_phot = ds['grid']
             ds.close()
 
-            main_file.append([[wav_obs_merge, wav_obs_phot], [flx_obs_merge, flx_obs_phot], [err_obs_merge, err_obs_phot], inv_cov_obs_merge, grid_merge, grid_phot])
+            main_file.append([[wav_obs_merge, wav_obs_phot], [flx_obs_merge, flx_obs_phot], [err_obs_merge, err_obs_phot], inv_cov_obs_merge, grid_merge, grid_phot, transm_obs_merge, star_flx_obs_merge])
 
     else:
         # Recovery of spectroscopy and photometry data

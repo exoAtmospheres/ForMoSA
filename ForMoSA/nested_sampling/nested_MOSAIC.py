@@ -41,8 +41,8 @@ def MOSAIC_logL(theta, theta_index, global_params, main_file):
         err_obs_merge = main_file[indobs][2][0]
         err_obs_phot = main_file[indobs][2][1]
         inv_cov_obs_merge = main_file[indobs][3]
-        transm_obs_merge = main_file[6]
-        star_flx_obs_merge = main_file[7]
+        transm_obs_merge = main_file[indobs][6]
+        star_flx_obs_merge = main_file[indobs][7]
 
         # Recovery of the spectroscopy and photometry model
         grid_merge = main_file[indobs][4]
