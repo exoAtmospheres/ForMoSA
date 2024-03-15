@@ -41,6 +41,8 @@ def MOSAIC_logL(theta, theta_index, global_params, main_file):
         err_obs_merge = main_file[indobs][2][0]
         err_obs_phot = main_file[indobs][2][1]
         inv_cov_obs_merge = main_file[indobs][3]
+        transm_obs_merge = main_file[indobs][6]
+        star_flx_obs_merge = main_file[indobs][7]
 
         # Recovery of the spectroscopy and photometry model
         grid_merge = main_file[indobs][4]
@@ -115,6 +117,8 @@ def MOSAIC_logL(theta, theta_index, global_params, main_file):
                 flx_obs_merge_ns_u = flx_obs_merge[ind_merge]
                 err_obs_merge_ns_u = err_obs_merge[ind_merge]
                 flx_mod_merge_ns_u = flx_mod_merge_cut
+                transm_obs_merge_ns_u = transm_obs_merge[ind_merge]
+                star_flx_obs_merge_ns_u = star_flx_obs_merge[ind_merge]
                 wav_obs_phot_ns_u = wav_obs_phot[ind_phot]
                 flx_obs_phot_ns_u = flx_obs_phot[ind_phot]
                 err_obs_phot_ns_u = err_obs_phot[ind_phot]
@@ -128,6 +132,8 @@ def MOSAIC_logL(theta, theta_index, global_params, main_file):
                 flx_obs_merge_ns_u = np.concatenate((flx_obs_merge_ns_u, flx_obs_merge[ind_merge]))
                 err_obs_merge_ns_u = np.concatenate((err_obs_merge_ns_u, err_obs_merge[ind_merge]))
                 flx_mod_merge_ns_u = np.concatenate((flx_mod_merge_ns_u, flx_mod_merge_cut))
+                transm_obs_merge_ns_u = np.concatenate((transm_obs_merge_ns_u, transm_obs_merge[ind_merge]))
+                star_flx_obs_merge_ns_u = np.concatenate((star_flx_obs_merge_ns_u, star_flx_obs_merge[ind_grid_merge_sel]))
                 wav_obs_phot_ns_u = np.concatenate((wav_obs_phot_ns_u, wav_obs_phot[ind_phot]))
                 flx_obs_phot_ns_u = np.concatenate((flx_obs_phot_ns_u, flx_obs_phot[ind_phot]))
                 err_obs_phot_ns_u = np.concatenate((err_obs_phot_ns_u, err_obs_phot[ind_phot]))
@@ -142,7 +148,8 @@ def MOSAIC_logL(theta, theta_index, global_params, main_file):
         # Modification of the synthetic spectrum with the extra-grid parameters
         modif_spec_LL = modif_spec(global_params, theta, theta_index,
                                     wav_obs_merge_ns_u,  flx_obs_merge_ns_u,  err_obs_merge_ns_u,  flx_mod_merge_ns_u,
-                                    wav_obs_phot_ns_u,  flx_obs_phot_ns_u, err_obs_phot_ns_u,  flx_mod_phot_ns_u)
+                                    wav_obs_phot_ns_u,  flx_obs_phot_ns_u, err_obs_phot_ns_u,  flx_mod_phot_ns_u, 
+                                    transm_obs_merge_ns_u, star_flx_obs_merge_ns_u, indobs=indobs)
         
         flx_obs, flx_obs_phot = modif_spec_LL[1], modif_spec_LL[5]
         flx_mod, flx_mod_phot = modif_spec_LL[3], modif_spec_LL[7]

@@ -331,7 +331,7 @@ def reso_fct(global_params, theta, theta_index, wav_obs_merge, new_flx_merge, re
 
 def modif_spec(global_params, theta, theta_index,
                wav_obs_merge, flx_obs_merge, err_obs_merge, new_flx_merge,
-               wav_obs_phot, flx_obs_phot, err_obs_phot, new_flx_phot, transm_obs_merge = [], star_flx_obs_merge = []):
+               wav_obs_phot, flx_obs_phot, err_obs_phot, new_flx_phot, transm_obs_merge = [], star_flx_obs_merge = [], indobs=0):
     """
     Modification of the interpolated synthetic spectra with the different extra-grid parameters:
         - Re-calibration on the data
@@ -352,6 +352,9 @@ def modif_spec(global_params, theta, theta_index,
         flx_obs_phot    : Flux of the data (photometry)
         err_obs_phot    : Error of the data (photometry)
         new_flx_phot    : Flux of the interpolated synthetic spectrum (photometry)
+        transm_obs_merge: Transmission (Atmospheric + Instrumental)
+        star_flx_obs_merge: Flux of star observation data (spectroscopy)
+        indobs     (int): Index of the current observation looping (only relevant in MOSAIC, else set to 0)
     Returns:
         wav_obs_merge   : New wavelength grid of the data (may change with the Doppler shift)
         flx_obs_merge   : New flux of the data (may change with the Doppler shift)
@@ -451,24 +454,46 @@ def modif_spec(global_params, theta, theta_index,
         new_flx_merge, new_flx_phot, ck = calc_ck(flx_obs_merge, err_obs_merge, new_flx_merge,
                                                   flx_obs_phot, err_obs_phot, new_flx_phot, r_picked, d_picked)
     # Analytically
-    elif global_params.r == "NA" and global_params.d == "NA" and global_params.use_lsqr == 'False':
-        new_flx_merge, new_flx_phot, ck = calc_ck(flx_obs_merge, err_obs_merge, new_flx_merge,
-                                                  flx_obs_phot, err_obs_phot, new_flx_phot, 0, 0,
-                                                  analytic='yes')
+    # If MOSAIC
+    elif global_params.observation_format == 'MOSAIC':
+        if global_params.r == "NA" and global_params.d == "NA" and global_params.use_lsqr[indobs] == 'False':
+            new_flx_merge, new_flx_phot, ck = calc_ck(flx_obs_merge, err_obs_merge, new_flx_merge,
+                                                    flx_obs_phot, err_obs_phot, new_flx_phot, 0, 0,
+                                                    analytic='yes')
 
-    elif global_params.r == "NA" and global_params.d == "NA" and global_params.use_lsqr == 'True':   
-        # global_params.use_lsqr = 'True', so no need to re-normalize the interpolated sythetic spectrum because the least squares automatically does it
+        elif global_params.r == "NA" and global_params.d == "NA" and global_params.use_lsqr[indobs] == 'True':   
+            # global_params.use_lsqr = 'True', so no need to re-normalize the interpolated sythetic spectrum because the least squares automatically does it
+                
+            _, new_flx_phot, ck = calc_ck(flx_obs_merge, err_obs_merge, new_flx_merge, 
+                            flx_obs_phot, err_obs_phot, new_flx_phot, 0, 0,
+                            analytic='yes')
             
-        _, new_flx_phot, ck = calc_ck(flx_obs_merge, err_obs_merge, new_flx_merge, 
-                           flx_obs_phot, err_obs_phot, new_flx_phot, 0, 0,
-                           analytic='yes')
+            cp, cs, flx_obs_merge = lsq_fct(flx_obs_merge, err_obs_merge, star_flx_obs_merge, transm_obs_merge, new_flx_merge)
+            new_flx_merge = cp + cs
+
+        else:   # either global_params.r or global_params.d is set to 'NA' 
+            print('WARNING: You need to define a radius AND a distance, or set them both to "NA"')
+            exit()
+    # If Classical mode
+    else:
+        if global_params.r == "NA" and global_params.d == "NA" and global_params.use_lsqr == 'False':
+            new_flx_merge, new_flx_phot, ck = calc_ck(flx_obs_merge, err_obs_merge, new_flx_merge,
+                                                    flx_obs_phot, err_obs_phot, new_flx_phot, 0, 0,
+                                                    analytic='yes')
+
+        elif global_params.r == "NA" and global_params.d == "NA" and global_params.use_lsqr == 'True':   
+            # global_params.use_lsqr = 'True', so no need to re-normalize the interpolated sythetic spectrum because the least squares automatically does it
+                
+            _, new_flx_phot, ck = calc_ck(flx_obs_merge, err_obs_merge, new_flx_merge, 
+                            flx_obs_phot, err_obs_phot, new_flx_phot, 0, 0,
+                            analytic='yes')
+            
+            cp, cs, flx_obs_merge = lsq_fct(flx_obs_merge, err_obs_merge, star_flx_obs_merge, transm_obs_merge, new_flx_merge)
+            new_flx_merge = cp + cs
         
-        cp, cs, flx_obs_merge = lsq_fct(flx_obs_merge, err_obs_merge, star_flx_obs_merge, transm_obs_merge, new_flx_merge)
-        new_flx_merge = cp + cs
-        
-    else:   # either global_params.r or global_params.d is set to 'NA' 
-        print('WARNING: You need to define a radius AND a distance, or set them both to "NA"')
-        exit()
+        else:   # either global_params.r or global_params.d is set to 'NA' 
+            print('WARNING: You need to define a radius AND a distance, or set them both to "NA"')
+            exit()
 
 
     return wav_obs_merge, flx_obs_merge, err_obs_merge, new_flx_merge, wav_obs_phot, flx_obs_phot, err_obs_phot, new_flx_phot, ck
