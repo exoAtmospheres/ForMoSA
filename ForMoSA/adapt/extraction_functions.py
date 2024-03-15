@@ -80,10 +80,10 @@ def extract_observation(global_params, wav_mod_nativ, res_mod_nativ, cont='no', 
 
     # Extract the wavelengths, flux, errors, spectral resolution, and instrument/filter names from the observation file.
 
-    obs_cut, obs_pho, obs_cut_ins, obs_pho_ins, obs_cut_cov = adapt_observation_range(global_params, obs_name=obs_name, indobs=indobs)
+    obs_spectro, obs_photo, obs_spectro_ins, obs_photo_ins = adapt_observation_range(global_params, obs_name=obs_name, indobs=indobs)
 
     # Reduce the spectral resolution for each sub-spectrum.
-    for c, cut in enumerate(obs_cut):
+    for c, cut in enumerate(obs_spectro):
         # If we want to decrease the resolution of the data:
         if len(cut[0]) != 0:
 
@@ -91,7 +91,7 @@ def extract_observation(global_params, wav_mod_nativ, res_mod_nativ, cont='no', 
             if global_params.observation_format == 'MOSAIC':
                 if cont == 'no':
                     if global_params.adapt_method[indobs] == 'by_reso':
-                        obs_cut[c][1] = resolution_decreasing(global_params, cut, wav_mod_nativ, [], res_mod_nativ,
+                        obs_spectro[c][1] = resolution_decreasing(global_params, cut, wav_mod_nativ, [], res_mod_nativ,
                                                             'obs', obs_name=obs_name, indobs=indobs)
                 # If we want to estimate the continuum of the data:
                 else:
@@ -123,13 +123,13 @@ def extract_observation(global_params, wav_mod_nativ, res_mod_nativ, cont='no', 
                             flx_final_cont = np.concatenate((flx_final_cont, flx_obs_cont[wav_final_cont_ind]))
                     interp_reso = interp1d(wav_final_cont[~np.isnan(flx_final_cont)], flx_final_cont[~np.isnan(flx_final_cont)], fill_value="extrapolate")
                     flx_obs_cont = interp_reso(cut[0])
-                    obs_cut[c][1] = flx_obs_cont
+                    obs_spectro[c][1] = flx_obs_cont
 
             # If classical mode
             else:
                 if cont == 'no':
                     if global_params.adapt_method == 'by_reso':
-                        obs_cut[c][1] = resolution_decreasing(global_params, cut, wav_mod_nativ, [], res_mod_nativ,
+                        obs_spectro[c][1] = resolution_decreasing(global_params, cut, wav_mod_nativ, [], res_mod_nativ,
                                                             'obs', obs_name=obs_name, indobs=indobs)
                 # If we want to estimate the continuum of the data:
                 else:
@@ -161,10 +161,10 @@ def extract_observation(global_params, wav_mod_nativ, res_mod_nativ, cont='no', 
                             flx_final_cont = np.concatenate((flx_final_cont, flx_obs_cont[wav_final_cont_ind]))
                     interp_reso = interp1d(wav_final_cont[~np.isnan(flx_final_cont)], flx_final_cont[~np.isnan(flx_final_cont)], fill_value="extrapolate")
                     flx_obs_cont = interp_reso(cut[0])
-                    obs_cut[c][1] = flx_obs_cont
+                    obs_spectro[c][1] = flx_obs_cont
 
 
-    return obs_cut, obs_pho, obs_cut_ins, obs_pho_ins, obs_cut_cov
+    return obs_spectro, obs_photo, obs_spectro_ins, obs_photo_ins
 
 # ----------------------------------------------------------------------------------------------------------------------
 
@@ -206,7 +206,7 @@ def adapt_observation_range(global_params, obs_name='', indobs=0):
             wav = hdul[1].data['WAV']
             flx = hdul[1].data['FLX']
             err = hdul[1].data['ERR']
-            cov = [] # Create an empty covariance matrix if not already present in the data (to not slow the inversion)
+            cov = np.asarray([]) # Create an empty covariance matrix if not already present in the data (to not slow the inversion)
             res = hdul[1].data['RES']
             ins = hdul[1].data['INS']
             
@@ -214,9 +214,9 @@ def adapt_observation_range(global_params, obs_name='', indobs=0):
         # Only take the covariance if you use the chi2_covariance likelihood function (will need to be change when new likelihood functions using the
         # covariance matrix will come)
         if global_params.observation_format == 'MOSAIC' and global_params.logL_type[indobs] != 'chi2_covariance':
-            cov = []
+            cov = np.asarray([])
         elif global_params.observation_format != 'MOSAIC' and global_params.logL_type != 'chi2_covariance':
-            cov = []
+            cov = np.asarray([])
 
         # Filter the NaN values
         nan_mod_ind = ~np.isnan(flx)
@@ -235,27 +235,25 @@ def adapt_observation_range(global_params, obs_name='', indobs=0):
                 transm = hdul[1].data['TRANSM']
                 transm = transm[nan_mod_ind]
             else:
-                transm = np.zeros(len(flx))
+                transm = np.asarray([])
             if global_params.star_data[indobs] == 'True':
                 star_flx = hdul[1].data['STAR FLX']
                 star_flx = star_flx[nan_mod_ind]
             else:
-                star_flx = np.zeros(len(flx))
+                star_flx = np.asarray([])
         # If Classical mode
         else:
             if global_params.multiply_transmission == 'True':
                 transm = hdul[1].data['TRANSM']
                 transm = transm[nan_mod_ind]
             else:
-                transm = np.zeros(len(flx))
+                transm = np.asarray([])
             if global_params.star_data == 'True':
                 star_flx = hdul[1].data['STAR FLX']
                 star_flx = star_flx[nan_mod_ind]
             else:
-                star_flx = np.zeros(len(flx))
+                star_flx = np.asarray([])
 
-        # Create empty list for the covariance matrix
-        obs_cut_cov = []
         # Select the wavelength range(s) for the extraction
         if global_params.wav_for_adapt == '':
             wav_for_adapt_tab = [str(min(wav)) + ',' + str(max(wav))]
@@ -268,59 +266,61 @@ def adapt_observation_range(global_params, obs_name='', indobs=0):
                 wav_for_adapt_tab = global_params.wav_for_adapt.split('/')
 
 
+        # Photometry part of the data (OUT OF THE WINDOW LOOP)
+        ind_photometry = np.where(res == 0.0)
+        obs_photo = [wav[ind_photometry], flx[ind_photometry], err[ind_photometry],
+                res[ind_photometry]]
+        obs_photo_ins = ins[ind_photometry]
+
         for range_ind, rangee in enumerate(wav_for_adapt_tab):
             rangee = rangee.split(',')
             ind = np.where((float(rangee[0]) <= wav) & (wav <= float(rangee[1])))
-
-            # Photometry part of the data
             ind_photometry = np.where(res[ind] == 0.0)
-            obs_pho = [wav[ind][ind_photometry], flx[ind][ind_photometry], err[ind][ind_photometry],
-                    res[ind][ind_photometry]]
-            obs_pho_ins = ins[ind][ind_photometry]
+            # obs_photo = [wav[ind][ind_photometry], flx[ind][ind_photometry], err[ind][ind_photometry], # Removed since we want to take all the photometry points
+            #         res[ind][ind_photometry]]
+            # obs_photo_ins = ins[ind][ind_photometry]
 
             # Spectroscopy part of the data
             wav_spectro = np.delete(wav[ind], ind_photometry)
             flx_spectro = np.delete(flx[ind], ind_photometry)
+            err_spectro = np.delete(err[ind], ind_photometry)
             res_spectro = np.delete(res[ind], ind_photometry)
             ins_spectro = np.delete(ins[ind], ind_photometry)
-            err_spectro = np.delete(err[ind], ind_photometry)
             if len(cov) != 0: # Check if the covariance exists
                 cov_spectro = cov[np.ix_(ind[0],ind[0])]
                 cov_spectro = np.delete(cov_spectro, ind_photometry, axis=0)
                 cov_spectro = np.delete(cov_spectro, ind_photometry, axis=1)
             else:
-                cov_spectro = []
+                cov_spectro = np.asarray([])
 
             if len(transm) != 0:
                 transm_spectro = np.delete(transm[ind], ind_photometry)
             else:
-                transm_spectro = np.zeros(len(wav_spectro))
+                transm_spectro = np.asarray([])
             
             if len(star_flx) != 0:
                 star_flx_spectro = np.delete(star_flx[ind], ind_photometry)
             else:
-                star_flx_spectro = np.zeros(len(wav_spectro))
+                star_flx_spectro = np.asarray([])
 
+            # Merge spectroscopic data
             if range_ind == 0:
-                obs_cut = [[wav_spectro, flx_spectro, err_spectro, res_spectro, transm_spectro, star_flx_spectro]]
-                obs_cut_ins = [[ins_spectro]]
+                obs_spectro = [[wav_spectro, flx_spectro, err_spectro, res_spectro, cov_spectro, transm_spectro, star_flx_spectro]]
+                obs_spectro_ins = [[ins_spectro]]
             else:
-                obs_cut.append([wav_spectro, flx_spectro, err_spectro, res_spectro, transm_spectro, star_flx_spectro])
-                obs_cut_ins.append([ins_spectro])
+                obs_spectro.append([wav_spectro, flx_spectro, err_spectro, res_spectro, cov_spectro, transm_spectro, star_flx_spectro])
+                obs_spectro_ins.append([ins_spectro])
 
-            # Cuting the covariance matrix if necessary
-            if len(cov_spectro) != 0: # Check if the covariance exists
-                obs_cut_cov.append(list(cov_spectro))
-
-        # Reshaping the covariance file (if necessary) and the instrument file
-        if len(obs_cut_cov) != 0:
-            for i, cov in enumerate(obs_cut_cov):
-                obs_cut_cov[i] = np.array(cov)
-        for i, ins in enumerate(obs_cut_ins):
-            obs_cut_ins[i] = obs_cut_ins[i][0]
+        # for i, ins in enumerate(obs_cut_ins):
+        #     obs_cut_ins[i] = obs_cut_ins[i][0]
             
+        # Allow for different array sizes for the storage
+        obs_spectro = np.asarray(obs_spectro, dtype=object)
+        obs_photo = np.asarray(obs_photo, dtype=object)
+        obs_spectro_ins = np.asarray(obs_spectro_ins, dtype=object)
+        obs_photo_ins = np.asarray(obs_photo_ins, dtype=object)
             
-        return obs_cut, obs_pho, obs_cut_ins, obs_pho_ins, obs_cut_cov   
+        return obs_spectro, obs_photo, obs_spectro_ins, obs_photo_ins   
 
 
 # ----------------------------------------------------------------------------------------------------------------------
@@ -453,12 +453,12 @@ def extract_model(global_params, wav_mod_nativ, flx_mod_nativ, res_mod_nativ, co
     # If MOSAIC
     if global_params.observation_format == 'MOSAIC':
         spectrum_obs = np.load(os.path.join(global_params.result_path, f'spectrum_obs_{obs_name}.npz'), allow_pickle=True)
-        obs_cut = spectrum_obs['obs_cut']
-        obs_pho_ins = spectrum_obs['obs_pho_ins']
+        obs_spectro = spectrum_obs['obs_spectro']
+        obs_photo_ins = spectrum_obs['obs_photo_ins']
 
         # Reduce the spectral resolution for each sub-spectrum.
-        mod_cut = []
-        for c, cut in enumerate(obs_cut):
+        mod_spectro = []
+        for c, cut in enumerate(obs_spectro):
             # If we want to decrease the resolution of the data:
             if len(cut[0]) != 0:
                 if cont == 'no':
@@ -482,17 +482,17 @@ def extract_model(global_params, wav_mod_nativ, flx_mod_nativ, res_mod_nativ, co
                                                     'mod', obs_name=obs_name, indobs=indobs)
             else:
                 mod_cut_flx = []
-            mod_cut.append(mod_cut_flx)
+            mod_spectro.append(mod_cut_flx)
 
     # If classical mode
     else:
         spectrum_obs = np.load(global_params.result_path + '/spectrum_obs.npz', allow_pickle=True)
-        obs_cut = spectrum_obs['obs_cut']
-        obs_pho_ins = spectrum_obs['obs_pho_ins']
+        obs_spectro = spectrum_obs['obs_spectro']
+        obs_photo_ins = spectrum_obs['obs_photo_ins']
 
         # Reduce the spectral resolution for each sub-spectrum.
-        mod_cut = []
-        for c, cut in enumerate(obs_cut):
+        mod_spectro = []
+        for c, cut in enumerate(obs_spectro):
             # If we want to decrease the resolution of the data:
             if len(cut[0]) != 0:
                 if cont == 'no':
@@ -516,11 +516,11 @@ def extract_model(global_params, wav_mod_nativ, flx_mod_nativ, res_mod_nativ, co
                                                     'mod', obs_name=obs_name, indobs=indobs)
             else:
                 mod_cut_flx = []
-            mod_cut.append(mod_cut_flx)
+            mod_spectro.append(mod_cut_flx)
 
     # Calculate each photometry point.
-    mod_pho = []
-    for pho_ind, pho in enumerate(obs_pho_ins):
+    mod_photo = []
+    for pho_ind, pho in enumerate(obs_photo_ins):
         path_list = __file__.split("/")[:-2]
         separator = '/'
         filter_pho = np.load(separator.join(path_list) + '/phototeque/' + pho + '.npz')
@@ -533,9 +533,9 @@ def extract_model(global_params, wav_mod_nativ, flx_mod_nativ, res_mod_nativ, co
         flx_filt = np.sum(flx_mod_nativ[ind] * y_filt[ind] * (wav_mod_nativ[ind][1] - wav_mod_nativ[ind][0]))
         y_filt_tot = np.sum(y_filt[ind] * (wav_mod_nativ[ind][1] - wav_mod_nativ[ind][0]))
         flx_filt = flx_filt / y_filt_tot
-        mod_pho.append(flx_filt)
+        mod_photo.append(flx_filt)
 
-    return mod_cut, mod_pho, obs_cut
+    return mod_spectro, mod_photo, obs_spectro
 
 # ----------------------------------------------------------------------------------------------------------------------
 

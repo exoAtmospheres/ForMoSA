@@ -87,3 +87,34 @@ Comments:
     "result_PACKAGE.pic".
 
 _ _ _
+
+15/03/2024
+Matthieu Ravet
+
+Comments:
+    - Correction of photometry importation in extraction_functions by putting it out of the selection windows
+    - Parameter name changes :
+            * obs_cut >> obs_spectro
+            * obs_pho >> obs_photo
+            * obs_cut_ins >> obs_spectro_ins
+            * obs_pho_ins >> obs_photo_ins
+
+            * obs_merge >> obs_spectro_merge
+    > These name changes have been applied in extraction_functions, nested_sampling and plotting_class
+
+    - Replacement of X = [] and X = np.zeros(len(Y)) by X = np.asaray([]) when possible to homogenize the code and speed-up the inversion
+    - obs_spectro now store the optional parameters inv_cov, trans_obs and star_flx for more clarity
+    - Removal of obs_merge_ins during when saving the spectrum_obs as it is not needed (and the instrument can still be access via obs_spectro_ins)
+    - Use of X = np.asarray(X, dtype=object) for each list X containing multiple objects of different sizes for storage (usefull when we'll want
+    to add more optional inputs)
+
+Test that have been done to checkup the changes:
+    - With/without spectral windows ✓
+    - With/without continuum substraction ✓
+    - With/without spectral covariances ✓
+    - With/without photometry ✓
+    - With/without NANs ✓
+    - With/without MOSAIC ✓
+    - With/without trans_obs and star_flx ✓
+
+_ _ _
