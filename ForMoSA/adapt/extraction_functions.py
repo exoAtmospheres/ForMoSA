@@ -238,9 +238,9 @@ def adapt_observation_range(global_params, obs_name='', indobs=0):
                 transm = np.zeros(len(flx))
             if global_params.star_data[indobs] == 'True':
                 star_flx = hdul[1].data['STAR FLX']
+                star_flx = star_flx[nan_mod_ind]
             else:
                 star_flx = np.zeros(len(flx))
-                star_flx = star_flx[nan_mod_ind]
         # If Classical mode
         else:
             if global_params.multiply_transmission == 'True':
@@ -250,9 +250,9 @@ def adapt_observation_range(global_params, obs_name='', indobs=0):
                 transm = np.zeros(len(flx))
             if global_params.star_data == 'True':
                 star_flx = hdul[1].data['STAR FLX']
+                star_flx = star_flx[nan_mod_ind]
             else:
                 star_flx = np.zeros(len(flx))
-                star_flx = star_flx[nan_mod_ind]
 
         # Create empty list for the covariance matrix
         obs_cut_cov = []
