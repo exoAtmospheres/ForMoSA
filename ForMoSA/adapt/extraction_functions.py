@@ -236,9 +236,9 @@ def adapt_observation_range(global_params, obs_name='', indobs=0):
             
         if global_params.star_data == 'True':
             star_flx = hdul[1].data['STAR FLX']
+            star_flx = star_flx[nan_mod_ind]
         else:
             star_flx = np.zeros(len(flx))
-            star_flx = star_flx[nan_mod_ind]
 
         # Create empty list for the covariance matrix
         obs_cut_cov = []
