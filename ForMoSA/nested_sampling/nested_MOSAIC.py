@@ -23,7 +23,7 @@ def MOSAIC_logL(theta, theta_index, global_params, main_file):
     Returns:
         FINAL_logL     (float): Final evaluated loglikelihood for both spectra and photometry. 
 
-    Authors: Simon Petrus and Matthieu Ravet
+    Authors: Simon Petrus, Matthieu Ravet and Allan Denis
     """
     
     # Recovery of each observation spectroscopy and photometry data

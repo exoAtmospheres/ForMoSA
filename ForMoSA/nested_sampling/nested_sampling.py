@@ -23,12 +23,13 @@ def import_obsmod(global_params):
     Function to import spectra (model and data) before the inversion
 
     Args:
-        global_params (object): Class containing every input from the .ini file.
+        global_params  (object): Class containing every input from the .ini file.
         
     Returns:
-        main_file (list(list)): return a list of lists with the wavelengths, flux, errors, covariance matrix and the grids for both spectroscopic and photometric data. 
+        main_file (list(array)): return a list of lists with the wavelengths, flux, errors, covariance matrix,
+                                transmission, star flux and the grids for both spectroscopic and photometric data. 
 
-    Authors: Matthieu Ravet (adapted from Simon Petrus)
+    Authors: Simon Petrus, Matthieu Ravet and Allan Denis
     """
     # Check if the MOSAIC mode is activated
     if global_params.observation_format == 'MOSAIC':
@@ -121,7 +122,7 @@ def loglike(theta, theta_index, global_params, main_file, for_plot='no'):
         FINAL_logL     (float): Final evaluated loglikelihood for both spectra and photometry. 
         (If this function is used on the plotting module, it returns the outputs of the modif_spec function)
 
-    Authors: Simon Petrus and Matthieu Ravet
+    Authors: Simon Petrus, Matthieu Ravet and Allan Denis
     """
 
     # Check if we are running with the MOSAIC mode
@@ -467,7 +468,7 @@ def launch_nested_sampling(global_params, y_n_par='y'):
     Returns:
         None
         
-    Author: Simon Petrus and Matthieu
+    Author: Simon Petrus and Matthieu Ravet
     """
 
     # LogL functions check-ups
