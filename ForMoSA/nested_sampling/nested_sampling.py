@@ -46,9 +46,10 @@ def import_obsmod(global_params):
             wav_obs_merge = spectrum_obs['obs_spectro_merge'][0]
             flx_obs_merge = spectrum_obs['obs_spectro_merge'][1]
             err_obs_merge = spectrum_obs['obs_spectro_merge'][2]
-            inv_cov_obs_merge = spectrum_obs['obs_spectro_merge'][4]
-            transm_obs_merge = spectrum_obs['obs_spectro_merge'][5]
-            star_flx_obs_merge = spectrum_obs['obs_spectro_merge'][6]
+            # Optional arrays
+            inv_cov_obs_merge = spectrum_obs['obs_opt_merge'][0]
+            transm_obs_merge = spectrum_obs['obs_opt_merge'][1]
+            star_flx_obs_merge = spectrum_obs['obs_opt_merge'][2]
 
             if 'obs_photo' in spectrum_obs.keys():
                 wav_obs_phot = np.asarray(spectrum_obs['obs_photo'][0])
@@ -78,9 +79,10 @@ def import_obsmod(global_params):
         wav_obs_merge = spectrum_obs['obs_spectro_merge'][0]
         flx_obs_merge = spectrum_obs['obs_spectro_merge'][1]
         err_obs_merge = spectrum_obs['obs_spectro_merge'][2]
-        inv_cov_obs_merge = spectrum_obs['obs_spectro_merge'][4]
-        transm_obs_merge = spectrum_obs['obs_spectro_merge'][5]
-        star_flx_obs_merge = spectrum_obs['obs_spectro_merge'][6]
+        # Optional arrays
+        inv_cov_obs_merge = spectrum_obs['obs_opt_merge'][0]
+        transm_obs_merge = spectrum_obs['obs_opt_merge'][1]
+        star_flx_obs_merge = spectrum_obs['obs_opt_merge'][2]
 
         if 'obs_photo' in spectrum_obs.keys():
             wav_obs_phot = np.asarray(spectrum_obs['obs_photo'][0])

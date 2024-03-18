@@ -319,8 +319,8 @@ class PlottingForMoSA():
         wav_obs_merge = spectrum_obs['obs_spectro_merge'][0]
         flx_obs_merge = spectrum_obs['obs_spectro_merge'][1]
         err_obs_merge = spectrum_obs['obs_spectro_merge'][2]
-        transm_obs_merge = spectrum_obs['obs_spectro_merge'][5]
-        star_flx_obs_merge = spectrum_obs['obs_spectro_merge'][6]
+        transm_obs_merge = spectrum_obs['obs_opt_merge'][1]
+        star_flx_obs_merge = spectrum_obs['obs_opt_merge'][2]
         if 'obs_photo' in spectrum_obs.keys():
             wav_obs_phot = np.asarray(spectrum_obs['obs_photo'][0], dtype=float)
             flx_obs_phot = np.asarray(spectrum_obs['obs_photo'][1], dtype=float)
@@ -396,7 +396,7 @@ class PlottingForMoSA():
         return modif_spec_chi2
     
 
-    def get_FULL_spectra(self, theta, grid_used = 'original', wavelengths=[],res_out=1000, re_interp=False):
+    def get_FULL_spectra(self, theta, grid_used = 'original', wavelengths=[], res_out=1000, re_interp=False):
         '''
         To get the data and best model asociated 
         Use numba: https://numba.pydata.org/

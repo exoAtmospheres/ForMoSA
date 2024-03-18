@@ -118,3 +118,14 @@ Test that have been done to checkup the changes:
     - With/without trans_obs and star_flx ✓
 
 _ _ _
+
+18/03/2024
+Matthieu Ravet
+
+Comments:
+    - Keeping the optional arrays separated for storage to not slow down the grid extraction and adaptation by creating
+    a separate array:
+            * "obs_opt" for the optional observational arrays (cov, star_flx and trans_obs at the moment)
+    - Correction of the functions names and imports in nested_sampling, plotting_class
+    
+_ _ _

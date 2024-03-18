@@ -65,20 +65,22 @@ def extract_observation(global_params, wav_mod_nativ, res_mod_nativ, cont='no', 
         indobs               (int): Index of the current observation looping (only relevant in MOSAIC, else set to 0)
     Returns:
         obs_spectro      (n-array): List containing the sub-spectra defined by the parameter "wav_for_adapt" with decreased resolution
-                                    [[wav_1, flx_1, err_1, reso_1, cov_1, tran_1, star_1], ..., [wav_n, flx_n, err_n, reso_n, cov_n, tran_n, star_n]]
+                                    [[wav_1, flx_1, err_1, reso_1], ..., [wav_n, flx_n, err_n, reso_n]]
         obs_photo          (array): List containing the photometry (0 replace the spectral resolution here).
                                     [wav_phot, flx_phot, err_phot, 0]
         obs_spectro_ins    (array): List containing different instruments used for the data (1 per wavelength).
                                     [[instru_range_1], ..., [instru_range_n]]
         obs_photo_ins      (array): List containing different filters used for the data (1 per photometric point).
-                                    [filter_phot_1, filter_phot_2, ..., filter_phot_n]  
+                                    [filter_phot_1, filter_phot_2, ..., filter_phot_n]
+        obs_opt          (n-array): List containing the optional sub-arrays defined by the parameter "wav_for_adapt".
+                                    [[cov_1, tran_1, star_1], ..., [cov_n, tran_n, star_n]]  
 
     Author: Simon Petrus / Adapted: Matthieu Ravet
     """
 
     # Extract the wavelengths, flux, errors, spectral resolution, and instrument/filter names from the observation file.
 
-    obs_spectro, obs_photo, obs_spectro_ins, obs_photo_ins = adapt_observation_range(global_params, obs_name=obs_name, indobs=indobs)
+    obs_spectro, obs_photo, obs_spectro_ins, obs_photo_ins, obs_opt = adapt_observation_range(global_params, obs_name=obs_name, indobs=indobs)
 
     # Reduce the spectral resolution for each sub-spectrum.
     for c, cut in enumerate(obs_spectro):
@@ -162,7 +164,7 @@ def extract_observation(global_params, wav_mod_nativ, res_mod_nativ, cont='no', 
                     obs_spectro[c][1] = flx_obs_cont
 
 
-    return obs_spectro, obs_photo, obs_spectro_ins, obs_photo_ins
+    return obs_spectro, obs_photo, obs_spectro_ins, obs_photo_ins, obs_opt
 
 # ----------------------------------------------------------------------------------------------------------------------
 
@@ -177,13 +179,15 @@ def adapt_observation_range(global_params, obs_name='', indobs=0):
         indobs            (int): Index of the current observation looping (only relevant in MOSAIC, else set to 0)
     Returns:
         obs_spectro   (n-array): List containing the sub-spectra defined by the parameter "wav_for_adapt".
-                                [[wav_1, flx_1, err_1, reso_1, cov_1, tran_1, star_1], ..., [wav_n, flx_n, err_n, reso_n, cov_n, tran_n, star_n]]
+                                [[wav_1, flx_1, err_1, reso_1], ..., [wav_n, flx_n, err_n, reso_n]]
         obs_photo       (array): List containing the photometry (0 replace the spectral resolution here).
                                 [wav_phot, flx_phot, err_phot, 0]
         obs_spectro_ins (array): List containing different instruments used for the data (1 per wavelength).
                                 [[instru_1], ..., [instru_n]]
         obs_photo_ins   (array): List containing different filters used for the data (1 per photometric point).
                                 [filter_phot_1, filter_phot_2, ..., filter_phot_n]
+        obs_opt       (n-array): List containing the optional sub-arrays defined by the parameter "wav_for_adapt".
+                                [[cov_1, tran_1, star_1], ..., [cov_n, tran_n, star_n]]
 
     Author: Simon Petrus, Matthieu Ravet and Allan Denis
     """
@@ -301,22 +305,25 @@ def adapt_observation_range(global_params, obs_name='', indobs=0):
 
             # Merge spectroscopic data
             if range_ind == 0:
-                obs_spectro = [[wav_spectro, flx_spectro, err_spectro, res_spectro, cov_spectro, transm_spectro, star_flx_spectro]]
+                obs_spectro = [[wav_spectro, flx_spectro, err_spectro, res_spectro]]
+                obs_opt = [[cov_spectro, transm_spectro, star_flx_spectro]] # Optional arrays
                 obs_spectro_ins = [[ins_spectro]]
             else:
-                obs_spectro.append([wav_spectro, flx_spectro, err_spectro, res_spectro, cov_spectro, transm_spectro, star_flx_spectro])
+                obs_spectro.append([wav_spectro, flx_spectro, err_spectro, res_spectro])
+                obs_opt.append([cov_spectro, transm_spectro, star_flx_spectro]) # Optional arrays
                 obs_spectro_ins.append([ins_spectro])
 
         # for i, ins in enumerate(obs_cut_ins):
         #     obs_cut_ins[i] = obs_cut_ins[i][0]
             
         # Allow for different array sizes for the storage
-        obs_spectro = np.asarray(obs_spectro, dtype=object)
-        obs_photo = np.asarray(obs_photo, dtype=object)
-        obs_spectro_ins = np.asarray(obs_spectro_ins, dtype=object)
-        obs_photo_ins = np.asarray(obs_photo_ins, dtype=object)
+        # obs_spectro = np.asarray(obs_spectro, dtype=object)
+        # obs_photo = np.asarray(obs_photo, dtype=object)
+        # obs_spectro_ins = np.asarray(obs_spectro_ins, dtype=object)
+        # obs_photo_ins = np.asarray(obs_photo_ins, dtype=object)
+        # obs_opt = np.asarray(obs_opt, dtype=object)
             
-        return obs_spectro, obs_photo, obs_spectro_ins, obs_photo_ins   
+        return obs_spectro, obs_photo, obs_spectro_ins, obs_photo_ins, obs_opt   
 
 
 # ----------------------------------------------------------------------------------------------------------------------
