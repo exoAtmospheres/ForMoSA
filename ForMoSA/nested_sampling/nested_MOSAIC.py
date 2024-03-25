@@ -23,7 +23,7 @@ def MOSAIC_logL(theta, theta_index, global_params, main_file):
     Returns:
         FINAL_logL     (float): Final evaluated loglikelihood for both spectra and photometry. 
 
-    Authors: Simon Petrus and Matthieu Ravet
+    Authors: Simon Petrus, Matthieu Ravet and Allan Denis
     """
     
     # Recovery of each observation spectroscopy and photometry data
@@ -41,12 +41,12 @@ def MOSAIC_logL(theta, theta_index, global_params, main_file):
         err_obs_merge = main_file[indobs][2][0]
         err_obs_phot = main_file[indobs][2][1]
         inv_cov_obs_merge = main_file[indobs][3]
-        transm_obs_merge = main_file[indobs][6]
-        star_flx_obs_merge = main_file[indobs][7]
+        transm_obs_merge = main_file[indobs][4]
+        star_flx_obs_merge = main_file[indobs][5]
 
         # Recovery of the spectroscopy and photometry model
-        grid_merge = main_file[indobs][4]
-        grid_phot = main_file[indobs][5]
+        grid_merge = main_file[indobs][6]
+        grid_phot = main_file[indobs][7]
 
         # Calculation of the likelihood for each sub-spectrum defined by the parameter 'wav_fit'
         for ns_u_ind, ns_u in enumerate(global_params.wav_fit[indobs].split('/')):
@@ -63,50 +63,50 @@ def MOSAIC_logL(theta, theta_index, global_params, main_file):
             # Interpolation of the grid at the theta parameters set
             if global_params.par3 == 'NA':
                 if len(grid_merge_cut['wavelength']) != 0:
-                    flx_mod_merge_cut = grid_merge_cut.interp(par1=theta[0], par2=theta[1],
-                                                            method="linear", kwargs={"fill_value": "extrapolate"})
+                    flx_mod_merge_cut = np.asarray(grid_merge_cut.interp(par1=theta[0], par2=theta[1],
+                                                            method="linear", kwargs={"fill_value": "extrapolate"}))
                 else:
-                    flx_mod_merge_cut = []
+                    flx_mod_merge_cut = np.asarray([])
                 if len(grid_phot_cut['wavelength']) != 0:
-                    flx_mod_phot_cut = grid_phot_cut.interp(par1=theta[0], par2=theta[1],
-                                                            method="linear", kwargs={"fill_value": "extrapolate"})
+                    flx_mod_phot_cut = np.asarray(grid_phot_cut.interp(par1=theta[0], par2=theta[1],
+                                                            method="linear", kwargs={"fill_value": "extrapolate"}))
                 else:
-                    flx_mod_phot_cut = []
+                    flx_mod_phot_cut = np.asarray([])
             elif global_params.par4 == 'NA':
                 if len(grid_merge_cut['wavelength']) != 0:
-                    flx_mod_merge_cut = grid_merge_cut.interp(par1=theta[0], par2=theta[1], par3=theta[2],
-                                                            method="linear", kwargs={"fill_value": "extrapolate"})
+                    flx_mod_merge_cut = np.asarray(grid_merge_cut.interp(par1=theta[0], par2=theta[1], par3=theta[2],
+                                                            method="linear", kwargs={"fill_value": "extrapolate"}))
                 else:
-                    flx_mod_merge_cut = []
+                    flx_mod_merge_cut = np.asarray([])
                 if len(grid_phot_cut['wavelength']) != 0:
-                    flx_mod_phot_cut = grid_phot_cut.interp(par1=theta[0], par2=theta[1], par3=theta[2],
-                                                            method="linear", kwargs={"fill_value": "extrapolate"})
+                    flx_mod_phot_cut = np.asarray(grid_phot_cut.interp(par1=theta[0], par2=theta[1], par3=theta[2],
+                                                            method="linear", kwargs={"fill_value": "extrapolate"}))
                 else:
-                    flx_mod_phot_cut = []
+                    flx_mod_phot_cut = np.asarray([])
             elif global_params.par5 == 'NA':
                 if len(grid_merge_cut['wavelength']) != 0:
-                    flx_mod_merge_cut = grid_merge_cut.interp(par1=theta[0], par2=theta[1], par3=theta[2], par4=theta[3],
-                                                            method="linear", kwargs={"fill_value": "extrapolate"})
+                    flx_mod_merge_cut = np.asarray(grid_merge_cut.interp(par1=theta[0], par2=theta[1], par3=theta[2], par4=theta[3],
+                                                            method="linear", kwargs={"fill_value": "extrapolate"}))
                 else:
-                    flx_mod_merge_cut = []
+                    flx_mod_merge_cut = np.asarray([])
                 if len(grid_phot_cut['wavelength']) != 0:
-                    flx_mod_phot_cut = grid_phot_cut.interp(par1=theta[0], par2=theta[1], par3=theta[2], par4=theta[3],
-                                                            method="linear", kwargs={"fill_value": "extrapolate"})
+                    flx_mod_phot_cut = np.asarray(grid_phot_cut.interp(par1=theta[0], par2=theta[1], par3=theta[2], par4=theta[3],
+                                                            method="linear", kwargs={"fill_value": "extrapolate"}))
                 else:
-                    flx_mod_phot_cut = []
+                    flx_mod_phot_cut = np.asarray([])
             else:
                 if len(grid_merge_cut['wavelength']) != 0:
-                    flx_mod_merge_cut = grid_merge_cut.interp(par1=theta[0], par2=theta[1], par3=theta[2], par4=theta[3],
+                    flx_mod_merge_cut = np.asarray(grid_merge_cut.interp(par1=theta[0], par2=theta[1], par3=theta[2], par4=theta[3],
                                                             par5=theta[4],
-                                                            method="linear", kwargs={"fill_value": "extrapolate"})
+                                                            method="linear", kwargs={"fill_value": "extrapolate"}))
                 else:
-                    flx_mod_merge_cut = []
+                    flx_mod_merge_cut = np.asarray([])
                 if len(grid_phot_cut['wavelength']) != 0:
-                    flx_mod_phot_cut = grid_phot_cut.interp(par1=theta[0], par2=theta[1], par3=theta[2], par4=theta[3],
+                    flx_mod_phot_cut = np.asarray(grid_phot_cut.interp(par1=theta[0], par2=theta[1], par3=theta[2], par4=theta[3],
                                                             par5=theta[4],
-                                                            method="linear", kwargs={"fill_value": "extrapolate"})
+                                                            method="linear", kwargs={"fill_value": "extrapolate"}))
                 else:
-                    flx_mod_phot_cut = []
+                    flx_mod_phot_cut = np.asarray([])
 
 
             # Re-merging of the data and interpolated synthetic spectrum to a wavelength grid defined by the parameter 'wav_fit'
@@ -117,32 +117,37 @@ def MOSAIC_logL(theta, theta_index, global_params, main_file):
                 flx_obs_merge_ns_u = flx_obs_merge[ind_merge]
                 err_obs_merge_ns_u = err_obs_merge[ind_merge]
                 flx_mod_merge_ns_u = flx_mod_merge_cut
-                transm_obs_merge_ns_u = transm_obs_merge[ind_merge]
-                star_flx_obs_merge_ns_u = star_flx_obs_merge[ind_merge]
+                if len(inv_cov_obs_merge) != 0:  # Add covariance in the loop (if necessary)
+                    inv_cov_obs_merge_ns_u = inv_cov_obs_merge[np.ix_(ind_merge[0],ind_merge[0])]
+                else:
+                    inv_cov_obs_merge_ns_u = np.asarray([])
+                if len(transm_obs_merge) != 0:
+                    transm_obs_merge_ns_u = transm_obs_merge[ind_merge]
+                else:
+                    transm_obs_merge_ns_u = np.asarray([])
+                if len(star_flx_obs_merge) != 0:
+                    star_flx_obs_merge_ns_u = star_flx_obs_merge[ind_merge]
+                else:
+                    star_flx_obs_merge_ns_u = np.asarray([])
                 wav_obs_phot_ns_u = wav_obs_phot[ind_phot]
                 flx_obs_phot_ns_u = flx_obs_phot[ind_phot]
                 err_obs_phot_ns_u = err_obs_phot[ind_phot]
                 flx_mod_phot_ns_u = flx_mod_phot_cut
-                if len(inv_cov_obs_merge) != 0:  # Add covariance in the loop (if necessary)
-                    inv_cov_obs_merge_ns_u = inv_cov_obs_merge[np.ix_(ind_merge[0],ind_merge[0])]
-                else:
-                    inv_cov_obs_merge_ns_u = []
             else:
                 wav_obs_merge_ns_u = np.concatenate((wav_obs_merge_ns_u, wav_obs_merge[ind_merge]))
                 flx_obs_merge_ns_u = np.concatenate((flx_obs_merge_ns_u, flx_obs_merge[ind_merge]))
                 err_obs_merge_ns_u = np.concatenate((err_obs_merge_ns_u, err_obs_merge[ind_merge]))
                 flx_mod_merge_ns_u = np.concatenate((flx_mod_merge_ns_u, flx_mod_merge_cut))
-                transm_obs_merge_ns_u = np.concatenate((transm_obs_merge_ns_u, transm_obs_merge[ind_merge]))
-                star_flx_obs_merge_ns_u = np.concatenate((star_flx_obs_merge_ns_u, star_flx_obs_merge[ind_grid_merge_sel]))
+                if len(inv_cov_obs_merge_ns_u) != 0: # Merge the covariance matrices (if necessary)
+                    inv_cov_obs_merge_ns_u = diag_mat([inv_cov_obs_merge_ns_u, inv_cov_obs_merge[np.ix_(ind_merge[0],ind_merge[0])]])
+                if len(transm_obs_merge_ns_u) != 0:
+                    transm_obs_merge_ns_u = np.concatenate((transm_obs_merge_ns_u, transm_obs_merge[ind_merge]))
+                if len(star_flx_obs_merge_ns_u) != 0:    
+                    star_flx_obs_merge_ns_u = np.concatenate((star_flx_obs_merge_ns_u, star_flx_obs_merge[ind_grid_merge_sel]))
                 wav_obs_phot_ns_u = np.concatenate((wav_obs_phot_ns_u, wav_obs_phot[ind_phot]))
                 flx_obs_phot_ns_u = np.concatenate((flx_obs_phot_ns_u, flx_obs_phot[ind_phot]))
                 err_obs_phot_ns_u = np.concatenate((err_obs_phot_ns_u, err_obs_phot[ind_phot]))
                 flx_mod_phot_ns_u = np.concatenate((flx_mod_phot_ns_u, flx_mod_phot_cut))
-                if len(inv_cov_obs_merge_ns_u) != 0: # Merge the covariance matrices (if necessary)
-                    inv_cov_obs_merge_ns_u = diag_mat([inv_cov_obs_merge_ns_u, inv_cov_obs_merge[np.ix_(ind_merge[0],ind_merge[0])]])
-
-        # Making sure that the model are in array format
-        flx_mod_merge_ns_u, flx_mod_phot_ns_u = np.array(flx_mod_merge_ns_u), np.array(flx_mod_phot_ns_u)
         
                     
         # Modification of the synthetic spectrum with the extra-grid parameters

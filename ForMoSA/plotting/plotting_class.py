@@ -316,15 +316,15 @@ class PlottingForMoSA():
         #def get_spec(theta, theta_index, global_params, for_plot='no'):
         # Recovery of the spectroscopy and photometry data
         spectrum_obs = np.load(self.global_params.result_path + '/spectrum_obs.npz', allow_pickle=True)
-        wav_obs_merge = spectrum_obs['obs_merge'][0]
-        flx_obs_merge = spectrum_obs['obs_merge'][1]
-        err_obs_merge = spectrum_obs['obs_merge'][2]
-        transm_obs_merge = spectrum_obs['obs_merge'][4]
-        star_flx_obs_merge = spectrum_obs['obs_merge'][5]
-        if 'obs_pho' in spectrum_obs.keys():
-            wav_obs_phot = np.asarray(spectrum_obs['obs_pho'][0], dtype=float)
-            flx_obs_phot = np.asarray(spectrum_obs['obs_pho'][1], dtype=float)
-            err_obs_phot = np.asarray(spectrum_obs['obs_pho'][2], dtype=float)
+        wav_obs_merge = spectrum_obs['obs_spectro_merge'][0]
+        flx_obs_merge = spectrum_obs['obs_spectro_merge'][1]
+        err_obs_merge = spectrum_obs['obs_spectro_merge'][2]
+        transm_obs_merge = spectrum_obs['obs_opt_merge'][1]
+        star_flx_obs_merge = spectrum_obs['obs_opt_merge'][2]
+        if 'obs_photo' in spectrum_obs.keys():
+            wav_obs_phot = np.asarray(spectrum_obs['obs_photo'][0], dtype=float)
+            flx_obs_phot = np.asarray(spectrum_obs['obs_photo'][1], dtype=float)
+            err_obs_phot = np.asarray(spectrum_obs['obs_photo'][2], dtype=float)
         else:
             wav_obs_phot = np.asarray([], dtype=float)
             flx_obs_phot = np.asarray([], dtype=float)
@@ -342,50 +342,50 @@ class PlottingForMoSA():
 
         if self.global_params.par3 == 'NA':
             if len(grid_merge['wavelength']) != 0:
-                flx_mod_merge = grid_merge.interp(par1=theta[0], par2=theta[1],
-                                                          method="linear", kwargs={"fill_value": "extrapolate"})
+                flx_mod_merge = np.asarray(grid_merge.interp(par1=theta[0], par2=theta[1],
+                                                          method="linear", kwargs={"fill_value": "extrapolate"}))
             else:
-                flx_mod_merge = []
+                flx_mod_merge = np.asarray([])
             if len(grid_phot['wavelength']) != 0:
-                flx_mod_phot = grid_phot.interp(par1=theta[0], par2=theta[1],
-                                                        method="linear", kwargs={"fill_value": "extrapolate"})
+                flx_mod_phot = np.asarray(grid_phot.interp(par1=theta[0], par2=theta[1],
+                                                        method="linear", kwargs={"fill_value": "extrapolate"}))
             else:
-                flx_mod_phot = []
+                flx_mod_phot = np.asarray([])
         elif self.global_params.par4 == 'NA':
             if len(grid_merge['wavelength']) != 0:
-                flx_mod_merge = grid_merge.interp(par1=theta[0], par2=theta[1], par3=theta[2],
-                                                          method="linear", kwargs={"fill_value": "extrapolate"})
+                flx_mod_merge = np.asarray(grid_merge.interp(par1=theta[0], par2=theta[1], par3=theta[2],
+                                                          method="linear", kwargs={"fill_value": "extrapolate"}))
             else:
-                flx_mod_merge = []
+                flx_mod_merge = np.asarray([])
             if len(grid_phot['wavelength']) != 0:
-                flx_mod_phot = grid_phot.interp(par1=theta[0], par2=theta[1], par3=theta[2],
-                                                        method="linear", kwargs={"fill_value": "extrapolate"})
+                flx_mod_phot = np.asarray(grid_phot.interp(par1=theta[0], par2=theta[1], par3=theta[2],
+                                                        method="linear", kwargs={"fill_value": "extrapolate"}))
             else:
-                flx_mod_phot = []
+                flx_mod_phot = np.asarray([])
         elif self.global_params.par5 == 'NA':
             if len(grid_merge['wavelength']) != 0:
-                flx_mod_merge = grid_merge.interp(par1=theta[0], par2=theta[1], par3=theta[2], par4=theta[3],
-                                                          method="linear", kwargs={"fill_value": "extrapolate"})
+                flx_mod_merge = np.asarray(grid_merge.interp(par1=theta[0], par2=theta[1], par3=theta[2], par4=theta[3],
+                                                          method="linear", kwargs={"fill_value": "extrapolate"}))
             else:
-                flx_mod_merge = []
+                flx_mod_merge = np.asarray([])
             if len(grid_phot['wavelength']) != 0:
-                flx_mod_phot = grid_phot.interp(par1=theta[0], par2=theta[1], par3=theta[2], par4=theta[3],
-                                                        method="linear", kwargs={"fill_value": "extrapolate"})
+                flx_mod_phot = np.asarray(grid_phot.interp(par1=theta[0], par2=theta[1], par3=theta[2], par4=theta[3],
+                                                        method="linear", kwargs={"fill_value": "extrapolate"}))
             else:
-                flx_mod_phot = []
+                flx_mod_phot = np.asarray([])
         else:
             if len(grid_merge['wavelength']) != 0:
-                flx_mod_merge = grid_merge.interp(par1=theta[0], par2=theta[1], par3=theta[2], par4=theta[3],
+                flx_mod_merge = np.asarray(grid_merge.interp(par1=theta[0], par2=theta[1], par3=theta[2], par4=theta[3],
                                                           par5=theta[4],
-                                                          method="linear", kwargs={"fill_value": "extrapolate"})
+                                                          method="linear", kwargs={"fill_value": "extrapolate"}))
             else:
-                flx_mod_merge = []
+                flx_mod_merge = np.asarray([])
             if len(grid_phot['wavelength']) != 0:
-                flx_mod_phot = grid_phot.interp(par1=theta[0], par2=theta[1], par3=theta[2], par4=theta[3],
+                flx_mod_phot = np.asarray(grid_phot.interp(par1=theta[0], par2=theta[1], par3=theta[2], par4=theta[3],
                                                         par5=theta[4],
-                                                        method="linear", kwargs={"fill_value": "extrapolate"})
+                                                        method="linear", kwargs={"fill_value": "extrapolate"}))
             else:
-                flx_mod_phot = []
+                flx_mod_phot = np.asarray([])
 
         # Modification of the synthetic spectrum with the extra-grid parameters
         modif_spec_chi2 = modif_spec(self.global_params, theta, self.theta_index,
@@ -396,7 +396,7 @@ class PlottingForMoSA():
         return modif_spec_chi2
     
 
-    def get_FULL_spectra(self, theta, grid_used = 'original', wavelengths=[],res_out=1000, re_interp=False):
+    def get_FULL_spectra(self, theta, grid_used = 'original', wavelengths=[], res_out=1000, re_interp=False):
         '''
         To get the data and best model asociated 
         Use numba: https://numba.pydata.org/

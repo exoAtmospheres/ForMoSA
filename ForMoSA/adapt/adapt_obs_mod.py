@@ -16,15 +16,15 @@ def launch_adapt(global_params, justobs='no'):
     Adapt the synthetic spectra of a grid to make them comparable with the data.
     
     Args:
-        global_params (object): Class containing each parameter
-        wav_obs_spec   (array): Merged wavelength grid of the data
-        wav_obs_phot   (array): Wavelengths of the photometry points
-        obs_name         (str): Name of the current observation looping (only relevant in MOSAIC, else set to '')
-        indobs           (int): Index of the current observation looping (only relevant in MOSAIC, else set to 0)
+        global_params  (object): Class containing each parameter
+        wav_obs_spectro (array): Merged wavelength grid of the data
+        wav_obs_photo   (array): Wavelengths of the photometry points
+        obs_name          (str): Name of the current observation looping (only relevant in MOSAIC, else set to '')
+        indobs            (int): Index of the current observation looping (only relevant in MOSAIC, else set to 0)
     Returns:
         None
 
-    Author: Simon Petrus / Adapted: Matthieu Ravet & Paulina Palma-Bifani
+    Author: Simon Petrus / Adapted: Matthieu Ravet, Paulina Palma-Bifani and Allan Denis
     """
 
     # Get back information from the config file
@@ -34,49 +34,48 @@ def launch_adapt(global_params, justobs='no'):
     ds.close()
 
     # Extract the data from the observation file
-    obs_cut, obs_pho, obs_cut_ins, obs_pho_ins, obs_cut_cov = extract_observation(global_params, wav_mod_nativ, attr['res'])
+    obs_spectro, obs_photo, obs_spectro_ins, obs_photo_ins, obs_opt = extract_observation(global_params, wav_mod_nativ, attr['res'])
 
     # Estimate and subtraction of the continuum (if needed)
     if global_params.continuum_sub != 'NA':
-        obs_cut_c, obs_pho_c, obs_cut_ins_c, obs_pho_ins_c, obs_cut_cov = extract_observation(global_params, wav_mod_nativ,
+        obs_spectro_c, obs_photo_c, obs_spectro_ins_c, obs_photo_ins_c, obs_opt_c = extract_observation(global_params, wav_mod_nativ,
                                                                                  attr['res'], 'yes')
-        for c, cut in enumerate(obs_cut):
-            obs_cut[c][1] -= obs_cut_c[c][1]
+        for c, cut in enumerate(obs_spectro):
+            obs_spectro[c][1] -= obs_spectro_c[c][1]
     # Merging of each sub-spectrum
-    for c, cut in enumerate(obs_cut):
+    for c, cut in enumerate(obs_spectro):
         if c == 0:
-            wav_obs_extract = obs_cut[c][0]
-            flx_obs_extract = obs_cut[c][1]
-            err_obs_extract = obs_cut[c][2]
-            res_obs_extract = np.array(obs_cut[c][3], dtype=float) # New addition (may need to be corrected)
-            transm_obs_extract = obs_cut[c][4]
-            star_flx_obs_extract = obs_cut[c][5]
-            ins_obs_extract = obs_cut_ins[c]
-            if len(obs_cut_cov) != 0: # Extract sub-covariance (if necessary)
-                cov_obs_extract = obs_cut_cov[c]
-            else:
-                cov_obs_extract = []
+            wav_obs_extract = obs_spectro[c][0]
+            flx_obs_extract = obs_spectro[c][1]
+            err_obs_extract = obs_spectro[c][2]
+            res_obs_extract = obs_spectro[c][3]#np.array(obs_cut[c][3], dtype=float) # New addition (may need to be corrected)
+            # Optionals
+            cov_obs_extract = obs_opt[c][0]
+            transm_obs_extract = obs_opt[c][1]
+            star_flx_obs_extract = obs_opt[c][2]
 
         else:
-            wav_obs_extract = np.concatenate((wav_obs_extract, obs_cut[c][0]))
-            flx_obs_extract = np.concatenate((flx_obs_extract, obs_cut[c][1]))
-            err_obs_extract = np.concatenate((err_obs_extract, obs_cut[c][2]))
-            res_obs_extract = np.concatenate((res_obs_extract, np.array(obs_cut[c][3], dtype=float))) # New addition (may need to be corrected)
-            transm_obs_extract = np.concatenate((transm_obs_extract, obs_cut[c][4]))
-            star_flx_obs_extract = np.concatenate((star_flx_obs_extract, obs_cut[c][5]))
-            ins_obs_extract = np.concatenate((ins_obs_extract, obs_cut_ins[c]))
+            wav_obs_extract = np.concatenate((wav_obs_extract, obs_spectro[c][0]))
+            flx_obs_extract = np.concatenate((flx_obs_extract, obs_spectro[c][1]))
+            err_obs_extract = np.concatenate((err_obs_extract, obs_spectro[c][2]))
+            res_obs_extract = np.concatenate((res_obs_extract, obs_spectro[c][3]))#np.concatenate((res_obs_extract, np.array(obs_cut[c][3], dtype=float))) # New addition (may need to be corrected)
             if len(cov_obs_extract) != 0:
-                cov_obs_extract = diag_mat([cov_obs_extract, obs_cut_cov[c]])
+                cov_obs_extract = diag_mat([cov_obs_extract, obs_opt[c][0]])
+            if len(transm_obs_extract) != 0:
+                transm_obs_extract = np.concatenate((transm_obs_extract, obs_opt[c][1]))
+            if len(star_flx_obs_extract) != 0:
+                star_flx_obs_extract = np.concatenate((star_flx_obs_extract, obs_opt[c][2]))
 
         # Compute the inverse of the merged covariance matrix (note: inv(C1, C2) = (in(C1), in(C2)) if C1 and C2 are block matrix on the diagonal)
         # if necessary
         if len(cov_obs_extract) != 0:
-            inv_cov_obs = np.linalg.inv(cov_obs_extract)
+            inv_cov_obs_extract = np.linalg.inv(cov_obs_extract)
         else:
-            inv_cov_obs = []
+            inv_cov_obs_extract = np.asarray([])
 
         # Compile everything
-        obs_merge = [wav_obs_extract, flx_obs_extract, err_obs_extract, res_obs_extract, transm_obs_extract, star_flx_obs_extract]
+        obs_spectro_merge = np.asarray([wav_obs_extract, flx_obs_extract, err_obs_extract, res_obs_extract])
+        obs_opt_merge = np.asarray([inv_cov_obs_extract, transm_obs_extract, star_flx_obs_extract], dtype=object)
 
         # Check-ups and warnings for negative values in the diagonal of the covariance matrix
         if len(cov_obs_extract) != 0 and any(np.diag(cov_obs_extract) < 0):
@@ -86,15 +85,15 @@ def launch_adapt(global_params, justobs='no'):
             print()
             exit()
 
+
     # Save the new data spectrum
     np.savez(global_params.result_path + '/spectrum_obs',
-             obs_merge=obs_merge,
-             obs_cut=obs_cut,
-             obs_cut_ins=obs_cut_ins,
-             obs_merge_ins=ins_obs_extract,
-             obs_pho=obs_pho,
-             obs_pho_ins=obs_pho_ins,
-             inv_cov_obs=inv_cov_obs)
+             obs_spectro_merge=obs_spectro_merge,
+             obs_spectro=obs_spectro,
+             obs_spectro_ins=obs_spectro_ins,
+             obs_photo=obs_photo,
+             obs_photo_ins=obs_photo_ins,
+             obs_opt_merge=obs_opt_merge) # Optional arrays kept separatly
 
     # Adaptation of the model grid
     if justobs == 'no':
@@ -113,7 +112,7 @@ def launch_adapt(global_params, justobs='no'):
         print("- substraction of the continuum (if needed) -")
         print()
 
-        adapt_grid(global_params, obs_merge[0], obs_pho[0])
+        adapt_grid(global_params, obs_spectro_merge[0], obs_photo[0])
 
 
 # ----------------------------------------------------------------------------------------------------------------------
@@ -124,15 +123,15 @@ def launch_adapt_MOSAIC(global_params, justobs='no'):
     Adapt the synthetic spectra of a grid to make them comparable with the data.
     
     Args:
-        global_params (object): Class containing each parameter
-        wav_obs_spec   (array): Merged wavelength grid of the data
-        wav_obs_phot   (array): Wavelengths of the photometry points
-        obs_name         (str): Name of the current observation looping (only relevant in MOSAIC, else set to '')
-        indobs           (int): Index of the current observation looping (only relevant in MOSAIC, else set to 0)
+        global_params  (object): Class containing each parameter
+        wav_obs_spectro (array): Merged wavelength grid of the data
+        wav_obs_photo   (array): Wavelengths of the photometry points
+        obs_name          (str): Name of the current observation looping (only relevant in MOSAIC, else set to '')
+        indobs            (int): Index of the current observation looping (only relevant in MOSAIC, else set to 0)
     Returns:
         None
 
-    Author: Simon Petrus / Adapted: Matthieu Ravet & Paulina Palma-Bifani
+    Author: Simon Petrus / Adapted: Matthieu Ravet, Paulina Palma-Bifani and Allan Denis
     """
 
     # Get back information from the config file
@@ -155,8 +154,10 @@ def launch_adapt_MOSAIC(global_params, justobs='no'):
         global_params.observation_path = obs
         obs_name = os.path.splitext(os.path.basename(global_params.observation_path))[0]
         
-        obs_cut, obs_pho, obs_cut_ins, obs_pho_ins, obs_cut_cov = extract_observation(global_params, wav_mod_nativ, attr['res'], obs_name=obs_name,
+        obs_spectro, obs_photo, obs_spectro_ins, obs_photo_ins, obs_opt  = extract_observation(global_params, wav_mod_nativ, attr['res'], obs_name=obs_name,
                                                                                       indobs=indobs)
+        
+        print(obs_photo)
 
         # Estimate and subtraction of the continuum (if needed) + check-ups
         if global_params.continuum_sub[indobs] != 'NA':
@@ -165,46 +166,45 @@ def launch_adapt_MOSAIC(global_params, justobs='no'):
                   + global_params.wav_for_continuum[indobs] + ' wavelength range')
             print()
         if global_params.continuum_sub[indobs] != 'NA':
-            obs_cut_c, obs_pho_c, obs_cut_ins_c, obs_pho_ins_c, obs_cut_cov = extract_observation(global_params, wav_mod_nativ,
+            obs_spectro_c, obs_photo_c, obs_spectro_ins_c, obs_photo_ins_c, obs_opt_c = extract_observation(global_params, wav_mod_nativ,
                                                                                     attr['res'], 'yes', obs_name=obs_name, indobs=indobs)
-            for c, cut in enumerate(obs_cut):
-                obs_cut[c][1] -= obs_cut_c[c][1]
+            for c, cut in enumerate(obs_spectro):
+                obs_spectro[c][1] -= obs_spectro_c[c][1]
+
         # Merging of each sub-spectrum
-        for c, cut in enumerate(obs_cut):
+        for c, cut in enumerate(obs_spectro):
             if c == 0:
-                wav_obs_extract = obs_cut[c][0]
-                flx_obs_extract = obs_cut[c][1]
-                err_obs_extract = obs_cut[c][2]
-                res_obs_extract = np.array(obs_cut[c][3], dtype=float) # New addition (may need to be corrected)
-                transm_obs_extract = obs_cut[c][4]
-                star_flx_obs_extract = obs_cut[c][5]
-                ins_obs_extract = obs_cut_ins[c]
-                if len(obs_cut_cov) != 0: # Extract sub-covariance (if necessary)
-                    cov_obs_extract = obs_cut_cov[c]
-                else:
-                    cov_obs_extract = []
+                wav_obs_extract = obs_spectro[c][0]
+                flx_obs_extract = obs_spectro[c][1]
+                err_obs_extract = obs_spectro[c][2]
+                res_obs_extract = obs_spectro[c][3]#np.array(obs_cut[c][3], dtype=float) # New addition (may need to be corrected)
+                cov_obs_extract = obs_opt[c][0]
+                transm_obs_extract = obs_opt[c][1]
+                star_flx_obs_extract = obs_opt[c][2]
 
             else:
-                wav_obs_extract = np.concatenate((wav_obs_extract, obs_cut[c][0]))
-                flx_obs_extract = np.concatenate((flx_obs_extract, obs_cut[c][1]))
-                err_obs_extract = np.concatenate((err_obs_extract, obs_cut[c][2]))
-                res_obs_extract = np.concatenate((res_obs_extract, np.array(obs_cut[c][3], dtype=float))) # New addition (may need to be corrected)
-                transm_obs_extract = np.concatenate((transm_obs_extract, obs_cut[c][4]))
-                star_flx_obs_extract = np.concatenate((star_flx_obs_extract, obs_cut[c][5]))
-                ins_obs_extract = np.concatenate((ins_obs_extract, obs_cut_ins[c]))
+                wav_obs_extract = np.concatenate((wav_obs_extract, obs_spectro[c][0]))
+                flx_obs_extract = np.concatenate((flx_obs_extract, obs_spectro[c][1]))
+                err_obs_extract = np.concatenate((err_obs_extract, obs_spectro[c][2]))
+                res_obs_extract = np.concatenate((res_obs_extract, obs_spectro[c][3]))#np.concatenate((res_obs_extract, np.array(obs_cut[c][3], dtype=float))) # New addition (may need to be corrected)
                 if len(cov_obs_extract) != 0:
-                    cov_obs_extract = diag_mat([cov_obs_extract, obs_cut_cov[c]])
+                    cov_obs_extract = diag_mat([cov_obs_extract, obs_opt[c][0]])
+                if len(transm_obs_extract) != 0:
+                    transm_obs_extract = np.concatenate((transm_obs_extract, obs_opt[c][1]))
+                if len(star_flx_obs_extract) != 0:
+                    star_flx_obs_extract = np.concatenate((star_flx_obs_extract, obs_opt[c][2]))
 
 
             # Compute the inverse of the merged covariance matrix (note: inv(C1, C2) = (in(C1), in(C2)) if C1 and C2 are block matrix on the diagonal)
             # if necessary
             if len(cov_obs_extract) != 0:
-                inv_cov_obs = np.linalg.inv(cov_obs_extract)
+                inv_cov_obs_extract = np.linalg.inv(cov_obs_extract)
             else:
-                inv_cov_obs = []
+                inv_cov_obs_extract = np.asarray([])
 
             # Compile everything
-            obs_merge = [wav_obs_extract, flx_obs_extract, err_obs_extract, res_obs_extract, transm_obs_extract, star_flx_obs_extract]
+            obs_spectro_merge = np.asarray([wav_obs_extract, flx_obs_extract, err_obs_extract, res_obs_extract])
+            obs_opt_merge = np.asarray([inv_cov_obs_extract, transm_obs_extract, star_flx_obs_extract], dtype=object)
 
             # Check-ups and warnings for negative values in the diagonal of the covariance matrix
             if len(cov_obs_extract) != 0 and any(np.diag(cov_obs_extract) < 0):
@@ -216,13 +216,12 @@ def launch_adapt_MOSAIC(global_params, justobs='no'):
 
         # Save the new data spectrum
         np.savez(os.path.join(global_params.result_path, f'spectrum_obs_{obs_name}.npz'),
-                obs_merge=obs_merge,
-                obs_cut=obs_cut,
-                obs_cut_ins=obs_cut_ins,
-                obs_merge_ins=ins_obs_extract,
-                obs_pho=obs_pho,
-                obs_pho_ins=obs_pho_ins,
-                inv_cov_obs=inv_cov_obs)
+                    obs_spectro_merge=obs_spectro_merge,
+                    obs_spectro=obs_spectro,
+                    obs_spectro_ins=obs_spectro_ins,
+                    obs_photo=obs_photo,
+                    obs_photo_ins=obs_photo_ins,
+                    obs_opt_merge=obs_opt_merge) # Optional arrays kept separatly
         
         # Adaptation of the model grid
         if justobs == 'no':
@@ -243,7 +242,7 @@ def launch_adapt_MOSAIC(global_params, justobs='no'):
             print('- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -')
             print(f"-> Sarting the adaptation of {obs_name}")
 
-            adapt_grid(global_params, obs_merge[0], obs_pho[0], obs_name=obs_name, indobs=indobs)
+            adapt_grid(global_params, obs_spectro_merge[0], obs_photo[0], obs_name=obs_name, indobs=indobs)
 
 
 # ----------------------------------------------------------------------------------------------------------------------
