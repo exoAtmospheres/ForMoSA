@@ -242,6 +242,59 @@ def vsini_fct(wav_obs_merge, new_flx_merge, ld_picked, vsini_picked):
     return new_flx_merge
 
 
+
+# ----------------------------------------------------------------------------------------------------------------------
+
+
+def vsini_fct_new(wave_obs_merge, new_flx_merge, ld_picked, vsini_picked, nr=50, ntheta=100, dif=0.0):
+    '''
+    A routine to quickly rotationally broaden a spectrum in linear time.
+
+    Carvalho & Johns-Krull 2023
+    https://ui.adsabs.harvard.edu/abs/2023RNAAS...7...91C/abstract
+
+    ARGS:
+        wav_obs_merge   : Wavelength grid of the data
+        new_flx_merge   : Flux of the interpolated synthetic spectrum
+        ld_picked       : Limd darkening randomly picked by the nested sampling
+        vsini_picked    : v.sin(i) randomly picked by the nested sampling (in km.s-1)
+    
+    Returns:
+        new_flx_merge   : New flux of the interpolated synthetic spectrum
+
+    OPTIONAL ARGS:
+        nr (default = 10) - the number of radial bins on the projected disk
+        ntheta (default = 100) - the number of azimuthal bins in the largest radial annulus
+                                note: the number of bins at each r is int(r*ntheta) where r < 1
+        
+        dif (default = 0) - the differential rotation coefficient, applied according to the law
+        Omeg(th)/Omeg(eq) = (1 - dif/2 - (dif/2) cos(2 th)). Dif = .675 nicely reproduces the law 
+        proposed by Smith, 1994, A&A, Vol. 287, p. 523-534, to unify WTTS and CTTS. Dif = .23 is 
+        similar to observed solar differential rotation. Note: the th in the above expression is 
+        the stellar co-latitude, not the same as the integration variable used below. This is a 
+        disk integration routine.
+    '''
+
+    ns = np.copy(new_flx_merge)*0.0
+    tarea = 0.0
+    dr = 1./nr
+    for j in range(0, nr):
+        r = dr/2.0 + j*dr
+        area = ((r + dr/2.0)**2 - (r - dr/2.0)**2)/int(ntheta*r) * (1.0 - ld_picked + ld_picked * np.cos(np.arcsin(r)))
+        for k in range(0,int(ntheta*r)):
+            th = np.pi/int(ntheta*r) + k * 2.0*np.pi/int(ntheta*r)
+            if dif != 0:
+                vl = vsini_picked * r * np.sin(th) * (1.0 - dif/2.0 - dif/2.0*np.cos(2.0*np.arccos(r*np.cos(th))))
+                ns += area * np.interp(wave_obs_merge + wave_obs_merge*vl/2.9979e5, wave_obs_merge, new_flx_merge)
+                tarea += area
+            else:
+                vl = r * vsini_picked * np.sin(th)
+                ns += area * np.interp(wave_obs_merge + wave_obs_merge*vl/2.9979e5, wave_obs_merge, new_flx_merge)
+                tarea += area
+    
+    new_flx_merge = ns / tarea
+    return new_flx_merge
+
 # ----------------------------------------------------------------------------------------------------------------------
 
 def bb_cpd_fct(wav_obs_merge, wav_obs_phot, new_flx_merge, new_flx_phot, distance, bb_T_picked, bb_R_picked):
@@ -402,7 +455,7 @@ def modif_spec(global_params, theta, theta_index,
                 ind_theta_ld = np.where(theta_index == 'ld')
                 ld_picked = theta[ind_theta_ld[0][0]]
 
-            new_flx_merge = vsini_fct(wav_obs_merge, new_flx_merge, ld_picked, vsini_picked)
+            new_flx_merge = vsini_fct_new(wav_obs_merge, new_flx_merge, ld_picked, vsini_picked)
 
         elif global_params.vsini == "NA" and global_params.ld == "NA":
             pass
