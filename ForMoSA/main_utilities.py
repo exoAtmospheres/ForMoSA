@@ -97,6 +97,7 @@ class GlobFile:
         self.par5 = config['config_parameter']['par5']
         self.r = config['config_parameter']['r']
         self.d = config['config_parameter']['d']
+        self.alpha = config['config_parameter']['alpha']
         self.rv = config['config_parameter']['rv']
         self.av = config['config_parameter']['av']
         self.vsini = config['config_parameter']['vsini']

@@ -129,3 +129,34 @@ Comments:
     - Correction of the functions names and imports in nested_sampling, plotting_class
     
 _ _ _
+
+05/04/2024
+Matthieu Ravet
+
+Comments:
+    - NEW: addition of a new extrat-grid parameter, alpha. This parameter is usefull when you assume your datasets are poorly calibrated. It
+    has the effect of an additionnal scaling factor ck = alpha * (R/d)**2 that can be set differently with different observations.
+        FORMAT: * alpha = 'NA' # If you don't want to use it
+                * alpha = 'prior', float, float # If you want to use it with a given 'prior' and range
+                * alpha = 'prior_1', float_1, float_1, 'prior_2', float_2, float_2, ..., 'prior_n', float_n, float_n when using n observation in MOSAIC
+    => updates of the plotting functions to take this new parameter into account
+    - NEW: adaptation of the plotting functions:
+                * possibility of plotting MOSAIC outputs
+                * new arguments in plot_fit :
+                            trans:      'yes' or 'no' to plot transmision curves for photometry
+                            logx:       'yes' or 'no' to plot the wavelength in log scale
+                            logy:       'yes' or 'no' to plot the flux in log scale
+                            norm:       'yes' or 'no' to plot the normalized spectra (usefull for MOSAIC)
+    - NEW: the DEMO file has been updated with the recent changes
+
+Test that have been done to checkup the changes:
+    - Classical with/without alpha ✓
+    - MOSAIC with/without alpha ✓
+    - Classical and MOSAIC with/without photometry ✓
+    - With/without all new plotting options ✓
+
+
+Note: alpha parameter is strongly correlated to R and d => need to be carefull about the physical interpretations. Inversion time is greatly lengthen
+with this new parameter when using MOSAIC
+    
+_ _ _

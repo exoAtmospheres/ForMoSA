@@ -397,6 +397,30 @@ def prior_transform(theta, theta_index, lim_param_grid, global_params):
             if prior_law == 'gaussian':
                 prior_d = gaussian_prior([float(global_params.d[1]), float(global_params.d[2])], theta[ind_theta_d[0][0]])
             prior.append(prior_d)
+    # NEW scaling parameter(s)
+    if global_params.alpha != 'NA':
+        if global_params.observation_format == 'MOSAIC': # Activation of the MOSAIC mode
+            main_obs_path = global_params.main_observation_path
+            for indobs, obs in enumerate(sorted(glob.glob(main_obs_path))):
+                global_params.observation_path = obs
+                obs_name = os.path.splitext(os.path.basename(global_params.observation_path))[0]
+                prior_law = global_params.alpha[indobs*3] # Prior laws should be separeted by 2 values (need to be upgraded)
+                if prior_law != 'constant':
+                    ind_theta_alpha = np.where(theta_index == f'alpha_{indobs}')
+                    if prior_law == 'uniform':
+                        prior_alpha = uniform_prior([float(global_params.alpha[indobs*3+1]), float(global_params.alpha[indobs*3+2])], theta[ind_theta_alpha[0][0]]) # Prior values should be by two
+                    if prior_law == 'gaussian':
+                        prior_alpha = gaussian_prior([float(global_params.alpha[indobs*3+1]), float(global_params.alpha[indobs*3+2])], theta[ind_theta_alpha[0][0]])
+                    prior.append(prior_alpha)
+        else:
+            prior_law = global_params.alpha[0]
+            if prior_law != 'constant':
+                ind_theta_alpha = np.where(theta_index == 'alpha')
+                if prior_law == 'uniform':
+                    prior_alpha = uniform_prior([float(global_params.alpha[1]), float(global_params.alpha[2])], theta[ind_theta_alpha[0][0]])
+                if prior_law == 'gaussian':
+                    prior_alpha = gaussian_prior([float(global_params.alpha[1]), float(global_params.alpha[2])], theta[ind_theta_alpha[0][0]])
+                prior.append(prior_alpha)
     if global_params.rv != 'NA':
         prior_law = global_params.rv[0]
         if prior_law != 'constant':
@@ -557,6 +581,17 @@ def launch_nested_sampling(global_params, y_n_par='y'):
     if global_params.d != 'NA' and global_params.d[0] != 'constant':
         n_free_parameters += 1
         theta_index.append('d')
+    # NEW scaling parameter(s)
+    if global_params.alpha != 'NA':
+        if global_params.observation_format == 'MOSAIC': # Activation of the MOSAIC mode
+            main_obs_path = global_params.main_observation_path
+            for indobs, obs in enumerate(sorted(glob.glob(main_obs_path))):
+                if global_params.alpha[indobs*3] != 'constant': # Check if the idobs is different from constant
+                    n_free_parameters += 1
+                    theta_index.append(f'alpha_{indobs}')
+        elif global_params.alpha[0] != 'constant':
+            n_free_parameters += 1
+            theta_index.append('alpha')
     if global_params.rv != 'NA' and global_params.rv[0] != 'constant':
         n_free_parameters += 1
         theta_index.append('rv')
@@ -612,16 +647,16 @@ def launch_nested_sampling(global_params, y_n_par='y'):
 
     if global_params.ns_algo == 'pymultinest':
         import pymultinest
-        #MPI Multiprocessing
-        if False: #try:
-            from mpi4py import MPI
+        # #MPI Multiprocessing
+        # if False: #try:
+        #     from mpi4py import MPI
 
-            comm = MPI.COMM_WORLD
-            rank = comm.Get_rank()
-        else: #except ImportError:
-            MPI = None
-            rank = 0
-            comm = None
+        #     comm = MPI.COMM_WORLD
+        #     rank = comm.Get_rank()
+        # else: #except ImportError:
+        #     MPI = None
+        #     rank = 0
+        #     comm = None
 
         tmpstot1 = time.time()
         loglike_gp = lambda theta: loglike(theta, theta_index, global_params, main_file=main_file)
@@ -632,7 +667,8 @@ def launch_nested_sampling(global_params, y_n_par='y'):
                         n_dims=n_free_parameters,
                         n_live_points=int(float(global_params.npoint)),
                         outputfiles_basename=global_params.result_path + '/result_' + global_params.ns_algo + '_RAW_',
-                        resume=False
+                        resume=False,
+                        verbose=True
                         )
         # Reformat the result file
         with open(global_params.result_path + '/result_' + global_params.ns_algo + '_RAW_stats.dat',

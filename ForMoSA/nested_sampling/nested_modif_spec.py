@@ -89,7 +89,7 @@ def lsq_fct(flx_obs_merge, err_obs_merge, star_flx_obs_merge, transm_obs_merge, 
 
 
 def calc_ck(flx_obs_merge, err_obs_merge, new_flx_merge, flx_obs_phot, err_obs_phot, new_flx_phot, r_picked, d_picked,
-            analytic='no'):
+            alpha=1, analytic='no'):
     """
     Calculation of the dilution factor Ck and re-normalization of the interpolated synthetic spectrum (from the radius
     and distance or analytically).
@@ -103,6 +103,7 @@ def calc_ck(flx_obs_merge, err_obs_merge, new_flx_merge, flx_obs_phot, err_obs_p
         new_flx_phot    : Flux of the interpolated synthetic spectrum (photometry)
         r_picked        : Radius randomly picked by the nested sampling (in RJup)
         d_picked        : Distance randomly picked by the nested sampling (in pc)
+        alpha           : Manual scaling factor (set to 1 by default) such that ck = alpha * (r/d)²
         analytic        : = 'yes' if Ck needs to be calculated analytically by the formula from Cushing et al. (2008)
     Returns:
         new_flx_merge   : Re-normalysed model spectrum
@@ -115,7 +116,7 @@ def calc_ck(flx_obs_merge, err_obs_merge, new_flx_merge, flx_obs_phot, err_obs_p
     if analytic == 'no':
         r_picked *= 69911
         d_picked *= 3.086e+13
-        ck = (r_picked/d_picked)**2
+        ck = alpha * (r_picked/d_picked)**2
     # Calculation of the dilution factor ck analytically
     else:
         if len(flx_obs_merge) != 0:
@@ -240,8 +241,6 @@ def vsini_fct(wav_obs_merge, new_flx_merge, ld_picked, vsini_picked):
     new_flx_merge = vsini_interp(wav_obs_merge)
 
     return new_flx_merge
-
-
 
 # ----------------------------------------------------------------------------------------------------------------------
 
@@ -492,6 +491,7 @@ def modif_spec(global_params, theta, theta_index,
         exit()
 
     # Calculation of the dilution factor Ck and re-normalization of the interpolated synthetic spectrum.
+
     # From the radius and the distance.
     if global_params.r != "NA" and global_params.d != "NA":
         if global_params.r[0] == "constant":
@@ -504,21 +504,44 @@ def modif_spec(global_params, theta, theta_index,
         else:
             ind_theta_d = np.where(theta_index == 'd')
             d_picked = theta[ind_theta_d[0][0]]
-        new_flx_merge, new_flx_phot, ck = calc_ck(flx_obs_merge, err_obs_merge, new_flx_merge,
+
+        # With the extra alpha scaling
+        if global_params.alpha != "NA":
+            if global_params.observation_format == 'MOSAIC': # Activation of the MOSAIC mode
+                if global_params.alpha[indobs*3] == "constant":
+                    alpha_picked = float(global_params.alpha[indobs*3+1])
+                else:
+                    ind_theta_alpha = np.where(theta_index == f'alpha_{indobs}')
+                    alpha_picked = theta[ind_theta_alpha[0][0]]
+                new_flx_merge, new_flx_phot, ck = calc_ck(flx_obs_merge, err_obs_merge, new_flx_merge,
+                                                        flx_obs_phot, err_obs_phot, new_flx_phot, r_picked, d_picked,
+                                                        alpha=alpha_picked)   
+            else:
+                if global_params.alpha[0] == "constant":
+                    alpha_picked = float(global_params.alpha[1])
+                else:
+                    ind_theta_alpha = np.where(theta_index == 'alpha')
+                    alpha_picked = theta[ind_theta_alpha[0][0]]
+                new_flx_merge, new_flx_phot, ck = calc_ck(flx_obs_merge, err_obs_merge, new_flx_merge,
+                                                        flx_obs_phot, err_obs_phot, new_flx_phot, r_picked, d_picked,
+                                                        alpha=alpha_picked)    
+        # Without the extra alpha scaling
+        else:
+            new_flx_merge, new_flx_phot, ck = calc_ck(flx_obs_merge, err_obs_merge, new_flx_merge,
                                                   flx_obs_phot, err_obs_phot, new_flx_phot, r_picked, d_picked)
     # Analytically
     # If MOSAIC
     elif global_params.observation_format == 'MOSAIC':
         if global_params.r == "NA" and global_params.d == "NA" and global_params.use_lsqr[indobs] == 'False':
             new_flx_merge, new_flx_phot, ck = calc_ck(flx_obs_merge, err_obs_merge, new_flx_merge,
-                                                    flx_obs_phot, err_obs_phot, new_flx_phot, 0, 0,
+                                                    flx_obs_phot, err_obs_phot, new_flx_phot, 0, 0, 0,
                                                     analytic='yes')
 
         elif global_params.r == "NA" and global_params.d == "NA" and global_params.use_lsqr[indobs] == 'True':   
             # global_params.use_lsqr = 'True', so no need to re-normalize the interpolated sythetic spectrum because the least squares automatically does it
                 
             _, new_flx_phot, ck = calc_ck(flx_obs_merge, err_obs_merge, new_flx_merge, 
-                            flx_obs_phot, err_obs_phot, new_flx_phot, 0, 0,
+                            flx_obs_phot, err_obs_phot, new_flx_phot, 0, 0, 0,
                             analytic='yes')
             
             cp, cs, flx_obs_merge = lsq_fct(flx_obs_merge, err_obs_merge, star_flx_obs_merge, transm_obs_merge, new_flx_merge)
@@ -531,14 +554,14 @@ def modif_spec(global_params, theta, theta_index,
     else:
         if global_params.r == "NA" and global_params.d == "NA" and global_params.use_lsqr == 'False':
             new_flx_merge, new_flx_phot, ck = calc_ck(flx_obs_merge, err_obs_merge, new_flx_merge,
-                                                    flx_obs_phot, err_obs_phot, new_flx_phot, 0, 0,
+                                                    flx_obs_phot, err_obs_phot, new_flx_phot, 0, 0, 0,
                                                     analytic='yes')
 
         elif global_params.r == "NA" and global_params.d == "NA" and global_params.use_lsqr == 'True':   
             # global_params.use_lsqr = 'True', so no need to re-normalize the interpolated sythetic spectrum because the least squares automatically does it
                 
             _, new_flx_phot, ck = calc_ck(flx_obs_merge, err_obs_merge, new_flx_merge, 
-                            flx_obs_phot, err_obs_phot, new_flx_phot, 0, 0,
+                            flx_obs_phot, err_obs_phot, new_flx_phot, 0, 0, 0,
                             analytic='yes')
             
             cp, cs, flx_obs_merge = lsq_fct(flx_obs_merge, err_obs_merge, star_flx_obs_merge, transm_obs_merge, new_flx_merge)
@@ -547,7 +570,6 @@ def modif_spec(global_params, theta, theta_index,
         else:   # either global_params.r or global_params.d is set to 'NA' 
             print('WARNING: You need to define a radius AND a distance, or set them both to "NA"')
             exit()
-
 
     return wav_obs_merge, flx_obs_merge, err_obs_merge, new_flx_merge, wav_obs_phot, flx_obs_phot, err_obs_phot, new_flx_phot, ck
 
