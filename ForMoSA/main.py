@@ -8,6 +8,8 @@ Easy to understand and simple access for the new users.
 '''
 # ----------------------------------------------------------------------------------------------------------------------
 ## IMPORTS
+import os
+os.environ["OMP_NUM_THREADS"] = "1" # Disable numpy automatic parallelization to speed up the inversion
 import sys
 
 # Import ForMoSA
