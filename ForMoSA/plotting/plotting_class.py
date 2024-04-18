@@ -675,12 +675,11 @@ class PlottingForMoSA():
                         spectrum_obs = np.load(os.path.join(self.global_params.result_path, f'spectrum_obs_{obs_name}.npz'), allow_pickle=True)
                         obs_photo_ins = spectrum_obs['obs_photo_ins']
                         for pho_ind, pho in enumerate(obs_photo_ins):
-                            if pho_ind <= 3:
-                                path_list = __file__.split("/")[:-2]
-                                separator = '/'
-                                filter_pho = np.load(separator.join(path_list) + '/phototeque/' + pho + '.npz')
-                                ax.fill_between(filter_pho['x_filt'], filter_pho['y_filt']*0.8*min(spectra[indobs][5]/ck[indobs]),color=self.color_out, alpha=0.3)
-                                ax.text(np.mean(filter_pho['x_filt']), np.mean(filter_pho['y_filt']*0.4*min(spectra[indobs][5]/ck[indobs])), pho, horizontalalignment='center', c='gray')
+                            path_list = __file__.split("/")[:-2]
+                            separator = '/'
+                            filter_pho = np.load(separator.join(path_list) + '/phototeque/' + pho + '.npz')
+                            ax.fill_between(filter_pho['x_filt'], filter_pho['y_filt']*0.8*min(spectra[indobs][5]/ck[indobs]),color=self.color_out, alpha=0.3)
+                            ax.text(np.mean(filter_pho['x_filt']), np.mean(filter_pho['y_filt']*0.4*min(spectra[indobs][5]/ck[indobs])), pho, horizontalalignment='center', c='gray')
                     ax.plot(spectra[indobs][4], spectra[indobs][5]/ck[indobs], 'ko', alpha=0.7)
                     ax.plot(spectra[indobs][4], spectra[indobs][7]/ck[indobs], 'o', color=self.color_out)
                     
