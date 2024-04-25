@@ -744,9 +744,9 @@ def continuum_estimate(global_params, wav_cut, wav, flx, res, obs_or_mod, obs_na
         fwhm_continuum = 2 * wav_median / float(global_params.continuum_sub)
 
 
-        fwhm_conv = np.sqrt(fwhm_continuum**2 - fwhm**2)
-        sigma = fwhm_conv / (dwav * 2.355)
-        continuum = gaussian_filter(flx, sigma)
+    fwhm_conv = np.sqrt(fwhm_continuum**2 - fwhm**2)
+    sigma = fwhm_conv / (dwav * 2.355)
+    continuum = gaussian_filter(flx, sigma)
 
     return continuum
 
