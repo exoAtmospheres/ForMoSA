@@ -160,3 +160,51 @@ Note: alpha parameter is strongly correlated to R and d => need to be carefull a
 with this new parameter when using MOSAIC
     
 _ _ _
+
+30/04/2024
+Matthieu Ravet
+
+Comments:
+    - Note : be carefull when using a small wavelength range to estimate the continuum (it is impossible if less than 2 points end up in the
+    range for the interpolation...)
+    - Corrections :
+                * The 'wav_for_adapt' parameter did not work due to numpy not accepting different size arrays when storing them with
+                'np.savez'. This has been corrected by replacing the importation list by array in 'extraction_functions' and adding lines
+                to transform them in 'dtype=object' when saving.
+                * The output grid were still called grid_merge and grid_phot. This has been replaced by 'grid_spectro' and 'grid_photo'
+                accordingly to match the file names in the code.
+    - NEWS :
+                * MOSAIC is now fully integrated in the classical mode => no more 'observation_format' parameter. The only change when using
+                the classical (only one obs) is that you need to specify the path where this observation is (i.e. /home/mravet/Documents/These/FORMOSA/INPUTS/GRAVITY/).
+                The 'multiply_transmission' and 'star_data' have been removed from the config file as they will be automatically imported if
+                provided in the .fits file (see below). All other parameters should work as usuall.
+                * The radial velocity can now be fitted individually for different obs in the loop. The format is the same as for 'alpha' (see above notes).
+                * The extra-grid parameters that can be fitted individually for each obs have 2 options :
+                    1) If you put 1 set of values (either 'NA' or 'prior', x, y), it will be the same for all datasets
+                    2) If you put N sets of values ('NA' or priors according to the obs), it will use separate ones for each datasets
+                * The input format has be normalized to :
+                        > 'WAV'
+                        > 'FLX'
+                        > 'ERR (or COV, optional)
+                        > 'INS'
+                        > 'RES'
+                        > ('TRANSM', optional)
+                        > ('STAR FLX', optional)
+                * The DEMO config.ini as been updated accordingly
+
+
+Test that have been done to checkup the changes:
+    - 1 obs with/without alpha ✓
+    - 1 obs with/without rv ✓
+    - 1 obs with/without continuum substraction (multi/single continuum/adapt windows) ✓
+    - 1 obs with/without custom reso ✓
+    - 1 obs with/without wav_for_adapt windows ✓
+    - 1 obs with/without wav_fit windows ✓
+    - 1 obs with cov and chi2 classic logL ✓
+    - HiRISE ✓
+    - photometry ✓
+    - all plotting options ✓
+    - multiple observations (with the above tests)
+    - multiple observations with multiple alpha and rv
+    
+_ _ _

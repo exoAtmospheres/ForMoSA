@@ -6,7 +6,7 @@ import xarray as xr
 
 from adapt.extraction_functions import extract_observation
 from adapt.adapt_grid import adapt_grid
-from main_utilities import yesno, diag_mat
+from main_utilities import diag_mat
 import glob
 # ----------------------------------------------------------------------------------------------------------------------
 
@@ -17,117 +17,7 @@ def launch_adapt(global_params, justobs='no'):
     
     Args:
         global_params  (object): Class containing each parameter
-        wav_obs_spectro (array): Merged wavelength grid of the data
-        wav_obs_photo   (array): Wavelengths of the photometry points
-        obs_name          (str): Name of the current observation looping (only relevant in MOSAIC, else set to '')
-        indobs            (int): Index of the current observation looping (only relevant in MOSAIC, else set to 0)
-    Returns:
-        None
-
-    Author: Simon Petrus / Adapted: Matthieu Ravet, Paulina Palma-Bifani and Allan Denis
-    """
-
-    # Get back information from the config file
-    ds = xr.open_dataset(global_params.model_path, decode_cf=False, engine="netcdf4")
-    wav_mod_nativ = ds["wavelength"].values
-    attr = ds.attrs
-    ds.close()
-
-    # Extract the data from the observation file
-    obs_spectro, obs_photo, obs_spectro_ins, obs_photo_ins, obs_opt = extract_observation(global_params, wav_mod_nativ, attr['res'])
-
-    # Estimate and subtraction of the continuum (if needed)
-    if global_params.continuum_sub != 'NA':
-        obs_spectro_c, obs_photo_c, obs_spectro_ins_c, obs_photo_ins_c, obs_opt_c = extract_observation(global_params, wav_mod_nativ,
-                                                                                 attr['res'], 'yes')
-        for c, cut in enumerate(obs_spectro):
-            obs_spectro[c][1] -= obs_spectro_c[c][1]
-    # Merging of each sub-spectrum
-    for c, cut in enumerate(obs_spectro):
-        if c == 0:
-            wav_obs_extract = obs_spectro[c][0]
-            flx_obs_extract = obs_spectro[c][1]
-            err_obs_extract = obs_spectro[c][2]
-            res_obs_extract = obs_spectro[c][3]#np.array(obs_cut[c][3], dtype=float) # New addition (may need to be corrected)
-            # Optionals
-            cov_obs_extract = obs_opt[c][0]
-            transm_obs_extract = obs_opt[c][1]
-            star_flx_obs_extract = obs_opt[c][2]
-
-        else:
-            wav_obs_extract = np.concatenate((wav_obs_extract, obs_spectro[c][0]))
-            flx_obs_extract = np.concatenate((flx_obs_extract, obs_spectro[c][1]))
-            err_obs_extract = np.concatenate((err_obs_extract, obs_spectro[c][2]))
-            res_obs_extract = np.concatenate((res_obs_extract, obs_spectro[c][3]))#np.concatenate((res_obs_extract, np.array(obs_cut[c][3], dtype=float))) # New addition (may need to be corrected)
-            if len(cov_obs_extract) != 0:
-                cov_obs_extract = diag_mat([cov_obs_extract, obs_opt[c][0]])
-            if len(transm_obs_extract) != 0:
-                transm_obs_extract = np.concatenate((transm_obs_extract, obs_opt[c][1]))
-            if len(star_flx_obs_extract) != 0:
-                star_flx_obs_extract = np.concatenate((star_flx_obs_extract, obs_opt[c][2]))
-
-        # Compute the inverse of the merged covariance matrix (note: inv(C1, C2) = (in(C1), in(C2)) if C1 and C2 are block matrix on the diagonal)
-        # if necessary
-        if len(cov_obs_extract) != 0:
-            inv_cov_obs_extract = np.linalg.inv(cov_obs_extract)
-        else:
-            inv_cov_obs_extract = np.asarray([])
-
-        # Compile everything
-        obs_spectro_merge = np.asarray([wav_obs_extract, flx_obs_extract, err_obs_extract, res_obs_extract])
-        obs_opt_merge = np.asarray([inv_cov_obs_extract, transm_obs_extract, star_flx_obs_extract], dtype=object)
-
-        # Check-ups and warnings for negative values in the diagonal of the covariance matrix
-        if len(cov_obs_extract) != 0 and any(np.diag(cov_obs_extract) < 0):
-            print()
-            print("WARNING: Negative value(s) is(are) present on the diagonal of the covariance matrix.") 
-            print("Operation aborted.")
-            print()
-            exit()
-
-
-    # Save the new data spectrum
-    np.savez(global_params.result_path + '/spectrum_obs',
-             obs_spectro_merge=obs_spectro_merge,
-             obs_spectro=obs_spectro,
-             obs_spectro_ins=obs_spectro_ins,
-             obs_photo=obs_photo,
-             obs_photo_ins=obs_photo_ins,
-             obs_opt_merge=obs_opt_merge) # Optional arrays kept separatly
-
-    # Adaptation of the model grid
-    if justobs == 'no':
-        # Creation of the repertory to store the adapted grid (if needed)
-        if os.path.isdir(global_params.adapt_store_path):
-            pass
-        else:
-            os.mkdir(global_params.adapt_store_path)
-
-        print()
-        print('- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -')
-        print("-> To compare synthetic spectra with the observation we need to manage them. The following actions are performed:")
-        print("- extraction -")
-        print("- resizing on the observation's wavelength range -")
-        print("- adjustement of the spectral resolution -")
-        print("- substraction of the continuum (if needed) -")
-        print()
-
-        adapt_grid(global_params, obs_spectro_merge[0], obs_photo[0])
-
-
-# ----------------------------------------------------------------------------------------------------------------------
-
-
-def launch_adapt_MOSAIC(global_params, justobs='no'):
-    """
-    Adapt the synthetic spectra of a grid to make them comparable with the data.
-    
-    Args:
-        global_params  (object): Class containing each parameter
-        wav_obs_spectro (array): Merged wavelength grid of the data
-        wav_obs_photo   (array): Wavelengths of the photometry points
-        obs_name          (str): Name of the current observation looping (only relevant in MOSAIC, else set to '')
-        indobs            (int): Index of the current observation looping (only relevant in MOSAIC, else set to 0)
+        justobs ('yes'/'no'): 'no' by default to also adapt the grid
     Returns:
         None
 
@@ -143,27 +33,20 @@ def launch_adapt_MOSAIC(global_params, justobs='no'):
     # Extract the data from the observation files
     main_obs_path = global_params.main_observation_path
 
-    print()
-    print('- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -')
-    print("-> Starting MOSAIC ")
-    print()
-
 
     for indobs, obs in enumerate(sorted(glob.glob(main_obs_path))):
         
         global_params.observation_path = obs
         obs_name = os.path.splitext(os.path.basename(global_params.observation_path))[0]
         
-        obs_spectro, obs_photo, obs_spectro_ins, obs_photo_ins, obs_opt  = extract_observation(global_params, wav_mod_nativ, attr['res'], obs_name=obs_name,
+        obs_spectro, obs_photo, obs_spectro_ins, obs_photo_ins, obs_opt = extract_observation(global_params, wav_mod_nativ, attr['res'], obs_name=obs_name,
                                                                                       indobs=indobs)
-        
-        print(obs_photo)
 
         # Estimate and subtraction of the continuum (if needed) + check-ups
         if global_params.continuum_sub[indobs] != 'NA':
             print()
             print(obs_name + ' will have a R=' + global_params.continuum_sub[indobs] + ' continuum removed using a ' 
-                  + global_params.wav_for_continuum[indobs] + ' wavelength range')
+                + global_params.wav_for_continuum[indobs] + ' wavelength range')
             print()
         if global_params.continuum_sub[indobs] != 'NA':
             obs_spectro_c, obs_photo_c, obs_spectro_ins_c, obs_photo_ins_c, obs_opt_c = extract_observation(global_params, wav_mod_nativ,
@@ -177,7 +60,7 @@ def launch_adapt_MOSAIC(global_params, justobs='no'):
                 wav_obs_extract = obs_spectro[c][0]
                 flx_obs_extract = obs_spectro[c][1]
                 err_obs_extract = obs_spectro[c][2]
-                res_obs_extract = obs_spectro[c][3]#np.array(obs_cut[c][3], dtype=float) # New addition (may need to be corrected)
+                res_obs_extract = obs_spectro[c][3]
                 cov_obs_extract = obs_opt[c][0]
                 transm_obs_extract = obs_opt[c][1]
                 star_flx_obs_extract = obs_opt[c][2]
@@ -186,7 +69,7 @@ def launch_adapt_MOSAIC(global_params, justobs='no'):
                 wav_obs_extract = np.concatenate((wav_obs_extract, obs_spectro[c][0]))
                 flx_obs_extract = np.concatenate((flx_obs_extract, obs_spectro[c][1]))
                 err_obs_extract = np.concatenate((err_obs_extract, obs_spectro[c][2]))
-                res_obs_extract = np.concatenate((res_obs_extract, obs_spectro[c][3]))#np.concatenate((res_obs_extract, np.array(obs_cut[c][3], dtype=float))) # New addition (may need to be corrected)
+                res_obs_extract = np.concatenate((res_obs_extract, obs_spectro[c][3]))
                 if len(cov_obs_extract) != 0:
                     cov_obs_extract = diag_mat([cov_obs_extract, obs_opt[c][0]])
                 if len(transm_obs_extract) != 0:
@@ -202,8 +85,12 @@ def launch_adapt_MOSAIC(global_params, justobs='no'):
             else:
                 inv_cov_obs_extract = np.asarray([])
 
-            # Compile everything
+            # Compile everything and changing data type to object to allow for different array sizes
             obs_spectro_merge = np.asarray([wav_obs_extract, flx_obs_extract, err_obs_extract, res_obs_extract])
+            obs_spectro = np.asarray(obs_spectro, dtype=object)
+            obs_spectro_ins = np.asarray(obs_spectro_ins, dtype=object)
+            obs_photo = np.asarray(obs_photo, dtype=object)
+            obs_photo_ins = np.asarray(obs_photo_ins, dtype=object)
             obs_opt_merge = np.asarray([inv_cov_obs_extract, transm_obs_extract, star_flx_obs_extract], dtype=object)
 
             # Check-ups and warnings for negative values in the diagonal of the covariance matrix

@@ -9,7 +9,7 @@ Easy to understand and simple access for the new users.
 # ----------------------------------------------------------------------------------------------------------------------
 ## IMPORTS
 import os
-os.environ["OMP_NUM_THREADS"] = "1" # Disable numpy automatic parallelization to speed up the inversion
+os.environ["OMP_NUM_THREADS"] = "1"
 import sys
 
 # Import ForMoSA
@@ -17,7 +17,7 @@ import sys
 #sys.path.insert(1, base_path)
 from main_utilities import yesno
 from main_utilities import GlobFile
-from adapt.adapt_obs_mod import launch_adapt, launch_adapt_MOSAIC
+from adapt.adapt_obs_mod import launch_adapt
 from nested_sampling.nested_sampling import launch_nested_sampling
 
 # ----------------------------------------------------------------------------------------------------------------------
@@ -49,15 +49,9 @@ else:
     y_n_par = sys.argv[2]
 
 if y_n_par == 'y':
-    if global_params.observation_format == 'MOSAIC':
-        launch_adapt_MOSAIC(global_params, justobs='no')
-    else:
-        launch_adapt(global_params, justobs='no')
+    launch_adapt(global_params, justobs='no')
 else:
-    if global_params.observation_format == 'MOSAIC':
-        launch_adapt_MOSAIC(global_params, justobs='yes')
-    else:
-        launch_adapt(global_params, justobs='yes')
+    launch_adapt(global_params, justobs='yes')
 
 print()
 print('- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -')

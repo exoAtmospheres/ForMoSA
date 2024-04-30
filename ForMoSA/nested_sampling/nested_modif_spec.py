@@ -406,7 +406,7 @@ def modif_spec(global_params, theta, theta_index,
         new_flx_phot    : Flux of the interpolated synthetic spectrum (photometry)
         transm_obs_merge: Transmission (Atmospheric + Instrumental)
         star_flx_obs_merge: Flux of star observation data (spectroscopy)
-        indobs     (int): Index of the current observation looping (only relevant in MOSAIC, else set to 0)
+        indobs     (int): Index of the current observation looping
     Returns:
         wav_obs_merge   : New wavelength grid of the data (may change with the Doppler shift)
         flx_obs_merge   : New flux of the data (may change with the Doppler shift)
@@ -421,15 +421,26 @@ def modif_spec(global_params, theta, theta_index,
     """
     # Correction of the radial velocity of the interpolated synthetic spectrum.
     if len(flx_obs_merge) != 0:
-        if global_params.rv != "NA":
-            if global_params.rv[0] == 'constant':
-                rv_picked = float(global_params.rv[1])
-            else:
-                ind_theta_rv = np.where(theta_index == 'rv')
-                rv_picked = theta[ind_theta_rv[0][0]]
-            wav_obs_merge, flx_obs_merge, err_obs_merge, new_flx_merge = doppler_fct(wav_obs_merge, flx_obs_merge,
+        if len(global_params.rv) > 3: # If you want separate rv for each observations
+            if global_params.rv[indobs*3] != "NA":
+                if global_params.rv[indobs*3] == "constant":
+                    rv_picked = float(global_params.rv[indobs*3+1])
+                else:
+                    ind_theta_rv = np.where(theta_index == f'rv_{indobs}')
+                    rv_picked = theta[ind_theta_rv[0][0]]
+                wav_obs_merge, flx_obs_merge, err_obs_merge, new_flx_merge = doppler_fct(wav_obs_merge, flx_obs_merge,
                                                                                     err_obs_merge, new_flx_merge,
                                                                                     rv_picked)
+        else: # If you want 1 common rv for all observations
+            if global_params.rv != "NA":
+                if global_params.rv[0] == "constant":
+                    alpha_picked = float(global_params.rv[1])
+                else:
+                    ind_theta_rv = np.where(theta_index == 'rv')
+                    rv_picked = theta[ind_theta_rv[0][0]]
+                wav_obs_merge, flx_obs_merge, err_obs_merge, new_flx_merge = doppler_fct(wav_obs_merge, flx_obs_merge,
+                                                                                        err_obs_merge, new_flx_merge,
+                                                                                        rv_picked)
 
     # Application of a synthetic interstellar extinction to the interpolated synthetic spectrum.
     if global_params.av != "NA":
@@ -506,8 +517,8 @@ def modif_spec(global_params, theta, theta_index,
             d_picked = theta[ind_theta_d[0][0]]
 
         # With the extra alpha scaling
-        if global_params.alpha != "NA":
-            if global_params.observation_format == 'MOSAIC': # Activation of the MOSAIC mode
+        if len(global_params.alpha) > 3: # If you want separate alpha for each observations
+            if global_params.alpha[indobs*3] != "NA":
                 if global_params.alpha[indobs*3] == "constant":
                     alpha_picked = float(global_params.alpha[indobs*3+1])
                 else:
@@ -515,8 +526,12 @@ def modif_spec(global_params, theta, theta_index,
                     alpha_picked = theta[ind_theta_alpha[0][0]]
                 new_flx_merge, new_flx_phot, ck = calc_ck(flx_obs_merge, err_obs_merge, new_flx_merge,
                                                         flx_obs_phot, err_obs_phot, new_flx_phot, r_picked, d_picked,
-                                                        alpha=alpha_picked)   
-            else:
+                                                        alpha=alpha_picked)
+            else: # Without the extra alpha scaling
+                new_flx_merge, new_flx_phot, ck = calc_ck(flx_obs_merge, err_obs_merge, new_flx_merge,
+                                                  flx_obs_phot, err_obs_phot, new_flx_phot, r_picked, d_picked)
+        else: # If you want 1 common alpha for all observations
+            if global_params.alpha != "NA":
                 if global_params.alpha[0] == "constant":
                     alpha_picked = float(global_params.alpha[1])
                 else:
@@ -524,52 +539,30 @@ def modif_spec(global_params, theta, theta_index,
                     alpha_picked = theta[ind_theta_alpha[0][0]]
                 new_flx_merge, new_flx_phot, ck = calc_ck(flx_obs_merge, err_obs_merge, new_flx_merge,
                                                         flx_obs_phot, err_obs_phot, new_flx_phot, r_picked, d_picked,
-                                                        alpha=alpha_picked)    
-        # Without the extra alpha scaling
-        else:
-            new_flx_merge, new_flx_phot, ck = calc_ck(flx_obs_merge, err_obs_merge, new_flx_merge,
-                                                  flx_obs_phot, err_obs_phot, new_flx_phot, r_picked, d_picked)
+                                                        alpha=alpha_picked)   
+            else: # Without the extra alpha scaling
+                new_flx_merge, new_flx_phot, ck = calc_ck(flx_obs_merge, err_obs_merge, new_flx_merge,
+                                                    flx_obs_phot, err_obs_phot, new_flx_phot, r_picked, d_picked)
+                
     # Analytically
-    # If MOSAIC
-    elif global_params.observation_format == 'MOSAIC':
-        if global_params.r == "NA" and global_params.d == "NA" and global_params.use_lsqr[indobs] == 'False':
-            new_flx_merge, new_flx_phot, ck = calc_ck(flx_obs_merge, err_obs_merge, new_flx_merge,
-                                                    flx_obs_phot, err_obs_phot, new_flx_phot, 0, 0, 0,
-                                                    analytic='yes')
+    elif global_params.r == "NA" and global_params.d == "NA" and global_params.use_lsqr[indobs] == 'False':
+        new_flx_merge, new_flx_phot, ck = calc_ck(flx_obs_merge, err_obs_merge, new_flx_merge,
+                                                flx_obs_phot, err_obs_phot, new_flx_phot, 0, 0, 0,
+                                                analytic='yes')
 
-        elif global_params.r == "NA" and global_params.d == "NA" and global_params.use_lsqr[indobs] == 'True':   
-            # global_params.use_lsqr = 'True', so no need to re-normalize the interpolated sythetic spectrum because the least squares automatically does it
-                
-            _, new_flx_phot, ck = calc_ck(flx_obs_merge, err_obs_merge, new_flx_merge, 
-                            flx_obs_phot, err_obs_phot, new_flx_phot, 0, 0, 0,
-                            analytic='yes')
+    elif global_params.r == "NA" and global_params.d == "NA" and global_params.use_lsqr[indobs] == 'True':   
+        # global_params.use_lsqr = 'True', so no need to re-normalize the interpolated sythetic spectrum because the least squares automatically does it
             
-            cp, cs, flx_obs_merge = lsq_fct(flx_obs_merge, err_obs_merge, star_flx_obs_merge, transm_obs_merge, new_flx_merge)
-            new_flx_merge = cp + cs
-
-        else:   # either global_params.r or global_params.d is set to 'NA' 
-            print('WARNING: You need to define a radius AND a distance, or set them both to "NA"')
-            exit()
-    # If Classical mode
-    else:
-        if global_params.r == "NA" and global_params.d == "NA" and global_params.use_lsqr == 'False':
-            new_flx_merge, new_flx_phot, ck = calc_ck(flx_obs_merge, err_obs_merge, new_flx_merge,
-                                                    flx_obs_phot, err_obs_phot, new_flx_phot, 0, 0, 0,
-                                                    analytic='yes')
-
-        elif global_params.r == "NA" and global_params.d == "NA" and global_params.use_lsqr == 'True':   
-            # global_params.use_lsqr = 'True', so no need to re-normalize the interpolated sythetic spectrum because the least squares automatically does it
-                
-            _, new_flx_phot, ck = calc_ck(flx_obs_merge, err_obs_merge, new_flx_merge, 
-                            flx_obs_phot, err_obs_phot, new_flx_phot, 0, 0, 0,
-                            analytic='yes')
-            
-            cp, cs, flx_obs_merge = lsq_fct(flx_obs_merge, err_obs_merge, star_flx_obs_merge, transm_obs_merge, new_flx_merge)
-            new_flx_merge = cp + cs
+        _, new_flx_phot, ck = calc_ck(flx_obs_merge, err_obs_merge, new_flx_merge, 
+                        flx_obs_phot, err_obs_phot, new_flx_phot, 0, 0, 0,
+                        analytic='yes')
         
-        else:   # either global_params.r or global_params.d is set to 'NA' 
-            print('WARNING: You need to define a radius AND a distance, or set them both to "NA"')
-            exit()
+        cp, cs, flx_obs_merge = lsq_fct(flx_obs_merge, err_obs_merge, star_flx_obs_merge, transm_obs_merge, new_flx_merge)
+        new_flx_merge = cp + cs
+
+    else:   # either global_params.r or global_params.d is set to 'NA' 
+        print('WARNING: You need to define a radius AND a distance, or set them both to "NA"')
+        exit()
 
     return wav_obs_merge, flx_obs_merge, err_obs_merge, new_flx_merge, wav_obs_phot, flx_obs_phot, err_obs_phot, new_flx_phot, ck
 

@@ -54,12 +54,11 @@ class GlobFile:
         # Generate the confog object
         config = ConfigObj(config_file_path, encoding='utf8')
         self.config=config
-        # self.obsname = obsname
 
         ## Read CONFIG:
         # [config_path] (4)
-        self.observation_path = config['config_path']['observation_path']
-        self.main_observation_path = config['config_path']['observation_path'] # Needs to be changed
+        self.observation_path = config['config_path']['observation_path'] + '*'
+        self.main_observation_path = config['config_path']['observation_path'] + '*' # Needs to be changed
         self.adapt_store_path = config['config_path']['adapt_store_path']
         self.result_path = config['config_path']['result_path']
         self.model_path = config['config_path']['model_path']
@@ -72,20 +71,31 @@ class GlobFile:
         model_name = model_name[0]
         self.model_name = model_name
 
-        # [config_adapt] (5)
-        self.wav_for_adapt = config['config_adapt']['wav_for_adapt']
-        self.adapt_method = config['config_adapt']['adapt_method']
-        self.custom_reso = config['config_adapt']['custom_reso']
-        self.continuum_sub = config['config_adapt']['continuum_sub']
-        self.wav_for_continuum = config['config_adapt']['wav_for_continuum']
-        self.observation_format = config['config_adapt']['observation_format']
-        self.multiply_transmission = config['config_adapt']['multiply_transmission']
-        self.star_data = config['config_adapt']['star_data']
-        self.use_lsqr = config['config_adapt']['use_lsqr']
+        if type(config['config_adapt']['wav_for_adapt']) != list: # Create lists if only one obs in the loop 
+            # [config_adapt] (5)
+            self.wav_for_adapt = [config['config_adapt']['wav_for_adapt']]
+            self.adapt_method = [config['config_adapt']['adapt_method']]
+            self.custom_reso = [config['config_adapt']['custom_reso']]
+            self.continuum_sub = [config['config_adapt']['continuum_sub']]
+            self.wav_for_continuum = [config['config_adapt']['wav_for_continuum']]
+            self.use_lsqr = [config['config_adapt']['use_lsqr']]
 
-        # [config_inversion] (3)
-        self.logL_type = config['config_inversion']['logL_type']
-        self.wav_fit = config['config_inversion']['wav_fit']
+            # [config_inversion] (4)
+            self.logL_type = [config['config_inversion']['logL_type']]
+            self.wav_fit = [config['config_inversion']['wav_fit']]
+        else:
+            # [config_adapt] (5)
+            self.wav_for_adapt = config['config_adapt']['wav_for_adapt']
+            self.adapt_method = config['config_adapt']['adapt_method']
+            self.custom_reso = config['config_adapt']['custom_reso']
+            self.continuum_sub = config['config_adapt']['continuum_sub']
+            self.wav_for_continuum = config['config_adapt']['wav_for_continuum']
+            self.use_lsqr = config['config_adapt']['use_lsqr']
+
+            # [config_inversion] (4)
+            self.logL_type = config['config_inversion']['logL_type']
+            self.wav_fit = config['config_inversion']['wav_fit']
+
         self.ns_algo = config['config_inversion']['ns_algo']
         self.npoint = config['config_inversion']['npoint']
 
@@ -113,6 +123,30 @@ class GlobFile:
         self.n_maxcall = eval(config['config_nestle']['maxcall'])
         self.n_dlogz = eval(config['config_nestle']['dlogz'])
         self.n_decline_factor = eval(config['config_nestle']['decline_factor'])
+
+        # [config_pymultinest]
+        # self.p_n_params = config['config_pymultinest']['n_params']
+        # self.p_n_clustering_params = config['config_pymultinest']['n_clustering_params']
+        # self.p_wrapped_params = config['config_pymultinest']['wrapped_params']
+        # self.p_importance_nested_sampling = config['config_pymultinest']['importance_nested_sampling']
+        # self.p_multimodal = config['config_pymultinest']['multimodal']
+        # self.p_const_efficiency_mode = config['config_pymultinest']['const_efficiency_mode']
+        # self.p_evidence_tolerance = eval(config['config_pymultinest']['evidence_tolerance'])
+        # self.p_sampling_efficiency = eval(config['config_pymultinest']['sampling_efficiency'])
+        # self.p_n_iter_before_update = eval(config['config_pymultinest']['n_iter_before_update'])
+        # self.p_null_log_evidence = eval(config['config_pymultinest']['null_log_evidence'])
+        # self.p_max_modes = eval(config['config_pymultinest']['max_modes'])
+        # self.p_mode_tolerance = eval(config['config_pymultinest']['mode_tolerance'])
+        # self.p_seed = eval(config['config_pymultinest']['seed'])
+        # self.p_verbose = config['config_pymultinest']['verbose']
+        # self.p_resume = config['config_pymultinest']['resume']
+        # self.p_context = eval(config['config_pymultinest']['context'])
+        # self.p_write_output = config['config_pymultinest']['write_output']
+        # self.p_log_zero = eval(config['config_pymultinest']['log_zero'])
+        # self.p_max_iter = eval(config['config_pymultinest']['max_iter'])
+        # self.p_init_MPI = config['config_pymultinest']['init_MPI']
+        # self.p_dump_callback = config['config_pymultinest']['dump_callback']
+        # self.p_use_MPI = config['config_pymultinest']['use_MPI']
         
         # [config_dinesty] & [config_ultranest] CHECK THIS
 

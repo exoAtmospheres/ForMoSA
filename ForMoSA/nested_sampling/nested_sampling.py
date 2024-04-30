@@ -5,15 +5,11 @@ import nestle
 import time
 import xarray as xr
 import pickle
-from scipy.stats import pearsonr
-from scipy.interpolate import interp1d, UnivariateSpline
 
 from nested_sampling.nested_modif_spec import modif_spec
 from nested_sampling.nested_prior_function import uniform_prior, gaussian_prior
 from nested_sampling.nested_logL_functions import *
-from nested_sampling.nested_MOSAIC import MOSAIC_logL
-from main_utilities import yesno, diag_mat
-import matplotlib.pyplot as plt
+from main_utilities import diag_mat
 
 c = 299792.458 # Speed of light in km/s
 
@@ -31,71 +27,36 @@ def import_obsmod(global_params):
 
     Authors: Simon Petrus, Matthieu Ravet and Allan Denis
     """
-    # Check if the MOSAIC mode is activated
-    if global_params.observation_format == 'MOSAIC':
-        main_obs_path = global_params.main_observation_path
+    main_obs_path = global_params.main_observation_path
 
-        main_file = []
+    main_file = []
 
-        for indobs, obs in enumerate(sorted(glob.glob(main_obs_path))):
-            
-            global_params.observation_path = obs
-            obs_name = os.path.splitext(os.path.basename(global_params.observation_path))[0]
-            spectrum_obs = np.load(os.path.join(global_params.result_path, f'spectrum_obs_{obs_name}.npz'), allow_pickle=True)
+    for indobs, obs in enumerate(sorted(glob.glob(main_obs_path))):
+        
+        global_params.observation_path = obs
+        obs_name = os.path.splitext(os.path.basename(global_params.observation_path))[0]
+        spectrum_obs = np.load(os.path.join(global_params.result_path, f'spectrum_obs_{obs_name}.npz'), allow_pickle=True)
 
-            wav_obs_merge = spectrum_obs['obs_spectro_merge'][0]
-            flx_obs_merge = spectrum_obs['obs_spectro_merge'][1]
-            err_obs_merge = spectrum_obs['obs_spectro_merge'][2]
-            # Optional arrays
-            inv_cov_obs_merge = spectrum_obs['obs_opt_merge'][0]
-            transm_obs_merge = spectrum_obs['obs_opt_merge'][1]
-            star_flx_obs_merge = spectrum_obs['obs_opt_merge'][2]
-
-            if 'obs_photo' in spectrum_obs.keys():
-                wav_obs_phot = np.asarray(spectrum_obs['obs_photo'][0])
-                flx_obs_phot = np.asarray(spectrum_obs['obs_photo'][1])
-                err_obs_phot = np.asarray(spectrum_obs['obs_photo'][2])
-            else:
-                wav_obs_phot = np.asarray([])
-                flx_obs_phot = np.asarray([])
-                err_obs_phot = np.asarray([])
-
-            # Recovery of the spectroscopy and photometry model
-            path_grid_m = os.path.join(global_params.adapt_store_path, f'adapted_grid_merge_{global_params.grid_name}_{obs_name}_nonan.nc')
-            path_grid_p = os.path.join(global_params.adapt_store_path, f'adapted_grid_phot_{global_params.grid_name}_{obs_name}_nonan.nc')
-            ds = xr.open_dataset(path_grid_m, decode_cf=False, engine='netcdf4')
-            grid_merge = ds['grid']
-            ds.close()
-            ds = xr.open_dataset(path_grid_p, decode_cf=False, engine='netcdf4')
-            grid_phot = ds['grid']
-            ds.close()
-
-            main_file.append([[wav_obs_merge, wav_obs_phot], [flx_obs_merge, flx_obs_phot], [err_obs_merge, err_obs_phot], inv_cov_obs_merge, transm_obs_merge, star_flx_obs_merge, grid_merge, grid_phot])
-
-    else:
-        # Recovery of spectroscopy and photometry data
-        spectrum_obs = np.load(global_params.result_path + '/spectrum_obs.npz', allow_pickle=True)
-
-        wav_obs_merge = spectrum_obs['obs_spectro_merge'][0]
-        flx_obs_merge = spectrum_obs['obs_spectro_merge'][1]
-        err_obs_merge = spectrum_obs['obs_spectro_merge'][2]
+        wav_obs_merge = np.asarray(spectrum_obs['obs_spectro_merge'][0], dtype=float)
+        flx_obs_merge = np.asarray(spectrum_obs['obs_spectro_merge'][1], dtype=float)
+        err_obs_merge = np.asarray(spectrum_obs['obs_spectro_merge'][2], dtype=float)
         # Optional arrays
-        inv_cov_obs_merge = spectrum_obs['obs_opt_merge'][0]
-        transm_obs_merge = spectrum_obs['obs_opt_merge'][1]
-        star_flx_obs_merge = spectrum_obs['obs_opt_merge'][2]
+        inv_cov_obs_merge = np.asarray(spectrum_obs['obs_opt_merge'][0], dtype=float)
+        transm_obs_merge = np.asarray(spectrum_obs['obs_opt_merge'][1], dtype=float)
+        star_flx_obs_merge = np.asarray(spectrum_obs['obs_opt_merge'][2], dtype=float)
 
         if 'obs_photo' in spectrum_obs.keys():
-            wav_obs_phot = np.asarray(spectrum_obs['obs_photo'][0])
-            flx_obs_phot = np.asarray(spectrum_obs['obs_photo'][1])
-            err_obs_phot = np.asarray(spectrum_obs['obs_photo'][2])
+            wav_obs_phot = np.asarray(spectrum_obs['obs_photo'][0], dtype=float)
+            flx_obs_phot = np.asarray(spectrum_obs['obs_photo'][1], dtype=float)
+            err_obs_phot = np.asarray(spectrum_obs['obs_photo'][2], dtype=float)
         else:
-            wav_obs_phot = np.asarray([])
-            flx_obs_phot = np.asarray([])
-            err_obs_phot = np.asarray([])
+            wav_obs_phot = np.asarray([], dtype=float)
+            flx_obs_phot = np.asarray([], dtype=float)
+            err_obs_phot = np.asarray([], dtype=float)
 
         # Recovery of the spectroscopy and photometry model
-        path_grid_m = global_params.adapt_store_path + '/adapted_grid_merge_' + global_params.grid_name + '_nonan.nc'
-        path_grid_p = global_params.adapt_store_path + 'adapted_grid_phot_' + global_params.grid_name + '_nonan.nc'
+        path_grid_m = os.path.join(global_params.adapt_store_path, f'adapted_grid_spectro_{global_params.grid_name}_{obs_name}_nonan.nc')
+        path_grid_p = os.path.join(global_params.adapt_store_path, f'adapted_grid_phot_{global_params.grid_name}_{obs_name}_nonan.nc')
         ds = xr.open_dataset(path_grid_m, decode_cf=False, engine='netcdf4')
         grid_merge = ds['grid']
         ds.close()
@@ -103,7 +64,7 @@ def import_obsmod(global_params):
         grid_phot = ds['grid']
         ds.close()
 
-        main_file = [wav_obs_merge, wav_obs_phot], [flx_obs_merge, flx_obs_phot], [err_obs_merge, err_obs_phot], inv_cov_obs_merge, transm_obs_merge, star_flx_obs_merge, grid_merge, grid_phot
+        main_file.append([[wav_obs_merge, wav_obs_phot], [flx_obs_merge, flx_obs_phot], [err_obs_merge, err_obs_phot], inv_cov_obs_merge, transm_obs_merge, star_flx_obs_merge, grid_merge, grid_phot])
 
     return main_file
 
@@ -127,35 +88,35 @@ def loglike(theta, theta_index, global_params, main_file, for_plot='no'):
     Authors: Simon Petrus, Matthieu Ravet and Allan Denis
     """
 
-    # Check if we are running with the MOSAIC mode
-    if global_params.observation_format == 'MOSAIC':
-        FINAL_logL = MOSAIC_logL(theta, theta_index, global_params, main_file)
+    # Recovery of each observation spectroscopy and photometry data
+    main_obs_path = global_params.main_observation_path
+    FINAL_logL = 0
 
-    else:
+
+    for indobs, obs in enumerate(sorted(glob.glob(main_obs_path))):
+        
         # Recovery of spectroscopy and photometry data
-        wav_obs_merge = main_file[0][0]
-        wav_obs_phot = main_file[0][1]
-        flx_obs_merge = main_file[1][0]
-        flx_obs_phot = main_file[1][1]
-        err_obs_merge = main_file[2][0]
-        err_obs_phot = main_file[2][1]
-        inv_cov_obs_merge = main_file[3]
-        transm_obs_merge = main_file[4]
-        star_flx_obs_merge = main_file[5]
-    
+        wav_obs_merge = main_file[indobs][0][0]
+        wav_obs_phot = main_file[indobs][0][1]
+        flx_obs_merge = main_file[indobs][1][0]
+        flx_obs_phot = main_file[indobs][1][1]
+        err_obs_merge = main_file[indobs][2][0]
+        err_obs_phot = main_file[indobs][2][1]
+        inv_cov_obs_merge = main_file[indobs][3]
+        transm_obs_merge = main_file[indobs][4]
+        star_flx_obs_merge = main_file[indobs][5]
 
         # Recovery of the spectroscopy and photometry model
-        grid_merge = main_file[6]
-        grid_phot = main_file[7]
+        grid_merge = main_file[indobs][6]
+        grid_phot = main_file[indobs][7]
 
         # Calculation of the likelihood for each sub-spectrum defined by the parameter 'wav_fit'
-        for ns_u_ind, ns_u in enumerate(global_params.wav_fit.split('/')):
+        for ns_u_ind, ns_u in enumerate(global_params.wav_fit[indobs].split('/')):
             
             min_ns_u = float(ns_u.split(',')[0])
             max_ns_u = float(ns_u.split(',')[1])
             ind_grid_merge_sel = np.where((grid_merge['wavelength'] >= min_ns_u) & (grid_merge['wavelength'] <= max_ns_u))
             ind_grid_phot_sel = np.where((grid_phot['wavelength'] >= min_ns_u) & (grid_phot['wavelength'] <= max_ns_u))
-            
 
             # Cutting of the grid on the wavelength grid defined by the parameter 'wav_fit'
             grid_merge_cut = grid_merge.sel(wavelength=grid_merge['wavelength'][ind_grid_merge_sel])
@@ -222,11 +183,11 @@ def loglike(theta, theta_index, global_params, main_file, for_plot='no'):
                     inv_cov_obs_merge_ns_u = inv_cov_obs_merge[np.ix_(ind_merge[0],ind_merge[0])]
                 else:
                     inv_cov_obs_merge_ns_u = np.asarray([])
-                if len(transm_obs_merge) != 0:
+                if len(transm_obs_merge) != 0: # Add the transmission (if necessary)
                     transm_obs_merge_ns_u = transm_obs_merge[ind_merge]
                 else:
                     transm_obs_merge_ns_u = np.asarray([])
-                if len(star_flx_obs_merge) != 0:
+                if len(star_flx_obs_merge) != 0: # Add star flux (if necessary)
                     star_flx_obs_merge_ns_u = star_flx_obs_merge[ind_merge]
                 else:
                     star_flx_obs_merge_ns_u = np.asarray([])
@@ -241,47 +202,45 @@ def loglike(theta, theta_index, global_params, main_file, for_plot='no'):
                 flx_mod_merge_ns_u = np.concatenate((flx_mod_merge_ns_u, flx_mod_merge_cut))
                 if len(inv_cov_obs_merge_ns_u) != 0: # Merge the covariance matrices (if necessary)
                     inv_cov_obs_merge_ns_u = diag_mat([inv_cov_obs_merge_ns_u, inv_cov_obs_merge[np.ix_(ind_merge[0],ind_merge[0])]])
-                if len(transm_obs_merge_ns_u) != 0:
+                if len(transm_obs_merge_ns_u) != 0: # Merge the transmissions (if necessary)
                     transm_obs_merge_ns_u = np.concatenate((transm_obs_merge_ns_u, transm_obs_merge[ind_merge]))
-                if len(star_flx_obs_merge_ns_u) != 0:    
+                if len(star_flx_obs_merge_ns_u) != 0: # Merge star fluxes (if necessary)
                     star_flx_obs_merge_ns_u = np.concatenate((star_flx_obs_merge_ns_u, star_flx_obs_merge[ind_grid_merge_sel]))
                 wav_obs_phot_ns_u = np.concatenate((wav_obs_phot_ns_u, wav_obs_phot[ind_phot]))
                 flx_obs_phot_ns_u = np.concatenate((flx_obs_phot_ns_u, flx_obs_phot[ind_phot]))
                 err_obs_phot_ns_u = np.concatenate((err_obs_phot_ns_u, err_obs_phot[ind_phot]))
                 flx_mod_phot_ns_u = np.concatenate((flx_mod_phot_ns_u, flx_mod_phot_cut))
-
+        
+                    
         # Modification of the synthetic spectrum with the extra-grid parameters
         modif_spec_LL = modif_spec(global_params, theta, theta_index,
                                     wav_obs_merge_ns_u,  flx_obs_merge_ns_u,  err_obs_merge_ns_u,  flx_mod_merge_ns_u,
                                     wav_obs_phot_ns_u,  flx_obs_phot_ns_u, err_obs_phot_ns_u,  flx_mod_phot_ns_u, 
-                                    transm_obs_merge_ns_u, star_flx_obs_merge_ns_u)
+                                    transm_obs_merge_ns_u, star_flx_obs_merge_ns_u, indobs=indobs)
         
-
         flx_obs, flx_obs_phot = modif_spec_LL[1], modif_spec_LL[5]
         flx_mod, flx_mod_phot = modif_spec_LL[3], modif_spec_LL[7]
         err, err_phot = modif_spec_LL[2], modif_spec_LL[6]
         inv_cov = inv_cov_obs_merge_ns_u
         ck = modif_spec_LL[8]
 
-        
-
         # Computation of the photometry logL
-        if len(flx_obs_phot) != 0:
+        if len(flx_mod_phot) != 0:
             logL_phot = logL_chi2_classic(flx_obs_phot-flx_mod_phot, err_phot)
         else:
             logL_phot = 0
 
         # Computation of the spectroscopy logL
         if len(flx_obs) != 0:
-            if global_params.logL_type == 'chi2_classic':
+            if global_params.logL_type[indobs] == 'chi2_classic':
                 logL_spec = logL_chi2_classic(flx_obs-flx_mod, err)
-            elif global_params.logL_type == 'chi2_covariance' and len(inv_cov) != 0:
+            elif global_params.logL_type[indobs] == 'chi2_covariance' and len(inv_cov) != 0:
                 logL_spec = logL_chi2_covariance(flx_obs-flx_mod, inv_cov)
-            elif global_params.logL_type == 'CCF_Brogi':
+            elif global_params.logL_type[indobs] == 'CCF_Brogi':
                 logL_spec = logL_CCF_Brogi(flx_obs, flx_mod)
-            elif global_params.logL_type == 'CCF_Zucker':
+            elif global_params.logL_type[indobs] == 'CCF_Zucker':
                 logL_spec = logL_CCF_Zucker(flx_obs, flx_mod)
-            elif global_params.logL_type == 'CCF_custom':
+            elif global_params.logL_type[indobs] == 'CCF_custom':
                 logL_spec = logL_CCF_custom(flx_obs, flx_mod, err)
             else:
                 print()
@@ -292,9 +251,9 @@ def loglike(theta, theta_index, global_params, main_file, for_plot='no'):
         else:
             logL_spec = 0
 
-        FINAL_logL = logL_phot + logL_spec
+        # Compute the final logL (sum of all likelihood under the hypothesis of independent instruments)
+        FINAL_logL = logL_phot + logL_spec + FINAL_logL
         
-
     if for_plot == 'no':
         return FINAL_logL
     else:
@@ -379,6 +338,7 @@ def prior_transform(theta, theta_index, lim_param_grid, global_params):
                 prior_par5 = lim_param_grid[4][1]
             prior.append(prior_par5)
 
+    # Extra-grid parameters
     if global_params.r != 'NA':
         prior_law = global_params.r[0]
         if prior_law != 'constant':
@@ -397,13 +357,15 @@ def prior_transform(theta, theta_index, lim_param_grid, global_params):
             if prior_law == 'gaussian':
                 prior_d = gaussian_prior([float(global_params.d[1]), float(global_params.d[2])], theta[ind_theta_d[0][0]])
             prior.append(prior_d)
-    # NEW scaling parameter(s)
-    if global_params.alpha != 'NA':
-        if global_params.observation_format == 'MOSAIC': # Activation of the MOSAIC mode
-            main_obs_path = global_params.main_observation_path
-            for indobs, obs in enumerate(sorted(glob.glob(main_obs_path))):
-                global_params.observation_path = obs
-                obs_name = os.path.splitext(os.path.basename(global_params.observation_path))[0]
+
+    # - - - - - - - - - - - - - - - - - - - - -
+            
+    # Individual parameters / observation
+            
+    if len(global_params.alpha) > 3: # If you want separate alpha for each observations
+        main_obs_path = global_params.main_observation_path
+        for indobs, obs in enumerate(sorted(glob.glob(main_obs_path))):
+            if global_params.alpha[indobs*3] != 'NA':
                 prior_law = global_params.alpha[indobs*3] # Prior laws should be separeted by 2 values (need to be upgraded)
                 if prior_law != 'constant':
                     ind_theta_alpha = np.where(theta_index == f'alpha_{indobs}')
@@ -412,7 +374,8 @@ def prior_transform(theta, theta_index, lim_param_grid, global_params):
                     if prior_law == 'gaussian':
                         prior_alpha = gaussian_prior([float(global_params.alpha[indobs*3+1]), float(global_params.alpha[indobs*3+2])], theta[ind_theta_alpha[0][0]])
                     prior.append(prior_alpha)
-        else:
+    else: # If you want 1 common alpha for all observations
+        if global_params.alpha != 'NA':
             prior_law = global_params.alpha[0]
             if prior_law != 'constant':
                 ind_theta_alpha = np.where(theta_index == 'alpha')
@@ -421,15 +384,31 @@ def prior_transform(theta, theta_index, lim_param_grid, global_params):
                 if prior_law == 'gaussian':
                     prior_alpha = gaussian_prior([float(global_params.alpha[1]), float(global_params.alpha[2])], theta[ind_theta_alpha[0][0]])
                 prior.append(prior_alpha)
-    if global_params.rv != 'NA':
-        prior_law = global_params.rv[0]
-        if prior_law != 'constant':
-            ind_theta_rv = np.where(theta_index == 'rv')
-            if prior_law == 'uniform':
-                prior_rv = uniform_prior([float(global_params.rv[1]), float(global_params.rv[2])], theta[ind_theta_rv[0][0]])
-            if prior_law == 'gaussian':
-                prior_rv = gaussian_prior([float(global_params.rv[1]), float(global_params.rv[2])], theta[ind_theta_rv[0][0]])
-            prior.append(prior_rv)
+    if len(global_params.rv) > 3: # If you want separate rv for each observations
+        main_obs_path = global_params.main_observation_path
+        for indobs, obs in enumerate(sorted(glob.glob(main_obs_path))):
+            if global_params.rv[indobs*3] != 'NA':
+                prior_law = global_params.rv[indobs*3] # Prior laws should be separeted by 2 values (need to be upgraded)
+                if prior_law != 'constant':
+                    ind_theta_rv = np.where(theta_index == f'rv_{indobs}')
+                    if prior_law == 'uniform':
+                        prior_rv = uniform_prior([float(global_params.rv[indobs*3+1]), float(global_params.rv[indobs*3+2])], theta[ind_theta_rv[0][0]]) # Prior values should be by two
+                    if prior_law == 'gaussian':
+                        prior_rv = gaussian_prior([float(global_params.rv[indobs*3+1]), float(global_params.rv[indobs*3+2])], theta[ind_theta_rv[0][0]])
+                    prior.append(prior_rv)
+    else: # If you want 1 common rv for all observations
+        if global_params.rv != 'NA':
+            prior_law = global_params.rv[0]
+            if prior_law != 'constant':
+                ind_theta_rv = np.where(theta_index == 'rv')
+                if prior_law == 'uniform':
+                    prior_rv = uniform_prior([float(global_params.rv[1]), float(global_params.rv[2])], theta[ind_theta_rv[0][0]])
+                if prior_law == 'gaussian':
+                    prior_rv = gaussian_prior([float(global_params.rv[1]), float(global_params.rv[2])], theta[ind_theta_rv[0][0]])
+                prior.append(prior_rv)
+
+    # - - - - - - - - - - - - - - - - - - - - -
+
     if global_params.av != 'NA':
         prior_law = global_params.av[0]
         if prior_law != 'constant':
@@ -479,7 +458,7 @@ def prior_transform(theta, theta_index, lim_param_grid, global_params):
     return prior
 
 
-def launch_nested_sampling(global_params, y_n_par='y'):
+def launch_nested_sampling(global_params):
     """
     Function to launch the nested sampling. 
     We first perform LogL function check-ups. 
@@ -489,7 +468,6 @@ def launch_nested_sampling(global_params, y_n_par='y'):
 
     Args:
         global_params (object): Class containing every input from the .ini file.
-        y_n_par          (str): Default is 'y'. This parameter is not used anymore...
 
     Returns:
         None
@@ -498,60 +476,34 @@ def launch_nested_sampling(global_params, y_n_par='y'):
     """
 
     # LogL functions check-ups
-    # CHECK-UPS FOR MOSAIC
-    if global_params.observation_format == 'MOSAIC':
-        print('- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -')
-        print('-> Likelihood functions check-ups')
-        print()
+    print('- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -')
+    print('-> Likelihood functions check-ups')
+    print()
 
-        main_obs_path = global_params.main_observation_path
-        for indobs, obs in enumerate(sorted(glob.glob(main_obs_path))):      
-            global_params.observation_path = obs
-            obs_name = os.path.splitext(os.path.basename(global_params.observation_path))[0]
+    main_obs_path = global_params.main_observation_path
+    for indobs, obs in enumerate(sorted(glob.glob(main_obs_path))):      
+        global_params.observation_path = obs
+        obs_name = os.path.splitext(os.path.basename(global_params.observation_path))[0]
 
-            # Check the choice of likelihood (only for MOSAIC)
-            print(obs_name + ' will be computed with ' + global_params.logL_type[indobs])
+        # Check the choice of likelihood (only for MOSAIC)
+        print(obs_name + ' will be computed with ' + global_params.logL_type[indobs])
 
-            if global_params.logL_type[indobs] == 'CCF_Brogi' and global_params.continuum_sub[indobs] == 'NA':
-                print('WARNING. You cannot use CCF mappings without substracting the continuum')
-                print()
-                exit()
-            elif global_params.logL_type[indobs] == 'CCF_Zucker' and global_params.continuum_sub[indobs] == 'NA':
-                print('WARNING. You cannot use CCF mappings without substracting the continuum')
-                print()
-                exit()
-            elif global_params.logL_type[indobs] == 'CCF_custom' and global_params.continuum_sub[indobs] == 'NA':
-                print('WARNING. You cannot use CCF mappings without substracting the continuum')
-                print()
-                exit()
-                
-            print()
-        print('Done !')
-        print()
-
-    # CHECK-UPS FOR CLASSIC MODE
-    else:
-        print('- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -')
-        print('-> Likelihood functions check-ups')
-        print()
-
-        if global_params.logL_type == 'CCF_Brogi' and global_params.continuum_sub == 'NA':
+        if global_params.logL_type[indobs] == 'CCF_Brogi' and global_params.continuum_sub[indobs] == 'NA':
             print('WARNING. You cannot use CCF mappings without substracting the continuum')
             print()
             exit()
-        elif global_params.logL_type == 'CCF_Zucker' and global_params.continuum_sub == 'NA':
+        elif global_params.logL_type[indobs] == 'CCF_Zucker' and global_params.continuum_sub[indobs] == 'NA':
             print('WARNING. You cannot use CCF mappings without substracting the continuum')
             print()
             exit()
-        elif global_params.logL_type == 'CCF_custom' and global_params.continuum_sub == 'NA':
+        elif global_params.logL_type[indobs] == 'CCF_custom' and global_params.continuum_sub[indobs] == 'NA':
             print('WARNING. You cannot use CCF mappings without substracting the continuum')
             print()
             exit()
-
+            
         print()
-        print('Done !')
-        print()
-        print()
+    print('Done !')
+    print()
 
     ds = xr.open_dataset(global_params.model_path, decode_cf=False, engine='netcdf4')
 
@@ -581,20 +533,34 @@ def launch_nested_sampling(global_params, y_n_par='y'):
     if global_params.d != 'NA' and global_params.d[0] != 'constant':
         n_free_parameters += 1
         theta_index.append('d')
-    # NEW scaling parameter(s)
-    if global_params.alpha != 'NA':
-        if global_params.observation_format == 'MOSAIC': # Activation of the MOSAIC mode
-            main_obs_path = global_params.main_observation_path
-            for indobs, obs in enumerate(sorted(glob.glob(main_obs_path))):
-                if global_params.alpha[indobs*3] != 'constant': # Check if the idobs is different from constant
-                    n_free_parameters += 1
-                    theta_index.append(f'alpha_{indobs}')
-        elif global_params.alpha[0] != 'constant':
+
+    # - - - - - - - - - - - - - - - - - - - - -
+            
+    # Individual parameters / observation
+        
+    if len(global_params.alpha) > 3: 
+        main_obs_path = global_params.main_observation_path
+        for indobs, obs in enumerate(sorted(glob.glob(main_obs_path))):
+            if global_params.alpha[indobs*3] != 'NA' and global_params.alpha[indobs*3] != 'constant': # Check if the idobs is different from constant
+                n_free_parameters += 1
+                theta_index.append(f'alpha_{indobs}')
+    else:
+        if global_params.alpha != 'NA' and global_params.alpha[0] != 'constant':
             n_free_parameters += 1
-            theta_index.append('alpha')
-    if global_params.rv != 'NA' and global_params.rv[0] != 'constant':
-        n_free_parameters += 1
-        theta_index.append('rv')
+            theta_index.append(f'alpha')
+    if len(global_params.rv) > 3: 
+        main_obs_path = global_params.main_observation_path
+        for indobs, obs in enumerate(sorted(glob.glob(main_obs_path))):
+            if global_params.rv[indobs*3] != 'NA' and global_params.rv[indobs*3] != 'constant': # Check if the idobs is different from constant
+                n_free_parameters += 1
+                theta_index.append(f'rv_{indobs}')
+    else:
+        if global_params.rv != 'NA' and global_params.rv[0] != 'constant':
+            n_free_parameters += 1
+            theta_index.append(f'rv')
+
+    # - - - - - - - - - - - - - - - - - - - - -
+            
     if global_params.av != 'NA' and global_params.av[0] != 'constant':
         n_free_parameters += 1
         theta_index.append('av')
@@ -647,17 +613,6 @@ def launch_nested_sampling(global_params, y_n_par='y'):
 
     if global_params.ns_algo == 'pymultinest':
         import pymultinest
-        # #MPI Multiprocessing
-        # if False: #try:
-        #     from mpi4py import MPI
-
-        #     comm = MPI.COMM_WORLD
-        #     rank = comm.Get_rank()
-        # else: #except ImportError:
-        #     MPI = None
-        #     rank = 0
-        #     comm = None
-
         tmpstot1 = time.time()
         loglike_gp = lambda theta: loglike(theta, theta_index, global_params, main_file=main_file)
         prior_transform_gp = lambda theta: prior_transform(theta, theta_index, lim_param_grid, global_params)
@@ -667,8 +622,8 @@ def launch_nested_sampling(global_params, y_n_par='y'):
                         n_dims=n_free_parameters,
                         n_live_points=int(float(global_params.npoint)),
                         outputfiles_basename=global_params.result_path + '/result_' + global_params.ns_algo + '_RAW_',
-                        resume=False,
-                        verbose=True
+                        verbose=True,
+                        resume=False
                         )
         # Reformat the result file
         with open(global_params.result_path + '/result_' + global_params.ns_algo + '_RAW_stats.dat',
