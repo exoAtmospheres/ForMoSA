@@ -473,6 +473,8 @@ class PlottingForMoSA():
                     wav = np.concatenate((wav, wav_ind))
             wav = np.sort(wav)
             wavelengths = np.linspace(wav[0],wav[-1],res_out)
+        else:
+            wavelengths = np.linspace(wavelengths[0],wavelengths[-1],res_out)
 
         # Recover the original grid
         if grid_used == 'original':

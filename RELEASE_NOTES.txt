@@ -204,7 +204,7 @@ Test that have been done to checkup the changes:
     - HiRISE ✓
     - photometry ✓
     - all plotting options ✓
-    - multiple observations (with the above tests)
-    - multiple observations with multiple alpha and rv
+    - multiple observations (with the above tests) ✓
+    - multiple observations with multiple alpha and rv ✓
     
 _ _ _
