@@ -56,7 +56,7 @@ def import_obsmod(global_params):
 
         # Recovery of the spectroscopy and photometry model
         path_grid_m = os.path.join(global_params.adapt_store_path, f'adapted_grid_spectro_{global_params.grid_name}_{obs_name}_nonan.nc')
-        path_grid_p = os.path.join(global_params.adapt_store_path, f'adapted_grid_phot_{global_params.grid_name}_{obs_name}_nonan.nc')
+        path_grid_p = os.path.join(global_params.adapt_store_path, f'adapted_grid_photo_{global_params.grid_name}_{obs_name}_nonan.nc')
         ds = xr.open_dataset(path_grid_m, decode_cf=False, engine='netcdf4')
         grid_merge = ds['grid']
         ds.close()

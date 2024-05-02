@@ -370,7 +370,7 @@ class PlottingForMoSA():
 
             # Recovery of the spectroscopy and photometry model
             path_grid_m = os.path.join(self.global_params.adapt_store_path, f'adapted_grid_spectro_{self.global_params.grid_name}_{obs_name}_nonan.nc')
-            path_grid_p = os.path.join(self.global_params.adapt_store_path, f'adapted_grid_phot_{self.global_params.grid_name}_{obs_name}_nonan.nc')
+            path_grid_p = os.path.join(self.global_params.adapt_store_path, f'adapted_grid_photo_{self.global_params.grid_name}_{obs_name}_nonan.nc')
             ds = xr.open_dataset(path_grid_m, decode_cf=False, engine='netcdf4')
             grid_merge = ds['grid']
             ds.close()

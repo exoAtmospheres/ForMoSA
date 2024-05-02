@@ -304,7 +304,7 @@ def adapt_grid(global_params, wav_obs_spec, wav_obs_phot, obs_name='', indobs=0)
                     format='NETCDF4',
                     engine='netcdf4',
                     mode='w')
-    ds_new_phot.to_netcdf(os.path.join(global_params.adapt_store_path, f'adapted_grid_phot_{global_params.grid_name}_{obs_name}_nonan.nc'),
+    ds_new_phot.to_netcdf(os.path.join(global_params.adapt_store_path, f'adapted_grid_photo_{global_params.grid_name}_{obs_name}_nonan.nc'),
                         format='NETCDF4',
                         engine='netcdf4',
                         mode='w')       
