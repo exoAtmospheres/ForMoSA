@@ -129,3 +129,82 @@ Comments:
     - Correction of the functions names and imports in nested_sampling, plotting_class
     
 _ _ _
+
+05/04/2024
+Matthieu Ravet
+
+Comments:
+    - NEW: addition of a new extrat-grid parameter, alpha. This parameter is usefull when you assume your datasets are poorly calibrated. It
+    has the effect of an additionnal scaling factor ck = alpha * (R/d)**2 that can be set differently with different observations.
+        FORMAT: * alpha = 'NA' # If you don't want to use it
+                * alpha = 'prior', float, float # If you want to use it with a given 'prior' and range
+                * alpha = 'prior_1', float_1, float_1, 'prior_2', float_2, float_2, ..., 'prior_n', float_n, float_n when using n observation in MOSAIC
+    => updates of the plotting functions to take this new parameter into account
+    - NEW: adaptation of the plotting functions:
+                * possibility of plotting MOSAIC outputs
+                * new arguments in plot_fit :
+                            trans:      'yes' or 'no' to plot transmision curves for photometry
+                            logx:       'yes' or 'no' to plot the wavelength in log scale
+                            logy:       'yes' or 'no' to plot the flux in log scale
+                            norm:       'yes' or 'no' to plot the normalized spectra (usefull for MOSAIC)
+    - NEW: the DEMO file has been updated with the recent changes
+
+Test that have been done to checkup the changes:
+    - Classical with/without alpha ✓
+    - MOSAIC with/without alpha ✓
+    - Classical and MOSAIC with/without photometry ✓
+    - With/without all new plotting options ✓
+
+
+Note: alpha parameter is strongly correlated to R and d => need to be carefull about the physical interpretations. Inversion time is greatly lengthen
+with this new parameter when using MOSAIC
+    
+_ _ _
+
+30/04/2024
+Matthieu Ravet
+
+Comments:
+    - Note : be carefull when using a small wavelength range to estimate the continuum (it is impossible if less than 2 points end up in the
+    range for the interpolation...)
+    - Corrections :
+                * The 'wav_for_adapt' parameter did not work due to numpy not accepting different size arrays when storing them with
+                'np.savez'. This has been corrected by replacing the importation list by array in 'extraction_functions' and adding lines
+                to transform them in 'dtype=object' when saving.
+                * The output grid were still called grid_merge and grid_phot. This has been replaced by 'grid_spectro' and 'grid_photo'
+                accordingly to match the file names in the code.
+    - NEWS :
+                * MOSAIC is now fully integrated in the classical mode => no more 'observation_format' parameter. The only change when using
+                the classical (only one obs) is that you need to specify the path where this observation is (i.e. /home/mravet/Documents/These/FORMOSA/INPUTS/GRAVITY/).
+                The 'multiply_transmission' and 'star_data' have been removed from the config file as they will be automatically imported if
+                provided in the .fits file (see below). All other parameters should work as usuall.
+                * The radial velocity can now be fitted individually for different obs in the loop. The format is the same as for 'alpha' (see above notes).
+                * The extra-grid parameters that can be fitted individually for each obs have 2 options :
+                    1) If you put 1 set of values (either 'NA' or 'prior', x, y), it will be the same for all datasets
+                    2) If you put N sets of values ('NA' or priors according to the obs), it will use separate ones for each datasets
+                * The input format has be normalized to :
+                        > 'WAV'
+                        > 'FLX'
+                        > 'ERR (or COV, optional)
+                        > 'INS'
+                        > 'RES'
+                        > ('TRANSM', optional)
+                        > ('STAR FLX', optional)
+                * The DEMO config.ini as been updated accordingly
+
+
+Test that have been done to checkup the changes:
+    - 1 obs with/without alpha ✓
+    - 1 obs with/without rv ✓
+    - 1 obs with/without continuum substraction (multi/single continuum/adapt windows) ✓
+    - 1 obs with/without custom reso ✓
+    - 1 obs with/without wav_for_adapt windows ✓
+    - 1 obs with/without wav_fit windows ✓
+    - 1 obs with cov and chi2 classic logL ✓
+    - HiRISE ✓
+    - photometry ✓
+    - all plotting options ✓
+    - multiple observations (with the above tests) ✓
+    - multiple observations with multiple alpha and rv ✓
+    
+_ _ _

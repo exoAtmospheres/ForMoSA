@@ -18,8 +18,8 @@ def adapt_grid(global_params, wav_obs_spec, wav_obs_phot, obs_name='', indobs=0)
         global_params (object): Class containing each parameter
         wav_obs_spec   (array): Merged wavelength grid of the data
         wav_obs_phot   (array): Wavelengths of the photometry points
-        obs_name         (str): Name of the current observation looping (only relevant in MOSAIC, else set to '')
-        indobs           (int): Index of the current observation looping (only relevant in MOSAIC, else set to 0)
+        obs_name         (str): Name of the current observation looping
+        indobs           (int): Index of the current observation looping
     Returns:
         None
 
@@ -32,50 +32,27 @@ def adapt_grid(global_params, wav_obs_spec, wav_obs_phot, obs_name='', indobs=0)
     attr = ds.attrs
     grid_np = grid.to_numpy()
     
-    # If MOSAIC
-    if global_params.observation_format == 'MOSAIC':
-        if global_params.continuum_sub[indobs] != 'NA':
-            for w_ind, wav_for_cont in enumerate(global_params.wav_for_continuum[indobs].split('/')):
-                wav_mod_for_cont_ind = np.where((float(wav_for_cont.split(',')[0]) < wav_mod_nativ) &
-                                                (wav_mod_nativ < float(wav_for_cont.split(',')[1])))
-                if w_ind == 0:
-                    wav_mod_for_cont = wav_mod_nativ[wav_mod_for_cont_ind]
-                else:
-                    wav_mod_for_cont = np.concatenate((wav_mod_for_cont, wav_mod_nativ[wav_mod_for_cont_ind]))
-                    
-            wav_reso = min(wav_mod_for_cont)
-            n = 0
-            while wav_reso < max(wav_mod_for_cont):
-                last_wav_reso = wav_reso
-                wav_reso += wav_reso / float(global_params.continuum_sub[indobs])
-                n += 1
+    # Prepare the low resolution wavelength array if the continuum is to be estimated
+    if global_params.continuum_sub[indobs] != 'NA':
+        for w_ind, wav_for_cont in enumerate(global_params.wav_for_continuum[indobs].split('/')):
+            wav_mod_for_cont_ind = np.where((float(wav_for_cont.split(',')[0]) < wav_mod_nativ) &
+                                            (wav_mod_nativ < float(wav_for_cont.split(',')[1])))
+            if w_ind == 0:
+                wav_mod_for_cont = wav_mod_nativ[wav_mod_for_cont_ind]
+            else:
+                wav_mod_for_cont = np.concatenate((wav_mod_for_cont, wav_mod_nativ[wav_mod_for_cont_ind]))
                 
-            wav_min = min(wav_mod_for_cont)
-            wav_reso_tab = np.logspace(np.log10(wav_min), np.log10(last_wav_reso), num = n)
-        else:
-            wav_reso_tab = []
-    # If Classical mode
+        wav_reso = min(wav_mod_for_cont)
+        n = 0
+        while wav_reso < max(wav_mod_for_cont):
+            last_wav_reso = wav_reso
+            wav_reso += wav_reso / float(global_params.continuum_sub[indobs])
+            n += 1
+            
+        wav_min = min(wav_mod_for_cont)
+        wav_reso_tab = np.logspace(np.log10(wav_min), np.log10(last_wav_reso), num = n)
     else:
-        if global_params.continuum_sub != 'NA':
-            for w_ind, wav_for_cont in enumerate(global_params.wav_for_continuum.split('/')):
-                wav_mod_for_cont_ind = np.where((float(wav_for_cont.split(',')[0]) < wav_mod_nativ) &
-                                                (wav_mod_nativ < float(wav_for_cont.split(',')[1])))
-                if w_ind == 0:
-                    wav_mod_for_cont = wav_mod_nativ[wav_mod_for_cont_ind]
-                else:
-                    wav_mod_for_cont = np.concatenate((wav_mod_for_cont, wav_mod_nativ[wav_mod_for_cont_ind]))
-                    
-            wav_reso = min(wav_mod_for_cont)
-            n = 0
-            while wav_reso < max(wav_mod_for_cont):
-                last_wav_reso = wav_reso
-                wav_reso += wav_reso / float(global_params.continuum_sub)
-                n += 1
-                
-            wav_min = min(wav_mod_for_cont)
-            wav_reso_tab = np.logspace(np.log10(wav_min), np.log10(last_wav_reso), num = n)
-        else:
-            wav_reso_tab = []
+        wav_reso_tab = []
 
     
     if len(attr['par']) == 2:
@@ -323,25 +300,14 @@ def adapt_grid(global_params, wav_obs_spec, wav_obs_phot, obs_name='', indobs=0)
         ds_new_phot = ds_new_phot.interpolate_na(dim=key, method="linear", fill_value="extrapolate", limit=None,
                                                  max_gap=None)
  
-    # Change paths if the MOSAIC mod is activated
-    if global_params.observation_format == 'MOSAIC':
-        ds_new.to_netcdf(os.path.join(global_params.adapt_store_path, f'adapted_grid_merge_{global_params.grid_name}_{obs_name}_nonan.nc'),
+    ds_new.to_netcdf(os.path.join(global_params.adapt_store_path, f'adapted_grid_spectro_{global_params.grid_name}_{obs_name}_nonan.nc'),
+                    format='NETCDF4',
+                    engine='netcdf4',
+                    mode='w')
+    ds_new_phot.to_netcdf(os.path.join(global_params.adapt_store_path, f'adapted_grid_photo_{global_params.grid_name}_{obs_name}_nonan.nc'),
                         format='NETCDF4',
                         engine='netcdf4',
-                        mode='w')
-        ds_new_phot.to_netcdf(os.path.join(global_params.adapt_store_path, f'adapted_grid_phot_{global_params.grid_name}_{obs_name}_nonan.nc'),
-                            format='NETCDF4',
-                            engine='netcdf4',
-                            mode='w')
-    else:
-        ds_new.to_netcdf(global_params.adapt_store_path + '/adapted_grid_merge_' + global_params.grid_name + '_nonan.nc',
-                        format='NETCDF4',
-                        engine='netcdf4',
-                        mode='w')
-        ds_new_phot.to_netcdf(global_params.adapt_store_path + '/adapted_grid_phot_' + global_params.grid_name + '_nonan.nc',
-                            format='NETCDF4',
-                            engine='netcdf4',
-                            mode='w')        
+                        mode='w')       
 
     print('The possible holes have been interpolated!')
 

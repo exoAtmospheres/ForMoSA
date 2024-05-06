@@ -71,7 +71,7 @@ def lsq_fct(flx_obs_merge, err_obs_merge, star_flx_obs_merge, transm_obs_merge, 
 
 
 def calc_ck(flx_obs_merge, err_obs_merge, new_flx_merge, flx_obs_phot, err_obs_phot, new_flx_phot, r_picked, d_picked,
-            analytic='no'):
+            alpha=1, analytic='no'):
     """
     Calculation of the dilution factor Ck and re-normalization of the interpolated synthetic spectrum (from the radius
     and distance or analytically).
@@ -85,6 +85,7 @@ def calc_ck(flx_obs_merge, err_obs_merge, new_flx_merge, flx_obs_phot, err_obs_p
         new_flx_phot    : Flux of the interpolated synthetic spectrum (photometry)
         r_picked        : Radius randomly picked by the nested sampling (in RJup)
         d_picked        : Distance randomly picked by the nested sampling (in pc)
+        alpha           : Manual scaling factor (set to 1 by default) such that ck = alpha * (r/d)²
         analytic        : = 'yes' if Ck needs to be calculated analytically by the formula from Cushing et al. (2008)
     Returns:
         new_flx_merge   : Re-normalysed model spectrum
@@ -97,7 +98,7 @@ def calc_ck(flx_obs_merge, err_obs_merge, new_flx_merge, flx_obs_phot, err_obs_p
     if analytic == 'no':
         r_picked *= 69911
         d_picked *= 3.086e+13
-        ck = (r_picked/d_picked)**2
+        ck = alpha * (r_picked/d_picked)**2
     # Calculation of the dilution factor ck analytically
     else:
         if len(flx_obs_merge) != 0:
@@ -222,8 +223,6 @@ def vsini_fct(wav_obs_merge, new_flx_merge, ld_picked, vsini_picked):
     new_flx_merge = vsini_interp(wav_obs_merge)
 
     return new_flx_merge
-
-
 
 # ----------------------------------------------------------------------------------------------------------------------
 
@@ -389,7 +388,7 @@ def modif_spec(global_params, theta, theta_index,
         new_flx_phot    : Flux of the interpolated synthetic spectrum (photometry)
         transm_obs_merge: Transmission (Atmospheric + Instrumental)
         star_flx_obs_merge: Flux of star observation data (spectroscopy)
-        indobs     (int): Index of the current observation looping (only relevant in MOSAIC, else set to 0)
+        indobs     (int): Index of the current observation looping
     Returns:
         wav_obs_merge   : New wavelength grid of the data (may change with the Doppler shift)
         flx_obs_merge   : New flux of the data (may change with the Doppler shift)
@@ -404,15 +403,26 @@ def modif_spec(global_params, theta, theta_index,
     """
     # Correction of the radial velocity of the interpolated synthetic spectrum.
     if len(flx_obs_merge) != 0:
-        if global_params.rv != "NA":
-            if global_params.rv[0] == 'constant':
-                rv_picked = float(global_params.rv[1])
-            else:
-                ind_theta_rv = np.where(theta_index == 'rv')
-                rv_picked = theta[ind_theta_rv[0][0]]
-            wav_obs_merge, flx_obs_merge, err_obs_merge, new_flx_merge = doppler_fct(wav_obs_merge, flx_obs_merge,
+        if len(global_params.rv) > 3: # If you want separate rv for each observations
+            if global_params.rv[indobs*3] != "NA":
+                if global_params.rv[indobs*3] == "constant":
+                    rv_picked = float(global_params.rv[indobs*3+1])
+                else:
+                    ind_theta_rv = np.where(theta_index == f'rv_{indobs}')
+                    rv_picked = theta[ind_theta_rv[0][0]]
+                wav_obs_merge, flx_obs_merge, err_obs_merge, new_flx_merge = doppler_fct(wav_obs_merge, flx_obs_merge,
                                                                                     err_obs_merge, new_flx_merge,
                                                                                     rv_picked)
+        else: # If you want 1 common rv for all observations
+            if global_params.rv != "NA":
+                if global_params.rv[0] == "constant":
+                    alpha_picked = float(global_params.rv[1])
+                else:
+                    ind_theta_rv = np.where(theta_index == 'rv')
+                    rv_picked = theta[ind_theta_rv[0][0]]
+                wav_obs_merge, flx_obs_merge, err_obs_merge, new_flx_merge = doppler_fct(wav_obs_merge, flx_obs_merge,
+                                                                                        err_obs_merge, new_flx_merge,
+                                                                                        rv_picked)
 
     # Application of a synthetic interstellar extinction to the interpolated synthetic spectrum.
     if global_params.av != "NA":
@@ -474,6 +484,7 @@ def modif_spec(global_params, theta, theta_index,
         exit()
 
     # Calculation of the dilution factor Ck and re-normalization of the interpolated synthetic spectrum.
+
     # From the radius and the distance.
     if global_params.r != "NA" and global_params.d != "NA":
         planet_contribution, stellar_contribution = 1, 1
@@ -487,8 +498,35 @@ def modif_spec(global_params, theta, theta_index,
         else:
             ind_theta_d = np.where(theta_index == 'd')
             d_picked = theta[ind_theta_d[0][0]]
-        new_flx_merge, new_flx_phot, ck = calc_ck(flx_obs_merge, err_obs_merge, new_flx_merge,
+
+        # With the extra alpha scaling
+        if len(global_params.alpha) > 3: # If you want separate alpha for each observations
+            if global_params.alpha[indobs*3] != "NA":
+                if global_params.alpha[indobs*3] == "constant":
+                    alpha_picked = float(global_params.alpha[indobs*3+1])
+                else:
+                    ind_theta_alpha = np.where(theta_index == f'alpha_{indobs}')
+                    alpha_picked = theta[ind_theta_alpha[0][0]]
+                new_flx_merge, new_flx_phot, ck = calc_ck(flx_obs_merge, err_obs_merge, new_flx_merge,
+                                                        flx_obs_phot, err_obs_phot, new_flx_phot, r_picked, d_picked,
+                                                        alpha=alpha_picked)
+            else: # Without the extra alpha scaling
+                new_flx_merge, new_flx_phot, ck = calc_ck(flx_obs_merge, err_obs_merge, new_flx_merge,
                                                   flx_obs_phot, err_obs_phot, new_flx_phot, r_picked, d_picked)
+        else: # If you want 1 common alpha for all observations
+            if global_params.alpha != "NA":
+                if global_params.alpha[0] == "constant":
+                    alpha_picked = float(global_params.alpha[1])
+                else:
+                    ind_theta_alpha = np.where(theta_index == 'alpha')
+                    alpha_picked = theta[ind_theta_alpha[0][0]]
+                new_flx_merge, new_flx_phot, ck = calc_ck(flx_obs_merge, err_obs_merge, new_flx_merge,
+                                                        flx_obs_phot, err_obs_phot, new_flx_phot, r_picked, d_picked,
+                                                        alpha=alpha_picked)   
+            else: # Without the extra alpha scaling
+                new_flx_merge, new_flx_phot, ck = calc_ck(flx_obs_merge, err_obs_merge, new_flx_merge,
+                                                    flx_obs_phot, err_obs_phot, new_flx_phot, r_picked, d_picked)
+                
     # Analytically
     # If MOSAIC
     elif global_params.observation_format == 'MOSAIC':
