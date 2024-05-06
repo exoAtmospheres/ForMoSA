@@ -250,6 +250,7 @@ def loglike(theta, theta_index, global_params, main_file, for_plot='no'):
                 err_obs_phot_ns_u = np.concatenate((err_obs_phot_ns_u, err_obs_phot[ind_phot]))
                 flx_mod_phot_ns_u = np.concatenate((flx_mod_phot_ns_u, flx_mod_phot_cut))
 
+
         # Modification of the synthetic spectrum with the extra-grid parameters
         modif_spec_LL = modif_spec(global_params, theta, theta_index,
                                     wav_obs_merge_ns_u,  flx_obs_merge_ns_u,  err_obs_merge_ns_u,  flx_mod_merge_ns_u,
@@ -262,6 +263,11 @@ def loglike(theta, theta_index, global_params, main_file, for_plot='no'):
         err, err_phot = modif_spec_LL[2], modif_spec_LL[6]
         inv_cov = inv_cov_obs_merge_ns_u
         ck = modif_spec_LL[8]
+        planet_contribution, stellar_contribution, star_flx_obs_merge = modif_spec_LL[9], modif_spec_LL[10], modif_spec_LL[11]
+        
+        if global_params.use_lsqr == 'True':
+            # If our data is contaminated by starlight difraction, the model is the sum of the estimated stellar contribution + planet model
+            flx_mod = planet_contribution * flx_mod + stellar_contribution * star_flx_obs_merge
 
         
 

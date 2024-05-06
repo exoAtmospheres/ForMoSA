@@ -13,7 +13,7 @@ import time
 # ----------------------------------------------------------------------------------------------------------------------
 
 
-def lsq_fct(flx_obs_merge, err_obs_merge, star_flx_obs_merge, transm_obs_merge, new_flx_merge):
+def lsq_fct(flx_obs_merge, err_obs_merge, star_flx_obs_merge, transm_obs_merge, new_flx_merge, ccf_method = 'continuum_unfiltered'):
     """
     Estimation of the contribution of the planet and of the star to a spectrum (Used for HiRISE data)
 
@@ -26,66 +26,48 @@ def lsq_fct(flx_obs_merge, err_obs_merge, star_flx_obs_merge, transm_obs_merge, 
         wav_obs_merge : Wavelength grid of the data (spectroscopy)
         
     Returns:
-        cp: Planetary contribution to the data (Spectroscopy)
-        cs: Stellar contribution to the data (Spectroscopy)
-        flx_obs_merge: New flux of the data (Spectroscopy)
-        err_obs_merge: New error of the data (Spectroscopy)
+        cp : Planetary contribution to the data (Spectroscopy)
+        cs : Stellar contribution to the data (Spectroscopy)
+        new_flx_merge : New model of the companion 
+        flx_obs_merge : New flux of the data
+        star_flx_obs_merge : New star flux of the data
     """
     
     new_flx_merge = new_flx_merge * transm_obs_merge
     
-    # # # # # Removal of continuum with high-pass filtering
+    # # # # # Continuum estimation with lowpass filtering
     #
-    # Replacement of nan values by median values because filtering doesn't handle well nan values
-    ind_nans_obs, ind_nans_star, ind_nans_mod = np.isnan(flx_obs_merge), np.isnan(star_flx_obs_merge), np.isnan(new_flx_merge)
-    
-    flx_obs_merge[ind_nans_obs] = np.nanmedian(flx_obs_merge)
-    star_flx_obs_merge[ind_nans_star] = np.nanmedian(star_flx_obs_merge)
-    new_flx_merge[ind_nans_mod] = np.nanmedian(new_flx_merge)
-    
     # Low-pass filtering
     flx_obs_merge_continuum = ndi.gaussian_filter(flx_obs_merge, 300)
     star_flx_obs_merge_continuum = ndi.gaussian_filter(star_flx_obs_merge, 300)
     new_flx_merge_continuum = ndi.gaussian_filter(new_flx_merge, 300)
-    
-    # Replacement back of nan values
-    flx_obs_merge[ind_nans_obs] = np.nan
-    star_flx_obs_merge[ind_nans_star] = np.nan
-    new_flx_merge[ind_nans_mod] = np.nan
-    
-    # Removal of low-pass filtered data
-    flx_obs_merge = flx_obs_merge - flx_obs_merge_continuum + np.nanmedian(flx_obs_merge)
-    star_flx_obs_merge = star_flx_obs_merge - star_flx_obs_merge_continuum + np.nanmedian(star_flx_obs_merge)
-    new_flx_merge = new_flx_merge - new_flx_merge_continuum + np.nanmedian(new_flx_merge)
     #
     # # # # #
+        
+    if ccf_method == 'continuum_filtered':
+        # Removal of low-pass filtered data
+        flx_obs_merge = flx_obs_merge - flx_obs_merge_continuum + np.nanmedian(flx_obs_merge)
+        star_flx_obs_merge = star_flx_obs_merge - star_flx_obs_merge_continuum + np.nanmedian(star_flx_obs_merge)
+        new_flx_merge = new_flx_merge - new_flx_merge_continuum + np.nanmedian(new_flx_merge)
+    elif ccf_method == 'continuum_unfiltered':
+        star_flx_obs_merge = star_flx_obs_merge * flx_obs_merge_continuum / star_flx_obs_merge_continuum
+        new_flx_merge = new_flx_merge - new_flx_merge_continuum * star_flx_obs_merge / star_flx_obs_merge_continuum
     
     # # # # # Least squares estimation
-    #
-    # Removal of nan values in preparation of the least squares
-    nans = np.isnan(flx_obs_merge) | np.isnan(new_flx_merge) | np.isnan(err_obs_merge) | np.isnan(star_flx_obs_merge)
-    
-    final_flx_obs = flx_obs_merge[~nans]
-    final_star_flx_obs = star_flx_obs_merge[~nans]
-    final_obs_model = new_flx_merge[~nans]
-    final_err_obs = err_obs_merge[~nans]
-    
+    #    
     # Construction of the matrix
-    A_matrix = np.zeros([np.size(final_obs_model), 3])
-    A_matrix[:,0] = final_obs_model * final_err_obs
-    A_matrix[:,1] = final_star_flx_obs * final_err_obs
-    A_matrix[:,2] = final_err_obs
+    A_matrix = np.zeros([np.size(flx_obs_merge), 2])
+    A_matrix[:,0] = new_flx_merge * err_obs_merge
+    A_matrix[:,1] = star_flx_obs_merge * err_obs_merge
     
     # Least square 
-    res = optimize.lsq_linear(A_matrix, final_flx_obs * final_err_obs)
+    res = optimize.lsq_linear(A_matrix, flx_obs_merge * err_obs_merge)
+    cp, cs = res.x[0], res.x[1]
     
-    # Results 
-    cp = res.x[0] * new_flx_merge       # Estimated planetry contribution to the data
-    cs = res.x[1] * star_flx_obs_merge  # Estimated stellar contribution to the data
     #
     # # # # #
     
-    return cp, cs, flx_obs_merge
+    return res.x[0], res.x[1], new_flx_merge, flx_obs_merge, star_flx_obs_merge
 
 
 def calc_ck(flx_obs_merge, err_obs_merge, new_flx_merge, flx_obs_phot, err_obs_phot, new_flx_phot, r_picked, d_picked,
@@ -494,6 +476,7 @@ def modif_spec(global_params, theta, theta_index,
     # Calculation of the dilution factor Ck and re-normalization of the interpolated synthetic spectrum.
     # From the radius and the distance.
     if global_params.r != "NA" and global_params.d != "NA":
+        planet_contribution, stellar_contribution = 1, 1
         if global_params.r[0] == "constant":
             r_picked = float(global_params.r[1])
         else:
@@ -507,49 +490,52 @@ def modif_spec(global_params, theta, theta_index,
         new_flx_merge, new_flx_phot, ck = calc_ck(flx_obs_merge, err_obs_merge, new_flx_merge,
                                                   flx_obs_phot, err_obs_phot, new_flx_phot, r_picked, d_picked)
     # Analytically
-    # If MOSAIC
+    # If MOSAIC
     elif global_params.observation_format == 'MOSAIC':
         if global_params.r == "NA" and global_params.d == "NA" and global_params.use_lsqr[indobs] == 'False':
             new_flx_merge, new_flx_phot, ck = calc_ck(flx_obs_merge, err_obs_merge, new_flx_merge,
                                                     flx_obs_phot, err_obs_phot, new_flx_phot, 0, 0,
                                                     analytic='yes')
+            
+            planet_contribution, stellar_contribution = 1, 1
 
         elif global_params.r == "NA" and global_params.d == "NA" and global_params.use_lsqr[indobs] == 'True':   
             # global_params.use_lsqr = 'True', so no need to re-normalize the interpolated sythetic spectrum because the least squares automatically does it
                 
-            _, new_flx_phot, ck = calc_ck(flx_obs_merge, err_obs_merge, new_flx_merge, 
+            _, new_flx_phot, ck = calc_ck(flx_obs_merge, err_obs_merge, np.copy(new_flx_merge), 
                             flx_obs_phot, err_obs_phot, new_flx_phot, 0, 0,
                             analytic='yes')
             
-            cp, cs, flx_obs_merge = lsq_fct(flx_obs_merge, err_obs_merge, star_flx_obs_merge, transm_obs_merge, new_flx_merge)
-            new_flx_merge = cp + cs
+            planet_contribution, stellar_contribution, new_flx_merge, flx_obs_merge, star_flx_obs_merge = lsq_fct(np.copy(flx_obs_merge), err_obs_merge, star_flx_obs_merge, transm_obs_merge, new_flx_merge, global_params.ccf_m)
+
 
         else:   # either global_params.r or global_params.d is set to 'NA' 
             print('WARNING: You need to define a radius AND a distance, or set them both to "NA"')
             exit()
-    # If Classical mode
+    # If Classical mode
     else:
         if global_params.r == "NA" and global_params.d == "NA" and global_params.use_lsqr == 'False':
             new_flx_merge, new_flx_phot, ck = calc_ck(flx_obs_merge, err_obs_merge, new_flx_merge,
                                                     flx_obs_phot, err_obs_phot, new_flx_phot, 0, 0,
                                                     analytic='yes')
+            
+            planet_contribution, stellar_contribution = 1, 1
 
         elif global_params.r == "NA" and global_params.d == "NA" and global_params.use_lsqr == 'True':   
             # global_params.use_lsqr = 'True', so no need to re-normalize the interpolated sythetic spectrum because the least squares automatically does it
                 
-            _, new_flx_phot, ck = calc_ck(flx_obs_merge, err_obs_merge, new_flx_merge, 
+            _, new_flx_phot, ck = calc_ck(flx_obs_merge, err_obs_merge, np.copy(new_flx_merge), 
                             flx_obs_phot, err_obs_phot, new_flx_phot, 0, 0,
                             analytic='yes')
             
-            cp, cs, flx_obs_merge = lsq_fct(flx_obs_merge, err_obs_merge, star_flx_obs_merge, transm_obs_merge, new_flx_merge)
-            new_flx_merge = cp + cs
+            planet_contribution, stellar_contribution, new_flx_merge, flx_obs_merge, star_flx_obs_merge = lsq_fct(np.copy(flx_obs_merge), err_obs_merge, star_flx_obs_merge, transm_obs_merge, new_flx_merge)
         
         else:   # either global_params.r or global_params.d is set to 'NA' 
             print('WARNING: You need to define a radius AND a distance, or set them both to "NA"')
             exit()
 
 
-    return wav_obs_merge, flx_obs_merge, err_obs_merge, new_flx_merge, wav_obs_phot, flx_obs_phot, err_obs_phot, new_flx_phot, ck
+    return wav_obs_merge, flx_obs_merge, err_obs_merge, new_flx_merge, wav_obs_phot, flx_obs_phot, err_obs_phot, new_flx_phot, ck, planet_contribution, stellar_contribution, star_flx_obs_merge
 
 
 

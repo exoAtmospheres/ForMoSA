@@ -14,6 +14,7 @@ from scipy.interpolate import interp1d
 import extinction
 from PyAstronomy.pyasl import dopplerShift, rotBroad
 from spectres import spectres
+from tqdm import tqdm
 
 # Import ForMoSA
 from main_utilities import GlobFile
@@ -315,6 +316,7 @@ class PlottingForMoSA():
         self._get_posteriors()
         #def get_spec(theta, theta_index, global_params, for_plot='no'):
         # Recovery of the spectroscopy and photometry data
+        print(self.global_params.result_path)
         spectrum_obs = np.load(self.global_params.result_path + '/spectrum_obs.npz', allow_pickle=True)
         wav_obs_merge = spectrum_obs['obs_spectro_merge'][0]
         flx_obs_merge = spectrum_obs['obs_spectro_merge'][1]
@@ -471,8 +473,16 @@ class PlottingForMoSA():
         axr= plt.subplot2grid(size, (5, 0),rowspan=2 ,colspan=10)
         axr2= plt.subplot2grid(size, (5, 10),rowspan=2 ,colspan=1)
 
-
+        self.global_params.ccf_method = 'continuum_unfiltered'
         spectra = self._get_spectra(self.theta_best)
+        
+        if self.global_params.use_lsqr == 'True':
+            # If we used the lsq function, it means that our data is contaminated by the starlight difraction
+            # so the model is the sum of the planet model + the estimated stellar contribution
+            spectra = list(spectra)
+            model, planet_contribution, stellar_contribution, star_flx = spectra[3], spectra[9], spectra[10], spectra[11]
+            spectra[3] = planet_contribution * model + stellar_contribution * star_flx
+        
         
         if len(spectra[0]) != 0:
             if uncert=='yes':
@@ -509,7 +519,115 @@ class PlottingForMoSA():
         self.spectra = spectra
         #self.residuals = residuals
 
-        return fig, ax, axr, axr2
+        return spectra
+    
+    
+    def plot_ccf(self, rv_grid = [-300,300], rv_step = 0.5, figsize = (10,5)):
+        '''
+        Plot the ccf (used for high resolution data such as CRIRES+ / HiRISE)
+        
+        Author: Allan Denis
+        '''
+        print('ForMoSA - CCF plot')
+        
+        
+        self._get_posteriors()
+        theta = self.theta_best
+        theta_index = self.theta_index
+        # Recovery of the spectroscopy data
+        spectrum_obs = np.load(self.global_params.result_path + '/spectrum_obs.npz', allow_pickle=True)
+        wav_obs_merge = spectrum_obs['obs_spectro_merge'][0]
+        flx_obs_merge = spectrum_obs['obs_spectro_merge'][1]
+        err_obs_merge = spectrum_obs['obs_spectro_merge'][2]
+        transm_obs_merge = spectrum_obs['obs_opt_merge'][1]
+        star_flx_obs_merge = spectrum_obs['obs_opt_merge'][2]
+
+        # Recovery of the spectroscopy and photometry model
+        path_grid_m = self.global_params.adapt_store_path + '/adapted_grid_merge_' + self.global_params.grid_name + '_nonan.nc'
+        ds = xr.open_dataset(path_grid_m, decode_cf=False, engine='netcdf4')
+        grid_merge = ds['grid']
+        ds.close()
+
+        if self.global_params.par3 == 'NA':
+            if len(grid_merge['wavelength']) != 0:
+                flx_mod_merge = np.asarray(grid_merge.interp(par1=theta[0], par2=theta[1],
+                                                          method="linear", kwargs={"fill_value": "extrapolate"}))
+            else:
+                flx_mod_merge = np.asarray([])
+        elif self.global_params.par4 == 'NA':
+            if len(grid_merge['wavelength']) != 0:
+                flx_mod_merge = np.asarray(grid_merge.interp(par1=theta[0], par2=theta[1], par3=theta[2],
+                                                          method="linear", kwargs={"fill_value": "extrapolate"}))
+            else:
+                flx_mod_merge = np.asarray([])
+        elif self.global_params.par5 == 'NA':
+            if len(grid_merge['wavelength']) != 0:
+                flx_mod_merge = np.asarray(grid_merge.interp(par1=theta[0], par2=theta[1], par3=theta[2], par4=theta[3],
+                                                          method="linear", kwargs={"fill_value": "extrapolate"}))
+            else:
+                flx_mod_merge = np.asarray([])
+        else:
+            if len(grid_merge['wavelength']) != 0:
+                flx_mod_merge = np.asarray(grid_merge.interp(par1=theta[0], par2=theta[1], par3=theta[2], par4=theta[3],
+                                                          par5=theta[4],
+                                                          method="linear", kwargs={"fill_value": "extrapolate"}))
+            else:
+                flx_mod_merge = np.asarray([])
+        
+        rv_grid = np.arange(rv_grid[0], rv_grid[1], rv_step)
+        cp, cs = np.ones(len(rv_grid)), np.ones(len(rv_grid))
+        i = 0
+        
+        self.global_params.rv = "NA"
+        self.global_params.use_lsqr = "False"
+        modif_spec_chi2 = modif_spec(self.global_params, theta, self.theta_index,
+                                  wav_obs_merge, flx_obs_merge, err_obs_merge, flx_mod_merge,
+                                  [], [], [], [],
+                                  transm_obs_merge, star_flx_obs_merge)
+        
+        flx_mod_merge = modif_spec_chi2[3] / modif_spec_chi2[8]
+        
+        # # Making sure we only call the doppler correction function and the lsq function
+        # # because we want to plot the cross correlation as a function of the radial velocity
+        self.global_params.rv = "uniform"
+        self.global_params.av = "NA"
+        self.global_params.vsini, self.global_params.ld = "NA", "NA"
+        self.global_params.bb_T, self.global_params.bb_R = "NA", "NA"
+        self.global_params.r, self.global_params.T = "NA", "NA"
+        self.global_params.ccf_method = 'continuum_unfiltered'
+        self.global_params.use_lsqr = 'True'
+        
+        for rv_i in tqdm(rv_grid):
+            theta[theta_index == 'rv'] = rv_i
+            
+            modif_spec_chi2 = modif_spec(self.global_params, theta, self.theta_index,
+                                      np.copy(wav_obs_merge), np.copy(flx_obs_merge), np.copy(err_obs_merge), np.copy(flx_mod_merge),
+                                      [], [], [], [],
+                                      transm_obs_merge, np.copy(star_flx_obs_merge))
+            
+            cp[i] = modif_spec_chi2[9]
+            cs[i] = modif_spec_chi2[10]
+
+            i += 1
+            
+            
+        normalization_limit = 100
+        
+        
+        fig, ax = plt.subplots(figsize = figsize)
+        fig.tight_layout()
+        
+        cp_norm = cp - np.median(cp[(np.abs(rv_grid-rv_grid[np.argmax(cp)]) > normalization_limit)])
+        cp_noise = np.std(cp_norm[(np.abs(rv_grid-rv_grid[np.argmax(cp)]) > normalization_limit)])
+        ccf_norm = cp_norm / cp_noise
+            
+        ax.plot(rv_grid, ccf_norm)
+        ax.set_xlabel('rv (km/s)')
+        ax.set_ylabel('ccf signal')
+        
+        return 
+            
+            
 
 
     def plot_PT(self,path_temp_profile, figsize=(6,5), model = 'ExoREM'):

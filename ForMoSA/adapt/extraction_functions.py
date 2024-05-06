@@ -217,9 +217,31 @@ def adapt_observation_range(global_params, obs_name='', indobs=0):
             cov = np.asarray([])
         elif global_params.observation_format != 'MOSAIC' and global_params.logL_type != 'chi2_covariance':
             cov = np.asarray([])
+        
+        # HiRISE additions
+        # If MOSAIC
+        if global_params.observation_format == 'MOSAIC':
+            if global_params.multiply_transmission[indobs] == 'True':
+                transm = hdul[1].data['TRANSM']
+            else:
+                transm = np.zeros(len(wav))
+            if global_params.star_data[indobs] == 'True':
+                star_flx = hdul[1].data['STAR FLX']
+            else:
+                star_flx = np.zeros(len(wav))
+        # If Classical mode
+        else:
+            if global_params.multiply_transmission == 'True':
+                transm = hdul[1].data['TRANSM']
+            else:
+                transm = np.zeros(len(wav))
+            if global_params.star_data == 'True':
+                star_flx = hdul[1].data['STAR FLX']
+            else:
+                star_flx = np.zeros(len(wav))
 
         # Filter the NaN values
-        nan_mod_ind = ~np.isnan(flx)
+        nan_mod_ind = (~np.isnan(flx)) & (~np.isnan(star_flx)) & (~np.isnan(transm)) & (~np.isnan(err))
         wav = wav[nan_mod_ind]
         flx = flx[nan_mod_ind]
         if len(cov) != 0:
@@ -227,33 +249,10 @@ def adapt_observation_range(global_params, obs_name='', indobs=0):
         res = res[nan_mod_ind]
         ins = ins[nan_mod_ind]
         err = err[nan_mod_ind]
+        star_flx = star_flx[nan_mod_ind]
+        transm = transm[nan_mod_ind]
         
-        # HiRISE additions
-        # If MOSAIC
-        if global_params.observation_format == 'MOSAIC':
-            if global_params.multiply_transmission[indobs] == 'True':
-                transm = hdul[1].data['TRANSM']
-                transm = transm[nan_mod_ind]
-            else:
-                transm = np.asarray([])
-            if global_params.star_data[indobs] == 'True':
-                star_flx = hdul[1].data['STAR FLX']
-                star_flx = star_flx[nan_mod_ind]
-            else:
-                star_flx = np.asarray([])
-        # If Classical mode
-        else:
-            if global_params.multiply_transmission == 'True':
-                transm = hdul[1].data['TRANSM']
-                transm = transm[nan_mod_ind]
-            else:
-                transm = np.asarray([])
-            if global_params.star_data == 'True':
-                star_flx = hdul[1].data['STAR FLX']
-                star_flx = star_flx[nan_mod_ind]
-            else:
-                star_flx = np.asarray([])
-
+    
         # Select the wavelength range(s) for the extraction
         if global_params.wav_for_adapt == '':
             wav_for_adapt_tab = [str(min(wav)) + ',' + str(max(wav))]
