@@ -32,7 +32,6 @@ def lsq_fct(flx_obs_merge, err_obs_merge, star_flx_obs_merge, transm_obs_merge, 
         flx_obs_merge : New flux of the data
         star_flx_obs_merge : New star flux of the data
     """
-    
     new_flx_merge = new_flx_merge * transm_obs_merge
     
     # # # # # Continuum estimation with lowpass filtering
@@ -56,6 +55,7 @@ def lsq_fct(flx_obs_merge, err_obs_merge, star_flx_obs_merge, transm_obs_merge, 
     # # # # # Least squares estimation
     #    
     # Construction of the matrix
+    
     A_matrix = np.zeros([np.size(flx_obs_merge), 2])
     A_matrix[:,0] = new_flx_merge * err_obs_merge
     A_matrix[:,1] = star_flx_obs_merge * err_obs_merge
@@ -67,7 +67,7 @@ def lsq_fct(flx_obs_merge, err_obs_merge, star_flx_obs_merge, transm_obs_merge, 
     #
     # # # # #
     
-    return res.x[0], res.x[1], new_flx_merge, flx_obs_merge, star_flx_obs_merge
+    return cp, cs, new_flx_merge, flx_obs_merge, star_flx_obs_merge
 
 
 def calc_ck(flx_obs_merge, err_obs_merge, new_flx_merge, flx_obs_phot, err_obs_phot, new_flx_phot, r_picked, d_picked,
@@ -403,7 +403,7 @@ def modif_spec(global_params, theta, theta_index,
     """
     # Correction of the radial velocity of the interpolated synthetic spectrum.
     if len(flx_obs_merge) != 0:
-        if len(global_params.rv) > 3: # If you want separate rv for each observations
+        if len(global_params.rv) > 3: # If you want separate rv for each observations
             if global_params.rv[indobs*3] != "NA":
                 if global_params.rv[indobs*3] == "constant":
                     rv_picked = float(global_params.rv[indobs*3+1])
@@ -432,7 +432,7 @@ def modif_spec(global_params, theta, theta_index,
             ind_theta_av = np.where(theta_index == 'av')
             av_picked = theta[ind_theta_av[0][0]]
         new_flx_merge, new_flx_phot = reddening_fct(wav_obs_merge, wav_obs_phot, new_flx_merge, new_flx_phot, av_picked)
-
+        
     # Correction of the rotational velocity of the interpolated synthetic spectrum.
     if len(flx_obs_merge) != 0:
         if global_params.vsini != "NA" and global_params.ld != "NA":
@@ -484,7 +484,6 @@ def modif_spec(global_params, theta, theta_index,
         exit()
 
     # Calculation of the dilution factor Ck and re-normalization of the interpolated synthetic spectrum.
-
     # From the radius and the distance.
     if global_params.r != "NA" and global_params.d != "NA":
         planet_contribution, stellar_contribution = 1, 1
@@ -500,7 +499,7 @@ def modif_spec(global_params, theta, theta_index,
             d_picked = theta[ind_theta_d[0][0]]
 
         # With the extra alpha scaling
-        if len(global_params.alpha) > 3: # If you want separate alpha for each observations
+        if len(global_params.alpha) > 3: # If you want separate alpha for each observations
             if global_params.alpha[indobs*3] != "NA":
                 if global_params.alpha[indobs*3] == "constant":
                     alpha_picked = float(global_params.alpha[indobs*3+1])
@@ -529,49 +528,27 @@ def modif_spec(global_params, theta, theta_index,
                 
     # Analytically
     # If MOSAIC
-    elif global_params.observation_format == 'MOSAIC':
-        if global_params.r == "NA" and global_params.d == "NA" and global_params.use_lsqr[indobs] == 'False':
-            new_flx_merge, new_flx_phot, ck = calc_ck(flx_obs_merge, err_obs_merge, new_flx_merge,
-                                                    flx_obs_phot, err_obs_phot, new_flx_phot, 0, 0,
-                                                    analytic='yes')
+    elif global_params.r == "NA" and global_params.d == "NA" and global_params.use_lsqr[indobs] == 'False':
+        new_flx_merge, new_flx_phot, ck = calc_ck(flx_obs_merge, err_obs_merge, new_flx_merge,
+                                                flx_obs_phot, err_obs_phot, new_flx_phot, 0, 0, 0,
+                                                analytic='yes')
             
-            planet_contribution, stellar_contribution = 1, 1
-
-        elif global_params.r == "NA" and global_params.d == "NA" and global_params.use_lsqr[indobs] == 'True':   
-            # global_params.use_lsqr = 'True', so no need to re-normalize the interpolated sythetic spectrum because the least squares automatically does it
-                
-            _, new_flx_phot, ck = calc_ck(flx_obs_merge, err_obs_merge, np.copy(new_flx_merge), 
-                            flx_obs_phot, err_obs_phot, new_flx_phot, 0, 0,
-                            analytic='yes')
-            
-            planet_contribution, stellar_contribution, new_flx_merge, flx_obs_merge, star_flx_obs_merge = lsq_fct(np.copy(flx_obs_merge), err_obs_merge, star_flx_obs_merge, transm_obs_merge, new_flx_merge, global_params.ccf_m)
+        planet_contribution, stellar_contribution = 1, 1
 
 
-        else:   # either global_params.r or global_params.d is set to 'NA' 
-            print('WARNING: You need to define a radius AND a distance, or set them both to "NA"')
-            exit()
-    # If Classical mode
-    else:
-        if global_params.r == "NA" and global_params.d == "NA" and global_params.use_lsqr == 'False':
-            new_flx_merge, new_flx_phot, ck = calc_ck(flx_obs_merge, err_obs_merge, new_flx_merge,
-                                                    flx_obs_phot, err_obs_phot, new_flx_phot, 0, 0,
-                                                    analytic='yes')
+    elif global_params.r == "NA" and global_params.d == "NA" and global_params.use_lsqr[indobs] == 'True':   
+        # global_params.use_lsqr = 'True', so no need to re-normalize the interpolated sythetic spectrum because the least squares automatically does it
             
-            planet_contribution, stellar_contribution = 1, 1
-
-        elif global_params.r == "NA" and global_params.d == "NA" and global_params.use_lsqr == 'True':   
-            # global_params.use_lsqr = 'True', so no need to re-normalize the interpolated sythetic spectrum because the least squares automatically does it
-                
-            _, new_flx_phot, ck = calc_ck(flx_obs_merge, err_obs_merge, np.copy(new_flx_merge), 
-                            flx_obs_phot, err_obs_phot, new_flx_phot, 0, 0,
-                            analytic='yes')
-            
-            planet_contribution, stellar_contribution, new_flx_merge, flx_obs_merge, star_flx_obs_merge = lsq_fct(np.copy(flx_obs_merge), err_obs_merge, star_flx_obs_merge, transm_obs_merge, new_flx_merge)
+        _, new_flx_phot, ck = calc_ck(flx_obs_merge, err_obs_merge, np.copy(new_flx_merge), 
+                        flx_obs_phot, err_obs_phot, new_flx_phot, 0, 0, 0,
+                        analytic='yes')
         
-        else:   # either global_params.r or global_params.d is set to 'NA' 
-            print('WARNING: You need to define a radius AND a distance, or set them both to "NA"')
-            exit()
+        planet_contribution, stellar_contribution, new_flx_merge, flx_obs_merge, star_flx_obs_merge = lsq_fct(flx_obs_merge, err_obs_merge, star_flx_obs_merge, transm_obs_merge, new_flx_merge)
 
+
+    else:   # either global_params.r or global_params.d is set to 'NA' 
+        print('WARNING: You need to define a radius AND a distance, or set them both to "NA"')
+        exit()
 
     return wav_obs_merge, flx_obs_merge, err_obs_merge, new_flx_merge, wav_obs_phot, flx_obs_phot, err_obs_phot, new_flx_phot, ck, planet_contribution, stellar_contribution, star_flx_obs_merge
 

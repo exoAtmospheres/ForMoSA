@@ -176,42 +176,23 @@ def adapt_observation_range(global_params, obs_name='', indobs=0):
         # covariance matrix will come)
         if global_params.logL_type[indobs] != 'chi2_covariance':
             cov = np.asarray([])
-        
-        # HiRISE additions
-        # If MOSAIC
-        if global_params.observation_format == 'MOSAIC':
-            if global_params.multiply_transmission[indobs] == 'True':
-                transm = hdul[1].data['TRANSM']
-            else:
-                transm = np.zeros(len(wav))
-            if global_params.star_data[indobs] == 'True':
-                star_flx = hdul[1].data['STAR FLX']
-            else:
-                star_flx = np.zeros(len(wav))
-        # If Classical mode
-        else:
-            if global_params.multiply_transmission == 'True':
-                transm = hdul[1].data['TRANSM']
-            else:
-                transm = np.zeros(len(wav))
-            if global_params.star_data == 'True':
-                star_flx = hdul[1].data['STAR FLX']
-            else:
-                star_flx = np.zeros(len(wav))
 
         # Filter the NaN values
-        nan_mod_ind = (~np.isnan(flx)) & (~np.isnan(star_flx)) & (~np.isnan(transm)) & (~np.isnan(err))
+        if len(transm) != 0 and len(star_flx) != 0:
+            nan_mod_ind = (~np.isnan(flx)) & (~np.isnan(transm)) & (~np.isnan(star_flx)) & (~np.isnan(err))
+        else:
+            nan_mod_ind = (~np.isnan(flx)) 
         wav = wav[nan_mod_ind]
         flx = flx[nan_mod_ind]
-        if len(cov) != 0:
-            cov = np.transpose(np.transpose(cov[nan_mod_ind])[nan_mod_ind])
         res = res[nan_mod_ind]
         ins = ins[nan_mod_ind]
         err = err[nan_mod_ind]
-        star_flx = star_flx[nan_mod_ind]
-        transm = transm[nan_mod_ind]
-        
-    
+        if len(cov) != 0:
+            cov = np.transpose(np.transpose(cov[nan_mod_ind])[nan_mod_ind])
+        if len(transm) != 0 and len(star_flx) != 0:
+            transm = transm[nan_mod_ind]
+            star_flx = star_flx[nan_mod_ind]
+
         # Select the wavelength range(s) for the extraction
         if global_params.wav_for_adapt == '':
             wav_for_adapt_tab = [str(min(wav)) + ',' + str(max(wav))]
@@ -258,7 +239,7 @@ def adapt_observation_range(global_params, obs_name='', indobs=0):
             else:
                 star_flx_spectro = np.asarray([])
 
-            # Merge spectroscopic data
+            # Merge spectroscopic data
             obs_spectro[range_ind] = [wav_spectro, flx_spectro, err_spectro, res_spectro]
             obs_opt[range_ind] = [cov_spectro, transm_spectro, star_flx_spectro]
             obs_spectro_ins[range_ind] = ins_spectro
@@ -375,7 +356,7 @@ def extract_model(global_params, wav_mod_nativ, flx_mod_nativ, res_mod_nativ, co
             if cont == 'no':
                 if global_params.adapt_method[indobs] == 'by_reso':
                     mod_cut_flx = resolution_decreasing(global_params, cut, wav_mod_nativ, flx_mod_nativ, res_mod_nativ,
-                                                        'mod', obs_name=obs_name, indobs=indobs) # Conversion of the cuts to floats for the np computations
+                                                        'mod', obs_name=obs_name, indobs=indobs) # Conversion of the cuts to floats for the np computations
                 else:
                     res_tab = cut[3]
                     wave_reso_tab = []

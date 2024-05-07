@@ -10,6 +10,7 @@ from nested_sampling.nested_modif_spec import modif_spec
 from nested_sampling.nested_prior_function import uniform_prior, gaussian_prior
 from nested_sampling.nested_logL_functions import *
 from main_utilities import diag_mat
+import matplotlib.pyplot as plt
 
 c = 299792.458 # Speed of light in km/s
 
@@ -224,9 +225,10 @@ def loglike(theta, theta_index, global_params, main_file, for_plot='no'):
         ck = modif_spec_LL[8]
         planet_contribution, stellar_contribution, star_flx_obs_merge = modif_spec_LL[9], modif_spec_LL[10], modif_spec_LL[11]
         
-        if global_params.use_lsqr == 'True':
+        if global_params.use_lsqr[indobs] == 'True':
             # If our data is contaminated by starlight difraction, the model is the sum of the estimated stellar contribution + planet model
             flx_mod = planet_contribution * flx_mod + stellar_contribution * star_flx_obs_merge
+
 
         # Computation of the photometry logL
         if len(flx_mod_phot) != 0:
@@ -342,7 +344,7 @@ def prior_transform(theta, theta_index, lim_param_grid, global_params):
                 prior_par5 = lim_param_grid[4][1]
             prior.append(prior_par5)
 
-    # Extra-grid parameters
+    # Extra-grid parameters
     if global_params.r != 'NA':
         prior_law = global_params.r[0]
         if prior_law != 'constant':
@@ -362,11 +364,11 @@ def prior_transform(theta, theta_index, lim_param_grid, global_params):
                 prior_d = gaussian_prior([float(global_params.d[1]), float(global_params.d[2])], theta[ind_theta_d[0][0]])
             prior.append(prior_d)
 
-    # - - - - - - - - - - - - - - - - - - - - -
+    # - - - - - - - - - - - - - - - - - - - - -
             
     # Individual parameters / observation
             
-    if len(global_params.alpha) > 3: # If you want separate alpha for each observations
+    if len(global_params.alpha) > 3: # If you want separate alpha for each observations
         main_obs_path = global_params.main_observation_path
         for indobs, obs in enumerate(sorted(glob.glob(main_obs_path))):
             if global_params.alpha[indobs*3] != 'NA':
@@ -378,7 +380,7 @@ def prior_transform(theta, theta_index, lim_param_grid, global_params):
                     if prior_law == 'gaussian':
                         prior_alpha = gaussian_prior([float(global_params.alpha[indobs*3+1]), float(global_params.alpha[indobs*3+2])], theta[ind_theta_alpha[0][0]])
                     prior.append(prior_alpha)
-    else: # If you want 1 common alpha for all observations
+    else: # If you want 1 common alpha for all observations
         if global_params.alpha != 'NA':
             prior_law = global_params.alpha[0]
             if prior_law != 'constant':
@@ -388,7 +390,7 @@ def prior_transform(theta, theta_index, lim_param_grid, global_params):
                 if prior_law == 'gaussian':
                     prior_alpha = gaussian_prior([float(global_params.alpha[1]), float(global_params.alpha[2])], theta[ind_theta_alpha[0][0]])
                 prior.append(prior_alpha)
-    if len(global_params.rv) > 3: # If you want separate rv for each observations
+    if len(global_params.rv) > 3: # If you want separate rv for each observations
         main_obs_path = global_params.main_observation_path
         for indobs, obs in enumerate(sorted(glob.glob(main_obs_path))):
             if global_params.rv[indobs*3] != 'NA':
@@ -400,7 +402,7 @@ def prior_transform(theta, theta_index, lim_param_grid, global_params):
                     if prior_law == 'gaussian':
                         prior_rv = gaussian_prior([float(global_params.rv[indobs*3+1]), float(global_params.rv[indobs*3+2])], theta[ind_theta_rv[0][0]])
                     prior.append(prior_rv)
-    else: # If you want 1 common rv for all observations
+    else: # If you want 1 common rv for all observations
         if global_params.rv != 'NA':
             prior_law = global_params.rv[0]
             if prior_law != 'constant':
@@ -411,7 +413,7 @@ def prior_transform(theta, theta_index, lim_param_grid, global_params):
                     prior_rv = gaussian_prior([float(global_params.rv[1]), float(global_params.rv[2])], theta[ind_theta_rv[0][0]])
                 prior.append(prior_rv)
 
-    # - - - - - - - - - - - - - - - - - - - - -
+    # - - - - - - - - - - - - - - - - - - - - -
 
     if global_params.av != 'NA':
         prior_law = global_params.av[0]
@@ -538,14 +540,14 @@ def launch_nested_sampling(global_params):
         n_free_parameters += 1
         theta_index.append('d')
 
-    # - - - - - - - - - - - - - - - - - - - - -
+    # - - - - - - - - - - - - - - - - - - - - -
             
     # Individual parameters / observation
         
     if len(global_params.alpha) > 3: 
         main_obs_path = global_params.main_observation_path
         for indobs, obs in enumerate(sorted(glob.glob(main_obs_path))):
-            if global_params.alpha[indobs*3] != 'NA' and global_params.alpha[indobs*3] != 'constant': # Check if the idobs is different from constant
+            if global_params.alpha[indobs*3] != 'NA' and global_params.alpha[indobs*3] != 'constant': # Check if the idobs is different from constant
                 n_free_parameters += 1
                 theta_index.append(f'alpha_{indobs}')
     else:
@@ -555,7 +557,7 @@ def launch_nested_sampling(global_params):
     if len(global_params.rv) > 3: 
         main_obs_path = global_params.main_observation_path
         for indobs, obs in enumerate(sorted(glob.glob(main_obs_path))):
-            if global_params.rv[indobs*3] != 'NA' and global_params.rv[indobs*3] != 'constant': # Check if the idobs is different from constant
+            if global_params.rv[indobs*3] != 'NA' and global_params.rv[indobs*3] != 'constant': # Check if the idobs is different from constant
                 n_free_parameters += 1
                 theta_index.append(f'rv_{indobs}')
     else:
@@ -563,7 +565,7 @@ def launch_nested_sampling(global_params):
             n_free_parameters += 1
             theta_index.append(f'rv')
 
-    # - - - - - - - - - - - - - - - - - - - - -
+    # - - - - - - - - - - - - - - - - - - - - -
             
     if global_params.av != 'NA' and global_params.av[0] != 'constant':
         n_free_parameters += 1
