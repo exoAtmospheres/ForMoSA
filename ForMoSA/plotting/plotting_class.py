@@ -168,7 +168,7 @@ class PlottingForMoSA():
             tot_list_param_title.append(attrs['title'][4] + ' ' + attrs['unit'][4])
             theta_index.append('par5')
 
-        # Extra-grid parameters
+        # Extra-grid parameters
 
         if self.global_params.r != 'NA' and self.global_params.r[0] != 'constant':
             tot_list_param_title.append(extra_parameters[0][1] + ' ' + extra_parameters[0][2])
@@ -177,24 +177,24 @@ class PlottingForMoSA():
             tot_list_param_title.append(extra_parameters[1][1] + ' ' + extra_parameters[1][2])
             theta_index.append('d')
 
-        # - - - - - - - - - - - - - - - - - - - - -
+        # - - - - - - - - - - - - - - - - - - - - -
                 
         # Individual parameters / observation
 
-        if len(self.global_params.alpha) > 3: # If you want separate alpha for each observations
+        if len(self.global_params.alpha) > 3: # If you want separate alpha for each observations
             main_obs_path = self.global_params.main_observation_path
             for indobs, obs in enumerate(sorted(glob.glob(main_obs_path))):
-                if self.global_params.alpha[indobs*3] != 'NA' and self.global_params.alpha[indobs*3] != 'constant': # Check if the idobs is different from constant
+                if self.global_params.alpha[indobs*3] != 'NA' and self.global_params.alpha[indobs*3] != 'constant': # Check if the idobs is different from constant
                     tot_list_param_title.append(extra_parameters[2][1] + fr'$_{indobs}$' + ' ' + extra_parameters[2][2])
                     theta_index.append(f'alpha_{indobs}')
         else: # If you want 1 common alpha for all observations
             if self.global_params.alpha != 'NA' and self.global_params.alpha != 'constant':
                 tot_list_param_title.append(extra_parameters[2][1] + ' ' + extra_parameters[2][2])
                 theta_index.append('alpha')
-        if len(self.global_params.rv) > 3: # If you want separate rv for each observations
+        if len(self.global_params.rv) > 3: # If you want separate rv for each observations
             main_obs_path = self.global_params.main_observation_path
             for indobs, obs in enumerate(sorted(glob.glob(main_obs_path))):
-                if self.global_params.rv[indobs*3] != 'NA' and self.global_params.rv[indobs*3] != 'constant': # Check if the idobs is different from constant
+                if self.global_params.rv[indobs*3] != 'NA' and self.global_params.rv[indobs*3] != 'constant': # Check if the idobs is different from constant
                     tot_list_param_title.append(extra_parameters[3][1] + fr'$_{indobs}$' + ' ' + extra_parameters[3][2])
                     theta_index.append(f'rv_{indobs}')
         else: # If you want 1 common rv for all observations
@@ -202,7 +202,7 @@ class PlottingForMoSA():
                 tot_list_param_title.append(extra_parameters[3][1] + ' ' + extra_parameters[3][2])
                 theta_index.append('rv')
 
-        # - - - - - - - - - - - - - - - - - - - - -
+        # - - - - - - - - - - - - - - - - - - - - -
 
         if self.global_params.av != 'NA' and self.global_params.av[0] != 'constant':
             tot_list_param_title.append(extra_parameters[4][1] + ' ' + extra_parameters[4][2])
@@ -342,7 +342,7 @@ class PlottingForMoSA():
 
         (Adapted from Simon Petrus)
         '''
-        # Get the posteriors
+        # Get the posteriors
         self._get_posteriors()
 
         # Create a list for each spectra (obs and mod) for each observation + scaling factors
@@ -485,7 +485,7 @@ class PlottingForMoSA():
 
         ds = xr.open_dataset(path_grid, decode_cf=False, engine="netcdf4")
 
-        # Possibility of re-interpolating holes if the grid contains to much of them (WARNING: Very long process)
+        # Possibility of re-interpolating holes if the grid contains to much of them (WARNING: Very long process)
         if re_interp == True:
             print('-> The possible holes in the grid are (re)interpolated: ')
             for key_ind, key in enumerate(ds.attrs['key']):
@@ -557,19 +557,19 @@ class PlottingForMoSA():
        
         spectra, ck = self._get_spectra(self.theta_best)
         
-        if self.global_params.use_lsqr == 'True':
-            # If we used the lsq function, it means that our data is contaminated by the starlight difraction
-            # so the model is the sum of the planet model + the estimated stellar contribution
-            spectra = list(spectra)
-            model, planet_contribution, stellar_contribution, star_flx = spectra[3], spectra[9], spectra[10], spectra[11]
-            spectra[3] = planet_contribution * model + stellar_contribution * star_flx
-        
 
-        # Scale or not in absolute flux
+        # Scale or not in absolute flux
         if norm != 'yes': 
             ck = np.full(len(spectra[0][0]), 1)
 
         for indobs, obs in enumerate(sorted(glob.glob(self.global_params.main_observation_path))):
+            
+            if self.global_params.use_lsqr[indobs] == 'True':
+                # If we used the lsq function, it means that our data is contaminated by the starlight difraction
+                # so the model is the sum of the planet model + the estimated stellar contribution
+                spectra = list(spectra)
+                model, planet_contribution, stellar_contribution, star_flx = spectra[3], spectra[9], spectra[10], spectra[11]
+                spectra[3] = planet_contribution * model + stellar_contribution * star_flx
 
             if len(spectra[indobs][0]) != 0:
                 if uncert=='yes':
@@ -579,14 +579,14 @@ class PlottingForMoSA():
 
 
                 residuals = spectra[indobs][3] - spectra[indobs][1]
-                sigma_res = np.nanstd(residuals) # Replace np.std by np.nanstd if nans are in the array to ignore them
+                sigma_res = np.nanstd(residuals) # Replace np.std by np.nanstd if nans are in the array to ignore them
                 axr.plot(spectra[indobs][0], residuals/sigma_res, c=self.color_out, alpha=0.8)
                 axr.axhline(y=0, color='k', alpha=0.5, linestyle='--')
                 axr2.hist(residuals/sigma_res, bins=100 ,color=self.color_out, alpha=0.5, density=True, orientation='horizontal')
                 axr2.legend(frameon=False,handlelength=0)
 
                 if indobs == 0:
-                    # Add labels out of the loops
+                    # Add labels out of the loops
                     ax.plot(spectra[0][0], np.empty(len(spectra[0][0]))*np.nan, c='k', label='data')
                     ax.plot(spectra[0][0], np.empty(len(spectra[0][0]))*np.nan, c=self.color_out, label='model')
                     axr.plot(spectra[0][0], np.empty(len(spectra[0][0]))*np.nan, c=self.color_out, label='model-data')
@@ -615,19 +615,19 @@ class PlottingForMoSA():
                 axr.axhline(y=0, color='k', alpha=0.5, linestyle='--')
 
                 if indobs == 0:
-                    # Add labels out of the loops
+                    # Add labels out of the loops
                     ax.plot(spectra[0][4], np.empty(len(spectra[0][4]))*np.nan, 'ko', label='Photometry data')
                     ax.plot(spectra[0][4], np.empty(len(spectra[0][4]))*np.nan, 'o', c=self.color_out, label='Photometry model')
                     axr.plot(spectra[0][4], np.empty(len(spectra[0][4]))*np.nan, 'o', c=self.color_out, label='Photometry model-data')
 
-        # Set xlog-scale
+        # Set xlog-scale
         if logx == 'yes':
             ax.set_xscale('log')
             axr.set_xscale('log')
-        # Set xlog-scale
+        # Set xlog-scale
         if logy == 'yes':
             ax.set_yscale('log')
-        # Remove the xticks from the first ax
+        # Remove the xticks from the first ax
         ax.set_xticks([])
         # Labels
         axr.set_xlabel(r'Wavelength (µm)')
