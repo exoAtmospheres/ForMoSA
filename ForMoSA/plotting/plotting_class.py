@@ -567,9 +567,10 @@ class PlottingForMoSA():
             if self.global_params.use_lsqr[indobs] == 'True':
                 # If we used the lsq function, it means that our data is contaminated by the starlight difraction
                 # so the model is the sum of the planet model + the estimated stellar contribution
-                spectra = list(spectra)
-                model, planet_contribution, stellar_contribution, star_flx = spectra[3], spectra[9], spectra[10], spectra[11]
-                spectra[3] = planet_contribution * model + stellar_contribution * star_flx
+                spectra = list(spectra) # Transform spectra to a list so that we can modify its values
+                spectra[indobs] = list(spectra[indobs])
+                model, planet_contribution, stellar_contribution, star_flx = spectra[indobs][3], spectra[indobs][9], spectra[indobs][10], spectra[indobs][11]
+                spectra[indobs][3] = planet_contribution * model + stellar_contribution * star_flx
 
             if len(spectra[indobs][0]) != 0:
                 if uncert=='yes':
