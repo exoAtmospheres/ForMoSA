@@ -208,3 +208,10 @@ Test that have been done to checkup the changes:
     - multiple observations with multiple alpha and rv ✓
     
 _ _ _
+
+12/05/2024
+
+Paulina Palma-Bifani
+
+Comments:
+    - This is the official date of the release 2.0.0 in Pipy in preparation for the ForM-X workshop.
