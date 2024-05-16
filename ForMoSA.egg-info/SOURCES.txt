@@ -15,6 +15,7 @@ ForMoSA/adapt/adapt_grid.py
 ForMoSA/adapt/adapt_obs_mod.py
 ForMoSA/adapt/extraction_functions.py
 ForMoSA/nested_sampling/__init__.py
+ForMoSA/nested_sampling/nested_logL_functions.py
 ForMoSA/nested_sampling/nested_modif_spec.py
 ForMoSA/nested_sampling/nested_prior_function.py
 ForMoSA/nested_sampling/nested_sampling.py

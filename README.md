@@ -19,19 +19,7 @@ To install and use our package in macOS with an M1 chip, proceed with the follow
 
 2/ Install the following packages in your environment with pip install: 
     
-    $ numpy
-    $ matplotlib
-    $ corner
-    $ astropy
-    $ scipy
-    $ configobj
-    $ extinction
-    $ nestle
-    $ PyAstronomy
-    $ spectres
-    $ pyyaml
-    $ importlib-metadata==4.13.0
-    $ xarray==2023.10.1
+    $ pip install numpy matplotlib corner astropy scipy configobj extinction nestle PyAstronomy spectres pyyaml importlib-metadata==4.13.0 xarray==2023.10.1
 
 
 3/ To solve a standard error, run the following line in your environment:
