@@ -39,6 +39,53 @@ def logL_chi2_covariance(delta_flx, inv_cov):
 
     return logL
 
+
+def logL_chi2_extended(delta_flx, err):
+    """
+    Function to compute logL based on the extended chi2
+    under the assumption of gaussian and spectrally uncorrelated noise
+    
+    Args:
+        delta_flx   : residual data-model as a function of wavelength
+        err         : error (=standard deviation) of the observed spectrum as a function of wavelength
+    Returns:
+        logL        : the loglikelihood value
+        
+    Author: Allan Denis
+    """
+    
+    sigma = np.diag(err)
+    N = len(delta_flx)
+    chi2 = np.nansum((delta_flx / err) ** 2)
+    s2 = 1/N * chi2
+    logL = -chi2 / (2*s2) - N/2 * np.log(2*np.pi*s2) - 1/2 * np.log(sigma)
+    
+    return logL
+
+
+def logL_chi2_extended_covariance(delta_flx, inv_cov):
+    """
+    Function to compute logL based on the extended chi2
+    under the assumption of gaussian and spectrally uncorrelated noise
+    
+    Args:
+        delta_flx   : residual data-model as a function of wavelength
+        err         : error (=standard deviation) of the observed spectrum as a function of wavelength
+    Returns:
+        logL        : the loglikelihood value
+        
+    Author: Allan Denis
+    """
+    
+    cov = np.linalg.inv(inv_cov)
+    N = len(delta_flx)
+    chi2 = np.dot(delta_flx, np.dot(inv_cov, delta_flx))
+    s2 = 1/N * chi2
+    logL = chi2 / (2*s2) - N /2 * np.log(2*np.pi*s2) - 1/2 * np.log(cov)
+    
+    return logL
+
+
 def logL_full_covariance(delta_flx, inv_cov):
     """
     Function to compute logL under the assumption of gaussian and spectrally correlated noise.
