@@ -248,6 +248,10 @@ def loglike(theta, theta_index, global_params, main_file, for_plot='no'):
                 logL_spec = logL_CCF_Zucker(flx_obs, flx_mod)
             elif global_params.logL_type[indobs] == 'CCF_custom':
                 logL_spec = logL_CCF_custom(flx_obs, flx_mod, err)
+            elif global_params.logL_type[indobs] == 'chi2_extended':
+                logL_spec = logL_chi2_extended(flx_obs-flx_mod, err)
+            elif global_params.logL_type[indobs] == 'chi2_extended_covariance' and len(inv_cov) != 0:
+                logL_spec = logL_chi2_extended_covariance(flx_obs-flx_mod, inv_cov)
             else:
                 print()
                 print('WARNING: One or more dataset are not included when performing the inversion.')
