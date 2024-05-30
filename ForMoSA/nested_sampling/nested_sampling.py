@@ -45,6 +45,7 @@ def import_obsmod(global_params):
         inv_cov_obs_merge = np.asarray(spectrum_obs['obs_opt_merge'][0], dtype=float)
         transm_obs_merge = np.asarray(spectrum_obs['obs_opt_merge'][1], dtype=float)
         star_flx_obs_merge = np.asarray(spectrum_obs['obs_opt_merge'][2], dtype=float)
+        system_obs_merge = np.asarray(spectrum_obs['obs_opt_merge'][3], dtype=float)
 
         if 'obs_photo' in spectrum_obs.keys():
             wav_obs_phot = np.asarray(spectrum_obs['obs_photo'][0], dtype=float)
@@ -64,8 +65,9 @@ def import_obsmod(global_params):
         ds = xr.open_dataset(path_grid_p, decode_cf=False, engine='netcdf4')
         grid_phot = ds['grid']
         ds.close()
+        
 
-        main_file.append([[wav_obs_merge, wav_obs_phot], [flx_obs_merge, flx_obs_phot], [err_obs_merge, err_obs_phot], inv_cov_obs_merge, transm_obs_merge, star_flx_obs_merge, grid_merge, grid_phot])
+        main_file.append([[wav_obs_merge, wav_obs_phot], [flx_obs_merge, flx_obs_phot], [err_obs_merge, err_obs_phot], inv_cov_obs_merge, transm_obs_merge, star_flx_obs_merge, system_obs_merge, grid_merge, grid_phot])
 
     return main_file
 
@@ -106,10 +108,12 @@ def loglike(theta, theta_index, global_params, main_file, for_plot='no'):
         inv_cov_obs_merge = main_file[indobs][3]
         transm_obs_merge = main_file[indobs][4]
         star_flx_obs_merge = main_file[indobs][5]
-
+        system_obs_merge = main_file[indobs][6]
+        
+        
         # Recovery of the spectroscopy and photometry model
-        grid_merge = main_file[indobs][6]
-        grid_phot = main_file[indobs][7]
+        grid_merge = main_file[indobs][7]
+        grid_phot = main_file[indobs][8]
 
         # Calculation of the likelihood for each sub-spectrum defined by the parameter 'wav_fit'
         for ns_u_ind, ns_u in enumerate(global_params.wav_fit[indobs].split('/')):
@@ -192,6 +196,10 @@ def loglike(theta, theta_index, global_params, main_file, for_plot='no'):
                     star_flx_obs_merge_ns_u = star_flx_obs_merge[ind_merge]
                 else:
                     star_flx_obs_merge_ns_u = np.asarray([])
+                if len(system_obs_merge) != 0: # Add systematics model (if necessary)
+                    system_obs_merge_ns_u = system_obs_merge[0,ind_merge]
+                else:
+                    system_obs_merge_ns_u = np.asarray([])
                 wav_obs_phot_ns_u = wav_obs_phot[ind_phot]
                 flx_obs_phot_ns_u = flx_obs_phot[ind_phot]
                 err_obs_phot_ns_u = err_obs_phot[ind_phot]
@@ -207,6 +215,8 @@ def loglike(theta, theta_index, global_params, main_file, for_plot='no'):
                     transm_obs_merge_ns_u = np.concatenate((transm_obs_merge_ns_u, transm_obs_merge[ind_merge]))
                 if len(star_flx_obs_merge_ns_u) != 0: # Merge star fluxes (if necessary)
                     star_flx_obs_merge_ns_u = np.concatenate((star_flx_obs_merge_ns_u, star_flx_obs_merge[ind_grid_merge_sel]))
+                if len(system_obs_merge) != 0: # Merge systematics model (if necessary)
+                    system_obs_merge_ns_u = np.concatenate((system_obs_merge_ns_u, system_obs_merge[0,ind_grid_merge_sel]), axis=0)
                 wav_obs_phot_ns_u = np.concatenate((wav_obs_phot_ns_u, wav_obs_phot[ind_phot]))
                 flx_obs_phot_ns_u = np.concatenate((flx_obs_phot_ns_u, flx_obs_phot[ind_phot]))
                 err_obs_phot_ns_u = np.concatenate((err_obs_phot_ns_u, err_obs_phot[ind_phot]))
@@ -216,7 +226,7 @@ def loglike(theta, theta_index, global_params, main_file, for_plot='no'):
         modif_spec_LL = modif_spec(global_params, theta, theta_index,
                                     wav_obs_merge_ns_u,  flx_obs_merge_ns_u,  err_obs_merge_ns_u,  flx_mod_merge_ns_u,
                                     wav_obs_phot_ns_u,  flx_obs_phot_ns_u, err_obs_phot_ns_u,  flx_mod_phot_ns_u, 
-                                    transm_obs_merge_ns_u, star_flx_obs_merge_ns_u, indobs=indobs)
+                                    transm_obs_merge_ns_u, star_flx_obs_merge_ns_u, system_obs_merge_ns_u, indobs=indobs)
         
         flx_obs, flx_obs_phot = modif_spec_LL[1], modif_spec_LL[5]
         flx_mod, flx_mod_phot = modif_spec_LL[3], modif_spec_LL[7]

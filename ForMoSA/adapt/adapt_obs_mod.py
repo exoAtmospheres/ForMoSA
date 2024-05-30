@@ -8,6 +8,7 @@ from adapt.extraction_functions import extract_observation
 from adapt.adapt_grid import adapt_grid
 from main_utilities import diag_mat
 import glob
+import matplotlib.pyplot as plt
 # ----------------------------------------------------------------------------------------------------------------------
 
 
@@ -49,6 +50,9 @@ def launch_adapt(global_params, justobs='no'):
                 + global_params.wav_for_continuum[indobs] + ' wavelength range')
             print()
         if global_params.continuum_sub[indobs] != 'NA':
+            res = attr['res']
+            plt.figure()
+            plt.plot(res)
             obs_spectro_c, obs_photo_c, obs_spectro_ins_c, obs_photo_ins_c, obs_opt_c = extract_observation(global_params, wav_mod_nativ,
                                                                                     attr['res'], 'yes', obs_name=obs_name, indobs=indobs)
             for c, cut in enumerate(obs_spectro):
@@ -64,6 +68,7 @@ def launch_adapt(global_params, justobs='no'):
                 cov_obs_extract = obs_opt[c][0]
                 transm_obs_extract = obs_opt[c][1]
                 star_flx_obs_extract = obs_opt[c][2]
+                system_obs_extract = obs_opt[c][3]
 
             else:
                 wav_obs_extract = np.concatenate((wav_obs_extract, obs_spectro[c][0]))
@@ -76,6 +81,8 @@ def launch_adapt(global_params, justobs='no'):
                     transm_obs_extract = np.concatenate((transm_obs_extract, obs_opt[c][1]))
                 if len(star_flx_obs_extract) != 0:
                     star_flx_obs_extract = np.concatenate((star_flx_obs_extract, obs_opt[c][2]))
+                if len(system_obs_extract) != 0:
+                    system_obs_extract = np.concatenate((system_obs_extract, obs_opt[c][3]), axis=0)
 
 
             # Compute the inverse of the merged covariance matrix (note: inv(C1, C2) = (in(C1), in(C2)) if C1 and C2 are block matrix on the diagonal)
@@ -85,13 +92,13 @@ def launch_adapt(global_params, justobs='no'):
             else:
                 inv_cov_obs_extract = np.asarray([])
 
-            # Compile everything and changing data type to object to allow for different array sizes
+            # Compile everything and changing data type to object to allow for different array sizes
             obs_spectro_merge = np.asarray([wav_obs_extract, flx_obs_extract, err_obs_extract, res_obs_extract])
             obs_spectro = np.asarray(obs_spectro, dtype=object)
             obs_spectro_ins = np.asarray(obs_spectro_ins, dtype=object)
             obs_photo = np.asarray(obs_photo, dtype=object)
             obs_photo_ins = np.asarray(obs_photo_ins, dtype=object)
-            obs_opt_merge = np.asarray([inv_cov_obs_extract, transm_obs_extract, star_flx_obs_extract], dtype=object)
+            obs_opt_merge = np.asarray([inv_cov_obs_extract, transm_obs_extract, star_flx_obs_extract, system_obs_extract], dtype=object)
 
             # Check-ups and warnings for negative values in the diagonal of the covariance matrix
             if len(cov_obs_extract) != 0 and any(np.diag(cov_obs_extract) < 0):
@@ -130,7 +137,7 @@ def launch_adapt(global_params, justobs='no'):
             print(f"-> Sarting the adaptation of {obs_name}")
 
             adapt_grid(global_params, obs_spectro_merge[0], obs_photo[0], obs_name=obs_name, indobs=indobs)
-
+        
 
 # ----------------------------------------------------------------------------------------------------------------------
 

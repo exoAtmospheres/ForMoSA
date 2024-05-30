@@ -5,7 +5,7 @@ from scipy.ndimage import gaussian_filter
 from scipy.interpolate import interp1d
 from spectres import spectres
 import os
-
+import matplotlib.pyplot as plt
 # ----------------------------------------------------------------------------------------------------------------------
 
 
@@ -87,6 +87,7 @@ def extract_observation(global_params, wav_mod_nativ, res_mod_nativ, cont='no', 
         if len(cut[0]) != 0:
             if cont == 'no':
                 if global_params.adapt_method[indobs] == 'by_reso':
+                    
                     obs_spectro[c][1] = resolution_decreasing(global_params, cut, wav_mod_nativ, [], res_mod_nativ,
                                                         'obs', obs_name=obs_name, indobs=indobs)
             # If we want to estimate the continuum of the data:
@@ -121,7 +122,6 @@ def extract_observation(global_params, wav_mod_nativ, res_mod_nativ, cont='no', 
                 interp_reso = interp1d(wav_final_cont[~np.isnan(flx_final_cont)], flx_final_cont[~np.isnan(flx_final_cont)], fill_value="extrapolate")
                 flx_obs_cont = interp_reso(cut[0])
                 obs_spectro[c][1] = flx_obs_cont
-
 
     return obs_spectro, obs_photo, obs_spectro_ins, obs_photo_ins, obs_opt
 
@@ -170,7 +170,22 @@ def adapt_observation_range(global_params, obs_name='', indobs=0):
             star_flx = hdul[1].data['STAR FLX']
         except:
             transm = np.asarray([])
-            star_flx = np.asarray([])            
+            star_flx = np.asarray([])    
+        try:
+            is_system = True
+            system = hdul[1].data['SYSTEMATICS1'][:,np.newaxis]
+        except:
+            is_system = False
+            system = np.asarray([])
+            
+        if is_system:
+            i = 2
+            while True:  # In case there is multiple systematics
+                try:
+                    system = np.concatenate((system, hdul[1].data['SYSTEMATICS' + str(i)][:,np.newaxis]),axis=1)
+                    i += 1
+                except:
+                    break
 
         # Only take the covariance if you use the chi2_covariance likelihood function (will need to be change when new likelihood functions using the
         # covariance matrix will come)
@@ -182,6 +197,9 @@ def adapt_observation_range(global_params, obs_name='', indobs=0):
             nan_mod_ind = (~np.isnan(flx)) & (~np.isnan(transm)) & (~np.isnan(star_flx)) & (~np.isnan(err))
         else:
             nan_mod_ind = (~np.isnan(flx)) 
+        if len(system) != 0:
+            for i in range(len(system[0])):
+                nan_mod_ind = (nan_mod_ind) & (~np.isnan(system.T[i]))
         wav = wav[nan_mod_ind]
         flx = flx[nan_mod_ind]
         res = res[nan_mod_ind]
@@ -192,7 +210,9 @@ def adapt_observation_range(global_params, obs_name='', indobs=0):
         if len(transm) != 0 and len(star_flx) != 0:
             transm = transm[nan_mod_ind]
             star_flx = star_flx[nan_mod_ind]
-
+        if len(system) != 0:
+            system = np.delete(system, np.where(~nan_mod_ind), axis=0)
+            
         # Select the wavelength range(s) for the extraction
         if global_params.wav_for_adapt == '':
             wav_for_adapt_tab = [str(min(wav)) + ',' + str(max(wav))]
@@ -238,10 +258,15 @@ def adapt_observation_range(global_params, obs_name='', indobs=0):
                 star_flx_spectro = np.delete(star_flx[ind], ind_photometry)
             else:
                 star_flx_spectro = np.asarray([])
+                
+            if len(system) != 0:
+                system_spectro = np.delete(system[ind,:], ind_photometry, axis=0)
+            else:
+                system_spectro = np.asarray([])
 
             # Merge spectroscopic data
             obs_spectro[range_ind] = [wav_spectro, flx_spectro, err_spectro, res_spectro]
-            obs_opt[range_ind] = [cov_spectro, transm_spectro, star_flx_spectro]
+            obs_opt[range_ind] = [cov_spectro, transm_spectro, star_flx_spectro, system_spectro]
             obs_spectro_ins[range_ind] = ins_spectro
             # if range_ind == 0:
             #     obs_spectro = [[wav_spectro, flx_spectro, err_spectro, res_spectro]]
@@ -319,6 +344,7 @@ def adapt_model(global_params, wav_mod_nativ, wave_reso_tab, flx_mod_nativ, res_
         else:
             flx_mod_extract = np.concatenate((flx_mod_extract, mod_spectro[c]))
 
+
     return flx_mod_extract, mod_photo
 
 # ----------------------------------------------------------------------------------------------------------------------
@@ -357,6 +383,7 @@ def extract_model(global_params, wav_mod_nativ, flx_mod_nativ, res_mod_nativ, co
                 if global_params.adapt_method[indobs] == 'by_reso':
                     mod_cut_flx = resolution_decreasing(global_params, cut, wav_mod_nativ, flx_mod_nativ, res_mod_nativ,
                                                         'mod', obs_name=obs_name, indobs=indobs) # Conversion of the cuts to floats for the np computations
+
                 else:
                     res_tab = cut[3]
                     wave_reso_tab = []
@@ -422,7 +449,9 @@ def convolve_and_sample(wv_channels, sigmas_wvs, model_wvs, model_fluxes, num_si
     filter_coords = np.tile(filter_coords, [wv_channels.shape[0], 1])  # shape of (N_output, filter_size)
 
     filter_wv_coords = filter_coords * sigmas_wvs[:, None] + wv_channels[:, None]  # model wavelengths we want
+
     lsf = np.exp(-filter_coords ** 2 / 2) / np.sqrt(2 * np.pi)
+
     if np.sum(lsf) != 0:
 
         model_interp = interp1d(model_wvs, model_fluxes, kind='cubic', bounds_error=False)
@@ -463,7 +492,6 @@ def resolution_decreasing(global_params, cut, wav_mod_nativ, flx_mod_nativ, res_
     """
     # Estimate of the FWHM of the data as a function of the wavelength
     fwhm_obs = 2 * cut[0] / cut[3]
-
     # Estimate of the FWHM of the model as a function of the wavelength
     ind_mod_obs = np.where((wav_mod_nativ <= cut[0][-1]) & (wav_mod_nativ > cut[0][0]))
     wav_mod_obs = wav_mod_nativ[ind_mod_obs]
@@ -477,6 +505,7 @@ def resolution_decreasing(global_params, cut, wav_mod_nativ, flx_mod_nativ, res_
         fwhm_custom = 2 * cut[0] / float(global_params.custom_reso[indobs])
     else:
         fwhm_custom = cut[0] * np.nan
+
 
     # Estimate of the sigma for the convolution as a function of the wavelength and decrease the resolution
     max_fwhm = np.nanmax([fwhm_obs, fwhm_mod, fwhm_custom], axis=0)

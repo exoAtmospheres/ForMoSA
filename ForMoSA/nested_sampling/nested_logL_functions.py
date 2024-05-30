@@ -80,7 +80,7 @@ def logL_chi2_extended_covariance(delta_flx, inv_cov):
     N = len(delta_flx)
     chi2 = np.dot(delta_flx, np.dot(inv_cov, delta_flx))
     s2 = 1/N * chi2
-    logL = -chi2 / (2*s2) - N /2 * np.log(2*np.pi*s2) - 1/2 * np.log(np.linalg.det(cov))
+    logL = -chi2 / (2*s2) - 1/2 * np.log(np.linalg.det(cov))
     
     return logL
 

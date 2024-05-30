@@ -7,13 +7,14 @@ import astropy.constants as const
 from PyAstronomy.pyasl import dopplerShift, rotBroad
 from adapt.extraction_functions import resolution_decreasing, convolve_and_sample
 import scipy.ndimage as ndi
+import scipy.signal as sg
 import scipy.optimize as optimize
 import matplotlib.pyplot as plt
 import time 
 # ----------------------------------------------------------------------------------------------------------------------
 
 
-def lsq_fct(flx_obs_merge, err_obs_merge, star_flx_obs_merge, transm_obs_merge, new_flx_merge, ccf_method = 'continuum_unfiltered'):
+def lsq_fct(flx_obs_merge, err_obs_merge, star_flx_obs_merge, transm_obs_merge, new_flx_merge, system_obs_merge, ccf_method = 'continuum_unfiltered'):
     """
     Estimation of the contribution of the planet and of the star to a spectrum (Used for HiRISE data)
 
@@ -37,9 +38,9 @@ def lsq_fct(flx_obs_merge, err_obs_merge, star_flx_obs_merge, transm_obs_merge, 
     # # # # # Continuum estimation with lowpass filtering
     #
     # Low-pass filtering
-    flx_obs_merge_continuum = ndi.gaussian_filter(flx_obs_merge, 300)
-    star_flx_obs_merge_continuum = ndi.gaussian_filter(star_flx_obs_merge, 300)
-    new_flx_merge_continuum = ndi.gaussian_filter(new_flx_merge, 300)
+    flx_obs_merge_continuum = sg.savgol_filter(flx_obs_merge, 301, 2)
+    star_flx_obs_merge_continuum = sg.savgol_filter(star_flx_obs_merge, 301, 2)
+    new_flx_merge_continuum = sg.savgol_filter(new_flx_merge, 301, 2)
     #
     # # # # #
         
@@ -55,8 +56,13 @@ def lsq_fct(flx_obs_merge, err_obs_merge, star_flx_obs_merge, transm_obs_merge, 
     # # # # # Least squares estimation
     #    
     # Construction of the matrix
-    
-    A_matrix = np.zeros([np.size(flx_obs_merge), 2])
+    if len(system_obs_merge) > 0:
+        A_matrix = np.zeros([np.size(flx_obs_merge), 2 + len(system_obs_merge[0][0])])
+        for j in range(len(system_obs_merge[0][0])):
+            A_matrix[:,2+j] = system_obs_merge[0][:,j] * err_obs_merge
+    else:
+        A_matrix = np.zeros([np.size(flx_obs_merge), 2])
+        
     A_matrix[:,0] = new_flx_merge * err_obs_merge
     A_matrix[:,1] = star_flx_obs_merge * err_obs_merge
     
@@ -149,7 +155,6 @@ def doppler_fct(wav_obs_merge, flx_obs_merge, err_obs_merge, new_flx_merge, rv_p
     # wav_doppler = wav_obs_merge*10000
     # flx_post_doppler, wav_post_doppler = dopplerShift(wav_doppler, new_flx_merge, rv_picked)
     new_wav = wav_obs_merge * ((rv_picked / 299792.458) + 1)
-
     rv_interp = interp1d(new_wav, new_flx_merge, fill_value="extrapolate")
     flx_post_doppler = rv_interp(wav_obs_merge)
 
@@ -365,7 +370,7 @@ def reso_fct(global_params, theta, theta_index, wav_obs_merge, new_flx_merge, re
 
 def modif_spec(global_params, theta, theta_index,
                wav_obs_merge, flx_obs_merge, err_obs_merge, new_flx_merge,
-               wav_obs_phot, flx_obs_phot, err_obs_phot, new_flx_phot, transm_obs_merge = [], star_flx_obs_merge = [], indobs=0):
+               wav_obs_phot, flx_obs_phot, err_obs_phot, new_flx_phot, transm_obs_merge = [], star_flx_obs_merge = [], system_obs_merge = [], indobs=0):
     """
     Modification of the interpolated synthetic spectra with the different extra-grid parameters:
         - Re-calibration on the data
@@ -543,7 +548,7 @@ def modif_spec(global_params, theta, theta_index,
                         flx_obs_phot, err_obs_phot, new_flx_phot, 0, 0, 0,
                         analytic='yes')
         
-        planet_contribution, stellar_contribution, new_flx_merge, flx_obs_merge, star_flx_obs_merge = lsq_fct(flx_obs_merge, err_obs_merge, star_flx_obs_merge, transm_obs_merge, new_flx_merge)
+        planet_contribution, stellar_contribution, new_flx_merge, flx_obs_merge, star_flx_obs_merge = lsq_fct(flx_obs_merge, err_obs_merge, star_flx_obs_merge, transm_obs_merge, new_flx_merge, system_obs_merge)
 
 
     else:   # either global_params.r or global_params.d is set to 'NA' 
