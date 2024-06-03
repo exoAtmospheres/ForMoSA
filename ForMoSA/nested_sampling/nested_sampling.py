@@ -233,11 +233,13 @@ def loglike(theta, theta_index, global_params, main_file, for_plot='no'):
         err, err_phot = modif_spec_LL[2], modif_spec_LL[6]
         inv_cov = inv_cov_obs_merge_ns_u
         ck = modif_spec_LL[8]
-        planet_contribution, stellar_contribution, star_flx_obs_merge = modif_spec_LL[9], modif_spec_LL[10], modif_spec_LL[11]
+        planet_contribution, stellar_contribution, star_flx_obs_merge, systematics = modif_spec_LL[9], modif_spec_LL[10], modif_spec_LL[11], modif_spec_LL[12]
         
         if global_params.use_lsqr[indobs] == 'True':
             # If our data is contaminated by starlight difraction, the model is the sum of the estimated stellar contribution + planet model
             flx_mod = planet_contribution * flx_mod + stellar_contribution * star_flx_obs_merge
+            if len(systematics) > 0:
+                flx_mod += systematics
 
 
         # Computation of the photometry logL

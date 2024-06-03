@@ -571,6 +571,9 @@ class PlottingForMoSA():
                 spectra[indobs] = list(spectra[indobs])
                 model, planet_contribution, stellar_contribution, star_flx = spectra[indobs][3], spectra[indobs][9], spectra[indobs][10], spectra[indobs][11]
                 spectra[indobs][3] = planet_contribution * model + stellar_contribution * star_flx
+                systematics = spectra[indobs][12]
+                if len(systematics) > 0:
+                    spectra[indobs[3]] += systematics
 
             if len(spectra[indobs][0]) != 0:
                 if uncert=='yes':

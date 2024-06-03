@@ -4,7 +4,7 @@ import extinction
 from scipy.interpolate import interp1d
 import astropy.units as u
 import astropy.constants as const
-from PyAstronomy.pyasl import dopplerShift, rotBroad
+from PyAstronomy.pyasl import dopplerShift, rotBroad, fastRotBroad
 from adapt.extraction_functions import resolution_decreasing, convolve_and_sample
 import scipy.ndimage as ndi
 import scipy.signal as sg
@@ -38,9 +38,9 @@ def lsq_fct(flx_obs_merge, err_obs_merge, star_flx_obs_merge, transm_obs_merge, 
     # # # # # Continuum estimation with lowpass filtering
     #
     # Low-pass filtering
-    flx_obs_merge_continuum = sg.savgol_filter(flx_obs_merge, 301, 2)
-    star_flx_obs_merge_continuum = sg.savgol_filter(star_flx_obs_merge, 301, 2)
-    new_flx_merge_continuum = sg.savgol_filter(new_flx_merge, 301, 2)
+    flx_obs_merge_continuum = ndi.median_filter(flx_obs_merge, 300)
+    star_flx_obs_merge_continuum = ndi.median_filter(star_flx_obs_merge, 300)
+    new_flx_merge_continuum = ndi.median_filter(new_flx_merge, 300)
     #
     # # # # #
         
@@ -70,10 +70,17 @@ def lsq_fct(flx_obs_merge, err_obs_merge, star_flx_obs_merge, transm_obs_merge, 
     res = optimize.lsq_linear(A_matrix, flx_obs_merge * err_obs_merge)
     cp, cs = res.x[0], res.x[1]
     
+    systematics_c = np.array([])
+    if len(system_obs_merge) > 0:
+        for i in range(len(system_obs_merge[0][0])):
+            systematics_c = np.append(systematics_c, res.x[i+2])
+            
+        systematics = np.dot(systematics_c, system_obs_merge[0].T)
+    
     #
     # # # # #
     
-    return cp, cs, new_flx_merge, flx_obs_merge, star_flx_obs_merge
+    return cp, cs, new_flx_merge, flx_obs_merge, star_flx_obs_merge, systematics
 
 
 def calc_ck(flx_obs_merge, err_obs_merge, new_flx_merge, flx_obs_phot, err_obs_phot, new_flx_phot, r_picked, d_picked,
@@ -223,7 +230,7 @@ def vsini_fct(wav_obs_merge, new_flx_merge, ld_picked, vsini_picked):
     vsini_interp = interp1d(wav_obs_merge, new_flx_merge, fill_value="extrapolate")
     flx_to_vsini = vsini_interp(wav_to_vsini)
     # Apply the v.sin(i)
-    new_flx = rotBroad(wav_to_vsini, flx_to_vsini, ld_picked, vsini_picked)
+    new_flx = fastRotBroad(wav_to_vsini, flx_to_vsini, ld_picked, vsini_picked)
     vsini_interp = interp1d(wav_to_vsini, new_flx, fill_value="extrapolate")
     new_flx_merge = vsini_interp(wav_obs_merge)
 
@@ -548,14 +555,14 @@ def modif_spec(global_params, theta, theta_index,
                         flx_obs_phot, err_obs_phot, new_flx_phot, 0, 0, 0,
                         analytic='yes')
         
-        planet_contribution, stellar_contribution, new_flx_merge, flx_obs_merge, star_flx_obs_merge = lsq_fct(flx_obs_merge, err_obs_merge, star_flx_obs_merge, transm_obs_merge, new_flx_merge, system_obs_merge)
+        planet_contribution, stellar_contribution, new_flx_merge, flx_obs_merge, star_flx_obs_merge, systematics = lsq_fct(flx_obs_merge, err_obs_merge, star_flx_obs_merge, transm_obs_merge, new_flx_merge, system_obs_merge)
 
 
     else:   # either global_params.r or global_params.d is set to 'NA' 
         print('WARNING: You need to define a radius AND a distance, or set them both to "NA"')
         exit()
 
-    return wav_obs_merge, flx_obs_merge, err_obs_merge, new_flx_merge, wav_obs_phot, flx_obs_phot, err_obs_phot, new_flx_phot, ck, planet_contribution, stellar_contribution, star_flx_obs_merge
+    return wav_obs_merge, flx_obs_merge, err_obs_merge, new_flx_merge, wav_obs_phot, flx_obs_phot, err_obs_phot, new_flx_phot, ck, planet_contribution, stellar_contribution, star_flx_obs_merge, systematics
 
 
 
