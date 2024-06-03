@@ -38,9 +38,9 @@ def lsq_fct(flx_obs_merge, err_obs_merge, star_flx_obs_merge, transm_obs_merge, 
     # # # # # Continuum estimation with lowpass filtering
     #
     # Low-pass filtering
-    flx_obs_merge_continuum = ndi.median_filter(flx_obs_merge, 300)
-    star_flx_obs_merge_continuum = ndi.median_filter(star_flx_obs_merge, 300)
-    new_flx_merge_continuum = ndi.median_filter(new_flx_merge, 300)
+    flx_obs_merge_continuum = sg.savgol_filter(flx_obs_merge, 301, 2)
+    star_flx_obs_merge_continuum = sg.savgol_filter(star_flx_obs_merge, 301, 2)
+    new_flx_merge_continuum = sg.savgol_filter(new_flx_merge, 301, 2)
     #
     # # # # #
         
@@ -71,6 +71,7 @@ def lsq_fct(flx_obs_merge, err_obs_merge, star_flx_obs_merge, transm_obs_merge, 
     cp, cs = res.x[0], res.x[1]
     
     systematics_c = np.array([])
+    systematics = np.asarray([])
     if len(system_obs_merge) > 0:
         for i in range(len(system_obs_merge[0][0])):
             systematics_c = np.append(systematics_c, res.x[i+2])
