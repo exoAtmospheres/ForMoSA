@@ -650,7 +650,7 @@ class PlottingForMoSA():
         self.spectra = spectra
         #self.residuals = residuals
 
-        return spectra
+        return fig, ax, axr, axr2
     
     
     def plot_fit_HiRes(self, figsize=(10, 5), uncert='no', trans='no', logx='no', logy='no', norm='no'):
@@ -757,7 +757,7 @@ class PlottingForMoSA():
         self.spectra = spectra
         #self.residuals = residuals
 
-        return spectra
+        return fig, ax
     
     
     def plot_ccf(self, rv_grid = [-300,300], rv_step = 0.5, figsize = (10,5)):
