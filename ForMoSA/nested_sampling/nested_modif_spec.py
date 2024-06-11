@@ -524,7 +524,6 @@ def modif_spec(global_params, theta, theta_index,
     # Calculation of the dilution factor Ck and re-normalization of the interpolated synthetic spectrum.
     # From the radius and the distance.
     if global_params.r != "NA" and global_params.d != "NA":
-        planet_contribution, stellar_contribution = 1, 1
         if global_params.r[0] == "constant":
             r_picked = float(global_params.r[1])
         else:
@@ -563,7 +562,8 @@ def modif_spec(global_params, theta, theta_index,
             else: # Without the extra alpha scaling
                 flx_mod_spectro, flx_mod_photo, ck = calc_ck(flx_obs_spectro, err_obs_spectro, flx_mod_spectro,
                                                     flx_obs_photo, err_obs_photo, flx_mod_photo, r_picked, d_picked)
-                
+        # Set HiRES contribution to 1 if not used
+        planet_contribution, stellar_contribution, systematics = 1, 1, 1                
     # Analytically
     # If MOSAIC
     elif global_params.r == "NA" and global_params.d == "NA" and global_params.use_lsqr[indobs] == 'False':
