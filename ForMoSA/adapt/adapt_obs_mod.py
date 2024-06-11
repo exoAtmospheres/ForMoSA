@@ -18,7 +18,7 @@ def launch_adapt(global_params, justobs='no'):
     
     Args:
         global_params  (object): Class containing each parameter
-        justobs ('yes'/'no'): 'no' by default to also adapt the grid
+        justobs    ('yes'/'no'): 'no' by default to also adapt the grid
     Returns:
         None
 

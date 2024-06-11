@@ -24,7 +24,7 @@ def import_obsmod(global_params):
         
     Returns:
         main_file (list(array)): return a list of lists with the wavelengths, flux, errors, covariance matrix,
-                                transmission, star flux and the grids for both spectroscopic and photometric data. 
+                                transmission, star flux, systematics and the grids for both spectroscopic and photometric data. 
 
     Authors: Simon Petrus, Matthieu Ravet and Allan Denis
     """
@@ -38,36 +38,36 @@ def import_obsmod(global_params):
         obs_name = os.path.splitext(os.path.basename(global_params.observation_path))[0]
         spectrum_obs = np.load(os.path.join(global_params.result_path, f'spectrum_obs_{obs_name}.npz'), allow_pickle=True)
 
-        wav_obs_merge = np.asarray(spectrum_obs['obs_spectro_merge'][0], dtype=float)
-        flx_obs_merge = np.asarray(spectrum_obs['obs_spectro_merge'][1], dtype=float)
-        err_obs_merge = np.asarray(spectrum_obs['obs_spectro_merge'][2], dtype=float)
+        wav_obs_spectro = np.asarray(spectrum_obs['obs_spectro_merge'][0], dtype=float)
+        flx_obs_spectro = np.asarray(spectrum_obs['obs_spectro_merge'][1], dtype=float)
+        err_obs_spectro = np.asarray(spectrum_obs['obs_spectro_merge'][2], dtype=float)
         # Optional arrays
-        inv_cov_obs_merge = np.asarray(spectrum_obs['obs_opt_merge'][0], dtype=float)
-        transm_obs_merge = np.asarray(spectrum_obs['obs_opt_merge'][1], dtype=float)
-        star_flx_obs_merge = np.asarray(spectrum_obs['obs_opt_merge'][2], dtype=float)
-        system_obs_merge = np.asarray(spectrum_obs['obs_opt_merge'][3], dtype=float)
+        inv_cov_obs = np.asarray(spectrum_obs['obs_opt_merge'][0], dtype=float)
+        transm_obs = np.asarray(spectrum_obs['obs_opt_merge'][1], dtype=float)
+        star_flx_obs = np.asarray(spectrum_obs['obs_opt_merge'][2], dtype=float)
+        system_obs = np.asarray(spectrum_obs['obs_opt_merge'][3], dtype=float)
 
         if 'obs_photo' in spectrum_obs.keys():
-            wav_obs_phot = np.asarray(spectrum_obs['obs_photo'][0], dtype=float)
-            flx_obs_phot = np.asarray(spectrum_obs['obs_photo'][1], dtype=float)
-            err_obs_phot = np.asarray(spectrum_obs['obs_photo'][2], dtype=float)
+            wav_obs_photo = np.asarray(spectrum_obs['obs_photo'][0], dtype=float)
+            flx_obs_photo = np.asarray(spectrum_obs['obs_photo'][1], dtype=float)
+            err_obs_photo = np.asarray(spectrum_obs['obs_photo'][2], dtype=float)
         else:
-            wav_obs_phot = np.asarray([], dtype=float)
-            flx_obs_phot = np.asarray([], dtype=float)
-            err_obs_phot = np.asarray([], dtype=float)
+            wav_obs_photo = np.asarray([], dtype=float)
+            flx_obs_photo = np.asarray([], dtype=float)
+            err_obs_photo = np.asarray([], dtype=float)
 
         # Recovery of the spectroscopy and photometry model
-        path_grid_m = os.path.join(global_params.adapt_store_path, f'adapted_grid_spectro_{global_params.grid_name}_{obs_name}_nonan.nc')
-        path_grid_p = os.path.join(global_params.adapt_store_path, f'adapted_grid_photo_{global_params.grid_name}_{obs_name}_nonan.nc')
-        ds = xr.open_dataset(path_grid_m, decode_cf=False, engine='netcdf4')
-        grid_merge = ds['grid']
+        path_grid_spectro = os.path.join(global_params.adapt_store_path, f'adapted_grid_spectro_{global_params.grid_name}_{obs_name}_nonan.nc')
+        path_grid_photo = os.path.join(global_params.adapt_store_path, f'adapted_grid_photo_{global_params.grid_name}_{obs_name}_nonan.nc')
+        ds = xr.open_dataset(path_grid_spectro, decode_cf=False, engine='netcdf4')
+        grid_spectro = ds['grid']
         ds.close()
-        ds = xr.open_dataset(path_grid_p, decode_cf=False, engine='netcdf4')
-        grid_phot = ds['grid']
+        ds = xr.open_dataset(path_grid_photo, decode_cf=False, engine='netcdf4')
+        grid_photo = ds['grid']
         ds.close()
         
 
-        main_file.append([[wav_obs_merge, wav_obs_phot], [flx_obs_merge, flx_obs_phot], [err_obs_merge, err_obs_phot], inv_cov_obs_merge, transm_obs_merge, star_flx_obs_merge, system_obs_merge, grid_merge, grid_phot])
+        main_file.append([[wav_obs_spectro, wav_obs_photo], [flx_obs_spectro, flx_obs_photo], [err_obs_spectro, err_obs_photo], inv_cov_obs, transm_obs, star_flx_obs, system_obs, grid_spectro, grid_photo])
 
     return main_file
 
@@ -99,171 +99,171 @@ def loglike(theta, theta_index, global_params, main_file, for_plot='no'):
     for indobs, obs in enumerate(sorted(glob.glob(main_obs_path))):
         
         # Recovery of spectroscopy and photometry data
-        wav_obs_merge = main_file[indobs][0][0]
-        wav_obs_phot = main_file[indobs][0][1]
-        flx_obs_merge = main_file[indobs][1][0]
-        flx_obs_phot = main_file[indobs][1][1]
-        err_obs_merge = main_file[indobs][2][0]
-        err_obs_phot = main_file[indobs][2][1]
-        inv_cov_obs_merge = main_file[indobs][3]
-        transm_obs_merge = main_file[indobs][4]
-        star_flx_obs_merge = main_file[indobs][5]
-        system_obs_merge = main_file[indobs][6]
+        wav_obs_spectro = main_file[indobs][0][0]
+        wav_obs_photo = main_file[indobs][0][1]
+        flx_obs_spectro = main_file[indobs][1][0]
+        flx_obs_photo = main_file[indobs][1][1]
+        err_obs_spectro = main_file[indobs][2][0]
+        err_obs_photo = main_file[indobs][2][1]
+        inv_cov_obs = main_file[indobs][3]
+        transm_obs = main_file[indobs][4]
+        star_flx_obs = main_file[indobs][5]
+        system_obs = main_file[indobs][6]
         
         
         # Recovery of the spectroscopy and photometry model
-        grid_merge = main_file[indobs][7]
-        grid_phot = main_file[indobs][8]
+        grid_spectro = main_file[indobs][7]
+        grid_photo = main_file[indobs][8]
 
         # Calculation of the likelihood for each sub-spectrum defined by the parameter 'wav_fit'
         for ns_u_ind, ns_u in enumerate(global_params.wav_fit[indobs].split('/')):
             
             min_ns_u = float(ns_u.split(',')[0])
             max_ns_u = float(ns_u.split(',')[1])
-            ind_grid_merge_sel = np.where((grid_merge['wavelength'] >= min_ns_u) & (grid_merge['wavelength'] <= max_ns_u))
-            ind_grid_phot_sel = np.where((grid_phot['wavelength'] >= min_ns_u) & (grid_phot['wavelength'] <= max_ns_u))
+            ind_grid_spectro_sel = np.where((grid_spectro['wavelength'] >= min_ns_u) & (grid_spectro['wavelength'] <= max_ns_u))
+            ind_grid_photo_sel = np.where((grid_photo['wavelength'] >= min_ns_u) & (grid_photo['wavelength'] <= max_ns_u))
 
             # Cutting of the grid on the wavelength grid defined by the parameter 'wav_fit'
-            grid_merge_cut = grid_merge.sel(wavelength=grid_merge['wavelength'][ind_grid_merge_sel])
-            grid_phot_cut = grid_phot.sel(wavelength=grid_phot['wavelength'][ind_grid_phot_sel])
+            grid_spectro_cut = grid_spectro.sel(wavelength=grid_spectro['wavelength'][ind_grid_spectro_sel])
+            grid_photo_cut = grid_photo.sel(wavelength=grid_photo['wavelength'][ind_grid_photo_sel])
 
             # Interpolation of the grid at the theta parameters set
             if global_params.par3 == 'NA':
-                if len(grid_merge_cut['wavelength']) != 0:
-                    flx_mod_merge_cut = np.asarray(grid_merge_cut.interp(par1=theta[0], par2=theta[1],
+                if len(grid_spectro_cut['wavelength']) != 0:
+                    flx_mod_spectro_cut = np.asarray(grid_spectro_cut.interp(par1=theta[0], par2=theta[1],
                                                             method="linear", kwargs={"fill_value": "extrapolate"}))
                 else:
-                    flx_mod_merge_cut = np.asarray([])
-                if len(grid_phot_cut['wavelength']) != 0:
-                    flx_mod_phot_cut = np.asarray(grid_phot_cut.interp(par1=theta[0], par2=theta[1],
+                    flx_mod_spectro_cut = np.asarray([])
+                if len(grid_photo_cut['wavelength']) != 0:
+                    flx_mod_photo_cut = np.asarray(grid_photo_cut.interp(par1=theta[0], par2=theta[1],
                                                             method="linear", kwargs={"fill_value": "extrapolate"}))
                 else:
-                    flx_mod_phot_cut = np.asarray([])
+                    flx_mod_photo_cut = np.asarray([])
             elif global_params.par4 == 'NA':
-                if len(grid_merge_cut['wavelength']) != 0:
-                    flx_mod_merge_cut = np.asarray(grid_merge_cut.interp(par1=theta[0], par2=theta[1], par3=theta[2],
+                if len(grid_spectro_cut['wavelength']) != 0:
+                    flx_mod_spectro_cut = np.asarray(grid_spectro_cut.interp(par1=theta[0], par2=theta[1], par3=theta[2],
                                                             method="linear", kwargs={"fill_value": "extrapolate"}))
                 else:
-                    flx_mod_merge_cut = np.asarray([])
-                if len(grid_phot_cut['wavelength']) != 0:
-                    flx_mod_phot_cut = np.asarray(grid_phot_cut.interp(par1=theta[0], par2=theta[1], par3=theta[2],
+                    flx_mod_spectro_cut = np.asarray([])
+                if len(grid_photo_cut['wavelength']) != 0:
+                    flx_mod_photo_cut = np.asarray(grid_photo_cut.interp(par1=theta[0], par2=theta[1], par3=theta[2],
                                                             method="linear", kwargs={"fill_value": "extrapolate"}))
                 else:
-                    flx_mod_phot_cut = np.asarray([])
+                    flx_mod_photo_cut = np.asarray([])
             elif global_params.par5 == 'NA':
-                if len(grid_merge_cut['wavelength']) != 0:
-                    flx_mod_merge_cut = np.asarray(grid_merge_cut.interp(par1=theta[0], par2=theta[1], par3=theta[2], par4=theta[3],
+                if len(grid_spectro_cut['wavelength']) != 0:
+                    flx_mod_spectro_cut = np.asarray(grid_spectro_cut.interp(par1=theta[0], par2=theta[1], par3=theta[2], par4=theta[3],
                                                             method="linear", kwargs={"fill_value": "extrapolate"}))
                 else:
-                    flx_mod_merge_cut = np.asarray([])
-                if len(grid_phot_cut['wavelength']) != 0:
-                    flx_mod_phot_cut = np.asarray(grid_phot_cut.interp(par1=theta[0], par2=theta[1], par3=theta[2], par4=theta[3],
+                    flx_mod_spectro_cut = np.asarray([])
+                if len(grid_photo_cut['wavelength']) != 0:
+                    flx_mod_photo_cut = np.asarray(grid_photo_cut.interp(par1=theta[0], par2=theta[1], par3=theta[2], par4=theta[3],
                                                             method="linear", kwargs={"fill_value": "extrapolate"}))
                 else:
-                    flx_mod_phot_cut = np.asarray([])
+                    flx_mod_photo_cut = np.asarray([])
             else:
-                if len(grid_merge_cut['wavelength']) != 0:
-                    flx_mod_merge_cut = np.asarray(grid_merge_cut.interp(par1=theta[0], par2=theta[1], par3=theta[2], par4=theta[3],
+                if len(grid_spectro_cut['wavelength']) != 0:
+                    flx_mod_spectro_cut = np.asarray(grid_spectro_cut.interp(par1=theta[0], par2=theta[1], par3=theta[2], par4=theta[3],
                                                             par5=theta[4],
                                                             method="linear", kwargs={"fill_value": "extrapolate"}))
                 else:
-                    flx_mod_merge_cut = np.asarray([])
-                if len(grid_phot_cut['wavelength']) != 0:
-                    flx_mod_phot_cut = np.asarray(grid_phot_cut.interp(par1=theta[0], par2=theta[1], par3=theta[2], par4=theta[3],
+                    flx_mod_spectro_cut = np.asarray([])
+                if len(grid_photo_cut['wavelength']) != 0:
+                    flx_mod_photo_cut = np.asarray(grid_photo_cut.interp(par1=theta[0], par2=theta[1], par3=theta[2], par4=theta[3],
                                                             par5=theta[4],
                                                             method="linear", kwargs={"fill_value": "extrapolate"}))
                 else:
-                    flx_mod_phot_cut = np.asarray([])
+                    flx_mod_photo_cut = np.asarray([])
 
 
             # Re-merging of the data and interpolated synthetic spectrum to a wavelength grid defined by the parameter 'wav_fit'
-            ind_merge = np.where((wav_obs_merge >= min_ns_u) & (wav_obs_merge <= max_ns_u))
-            ind_phot = np.where((wav_obs_phot >= min_ns_u) & (wav_obs_phot <= max_ns_u))
+            ind_spectro = np.where((wav_obs_spectro >= min_ns_u) & (wav_obs_spectro <= max_ns_u))
+            ind_photo = np.where((wav_obs_photo >= min_ns_u) & (wav_obs_photo <= max_ns_u))
             if ns_u_ind == 0:
-                wav_obs_merge_ns_u = wav_obs_merge[ind_merge]
-                flx_obs_merge_ns_u = flx_obs_merge[ind_merge]
-                err_obs_merge_ns_u = err_obs_merge[ind_merge]
-                flx_mod_merge_ns_u = flx_mod_merge_cut
-                if len(inv_cov_obs_merge) != 0:  # Add covariance in the loop (if necessary)
-                    inv_cov_obs_merge_ns_u = inv_cov_obs_merge[np.ix_(ind_merge[0],ind_merge[0])]
+                wav_obs_spectro_ns_u = wav_obs_spectro[ind_spectro]
+                flx_obs_spectro_ns_u = flx_obs_spectro[ind_spectro]
+                err_obs_spectro_ns_u = err_obs_spectro[ind_spectro]
+                flx_mod_spectro_ns_u = flx_mod_spectro_cut
+                if len(inv_cov_obs) != 0:  # Add covariance in the loop (if necessary)
+                    inv_cov_obs_ns_u = inv_cov_obs[np.ix_(ind_spectro[0],ind_spectro[0])]
                 else:
-                    inv_cov_obs_merge_ns_u = np.asarray([])
-                if len(transm_obs_merge) != 0: # Add the transmission (if necessary)
-                    transm_obs_merge_ns_u = transm_obs_merge[ind_merge]
+                    inv_cov_obs_ns_u = np.asarray([])
+                if len(transm_obs) != 0: # Add the transmission (if necessary)
+                    transm_obs_ns_u = transm_obs[ind_spectro]
                 else:
-                    transm_obs_merge_ns_u = np.asarray([])
-                if len(star_flx_obs_merge) != 0: # Add star flux (if necessary)
-                    star_flx_obs_merge_ns_u = star_flx_obs_merge[ind_merge]
+                    transm_obs_ns_u = np.asarray([])
+                if len(star_flx_obs) != 0: # Add star flux (if necessary)
+                    star_flx_obs_ns_u = star_flx_obs[ind_spectro]
                 else:
-                    star_flx_obs_merge_ns_u = np.asarray([])
-                if len(system_obs_merge) != 0: # Add systematics model (if necessary)
-                    system_obs_merge_ns_u = system_obs_merge[0,ind_merge]
+                    star_flx_obs_ns_u = np.asarray([])
+                if len(system_obs) != 0: # Add systematics model (if necessary)
+                    system_obs_ns_u = system_obs[0,ind_spectro]
                 else:
-                    system_obs_merge_ns_u = np.asarray([])
-                wav_obs_phot_ns_u = wav_obs_phot[ind_phot]
-                flx_obs_phot_ns_u = flx_obs_phot[ind_phot]
-                err_obs_phot_ns_u = err_obs_phot[ind_phot]
-                flx_mod_phot_ns_u = flx_mod_phot_cut
+                    system_obs_ns_u = np.asarray([])
+                wav_obs_photo_ns_u = wav_obs_photo[ind_photo]
+                flx_obs_photo_ns_u = flx_obs_photo[ind_photo]
+                err_obs_photo_ns_u = err_obs_photo[ind_photo]
+                flx_mod_photo_ns_u = flx_mod_photo_cut
             else:
-                wav_obs_merge_ns_u = np.concatenate((wav_obs_merge_ns_u, wav_obs_merge[ind_merge]))
-                flx_obs_merge_ns_u = np.concatenate((flx_obs_merge_ns_u, flx_obs_merge[ind_merge]))
-                err_obs_merge_ns_u = np.concatenate((err_obs_merge_ns_u, err_obs_merge[ind_merge]))
-                flx_mod_merge_ns_u = np.concatenate((flx_mod_merge_ns_u, flx_mod_merge_cut))
-                if len(inv_cov_obs_merge_ns_u) != 0: # Merge the covariance matrices (if necessary)
-                    inv_cov_obs_merge_ns_u = diag_mat([inv_cov_obs_merge_ns_u, inv_cov_obs_merge[np.ix_(ind_merge[0],ind_merge[0])]])
-                if len(transm_obs_merge_ns_u) != 0: # Merge the transmissions (if necessary)
-                    transm_obs_merge_ns_u = np.concatenate((transm_obs_merge_ns_u, transm_obs_merge[ind_merge]))
-                if len(star_flx_obs_merge_ns_u) != 0: # Merge star fluxes (if necessary)
-                    star_flx_obs_merge_ns_u = np.concatenate((star_flx_obs_merge_ns_u, star_flx_obs_merge[ind_grid_merge_sel]))
-                if len(system_obs_merge) != 0: # Merge systematics model (if necessary)
-                    system_obs_merge_ns_u = np.concatenate((system_obs_merge_ns_u, system_obs_merge[0,ind_grid_merge_sel]), axis=0)
-                wav_obs_phot_ns_u = np.concatenate((wav_obs_phot_ns_u, wav_obs_phot[ind_phot]))
-                flx_obs_phot_ns_u = np.concatenate((flx_obs_phot_ns_u, flx_obs_phot[ind_phot]))
-                err_obs_phot_ns_u = np.concatenate((err_obs_phot_ns_u, err_obs_phot[ind_phot]))
-                flx_mod_phot_ns_u = np.concatenate((flx_mod_phot_ns_u, flx_mod_phot_cut))
+                wav_obs_spectro_ns_u = np.concatenate((wav_obs_spectro_ns_u, wav_obs_spectro[ind_spectro]))
+                flx_obs_spectro_ns_u = np.concatenate((flx_obs_spectro_ns_u, flx_obs_spectro[ind_spectro]))
+                err_obs_spectro_ns_u = np.concatenate((err_obs_spectro_ns_u, err_obs_spectro[ind_spectro]))
+                flx_mod_spectro_ns_u = np.concatenate((flx_mod_spectro_ns_u, flx_mod_spectro_cut))
+                if len(inv_cov_obs_ns_u) != 0: # Merge the covariance matrices (if necessary)
+                    inv_cov_obs_ns_u = diag_mat([inv_cov_obs_ns_u, inv_cov_obs[np.ix_(ind_spectro[0],ind_spectro[0])]])
+                if len(transm_obs_ns_u) != 0: # Merge the transmissions (if necessary)
+                    transm_obs_ns_u = np.concatenate((transm_obs_ns_u, transm_obs[ind_spectro]))
+                if len(star_flx_obs_ns_u) != 0: # Merge star fluxes (if necessary)
+                    star_flx_obs_ns_u = np.concatenate((star_flx_obs_ns_u, star_flx_obs[ind_grid_spectro_sel]))
+                if len(system_obs) != 0: # Merge systematics model (if necessary)
+                    system_obs_ns_u = np.concatenate((system_obs_ns_u, system_obs[0,ind_grid_spectro_sel]), axis=0)
+                wav_obs_photo_ns_u = np.concatenate((wav_obs_photo_ns_u, wav_obs_photo[ind_photo]))
+                flx_obs_photo_ns_u = np.concatenate((flx_obs_photo_ns_u, flx_obs_photo[ind_photo]))
+                err_obs_photo_ns_u = np.concatenate((err_obs_photo_ns_u, err_obs_photo[ind_photo]))
+                flx_mod_photo_ns_u = np.concatenate((flx_mod_photo_ns_u, flx_mod_photo_cut))
 
         # Modification of the synthetic spectrum with the extra-grid parameters
         modif_spec_LL = modif_spec(global_params, theta, theta_index,
-                                    wav_obs_merge_ns_u,  flx_obs_merge_ns_u,  err_obs_merge_ns_u,  flx_mod_merge_ns_u,
-                                    wav_obs_phot_ns_u,  flx_obs_phot_ns_u, err_obs_phot_ns_u,  flx_mod_phot_ns_u, 
-                                    transm_obs_merge_ns_u, star_flx_obs_merge_ns_u, system_obs_merge_ns_u, indobs=indobs)
+                                    wav_obs_spectro_ns_u,  flx_obs_spectro_ns_u,  err_obs_spectro_ns_u,  flx_mod_spectro_ns_u,
+                                    wav_obs_photo_ns_u,  flx_obs_photo_ns_u, err_obs_photo_ns_u,  flx_mod_photo_ns_u, 
+                                    transm_obs_ns_u, star_flx_obs_ns_u, system_obs_ns_u, indobs=indobs)
         
-        flx_obs, flx_obs_phot = modif_spec_LL[1], modif_spec_LL[5]
-        flx_mod, flx_mod_phot = modif_spec_LL[3], modif_spec_LL[7]
-        err, err_phot = modif_spec_LL[2], modif_spec_LL[6]
-        inv_cov = inv_cov_obs_merge_ns_u
+        flx_obs_spectro_modif, flx_obs_photo_modif = modif_spec_LL[1], modif_spec_LL[5]
+        flx_mod_spectro_modif, flx_mod_photo_modif = modif_spec_LL[3], modif_spec_LL[7]
+        err_obs_spectro_modif, err_obs_photo_modif = modif_spec_LL[2], modif_spec_LL[6]
+        inv_cov_obs_modif = inv_cov_obs_ns_u
         ck = modif_spec_LL[8]
-        planet_contribution, stellar_contribution, star_flx_obs_merge, systematics = modif_spec_LL[9], modif_spec_LL[10], modif_spec_LL[11], modif_spec_LL[12]
+        planet_contribution, stellar_contribution, star_flx_obs, systematics = modif_spec_LL[9], modif_spec_LL[10], modif_spec_LL[11], modif_spec_LL[12]
         
         if global_params.use_lsqr[indobs] == 'True':
             # If our data is contaminated by starlight difraction, the model is the sum of the estimated stellar contribution + planet model
-            flx_mod = planet_contribution * flx_mod + stellar_contribution * star_flx_obs_merge
+            flx_mod_spectro_modif = planet_contribution * flx_mod_spectro_modif + stellar_contribution * star_flx_obs
             if len(systematics) > 0:
-                flx_mod += systematics
+                flx_mod_spectro_modif += systematics
 
 
         # Computation of the photometry logL
-        if len(flx_mod_phot) != 0:
-            logL_phot = logL_chi2_classic(flx_obs_phot-flx_mod_phot, err_phot)
+        if len(flx_obs_photo_modif) != 0:
+            logL_photo = logL_chi2_classic(flx_obs_photo_modif-flx_mod_photo_modif, err_obs_photo_modif)
         else:
-            logL_phot = 0
+            logL_photo = 0
 
         # Computation of the spectroscopy logL
-        if len(flx_obs) != 0:
+        if len(flx_obs_spectro_modif) != 0:
             if global_params.logL_type[indobs] == 'chi2_classic':
-                logL_spec = logL_chi2_classic(flx_obs-flx_mod, err)
-            elif global_params.logL_type[indobs] == 'chi2_covariance' and len(inv_cov) != 0:
-                logL_spec = logL_chi2_covariance(flx_obs-flx_mod, inv_cov)
+                logL_spectro = logL_chi2_classic(flx_obs_spectro_modif-flx_mod_spectro_modif, err_obs_spectro_modif)
+            elif global_params.logL_type[indobs] == 'chi2_covariance' and len(inv_cov_obs_modif) != 0:
+                logL_spectro = logL_chi2_covariance(flx_obs_spectro_modif-flx_mod_spectro_modif, inv_cov_obs_modif)
             elif global_params.logL_type[indobs] == 'CCF_Brogi':
-                logL_spec = logL_CCF_Brogi(flx_obs, flx_mod)
+                logL_spectro = logL_CCF_Brogi(flx_obs_spectro_modif, flx_mod_spectro_modif)
             elif global_params.logL_type[indobs] == 'CCF_Zucker':
-                logL_spec = logL_CCF_Zucker(flx_obs, flx_mod)
+                logL_spectro = logL_CCF_Zucker(flx_obs_spectro_modif, flx_mod_spectro_modif)
             elif global_params.logL_type[indobs] == 'CCF_custom':
-                logL_spec = logL_CCF_custom(flx_obs, flx_mod, err)
+                logL_spectro = logL_CCF_custom(flx_obs_spectro_modif, flx_mod_spectro_modif, err_obs_spectro_modif)
             elif global_params.logL_type[indobs] == 'chi2_extended':
-                logL_spec = logL_chi2_extended(flx_obs-flx_mod, err)
-            elif global_params.logL_type[indobs] == 'chi2_extended_covariance' and len(inv_cov) != 0:
-                logL_spec = logL_chi2_extended_covariance(flx_obs-flx_mod, inv_cov)
+                logL_spectro = logL_chi2_extended(flx_obs_spectro_modif-flx_mod_spectro_modif, err_obs_spectro_modif)
+            elif global_params.logL_type[indobs] == 'chi2_extended_covariance' and len(inv_cov_obs_modif) != 0:
+                logL_spectro = logL_chi2_extended_covariance(flx_obs_spectro_modif-flx_mod_spectro_modif, inv_cov_obs_modif)
             else:
                 print()
                 print('WARNING: One or more dataset are not included when performing the inversion.')
@@ -271,10 +271,10 @@ def loglike(theta, theta_index, global_params, main_file, for_plot='no'):
                 print()
                 exit()
         else:
-            logL_spec = 0
+            logL_spectro = 0
 
         # Compute the final logL (sum of all likelihood under the hypothesis of independent instruments)
-        FINAL_logL = logL_phot + logL_spec + FINAL_logL
+        FINAL_logL = logL_photo + logL_spectro + FINAL_logL
         
     if for_plot == 'no':
         return FINAL_logL
@@ -428,6 +428,50 @@ def prior_transform(theta, theta_index, lim_param_grid, global_params):
                 if prior_law == 'gaussian':
                     prior_rv = gaussian_prior([float(global_params.rv[1]), float(global_params.rv[2])], theta[ind_theta_rv[0][0]])
                 prior.append(prior_rv)
+    if len(global_params.vsini) > 3: # If you want separate vsini for each observations
+        main_obs_path = global_params.main_observation_path
+        for indobs, obs in enumerate(sorted(glob.glob(main_obs_path))):
+            if global_params.vsini[indobs*3] != 'NA':
+                prior_law = global_params.vsini[indobs*3] # Prior laws should be separeted by 2 values (need to be upgraded)
+                if prior_law != 'constant':
+                    ind_theta_vsini = np.where(theta_index == f'vsini_{indobs}')
+                    if prior_law == 'uniform':
+                        prior_vsini = uniform_prior([float(global_params.vsini[indobs*3+1]), float(global_params.vsini[indobs*3+2])], theta[ind_theta_vsini[0][0]]) # Prior values should be by two
+                    if prior_law == 'gaussian':
+                        prior_vsini = gaussian_prior([float(global_params.vsini[indobs*3+1]), float(global_params.vsini[indobs*3+2])], theta[ind_theta_vsini[0][0]])
+                    prior.append(prior_vsini)
+    else: # If you want 1 common vsini for all observations
+        if global_params.vsini != 'NA':
+            prior_law = global_params.vsini[0]
+            if prior_law != 'constant':
+                ind_theta_vsini = np.where(theta_index == 'vsini')
+                if prior_law == 'uniform':
+                    prior_vsini = uniform_prior([float(global_params.vsini[1]), float(global_params.vsini[2])], theta[ind_theta_vsini[0][0]])
+                if prior_law == 'gaussian':
+                    prior_vsini = gaussian_prior([float(global_params.vsini[1]), float(global_params.vsini[2])], theta[ind_theta_vsini[0][0]])
+                prior.append(prior_vsini)
+    if len(global_params.ld) > 3: # If you want separate ld for each observations
+        main_obs_path = global_params.main_observation_path
+        for indobs, obs in enumerate(sorted(glob.glob(main_obs_path))):
+            if global_params.ld[indobs*3] != 'NA':
+                prior_law = global_params.ld[indobs*3] # Prior laws should be separeted by 2 values (need to be upgraded)
+                if prior_law != 'constant':
+                    ind_theta_ld = np.where(theta_index == f'ld_{indobs}')
+                    if prior_law == 'uniform':
+                        prior_ld = uniform_prior([float(global_params.ld[indobs*3+1]), float(global_params.ld[indobs*3+2])], theta[ind_theta_ld[0][0]]) # Prior values should be by two
+                    if prior_law == 'gaussian':
+                        prior_ld = gaussian_prior([float(global_params.ld[indobs*3+1]), float(global_params.ld[indobs*3+2])], theta[ind_theta_ld[0][0]])
+                    prior.append(prior_ld)
+    else: # If you want 1 common ld for all observations
+        if global_params.ld != 'NA':
+            prior_law = global_params.ld[0]
+            if prior_law != 'constant':
+                ind_theta_ld = np.where(theta_index == 'ld')
+                if prior_law == 'uniform':
+                    prior_ld = uniform_prior([float(global_params.ld[1]), float(global_params.ld[2])], theta[ind_theta_ld[0][0]])
+                if prior_law == 'gaussian':
+                    prior_ld = gaussian_prior([float(global_params.ld[1]), float(global_params.ld[2])], theta[ind_theta_ld[0][0]])
+                prior.append(prior_ld)
 
     # - - - - - - - - - - - - - - - - - - - - -
 
@@ -440,24 +484,6 @@ def prior_transform(theta, theta_index, lim_param_grid, global_params):
             if prior_law == 'gaussian':
                 prior_av = gaussian_prior([float(global_params.av[1]), float(global_params.av[2])], theta[ind_theta_av[0][0]])
             prior.append(prior_av)
-    if global_params.vsini != 'NA':
-        prior_law = global_params.vsini[0]
-        if prior_law != 'constant':
-            ind_theta_vsini = np.where(theta_index == 'vsini')
-            if prior_law == 'uniform':
-                prior_vsini = uniform_prior([float(global_params.vsini[1]), float(global_params.vsini[2])], theta[ind_theta_vsini[0][0]])
-            if prior_law == 'gaussian':
-                prior_vsini = gaussian_prior([float(global_params.vsini[1]), float(global_params.vsini[2])], theta[ind_theta_vsini[0][0]])
-            prior.append(prior_vsini)
-    if global_params.ld != 'NA':
-        prior_law = global_params.ld[0]
-        if prior_law != 'constant':
-            ind_theta_ld = np.where(theta_index == 'ld')
-            if prior_law == 'uniform':
-                prior_ld = uniform_prior([float(global_params.ld[1]), float(global_params.ld[2])], theta[ind_theta_ld[0][0]])
-            if prior_law == 'gaussian':
-                prior_ld = gaussian_prior([float(global_params.ld[1]), float(global_params.ld[2])], theta[ind_theta_ld[0][0]])
-            prior.append(prior_ld)
     ## adding the CPD params, bb_T and bb_R
     if global_params.bb_T != 'NA':
         prior_law = global_params.bb_T[0]
@@ -580,18 +606,32 @@ def launch_nested_sampling(global_params):
         if global_params.rv != 'NA' and global_params.rv[0] != 'constant':
             n_free_parameters += 1
             theta_index.append(f'rv')
+    if len(global_params.vsini) > 3: 
+        main_obs_path = global_params.main_observation_path
+        for indobs, obs in enumerate(sorted(glob.glob(main_obs_path))):
+            if global_params.vsini[indobs*3] != 'NA' and global_params.vsini[indobs*3] != 'constant': # Check if the idobs is different from constant
+                n_free_parameters += 1
+                theta_index.append(f'vsini_{indobs}')
+    else:
+        if global_params.vsini != 'NA' and global_params.vsini[0] != 'constant':
+            n_free_parameters += 1
+            theta_index.append('vsini')
+    if len(global_params.ld) > 3: 
+        main_obs_path = global_params.main_observation_path
+        for indobs, obs in enumerate(sorted(glob.glob(main_obs_path))):
+            if global_params.ld[indobs*3] != 'NA' and global_params.ld[indobs*3] != 'constant': # Check if the idobs is different from constant
+                n_free_parameters += 1
+                theta_index.append(f'ld_{indobs}')
+    else:
+        if global_params.ld != 'NA' and global_params.ld[0] != 'constant':
+            n_free_parameters += 1
+            theta_index.append('ld')
 
     # - - - - - - - - - - - - - - - - - - - - -
             
     if global_params.av != 'NA' and global_params.av[0] != 'constant':
         n_free_parameters += 1
         theta_index.append('av')
-    if global_params.vsini != 'NA' and global_params.vsini[0] != 'constant':
-        n_free_parameters += 1
-        theta_index.append('vsini')
-    if global_params.ld != 'NA' and global_params.ld[0] != 'constant':
-        n_free_parameters += 1
-        theta_index.append('ld')
     ## adding cpd
     if global_params.bb_T != 'NA' and global_params.bb_T[0] != 'constant':
         n_free_parameters += 1

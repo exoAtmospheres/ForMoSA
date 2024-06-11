@@ -201,18 +201,32 @@ class PlottingForMoSA():
             if self.global_params.rv != 'NA' and self.global_params.rv != 'constant':
                 tot_list_param_title.append(extra_parameters[3][1] + ' ' + extra_parameters[3][2])
                 theta_index.append('rv')
+        if len(self.global_params.vsini) > 3: # If you want separate vsini for each observations
+            main_obs_path = self.global_params.main_observation_path
+            for indobs, obs in enumerate(sorted(glob.glob(main_obs_path))):
+                if self.global_params.vsini[indobs*3] != 'NA' and self.global_params.vsini[indobs*3] != 'constant': # Check if the idobs is different from constant
+                    tot_list_param_title.append(extra_parameters[5][1] + fr'$_{indobs}$' + ' ' + extra_parameters[5][2])
+                    theta_index.append(f'vsini_{indobs}')
+        else: # If you want 1 common vsini for all observations
+            if self.global_params.vsini != 'NA' and self.global_params.vsini != 'constant':
+                tot_list_param_title.append(extra_parameters[5][1] + ' ' + extra_parameters[5][2])
+                theta_index.append('vsini')
+        if len(self.global_params.ld) > 3: # If you want separate ld for each observations
+            main_obs_path = self.global_params.main_observation_path
+            for indobs, obs in enumerate(sorted(glob.glob(main_obs_path))):
+                if self.global_params.ld[indobs*3] != 'NA' and self.global_params.ld[indobs*3] != 'constant': # Check if the idobs is different from constant
+                    tot_list_param_title.append(extra_parameters[6][1] + fr'$_{indobs}$' + ' ' + extra_parameters[6][2])
+                    theta_index.append(f'ld_{indobs}')
+        else: # If you want 1 common vsini for all observations
+            if self.global_params.ld != 'NA' and self.global_params.ld != 'constant':
+                tot_list_param_title.append(extra_parameters[6][1] + ' ' + extra_parameters[6][2])
+                theta_index.append('ld')
 
         # - - - - - - - - - - - - - - - - - - - - -
 
         if self.global_params.av != 'NA' and self.global_params.av[0] != 'constant':
             tot_list_param_title.append(extra_parameters[4][1] + ' ' + extra_parameters[4][2])
             theta_index.append('av')
-        if self.global_params.vsini != 'NA' and self.global_params.vsini[0] != 'constant':
-            tot_list_param_title.append(extra_parameters[5][1] + ' ' + extra_parameters[5][2])
-            theta_index.append('vsini')
-        if self.global_params.ld != 'NA' and self.global_params.ld[0] != 'constant':
-            tot_list_param_title.append(extra_parameters[6][1] + ' ' + extra_parameters[6][2])
-            theta_index.append('ld')
         ## cpd bb
         if self.global_params.bb_T != 'NA' and self.global_params.bb_T[0] != 'constant':
             tot_list_param_title.append(extra_parameters[7][1] + ' ' + extra_parameters[7][2])
@@ -355,83 +369,83 @@ class PlottingForMoSA():
             obs_name = os.path.splitext(os.path.basename(self.global_params.observation_path))[0]
 
             spectrum_obs = np.load(os.path.join(self.global_params.result_path, f'spectrum_obs_{obs_name}.npz'), allow_pickle=True)
-            wav_obs_merge = np.asarray(spectrum_obs['obs_spectro_merge'][0], dtype=float)
-            flx_obs_merge = np.asarray(spectrum_obs['obs_spectro_merge'][1], dtype=float)
-            err_obs_merge = np.asarray(spectrum_obs['obs_spectro_merge'][2], dtype=float)
-            transm_obs_merge = np.asarray(spectrum_obs['obs_opt_merge'][1], dtype=float)
-            star_flx_obs_merge = np.asarray(spectrum_obs['obs_opt_merge'][2], dtype=float)
-            system_obs_merge = np.asarray(spectrum_obs['obs_opt_merge'][3], dtype=float)
+            wav_obs_spectro = np.asarray(spectrum_obs['obs_spectro_merge'][0], dtype=float)
+            flx_obs_spectro = np.asarray(spectrum_obs['obs_spectro_merge'][1], dtype=float)
+            err_obs_spectro = np.asarray(spectrum_obs['obs_spectro_merge'][2], dtype=float)
+            transm_obs = np.asarray(spectrum_obs['obs_opt_merge'][1], dtype=float)
+            star_flx_obs = np.asarray(spectrum_obs['obs_opt_merge'][2], dtype=float)
+            system_obs = np.asarray(spectrum_obs['obs_opt_merge'][3], dtype=float)
             if 'obs_photo' in spectrum_obs.keys():
-                wav_obs_phot = np.asarray(spectrum_obs['obs_photo'][0], dtype=float)
-                flx_obs_phot = np.asarray(spectrum_obs['obs_photo'][1], dtype=float)
-                err_obs_phot = np.asarray(spectrum_obs['obs_photo'][2], dtype=float)
+                wav_obs_photo = np.asarray(spectrum_obs['obs_photo'][0], dtype=float)
+                flx_obs_photo = np.asarray(spectrum_obs['obs_photo'][1], dtype=float)
+                err_obs_photo = np.asarray(spectrum_obs['obs_photo'][2], dtype=float)
             else:
-                wav_obs_phot = np.asarray([], dtype=float)
-                flx_obs_phot = np.asarray([], dtype=float)
-                err_obs_phot = np.asarray([], dtype=float)
+                wav_obs_photo = np.asarray([], dtype=float)
+                flx_obs_photo = np.asarray([], dtype=float)
+                err_obs_photo = np.asarray([], dtype=float)
 
             # Recovery of the spectroscopy and photometry model
-            path_grid_m = os.path.join(self.global_params.adapt_store_path, f'adapted_grid_spectro_{self.global_params.grid_name}_{obs_name}_nonan.nc')
-            path_grid_p = os.path.join(self.global_params.adapt_store_path, f'adapted_grid_photo_{self.global_params.grid_name}_{obs_name}_nonan.nc')
-            ds = xr.open_dataset(path_grid_m, decode_cf=False, engine='netcdf4')
-            grid_merge = ds['grid']
+            path_grid_spectro = os.path.join(self.global_params.adapt_store_path, f'adapted_grid_spectro_{self.global_params.grid_name}_{obs_name}_nonan.nc')
+            path_grid_photo = os.path.join(self.global_params.adapt_store_path, f'adapted_grid_photo_{self.global_params.grid_name}_{obs_name}_nonan.nc')
+            ds = xr.open_dataset(path_grid_spectro, decode_cf=False, engine='netcdf4')
+            grid_spectro = ds['grid']
             ds.close()
-            ds = xr.open_dataset(path_grid_p, decode_cf=False, engine='netcdf4')
-            grid_phot = ds['grid']
+            ds = xr.open_dataset(path_grid_photo, decode_cf=False, engine='netcdf4')
+            grid_photo = ds['grid']
             ds.close()
 
             if self.global_params.par3 == 'NA':
-                if len(grid_merge['wavelength']) != 0:
-                    flx_mod_merge = np.asarray(grid_merge.interp(par1=theta[0], par2=theta[1],
+                if len(grid_spectro['wavelength']) != 0:
+                    flx_mod_spectro = np.asarray(grid_spectro.interp(par1=theta[0], par2=theta[1],
                                                             method="linear", kwargs={"fill_value": "extrapolate"}))
                 else:
-                    flx_mod_merge = np.asarray([])
-                if len(grid_phot['wavelength']) != 0:
-                    flx_mod_phot = np.asarray(grid_phot.interp(par1=theta[0], par2=theta[1],
+                    flx_mod_spectro = np.asarray([])
+                if len(grid_photo['wavelength']) != 0:
+                    flx_mod_photo = np.asarray(grid_photo.interp(par1=theta[0], par2=theta[1],
                                                             method="linear", kwargs={"fill_value": "extrapolate"}))
                 else:
-                    flx_mod_phot = np.asarray([])
+                    flx_mod_photo = np.asarray([])
             elif self.global_params.par4 == 'NA':
-                if len(grid_merge['wavelength']) != 0:
-                    flx_mod_merge = np.asarray(grid_merge.interp(par1=theta[0], par2=theta[1], par3=theta[2],
+                if len(grid_spectro['wavelength']) != 0:
+                    flx_mod_spectro = np.asarray(grid_spectro.interp(par1=theta[0], par2=theta[1], par3=theta[2],
                                                             method="linear", kwargs={"fill_value": "extrapolate"}))
                 else:
-                    flx_mod_merge = np.asarray([])
-                if len(grid_phot['wavelength']) != 0:
-                    flx_mod_phot = np.asarray(grid_phot.interp(par1=theta[0], par2=theta[1], par3=theta[2],
+                    flx_mod_spectro = np.asarray([])
+                if len(grid_photo['wavelength']) != 0:
+                    flx_mod_photo = np.asarray(grid_photo.interp(par1=theta[0], par2=theta[1], par3=theta[2],
                                                             method="linear", kwargs={"fill_value": "extrapolate"}))
                 else:
-                    flx_mod_phot = np.asarray([])
+                    flx_mod_photo = np.asarray([])
             elif self.global_params.par5 == 'NA':
-                if len(grid_merge['wavelength']) != 0:
-                    flx_mod_merge = np.asarray(grid_merge.interp(par1=theta[0], par2=theta[1], par3=theta[2], par4=theta[3],
+                if len(grid_spectro['wavelength']) != 0:
+                    flx_mod_spectro = np.asarray(grid_spectro.interp(par1=theta[0], par2=theta[1], par3=theta[2], par4=theta[3],
                                                             method="linear", kwargs={"fill_value": "extrapolate"}))
                 else:
-                    flx_mod_merge = np.asarray([])
-                if len(grid_phot['wavelength']) != 0:
-                    flx_mod_phot = np.asarray(grid_phot.interp(par1=theta[0], par2=theta[1], par3=theta[2], par4=theta[3],
+                    flx_mod_spectro = np.asarray([])
+                if len(grid_photo['wavelength']) != 0:
+                    flx_mod_photo = np.asarray(grid_photo.interp(par1=theta[0], par2=theta[1], par3=theta[2], par4=theta[3],
                                                             method="linear", kwargs={"fill_value": "extrapolate"}))
                 else:
-                    flx_mod_phot = np.asarray([])
+                    flx_mod_photo = np.asarray([])
             else:
-                if len(grid_merge['wavelength']) != 0:
-                    flx_mod_merge = np.asarray(grid_merge.interp(par1=theta[0], par2=theta[1], par3=theta[2], par4=theta[3],
+                if len(grid_spectro['wavelength']) != 0:
+                    flx_mod_spectro = np.asarray(grid_spectro.interp(par1=theta[0], par2=theta[1], par3=theta[2], par4=theta[3],
                                                             par5=theta[4],
                                                             method="linear", kwargs={"fill_value": "extrapolate"}))
                 else:
-                    flx_mod_merge = np.asarray([])
-                if len(grid_phot['wavelength']) != 0:
-                    flx_mod_phot = np.asarray(grid_phot.interp(par1=theta[0], par2=theta[1], par3=theta[2], par4=theta[3],
+                    flx_mod_spectro = np.asarray([])
+                if len(grid_photo['wavelength']) != 0:
+                    flx_mod_photo = np.asarray(grid_photo.interp(par1=theta[0], par2=theta[1], par3=theta[2], par4=theta[3],
                                                             par5=theta[4],
                                                             method="linear", kwargs={"fill_value": "extrapolate"}))
                 else:
-                    flx_mod_phot = np.asarray([])
+                    flx_mod_photo = np.asarray([])
 
             # Modification of the synthetic spectrum with the extra-grid parameters
             modif_spec_chi2 = modif_spec(self.global_params, theta, self.theta_index,
-                                        wav_obs_merge, flx_obs_merge, err_obs_merge, flx_mod_merge,
-                                        wav_obs_phot, flx_obs_phot, err_obs_phot, flx_mod_phot,
-                                        transm_obs_merge, star_flx_obs_merge, system_obs_merge, indobs=indobs)
+                                        wav_obs_spectro, flx_obs_spectro, err_obs_spectro, flx_mod_spectro,
+                                        wav_obs_photo, flx_obs_photo, err_obs_photo, flx_mod_photo,
+                                        transm_obs, star_flx_obs, system_obs, indobs=indobs)
             ck = modif_spec_chi2[8]
 
             modif_spec_MOSAIC.append(modif_spec_chi2)
@@ -774,44 +788,44 @@ class PlottingForMoSA():
         theta_index = self.theta_index
         # Recovery of the spectroscopy data
         spectrum_obs = np.load(self.global_params.result_path + '/spectrum_obs.npz', allow_pickle=True)
-        wav_obs_merge = spectrum_obs['obs_spectro_merge'][0]
-        flx_obs_merge = spectrum_obs['obs_spectro_merge'][1]
-        err_obs_merge = spectrum_obs['obs_spectro_merge'][2]
-        transm_obs_merge = spectrum_obs['obs_opt_merge'][1]
-        star_flx_obs_merge = spectrum_obs['obs_opt_merge'][2]
+        wav_obs_spectro = spectrum_obs['obs_spectro_merge'][0]
+        flx_obs_spectro = spectrum_obs['obs_spectro_merge'][1]
+        err_obs_spectro = spectrum_obs['obs_spectro_merge'][2]
+        transm_obs = spectrum_obs['obs_opt_merge'][1]
+        star_flx_obs = spectrum_obs['obs_opt_merge'][2]
 
         # Recovery of the spectroscopy and photometry model
-        #path_grid_m = self.global_params.adapt_store_path + '/adapted_grid_merge_' + self.global_params.grid_name + '_nonan.nc'
-        path_grid_m = '/Volumes/DATA-GEMS/These/ForMoSA_Main/OUTPUTS/INTERPOL/adapted_grid_spectro_BTSettl_Ydwarfs_2014_AF_Lep_b_2023-11-19_final_products_ForMoSA_offset=0_deep_bkg_nonan.nc'
-        ds = xr.open_dataset(path_grid_m, decode_cf=False, engine='netcdf4')
-        grid_merge = ds['grid']
+        #path_grid_spectro = self.global_params.adapt_store_path + '/adapted_grid_spectro_' + self.global_params.grid_name + '_nonan.nc'
+        path_grid_spectro = '/Volumes/DATA-GEMS/These/ForMoSA_Main/OUTPUTS/INTERPOL/adapted_grid_spectro_BTSettl_Ydwarfs_2014_AF_Lep_b_2023-11-19_final_products_ForMoSA_offset=0_deep_bkg_nonan.nc'
+        ds = xr.open_dataset(path_grid_spectro, decode_cf=False, engine='netcdf4')
+        grid_spectro = ds['grid']
         ds.close()
 
         if self.global_params.par3 == 'NA':
-            if len(grid_merge['wavelength']) != 0:
-                flx_mod_merge = np.asarray(grid_merge.interp(par1=theta[0], par2=theta[1],
+            if len(grid_spectro['wavelength']) != 0:
+                flx_mod_spectro = np.asarray(grid_spectro.interp(par1=theta[0], par2=theta[1],
                                                           method="linear", kwargs={"fill_value": "extrapolate"}))
             else:
-                flx_mod_merge = np.asarray([])
+                flx_mod_spectro = np.asarray([])
         elif self.global_params.par4 == 'NA':
-            if len(grid_merge['wavelength']) != 0:
-                flx_mod_merge = np.asarray(grid_merge.interp(par1=theta[0], par2=theta[1], par3=theta[2],
+            if len(grid_spectro['wavelength']) != 0:
+                flx_mod_spectro = np.asarray(grid_spectro.interp(par1=theta[0], par2=theta[1], par3=theta[2],
                                                           method="linear", kwargs={"fill_value": "extrapolate"}))
             else:
-                flx_mod_merge = np.asarray([])
+                flx_mod_spectro = np.asarray([])
         elif self.global_params.par5 == 'NA':
-            if len(grid_merge['wavelength']) != 0:
-                flx_mod_merge = np.asarray(grid_merge.interp(par1=theta[0], par2=theta[1], par3=theta[2], par4=theta[3],
+            if len(grid_spectro['wavelength']) != 0:
+                flx_mod_spectro = np.asarray(grid_spectro.interp(par1=theta[0], par2=theta[1], par3=theta[2], par4=theta[3],
                                                           method="linear", kwargs={"fill_value": "extrapolate"}))
             else:
-                flx_mod_merge = np.asarray([])
+                flx_mod_spectro = np.asarray([])
         else:
-            if len(grid_merge['wavelength']) != 0:
-                flx_mod_merge = np.asarray(grid_merge.interp(par1=theta[0], par2=theta[1], par3=theta[2], par4=theta[3],
+            if len(grid_spectro['wavelength']) != 0:
+                flx_mod_spectro = np.asarray(grid_spectro.interp(par1=theta[0], par2=theta[1], par3=theta[2], par4=theta[3],
                                                           par5=theta[4],
                                                           method="linear", kwargs={"fill_value": "extrapolate"}))
             else:
-                flx_mod_merge = np.asarray([])
+                flx_mod_spectro = np.asarray([])
         
         rv_grid = np.arange(rv_grid[0], rv_grid[1], rv_step)
         cp, cs = np.ones(len(rv_grid)), np.ones(len(rv_grid))
@@ -820,11 +834,11 @@ class PlottingForMoSA():
         self.global_params.rv = "NA"
         self.global_params.use_lsqr = ["False"]
         modif_spec_chi2 = modif_spec(self.global_params, theta, self.theta_index,
-                                  wav_obs_merge, flx_obs_merge, err_obs_merge, flx_mod_merge,
+                                  wav_obs_spectro, flx_obs_spectro, err_obs_spectro, flx_mod_spectro,
                                   [], [], [], [],
-                                  transm_obs_merge, star_flx_obs_merge)
+                                  transm_obs, star_flx_obs)
         
-        flx_mod_merge = modif_spec_chi2[3] / modif_spec_chi2[8]
+        flx_mod_spectro = modif_spec_chi2[3] / modif_spec_chi2[8]
         
         # # Making sure we only call the doppler correction function and the lsq function
         # # because we want to plot the cross correlation as a function of the radial velocity
@@ -841,9 +855,9 @@ class PlottingForMoSA():
             theta[theta_index == 'rv'] = rv_i
             
             modif_spec_chi2 = modif_spec(self.global_params, theta, self.theta_index,
-                                      np.copy(wav_obs_merge), np.copy(flx_obs_merge), np.copy(err_obs_merge), np.copy(flx_mod_merge),
+                                      np.copy(wav_obs_spectro), np.copy(flx_obs_spectro), np.copy(err_obs_spectro), np.copy(flx_mod_spectro),
                                       [], [], [], [],
-                                      transm_obs_merge, np.copy(star_flx_obs_merge))
+                                      transm_obs, np.copy(star_flx_obs))
             
             cp[i] = modif_spec_chi2[9]
             cs[i] = modif_spec_chi2[10]
