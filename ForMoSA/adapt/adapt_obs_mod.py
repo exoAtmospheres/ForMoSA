@@ -49,10 +49,6 @@ def launch_adapt(global_params, justobs='no'):
             print(obs_name + ' will have a R=' + global_params.continuum_sub[indobs] + ' continuum removed using a ' 
                 + global_params.wav_for_continuum[indobs] + ' wavelength range')
             print()
-        if global_params.continuum_sub[indobs] != 'NA':
-            res = attr['res']
-            plt.figure()
-            plt.plot(res)
             obs_spectro_c, obs_photo_c, obs_spectro_ins_c, obs_photo_ins_c, obs_opt_c = extract_observation(global_params, wav_mod_nativ,
                                                                                     attr['res'], 'yes', obs_name=obs_name, indobs=indobs)
             for c, cut in enumerate(obs_spectro):
