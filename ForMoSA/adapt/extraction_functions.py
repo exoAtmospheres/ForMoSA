@@ -192,14 +192,14 @@ def adapt_observation_range(global_params, obs_name='', indobs=0):
         if global_params.logL_type[indobs] != 'chi2_covariance':
             cov = np.asarray([])
 
-        # Filter the NaN values
+        # Filter the NaN and inf values
         if len(transm) != 0 and len(star_flx) != 0:
-            nan_mod_ind = (~np.isnan(flx)) & (~np.isnan(transm)) & (~np.isnan(star_flx)) & (~np.isnan(err))
+            nan_mod_ind = (~np.isnan(flx)) & (~np.isnan(transm)) & (~np.isnan(star_flx)) & (~np.isnan(err)) & (np.isfinite(flx)) & (np.isfinite(transm)) & (np.isfinite(star_flx)) & (np.isfinite(err))
         else:
-            nan_mod_ind = (~np.isnan(flx)) 
+            nan_mod_ind = (~np.isnan(flx)) & (~np.isnan(err)) & (np.isfinite(flx)) & (np.isfinite(err))
         if len(system) != 0:
             for i in range(len(system[0])):
-                nan_mod_ind = (nan_mod_ind) & (~np.isnan(system.T[i]))
+                nan_mod_ind = (nan_mod_ind) & (~np.isnan(system.T[i])) & (np.isfinite(system.T[i]))
         wav = wav[nan_mod_ind]
         flx = flx[nan_mod_ind]
         res = res[nan_mod_ind]
