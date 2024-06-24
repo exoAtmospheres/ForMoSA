@@ -536,7 +536,7 @@ class PlottingForMoSA():
         #print(flx_mod_final[100],ck)
         err_mod_final_calib = flx_mod_final_calib*0.1
 
-        wav_final, _, _, flx_final, _, _, _, _, _ = modif_spec(self.global_params, theta, self.theta_index,
+        wav_final, _, _, flx_final, _, _, _, _, _, _, _, _, _ = modif_spec(self.global_params, theta, self.theta_index,
                                                                                     wavelengths, flx_mod_final_calib, err_mod_final_calib, flx_mod_final_calib/ck,
                                                                                     [], [], [], [], [], [])
     
