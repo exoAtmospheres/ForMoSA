@@ -273,3 +273,22 @@ Test that have been done to checkup the changes:
     - HiRISE ✓
     - all plotting options ✓
     - multiple observations (with the above tests) ✓
+
+_ _ _
+
+27/06/2024
+
+Matthieu Ravet
+
+Comments:
+    - Optimization of the continuum removal and resolution functions:
+        - The interpolated resolution array is now computed outside the adapt_grid loop to save time.
+        - The model is no longer reinterpolated during the continuum extraction phase, as it already is with the resolution decreasing step.
+        - Simplification of the nomenclature of the two functions (continuum removal + resolution)
+        - Small name change in adapt_grid: flx_mod_spectro >> mod_spectro to match all functions inputs
+
+Test that have been done to checkup the changes:
+    - 1 obs with/without windows for extraction  ✓
+    - 1 obs with/without windows for continuum  ✓
+    - with and without continuum removal
+    - multiple observations (with the above tests) ✓

@@ -2,13 +2,13 @@ from __future__ import print_function, division
 import numpy as np
 import os
 import xarray as xr
-# import matplotlib.pyplot as plt
+from scipy.interpolate import interp1d
 
 from adapt.extraction_functions import extract_observation
 from adapt.adapt_grid import adapt_grid
 from main_utilities import diag_mat
 import glob
-import matplotlib.pyplot as plt
+# import matplotlib.pyplot as plt
 # ----------------------------------------------------------------------------------------------------------------------
 
 
@@ -25,10 +25,11 @@ def launch_adapt(global_params, justobs='no'):
     Author: Simon Petrus / Adapted: Matthieu Ravet, Paulina Palma-Bifani and Allan Denis
     """
 
-    # Get back information from the config file
+    # Get back the grid information from the config file
     ds = xr.open_dataset(global_params.model_path, decode_cf=False, engine="netcdf4")
     wav_mod_nativ = ds["wavelength"].values
     attr = ds.attrs
+    res_mod_nativ = attr['res']
     ds.close()
 
     # Extract the data from the observation files
@@ -39,23 +40,30 @@ def launch_adapt(global_params, justobs='no'):
         
         global_params.observation_path = obs
         obs_name = os.path.splitext(os.path.basename(global_params.observation_path))[0]
-        
-        obs_spectro, obs_photo, obs_spectro_ins, obs_photo_ins, obs_opt = extract_observation(global_params, wav_mod_nativ, attr['res'], obs_name=obs_name,
-                                                                                      indobs=indobs)
 
-        # Estimate and subtraction of the continuum (if needed) + check-ups
+        # Estimate and subtract the continuum (if needed) + check-ups
         if global_params.continuum_sub[indobs] != 'NA':
             print()
             print(obs_name + ' will have a R=' + global_params.continuum_sub[indobs] + ' continuum removed using a ' 
                 + global_params.wav_for_continuum[indobs] + ' wavelength range')
             print()
-            obs_spectro_c, obs_photo_c, obs_spectro_ins_c, obs_photo_ins_c, obs_opt_c = extract_observation(global_params, wav_mod_nativ,
-                                                                                    attr['res'], 'yes', obs_name=obs_name, indobs=indobs)
-            for c, cut in enumerate(obs_spectro):
-                obs_spectro[c][1] -= obs_spectro_c[c][1]
+            obs_spectro, obs_photo, obs_spectro_ins, obs_photo_ins, obs_opt = extract_observation(global_params, wav_mod_nativ, res_mod_nativ, 'yes', 
+                                                                                                  obs_name=obs_name, indobs=indobs)
+        else:
+            obs_spectro, obs_photo, obs_spectro_ins, obs_photo_ins, obs_opt = extract_observation(global_params, wav_mod_nativ, res_mod_nativ,
+                                                                                                   obs_name=obs_name, indobs=indobs)
 
-        # Merging of each sub-spectrum
+
+        # Merging of each sub-spectrum and interpolating the grid
         for c, cut in enumerate(obs_spectro):
+
+            # Interpolate the resolution onto the wavelength of the data
+            ind_mod_obs = np.where((wav_mod_nativ <= cut[0][-1]) & (wav_mod_nativ > cut[0][0]))
+            wav_mod_cut = wav_mod_nativ[ind_mod_obs]
+            res_mod_cut = res_mod_nativ[ind_mod_obs]
+            interp_mod_to_obs = interp1d(wav_mod_cut, res_mod_cut, fill_value='extrapolate')
+            res_mod_cut = interp_mod_to_obs(cut[0])
+
             if c == 0:
                 wav_obs_extract = obs_spectro[c][0]
                 flx_obs_extract = obs_spectro[c][1]
@@ -65,6 +73,8 @@ def launch_adapt(global_params, justobs='no'):
                 transm_obs_extract = obs_opt[c][1]
                 star_flx_obs_extract = obs_opt[c][2]
                 system_obs_extract = obs_opt[c][3]
+                # Save the interpolated resolution of the grid
+                res_mod_obs_merge = [res_mod_cut]
 
             else:
                 wav_obs_extract = np.concatenate((wav_obs_extract, obs_spectro[c][0]))
@@ -79,6 +89,8 @@ def launch_adapt(global_params, justobs='no'):
                     star_flx_obs_extract = np.concatenate((star_flx_obs_extract, obs_opt[c][2]))
                 if len(system_obs_extract) != 0:
                     system_obs_extract = np.concatenate((system_obs_extract, obs_opt[c][3]), axis=0)
+                # Save the interpolated resolution of the grid
+                res_mod_obs_merge.append(res_mod_cut)
 
 
             # Compute the inverse of the merged covariance matrix (note: inv(C1, C2) = (in(C1), in(C2)) if C1 and C2 are block matrix on the diagonal)
@@ -132,7 +144,7 @@ def launch_adapt(global_params, justobs='no'):
             print('- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -')
             print(f"-> Sarting the adaptation of {obs_name}")
 
-            adapt_grid(global_params, obs_spectro_merge[0], obs_photo[0], obs_name=obs_name, indobs=indobs)
+            adapt_grid(global_params, obs_spectro_merge[0], obs_photo[0], res_mod_obs_merge, obs_name=obs_name, indobs=indobs)
         
 
 # ----------------------------------------------------------------------------------------------------------------------
