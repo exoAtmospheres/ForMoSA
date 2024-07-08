@@ -292,3 +292,26 @@ Test that have been done to checkup the changes:
     - 1 obs with/without windows for continuum  ✓
     - with and without continuum removal
     - multiple observations (with the above tests) ✓
+
+_ _ _
+
+08/07/2024
+
+Allan Denis
+
+Comment:
+    - Adding a fourth parameter on the 'vsini' prior to indicate the type of broadening we want to apply. The possibles values of this parameter are 'RotBroad', 'Accurate', 'FastRotBroad'.
+        - 'RotBroad' applies the classical PyAstronomy rotational broadening
+        - 'FastRotBroad' applies the PyAstronomy fast version  of rotational broadening (applicable only for small wavelength range i.e high resolution data)
+        - 'Accurate' applies an alternative version, faster than the PyAstronomy rotational broadening, slower than 'FastRotBroad' but applicable even for high wavelength ranges and more accurate than 'FastRotBroad'
+
+    - Adding the possibility of having multiple components for the starlight contamintation, often used for high resolution data
+
+    - New plotting functions in order to compare the planet model estimated by the least square function and the data substracted by the 'reference model'. 
+    In high resolution data, the 'reference model' refers to the estimated starlight contamination and the systematics (if they exist)
+
+Tests that have been done to checkup the changed:
+    - 1 obs with the 3 possible values for the fourth parameter of the vsini prior ✓
+    - a few obs with 5 components for the starlight contamintation (Rico data and HiRISE data) ✓
+    
+

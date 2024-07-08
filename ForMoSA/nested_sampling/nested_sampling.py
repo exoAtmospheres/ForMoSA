@@ -193,7 +193,7 @@ def loglike(theta, theta_index, global_params, main_file, for_plot='no'):
                 else:
                     transm_obs_ns_u = np.asarray([])
                 if len(star_flx_obs) != 0: # Add star flux (if necessary)
-                    star_flx_obs_ns_u = star_flx_obs[ind_spectro]
+                    star_flx_obs_ns_u = star_flx_obs[0,ind_spectro]
                 else:
                     star_flx_obs_ns_u = np.asarray([])
                 if len(system_obs) != 0: # Add systematics model (if necessary)
@@ -214,7 +214,7 @@ def loglike(theta, theta_index, global_params, main_file, for_plot='no'):
                 if len(transm_obs_ns_u) != 0: # Merge the transmissions (if necessary)
                     transm_obs_ns_u = np.concatenate((transm_obs_ns_u, transm_obs[ind_spectro]))
                 if len(star_flx_obs_ns_u) != 0: # Merge star fluxes (if necessary)
-                    star_flx_obs_ns_u = np.concatenate((star_flx_obs_ns_u, star_flx_obs[ind_grid_spectro_sel]))
+                    star_flx_obs_ns_u = np.concatenate((star_flx_obs_ns_u, star_flx_obs[0,ind_grid_spectro_sel]),axis=0)
                 if len(system_obs) != 0: # Merge systematics model (if necessary)
                     system_obs_ns_u = np.concatenate((system_obs_ns_u, system_obs[0,ind_grid_spectro_sel]), axis=0)
                 wav_obs_photo_ns_u = np.concatenate((wav_obs_photo_ns_u, wav_obs_photo[ind_photo]))
@@ -237,10 +237,10 @@ def loglike(theta, theta_index, global_params, main_file, for_plot='no'):
         
         if global_params.use_lsqr[indobs] == 'True':
             # If our data is contaminated by starlight difraction, the model is the sum of the estimated stellar contribution + planet model
-            flx_mod_spectro_modif = planet_contribution * flx_mod_spectro_modif + stellar_contribution * star_flx_obs
+            flx_mod_spectro_modif = planet_contribution * flx_mod_spectro_modif + np.dot(stellar_contribution, star_flx_obs[0].T)
             if len(systematics) > 0:
                 flx_mod_spectro_modif += systematics
-
+                
 
         # Computation of the photometry logL
         if len(flx_obs_photo_modif) != 0:
@@ -428,17 +428,17 @@ def prior_transform(theta, theta_index, lim_param_grid, global_params):
                 if prior_law == 'gaussian':
                     prior_rv = gaussian_prior([float(global_params.rv[1]), float(global_params.rv[2])], theta[ind_theta_rv[0][0]])
                 prior.append(prior_rv)
-    if len(global_params.vsini) > 3: # If you want separate vsini for each observations
+    if len(global_params.vsini) > 4: # If you want separate vsini for each observations
         main_obs_path = global_params.main_observation_path
         for indobs, obs in enumerate(sorted(glob.glob(main_obs_path))):
-            if global_params.vsini[indobs*3] != 'NA':
-                prior_law = global_params.vsini[indobs*3] # Prior laws should be separeted by 2 values (need to be upgraded)
+            if global_params.vsini[indobs*4] != 'NA':
+                prior_law = global_params.vsini[indobs*4] # Prior laws should be separeted by 2 values (need to be upgraded)
                 if prior_law != 'constant':
                     ind_theta_vsini = np.where(theta_index == f'vsini_{indobs}')
                     if prior_law == 'uniform':
-                        prior_vsini = uniform_prior([float(global_params.vsini[indobs*3+1]), float(global_params.vsini[indobs*3+2])], theta[ind_theta_vsini[0][0]]) # Prior values should be by two
+                        prior_vsini = uniform_prior([float(global_params.vsini[indobs*4+1]), float(global_params.vsini[indobs*4+2])], theta[ind_theta_vsini[0][0]]) # Prior values should be by two
                     if prior_law == 'gaussian':
-                        prior_vsini = gaussian_prior([float(global_params.vsini[indobs*3+1]), float(global_params.vsini[indobs*3+2])], theta[ind_theta_vsini[0][0]])
+                        prior_vsini = gaussian_prior([float(global_params.vsini[indobs*4+1]), float(global_params.vsini[indobs*4+2])], theta[ind_theta_vsini[0][0]])
                     prior.append(prior_vsini)
     else: # If you want 1 common vsini for all observations
         if global_params.vsini != 'NA':
@@ -606,10 +606,10 @@ def launch_nested_sampling(global_params):
         if global_params.rv != 'NA' and global_params.rv[0] != 'constant':
             n_free_parameters += 1
             theta_index.append(f'rv')
-    if len(global_params.vsini) > 3: 
+    if len(global_params.vsini) > 4: 
         main_obs_path = global_params.main_observation_path
         for indobs, obs in enumerate(sorted(glob.glob(main_obs_path))):
-            if global_params.vsini[indobs*3] != 'NA' and global_params.vsini[indobs*3] != 'constant': # Check if the idobs is different from constant
+            if global_params.vsini[indobs*4] != 'NA' and global_params.vsini[indobs*4] != 'constant': # Check if the idobs is different from constant
                 n_free_parameters += 1
                 theta_index.append(f'vsini_{indobs}')
     else:

@@ -21,7 +21,36 @@ import glob
 from main_utilities import GlobFile
 from nested_sampling.nested_modif_spec import modif_spec
 from adapt.extraction_functions import resolution_decreasing,adapt_model, decoupe
+from matplotlib.backends.backend_pdf import PdfPages
 
+
+
+def bin_data(wave, data, bin_size):
+    '''
+    Function to bin data given a bin size
+
+    Parameters
+    ----------
+    wave : wavelength of the data
+    data : data
+    bin_size : size of the bin to apply
+
+    Returns
+    -------
+    wave_binned : binned wavelength
+    data_binned : binned data
+    '''
+    # First quick check that len of data is a multpiple of bin_size
+    while(len(data)%bin_size != 0):
+        wave, data = wave[:-1], data[:-1]
+        
+    bins = np.arange(0, len(wave), bin_size)
+    wave_binned = np.add.reduceat(wave, bins) / bin_size
+    data_binned = np.add.reduceat(data, bins) 
+    
+    return wave_binned, data_binned
+    
+    
 
 # ----------------------------------------------------------------------------------------------------------------------
 # ----------------------------------------------------------------------------------------------------------------------
@@ -201,10 +230,10 @@ class PlottingForMoSA():
             if self.global_params.rv != 'NA' and self.global_params.rv != 'constant':
                 tot_list_param_title.append(extra_parameters[3][1] + ' ' + extra_parameters[3][2])
                 theta_index.append('rv')
-        if len(self.global_params.vsini) > 3: # If you want separate vsini for each observations
+        if len(self.global_params.vsini) > 4: # If you want separate vsini for each observations
             main_obs_path = self.global_params.main_observation_path
             for indobs, obs in enumerate(sorted(glob.glob(main_obs_path))):
-                if self.global_params.vsini[indobs*3] != 'NA' and self.global_params.vsini[indobs*3] != 'constant': # Check if the idobs is different from constant
+                if self.global_params.vsini[indobs*4] != 'NA' and self.global_params.vsini[indobs*4] != 'constant': # Check if the idobs is different from constant
                     tot_list_param_title.append(extra_parameters[5][1] + fr'$_{indobs}$' + ' ' + extra_parameters[5][2])
                     theta_index.append(f'vsini_{indobs}')
         else: # If you want 1 common vsini for all observations
@@ -685,8 +714,7 @@ class PlottingForMoSA():
         '''
         print('ForMoSA - Best fit and residuals plot')
 
-        fig, ax = plt.subplots(1,1, figsize=figsize)
-
+        fig1, ax1 = plt.subplots(1,1, figsize=figsize)
        
         spectra, ck = self._get_spectra(self.theta_best)
         
@@ -703,20 +731,19 @@ class PlottingForMoSA():
                 spectra = list(spectra) # Transform spectra to a list so that we can modify its values
                 spectra[indobs] = list(spectra[indobs])
                 model, planet_contribution, stellar_contribution, star_flx, systematics = spectra[indobs][3], spectra[indobs][9], spectra[indobs][10], spectra[indobs][11], spectra[indobs][12]
-                spectra[indobs][3] = planet_contribution * model + stellar_contribution * star_flx
+                transm = spectra[indobs][13]
+                spectra[indobs][3] = planet_contribution * model + np.dot(stellar_contribution, star_flx[0].T)
                 if len(systematics) > 0:
-                    spectra[indobs[3]] += systematics
+                    spectra[indobs][3] += systematics
 
             if len(spectra[indobs][0]) != 0:
                 if uncert=='yes':
-                    ax.errorbar(spectra[indobs][0], spectra[indobs][1]/ck[indobs], yerr=spectra[indobs][2]/ck[indobs], c='k', alpha=0.2)
-                ax.plot(spectra[indobs][0], spectra[indobs][1] - spectra[indobs][3], 'o', alpha = 0.2, label = 'residuals')
-                ax.plot(spectra[indobs][0], spectra[indobs][1]/ck[indobs], c='k', label = 'data')
-                ax.plot(spectra[indobs][0], spectra[indobs][3]/ck[indobs], c='r', label = 'full model')
-                ax.plot(spectra[indobs][0], stellar_contribution * star_flx,c='b', label = 'stellar model')
-                ax.plot(spectra[indobs][0], planet_contribution * model, label = 'planetary model')
-                
-
+                    ax1.errorbar(spectra[indobs][0], spectra[indobs][1]/ck[indobs], yerr=spectra[indobs][2]/ck[indobs], c='k', alpha=0.2)
+                ax1.plot(spectra[indobs][0], spectra[indobs][1] - spectra[indobs][3], 'o', alpha = 0.2, color='g')
+                ax1.plot(spectra[indobs][0], spectra[indobs][1]/ck[indobs], c='k')
+                ax1.plot(spectra[indobs][0], spectra[indobs][3]/ck[indobs], c='r')
+                ax1.plot(spectra[indobs][0], np.dot(stellar_contribution, star_flx[0].T), c='b')
+                ax1.plot(spectra[indobs][0], planet_contribution * model, c='purple')
 
  
                 # if indobs == 0:
@@ -738,10 +765,10 @@ class PlottingForMoSA():
                         path_list = __file__.split("/")[:-2]
                         separator = '/'
                         filter_pho = np.load(separator.join(path_list) + '/phototeque/' + pho + '.npz')
-                        ax.fill_between(filter_pho['x_filt'], filter_pho['y_filt']*0.8*min(spectra[indobs][5]/ck[indobs]),color=self.color_out, alpha=0.3)
-                        ax.text(np.mean(filter_pho['x_filt']), np.mean(filter_pho['y_filt']*0.4*min(spectra[indobs][5]/ck[indobs])), pho, horizontalalignment='center', c='gray')
-                ax.plot(spectra[indobs][4], spectra[indobs][5]/ck[indobs], 'ko', alpha=0.7)
-                ax.plot(spectra[indobs][4], spectra[indobs][7]/ck[indobs], 'o', color=self.color_out)
+                        ax1.fill_between(filter_pho['x_filt'], filter_pho['y_filt']*0.8*min(spectra[indobs][5]/ck[indobs]),color=self.color_out, alpha=0.3)
+                        ax1.text(np.mean(filter_pho['x_filt']), np.mean(filter_pho['y_filt']*0.4*min(spectra[indobs][5]/ck[indobs])), pho, horizontalalignment='center', c='gray')
+                ax1.plot(spectra[indobs][4], spectra[indobs][5]/ck[indobs], 'ko', alpha=0.7)
+                ax1.plot(spectra[indobs][4], spectra[indobs][7]/ck[indobs], 'o', color=self.color_out)
                 
 
                 residuals_phot = spectra[indobs][7]-spectra[indobs][5]
@@ -750,30 +777,112 @@ class PlottingForMoSA():
 
                 if indobs == 0:
                     # Add labels out of the loops
-                    ax.plot(spectra[0][4], np.empty(len(spectra[0][4]))*np.nan, 'ko', label='Photometry data')
-                    ax.plot(spectra[0][4], np.empty(len(spectra[0][4]))*np.nan, 'o', c=self.color_out, label='Photometry model')
+                    ax1.plot(spectra[0][4], np.empty(len(spectra[0][4]))*np.nan, 'ko', label='Photometry data')
+                    ax1.plot(spectra[0][4], np.empty(len(spectra[0][4]))*np.nan, 'o', c=self.color_out, label='Photometry model')
 
         # Set xlog-scale
         if logx == 'yes':
-            ax.set_xscale('log')
+            ax1.set_xscale('log')
         # Set xlog-scale
         if logy == 'yes':
-            ax.set_yscale('log')
+            ax1.set_yscale('log')
         # Remove the xticks from the first ax
-        ax.set_xticks([])
+        ax1.set_xticks([])
         # Labels
         if norm != 'yes': 
-            ax.set_ylabel(r'Flux (W m-2 µm-1)')
+            ax1.set_ylabel(r'Flux (W m-2 µm-1)')
         else:
-            ax.set_ylabel(r'Normalised flux (W m-2 µm-1)')
+            ax1.set_ylabel(r'Normalised flux (W m-2 µm-1)')
         
-        ax.legend(frameon=False)
-            
+        #ax.legend(frameon=False)
+        fig1.legend(['residuals', 'data','full model','stellar model','planet model'])
+
         # define the data as global
         self.spectra = spectra
         #self.residuals = residuals
 
-        return fig, ax
+        return fig1, ax1
+    
+    
+    def plot_HiRes_comp_model(self, figsize=(10, 5), trans='no', logx='no', logy='no', norm='no', bin_size = 10):
+        '''
+        Plot the best fit comparing with the data.
+
+        Args:
+            figsize:    x/y size of the plot
+            uncert:     'yes' or 'no' to plot spectra with associated error bars
+            trans:      'yes' or 'no' to plot transmision curves for photometry
+            logx:       'yes' or 'no' to plot the wavelength in log scale
+            logy:       'yes' or 'no' to plot the flux in log scale
+            norm:       'yes' or 'no' to plot the normalized spectra
+        Returns:
+            fig, ax, axr, axr2
+
+        Author: Paulina Palma-Bifani and Matthieu Ravet
+        '''
+        print('ForMoSA - Planet model and data')
+       
+        spectra, ck = self._get_spectra(self.theta_best)
+        
+
+        # Scale or not in absolute flux
+        if norm != 'yes': 
+            ck = np.full(len(spectra[0][0]), 1)
+            
+        pdf = PdfPages(self.global_params.result_path + 'PLanet_model_and_data.pdf')
+        plt.ioff()
+
+        for indobs, obs in enumerate(sorted(glob.glob(self.global_params.main_observation_path))):
+            
+            
+            if self.global_params.use_lsqr[indobs] == 'True':
+                # If we used the lsq function, it means that our data is contaminated by the starlight difraction
+                # so the model is the sum of the planet model + the estimated stellar contribution
+                spectra = list(spectra) # Transform spectra to a list so that we can modify its values
+                spectra[indobs] = list(spectra[indobs])
+                model, planet_contribution, stellar_contribution, star_flx, systematics = spectra[indobs][3], spectra[indobs][9], spectra[indobs][10], spectra[indobs][11], spectra[indobs][12]
+                transm = spectra[indobs][13]
+                spectra[indobs][3] = planet_contribution * model + np.dot(stellar_contribution, star_flx[0].T)
+                if len(systematics) > 0:
+                    spectra[indobs][3] += systematics
+
+            if len(spectra[indobs][0]) != 0:
+
+                if len(systematics) > 0:
+                    data = (spectra[indobs][1] - np.dot(stellar_contribution, star_flx[0].T) - systematics)
+                else:
+                    data = (spectra[indobs][1] - np.dot(stellar_contribution, star_flx[0].T))
+
+                wave = spectra[indobs][0]
+                planet_model = planet_contribution * model 
+                
+                wave_binned, data_binned = bin_data(wave, data, bin_size)
+                wave_binned, planet_model_binned = bin_data(wave, planet_model, bin_size)
+                
+                
+                fig = plt.figure(1, figsize=figsize)
+                fig.clf()
+                ax = fig.add_subplot(111)
+                
+                ax.plot(wave_binned, data_binned, c='k')
+                ax.plot(wave_binned, planet_model_binned, c='r')
+                
+                ax.set_xlabel('wavelength ($\mu$m)')
+                ax.set_ylabel('Flux (ADU)')
+                
+                if self.global_params.use_lsqr[indobs] == 'True':
+                    legend_data = 'data - reference model'
+                else:
+                    legend_data = 'data'
+                    
+                ax.legend([legend_data, 'planet model'])
+                
+                pdf.savefig()
+                
+        pdf.close()
+                
+
+        return 
     
     
     def plot_ccf(self, rv_grid = [-300,300], rv_step = 0.5, figsize = (10,5)):
@@ -1125,5 +1234,6 @@ class PlottingForMoSA():
         ax.legend(frameon=False)
 
         return fig, ax
+    
 
 

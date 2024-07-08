@@ -14,7 +14,7 @@ import time
 # ----------------------------------------------------------------------------------------------------------------------
 
 
-def lsq_fct(flx_obs_spectro, err_obs_spectro, star_flx_obs, transm_obs, flx_mod_spectro, system_obs, ccf_method = 'continuum_unfiltered'):
+def lsq_fct(wav_obs_spectro, flx_obs_spectro, err_obs_spectro, star_flx_obs, transm_obs, flx_mod_spectro, system_obs, ccf_method = 'continuum_unfiltered'):
     """
     Estimation of the contribution of the planet and of the star to a spectrum (Used for HiRISE data)
 
@@ -25,7 +25,6 @@ def lsq_fct(flx_obs_spectro, err_obs_spectro, star_flx_obs, transm_obs, flx_mod_
         transm_obs       : Transmission (Atmospheric + Instrumental)
         system_obs       : Systematics of the data (spectroscopy)
         flx_mod_spectro  : Flux of interpolated synthetic spectrum (spectroscopy)
-        wav_obs_spectro  : Wavelength grid of the data (spectroscopy)
         
     Returns:
         cp               : Planetary contribution to the data (Spectroscopy)
@@ -34,13 +33,14 @@ def lsq_fct(flx_obs_spectro, err_obs_spectro, star_flx_obs, transm_obs, flx_mod_
         flx_obs_spectro  : New flux of the data
         star_flx_obs     : New star flux of the data
     """
-    flx_mod_spectro = flx_mod_spectro * transm_obs
-    
+    flx_mod_spectro *= transm_obs
+    star_flx_0 = star_flx_obs[0,:,len(star_flx_obs[0][0]) // 2]
+
     # # # # # Continuum estimation with lowpass filtering
     #
     # Low-pass filtering
     flx_obs_spectro_continuum = sg.savgol_filter(flx_obs_spectro, 301, 2)
-    star_flx_obs_continuum = sg.savgol_filter(star_flx_obs, 301, 2)
+    star_flx_obs_continuum = sg.savgol_filter(star_flx_0, 301, 2)
     flx_mod_spectro_continuum = sg.savgol_filter(flx_mod_spectro, 301, 2)
     #
     # # # # #
@@ -51,31 +51,38 @@ def lsq_fct(flx_obs_spectro, err_obs_spectro, star_flx_obs, transm_obs, flx_mod_
         star_flx_obs = star_flx_obs - star_flx_obs_continuum + np.nanmedian(star_flx_obs)
         flx_mod_spectro = flx_mod_spectro - flx_mod_spectro_continuum + np.nanmedian(flx_mod_spectro)
     elif ccf_method == 'continuum_unfiltered':
-        star_flx_obs = star_flx_obs * flx_obs_spectro_continuum / star_flx_obs_continuum
-        flx_mod_spectro = flx_mod_spectro - flx_mod_spectro_continuum * star_flx_obs / star_flx_obs_continuum
+        flx_mod_spectro = flx_mod_spectro - flx_mod_spectro_continuum * star_flx_0 / star_flx_obs_continuum
+        for i in range(len(star_flx_obs[0][0])):
+            star_flx_obs[0,:,i] = star_flx_obs[0,:,i] * flx_obs_spectro_continuum / star_flx_obs_continuum
     
     # # # # # Least squares estimation
     #    
     # Construction of the matrix
     if len(system_obs) > 0:
-        A_matrix = np.zeros([np.size(flx_obs_spectro), 2 + len(system_obs[0][0])])
+        A_matrix = np.zeros([np.size(flx_obs_spectro), 1 + len(star_flx_obs[0][0]) + len(system_obs[0][0])])
         for j in range(len(system_obs[0][0])):
-            A_matrix[:,2+j] = system_obs[0][:,j] * err_obs_spectro
+            A_matrix[:,1+len(star_flx_obs[0][0])+j] = system_obs[0][:,j] * err_obs_spectro
     else:
-        A_matrix = np.zeros([np.size(flx_obs_spectro), 2])
+        A_matrix = np.zeros([np.size(flx_obs_spectro), 1 + len(star_flx_obs[0][0])])
+        
+    for j in range(len(star_flx_obs[0][0])):
+        A_matrix[:,1+j] = star_flx_obs[0][:,j] * err_obs_spectro
         
     A_matrix[:,0] = flx_mod_spectro * err_obs_spectro
-    A_matrix[:,1] = star_flx_obs * err_obs_spectro
     
     # Least square 
-    res = optimize.lsq_linear(A_matrix, flx_obs_spectro * err_obs_spectro)
-    cp, cs = res.x[0], res.x[1]
+    res = optimize.lsq_linear(A_matrix, flx_obs_spectro * err_obs_spectro, bounds=([0]*len(A_matrix[0]), [1]*len(A_matrix[0])))
+    cp = res.x[0]
     
+    cs = np.array([])
+    for i in range(len(star_flx_obs[0][0])):
+        cs = np.append(cs, res.x[i+1])
+        
     systematics_c = np.array([])
     systematics = np.asarray([])
     if len(system_obs) > 0:
         for i in range(len(system_obs[0][0])):
-            systematics_c = np.append(systematics_c, res.x[i+2])
+            systematics_c = np.append(systematics_c, res.x[1+len(star_flx_obs[0][0])+i])
             
         systematics = np.dot(systematics_c, system_obs[0].T)
     
@@ -211,7 +218,38 @@ def reddening_fct(wav_obs_spectro, wav_obs_photo, flx_mod_spectro, flx_mod_photo
 # ----------------------------------------------------------------------------------------------------------------------
 
 
-def vsini_fct(wav_obs_spectro, flx_mod_spectro, ld_picked, vsini_picked):
+def vsini_fct_rot_broad(wav_obs_spectro, flx_mod_spectro, ld_picked, vsini_picked):
+    """
+    Application of a rotation velocity (line broadening) to the interpolated synthetic spectrum using the function
+    extinction.fm07.
+
+    Args:
+        wav_obs_spectro  : Wavelength grid of the data
+        flx_mod_spectro  : Flux of the interpolated synthetic spectrum
+        ld_picked        : Limd darkening randomly picked by the nested sampling
+        vsini_picked     : v.sin(i) randomly picked by the nested sampling (in km.s-1)
+    Returns:
+        flx_mod_spectro  : New flux of the interpolated synthetic spectrum
+
+    Author: Simon Petrus
+    """
+    # Correct irregulatities in the wavelength grid
+    wav_interval = wav_obs_spectro[1:] - wav_obs_spectro[:-1]
+    wav_to_vsini = np.arange(min(wav_obs_spectro), max(wav_obs_spectro), min(wav_interval) * 2/3)
+    vsini_interp = interp1d(wav_obs_spectro, flx_mod_spectro, fill_value="extrapolate")
+    flx_to_vsini = vsini_interp(wav_to_vsini)
+    # Apply the v.sin(i)
+    new_flx = rotBroad(wav_to_vsini, flx_to_vsini, ld_picked, vsini_picked)
+    vsini_interp = interp1d(wav_to_vsini, new_flx, fill_value="extrapolate")
+    flx_mod_spectro = vsini_interp(wav_obs_spectro)
+
+    return flx_mod_spectro
+
+
+# ----------------------------------------------------------------------------------------------------------------------
+
+
+def vsini_fct_fast_rot_broad(wav_obs_spectro, flx_mod_spectro, ld_picked, vsini_picked):
     """
     Application of a rotation velocity (line broadening) to the interpolated synthetic spectrum using the function
     extinction.fm07.
@@ -241,7 +279,7 @@ def vsini_fct(wav_obs_spectro, flx_mod_spectro, ld_picked, vsini_picked):
 # ----------------------------------------------------------------------------------------------------------------------
 
 
-def vsini_fct_new(wave_obs_merge, flx_mod_spectro, ld_picked, vsini_picked, nr=50, ntheta=100, dif=0.0):
+def vsini_fct_accurate(wave_obs_merge, flx_mod_spectro, ld_picked, vsini_picked, nr=50, ntheta=100, dif=0.0):
     '''
     A routine to quickly rotationally broaden a spectrum in linear time.
 
@@ -450,9 +488,9 @@ def modif_spec(global_params, theta, theta_index,
         
     # Correction of the rotational velocity of the interpolated synthetic spectrum.
     if len(flx_obs_spectro) != 0:
-        if len(global_params.vsini) > 3 and len(global_params.ld) > 3: # If you want separate vsini/ld for each observations
-            if global_params.vsini[indobs*3] != "NA" and global_params.ld[indobs*3] != "NA":
-                if global_params.vsini[indobs*3] == 'constant':
+        if len(global_params.vsini) > 4 and len(global_params.ld) > 3: # If you want separate vsini/ld for each observations
+            if global_params.vsini[indobs*4] != "NA" and global_params.ld[indobs*3] != "NA":
+                if global_params.vsini[indobs*4] == 'constant':
                     vsini_picked = float(global_params.vsini[indobs*3+1])
                 else:
                     ind_theta_vsini = np.where(theta_index == f'vsini_{indobs}')
@@ -463,7 +501,12 @@ def modif_spec(global_params, theta, theta_index,
                     ind_theta_ld = np.where(theta_index == f'ld_{indobs}')
                     ld_picked = theta[ind_theta_ld[0][0]]
 
-                flx_mod_spectro = vsini_fct_new(wav_obs_spectro, flx_mod_spectro, ld_picked, vsini_picked)
+                if global_params.vsini[indobs*4 + 3] == 'RotBroad':
+                    flx_mod_spectro = vsini_fct_rot_broad(wav_obs_spectro, flx_mod_spectro, ld_picked, vsini_picked)
+                if global_params.vsini[indobs*4 + 3] == 'FastRotBroad':
+                    flx_mod_spectro = vsini_fct_fast_rot_broad(wav_obs_spectro, flx_mod_spectro, ld_picked, vsini_picked)
+                if global_params.vsini[indobs*4 + 3] == 'Accurate':
+                    flx_mod_spectro = vsini_fct_accurate(wav_obs_spectro, flx_mod_spectro, ld_picked, vsini_picked)
 
             elif global_params.vsini[indobs*3] == "NA" and global_params.ld[indobs*3] == "NA":
                 pass
@@ -485,7 +528,12 @@ def modif_spec(global_params, theta, theta_index,
                     ind_theta_ld = np.where(theta_index == 'ld')
                     ld_picked = theta[ind_theta_ld[0][0]]
 
-                flx_mod_spectro = vsini_fct_new(wav_obs_spectro, flx_mod_spectro, ld_picked, vsini_picked)
+                if global_params.vsini[3] == 'RotBroad':
+                    flx_mod_spectro = vsini_fct_rot_broad(wav_obs_spectro, flx_mod_spectro, ld_picked, vsini_picked)
+                if global_params.vsini[3] == 'FastRotBroad':
+                    flx_mod_spectro = vsini_fct_fast_rot_broad(wav_obs_spectro, flx_mod_spectro, ld_picked, vsini_picked)
+                if global_params.vsini[3] == 'Accurate':
+                    flx_mod_spectro = vsini_fct_accurate(wav_obs_spectro, flx_mod_spectro, ld_picked, vsini_picked)
 
             elif global_params.vsini == "NA" and global_params.ld == "NA":
                 pass
@@ -562,7 +610,7 @@ def modif_spec(global_params, theta, theta_index,
             else: # Without the extra alpha scaling
                 flx_mod_spectro, flx_mod_photo, ck = calc_ck(flx_obs_spectro, err_obs_spectro, flx_mod_spectro,
                                                     flx_obs_photo, err_obs_photo, flx_mod_photo, r_picked, d_picked)
-        # Set HiRES contribution to 1 if not used
+        # Set HiRES contribution to 1 if not used
         planet_contribution, stellar_contribution, systematics = 1, 1, 1                
     # Analytically
     # If MOSAIC
@@ -581,14 +629,14 @@ def modif_spec(global_params, theta, theta_index,
                         flx_obs_photo, err_obs_photo, flx_mod_photo, 0, 0, 0,
                         analytic='yes')
         
-        planet_contribution, stellar_contribution, flx_mod_spectro, flx_obs_spectro, star_flx_obs, systematics = lsq_fct(flx_obs_spectro, err_obs_spectro, star_flx_obs, transm_obs, flx_mod_spectro, system_obs)
+        planet_contribution, stellar_contribution, flx_mod_spectro, flx_obs_spectro, star_flx_obs, systematics = lsq_fct(wav_obs_spectro, flx_obs_spectro, err_obs_spectro, star_flx_obs, transm_obs, flx_mod_spectro, system_obs)
 
 
     else:   # either global_params.r or global_params.d is set to 'NA' 
         print('WARNING: You need to define a radius AND a distance, or set them both to "NA"')
         exit()
 
-    return wav_obs_spectro, flx_obs_spectro, err_obs_spectro, flx_mod_spectro, wav_obs_photo, flx_obs_photo, err_obs_photo, flx_mod_photo, ck, planet_contribution, stellar_contribution, star_flx_obs, systematics
+    return wav_obs_spectro, flx_obs_spectro, err_obs_spectro, flx_mod_spectro, wav_obs_photo, flx_obs_photo, err_obs_photo, flx_mod_photo, ck, planet_contribution, stellar_contribution, star_flx_obs, systematics, transm_obs
 
 
 

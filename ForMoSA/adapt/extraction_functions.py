@@ -84,7 +84,7 @@ def extract_observation(global_params, wav_mod_nativ, res_mod_nativ, cont='no', 
     # Reduce the spectral resolution for each sub-spectrum.
     for c, cut in enumerate(obs_spectro):
         if len(cut[0]) != 0:
-            # Interpolate the resolution of the model onto the wavelength of the data to properly decrease the resolution if necessary
+            # Interpolate the resolution of the model onto the wavelength of the data to properly decrease the resolution if necessary
             ind_mod_obs = np.where((wav_mod_nativ <= cut[0][-1]) & (wav_mod_nativ > cut[0][0]))
             wav_mod_obs = wav_mod_nativ[ind_mod_obs]
             res_mod_obs = res_mod_nativ[ind_mod_obs]
@@ -142,10 +142,18 @@ def adapt_observation_range(global_params, obs_name='', indobs=0):
             err = np.sqrt(np.diag(np.abs(cov)))
         try:
             transm = hdul[1].data['TRANSM']
-            star_flx = hdul[1].data['STAR FLX']
         except:
             transm = np.asarray([])
-            star_flx = np.asarray([])    
+        try:
+            star_flx = hdul[1].data['STAR_FLX1'][:,np.newaxis]
+            is_star = True
+        except:
+            star_flx = np.asarray([])   
+            is_star = False
+        try:
+            star_flx = hdul[1].data['STAR FLX'][:,np.newaxis]
+        except:
+            pass
         try:
             is_system = True
             system = hdul[1].data['SYSTEMATICS1'][:,np.newaxis]
@@ -161,20 +169,32 @@ def adapt_observation_range(global_params, obs_name='', indobs=0):
                     i += 1
                 except:
                     break
-
+                
+        if is_star:
+            i = 2
+            while True:
+                try:
+                    star_flx = np.concatenate((star_flx, hdul[1].data['STAR_FLX' + str(i)][:,np.newaxis]),axis=1)
+                    i += 1
+                except:
+                    break
         # Only take the covariance if you use the chi2_covariance likelihood function (will need to be change when new likelihood functions using the
         # covariance matrix will come)
         if global_params.logL_type[indobs] != 'chi2_covariance':
             cov = np.asarray([])
 
         # Filter the NaN and inf values
-        if len(transm) != 0 and len(star_flx) != 0:
-            nan_mod_ind = (~np.isnan(flx)) & (~np.isnan(transm)) & (~np.isnan(star_flx)) & (~np.isnan(err)) & (np.isfinite(flx)) & (np.isfinite(transm)) & (np.isfinite(star_flx)) & (np.isfinite(err))
+        if len(transm) != 0:
+            nan_mod_ind = (~np.isnan(flx)) & (~np.isnan(transm)) & (~np.isnan(err)) & (np.isfinite(flx)) & (np.isfinite(transm)) & (np.isfinite(err))
         else:
             nan_mod_ind = (~np.isnan(flx)) & (~np.isnan(err)) & (np.isfinite(flx)) & (np.isfinite(err))
+        if len(star_flx) != 0:
+            for i in range(len(star_flx[0])):
+                nan_mod_ind = (nan_mod_ind) & (~np.isnan(star_flx.T[i])) & (np.isfinite(star_flx.T[i]))
         if len(system) != 0:
             for i in range(len(system[0])):
                 nan_mod_ind = (nan_mod_ind) & (~np.isnan(system.T[i])) & (np.isfinite(system.T[i]))
+                
         wav = wav[nan_mod_ind]
         flx = flx[nan_mod_ind]
         res = res[nan_mod_ind]
@@ -184,7 +204,8 @@ def adapt_observation_range(global_params, obs_name='', indobs=0):
             cov = np.transpose(np.transpose(cov[nan_mod_ind])[nan_mod_ind])
         if len(transm) != 0 and len(star_flx) != 0:
             transm = transm[nan_mod_ind]
-            star_flx = star_flx[nan_mod_ind]
+        if len(star_flx) != 0:
+            star_flx = np.delete(star_flx, np.where(~nan_mod_ind), axis=0)
         if len(system) != 0:
             system = np.delete(system, np.where(~nan_mod_ind), axis=0)
             
@@ -230,7 +251,7 @@ def adapt_observation_range(global_params, obs_name='', indobs=0):
                 transm_spectro = np.asarray([])
             
             if len(star_flx) != 0:
-                star_flx_spectro = np.delete(star_flx[ind], ind_photometry)
+                star_flx_spectro = np.delete(star_flx[ind,:], ind_photometry, axis=0)
             else:
                 star_flx_spectro = np.asarray([])
                 
@@ -377,8 +398,9 @@ def convolve_and_sample(wv_channels, sigmas_wvs, model_wvs, model_fluxes, num_si
 
     lsf = np.exp(-filter_coords ** 2 / 2) / np.sqrt(2 * np.pi)
 
-    if np.sum(lsf) != 0:
 
+    if np.sum(lsf) != 0:
+      
         model_interp = interp1d(model_wvs, model_fluxes, kind='cubic', bounds_error=False)
         filter_model = model_interp(filter_wv_coords)
 
