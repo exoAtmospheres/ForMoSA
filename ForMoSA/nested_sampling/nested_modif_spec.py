@@ -508,7 +508,7 @@ def modif_spec(global_params, theta, theta_index,
                 if global_params.vsini[indobs*4 + 3] == 'Accurate':
                     flx_mod_spectro = vsini_fct_accurate(wav_obs_spectro, flx_mod_spectro, ld_picked, vsini_picked)
 
-            elif global_params.vsini[indobs*3] == "NA" and global_params.ld[indobs*3] == "NA":
+            elif global_params.vsini[indobs*4] == "NA" and global_params.ld[indobs*3] == "NA":
                 pass
 
             else:
