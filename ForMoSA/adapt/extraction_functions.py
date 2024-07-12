@@ -350,7 +350,7 @@ def extract_model(global_params, wav_mod_nativ, flx_mod_nativ, res_mod_obs_merge
             mod_cut_flx = np.asarray([])
 
     # Calculate each photometry point.
-    mod_photo = np.asarray([])
+    mod_photo = []
     for pho_ind, pho in enumerate(obs_photo_ins):
         path_list = __file__.split("/")[:-2]
         separator = '/'
