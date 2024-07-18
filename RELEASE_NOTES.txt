@@ -310,8 +310,26 @@ Comment:
     - New plotting functions in order to compare the planet model estimated by the least square function and the data substracted by the 'reference model'. 
     In high resolution data, the 'reference model' refers to the estimated starlight contamination and the systematics (if they exist)
 
-Tests that have been done to checkup the changed:
+Tests that have been done to checkup the changes:
     - 1 obs with the 3 possible values for the fourth parameter of the vsini prior ✓
     - a few obs with 5 components for the starlight contamintation (Rico data and HiRISE data) ✓
+    
+    
+- - - 
+
+18/07/2024
+
+Allan Denis 
+
+Comments:
+     - Fixing a small bug when using both photometric and spectroscopic data
+     - Adding the possibility to plot the planetary model and the data (substracted by the starlight contamination and the systematics if they exist) by decreasing their resolution, with the function plot_HiRes_comp_model (used for high resolution data)
+     The user must define in the function the resolution of the instrument (default to 0). is the default value is selected then the function doesn't decrease the resolution of the data. If the resolution of the instrument is defined then the instrument decrease the resolution of the data to the resolution given by the v.sini (= 3.0*10⁵ / v.sini)
+     - Adding a ccf function that computes the ccf of the data with the best model. A model can also be defined by the user and given as the input of the fonction (if the user wants to to the ccf with a molecular template for exemple)
+     
+Tests that have been done to checkup the changes:
+    - Different high resolution datasets
+    - Datasets combining photometric and spectroscopic data points 
+     
     
 

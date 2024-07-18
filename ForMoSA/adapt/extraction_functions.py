@@ -324,7 +324,7 @@ def extract_model(global_params, wav_mod_nativ, flx_mod_nativ, res_mod_obs_merge
     spectrum_obs = np.load(os.path.join(global_params.result_path, f'spectrum_obs_{obs_name}.npz'), allow_pickle=True)
     obs_spectro = spectrum_obs['obs_spectro']
     obs_photo_ins = spectrum_obs['obs_photo_ins']
-
+    mod_spectro, mod_photo = [], []
     # Reduce the spectral resolution for each sub-spectrum.
     for c, cut in enumerate(obs_spectro):
         if len(cut[0]) != 0:
@@ -345,12 +345,9 @@ def extract_model(global_params, wav_mod_nativ, flx_mod_nativ, res_mod_obs_merge
                 mod_spectro = mod_cut_flx
             else:
                 mod_spectro = np.concatenate((mod_spectro, mod_cut_flx))
-              
-        else:
-            mod_cut_flx = np.asarray([])
+
 
     # Calculate each photometry point.
-    mod_photo = np.asarray([])
     for pho_ind, pho in enumerate(obs_photo_ins):
         path_list = __file__.split("/")[:-2]
         separator = '/'

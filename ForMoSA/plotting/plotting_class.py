@@ -10,6 +10,7 @@ import astropy.units as u
 import corner
 import xarray as xr
 import pickle
+import scipy.signal as sg
 from scipy.interpolate import interp1d
 import extinction
 from PyAstronomy.pyasl import dopplerShift, rotBroad
@@ -20,7 +21,11 @@ import glob
 # Import ForMoSA
 from main_utilities import GlobFile
 from nested_sampling.nested_modif_spec import modif_spec
-from adapt.extraction_functions import resolution_decreasing,adapt_model, decoupe
+from nested_sampling.nested_modif_spec import doppler_fct
+from nested_sampling.nested_modif_spec import lsq_fct
+from nested_sampling.nested_modif_spec import vsini_fct_accurate
+from adapt.extraction_functions import resolution_decreasing, adapt_model, decoupe
+from adapt.extraction_functions import adapt_observation_range
 from matplotlib.backends.backend_pdf import PdfPages
 
 
@@ -307,10 +312,11 @@ class PlottingForMoSA():
                             fill_contours=True,
                             show_titles=True,
                             title_fmt='.2f',
-                            title_kwargs=dict(fontsize=10),
+                            title_kwargs=dict(fontsize=14),
                             contour_kwargs=dict(colors=self.color_out, linewidths=0.7),
                             pcolor_kwargs=dict(color='red'),
-                            label_kwargs=dict(fontsize=10))
+                            label_kwargs=dict(fontsize=14))
+    
 
         fig.supxlabel(self.outputs_string, va='top')
 
@@ -600,11 +606,17 @@ class PlottingForMoSA():
 
        
         spectra, ck = self._get_spectra(self.theta_best)
+        iobs_spectro = 0
+        iobs_photo = 0
         
 
         # Scale or not in absolute flux
         if norm != 'yes': 
-            ck = np.full(len(spectra[0][0]), 1)
+            if len(spectra[0][0]) != 0:
+                ck = np.full(len(spectra[0][0]), 1)
+            else:
+                ck = np.full(len(spectra[0][4]), 1)
+
 
         for indobs, obs in enumerate(sorted(glob.glob(self.global_params.main_observation_path))):
             
@@ -614,12 +626,14 @@ class PlottingForMoSA():
                 spectra = list(spectra) # Transform spectra to a list so that we can modify its values
                 spectra[indobs] = list(spectra[indobs])
                 model, planet_contribution, stellar_contribution, star_flx = spectra[indobs][3], spectra[indobs][9], spectra[indobs][10], spectra[indobs][11]
-                spectra[indobs][3] = planet_contribution * model + stellar_contribution * star_flx
+                spectra[indobs][3] = planet_contribution * model + np.dot(stellar_contribution, star_flx[0].T)
                 systematics = spectra[indobs][12]
                 if len(systematics) > 0:
                     spectra[indobs][3] += systematics
 
             if len(spectra[indobs][0]) != 0:
+                iobs_spectro += 1
+                iobs_photo += 1
                 if uncert=='yes':
                     ax.errorbar(spectra[indobs][0], spectra[indobs][1]/ck[indobs], yerr=spectra[indobs][2]/ck[indobs], c='k', alpha=0.2)
                 ax.plot(spectra[indobs][0], spectra[indobs][1]/ck[indobs], c='k')
@@ -633,14 +647,19 @@ class PlottingForMoSA():
                 axr2.hist(residuals/sigma_res, bins=100 ,color=self.color_out, alpha=0.5, density=True, orientation='horizontal')
                 axr2.legend(frameon=False,handlelength=0)
 
-                if indobs == 0:
+                if indobs == iobs_spectro-1:
                     # Add labels out of the loops
-                    ax.plot(spectra[0][0], np.empty(len(spectra[0][0]))*np.nan, c='k', label='data')
-                    ax.plot(spectra[0][0], np.empty(len(spectra[0][0]))*np.nan, c=self.color_out, label='model')
-                    axr.plot(spectra[0][0], np.empty(len(spectra[0][0]))*np.nan, c=self.color_out, label='model-data')
+                    ax.plot(spectra[0][0], np.empty(len(spectra[0][0]))*np.nan, c='k', label='Spectroscopic data')
+                    ax.plot(spectra[0][0], np.empty(len(spectra[0][0]))*np.nan, c=self.color_out, label='Spectroscopic model')
+                    axr.plot(spectra[0][0], np.empty(len(spectra[0][0]))*np.nan, c=self.color_out, label='Spectroscopic model-data')
                     axr2.hist(residuals/sigma_res, bins=100 ,color=self.color_out, alpha=0.5, density=True, orientation='horizontal', label='density')
+                    
+                    iobs_spectro = -1
+                    
 
             if len(spectra[indobs][4]) != 0:
+                iobs_photo += 1
+                iobs_spectro += 1
                 # If you want to plot the transmission filters
                 if trans == 'yes':
                     self.global_params.observation_path = obs
@@ -653,8 +672,8 @@ class PlottingForMoSA():
                         filter_pho = np.load(separator.join(path_list) + '/phototeque/' + pho + '.npz')
                         ax.fill_between(filter_pho['x_filt'], filter_pho['y_filt']*0.8*min(spectra[indobs][5]/ck[indobs]),color=self.color_out, alpha=0.3)
                         ax.text(np.mean(filter_pho['x_filt']), np.mean(filter_pho['y_filt']*0.4*min(spectra[indobs][5]/ck[indobs])), pho, horizontalalignment='center', c='gray')
-                ax.plot(spectra[indobs][4], spectra[indobs][5]/ck[indobs], 'ko', alpha=0.7)
-                ax.plot(spectra[indobs][4], spectra[indobs][7]/ck[indobs], 'o', color=self.color_out)
+                ax.plot(spectra[indobs][4], spectra[indobs][5] / ck[indobs], 'ko', alpha=0.7)
+                ax.plot(spectra[indobs][4], spectra[indobs][7] / ck[indobs], 'o', color=self.color_out)
                 
 
                 residuals_phot = spectra[indobs][7]-spectra[indobs][5]
@@ -662,11 +681,15 @@ class PlottingForMoSA():
                 axr.plot(spectra[indobs][4], residuals_phot/sigma_res, 'o', c=self.color_out, alpha=0.8)
                 axr.axhline(y=0, color='k', alpha=0.5, linestyle='--')
 
-                if indobs == 0:
+                if indobs == iobs_photo-1:
                     # Add labels out of the loops
                     ax.plot(spectra[0][4], np.empty(len(spectra[0][4]))*np.nan, 'ko', label='Photometry data')
                     ax.plot(spectra[0][4], np.empty(len(spectra[0][4]))*np.nan, 'o', c=self.color_out, label='Photometry model')
                     axr.plot(spectra[0][4], np.empty(len(spectra[0][4]))*np.nan, 'o', c=self.color_out, label='Photometry model-data')
+                    
+                    iobs_photo = -1
+                    
+                    
 
         # Set xlog-scale
         if logx == 'yes':
@@ -717,6 +740,7 @@ class PlottingForMoSA():
         fig1, ax1 = plt.subplots(1,1, figsize=figsize)
        
         spectra, ck = self._get_spectra(self.theta_best)
+        iobs_spectro = 0
         
 
         # Scale or not in absolute flux
@@ -737,6 +761,7 @@ class PlottingForMoSA():
                     spectra[indobs][3] += systematics
 
             if len(spectra[indobs][0]) != 0:
+                iobs_spectro += 1
                 if uncert=='yes':
                     ax1.errorbar(spectra[indobs][0], spectra[indobs][1]/ck[indobs], yerr=spectra[indobs][2]/ck[indobs], c='k', alpha=0.2)
                 ax1.plot(spectra[indobs][0], spectra[indobs][1] - spectra[indobs][3], 'o', alpha = 0.2, color='g')
@@ -746,13 +771,15 @@ class PlottingForMoSA():
                 ax1.plot(spectra[indobs][0], planet_contribution * model, c='purple')
 
  
-                # if indobs == 0:
-                #     # Add labels out of the loops
-                #     ax.plot(spectra[0][0], np.empty(len(spectra[0][0]))*np.nan, c='k', label='residuals')
-                #     ax.plot(spectra[0][0], np.empty(len(spectra[0][0]))*np.nan, c='k', label='data')
-                #     ax.plot(spectra[0][0], np.empty(len(spectra[0][0]))*np.nan, c=self.color_out, label='full model')
-                #     ax.plot(spectra[0][0], np.empty(len(spectra[0][0]))*np.nan, c='k', label='stellar model')
-                #     ax.plot(spectra[0][0], np.empty(len(spectra[0][0]))*np.nan, c='k', label='planetary model')
+                if indobs == iobs_spectro - 1:
+                    # Add labels out of the loops
+                    ax1.plot(spectra[0][0], np.empty(len(spectra[0][0]))*np.nan, c='k', label='residuals')
+                    ax1.plot(spectra[0][0], np.empty(len(spectra[0][0]))*np.nan, c='k', label='data')
+                    ax1.plot(spectra[0][0], np.empty(len(spectra[0][0]))*np.nan, c=self.color_out, label='full model')
+                    ax1.plot(spectra[0][0], np.empty(len(spectra[0][0]))*np.nan, c='k', label='stellar model')
+                    ax1.plot(spectra[0][0], np.empty(len(spectra[0][0]))*np.nan, c='k', label='planetary model')
+                    
+                    iobs_spectro = -1
 
             if len(spectra[indobs][4]) != 0:
                 # If you want to plot the transmission filters
@@ -790,12 +817,16 @@ class PlottingForMoSA():
         ax1.set_xticks([])
         # Labels
         if norm != 'yes': 
-            ax1.set_ylabel(r'Flux (W m-2 µm-1)')
+            ax1.set_ylabel(r'Flux (ADU)')
         else:
             ax1.set_ylabel(r'Normalised flux (W m-2 µm-1)')
+            
+        ax1.set_xlabel('wavelength ($ \mu $m)')
         
+        fig1.legend()
         #ax.legend(frameon=False)
-        fig1.legend(['residuals', 'data','full model','stellar model','planet model'])
+        plt.figure(fig1)
+        plt.savefig(self.global_params.result_path + 'full_data.pdf')
 
         # define the data as global
         self.spectra = spectra
@@ -804,7 +835,7 @@ class PlottingForMoSA():
         return fig1, ax1
     
     
-    def plot_HiRes_comp_model(self, figsize=(10, 5), trans='no', logx='no', logy='no', norm='no', bin_size = 10):
+    def plot_HiRes_comp_model(self, figsize=(10, 5), trans='no', logx='no', logy='no', norm='no', data_resolution = 0):
         '''
         Plot the best fit comparing with the data.
 
@@ -823,14 +854,17 @@ class PlottingForMoSA():
         print('ForMoSA - Planet model and data')
        
         spectra, ck = self._get_spectra(self.theta_best)
-        
+        fig1, ax1 = plt.subplots(1, 1, figsize = figsize)
+        fig, ax = plt.subplots(1, 1, figsize = figsize)
 
         # Scale or not in absolute flux
         if norm != 'yes': 
             ck = np.full(len(spectra[0][0]), 1)
             
-        pdf = PdfPages(self.global_params.result_path + 'PLanet_model_and_data.pdf')
+        pdf = PdfPages(self.global_params.result_path + 'PLanet_model_and_data_resolution_degraded.pdf')
         plt.ioff()
+        
+
 
         for indobs, obs in enumerate(sorted(glob.glob(self.global_params.main_observation_path))):
             
@@ -840,38 +874,49 @@ class PlottingForMoSA():
                 # so the model is the sum of the planet model + the estimated stellar contribution
                 spectra = list(spectra) # Transform spectra to a list so that we can modify its values
                 spectra[indobs] = list(spectra[indobs])
-                model, planet_contribution, stellar_contribution, star_flx, systematics = spectra[indobs][3], spectra[indobs][9], spectra[indobs][10], spectra[indobs][11], spectra[indobs][12]
-                transm = spectra[indobs][13]
-                spectra[indobs][3] = planet_contribution * model + np.dot(stellar_contribution, star_flx[0].T)
-                if len(systematics) > 0:
-                    spectra[indobs][3] += systematics
+                model, planet_contribution, stellar_contribution, star_flx, systematics, transm = spectra[indobs][3], spectra[indobs][9], spectra[indobs][10], spectra[indobs][11], spectra[indobs][12], spectra[indobs][13]
 
             if len(spectra[indobs][0]) != 0:
 
-                if len(systematics) > 0:
-                    data = (spectra[indobs][1] - np.dot(stellar_contribution, star_flx[0].T) - systematics)
-                else:
-                    data = (spectra[indobs][1] - np.dot(stellar_contribution, star_flx[0].T))
+                if (len(systematics) > 0) and (len(star_flx) > 0):
+                    data = spectra[indobs][1] - np.dot(stellar_contribution, star_flx[0].T) - systematics
+                elif (len(star_flx) > 0):     # if len(systematics) = 0 but len(star_flx) > 0
+                    data = spectra[indobs][1] - np.dot(stellar_contribution, star_flx[0].T)
+                elif (len(systematics) > 0):  # if len(star_flx) = 0 but len(systematics) > 0
+                    data = spectra[indobs][1] - systematics
+                else:                         # if len(star_flx) = 0 and len(systematics) = 0
+                    data = spectra[indobs][1]
 
                 wave = spectra[indobs][0]
                 planet_model = planet_contribution * model 
                 
-                wave_binned, data_binned = bin_data(wave, data, bin_size)
-                wave_binned, planet_model_binned = bin_data(wave, planet_model, bin_size)
+                # Compute intrinsic resolution of the data because of the v.sini
+                resolution = 3.0*1e5 / (self.theta_best[self.theta_index == 'vsini'])
+                resolution = resolution * np.ones(len(wave))
                 
+                if data_resolution > 0:
+                    self.global_params.custom_reso[indobs] = 'NA'
+                    resolution_data = data_resolution * np.ones(len(wave))
+                    data_broadened = vsini_fct_accurate(wave, data, 0.6, self.theta_best[self.theta_index == 'vsini'])
+                    data_broadened = resolution_decreasing(self.global_params, wave, [], resolution, wave, data, resolution_data, 'mod')
+                    planet_model_broadened = resolution_decreasing(self.global_params, wave, [], resolution, wave, planet_model, resolution_data, 'mod')
+       
                 
-                fig = plt.figure(1, figsize=figsize)
+                fig = plt.figure('comp_model', figsize=figsize)
                 fig.clf()
                 ax = fig.add_subplot(111)
                 
-                ax.plot(wave_binned, data_binned, c='k')
-                ax.plot(wave_binned, planet_model_binned, c='r')
+                ax.plot(wave, data_broadened, c='k')
+                ax.plot(wave, planet_model_broadened, c='r')
                 
                 ax.set_xlabel('wavelength ($\mu$m)')
                 ax.set_ylabel('Flux (ADU)')
                 
+                ax1.plot(wave, data, c='k')
+                ax1.plot(wave, planet_model, c = 'r')
+                
                 if self.global_params.use_lsqr[indobs] == 'True':
-                    legend_data = 'data - reference model'
+                    legend_data = 'data - star'
                 else:
                     legend_data = 'data'
                     
@@ -880,12 +925,17 @@ class PlottingForMoSA():
                 pdf.savefig()
                 
         pdf.close()
-                
-
-        return 
+        
+        ax1.legend([legend_data, "planet model"], fontsize = 18)
+        ax1.set_xlabel('wavelength ($ \mu $m)', fontsize=18)
+        ax1.set_ylabel('Flux (ADU)', fontsize=18)
+        plt.figure(fig1)
+        plt.savefig(self.global_params.result_path + 'Planet_model_and_data.pdf')
+                            
+        return fig1, ax1
     
     
-    def plot_ccf(self, rv_grid = [-300,300], rv_step = 0.5, figsize = (10,5)):
+    def plot_ccf(self, rv_grid = [-300,300], rv_step = 0.5, figsize = (10,5), norm = 'no', window_normalisation = 100, model_spectra = [], model_wavelength = [], model_resolution = [], data_resolution = 0, model_name = 'Full', rv_cor=0):
         '''
         Plot the ccf (used for high resolution data such as CRIRES+ / HiRISE)
         
@@ -894,107 +944,109 @@ class PlottingForMoSA():
         print('ForMoSA - CCF plot')
         
         
-        self._get_posteriors()
-        theta = self.theta_best
-        theta_index = self.theta_index
-        # Recovery of the spectroscopy data
-        spectrum_obs = np.load(self.global_params.result_path + '/spectrum_obs.npz', allow_pickle=True)
-        wav_obs_spectro = spectrum_obs['obs_spectro_merge'][0]
-        flx_obs_spectro = spectrum_obs['obs_spectro_merge'][1]
-        err_obs_spectro = spectrum_obs['obs_spectro_merge'][2]
-        transm_obs = spectrum_obs['obs_opt_merge'][1]
-        star_flx_obs = spectrum_obs['obs_opt_merge'][2]
-
-        # Recovery of the spectroscopy and photometry model
-        #path_grid_spectro = self.global_params.adapt_store_path + '/adapted_grid_spectro_' + self.global_params.grid_name + '_nonan.nc'
-        path_grid_spectro = '/Volumes/DATA-GEMS/These/ForMoSA_Main/OUTPUTS/INTERPOL/adapted_grid_spectro_BTSettl_Ydwarfs_2014_AF_Lep_b_2023-11-19_final_products_ForMoSA_offset=0_deep_bkg_nonan.nc'
-        ds = xr.open_dataset(path_grid_spectro, decode_cf=False, engine='netcdf4')
-        grid_spectro = ds['grid']
-        ds.close()
-
-        if self.global_params.par3 == 'NA':
-            if len(grid_spectro['wavelength']) != 0:
-                flx_mod_spectro = np.asarray(grid_spectro.interp(par1=theta[0], par2=theta[1],
-                                                          method="linear", kwargs={"fill_value": "extrapolate"}))
-            else:
-                flx_mod_spectro = np.asarray([])
-        elif self.global_params.par4 == 'NA':
-            if len(grid_spectro['wavelength']) != 0:
-                flx_mod_spectro = np.asarray(grid_spectro.interp(par1=theta[0], par2=theta[1], par3=theta[2],
-                                                          method="linear", kwargs={"fill_value": "extrapolate"}))
-            else:
-                flx_mod_spectro = np.asarray([])
-        elif self.global_params.par5 == 'NA':
-            if len(grid_spectro['wavelength']) != 0:
-                flx_mod_spectro = np.asarray(grid_spectro.interp(par1=theta[0], par2=theta[1], par3=theta[2], par4=theta[3],
-                                                          method="linear", kwargs={"fill_value": "extrapolate"}))
-            else:
-                flx_mod_spectro = np.asarray([])
-        else:
-            if len(grid_spectro['wavelength']) != 0:
-                flx_mod_spectro = np.asarray(grid_spectro.interp(par1=theta[0], par2=theta[1], par3=theta[2], par4=theta[3],
-                                                          par5=theta[4],
-                                                          method="linear", kwargs={"fill_value": "extrapolate"}))
-            else:
-                flx_mod_spectro = np.asarray([])
+        fig1, ax1 = plt.subplots(1,1, figsize=figsize)
         
         rv_grid = np.arange(rv_grid[0], rv_grid[1], rv_step)
-        cp, cs = np.ones(len(rv_grid)), np.ones(len(rv_grid))
-        i = 0
+        ccf = np.array([])
+        acf = np.array([])
         
-        self.global_params.rv = "NA"
-        self.global_params.use_lsqr = ["False"]
-        modif_spec_chi2 = modif_spec(self.global_params, theta, self.theta_index,
-                                  wav_obs_spectro, flx_obs_spectro, err_obs_spectro, flx_mod_spectro,
-                                  [], [], [], [],
-                                  transm_obs, star_flx_obs)
+        spectra, ck = self._get_spectra(self.theta_best)
         
-        flx_mod_spectro = modif_spec_chi2[3] / modif_spec_chi2[8]
+        model_array = np.array([])
+        wave_array = np.array([])
+        err_array = np.array([])
+        transm_array = np.array([])
+        data_array = np.array([])
         
-        # # Making sure we only call the doppler correction function and the lsq function
-        # # because we want to plot the cross correlation as a function of the radial velocity
-        self.global_params.rv = "uniform"
-        self.global_params.av = "NA"
-        self.global_params.vsini, self.global_params.ld = "NA", "NA"
-        self.global_params.bb_T, self.global_params.bb_R = "NA", "NA"
-        self.global_params.r, self.global_params.T = "NA", "NA"
-        self.global_params.ccf_method = 'continuum_unfiltered'
-        self.global_params.use_lsqr = ['True']
-        print(theta, theta_index)
-        
-        for rv_i in tqdm(rv_grid):
-            theta[theta_index == 'rv'] = rv_i
+        for indobs, obs in enumerate(sorted(glob.glob(self.global_params.main_observation_path))):
             
-            modif_spec_chi2 = modif_spec(self.global_params, theta, self.theta_index,
-                                      np.copy(wav_obs_spectro), np.copy(flx_obs_spectro), np.copy(err_obs_spectro), np.copy(flx_mod_spectro),
-                                      [], [], [], [],
-                                      transm_obs, np.copy(star_flx_obs))
-            
-            cp[i] = modif_spec_chi2[9]
-            cs[i] = modif_spec_chi2[10]
+            if self.global_params.use_lsqr[indobs] == 'True':
+                # If we used the lsq function, it means that our data is contaminated by the starlight difraction
+                # so the model is the sum of the planet model + the estimated stellar contribution
+                spectra = list(spectra) # Transform spectra to a list so that we can modify its values
+                spectra[indobs] = list(spectra[indobs])
+                wavelength, err, model, stellar_contribution, star_flx, systematics = spectra[indobs][0], spectra[indobs][2], spectra[indobs][3], spectra[indobs][10], spectra[indobs][11], spectra[indobs][12]
+                transm = spectra[indobs][13]
+     
 
-            i += 1
-            
-            
-        normalization_limit = 100
-        
-        
-        fig, ax = plt.subplots(figsize = figsize)
-        fig.tight_layout()
-        
-        cp_norm = cp - np.median(cp[(np.abs(rv_grid-rv_grid[np.argmax(cp)]) > normalization_limit)])
-        cp_noise = np.std(cp_norm[(np.abs(rv_grid-rv_grid[np.argmax(cp)]) > normalization_limit)])
-        ccf_norm = cp_norm / cp_noise
-            
-        ax.plot(rv_grid, ccf_norm)
-        ax.set_xlabel('rv (km/s)')
-        ax.set_ylabel('ccf signal')
-        
-        return 
-            
-            
+            if len(spectra[indobs][0]) != 0:
 
+                if (len(systematics) > 0) and (len(star_flx) > 0):
+                    data = spectra[indobs][1] - np.dot(stellar_contribution, star_flx[0].T) - systematics
+                elif (len(star_flx) > 0):     # if len(systematics) = 0 but len(star_flx) > 0
+                    data = spectra[indobs][1] - np.dot(stellar_contribution, star_flx[0].T)
+                elif (len(systematics) > 0):  # if len(star_flx) = 0 but len(systematics) > 0
+                    data = spectra[indobs][1] - systematics
+                else:                         # if len(star_flx) = 0 and len(systematics) = 0
+                    data = spectra[indobs][1]
 
+                _, _, _, model = doppler_fct(wavelength, data, err, model, -self.theta_best[self.theta_index == 'rv'])
+                    
+                if len(model_spectra) == 0:
+                    model_array = np.append(model_array, model)
+                else:
+                    obs_spectro, _, _, _, _ = adapt_observation_range(self.global_params, indobs=indobs)
+                    res_obs = obs_spectro[0][3]
+                    res_obs_interp = interp1d(obs_spectro[0][0], res_obs, fill_value = 'extrapolate')
+                    res_obs = res_obs_interp(wavelength)
+                    
+                    ind = np.where((model_wavelength >= wavelength[0]) & (model_wavelength <= wavelength[-1]))
+                    model_wavelength_adapt, model_resolution_adapt, model_spectra_adapt = model_wavelength[ind], model_resolution[ind], model_spectra[ind]
+                    model_resolution_interp = interp1d(model_wavelength_adapt, model_resolution_adapt, fill_value = 'extrapolate')
+                    model_resolution_adapt = model_resolution_interp(wavelength)
+                    model_adapted = resolution_decreasing(self.global_params, wavelength, [], res_obs, model_wavelength_adapt, model_spectra_adapt, model_resolution_adapt,
+                                                        'mod', indobs=indobs)
+                    
+                    
+                    if len(transm) > 0:
+                        _, _, model_adapted, _, _, _ = lsq_fct(spectra[indobs][1], err, star_flx, transm, model_adapted, systematics)
+                        
+                    model_adapted = vsini_fct_accurate(wavelength, model_adapted, 0.6, self.theta_best[self.theta_index=='vsini'])
+                    
+                    model_array = np.append(model_array, model_adapted)
+                
+                wave_array = np.append(wave_array, wavelength)
+                data_array = np.append(data_array, data)
+                transm_array = np.append(transm_array, transm)
+                err_array = np.append(err_array, err)
+
+        max_ccf = 0
+        for rv in tqdm(rv_grid):
+            _, _, _, model_doppler = doppler_fct(wave_array, data_array, err_array, model_array, rv+rv_cor)
+            ccf = np.append(ccf, np.nansum(model_doppler * data_array))
+            acf = np.append(acf, np.nansum(model_doppler * model_array))
+            
+            if np.nansum(model_doppler * data_array) > max_ccf:
+                max_ccf = np.nansum(model_doppler * data_array)
+                model_max_ccf = model_doppler
+            
+        # Rescaling cross-correlation function to estimate a SNR
+        acf_norm = acf - np.median(acf[(np.abs(rv_grid) > window_normalisation)])
+        ccf_norm = ccf - np.median(ccf[(np.abs(rv_grid-rv_grid[np.argmax(ccf)]) > window_normalisation)])
+        ccf_noise = np.std(ccf_norm[(np.abs(rv_grid-rv_grid[np.argmax(ccf)]) > window_normalisation)])
+        ccf_norm = ccf_norm / ccf_noise
+        #sigma_ccf = sigma_ccf / ccf_noise
+        
+        half_heigt = np.max(acf_norm) / 2
+        ind_FWHM = acf_norm >= half_heigt
+        FWHM = rv_grid[ind_FWHM] + rv_grid[np.argmax(ccf_norm)]
+        
+        # Rescaling autocorrelation function to make comparable with cross-correlation function
+        acf_norm = acf_norm / np.max(acf_norm) * np.max(ccf_norm)
+        
+        ax1.plot(rv_grid, ccf_norm, label = 'ccf')
+        ax1.plot(rv_grid + rv_grid[np.argmax(ccf_norm)] + rv_cor, acf_norm)
+        ax1.axvline(x = rv_grid[np.argmax(ccf_norm)], linestyle = '--', c='C3')
+        ax1.set_xlabel('RV (km/s)')
+        ax1.set_ylabel('S/N')
+        ax1.legend(['ccf', 'acf'])
+        print(f'SNR = {np.nanmax(ccf_norm):.1f}, RV = {rv_grid[np.argmax(ccf_norm)]:.1f} km/s')
+        #ax1.set_title(f'SNR = {np.nanmax(ccf_norm):.1f}, RV = {rv_grid[np.argmax(ccf_norm)]:.1f} km/s')
+        plt.figure(fig1)
+        plt.savefig(self.global_params.result_path + 'ccf_' + model_name + '.pdf')
+
+        return rv_grid, ccf, acf
+    
     def plot_PT(self,path_temp_profile, figsize=(6,5), model = 'ExoREM'):
         '''
         Plot the Pressure-Temperature profiles 

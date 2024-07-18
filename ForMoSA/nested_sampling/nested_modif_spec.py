@@ -14,7 +14,7 @@ import time
 # ----------------------------------------------------------------------------------------------------------------------
 
 
-def lsq_fct(wav_obs_spectro, flx_obs_spectro, err_obs_spectro, star_flx_obs, transm_obs, flx_mod_spectro, system_obs, ccf_method = 'continuum_unfiltered'):
+def lsq_fct(flx_obs_spectro, err_obs_spectro, star_flx_obs, transm_obs, flx_mod_spectro, system_obs, ccf_method = 'continuum_unfiltered'):
     """
     Estimation of the contribution of the planet and of the star to a spectrum (Used for HiRISE data)
 
@@ -571,6 +571,7 @@ def modif_spec(global_params, theta, theta_index,
 
     # Calculation of the dilution factor Ck and re-normalization of the interpolated synthetic spectrum.
     # From the radius and the distance.
+    
     if global_params.r != "NA" and global_params.d != "NA":
         if global_params.r[0] == "constant":
             r_picked = float(global_params.r[1])
@@ -629,7 +630,7 @@ def modif_spec(global_params, theta, theta_index,
                         flx_obs_photo, err_obs_photo, flx_mod_photo, 0, 0, 0,
                         analytic='yes')
         
-        planet_contribution, stellar_contribution, flx_mod_spectro, flx_obs_spectro, star_flx_obs, systematics = lsq_fct(wav_obs_spectro, flx_obs_spectro, err_obs_spectro, star_flx_obs, transm_obs, flx_mod_spectro, system_obs)
+        planet_contribution, stellar_contribution, flx_mod_spectro, flx_obs_spectro, star_flx_obs, systematics = lsq_fct(flx_obs_spectro, err_obs_spectro, star_flx_obs, transm_obs, flx_mod_spectro, system_obs)
 
 
     else:   # either global_params.r or global_params.d is set to 'NA' 

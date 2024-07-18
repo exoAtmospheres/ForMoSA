@@ -57,64 +57,73 @@ def launch_adapt(global_params, justobs='no'):
         # Merging of each sub-spectrum and interpolating the grid
         for c, cut in enumerate(obs_spectro):
 
-            # Interpolate the resolution onto the wavelength of the data
-            ind_mod_obs = np.where((wav_mod_nativ <= cut[0][-1]) & (wav_mod_nativ > cut[0][0]))
-            wav_mod_cut = wav_mod_nativ[ind_mod_obs]
-            res_mod_cut = res_mod_nativ[ind_mod_obs]
-            interp_mod_to_obs = interp1d(wav_mod_cut, res_mod_cut, fill_value='extrapolate')
-            res_mod_cut = interp_mod_to_obs(cut[0])
-
-            if c == 0:
-                wav_obs_extract = obs_spectro[c][0]
-                flx_obs_extract = obs_spectro[c][1]
-                err_obs_extract = obs_spectro[c][2]
-                res_obs_extract = obs_spectro[c][3]
-                cov_obs_extract = obs_opt[c][0]
-                transm_obs_extract = obs_opt[c][1]
-                star_flx_obs_extract = obs_opt[c][2]
-                system_obs_extract = obs_opt[c][3]
-                # Save the interpolated resolution of the grid
-                res_mod_obs_merge = [res_mod_cut]
-
-            else:
-                wav_obs_extract = np.concatenate((wav_obs_extract, obs_spectro[c][0]))
-                flx_obs_extract = np.concatenate((flx_obs_extract, obs_spectro[c][1]))
-                err_obs_extract = np.concatenate((err_obs_extract, obs_spectro[c][2]))
-                res_obs_extract = np.concatenate((res_obs_extract, obs_spectro[c][3]))
+            if len(cut[0]) > 0:
+                # Interpolate the resolution onto the wavelength of the data
+                ind_mod_obs = np.where((wav_mod_nativ <= cut[0][-1]) & (wav_mod_nativ > cut[0][0]))
+                wav_mod_cut = wav_mod_nativ[ind_mod_obs]
+                res_mod_cut = res_mod_nativ[ind_mod_obs]
+                interp_mod_to_obs = interp1d(wav_mod_cut, res_mod_cut, fill_value='extrapolate')
+                res_mod_cut = interp_mod_to_obs(cut[0])
+    
+                if c == 0:
+                    wav_obs_extract = obs_spectro[c][0]
+                    flx_obs_extract = obs_spectro[c][1]
+                    err_obs_extract = obs_spectro[c][2]
+                    res_obs_extract = obs_spectro[c][3]
+                    cov_obs_extract = obs_opt[c][0]
+                    transm_obs_extract = obs_opt[c][1]
+                    star_flx_obs_extract = obs_opt[c][2]
+                    system_obs_extract = obs_opt[c][3]
+                    # Save the interpolated resolution of the grid
+                    res_mod_obs_merge = [res_mod_cut]
+    
+                else:
+                    wav_obs_extract = np.concatenate((wav_obs_extract, obs_spectro[c][0]))
+                    flx_obs_extract = np.concatenate((flx_obs_extract, obs_spectro[c][1]))
+                    err_obs_extract = np.concatenate((err_obs_extract, obs_spectro[c][2]))
+                    res_obs_extract = np.concatenate((res_obs_extract, obs_spectro[c][3]))
+                    if len(cov_obs_extract) != 0:
+                        cov_obs_extract = diag_mat([cov_obs_extract, obs_opt[c][0]])
+                    if len(transm_obs_extract) != 0:
+                        transm_obs_extract = np.concatenate((transm_obs_extract, obs_opt[c][1]))
+                    if len(star_flx_obs_extract) != 0:
+                        star_flx_obs_extract = np.concatenate((star_flx_obs_extract, obs_opt[c][2]))
+                    if len(system_obs_extract) != 0:
+                        system_obs_extract = np.concatenate((system_obs_extract, obs_opt[c][3]), axis=0)
+                    # Save the interpolated resolution of the grid
+                    res_mod_obs_merge.append(res_mod_cut)
+    
+    
+                # Compute the inverse of the merged covariance matrix (note: inv(C1, C2) = (in(C1), in(C2)) if C1 and C2 are block matrix on the diagonal)
+                # if necessary
                 if len(cov_obs_extract) != 0:
-                    cov_obs_extract = diag_mat([cov_obs_extract, obs_opt[c][0]])
-                if len(transm_obs_extract) != 0:
-                    transm_obs_extract = np.concatenate((transm_obs_extract, obs_opt[c][1]))
-                if len(star_flx_obs_extract) != 0:
-                    star_flx_obs_extract = np.concatenate((star_flx_obs_extract, obs_opt[c][2]))
-                if len(system_obs_extract) != 0:
-                    system_obs_extract = np.concatenate((system_obs_extract, obs_opt[c][3]), axis=0)
-                # Save the interpolated resolution of the grid
-                res_mod_obs_merge.append(res_mod_cut)
+                    inv_cov_obs_extract = np.linalg.inv(cov_obs_extract)
+                else:
+                    inv_cov_obs_extract = np.asarray([])
 
-
-            # Compute the inverse of the merged covariance matrix (note: inv(C1, C2) = (in(C1), in(C2)) if C1 and C2 are block matrix on the diagonal)
-            # if necessary
-            if len(cov_obs_extract) != 0:
-                inv_cov_obs_extract = np.linalg.inv(cov_obs_extract)
+                # Check-ups and warnings for negative values in the diagonal of the covariance matrix
+                if len(cov_obs_extract) != 0 and any(np.diag(cov_obs_extract) < 0):
+                    print()
+                    print("WARNING: Negative value(s) is(are) present on the diagonal of the covariance matrix.") 
+                    print("Operation aborted.")
+                    print()
+                    exit()
+                    
             else:
-                inv_cov_obs_extract = np.asarray([])
+                wav_obs_extract, flx_obs_extract, err_obs_extract, res_obs_extract = [], [], [], []
+                inv_cov_obs_extract, transm_obs_extract, star_flx_obs_extract, system_obs_extract = [], [], [], []
+                res_mod_obs_merge = res_mod_nativ
 
-            # Compile everything and changing data type to object to allow for different array sizes
-            obs_spectro_merge = np.asarray([wav_obs_extract, flx_obs_extract, err_obs_extract, res_obs_extract])
-            obs_spectro = np.asarray(obs_spectro, dtype=object)
-            obs_spectro_ins = np.asarray(obs_spectro_ins, dtype=object)
-            obs_photo = np.asarray(obs_photo, dtype=object)
-            obs_photo_ins = np.asarray(obs_photo_ins, dtype=object)
-            obs_opt_merge = np.asarray([inv_cov_obs_extract, transm_obs_extract, star_flx_obs_extract, system_obs_extract], dtype=object)
+        # Compile everything and changing data type to object to allow for different array sizes
+        obs_spectro_merge = np.asarray([wav_obs_extract, flx_obs_extract, err_obs_extract, res_obs_extract])
+        obs_spectro = np.asarray(obs_spectro, dtype=object)
+        obs_spectro_ins = np.asarray(obs_spectro_ins, dtype=object)
+        obs_photo = np.asarray(obs_photo, dtype=object)
+        obs_photo_ins = np.asarray(obs_photo_ins, dtype=object)
+        obs_opt_merge = np.asarray([inv_cov_obs_extract, transm_obs_extract, star_flx_obs_extract, system_obs_extract], dtype=object)
 
-            # Check-ups and warnings for negative values in the diagonal of the covariance matrix
-            if len(cov_obs_extract) != 0 and any(np.diag(cov_obs_extract) < 0):
-                print()
-                print("WARNING: Negative value(s) is(are) present on the diagonal of the covariance matrix.") 
-                print("Operation aborted.")
-                print()
-                exit()
+    
+            
 
         # Save the new data spectrum
         np.savez(os.path.join(global_params.result_path, f'spectrum_obs_{obs_name}.npz'),
