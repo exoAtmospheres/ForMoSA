@@ -292,9 +292,9 @@ def adapt_model(global_params, wav_mod_nativ, flx_mod_nativ, res_mod_obs_merge, 
     """
     # Estimate and subtract the continuum (if needed)
     if global_params.continuum_sub[indobs] != 'NA':
-        mod_spectro, mod_photo = extract_model(global_params, wav_mod_nativ, flx_mod_nativ, res_mod_obs_merge, cont='yes', obs_name=obs_name)
+        mod_spectro, mod_photo = extract_model(global_params, wav_mod_nativ, flx_mod_nativ, res_mod_obs_merge, cont='yes', obs_name=obs_name, indobs=indobs)
     else:
-        mod_spectro, mod_photo = extract_model(global_params, wav_mod_nativ, flx_mod_nativ, res_mod_obs_merge, obs_name=obs_name)
+        mod_spectro, mod_photo = extract_model(global_params, wav_mod_nativ, flx_mod_nativ, res_mod_obs_merge, obs_name=obs_name, indobs=indobs)
 
     return mod_spectro, mod_photo
 
