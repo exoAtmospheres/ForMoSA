@@ -15,7 +15,7 @@ def adapt_grid(global_params, wav_obs_spectro, wav_obs_photo, res_mod_obs_merge,
     Adapt the synthetic spectra of a grid to make them comparable with the data.
     
     Args:
-        global_params (object): Class containing each parameter
+        global_params    (object): Class containing each parameter
         wav_obs_spectro   (array): Merged wavelength grid of the data
         wav_obs_photo     (array): Wavelengths of the photometry points
         obs_name            (str): Name of the current observation looping
@@ -23,7 +23,7 @@ def adapt_grid(global_params, wav_obs_spectro, wav_obs_photo, res_mod_obs_merge,
     Returns:
         None
 
-    Author: Simon Petrus / Adapted: Matthieu Ravet & Paulina Palma-Bifani
+    Author: Simon Petrus, Matthieu Ravet and Paulina Palma-Bifani
     """
 
     ds = xr.open_dataset(global_params.model_path, decode_cf=False, engine="netcdf4")

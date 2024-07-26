@@ -331,5 +331,18 @@ Tests that have been done to checkup the changes:
     - Different high resolution datasets
     - Datasets combining photometric and spectroscopic data points 
      
-    
+
+
+- - - 
+
+28/07/2024
+
+Paulina Palma-Bifani, Matthieu Ravet 
+
+Comments:
+     - Commenting all functions
+     - Replacing physical constants with astropy ones
+
+Tests:
+    None
 

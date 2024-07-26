@@ -1,20 +1,12 @@
 
 from __future__ import print_function, division
-import sys, os, yaml, time
+import os
 import numpy as np
 import matplotlib.pyplot as plt
-import matplotlib
-from matplotlib.figure import Figure
-import astropy.constants as const
-import astropy.units as u
 import corner
 import xarray as xr
 import pickle
-import scipy.signal as sg
 from scipy.interpolate import interp1d
-import extinction
-from PyAstronomy.pyasl import dopplerShift, rotBroad
-from spectres import spectres
 from tqdm import tqdm
 import glob
 
@@ -34,16 +26,16 @@ def bin_data(wave, data, bin_size):
     '''
     Function to bin data given a bin size
 
-    Parameters
-    ----------
-    wave : wavelength of the data
-    data : data
-    bin_size : size of the bin to apply
+    Args:
+        wave         (array): wavelength of the data
+        data         (array): data
+        bin_size       (int): size of the bin to apply
 
-    Returns
-    -------
-    wave_binned : binned wavelength
-    data_binned : binned data
+    Returns:
+        wave_binned  (array): binned wavelength
+        data_binned  (array): binned data
+
+    Author: Allan Denis
     '''
     # First quick check that len of data is a multpiple of bin_size
     while(len(data)%bin_size != 0):
@@ -61,12 +53,25 @@ def bin_data(wave, data, bin_size):
 # ----------------------------------------------------------------------------------------------------------------------
 class ComplexRadar():
     '''
-    Original from Damian Cummins: https://github.com/DamianCummins/statsbomb-football-event-visualisations/blob/master/Statsbomb%20Womens%20World%20Cup%202019%20visualisation.ipynb
-    
-    Adapted by: P. Palma-Bifani
+    Class to create Radar plots with asymmetric error bars.
+
+    Author: Paulina Palma-Bifani
+            Adapted from Damian Cummins: https://github.com/DamianCummins/statsbomb-football-event-visualisations/blob/master/Statsbomb%20Womens%20World%20Cup%202019%20visualisation.ipynb
+   
     '''
 
     def __init__(self, fig, variables, ranges, n_ordinate_levels=6):
+        '''
+        Initialize class.
+        
+        Args:
+            fig               (object): matplotlib figure object
+            variables           (list): list of parameters to plot
+            ranges       (list(tuple)): upper and lower limits for each parameters
+            n_ordinate_levels    (int): (default = 6) number of gridlines in the plot
+        Returns:
+            None   
+        '''
         angles = np.arange(0, 360, 360./len(variables))
 
         axes = [fig.add_axes([0.1,0.1,0.9,0.9], polar=True, label = "axes{}".format(i)) for i in range(len(variables))]
@@ -97,20 +102,61 @@ class ComplexRadar():
         self.ax = axes[0]
 
     def plot(self, data, *args, **kw):
+        '''
+        Function to display the plot.
+        
+        Args:
+            data       (list): best value for each parameter
+        Args opt:
+            *arg, **kw
+        Returns:
+            None
+        '''
         sdata = self.scale_data(data, self.ranges)
         self.ax.plot(self.angle, np.r_[sdata, sdata[0]], *args, **kw)
 
     def fill(self, data, *args, **kw):
+        '''
+        Add symmetric error bars to the plot.
+        
+        Args:
+            data       (list): best value for each parameter
+        Args opt:
+            *arg, **kw
+        Returns:
+            None
+        '''
         sdata = self.scale_data(data, self.ranges)
         self.ax.fill(self.angle, np.r_[sdata, sdata[0]], *args, **kw)
     
     def fill_between(self, list_down, list_up, *args, **kw):
+        '''
+        Add asymmetric error bars to the plot.
+        
+        Args:
+            list_down (list): list of lower error bars
+            list_up   (list): list of upper error bars
+        Args opt:
+            *arg, **kw
+        Returns:
+            None
+        '''
         sdata_down = self.scale_data(list_down, self.ranges)
         sdata_up = self.scale_data(list_up, self.ranges)
         self.ax.fill_between(self.angle,np.r_[sdata_down,sdata_down[0]], np.r_[sdata_up,sdata_up[0]], *args, **kw)
 
     def scale_data(self, data, ranges):
-        """scales data[1:] to ranges[0]"""
+        '''
+        Function to check that lower and upper limits are correctly ordered. It scales data[1:] to ranges[0]
+
+        Args:
+            data              (list): best value for each parameter
+            ranges     (list(tuple)): upper and lower limits for each parameters
+        Args opt:
+            *arg, **kw
+        Returns:
+            None
+        '''
         for d, (y1, y2) in zip(data[1:], ranges[1:]):
             assert (y1 <= d <= y2) or (y2 <= d <= y1)
         x1, x2 = ranges[0]
@@ -129,46 +175,47 @@ class ComplexRadar():
 # ----------------------------------------------------------------------------------------------------------------------
 class PlottingForMoSA():
     '''
-    Here all the plotting functionalities of ForMoSA to see the 
+    Class containing all the plotting functionalities of ForMoSA.
 
-    Author: Paulina Palma-Bifani 
+    Author: Paulina Palma-Bifani, Simon Petrus, Matthieu Ravet and Allan Denis
     '''
 
     def __init__(self, config_file_path, color_out):
         '''
-        Plotting class initializer
+        Initialize class by inheriting the global parameter class of ForMoSA.
+
+        Args:
+            config_file_path   (str): path to the config.ini file currently used
+            color_out          (str): color to use for the model
+        Returns:
+            None
         '''
         
         self.global_params = GlobFile(config_file_path)  
         self.color_out     = color_out
 
 
-
     def _get_posteriors(self):
         '''
-        Function to get the posteriors, including luminosity derivation and corvengence parameters logz
+        Function to get the posteriors, including luminosity derivation and Bayesian evidence logz.
 
-        (Adapted from Simon Petrus plotting functions)
+        Args:
+            None
+        Returns:
+            None
         '''
         with open(self.global_params.result_path + '/result_' + self.global_params.ns_algo + '.pic', 'rb') as open_pic:
             result = pickle.load(open_pic)
-        # self.samples = result.samples
         self.samples = result['samples']
-        # self.weights = result.weights
         self.weights = result['weights']
 
         # To test the quality of the fit
-        # self.logl=result.logl
         self.logl=result['logl']
         ind = np.where(self.logl==max(self.logl))
         self.theta_best = self.samples[ind][0]
 
-        # self.sample_logz    = round(result['logz'],1)
-        # self.sample_logzerr = round(result['logzerr'],1)
         self.sample_logz    = round(result['logz'][0],1)
         self.sample_logzerr = round(result['logz'][1],1)
-        # self.sample_h       = round(result['h'],1)
-        # self.outputs_string = 'logz = '+ str(self.sample_logz)+' ± '+str(self.sample_logzerr)+ ' ; h = '+str(self.sample_h)
         self.outputs_string = 'logz = '+ str(self.sample_logz)+' ± '+str(self.sample_logzerr)
 
         ds = xr.open_dataset(self.global_params.model_path, decode_cf=False, engine='netcdf4')
@@ -291,7 +338,15 @@ class PlottingForMoSA():
 
     def plot_corner(self, levels_sig=[0.997, 0.95, 0.68], bins=100, quantiles=(0.16, 0.5, 0.84), burn_in=0):
         '''
-        See the corner plots
+        Function to display the corner plot
+
+        Args:
+            levels_sig    (list): (default = [0.997, 0.95, 0.68]) 1, 2 and 3 sigma contour levels of the corner plot
+            bins           (int): (default = 100) number of bins for the posteriors
+            quantiles     (list): (default = (0.16, 0.5, 0.84)) mean +- sigma to report the posterior values
+            burn_in        (int): (default = 0) number of steps to remove from the plot
+        Returns:
+            fig         (object): matplotlib figure object
         '''
         print('ForMoSA - Corner plot')
 
@@ -323,10 +378,15 @@ class PlottingForMoSA():
         return fig
 
 
-    def plot_chains(self,figsize=(7,15)):
+    def plot_chains(self, figsize=(7,15)):
         '''
-        To check the convergence of the chains
+        Plot to check the convergence of the posterior chains.
+        Multiple (sub-)axis plot.
 
+        Args:
+            figsize     (tuple): (default = (7, 15)) size of the plot
+        Returns:
+            fig, axs    (object, object): matplotlib figure and axes objects
         '''
         print('ForMoSA - Posteriors chains for each parameter')
 
@@ -352,12 +412,18 @@ class PlottingForMoSA():
         return fig, axs
 
 
-    def plot_radar(self,ranges,label='',quantiles=[0.16, 0.5, 0.84],chiffres=[0,2,2,2]):
+    def plot_radar(self, ranges, label='', quantiles=[0.16, 0.5, 0.84]):
         '''
-        To check overall the distribution of the parameters 
+        Radar plot to check the distribution of the parameters.
+        Useful to compare different models.
 
-        Inputs:
-        ranges
+        Args:
+            ranges     (list(tuple)): upper and lower limits for each parameters
+            label              (str): (default = '') label of the plot
+            quantiles         (list): (default = (0.16, 0.5, 0.84)) mean +- sigma to report the posterior values
+        Returns:
+             fig, radar.ax    (object, object): matplotlib figure and radar class object       
+
         '''
         print('ForMoSA - Radar plot')
 
@@ -373,23 +439,30 @@ class PlottingForMoSA():
             list_uncert_down.append(q16)
             list_uncert_up.append(q84)
 
-        fig1 = plt.figure(figsize=(6, 6))
-        radar = ComplexRadar(fig1, self.posteriors_names, ranges)
+        fig = plt.figure(figsize=(6, 6))
+        radar = ComplexRadar(fig, self.posteriors_names, ranges)
 
         radar.plot(list_posteriors, 'o-', color=self.color_out, label=label)
         radar.fill_between(list_uncert_down,list_uncert_up, color=self.color_out, alpha=0.2)
 
         radar.ax.legend(loc='center', bbox_to_anchor=(0.5, -0.20),frameon=False, ncol=2)
 
-        return fig1, radar.ax
+        return fig, radar.ax
 
 
     def _get_spectra(self,theta):
         '''
-        To get the data and best model asociated 
-        Use numba: https://numba.pydata.org/
+        Function to get the data and best model asociated.
 
-        (Adapted from Simon Petrus)
+        Args:
+            theta                   (list): best parameter values
+        Returns:
+            modif_spec_chi2  list(n-array): list containing the spectroscopic wavelength, spectroscopic fluxes of the data, 
+                                            spectroscopic errors of the data, spectroscopic fluxes of the model, 
+                                            photometric wavelength, photometric fluxes of the data, photometric errors of the data, 
+                                            spectroscopic fluxes of the model,
+                                            planet transmission, star fluxes, systematics
+            ck                list(floats): list scaling factor(s)
         '''
         # Get the posteriors
         self._get_posteriors()
@@ -492,24 +565,21 @@ class PlottingForMoSA():
         return modif_spec_chi2, ck
     
 
-    def get_FULL_spectra(self, theta, grid_used = 'original', wavelengths=[], res_out=1000, re_interp=False, int_method="linear"):
+    def get_FULL_spectra(self, theta, grid_used = 'original', wavelengths=[], N_points=1000, re_interp=False, int_method="linear"):
         '''
-        To get the data and best model asociated 
-        Use numba: https://numba.pydata.org/.
+        Extract a model spectrum from another grid.
 
         Args:
-            theta:          List of model and extra-model parameters.
-            grid_used:      Default 'original' will use the raw grid. Else, input the path to your desired grid.
-            wavelengths:    Default [] will use max values of the wav_for_adapt range to create a model spectrum.
-                            Else, input the desired wavelength range.
-            res_out:        Default 1000 will be the resolution of your model spectrum. Else, input the desired resolution.
-            re_interp:      Default False. If true, will re-interpolate the grid's hole (WARNING, time consumming...).
-            int_method:     Default "linear" will be the interpolation method use for the grid. Else, input the desired interpolation method.
+            theta:                       (list): best parameter values
+            grid_used:                    (str): (default = 'original') Path to the grid from where to extract the spectrum. If 'original', the current grid will be used.
+            wavelengths:                 (list): (default = []) Desired wavelength range. If [] max and min values of wav_for_adapt range will be use to create the wavelength range.
+            N_points:                     (int): (default = 1000) Number of points.
+            re_interp:                (boolean): (default = False). Option to reinterpolate or not the grid.
+            int_method:                   (str): (default = "linear") Interpolation method for the grid (if reinterpolated).
         Returns:   
-            fig, ax, axr, axr2
-
-
-        Authors: Paulina Palma-Bifani and Matthieu Ravet
+            wav_final                   (array): Wavelength array of the full model
+            flx_final                   (array): Flux array of the full model
+            ck                          (float): Scaling factor of the full model
         '''
         self._get_posteriors()
 
@@ -523,9 +593,9 @@ class PlottingForMoSA():
                 else:
                     wav = np.concatenate((wav, wav_ind))
             wav = np.sort(wav)
-            wavelengths = np.linspace(wav[0],wav[-1],res_out)
+            wavelengths = np.linspace(wav[0],wav[-1],N_points)
         else:
-            wavelengths = np.linspace(wavelengths[0],wavelengths[-1],res_out)
+            wavelengths = np.linspace(wavelengths[0],wavelengths[-1],N_points)
 
         # Recover the original grid
         if grid_used == 'original':
@@ -584,16 +654,14 @@ class PlottingForMoSA():
         Plot the best fit comparing with the data.
 
         Args:
-            figsize:    x/y size of the plot
-            uncert:     'yes' or 'no' to plot spectra with associated error bars
-            trans:      'yes' or 'no' to plot transmision curves for photometry
-            logx:       'yes' or 'no' to plot the wavelength in log scale
-            logy:       'yes' or 'no' to plot the flux in log scale
-            norm:       'yes' or 'no' to plot the normalized spectra
+            figsize    (tuple): (default = (10, 5)) Size of the plot
+            uncert     (str): (default = no) 'yes' or 'no' to plot spectra with associated error bars
+            trans      (str): (default = no) 'yes' or 'no' to plot transmision curves for photometry
+            logx       (str): (default = no) 'yes' or 'no' to plot the wavelength in log scale
+            logy       (str): (default = no) 'yes' or 'no' to plot the flux in log scale
+            norm       (str): (default = no) 'yes' or 'no' to plot the normalized spectra
         Returns:
-            fig, ax, axr, axr2
-
-        Author: Paulina Palma-Bifani and Matthieu Ravet
+            fig, ax, axr, axr2   (object, object, object, object): matplotlib figure and axes objects
         '''
         print('ForMoSA - Best fit and residuals plot')
 
@@ -689,8 +757,6 @@ class PlottingForMoSA():
                     
                     iobs_photo = -1
                     
-                    
-
         # Set xlog-scale
         if logx == 'yes':
             ax.set_xscale('log')
@@ -714,26 +780,23 @@ class PlottingForMoSA():
             
         # define the data as global
         self.spectra = spectra
-        #self.residuals = residuals
 
         return fig, ax, axr, axr2
     
     
     def plot_fit_HiRes(self, figsize=(10, 5), uncert='no', trans='no', logx='no', logy='no', norm='no'):
         '''
-        Plot the best fit comparing with the data.
+        Same as plot_fit but with the stellar and planetary models for high-resolution spectroscopy. Does not include residuals in a sub-axis.
 
         Args:
-            figsize:    x/y size of the plot
-            uncert:     'yes' or 'no' to plot spectra with associated error bars
-            trans:      'yes' or 'no' to plot transmision curves for photometry
-            logx:       'yes' or 'no' to plot the wavelength in log scale
-            logy:       'yes' or 'no' to plot the flux in log scale
-            norm:       'yes' or 'no' to plot the normalized spectra
+            figsize    (tuple): (default = (10, 5)) Size of the plot
+            uncert     (str): (default = no) 'yes' or 'no' to plot spectra with associated error bars
+            trans      (str): (default = no) 'yes' or 'no' to plot transmision curves for photometry
+            logx       (str): (default = no) 'yes' or 'no' to plot the wavelength in log scale
+            logy       (str): (default = no) 'yes' or 'no' to plot the flux in log scale
+            norm       (str): (default = no) 'yes' or 'no' to plot the normalized spectra
         Returns:
-            fig, ax, axr, axr2
-
-        Author: Paulina Palma-Bifani and Matthieu Ravet
+            fig, ax   (object, object): matplotlib figure and axes objects
         '''
         print('ForMoSA - Best fit and residuals plot')
 
@@ -824,32 +887,25 @@ class PlottingForMoSA():
         ax1.set_xlabel('wavelength ($ \mu $m)')
         
         fig1.legend()
-        #ax.legend(frameon=False)
         plt.figure(fig1)
         plt.savefig(self.global_params.result_path + 'full_data.pdf')
 
         # define the data as global
         self.spectra = spectra
-        #self.residuals = residuals
 
         return fig1, ax1
     
     
-    def plot_HiRes_comp_model(self, figsize=(10, 5), trans='no', logx='no', logy='no', norm='no', data_resolution = 0):
+    def plot_HiRes_comp_model(self, figsize=(10, 5), norm='no', data_resolution = 0):
         '''
-        Plot the best fit comparing with the data.
+        Specific function to plot the best fit comparing with the data for high-resolution spectroscopy.
 
         Args:
-            figsize:    x/y size of the plot
-            uncert:     'yes' or 'no' to plot spectra with associated error bars
-            trans:      'yes' or 'no' to plot transmision curves for photometry
-            logx:       'yes' or 'no' to plot the wavelength in log scale
-            logy:       'yes' or 'no' to plot the flux in log scale
-            norm:       'yes' or 'no' to plot the normalized spectra
+            figsize             (tuple): (default = (10, 5)) Size of the plot
+            norm                  (str): (default = no) 'yes' or 'no' to plot the normalized spectra
+            data_resolution       (int): (default = 0) Custom resolution to broadened data
         Returns:
-            fig, ax, axr, axr2
-
-        Author: Paulina Palma-Bifani and Matthieu Ravet
+            fig1, ax1  (object, object): matplotlib figure and axes objects
         '''
         print('ForMoSA - Planet model and data')
        
@@ -864,7 +920,6 @@ class PlottingForMoSA():
         pdf = PdfPages(self.global_params.result_path + 'PLanet_model_and_data_resolution_degraded.pdf')
         plt.ioff()
         
-
 
         for indobs, obs in enumerate(sorted(glob.glob(self.global_params.main_observation_path))):
             
@@ -935,10 +990,26 @@ class PlottingForMoSA():
         return fig1, ax1
     
     
-    def plot_ccf(self, rv_grid = [-300,300], rv_step = 0.5, figsize = (10,5), norm = 'no', window_normalisation = 100, model_spectra = [], model_wavelength = [], model_resolution = [], data_resolution = 0, model_name = 'Full', rv_cor=0):
+    def plot_ccf(self, figsize = (10,5), rv_grid = [-300,300], rv_step = 0.5, window_normalisation = 100, model_wavelength = [], model_spectra = [], model_resolution = [], model_name = 'Full', rv_cor=0):
         '''
-        Plot the ccf (used for high resolution data such as CRIRES+ / HiRISE)
-        
+        Plot the cross-correlation function. It is used for high resolution spectroscopy.
+
+        Args:
+            figsize                   (tuple): (default = (10, 5)) Size of the plot
+            rv_grid                    (list): (default = [-300,300]) Maximum and minumum values of the radial velocity shift (in km/s)
+            rv_step                   (float): (default = 0.5) Radial velocity shift steps (in km/s)
+            window_normalisation        (int): (default = 100) ?
+            model_wavelength           (list): (default = []) ?
+            model_spectra =            (list): (default = []) ?
+            model_resolution           (list): (default = []) ?
+            model_name                  (str): (default = 'Full') ?
+            rv_cor                      (int): (default = 0) ?
+        Returns:
+            fig1, ax1        (object, object): Matplotlib figure and axes objects
+            rv_grid                    (list): Radial velocity grid
+            ccf                        (list): Cross-correlation function
+            acf                        (list): Auto-correlation function  
+
         Author: Allan Denis
         '''
         print('ForMoSA - CCF plot')
@@ -1025,11 +1096,6 @@ class PlottingForMoSA():
         ccf_norm = ccf - np.median(ccf[(np.abs(rv_grid-rv_grid[np.argmax(ccf)]) > window_normalisation)])
         ccf_noise = np.std(ccf_norm[(np.abs(rv_grid-rv_grid[np.argmax(ccf)]) > window_normalisation)])
         ccf_norm = ccf_norm / ccf_noise
-        #sigma_ccf = sigma_ccf / ccf_noise
-        
-        half_heigt = np.max(acf_norm) / 2
-        ind_FWHM = acf_norm >= half_heigt
-        FWHM = rv_grid[ind_FWHM] + rv_grid[np.argmax(ccf_norm)]
         
         # Rescaling autocorrelation function to make comparable with cross-correlation function
         acf_norm = acf_norm / np.max(acf_norm) * np.max(ccf_norm)
@@ -1045,16 +1111,22 @@ class PlottingForMoSA():
         plt.figure(fig1)
         plt.savefig(self.global_params.result_path + 'ccf_' + model_name + '.pdf')
 
-        return rv_grid, ccf, acf
+        return fig1, ax1, rv_grid, ccf, acf
     
-    def plot_PT(self,path_temp_profile, figsize=(6,5), model = 'ExoREM'):
+
+
+    
+    def plot_PT(self, path_temp_profile, figsize=(6,5), model = 'ExoREM'):
         '''
-        Plot the Pressure-Temperature profiles 
-        Calculates the most probable temperature profile
+        Function to plot the Pressure-Temperature profiles.
+        Adpated from Nathan Zimniak.
 
-        Return: fig, ax
-
-        Author: Nathan Zimniak and Paulina Palma-Bifani
+        Args:
+            path_temp_profile    (str): Path to the temperature profile grid
+            figsize            (tuple): (default = (6, 5)) Size of the plot
+            model                (str): (default = 'ExoREM') Name of the model grid
+        Returns:
+            fig, ax (object, object): Matplotlib figure and axes objects
         '''
         print('ForMoSA - Pressure-Temperature profile')
 
@@ -1149,34 +1221,33 @@ class PlottingForMoSA():
 
     def plot_Clouds(self, cloud_prop, path_cloud_profile, figsize=(6,5)):
         ''' 
-        Cloud profiles calculations
+        Function to plot cloud profiles.
+        Adapted from Nathan Zimniak
 
-        Inputs: 
-        - cloud_prop (str) : choose the cloud 
-               'eddy_diffusion_coefficient',
-               'vmr_CH4',
-               'vmr_CO',
-               'vmr_CO2',
-               'vmr_FeH',
-               'vmr_H2O',
-               'vmr_H2S',
-               'vmr_HCN',
-               'vmr_K',
-               'vmr_Na',
-               'vmr_NH3',
-               'vmr_PH3',
-               'vmr_TiO',
-               'vmr_VO',
-               'cloud_opacity_Fe',
-               'cloud_opacity_Mg2SiO4',
-               'cloud_particle_radius_Fe',
-               'cloud_particle_radius_Mg2SiO4',
-               'cloud_vmr_Fe',
-               'cloud_vmr_Mg2SiO4'
-        
-        Return: fig, ax
-
-        Author: Nathan Zimniak and Paulina Palma-Bifani
+        Args: 
+            cloud_prop (str) : Choose the cloud species. The options are
+                                ['eddy_diffusion_coefficient',
+                                'vmr_CH4',
+                                'vmr_CO',
+                                'vmr_CO2',
+                                'vmr_FeH',
+                                'vmr_H2O',
+                                'vmr_H2S',
+                                'vmr_HCN',
+                                'vmr_K',
+                                'vmr_Na',
+                                'vmr_NH3',
+                                'vmr_PH3',
+                                'vmr_TiO',
+                                'vmr_VO',
+                                'cloud_opacity_Fe',
+                                'cloud_opacity_Mg2SiO4',
+                                'cloud_particle_radius_Fe',
+                                'cloud_particle_radius_Mg2SiO4',
+                                'cloud_vmr_Fe',
+                                'cloud_vmr_Mg2SiO4']
+        Returns:
+            fig, ax (object, object): Matplotlib figure and axes objects
         '''
         print('ForMoSA - Cloud profile')
         
@@ -1227,7 +1298,7 @@ class PlottingForMoSA():
             propsup95.append(np.percentile(cloud_prop_profiles[:, i], 98))
 
         # Plot le profil le plus probable et les percentiles associés
-        fig = plt.figure()
+        fig = plt.figure(figsize=figsize)
         ax = plt.axes()
 
         ax.fill_betweenx(P, propinf95, propsup95, color=self.color_out, alpha=0.1, label=r'2 $\sigma$')

@@ -3,13 +3,13 @@ import numpy as np
 def logL_chi2_classic(delta_flx, err):
     """
     Function to compute logL based on the classical chi2
-    under the assumption of gaussian and spectrally uncorrelated noise
+    under the assumption of gaussian and spectrally uncorrelated noise.
     
     Args:
-        delta_flx   : residual data-model as a function of wavelength
-        err         : error (=standard deviation) of the observed spectrum as a function of wavelength
+        delta_flx   (array): residual data-model as a function of wavelength
+        err         (array): error (=standard deviation) of the observed spectrum as a function of wavelength
     Returns:
-        logL        : the loglikelihood value
+        logL        (float): the loglikelihood value
         
     Author: Matthieu Ravet
     """
@@ -23,13 +23,13 @@ def logL_chi2_classic(delta_flx, err):
 def logL_chi2_covariance(delta_flx, inv_cov):
     """
     Function to compute logL based on the generalized chi2
-    under the assumption of gaussian and spectrally correlated noise
+    under the assumption of gaussian and spectrally correlated noise.
     
     Args:
-        delta_flx   : residual data-model as a function of wavelength
-        inv_cov     : inverse of the covariance matrix of the observed spectrum as a function of wavelength
+        delta_flx   (array): residual data-model as a function of wavelength
+        inv_cov     (n-array): inverse of the covariance matrix of the observed spectrum as a function of wavelength
     Returns:
-        logL        : the loglikelihood value
+        logL        (float): the loglikelihood value
         
     Author: Matthieu Ravet
     """
@@ -43,13 +43,13 @@ def logL_chi2_covariance(delta_flx, inv_cov):
 def logL_chi2_extended(delta_flx, err):
     """
     Function to compute logL based on the extended chi2
-    under the assumption of gaussian and spectrally uncorrelated noise
+    under the assumption of gaussian and spectrally uncorrelated noise.
     
     Args:
-        delta_flx   : residual data-model as a function of wavelength
-        err         : error (=standard deviation) of the observed spectrum as a function of wavelength
+        delta_flx   (array): residual data-model as a function of wavelength
+        err         (array): error (=standard deviation) of the observed spectrum as a function of wavelength
     Returns:
-        logL        : the loglikelihood value
+        logL        (float): the loglikelihood value
         
     Author: Allan Denis
     """
@@ -65,13 +65,13 @@ def logL_chi2_extended(delta_flx, err):
 def logL_chi2_extended_covariance(delta_flx, inv_cov):
     """
     Function to compute logL based on the extended chi2
-    under the assumption of gaussian and spectrally uncorrelated noise
+    under the assumption of gaussian and spectrally uncorrelated noise.
     
     Args:
-        delta_flx   : residual data-model as a function of wavelength
-        err         : error (=standard deviation) of the observed spectrum as a function of wavelength
+        delta_flx   (array): residual data-model as a function of wavelength
+        err         (array): error (=standard deviation) of the observed spectrum as a function of wavelength
     Returns:
-        logL        : the loglikelihood value
+        logL        (float): the loglikelihood value
         
     Author: Allan Denis
     """
@@ -89,13 +89,13 @@ def logL_full_covariance(delta_flx, inv_cov):
     """
     Function to compute logL under the assumption of gaussian and spectrally correlated noise.
     This function is a generalized version of the logL_chi2_covariance and is to be used when dealing
-    with GP extimation of the covariance matrix
+    with GP extimation of the covariance matrix.
     
     Args:
-        delta_flx   : residual data-model as a function of wavelength
-        inv_cov     : inverse of the covariance matrix of the observed spectrum as a function of wavelength
+        delta_flx   (array): residual data-model as a function of wavelength
+        inv_cov     (n-array): inverse of the covariance matrix of the observed spectrum as a function of wavelength
     Returns:
-        logL        : the loglikelihood value
+        logL        (float): the loglikelihood value
         
     Author: Matthieu Ravet
     """
@@ -108,13 +108,13 @@ def logL_full_covariance(delta_flx, inv_cov):
 def logL_CCF_Brogi(flx_obs, flx_mod):
     """
     Function to compute logL based on the CCF mapping from Brogi et al. 2019
-    under the assumption of gaussian and spectrally constant noise
+    under the assumption of gaussian and spectrally constant noise.
     
     Args:
-        flx_obs     : flux of the observation as a function of wavelength
-        flx_mod     : flux of the model as a function of wavelength
+        flx_obs     (array): flux of the observation as a function of wavelength
+        flx_mod     (array): flux of the model as a function of wavelength
     Returns:
-        logL        : the loglikelihood value
+        logL        (float): the loglikelihood value
         
     Author: Matthieu Ravet
     """
@@ -132,13 +132,13 @@ def logL_CCF_Brogi(flx_obs, flx_mod):
 def logL_CCF_Zucker(flx_obs, flx_mod):
     """
     Function to compute logL based on the CCF mapping from Zucker 2003
-    under the assumption of gaussian and spectrally constant noise
+    under the assumption of gaussian and spectrally constant noise.
     
     Args:
-        flx_obs : flux of the observation as a function of wavelength
-        flx_mod : flux of the model as a function of wavelength
+        flx_obs     (array): flux of the observation as a function of wavelength
+        flx_mod     (array): flux of the model as a function of wavelength
     Returns:
-        logL    : the loglikelihood value
+        logL        (array): the loglikelihood value
         
     Author: Matthieu Ravet
     """
@@ -157,14 +157,14 @@ def logL_CCF_Zucker(flx_obs, flx_mod):
 def logL_CCF_custom(flx_obs, flx_mod, err_obs):
     """
     Function to compute logL based on the custom CCF mapping from Me
-    under the assumption of gaussian and spectrally constant noise
+    under the assumption of gaussian and spectrally constant noise.
     
     Args:
-        flx_obs : flux of the observation as a function of wavelength
-        flx_mod : flux of the model as a function of wavelength
-        err_obs : errors of the observation as a function of wavelength
+        flx_obs     (array): flux of the observation as a function of wavelength
+        flx_mod     (array): flux of the model as a function of wavelength
+        err_obs     (array): errors of the observation as a function of wavelength
     Returns:
-        logL    : the loglikelihood value
+        logL        (float): the loglikelihood value
         
     Author: Matthieu Ravet
     """

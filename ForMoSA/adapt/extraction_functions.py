@@ -5,7 +5,6 @@ from scipy.ndimage import gaussian_filter
 from scipy.interpolate import interp1d
 from spectres import spectres
 import os
-import matplotlib.pyplot as plt
 # ----------------------------------------------------------------------------------------------------------------------
 
 
@@ -74,7 +73,7 @@ def extract_observation(global_params, wav_mod_nativ, res_mod_nativ, cont='no', 
         obs_opt          (n-array): List containing the optional sub-arrays defined by the parameter "wav_for_adapt".
                                     [[cov_1, tran_1, star_1], ..., [cov_n, tran_n, star_n]]  
 
-    Author: Simon Petrus / Adapted: Matthieu Ravet
+    Author: Simon Petrus, Matthieu Ravet
     """
 
     # Extract the wavelengths, flux, errors, spectral resolution, and instrument/filter names from the observation file.
@@ -411,7 +410,7 @@ def convolve_and_sample(wv_channels, sigmas_wvs, model_wvs, model_fluxes, num_si
 # ----------------------------------------------------------------------------------------------------------------------
 
 
-def resolution_decreasing(global_params, wav_obs, flx_obs, res_obs, wav_mod_nativ, flx_mod_nativ, res_mod_obs, obs_or_mod, obs_name='', indobs=0):
+def resolution_decreasing(global_params, wav_obs, flx_obs, res_obs, wav_mod_nativ, flx_mod_nativ, res_mod_obs, obs_or_mod, indobs=0):
     """
     Decrease the resolution of a spectrum (data or model). The function calculates the FWHM as a function of the
     wavelengths for the data, the model, and for a custom spectral resolution (optional) and estimates the highest one
@@ -428,12 +427,11 @@ def resolution_decreasing(global_params, wav_obs, flx_obs, res_obs, wav_mod_nati
         flx_mod_nativ  (array): Flux of the model
         res_mod_obs    (array): Spectral resolution of the model as a function of the wavelength grid of the data
         obs_or_mod       (str): Parameter to identify if you want to manage a data or a model spectrum. 'obs' or 'mod'
-        obs_name         (str): Name of the current observation looping
         indobs           (int): Index of the current observation looping
     Returns:
         flx_obs_final  (array): Flux of the spectrum with a decreased spectral resolution, re-sampled on the data wavelength grid
 
-    Author: Simon Petrus / Adapted: Matthieu Ravet
+    Author: Simon Petrus, Matthieu Ravet
     """
     # Estimate of the FWHM of the data as a function of the wavelength
     fwhm_obs = 2 * wav_obs / res_obs
@@ -463,7 +461,7 @@ def resolution_decreasing(global_params, wav_obs, flx_obs, res_obs, wav_mod_nati
 # ----------------------------------------------------------------------------------------------------------------------
 
 
-def continuum_estimate(global_params, wav, flx, res, obs_name='', indobs=0):
+def continuum_estimate(global_params, wav, flx, res, indobs=0):
     """
     Decrease the resolution of a spectrum (data or model). The function calculates the FWHM as a function of the
     wavelengths of the custom spectral resolution (estimated for the continuum). It then calculates a sigma to decrease
@@ -475,12 +473,11 @@ def continuum_estimate(global_params, wav, flx, res, obs_name='', indobs=0):
         wav            (array): Wavelength grid of the spectrum for which you want to estimate the continuum
         flx            (array): Flux of the spectrum for which you want to estimate the continuum
         res              (int): Spectral resolution of the spectrum for which you want to estimate the continuum
-        obs_name         (str): Name of the current observation looping
         indobs           (int): Index of the current observation looping
     Returns:
         continuum      (array): Estimated continuum of the spectrum re-sampled on the data wavelength grid
 
-    Author: Simon Petrus / Adapted: Matthieu Ravet
+    Author: Simon Petrus, Matthieu Ravet
 
     """
 
