@@ -92,10 +92,10 @@ def extract_observation(global_params, wav_mod_nativ, res_mod_nativ, cont='no', 
             # If we want to decrease the resolution of the data: (if by_sample, the data don't need to be adapted)
             if global_params.adapt_method[indobs] == 'by_reso':
                 obs_spectro[c][1] = resolution_decreasing(global_params, cut[0], cut[1], cut[3], wav_mod_nativ, [], res_mod_obs,
-                                                    'obs', obs_name=obs_name, indobs=indobs)
+                                                    'obs', indobs=indobs)
             if cont == 'yes':
             # If we want to estimate and substract the continuum of the data:
-                obs_spectro[c][1] -= continuum_estimate(global_params, cut[0], cut[1], cut[3], obs_name=obs_name, indobs=indobs)
+                obs_spectro[c][1] -= continuum_estimate(global_params, cut[0], cut[1], cut[3], indobs=indobs)
                 
     return obs_spectro, obs_photo, obs_spectro_ins, obs_photo_ins, obs_opt
 
@@ -330,13 +330,13 @@ def extract_model(global_params, wav_mod_nativ, flx_mod_nativ, res_mod_obs_merge
             # If we want to decrease the resolution of the data:
             if global_params.adapt_method[indobs] == 'by_reso':
                 mod_cut_flx = resolution_decreasing(global_params, cut[0], [], cut[3], wav_mod_nativ, flx_mod_nativ, res_mod_obs_merge[c],
-                                                    'mod', obs_name=obs_name, indobs=indobs)
+                                                    'mod', indobs=indobs)
             else:
                 mod_cut_flx = spectres(cut[0], wav_mod_nativ, flx_mod_nativ)
 
             # If we want to estimate the continuum of the data:
             if cont == 'yes':     
-                continuum = continuum_estimate(global_params, cut[0], mod_cut_flx, res_mod_obs_merge[c], obs_name=obs_name, indobs=indobs)
+                continuum = continuum_estimate(global_params, cut[0], mod_cut_flx, res_mod_obs_merge[c], indobs=indobs)
                 mod_cut_flx -= continuum
 
             # Concatenate to speed up the code
