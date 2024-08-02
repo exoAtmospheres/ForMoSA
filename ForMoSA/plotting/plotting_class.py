@@ -107,8 +107,8 @@ class ComplexRadar():
         
         Args:
             data       (list): best value for each parameter
-        Args opt:
-            *arg, **kw
+            *args           : Variable length argument list.
+            **kw            : Arbitrary keyword arguments.
         Returns:
             None
         '''
@@ -121,8 +121,8 @@ class ComplexRadar():
         
         Args:
             data       (list): best value for each parameter
-        Args opt:
-            *arg, **kw
+            *args           : Variable length argument list.
+            **kw            : Arbitrary keyword arguments.
         Returns:
             None
         '''
@@ -136,8 +136,8 @@ class ComplexRadar():
         Args:
             list_down (list): list of lower error bars
             list_up   (list): list of upper error bars
-        Args opt:
-            *arg, **kw
+            *args           : Variable length argument list.
+            **kw            : Arbitrary keyword arguments.
         Returns:
             None
         '''
@@ -152,8 +152,8 @@ class ComplexRadar():
         Args:
             data              (list): best value for each parameter
             ranges     (list(tuple)): upper and lower limits for each parameters
-        Args opt:
-            *arg, **kw
+            *args           : Variable length argument list.
+            **kw            : Arbitrary keyword arguments.
         Returns:
             None
         '''

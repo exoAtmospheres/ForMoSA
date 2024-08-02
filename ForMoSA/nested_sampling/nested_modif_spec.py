@@ -21,11 +21,12 @@ def lsq_fct(flx_obs_spectro, err_obs_spectro, star_flx_obs, transm_obs, flx_mod_
         system_obs       (n-array): Systematics of the data (spectroscopy)
         flx_mod_spectro    (array): Flux of interpolated synthetic spectrum (spectroscopy)
     Returns:
-        cp                 (array): Planetary contribution to the data (Spectroscopy)
-        cs                 (array): Stellar contribution to the data (Spectroscopy)
-        flx_mod_spectro    (array): New model of the companion 
-        flx_obs_spectro    (array): New flux of the data
-        star_flx_obs     (n-array): New star flux of the data
+        array           : (cp) Planetary contribution to the data (Spectroscopy)
+        array           : (cs) Stellar contribution to the data (Spectroscopy)
+        array           : (flx_mod_spectro) New model of the companion 
+        array           : (flx_obs_spectro) New flux of the data
+        n-array         : (star_flx_obs) New star flux of the data
+        array           : (systematics)
 
     Author : Allan Denis
 
@@ -107,9 +108,9 @@ def calc_ck(flx_obs_spectro, err_obs_spectro, flx_mod_spectro, flx_obs_photo, er
         alpha            (float): Manual scaling factor (set to 1 by default) such that ck = alpha * (r/d)²
         analytic           (str): = 'yes' if Ck needs to be calculated analytically by the formula from Cushing et al. (2008)
     Returns:
-        flx_mod_spectro  (array): Re-normalysed model spectrum
-        flx_mod_photo    (array): Re-normalysed model photometry
-        ck               (float): Ck calculated
+        array           : (flx_mod_spectro) Re-normalysed model spectrum
+        array           : (flx_mod_photo) Re-normalysed model photometry
+        float           : (ck) Ck calculated
 
     Author: Simon Petrus
     """
@@ -158,10 +159,10 @@ def doppler_fct(wav_obs_spectro, flx_obs_spectro, err_obs_spectro, flx_mod_spect
         flx_mod_spectro      (array): Flux of the interpolated synthetic spectrum
         rv_picked            (float): Radial velocity randomly picked by the nested sampling (in km.s-1)
     Returns:
-        wav_obs_spectro      (array): New wavelength grid of the data
-        flx_obs_spectro      (array): New flux of the data
-        err_obs_spectro      (array): New error of the data
-        flx_post_doppler     (array): New flux of the interpolated synthetic spectrum
+        array                       : (wav_obs_spectro) New wavelength grid of the data
+        array                       : (flx_obs_spectro) New flux of the data
+        array                       : (err_obs_spectro) New error of the data
+        array                       : (flx_post_doppler) New flux of the interpolated synthetic spectrum
 
     Author: Simon Petrus
     """
@@ -186,8 +187,8 @@ def reddening_fct(wav_obs_spectro, wav_obs_photo, flx_mod_spectro, flx_mod_photo
         flx_mod_photo    (array): Flux of the interpolated synthetic spectrum (photometry)
         av_picked        (float): Extinction randomly picked by the nested sampling (in mag)
     Returns:
-        flx_mod_spectro  (array): New flux of the interpolated synthetic spectrum (spectroscopy)
-        flx_mod_photo    (array): New flux of the interpolated synthetic spectrum (photometry)
+        array                   : (flx_mod_spectro) New flux of the interpolated synthetic spectrum (spectroscopy)
+        array                   : (flx_mod_photo) New flux of the interpolated synthetic spectrum (photometry)
 
     Author: Simon Petrus
     """
@@ -214,7 +215,7 @@ def vsini_fct_rot_broad(wav_obs_spectro, flx_mod_spectro, ld_picked, vsini_picke
         ld_picked        (float): Limd darkening randomly picked by the nested sampling
         vsini_picked     (float): v.sin(i) randomly picked by the nested sampling (in km.s-1)
     Returns:
-        flx_mod_spectro  (array): New flux of the interpolated synthetic spectrum
+        array                   : (flx_mod_spectro) New flux of the interpolated synthetic spectrum
 
     Author: Simon Petrus
     """
@@ -245,7 +246,7 @@ def vsini_fct_fast_rot_broad(wav_obs_spectro, flx_mod_spectro, ld_picked, vsini_
         ld_picked        (float): Limd darkening randomly picked by the nested sampling
         vsini_picked     (float): v.sin(i) randomly picked by the nested sampling (in km.s-1)
     Returns:
-        flx_mod_spectro  (array): New flux of the interpolated synthetic spectrum
+        array                   : (flx_mod_spectro) New flux of the interpolated synthetic spectrum
 
     Author: Simon Petrus
     """
@@ -267,28 +268,25 @@ def vsini_fct_fast_rot_broad(wav_obs_spectro, flx_mod_spectro, ld_picked, vsini_
 def vsini_fct_accurate(wave_obs_merge, flx_mod_spectro, ld_picked, vsini_picked, nr=50, ntheta=100, dif=0.0):
     '''
     A routine to quickly rotationally broaden a spectrum in linear time.
+    Adapted from Carvalho & Johns-Krull 2023 https://ui.adsabs.harvard.edu/abs/2023RNAAS...7...91C/abstract
 
     Args:
         wav_obs_spectro   (array): Wavelength grid of the data
         flx_mod_spectro   (array): Flux of the interpolated synthetic spectrum
         ld_picked         (float): Limd darkening randomly picked by the nested sampling
         vsini_picked      (float): v.sin(i) randomly picked by the nested sampling (in km.s-1)
-    Args opt:
         nr                  (int): (default = 10) The number of radial bins on the projected disk
         ntheta              (int): (default = 100) The number of azimuthal bins in the largest radial annulus
                                    note: the number of bins at each r is int(r*ntheta) where r < 1
-        dif               (float): (default = 0) The differential rotation coefficient, applied according to the law
-                                    Omeg(th)/Omeg(eq) = (1 - dif/2 - (dif/2) cos(2 th)). Dif = .675 nicely reproduces the law 
-                                    proposed by Smith, 1994, A&A, Vol. 287, p. 523-534, to unify WTTS and CTTS. Dif = .23 is 
-                                    similar to observed solar differential rotation. Note: the th in the above expression is 
-                                    the stellar co-latitude, not the same as the integration variable used below. This is a 
-                                    disk integration routine.
+        dif               (float): (default = 0) The differential rotation coefficient, applied according to the law Omeg(th)/Omeg(eq) = (1 - dif/2 - (dif/2) cos(2 th)). 
+                                    Dif = .675 nicely reproduces the law proposed by Smith, 1994, A&A, Vol. 287, p. 523-534, to unify WTTS and CTTS. 
+                                    Dif = .23 is similar to observed solar differential rotation. Note: the th in the above expression is the stellar co-latitude, not the same as the integration variable used below. 
+                                    This is a disk integration routine.
     Returns:
-        flx_mod_spectro   (array): New flux of the interpolated synthetic spectrum
+        array                   : (flx_mod_spectro) New flux of the interpolated synthetic spectrum
 
     Author: Allan Denis
-            Adapted from Carvalho & Johns-Krull 2023 https://ui.adsabs.harvard.edu/abs/2023RNAAS...7...91C/abstract
-    '''
+    ''' 
 
     ns = np.copy(flx_mod_spectro)*0.0
     tarea = 0.0
@@ -324,8 +322,8 @@ def bb_cpd_fct(wav_obs_spectro, wav_obs_photo, flx_mod_spectro, flx_mod_photo, d
         bb_temp          (float): Temperature value randomly picked by the nested sampling in K units
         bb_rad           (float): Radius randomly picked by the nested sampling in units of planetary radius
     Returns:
-        flx_mod_spectro  (array): New flux of the interpolated synthetic spectrum (spectroscopy)
-        flx_mod_photo    (array): New flux of the interpolated synthetic spectrum (photometry)
+        array                   : (flx_mod_spectro) New flux of the interpolated synthetic spectrum (spectroscopy)
+        array                   : (flx_mod_photo) New flux of the interpolated synthetic spectrum (photometry)
 
     Author: Paulina Palma-Bifani
     '''
@@ -345,7 +343,6 @@ def bb_cpd_fct(wav_obs_spectro, wav_obs_photo, flx_mod_spectro, flx_mod_photo, d
 
     flux_bb_lambda   = ( np.pi*bb_R_picked**2/(distance**2) * bb_intensity ).to(u.W/u.m**2/u.micron)
     flux_bb_lambda_f = ( np.pi*bb_R_picked**2/(distance**2) * bb_intensity_f ).to(u.W/u.m**2/u.micron)
-
 
     # add to model flux of the atmosphere
     flx_mod_spectro  += flux_bb_lambda.value
@@ -382,14 +379,14 @@ def modif_spec(global_params, theta, theta_index,
         system_obs     (n-array): Systematics of the data (spectroscopy)
         indobs             (int): Index of the current observation looping
     Returns:
-        wav_obs_spectro  (array): New wavelength grid of the data (may change with the Doppler shift)
-        flx_obs_spectro  (array): New flux of the data (may change with the Doppler shift)
-        err_obs_spectro  (array): New error of the data (may change with the Doppler shift)
-        flx_mod_spectro  (array): New flux of the interpolated synthetic spectrum (spectroscopy)
-        wav_obs_photo    (array): Wavelength grid of the data (photometry)
-        flx_obs_photo    (array): Flux of the data (photometry)
-        err_obs_photo    (array): Error of the data (photometry)
-        flx_mod_photo    (array): New flux of the interpolated synthetic spectrum (photometry)
+        array                   : (wav_obs_spectro) New wavelength grid of the data (may change with the Doppler shift)
+        array                   : (flx_obs_spectro) New flux of the data (may change with the Doppler shift)
+        array                   : (err_obs_spectro) New error of the data (may change with the Doppler shift)
+        array                   : (flx_mod_spectro) New flux of the interpolated synthetic spectrum (spectroscopy)
+        array                   : (wav_obs_photo) Wavelength grid of the data (photometry)
+        array                   : (flx_obs_photo) Flux of the data (photometry)
+        array                   : (err_obs_photo) Error of the data (photometry)
+        array                   : (flx_mod_photo) New flux of the interpolated synthetic spectrum (photometry)
     
     Author: Simon Petrus, Paulina Palma-Bifani, Allan Denis and Matthieu Ravet
     """

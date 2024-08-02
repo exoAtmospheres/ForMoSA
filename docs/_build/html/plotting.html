@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Plotting Class &mdash; ForMoSA 2.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=fa44fd50" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=19f00094" />
+
+  
+    <link rel="shortcut icon" href="_static/favicon.ico"/>
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="_static/jquery.js?v=5d32c60e"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="_static/documentation_options.js?v=51b770b3"></script>
+        <script src="_static/doctools.js?v=9a2dae69"></script>
+        <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="Nested Sampling" href="nested_sampling.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            ForMoSA
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="demo.html">DEMO</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="api.html">ForMoSA API</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="main_utilities.html">Main Utilities</a></li>
+<li class="toctree-l2"><a class="reference internal" href="adapt.html">Adapt the data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="nested_sampling.html">Nested Sampling</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Plotting Class</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#module-ForMoSA.plotting.plotting_class">The plotting module of ForMoSA:</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#ForMoSA.plotting.plotting_class.ComplexRadar"><code class="docutils literal notranslate"><span class="pre">ComplexRadar</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#ForMoSA.plotting.plotting_class.PlottingForMoSA"><code class="docutils literal notranslate"><span class="pre">PlottingForMoSA</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#ForMoSA.plotting.plotting_class.bin_data"><code class="docutils literal notranslate"><span class="pre">bin_data()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">ForMoSA</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="api.html">ForMoSA API</a></li>
+      <li class="breadcrumb-item active">Plotting Class</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/plotting.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="plotting-class">
+<span id="plotting"></span><h1>Plotting Class<a class="headerlink" href="#plotting-class" title="Link to this heading"></a></h1>
+<section id="module-ForMoSA.plotting.plotting_class">
+<span id="the-plotting-module-of-formosa"></span><h2>The plotting module of ForMoSA:<a class="headerlink" href="#module-ForMoSA.plotting.plotting_class" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="ForMoSA.plotting.plotting_class.ComplexRadar">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ForMoSA.plotting.plotting_class.</span></span><span class="sig-name descname"><span class="pre">ComplexRadar</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fig</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">variables</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ranges</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_ordinate_levels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">6</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ForMoSA/plotting/plotting_class.html#ComplexRadar"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ForMoSA.plotting.plotting_class.ComplexRadar" title="Link to this definition"></a></dt>
+<dd><p>Class to create Radar plots with asymmetric error bars.</p>
+<dl class="simple">
+<dt>Author: Paulina Palma-Bifani</dt><dd><p>Adapted from Damian Cummins: <a class="reference external" href="https://github.com/DamianCummins/statsbomb-football-event-visualisations/blob/master/Statsbomb%20Womens%20World%20Cup%202019%20visualisation.ipynb">https://github.com/DamianCummins/statsbomb-football-event-visualisations/blob/master/Statsbomb%20Womens%20World%20Cup%202019%20visualisation.ipynb</a></p>
+</dd>
+</dl>
+<p>Initialize class.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>fig</strong> (<em>object</em>) – matplotlib figure object</p></li>
+<li><p><strong>variables</strong> (<em>list</em>) – list of parameters to plot</p></li>
+<li><p><strong>ranges</strong> (<em>list</em><em>(</em><em>tuple</em><em>)</em>) – upper and lower limits for each parameters</p></li>
+<li><p><strong>n_ordinate_levels</strong> (<em>int</em>) – (default = 6) number of gridlines in the plot</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="ForMoSA.plotting.plotting_class.ComplexRadar.fill">
+<span class="sig-name descname"><span class="pre">fill</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kw</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ForMoSA/plotting/plotting_class.html#ComplexRadar.fill"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ForMoSA.plotting.plotting_class.ComplexRadar.fill" title="Link to this definition"></a></dt>
+<dd><p>Add symmetric error bars to the plot.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data</strong> (<em>list</em>) – best value for each parameter</p></li>
+<li><p><strong>*args</strong> – Variable length argument list.</p></li>
+<li><p><strong>**kw</strong> – Arbitrary keyword arguments.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ForMoSA.plotting.plotting_class.ComplexRadar.fill_between">
+<span class="sig-name descname"><span class="pre">fill_between</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">list_down</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">list_up</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kw</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ForMoSA/plotting/plotting_class.html#ComplexRadar.fill_between"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ForMoSA.plotting.plotting_class.ComplexRadar.fill_between" title="Link to this definition"></a></dt>
+<dd><p>Add asymmetric error bars to the plot.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>list_down</strong> (<em>list</em>) – list of lower error bars</p></li>
+<li><p><strong>list_up</strong> (<em>list</em>) – list of upper error bars</p></li>
+<li><p><strong>*args</strong> – Variable length argument list.</p></li>
+<li><p><strong>**kw</strong> – Arbitrary keyword arguments.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ForMoSA.plotting.plotting_class.ComplexRadar.plot">
+<span class="sig-name descname"><span class="pre">plot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kw</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ForMoSA/plotting/plotting_class.html#ComplexRadar.plot"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ForMoSA.plotting.plotting_class.ComplexRadar.plot" title="Link to this definition"></a></dt>
+<dd><p>Function to display the plot.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data</strong> (<em>list</em>) – best value for each parameter</p></li>
+<li><p><strong>*args</strong> – Variable length argument list.</p></li>
+<li><p><strong>**kw</strong> – Arbitrary keyword arguments.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ForMoSA.plotting.plotting_class.ComplexRadar.scale_data">
+<span class="sig-name descname"><span class="pre">scale_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ranges</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ForMoSA/plotting/plotting_class.html#ComplexRadar.scale_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ForMoSA.plotting.plotting_class.ComplexRadar.scale_data" title="Link to this definition"></a></dt>
+<dd><p>Function to check that lower and upper limits are correctly ordered. It scales data[1:] to ranges[0]</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data</strong> (<em>list</em>) – best value for each parameter</p></li>
+<li><p><strong>ranges</strong> (<em>list</em><em>(</em><em>tuple</em><em>)</em>) – upper and lower limits for each parameters</p></li>
+<li><p><strong>*args</strong> – Variable length argument list.</p></li>
+<li><p><strong>**kw</strong> – Arbitrary keyword arguments.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="ForMoSA.plotting.plotting_class.PlottingForMoSA">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ForMoSA.plotting.plotting_class.</span></span><span class="sig-name descname"><span class="pre">PlottingForMoSA</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config_file_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">color_out</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ForMoSA/plotting/plotting_class.html#PlottingForMoSA"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ForMoSA.plotting.plotting_class.PlottingForMoSA" title="Link to this definition"></a></dt>
+<dd><p>Class containing all the plotting functionalities of ForMoSA.</p>
+<p>Author: Paulina Palma-Bifani, Simon Petrus, Matthieu Ravet and Allan Denis</p>
+<p>Initialize class by inheriting the global parameter class of ForMoSA.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>config_file_path</strong> (<em>str</em>) – path to the config.ini file currently used</p></li>
+<li><p><strong>color_out</strong> (<em>str</em>) – color to use for the model</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="ForMoSA.plotting.plotting_class.PlottingForMoSA.get_FULL_spectra">
+<span class="sig-name descname"><span class="pre">get_FULL_spectra</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">theta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">grid_used</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'original'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wavelengths</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">N_points</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">re_interp</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">int_method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'linear'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ForMoSA/plotting/plotting_class.html#PlottingForMoSA.get_FULL_spectra"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ForMoSA.plotting.plotting_class.PlottingForMoSA.get_FULL_spectra" title="Link to this definition"></a></dt>
+<dd><p>Extract a model spectrum from another grid.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>theta</strong> – (list): best parameter values</p></li>
+<li><p><strong>grid_used</strong> – (str): (default = ‘original’) Path to the grid from where to extract the spectrum. If ‘original’, the current grid will be used.</p></li>
+<li><p><strong>wavelengths</strong> – (list): (default = []) Desired wavelength range. If [] max and min values of wav_for_adapt range will be use to create the wavelength range.</p></li>
+<li><p><strong>N_points</strong> – (int): (default = 1000) Number of points.</p></li>
+<li><p><strong>re_interp</strong> – (boolean): (default = False). Option to reinterpolate or not the grid.</p></li>
+<li><p><strong>int_method</strong> – (str): (default = “linear”) Interpolation method for the grid (if reinterpolated).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Wavelength array of the full model
+flx_final                   (array): Flux array of the full model
+ck                          (float): Scaling factor of the full model</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>wav_final                   (array)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ForMoSA.plotting.plotting_class.PlottingForMoSA.plot_Clouds">
+<span class="sig-name descname"><span class="pre">plot_Clouds</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cloud_prop</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path_cloud_profile</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">figsize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(6,</span> <span class="pre">5)</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ForMoSA/plotting/plotting_class.html#PlottingForMoSA.plot_Clouds"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ForMoSA.plotting.plotting_class.PlottingForMoSA.plot_Clouds" title="Link to this definition"></a></dt>
+<dd><p>Function to plot cloud profiles.
+Adapted from Nathan Zimniak</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>cloud_prop</strong> (<em>str</em>) – Choose the cloud species. The options are
+[‘eddy_diffusion_coefficient’,
+‘vmr_CH4’,
+‘vmr_CO’,
+‘vmr_CO2’,
+‘vmr_FeH’,
+‘vmr_H2O’,
+‘vmr_H2S’,
+‘vmr_HCN’,
+‘vmr_K’,
+‘vmr_Na’,
+‘vmr_NH3’,
+‘vmr_PH3’,
+‘vmr_TiO’,
+‘vmr_VO’,
+‘cloud_opacity_Fe’,
+‘cloud_opacity_Mg2SiO4’,
+‘cloud_particle_radius_Fe’,
+‘cloud_particle_radius_Mg2SiO4’,
+‘cloud_vmr_Fe’,
+‘cloud_vmr_Mg2SiO4’]</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Matplotlib figure and axes objects</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>fig, ax (object, object)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ForMoSA.plotting.plotting_class.PlottingForMoSA.plot_HiRes_comp_model">
+<span class="sig-name descname"><span class="pre">plot_HiRes_comp_model</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">figsize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(10,</span> <span class="pre">5)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">norm</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'no'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_resolution</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ForMoSA/plotting/plotting_class.html#PlottingForMoSA.plot_HiRes_comp_model"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ForMoSA.plotting.plotting_class.PlottingForMoSA.plot_HiRes_comp_model" title="Link to this definition"></a></dt>
+<dd><p>Specific function to plot the best fit comparing with the data for high-resolution spectroscopy.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>figsize</strong> (<em>tuple</em>) – (default = (10, 5)) Size of the plot</p></li>
+<li><p><strong>norm</strong> (<em>str</em>) – (default = no) ‘yes’ or ‘no’ to plot the normalized spectra</p></li>
+<li><p><strong>data_resolution</strong> (<em>int</em>) – (default = 0) Custom resolution to broadened data</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>matplotlib figure and axes objects</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>fig1, ax1  (object, object)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ForMoSA.plotting.plotting_class.PlottingForMoSA.plot_PT">
+<span class="sig-name descname"><span class="pre">plot_PT</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path_temp_profile</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">figsize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(6,</span> <span class="pre">5)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'ExoREM'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ForMoSA/plotting/plotting_class.html#PlottingForMoSA.plot_PT"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ForMoSA.plotting.plotting_class.PlottingForMoSA.plot_PT" title="Link to this definition"></a></dt>
+<dd><p>Function to plot the Pressure-Temperature profiles.
+Adpated from Nathan Zimniak.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>path_temp_profile</strong> (<em>str</em>) – Path to the temperature profile grid</p></li>
+<li><p><strong>figsize</strong> (<em>tuple</em>) – (default = (6, 5)) Size of the plot</p></li>
+<li><p><strong>model</strong> (<em>str</em>) – (default = ‘ExoREM’) Name of the model grid</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Matplotlib figure and axes objects</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>fig, ax (object, object)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ForMoSA.plotting.plotting_class.PlottingForMoSA.plot_ccf">
+<span class="sig-name descname"><span class="pre">plot_ccf</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">figsize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(10,</span> <span class="pre">5)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rv_grid</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[-300,</span> <span class="pre">300]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rv_step</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">window_normalisation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_wavelength</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_spectra</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_resolution</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Full'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rv_cor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ForMoSA/plotting/plotting_class.html#PlottingForMoSA.plot_ccf"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ForMoSA.plotting.plotting_class.PlottingForMoSA.plot_ccf" title="Link to this definition"></a></dt>
+<dd><p>Plot the cross-correlation function. It is used for high resolution spectroscopy.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>figsize</strong> (<em>tuple</em>) – (default = (10, 5)) Size of the plot</p></li>
+<li><p><strong>rv_grid</strong> (<em>list</em>) – (default = [-300,300]) Maximum and minumum values of the radial velocity shift (in km/s)</p></li>
+<li><p><strong>rv_step</strong> (<em>float</em>) – (default = 0.5) Radial velocity shift steps (in km/s)</p></li>
+<li><p><strong>window_normalisation</strong> (<em>int</em>) – (default = 100) ?</p></li>
+<li><p><strong>model_wavelength</strong> (<em>list</em>) – (default = []) ?</p></li>
+<li><p><strong>=</strong> (<em>model_spectra</em>) – (default = []) ?</p></li>
+<li><p><strong>model_resolution</strong> (<em>list</em>) – (default = []) ?</p></li>
+<li><p><strong>model_name</strong> (<em>str</em>) – (default = ‘Full’) ?</p></li>
+<li><p><strong>rv_cor</strong> (<em>int</em>) – (default = 0) ?</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Matplotlib figure and axes objects
+rv_grid                    (list): Radial velocity grid
+ccf                        (list): Cross-correlation function
+acf                        (list): Auto-correlation function</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>fig1, ax1        (object, object)</p>
+</dd>
+</dl>
+<p>Author: Allan Denis</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ForMoSA.plotting.plotting_class.PlottingForMoSA.plot_chains">
+<span class="sig-name descname"><span class="pre">plot_chains</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">figsize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(7,</span> <span class="pre">15)</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ForMoSA/plotting/plotting_class.html#PlottingForMoSA.plot_chains"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ForMoSA.plotting.plotting_class.PlottingForMoSA.plot_chains" title="Link to this definition"></a></dt>
+<dd><p>Plot to check the convergence of the posterior chains.
+Multiple (sub-)axis plot.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>figsize</strong> (<em>tuple</em>) – (default = (7, 15)) size of the plot</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>matplotlib figure and axes objects</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>fig, axs    (object, object)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ForMoSA.plotting.plotting_class.PlottingForMoSA.plot_corner">
+<span class="sig-name descname"><span class="pre">plot_corner</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">levels_sig</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[0.997,</span> <span class="pre">0.95,</span> <span class="pre">0.68]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bins</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">quantiles</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(0.16,</span> <span class="pre">0.5,</span> <span class="pre">0.84)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">burn_in</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ForMoSA/plotting/plotting_class.html#PlottingForMoSA.plot_corner"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ForMoSA.plotting.plotting_class.PlottingForMoSA.plot_corner" title="Link to this definition"></a></dt>
+<dd><p>Function to display the corner plot</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>levels_sig</strong> (<em>list</em>) – (default = [0.997, 0.95, 0.68]) 1, 2 and 3 sigma contour levels of the corner plot</p></li>
+<li><p><strong>bins</strong> (<em>int</em>) – (default = 100) number of bins for the posteriors</p></li>
+<li><p><strong>quantiles</strong> (<em>list</em>) – (default = (0.16, 0.5, 0.84)) mean +- sigma to report the posterior values</p></li>
+<li><p><strong>burn_in</strong> (<em>int</em>) – (default = 0) number of steps to remove from the plot</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>matplotlib figure object</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>fig         (object)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ForMoSA.plotting.plotting_class.PlottingForMoSA.plot_fit">
+<span class="sig-name descname"><span class="pre">plot_fit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">figsize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(10,</span> <span class="pre">5)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">uncert</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'no'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">trans</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'no'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logx</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'no'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logy</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'no'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">norm</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'no'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ForMoSA/plotting/plotting_class.html#PlottingForMoSA.plot_fit"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ForMoSA.plotting.plotting_class.PlottingForMoSA.plot_fit" title="Link to this definition"></a></dt>
+<dd><p>Plot the best fit comparing with the data.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>figsize</strong> (<em>tuple</em>) – (default = (10, 5)) Size of the plot</p></li>
+<li><p><strong>uncert</strong> (<em>str</em>) – (default = no) ‘yes’ or ‘no’ to plot spectra with associated error bars</p></li>
+<li><p><strong>trans</strong> (<em>str</em>) – (default = no) ‘yes’ or ‘no’ to plot transmision curves for photometry</p></li>
+<li><p><strong>logx</strong> (<em>str</em>) – (default = no) ‘yes’ or ‘no’ to plot the wavelength in log scale</p></li>
+<li><p><strong>logy</strong> (<em>str</em>) – (default = no) ‘yes’ or ‘no’ to plot the flux in log scale</p></li>
+<li><p><strong>norm</strong> (<em>str</em>) – (default = no) ‘yes’ or ‘no’ to plot the normalized spectra</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>matplotlib figure and axes objects</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>fig, ax, axr, axr2   (object, object, object, object)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ForMoSA.plotting.plotting_class.PlottingForMoSA.plot_fit_HiRes">
+<span class="sig-name descname"><span class="pre">plot_fit_HiRes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">figsize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(10,</span> <span class="pre">5)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">uncert</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'no'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">trans</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'no'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logx</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'no'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logy</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'no'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">norm</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'no'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ForMoSA/plotting/plotting_class.html#PlottingForMoSA.plot_fit_HiRes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ForMoSA.plotting.plotting_class.PlottingForMoSA.plot_fit_HiRes" title="Link to this definition"></a></dt>
+<dd><p>Same as plot_fit but with the stellar and planetary models for high-resolution spectroscopy. Does not include residuals in a sub-axis.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>figsize</strong> (<em>tuple</em>) – (default = (10, 5)) Size of the plot</p></li>
+<li><p><strong>uncert</strong> (<em>str</em>) – (default = no) ‘yes’ or ‘no’ to plot spectra with associated error bars</p></li>
+<li><p><strong>trans</strong> (<em>str</em>) – (default = no) ‘yes’ or ‘no’ to plot transmision curves for photometry</p></li>
+<li><p><strong>logx</strong> (<em>str</em>) – (default = no) ‘yes’ or ‘no’ to plot the wavelength in log scale</p></li>
+<li><p><strong>logy</strong> (<em>str</em>) – (default = no) ‘yes’ or ‘no’ to plot the flux in log scale</p></li>
+<li><p><strong>norm</strong> (<em>str</em>) – (default = no) ‘yes’ or ‘no’ to plot the normalized spectra</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>matplotlib figure and axes objects</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>fig, ax   (object, object)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ForMoSA.plotting.plotting_class.PlottingForMoSA.plot_radar">
+<span class="sig-name descname"><span class="pre">plot_radar</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ranges</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">quantiles</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[0.16,</span> <span class="pre">0.5,</span> <span class="pre">0.84]</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ForMoSA/plotting/plotting_class.html#PlottingForMoSA.plot_radar"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ForMoSA.plotting.plotting_class.PlottingForMoSA.plot_radar" title="Link to this definition"></a></dt>
+<dd><p>Radar plot to check the distribution of the parameters.
+Useful to compare different models.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ranges</strong> (<em>list</em><em>(</em><em>tuple</em><em>)</em>) – upper and lower limits for each parameters</p></li>
+<li><p><strong>label</strong> (<em>str</em>) – (default = ‘’) label of the plot</p></li>
+<li><p><strong>quantiles</strong> (<em>list</em>) – (default = (0.16, 0.5, 0.84)) mean +- sigma to report the posterior values</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>matplotlib figure and radar class object</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>fig, radar.ax    (object, object)</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="ForMoSA.plotting.plotting_class.bin_data">
+<span class="sig-prename descclassname"><span class="pre">ForMoSA.plotting.plotting_class.</span></span><span class="sig-name descname"><span class="pre">bin_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">wave</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bin_size</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ForMoSA/plotting/plotting_class.html#bin_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ForMoSA.plotting.plotting_class.bin_data" title="Link to this definition"></a></dt>
+<dd><p>Function to bin data given a bin size</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>wave</strong> (<em>array</em>) – wavelength of the data</p></li>
+<li><p><strong>data</strong> (<em>array</em>) – data</p></li>
+<li><p><strong>bin_size</strong> (<em>int</em>) – size of the bin to apply</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>binned wavelength
+data_binned  (array): binned data</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>wave_binned  (array)</p>
+</dd>
+</dl>
+<p>Author: Allan Denis</p>
+</dd></dl>
+
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="nested_sampling.html" class="btn btn-neutral float-left" title="Nested Sampling" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Simon Petrus, Paulina Palma-Bifani, Matthieu Ravet, Allan Denis, Mickaël Bonnefoy and Gaël Chauvin.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

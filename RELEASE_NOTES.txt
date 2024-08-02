@@ -346,3 +346,18 @@ Comments:
 Tests:
     None
 
+
+- - - 
+
+02/08/2024
+
+Paulina Palma-Bifani
+
+Comments:
+     - Adapted docstrings returns in some functions (not all)
+     - Generated documentation for the webpage 
+     - This is a test. I will do a second commit afterwards with the complete updated docs.
+
+Tests:
+    Webpage API is generating without issues locally (make html)
+
