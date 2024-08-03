@@ -29,9 +29,24 @@ We encourage the community to exploit its capabilities!
    api.rst
 
 
-Indices and tables
-==================
 
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
+Attribution:
+++++++++++++
+
+Please cite `Petrus et al (2023) <https://ui.adsabs.harvard.edu/abs/2023A%26A...670L...9P/abstract>`_.
+
+
+
+Version Track:
+++++++++++++++
+
+``1.0.13`` 
+First version distributed, presented at `Cloud Academy 3. <https://alienearths.space/cloud-academy-3/>`_.
+
+``1.0.5``
+First operational release.
+
+
+Acknowledgments:
+++++++++++++++++
+Our sincere thanks to `Code/Astro <https://semaphorep.github.io/codeastro/>`_. 
