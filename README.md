@@ -1,4 +1,4 @@
-<p align="left"><img src="docs/source/ForMoSA.png" alt="ForMoSA" width="250"/></p>
+<p align="left"><img src="docs/ForMoSA.png" alt="ForMoSA" width="250"/></p>
 
 
 
