@@ -15,7 +15,9 @@ def decoupe(second):
     Args:
         second (float): number of second
     Returns:
-        float, float, float: hours-minutes-seconds format
+        - float     : hours
+        - float     : minutes
+        - float     : seconds
 
     Author: Simon Petrus
     """
@@ -38,7 +40,7 @@ def find_nearest(array, value):
         array (array): Array to explore
         value (float): Desire value
     Returns:
-        int          : Indice of the closest values from the desire value
+        - idx (int)          : Indice of the closest values from the desire value
 
     Author: Simon Petrus
     """
@@ -62,15 +64,15 @@ def extract_observation(global_params, wav_mod_nativ, res_mod_nativ, cont='no', 
         obs_name             (str): Name of the current observation looping
         indobs               (int): Index of the current observation looping
     Returns:
-        n-array                 : List containing the sub-spectra defined by the parameter "wav_for_adapt" with decreased resolution
+        - obs_spectro (n-array)   : List containing the sub-spectra defined by the parameter "wav_for_adapt" with decreased resolution
                                     [[wav_1, flx_1, err_1, reso_1], ..., [wav_n, flx_n, err_n, reso_n]]
-        array                   : List containing the photometry (0 replace the spectral resolution here).
+        - obs_photo (array)       : List containing the photometry (0 replace the spectral resolution here).
                                     [wav_phot, flx_phot, err_phot, 0]
-        array                   : List containing different instruments used for the data (1 per wavelength).
+        - obs_spectro_ins(array)  : List containing different instruments used for the data (1 per wavelength).
                                     [[instru_range_1], ..., [instru_range_n]]
-        array                   : List containing different filters used for the data (1 per photometric point).
+        - obs_photo_ins (array)   : List containing different filters used for the data (1 per photometric point).
                                     [filter_phot_1, filter_phot_2, ..., filter_phot_n]
-        n-array                 : List containing the optional sub-arrays defined by the parameter "wav_for_adapt".
+        - obs_opt (n-array)       : List containing the optional sub-arrays defined by the parameter "wav_for_adapt".
                                     [[cov_1, tran_1, star_1], ..., [cov_n, tran_n, star_n]]  
 
     Author: Simon Petrus, Matthieu Ravet
@@ -112,16 +114,16 @@ def adapt_observation_range(global_params, obs_name='', indobs=0):
         obs_name          (str): Name of the current observation looping
         indobs            (int): Index of the current observation looping
     Returns:
-        n-array                 : List containing the sub-spectra defined by the parameter "wav_for_adapt".
-                                [[wav_1, flx_1, err_1, reso_1], ..., [wav_n, flx_n, err_n, reso_n]]
-        array                   : List containing the photometry (0 replace the spectral resolution here).
-                                [wav_phot, flx_phot, err_phot, 0]
-        array                   : List containing different instruments used for the data (1 per wavelength).
-                                [[instru_1], ..., [instru_n]]
-        array                   : List containing different filters used for the data (1 per photometric point).
-                                [filter_phot_1, filter_phot_2, ..., filter_phot_n]
-        n-array                 : List containing the optional sub-arrays defined by the parameter "wav_for_adapt".
-                                [[cov_1, tran_1, star_1], ..., [cov_n, tran_n, star_n]]
+        - obs_spectro (n-array)   : List containing the sub-spectra defined by the parameter "wav_for_adapt" with decreased resolution
+                                    [[wav_1, flx_1, err_1, reso_1], ..., [wav_n, flx_n, err_n, reso_n]]
+        - obs_photo (array)       : List containing the photometry (0 replace the spectral resolution here).
+                                    [wav_phot, flx_phot, err_phot, 0]
+        - obs_spectro_ins(array)  : List containing different instruments used for the data (1 per wavelength).
+                                    [[instru_range_1], ..., [instru_range_n]]
+        - obs_photo_ins (array)   : List containing different filters used for the data (1 per photometric point).
+                                    [filter_phot_1, filter_phot_2, ..., filter_phot_n]
+        - obs_opt (n-array)       : List containing the optional sub-arrays defined by the parameter "wav_for_adapt".
+                                    [[cov_1, tran_1, star_1], ..., [cov_n, tran_n, star_n]] 
 
     Author: Simon Petrus, Matthieu Ravet and Allan Denis
     """
@@ -284,8 +286,8 @@ def adapt_model(global_params, wav_mod_nativ, flx_mod_nativ, res_mod_obs_merge, 
         obs_name          (str): Name of the current observation looping
         indobs            (int): Index of the current observation looping
     Returns:
-        array                   : Flux of the spectrum with a decreased spectral resolution, re-sampled on the data wavelength grid
-        array                   : List containing the photometry ('0' replace the spectral resolution here).
+        - mod_spectro (array)     : Flux of the spectrum with a decreased spectral resolution, re-sampled on the data wavelength grid
+        - mod_photo (array)       : List containing the photometry ('0' replace the spectral resolution here).
 
     Author: Simon Petrus
     """
@@ -314,8 +316,8 @@ def extract_model(global_params, wav_mod_nativ, flx_mod_nativ, res_mod_obs_merge
         obs_name         (str): Name of the current observation looping
         indobs           (int): Index of the current observation looping
     Returns:
-        array               : List containing the sub-spectra defined by the parameter "wav_for_adapt".
-        array               : List containing the photometry ('0' replace the spectral resolution here).
+        - mod_spectro (array) : List containing the sub-spectra defined by the parameter "wav_for_adapt".
+        - mod (array)         : List containing the photometry ('0' replace the spectral resolution here).
 
     Author: Simon Petrus
     """
@@ -379,7 +381,7 @@ def convolve_and_sample(wv_channels, sigmas_wvs, model_wvs, model_fluxes, num_si
         model_fluxes       (array): the fluxes of the model 
         num_sigma          (float): number of +/- sigmas to evaluate the LSF to.
     Returns:
-        array                   : the fluxes in each of the wavelength channels 
+        - output_model (array)      : the fluxes in each of the wavelength channels 
 
     Author: Jason Wang
     """
@@ -429,7 +431,7 @@ def resolution_decreasing(global_params, wav_obs, flx_obs, res_obs, wav_mod_nati
         obs_or_mod       (str): Parameter to identify if you want to manage a data or a model spectrum. 'obs' or 'mod'
         indobs           (int): Index of the current observation looping
     Returns:
-        array               : Flux of the spectrum with a decreased spectral resolution, re-sampled on the data wavelength grid
+        - flx_obs_final (array) : Flux of the spectrum with a decreased spectral resolution, re-sampled on the data wavelength grid
 
     Author: Simon Petrus, Matthieu Ravet
     """
@@ -475,7 +477,7 @@ def continuum_estimate(global_params, wav, flx, res, indobs=0):
         res              (int): Spectral resolution of the spectrum for which you want to estimate the continuum
         indobs           (int): Index of the current observation looping
     Returns:
-        array               : Estimated continuum of the spectrum re-sampled on the data wavelength grid
+        - continuum (array)   : Estimated continuum of the spectrum re-sampled on the data wavelength grid
 
     Author: Simon Petrus, Matthieu Ravet
 

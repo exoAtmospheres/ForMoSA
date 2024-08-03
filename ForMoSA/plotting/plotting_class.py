@@ -32,8 +32,8 @@ def bin_data(wave, data, bin_size):
         bin_size       (int): size of the bin to apply
 
     Returns:
-        wave_binned  (array): binned wavelength
-        data_binned  (array): binned data
+        - wave_binned  (array): binned wavelength
+        - data_binned  (array): binned data
 
     Author: Allan Denis
     '''
@@ -346,7 +346,7 @@ class PlottingForMoSA():
             quantiles     (list): (default = (0.16, 0.5, 0.84)) mean +- sigma to report the posterior values
             burn_in        (int): (default = 0) number of steps to remove from the plot
         Returns:
-            fig         (object): matplotlib figure object
+            - fig         (object): matplotlib figure object
         '''
         print('ForMoSA - Corner plot')
 
@@ -386,7 +386,8 @@ class PlottingForMoSA():
         Args:
             figsize     (tuple): (default = (7, 15)) size of the plot
         Returns:
-            fig, axs    (object, object): matplotlib figure and axes objects
+            - fig  (object) : matplotlib figure object
+            - ax   (object) : matplotlib axes objects
         '''
         print('ForMoSA - Posteriors chains for each parameter')
 
@@ -422,7 +423,8 @@ class PlottingForMoSA():
             label              (str): (default = '') label of the plot
             quantiles         (list): (default = (0.16, 0.5, 0.84)) mean +- sigma to report the posterior values
         Returns:
-             fig, radar.ax    (object, object): matplotlib figure and radar class object       
+            - fig  (object) : matplotlib figure object
+            - radar.ax   (object) : matplotlib radar class axes object    
 
         '''
         print('ForMoSA - Radar plot')
@@ -457,12 +459,12 @@ class PlottingForMoSA():
         Args:
             theta                   (list): best parameter values
         Returns:
-            modif_spec_chi2  list(n-array): list containing the spectroscopic wavelength, spectroscopic fluxes of the data, 
+            - modif_spec_chi2  list(n-array): list containing the spectroscopic wavelength, spectroscopic fluxes of the data, 
                                             spectroscopic errors of the data, spectroscopic fluxes of the model, 
                                             photometric wavelength, photometric fluxes of the data, photometric errors of the data, 
                                             spectroscopic fluxes of the model,
                                             planet transmission, star fluxes, systematics
-            ck                list(floats): list scaling factor(s)
+            - ck                list(floats): list scaling factor(s)
         '''
         # Get the posteriors
         self._get_posteriors()
@@ -577,9 +579,9 @@ class PlottingForMoSA():
             re_interp:                (boolean): (default = False). Option to reinterpolate or not the grid.
             int_method:                   (str): (default = "linear") Interpolation method for the grid (if reinterpolated).
         Returns:   
-            wav_final                   (array): Wavelength array of the full model
-            flx_final                   (array): Flux array of the full model
-            ck                          (float): Scaling factor of the full model
+            - wav_final                   (array): Wavelength array of the full model
+            - flx_final                   (array): Flux array of the full model
+            - ck                          (float): Scaling factor of the full model
         '''
         self._get_posteriors()
 
@@ -661,7 +663,10 @@ class PlottingForMoSA():
             logy       (str): (default = no) 'yes' or 'no' to plot the flux in log scale
             norm       (str): (default = no) 'yes' or 'no' to plot the normalized spectra
         Returns:
-            fig, ax, axr, axr2   (object, object, object, object): matplotlib figure and axes objects
+            - fig    (object) : matplotlib figure object
+            - ax     (object) : matplotlib axes objects, main spectra plot
+            - axr    (object) : matplotlib axes objects, residuals
+            - axr2   (object) : matplotlib axes objects, right side density histogram
         '''
         print('ForMoSA - Best fit and residuals plot')
 
@@ -796,7 +801,8 @@ class PlottingForMoSA():
             logy       (str): (default = no) 'yes' or 'no' to plot the flux in log scale
             norm       (str): (default = no) 'yes' or 'no' to plot the normalized spectra
         Returns:
-            fig, ax   (object, object): matplotlib figure and axes objects
+            - fig  (object) : matplotlib figure object
+            - ax   (object) : matplotlib axes objects
         '''
         print('ForMoSA - Best fit and residuals plot')
 
@@ -905,7 +911,8 @@ class PlottingForMoSA():
             norm                  (str): (default = no) 'yes' or 'no' to plot the normalized spectra
             data_resolution       (int): (default = 0) Custom resolution to broadened data
         Returns:
-            fig1, ax1  (object, object): matplotlib figure and axes objects
+            - fig1  (object) : matplotlib figure object
+            - ax1   (object) : matplotlib axes objects
         '''
         print('ForMoSA - Planet model and data')
        
@@ -1005,10 +1012,11 @@ class PlottingForMoSA():
             model_name                  (str): (default = 'Full') ?
             rv_cor                      (int): (default = 0) ?
         Returns:
-            fig1, ax1        (object, object): Matplotlib figure and axes objects
-            rv_grid                    (list): Radial velocity grid
-            ccf                        (list): Cross-correlation function
-            acf                        (list): Auto-correlation function  
+            - fig1                    (object) : matplotlib figure object
+            - ax1                     (object) : matplotlib axes objects
+            - rv_grid                    (list): Radial velocity grid
+            - ccf                        (list): Cross-correlation function
+            - acf                        (list): Auto-correlation function  
 
         Author: Allan Denis
         '''
@@ -1126,7 +1134,8 @@ class PlottingForMoSA():
             figsize            (tuple): (default = (6, 5)) Size of the plot
             model                (str): (default = 'ExoREM') Name of the model grid
         Returns:
-            fig, ax (object, object): Matplotlib figure and axes objects
+            - fig  (object) : matplotlib figure object
+            - ax   (object) : matplotlib axes objects
         '''
         print('ForMoSA - Pressure-Temperature profile')
 
@@ -1247,7 +1256,8 @@ class PlottingForMoSA():
                                 'cloud_vmr_Fe',
                                 'cloud_vmr_Mg2SiO4']
         Returns:
-            fig, ax (object, object): Matplotlib figure and axes objects
+            - fig  (object) : matplotlib figure object
+            - ax   (object) : matplotlib axes objects
         '''
         print('ForMoSA - Cloud profile')
         

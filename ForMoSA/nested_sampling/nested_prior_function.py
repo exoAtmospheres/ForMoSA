@@ -9,7 +9,7 @@ def uniform_prior(prior_fct_arg, theta):
         prior_fct_arg   (list): Two-values list with uniform prior boundaries.
         theta           (list): Parameter values randomly picked by the nested sampling
     Returns:
-        Evaluated      (float): Evaluated prior
+        - Evaluated      (float): Evaluated prior
 
     Author: Simon Petrus
     '''
@@ -26,7 +26,7 @@ def gaussian_prior(prior_fct_arg, theta):
         prior_fct_arg   (list): Two-values list with uniform prior boundaries.
         theta           (list): Parameter values randomly picked by the nested sampling
     Returns:
-        Evaluated      (float): Evaluated prior
+        - Evaluated      (float): Evaluated prior
 
     Author: Simon Petrus
     '''

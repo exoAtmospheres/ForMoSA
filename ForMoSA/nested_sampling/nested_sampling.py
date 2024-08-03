@@ -20,7 +20,7 @@ def import_obsmod(global_params):
         global_params  (object): Class containing every input from the .ini file.
         
     Returns:
-        main_file (list(array)): Return a list of lists with the wavelengths, flux, errors, covariance matrix,
+        - main_file (list(array)): Return a list of lists with the wavelengths, flux, errors, covariance matrix,
                                 transmission, star flux, systematics and the grids for both spectroscopic and photometric data. 
 
     Authors: Simon Petrus, Matthieu Ravet and Allan Denis
@@ -83,7 +83,7 @@ def loglike(theta, theta_index, global_params, main_file, for_plot='no'):
         for_plot         (str): Default is 'no'. When this function is called from the plotting functions module, we use 'yes'
         
     Returns:
-        FINAL_logL     (float): Final evaluated loglikelihood for both spectra and photometry. 
+        - FINAL_logL     (float): Final evaluated loglikelihood for both spectra and photometry. 
 
     Authors: Simon Petrus, Matthieu Ravet and Allan Denis
     """
@@ -291,7 +291,7 @@ def prior_transform(theta, theta_index, lim_param_grid, global_params):
         global_params (object): Class containing every input from the .ini file.
         
     Returns:
-        prior           (list): List containing all the prior information
+        - prior           (list): List containing all the prior information
         
     Author: Simon Petrus, Matthieu Ravet, Allan Denis
     """

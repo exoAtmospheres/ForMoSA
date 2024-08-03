@@ -9,7 +9,7 @@ def logL_chi2_classic(delta_flx, err):
         delta_flx   (array): residual data-model as a function of wavelength
         err         (array): error (=standard deviation) of the observed spectrum as a function of wavelength
     Returns:
-        float           : (logL) the loglikelihood value
+        - logL (float)     : the loglikelihood value
         
     Author: Matthieu Ravet
     """
@@ -29,7 +29,7 @@ def logL_chi2_covariance(delta_flx, inv_cov):
         delta_flx   (array): residual data-model as a function of wavelength
         inv_cov     (n-array): inverse of the covariance matrix of the observed spectrum as a function of wavelength
     Returns:
-        float           : the loglikelihood value
+        - logL (float)       : the loglikelihood value
         
     Author: Matthieu Ravet
     """
@@ -49,7 +49,7 @@ def logL_chi2_extended(delta_flx, err):
         delta_flx   (array): residual data-model as a function of wavelength
         err         (array): error (=standard deviation) of the observed spectrum as a function of wavelength
     Returns:
-        float           : the loglikelihood value
+        - logL (float)     : the loglikelihood value
         
     Author: Allan Denis
     """
@@ -71,7 +71,7 @@ def logL_chi2_extended_covariance(delta_flx, inv_cov):
         delta_flx   (array): residual data-model as a function of wavelength
         err         (array): error (=standard deviation) of the observed spectrum as a function of wavelength
     Returns:
-        float           : the loglikelihood value
+        - logL (float)     : the loglikelihood value
         
     Author: Allan Denis
     """
@@ -95,7 +95,7 @@ def logL_full_covariance(delta_flx, inv_cov):
         delta_flx   (array): residual data-model as a function of wavelength
         inv_cov     (n-array): inverse of the covariance matrix of the observed spectrum as a function of wavelength
     Returns:
-        float           : the loglikelihood value
+        - logL (float)      : the loglikelihood value
         
     Author: Matthieu Ravet
     """
@@ -114,7 +114,7 @@ def logL_CCF_Brogi(flx_obs, flx_mod):
         flx_obs     (array): flux of the observation as a function of wavelength
         flx_mod     (array): flux of the model as a function of wavelength
     Returns:
-        float           : the loglikelihood value
+        - logL (float)     : the loglikelihood value
         
     Author: Matthieu Ravet
     """
@@ -138,7 +138,7 @@ def logL_CCF_Zucker(flx_obs, flx_mod):
         flx_obs     (array): flux of the observation as a function of wavelength
         flx_mod     (array): flux of the model as a function of wavelength
     Returns:
-        array           : the loglikelihood value
+        - logL (float)      : the loglikelihood value
         
     Author: Matthieu Ravet
     """
@@ -164,7 +164,7 @@ def logL_CCF_custom(flx_obs, flx_mod, err_obs):
         flx_mod     (array): flux of the model as a function of wavelength
         err_obs     (array): errors of the observation as a function of wavelength
     Returns:
-        float           : the loglikelihood value
+        - logL (float)       : the loglikelihood value
         
     Author: Matthieu Ravet
     """
