@@ -22,7 +22,7 @@ We encourage the community to exploit its capabilities!
 
 .. toctree::
    :maxdepth: 2
-   :caption: Contents:
+   :caption: Contents
 
    installation.rst
    demo.rst
@@ -30,23 +30,30 @@ We encourage the community to exploit its capabilities!
 
 
 
-Attribution:
-++++++++++++
+Attribution
++++++++++++
 
 Please cite `Petrus et al (2023) <https://ui.adsabs.harvard.edu/abs/2023A%26A...670L...9P/abstract>`_.
 
 
 
-Version Track:
-++++++++++++++
+Issues (?)
+++++++++++
 
-``1.0.13`` 
-First version distributed, presented at `Cloud Academy 3. <https://alienearths.space/cloud-academy-3/>`_.
-
-``1.0.5``
-First operational release.
+If you run into any other problem, please create an issue on `GitHub <https://github.com/exoAtmospheres/ForMoSA/issues>`_.
 
 
-Acknowledgments:
-++++++++++++++++
+
+Version Track
++++++++++++++
+
+- ``1.1.2`` Version adapted for including multiple instruments and high spectral resolution observations.
+
+- ``1.0.13`` First version distributed, presented at `Cloud Academy 3. <https://alienearths.space/cloud-academy-3/>`_.
+
+- ``1.0.5`` First operational release.
+
+
+Acknowledgments
++++++++++++++++
 Our sincere thanks to `Code/Astro <https://semaphorep.github.io/codeastro/>`_. 

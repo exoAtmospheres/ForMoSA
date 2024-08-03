@@ -13,6 +13,7 @@ sys.path.insert(1, os.path.abspath('../ForMoSA/'))
 sys.path.insert(2, os.path.abspath('../ForMoSA/adapt/'))
 sys.path.insert(3, os.path.abspath('../ForMoSA/nested_sampling/'))
 
+
 project = 'ForMoSA'
 copyright = '2024, Simon Petrus, Paulina Palma-Bifani, Matthieu Ravet, Allan Denis, Mickaël Bonnefoy and Gaël Chauvin'
 author = 'Simon Petrus, Paulina Palma-Bifani, Matthieu Ravet, Allan Denis, Mickaël Bonnefoy and Gaël Chauvin'
@@ -26,8 +27,14 @@ language = 'en'
 
 extensions = ['sphinx_rtd_theme',
               'sphinx.ext.autodoc',
+              'sphinx.ext.doctest',
+              'sphinx.ext.todo',
+              'sphinx.ext.mathjax',    
               'sphinx.ext.napoleon',
-              'sphinx.ext.viewcode']
+              'sphinx.ext.viewcode',
+              #'nbsphinx',
+              ]
+
 
 templates_path = []
 
@@ -75,6 +82,9 @@ html_theme = 'sphinx_rtd_theme'
 #}
 
 html_static_path = ['_static']
+
+# These paths are either relative to html_static_path
+# or fully qualified paths (eg. https://...)
 html_theme_path = [sphinx_rtd_theme.get_html_theme_path()]
 
 

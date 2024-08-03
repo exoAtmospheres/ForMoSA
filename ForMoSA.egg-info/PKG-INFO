@@ -1,23 +1,14 @@
 Metadata-Version: 2.1
 Name: ForMoSA
-Version: 1.1.0
+Version: 1.1.2
 Summary: ForMoSA: Forward Modeling Tool for Spectral Analysis
 Home-page: https://github.com/exoAtmospheres/ForMoSA
 Author: P. Palma-Bifani, S. Petrus, M. Ravet, A. Denis, M. Bonnefoy, G. Chauvin
 Author-email: paulina.palma-bifani@oca.eu
 License: BSD 3-Clause License
 License-File: LICENSE
-Requires-Dist: numpy
-Requires-Dist: matplotlib
-Requires-Dist: corner
-Requires-Dist: astropy
-Requires-Dist: scipy
-Requires-Dist: configobj
-Requires-Dist: extinction
-Requires-Dist: nestle
-Requires-Dist: PyAstronomy
-Requires-Dist: spectres
-Requires-Dist: pyyaml
-Requires-Dist: tqdm
-Requires-Dist: importlib-metadata==4.13.0
-Requires-Dist: xarray==2023.10.1
+
+Welcome to ForMoSA, an open-source Python package. 
+We designed this tool to model exoplanetary atmospheres with a forward modeling approach. 
+
+We encourage the community to exploit its capabilities!

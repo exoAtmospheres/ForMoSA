@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>DEMO &mdash; ForMoSA 2.0.0 documentation</title>
+  <title>Tutorials &mdash; ForMoSA 2.0.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=fa44fd50" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=19f00094" />
 
@@ -22,7 +22,7 @@
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="DEMO classic:" href="demo_classic.html" />
+    <link rel="next" title="ForMoSA API" href="api.html" />
     <link rel="prev" title="Installation" href="installation.html" /> 
 </head>
 
@@ -45,11 +45,14 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+              <p class="caption" role="heading"><span class="caption-text">Contents</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">DEMO</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="demo_classic.html">DEMO classic:</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Tutorials</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#atmospheric-grids">Atmospheric grids</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#list-of-tutorials">List of tutorials:</a><ul class="simple">
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="api.html">ForMoSA API</a></li>
@@ -69,7 +72,7 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
-      <li class="breadcrumb-item active">DEMO</li>
+      <li class="breadcrumb-item active">Tutorials</li>
       <li class="wy-breadcrumbs-aside">
             <a href="_sources/demo.rst.txt" rel="nofollow"> View page source</a>
       </li>
@@ -79,14 +82,40 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="demo">
-<span id="id1"></span><h1>DEMO<a class="headerlink" href="#demo" title="Link to this heading"></a></h1>
+  <section id="tutorials">
+<span id="demo"></span><h1>Tutorials<a class="headerlink" href="#tutorials" title="Link to this heading"></a></h1>
 <p>There are several ways of using ForMoSA.</p>
-<div class="toctree-wrapper compound">
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="demo_classic.html">DEMO classic:</a></li>
-</ul>
+<p>To get started, we recomend you to keep the following structure locally.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>~/YOUR/PATH/formosa_desk/
+├──<span class="w"> </span>atm_grids/
+├──<span class="w"> </span>demo_ABPicb/
+│<span class="w">   </span>├──<span class="w"> </span>data.fits
+│<span class="w">   </span>├──<span class="w"> </span>config.ini
+│<span class="w">   </span>├──<span class="w"> </span>adapted_grid/
+│<span class="w">   </span>└──<span class="w"> </span>outputs/
+├──<span class="w"> </span><span class="o">(</span>ForMoSA/<span class="o">)</span>
+├──<span class="w"> </span><span class="o">(</span>PyMultiNest/<span class="o">)</span>
+└──<span class="w"> </span><span class="o">(</span>MultiNest/<span class="o">)</span>
+</pre></div>
 </div>
+<p>Depending on the way you installed ForMoSA, the ForMoSA, PyMultiNest, and MultiNest subfolders need to be cloned from GitHub.
+Follow the <a class="reference internal" href="installation.html"><span class="doc">Installation</span></a></p>
+<section id="atmospheric-grids">
+<h2>Atmospheric grids<a class="headerlink" href="#atmospheric-grids" title="Link to this heading"></a></h2>
+<p>This is the list of the publically available atmospheric grids which we have formated for ForMoSA.</p>
+<p>You need to download the grid you want to use by clicking over the name and save it inside the <code class="docutils literal notranslate"><span class="pre">atm_grids/</span></code> subfolder.</p>
+<ul class="simple">
+<li><p><a class="reference external" href="https://drive.google.com/file/d/1S1dcBD7UiuUCZIcNBNnJi6LMymrnkagM/view?usp=share_link">ATMO native</a> from <a class="reference external" href="https://ui.adsabs.harvard.edu/abs/2020A%26A...637A..38P/abstract">M.W. Phillips et al. 2020</a></p></li>
+<li><p><a class="reference external" href="https://drive.google.com/file/d/1wvf4A-DupdVnYIpK_HmHE-fobqnYtvEz/view?usp=share_link">BT-Settl native</a> from <a class="reference external" href="https://ui.adsabs.harvard.edu/abs/2013MSAIS..24..128A/abstract">Allard et al. 2013</a></p></li>
+<li><p><a class="reference external" href="https://drive.google.com/file/d/1k9SQjHLnMCwmGOHtraRnhCgiZ1-4J3Wk/view?usp=share_link">ExoREM native</a> from <a class="reference external" href="https://ui.adsabs.harvard.edu/abs/2018ApJ...854..172C/abstract">B. Charnay et al. 2018</a></p></li>
+</ul>
+<p>Learn more here: <a class="reference internal" href="atm_grids.html"><span class="doc">Atmospheric grids</span></a></p>
+</section>
+<section id="list-of-tutorials">
+<h2>List of tutorials:<a class="headerlink" href="#list-of-tutorials" title="Link to this heading"></a></h2>
+<div class="toctree-wrapper compound">
+</div>
+</section>
 </section>
 
 
@@ -94,7 +123,7 @@
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="installation.html" class="btn btn-neutral float-left" title="Installation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="demo_classic.html" class="btn btn-neutral float-right" title="DEMO classic:" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="api.html" class="btn btn-neutral float-right" title="ForMoSA API" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>
