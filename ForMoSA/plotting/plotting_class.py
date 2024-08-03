@@ -1,38 +1,77 @@
 
 from __future__ import print_function, division
-import sys, os, yaml, time
+import os
 import numpy as np
 import matplotlib.pyplot as plt
-import matplotlib
-from matplotlib.figure import Figure
-import astropy.constants as const
-import astropy.units as u
 import corner
 import xarray as xr
 import pickle
 from scipy.interpolate import interp1d
-import extinction
-from PyAstronomy.pyasl import dopplerShift, rotBroad
-from spectres import spectres
 from tqdm import tqdm
 import glob
 
 # Import ForMoSA
 from main_utilities import GlobFile
 from nested_sampling.nested_modif_spec import modif_spec
-from adapt.extraction_functions import resolution_decreasing,adapt_model, decoupe
+from nested_sampling.nested_modif_spec import doppler_fct
+from nested_sampling.nested_modif_spec import lsq_fct
+from nested_sampling.nested_modif_spec import vsini_fct_accurate
+from adapt.extraction_functions import resolution_decreasing, adapt_model, decoupe
+from adapt.extraction_functions import adapt_observation_range
+from matplotlib.backends.backend_pdf import PdfPages
 
+
+
+def bin_data(wave, data, bin_size):
+    '''
+    Function to bin data given a bin size
+
+    Args:
+        wave         (array): wavelength of the data
+        data         (array): data
+        bin_size       (int): size of the bin to apply
+
+    Returns:
+        - wave_binned  (array): binned wavelength
+        - data_binned  (array): binned data
+
+    Author: Allan Denis
+    '''
+    # First quick check that len of data is a multpiple of bin_size
+    while(len(data)%bin_size != 0):
+        wave, data = wave[:-1], data[:-1]
+        
+    bins = np.arange(0, len(wave), bin_size)
+    wave_binned = np.add.reduceat(wave, bins) / bin_size
+    data_binned = np.add.reduceat(data, bins) 
+    
+    return wave_binned, data_binned
+    
+    
 
 # ----------------------------------------------------------------------------------------------------------------------
 # ----------------------------------------------------------------------------------------------------------------------
 class ComplexRadar():
     '''
-    Original from Damian Cummins: https://github.com/DamianCummins/statsbomb-football-event-visualisations/blob/master/Statsbomb%20Womens%20World%20Cup%202019%20visualisation.ipynb
-    
-    Adapted by: P. Palma-Bifani
+    Class to create Radar plots with asymmetric error bars.
+
+    Author: Paulina Palma-Bifani
+            Adapted from Damian Cummins: https://github.com/DamianCummins/statsbomb-football-event-visualisations/blob/master/Statsbomb%20Womens%20World%20Cup%202019%20visualisation.ipynb
+   
     '''
 
     def __init__(self, fig, variables, ranges, n_ordinate_levels=6):
+        '''
+        Initialize class.
+        
+        Args:
+            fig               (object): matplotlib figure object
+            variables           (list): list of parameters to plot
+            ranges       (list(tuple)): upper and lower limits for each parameters
+            n_ordinate_levels    (int): (default = 6) number of gridlines in the plot
+        Returns:
+            None   
+        '''
         angles = np.arange(0, 360, 360./len(variables))
 
         axes = [fig.add_axes([0.1,0.1,0.9,0.9], polar=True, label = "axes{}".format(i)) for i in range(len(variables))]
@@ -63,20 +102,61 @@ class ComplexRadar():
         self.ax = axes[0]
 
     def plot(self, data, *args, **kw):
+        '''
+        Function to display the plot.
+        
+        Args:
+            data       (list): best value for each parameter
+            *args           : Variable length argument list.
+            **kw            : Arbitrary keyword arguments.
+        Returns:
+            None
+        '''
         sdata = self.scale_data(data, self.ranges)
         self.ax.plot(self.angle, np.r_[sdata, sdata[0]], *args, **kw)
 
     def fill(self, data, *args, **kw):
+        '''
+        Add symmetric error bars to the plot.
+        
+        Args:
+            data       (list): best value for each parameter
+            *args           : Variable length argument list.
+            **kw            : Arbitrary keyword arguments.
+        Returns:
+            None
+        '''
         sdata = self.scale_data(data, self.ranges)
         self.ax.fill(self.angle, np.r_[sdata, sdata[0]], *args, **kw)
     
     def fill_between(self, list_down, list_up, *args, **kw):
+        '''
+        Add asymmetric error bars to the plot.
+        
+        Args:
+            list_down (list): list of lower error bars
+            list_up   (list): list of upper error bars
+            *args           : Variable length argument list.
+            **kw            : Arbitrary keyword arguments.
+        Returns:
+            None
+        '''
         sdata_down = self.scale_data(list_down, self.ranges)
         sdata_up = self.scale_data(list_up, self.ranges)
         self.ax.fill_between(self.angle,np.r_[sdata_down,sdata_down[0]], np.r_[sdata_up,sdata_up[0]], *args, **kw)
 
     def scale_data(self, data, ranges):
-        """scales data[1:] to ranges[0]"""
+        '''
+        Function to check that lower and upper limits are correctly ordered. It scales data[1:] to ranges[0]
+
+        Args:
+            data              (list): best value for each parameter
+            ranges     (list(tuple)): upper and lower limits for each parameters
+            *args           : Variable length argument list.
+            **kw            : Arbitrary keyword arguments.
+        Returns:
+            None
+        '''
         for d, (y1, y2) in zip(data[1:], ranges[1:]):
             assert (y1 <= d <= y2) or (y2 <= d <= y1)
         x1, x2 = ranges[0]
@@ -95,46 +175,47 @@ class ComplexRadar():
 # ----------------------------------------------------------------------------------------------------------------------
 class PlottingForMoSA():
     '''
-    Here all the plotting functionalities of ForMoSA to see the 
+    Class containing all the plotting functionalities of ForMoSA.
 
-    Author: Paulina Palma-Bifani 
+    Author: Paulina Palma-Bifani, Simon Petrus, Matthieu Ravet and Allan Denis
     '''
 
     def __init__(self, config_file_path, color_out):
         '''
-        Plotting class initializer
+        Initialize class by inheriting the global parameter class of ForMoSA.
+
+        Args:
+            config_file_path   (str): path to the config.ini file currently used
+            color_out          (str): color to use for the model
+        Returns:
+            None
         '''
         
         self.global_params = GlobFile(config_file_path)  
         self.color_out     = color_out
 
 
-
     def _get_posteriors(self):
         '''
-        Function to get the posteriors, including luminosity derivation and corvengence parameters logz
+        Function to get the posteriors, including luminosity derivation and Bayesian evidence logz.
 
-        (Adapted from Simon Petrus plotting functions)
+        Args:
+            None
+        Returns:
+            None
         '''
         with open(self.global_params.result_path + '/result_' + self.global_params.ns_algo + '.pic', 'rb') as open_pic:
             result = pickle.load(open_pic)
-        # self.samples = result.samples
         self.samples = result['samples']
-        # self.weights = result.weights
         self.weights = result['weights']
 
         # To test the quality of the fit
-        # self.logl=result.logl
         self.logl=result['logl']
         ind = np.where(self.logl==max(self.logl))
         self.theta_best = self.samples[ind][0]
 
-        # self.sample_logz    = round(result['logz'],1)
-        # self.sample_logzerr = round(result['logzerr'],1)
         self.sample_logz    = round(result['logz'][0],1)
         self.sample_logzerr = round(result['logz'][1],1)
-        # self.sample_h       = round(result['h'],1)
-        # self.outputs_string = 'logz = '+ str(self.sample_logz)+' ± '+str(self.sample_logzerr)+ ' ; h = '+str(self.sample_h)
         self.outputs_string = 'logz = '+ str(self.sample_logz)+' ± '+str(self.sample_logzerr)
 
         ds = xr.open_dataset(self.global_params.model_path, decode_cf=False, engine='netcdf4')
@@ -201,18 +282,32 @@ class PlottingForMoSA():
             if self.global_params.rv != 'NA' and self.global_params.rv != 'constant':
                 tot_list_param_title.append(extra_parameters[3][1] + ' ' + extra_parameters[3][2])
                 theta_index.append('rv')
+        if len(self.global_params.vsini) > 4: # If you want separate vsini for each observations
+            main_obs_path = self.global_params.main_observation_path
+            for indobs, obs in enumerate(sorted(glob.glob(main_obs_path))):
+                if self.global_params.vsini[indobs*4] != 'NA' and self.global_params.vsini[indobs*4] != 'constant': # Check if the idobs is different from constant
+                    tot_list_param_title.append(extra_parameters[5][1] + fr'$_{indobs}$' + ' ' + extra_parameters[5][2])
+                    theta_index.append(f'vsini_{indobs}')
+        else: # If you want 1 common vsini for all observations
+            if self.global_params.vsini != 'NA' and self.global_params.vsini != 'constant':
+                tot_list_param_title.append(extra_parameters[5][1] + ' ' + extra_parameters[5][2])
+                theta_index.append('vsini')
+        if len(self.global_params.ld) > 3: # If you want separate ld for each observations
+            main_obs_path = self.global_params.main_observation_path
+            for indobs, obs in enumerate(sorted(glob.glob(main_obs_path))):
+                if self.global_params.ld[indobs*3] != 'NA' and self.global_params.ld[indobs*3] != 'constant': # Check if the idobs is different from constant
+                    tot_list_param_title.append(extra_parameters[6][1] + fr'$_{indobs}$' + ' ' + extra_parameters[6][2])
+                    theta_index.append(f'ld_{indobs}')
+        else: # If you want 1 common vsini for all observations
+            if self.global_params.ld != 'NA' and self.global_params.ld != 'constant':
+                tot_list_param_title.append(extra_parameters[6][1] + ' ' + extra_parameters[6][2])
+                theta_index.append('ld')
 
         # - - - - - - - - - - - - - - - - - - - - -
 
         if self.global_params.av != 'NA' and self.global_params.av[0] != 'constant':
             tot_list_param_title.append(extra_parameters[4][1] + ' ' + extra_parameters[4][2])
             theta_index.append('av')
-        if self.global_params.vsini != 'NA' and self.global_params.vsini[0] != 'constant':
-            tot_list_param_title.append(extra_parameters[5][1] + ' ' + extra_parameters[5][2])
-            theta_index.append('vsini')
-        if self.global_params.ld != 'NA' and self.global_params.ld[0] != 'constant':
-            tot_list_param_title.append(extra_parameters[6][1] + ' ' + extra_parameters[6][2])
-            theta_index.append('ld')
         ## cpd bb
         if self.global_params.bb_T != 'NA' and self.global_params.bb_T[0] != 'constant':
             tot_list_param_title.append(extra_parameters[7][1] + ' ' + extra_parameters[7][2])
@@ -243,7 +338,15 @@ class PlottingForMoSA():
 
     def plot_corner(self, levels_sig=[0.997, 0.95, 0.68], bins=100, quantiles=(0.16, 0.5, 0.84), burn_in=0):
         '''
-        See the corner plots
+        Function to display the corner plot
+
+        Args:
+            levels_sig    (list): (default = [0.997, 0.95, 0.68]) 1, 2 and 3 sigma contour levels of the corner plot
+            bins           (int): (default = 100) number of bins for the posteriors
+            quantiles     (list): (default = (0.16, 0.5, 0.84)) mean +- sigma to report the posterior values
+            burn_in        (int): (default = 0) number of steps to remove from the plot
+        Returns:
+            - fig         (object): matplotlib figure object
         '''
         print('ForMoSA - Corner plot')
 
@@ -264,20 +367,27 @@ class PlottingForMoSA():
                             fill_contours=True,
                             show_titles=True,
                             title_fmt='.2f',
-                            title_kwargs=dict(fontsize=10),
+                            title_kwargs=dict(fontsize=14),
                             contour_kwargs=dict(colors=self.color_out, linewidths=0.7),
                             pcolor_kwargs=dict(color='red'),
-                            label_kwargs=dict(fontsize=10))
+                            label_kwargs=dict(fontsize=14))
+    
 
         fig.supxlabel(self.outputs_string, va='top')
 
         return fig
 
 
-    def plot_chains(self,figsize=(7,15)):
+    def plot_chains(self, figsize=(7,15)):
         '''
-        To check the convergence of the chains
+        Plot to check the convergence of the posterior chains.
+        Multiple (sub-)axis plot.
 
+        Args:
+            figsize     (tuple): (default = (7, 15)) size of the plot
+        Returns:
+            - fig  (object) : matplotlib figure object
+            - ax   (object) : matplotlib axes objects
         '''
         print('ForMoSA - Posteriors chains for each parameter')
 
@@ -303,12 +413,19 @@ class PlottingForMoSA():
         return fig, axs
 
 
-    def plot_radar(self,ranges,label='',quantiles=[0.16, 0.5, 0.84],chiffres=[0,2,2,2]):
+    def plot_radar(self, ranges, label='', quantiles=[0.16, 0.5, 0.84]):
         '''
-        To check overall the distribution of the parameters 
+        Radar plot to check the distribution of the parameters.
+        Useful to compare different models.
 
-        Inputs:
-        ranges
+        Args:
+            ranges     (list(tuple)): upper and lower limits for each parameters
+            label              (str): (default = '') label of the plot
+            quantiles         (list): (default = (0.16, 0.5, 0.84)) mean +- sigma to report the posterior values
+        Returns:
+            - fig  (object) : matplotlib figure object
+            - radar.ax   (object) : matplotlib radar class axes object    
+
         '''
         print('ForMoSA - Radar plot')
 
@@ -324,23 +441,30 @@ class PlottingForMoSA():
             list_uncert_down.append(q16)
             list_uncert_up.append(q84)
 
-        fig1 = plt.figure(figsize=(6, 6))
-        radar = ComplexRadar(fig1, self.posteriors_names, ranges)
+        fig = plt.figure(figsize=(6, 6))
+        radar = ComplexRadar(fig, self.posteriors_names, ranges)
 
         radar.plot(list_posteriors, 'o-', color=self.color_out, label=label)
         radar.fill_between(list_uncert_down,list_uncert_up, color=self.color_out, alpha=0.2)
 
         radar.ax.legend(loc='center', bbox_to_anchor=(0.5, -0.20),frameon=False, ncol=2)
 
-        return fig1, radar.ax
+        return fig, radar.ax
 
 
     def _get_spectra(self,theta):
         '''
-        To get the data and best model asociated 
-        Use numba: https://numba.pydata.org/
+        Function to get the data and best model asociated.
 
-        (Adapted from Simon Petrus)
+        Args:
+            theta                   (list): best parameter values
+        Returns:
+            - modif_spec_chi2  list(n-array): list containing the spectroscopic wavelength, spectroscopic fluxes of the data, 
+                                            spectroscopic errors of the data, spectroscopic fluxes of the model, 
+                                            photometric wavelength, photometric fluxes of the data, photometric errors of the data, 
+                                            spectroscopic fluxes of the model,
+                                            planet transmission, star fluxes, systematics
+            - ck                list(floats): list scaling factor(s)
         '''
         # Get the posteriors
         self._get_posteriors()
@@ -355,82 +479,83 @@ class PlottingForMoSA():
             obs_name = os.path.splitext(os.path.basename(self.global_params.observation_path))[0]
 
             spectrum_obs = np.load(os.path.join(self.global_params.result_path, f'spectrum_obs_{obs_name}.npz'), allow_pickle=True)
-            wav_obs_merge = np.asarray(spectrum_obs['obs_spectro_merge'][0], dtype=float)
-            flx_obs_merge = np.asarray(spectrum_obs['obs_spectro_merge'][1], dtype=float)
-            err_obs_merge = np.asarray(spectrum_obs['obs_spectro_merge'][2], dtype=float)
-            transm_obs_merge = np.asarray(spectrum_obs['obs_opt_merge'][1], dtype=float)
-            star_flx_obs_merge = np.asarray(spectrum_obs['obs_opt_merge'][2], dtype=float)
+            wav_obs_spectro = np.asarray(spectrum_obs['obs_spectro_merge'][0], dtype=float)
+            flx_obs_spectro = np.asarray(spectrum_obs['obs_spectro_merge'][1], dtype=float)
+            err_obs_spectro = np.asarray(spectrum_obs['obs_spectro_merge'][2], dtype=float)
+            transm_obs = np.asarray(spectrum_obs['obs_opt_merge'][1], dtype=float)
+            star_flx_obs = np.asarray(spectrum_obs['obs_opt_merge'][2], dtype=float)
+            system_obs = np.asarray(spectrum_obs['obs_opt_merge'][3], dtype=float)
             if 'obs_photo' in spectrum_obs.keys():
-                wav_obs_phot = np.asarray(spectrum_obs['obs_photo'][0], dtype=float)
-                flx_obs_phot = np.asarray(spectrum_obs['obs_photo'][1], dtype=float)
-                err_obs_phot = np.asarray(spectrum_obs['obs_photo'][2], dtype=float)
+                wav_obs_photo = np.asarray(spectrum_obs['obs_photo'][0], dtype=float)
+                flx_obs_photo = np.asarray(spectrum_obs['obs_photo'][1], dtype=float)
+                err_obs_photo = np.asarray(spectrum_obs['obs_photo'][2], dtype=float)
             else:
-                wav_obs_phot = np.asarray([], dtype=float)
-                flx_obs_phot = np.asarray([], dtype=float)
-                err_obs_phot = np.asarray([], dtype=float)
+                wav_obs_photo = np.asarray([], dtype=float)
+                flx_obs_photo = np.asarray([], dtype=float)
+                err_obs_photo = np.asarray([], dtype=float)
 
             # Recovery of the spectroscopy and photometry model
-            path_grid_m = os.path.join(self.global_params.adapt_store_path, f'adapted_grid_spectro_{self.global_params.grid_name}_{obs_name}_nonan.nc')
-            path_grid_p = os.path.join(self.global_params.adapt_store_path, f'adapted_grid_photo_{self.global_params.grid_name}_{obs_name}_nonan.nc')
-            ds = xr.open_dataset(path_grid_m, decode_cf=False, engine='netcdf4')
-            grid_merge = ds['grid']
+            path_grid_spectro = os.path.join(self.global_params.adapt_store_path, f'adapted_grid_spectro_{self.global_params.grid_name}_{obs_name}_nonan.nc')
+            path_grid_photo = os.path.join(self.global_params.adapt_store_path, f'adapted_grid_photo_{self.global_params.grid_name}_{obs_name}_nonan.nc')
+            ds = xr.open_dataset(path_grid_spectro, decode_cf=False, engine='netcdf4')
+            grid_spectro = ds['grid']
             ds.close()
-            ds = xr.open_dataset(path_grid_p, decode_cf=False, engine='netcdf4')
-            grid_phot = ds['grid']
+            ds = xr.open_dataset(path_grid_photo, decode_cf=False, engine='netcdf4')
+            grid_photo = ds['grid']
             ds.close()
 
             if self.global_params.par3 == 'NA':
-                if len(grid_merge['wavelength']) != 0:
-                    flx_mod_merge = np.asarray(grid_merge.interp(par1=theta[0], par2=theta[1],
+                if len(grid_spectro['wavelength']) != 0:
+                    flx_mod_spectro = np.asarray(grid_spectro.interp(par1=theta[0], par2=theta[1],
                                                             method="linear", kwargs={"fill_value": "extrapolate"}))
                 else:
-                    flx_mod_merge = np.asarray([])
-                if len(grid_phot['wavelength']) != 0:
-                    flx_mod_phot = np.asarray(grid_phot.interp(par1=theta[0], par2=theta[1],
+                    flx_mod_spectro = np.asarray([])
+                if len(grid_photo['wavelength']) != 0:
+                    flx_mod_photo = np.asarray(grid_photo.interp(par1=theta[0], par2=theta[1],
                                                             method="linear", kwargs={"fill_value": "extrapolate"}))
                 else:
-                    flx_mod_phot = np.asarray([])
+                    flx_mod_photo = np.asarray([])
             elif self.global_params.par4 == 'NA':
-                if len(grid_merge['wavelength']) != 0:
-                    flx_mod_merge = np.asarray(grid_merge.interp(par1=theta[0], par2=theta[1], par3=theta[2],
+                if len(grid_spectro['wavelength']) != 0:
+                    flx_mod_spectro = np.asarray(grid_spectro.interp(par1=theta[0], par2=theta[1], par3=theta[2],
                                                             method="linear", kwargs={"fill_value": "extrapolate"}))
                 else:
-                    flx_mod_merge = np.asarray([])
-                if len(grid_phot['wavelength']) != 0:
-                    flx_mod_phot = np.asarray(grid_phot.interp(par1=theta[0], par2=theta[1], par3=theta[2],
+                    flx_mod_spectro = np.asarray([])
+                if len(grid_photo['wavelength']) != 0:
+                    flx_mod_photo = np.asarray(grid_photo.interp(par1=theta[0], par2=theta[1], par3=theta[2],
                                                             method="linear", kwargs={"fill_value": "extrapolate"}))
                 else:
-                    flx_mod_phot = np.asarray([])
+                    flx_mod_photo = np.asarray([])
             elif self.global_params.par5 == 'NA':
-                if len(grid_merge['wavelength']) != 0:
-                    flx_mod_merge = np.asarray(grid_merge.interp(par1=theta[0], par2=theta[1], par3=theta[2], par4=theta[3],
+                if len(grid_spectro['wavelength']) != 0:
+                    flx_mod_spectro = np.asarray(grid_spectro.interp(par1=theta[0], par2=theta[1], par3=theta[2], par4=theta[3],
                                                             method="linear", kwargs={"fill_value": "extrapolate"}))
                 else:
-                    flx_mod_merge = np.asarray([])
-                if len(grid_phot['wavelength']) != 0:
-                    flx_mod_phot = np.asarray(grid_phot.interp(par1=theta[0], par2=theta[1], par3=theta[2], par4=theta[3],
+                    flx_mod_spectro = np.asarray([])
+                if len(grid_photo['wavelength']) != 0:
+                    flx_mod_photo = np.asarray(grid_photo.interp(par1=theta[0], par2=theta[1], par3=theta[2], par4=theta[3],
                                                             method="linear", kwargs={"fill_value": "extrapolate"}))
                 else:
-                    flx_mod_phot = np.asarray([])
+                    flx_mod_photo = np.asarray([])
             else:
-                if len(grid_merge['wavelength']) != 0:
-                    flx_mod_merge = np.asarray(grid_merge.interp(par1=theta[0], par2=theta[1], par3=theta[2], par4=theta[3],
+                if len(grid_spectro['wavelength']) != 0:
+                    flx_mod_spectro = np.asarray(grid_spectro.interp(par1=theta[0], par2=theta[1], par3=theta[2], par4=theta[3],
                                                             par5=theta[4],
                                                             method="linear", kwargs={"fill_value": "extrapolate"}))
                 else:
-                    flx_mod_merge = np.asarray([])
-                if len(grid_phot['wavelength']) != 0:
-                    flx_mod_phot = np.asarray(grid_phot.interp(par1=theta[0], par2=theta[1], par3=theta[2], par4=theta[3],
+                    flx_mod_spectro = np.asarray([])
+                if len(grid_photo['wavelength']) != 0:
+                    flx_mod_photo = np.asarray(grid_photo.interp(par1=theta[0], par2=theta[1], par3=theta[2], par4=theta[3],
                                                             par5=theta[4],
                                                             method="linear", kwargs={"fill_value": "extrapolate"}))
                 else:
-                    flx_mod_phot = np.asarray([])
+                    flx_mod_photo = np.asarray([])
 
             # Modification of the synthetic spectrum with the extra-grid parameters
             modif_spec_chi2 = modif_spec(self.global_params, theta, self.theta_index,
-                                        wav_obs_merge, flx_obs_merge, err_obs_merge, flx_mod_merge,
-                                        wav_obs_phot, flx_obs_phot, err_obs_phot, flx_mod_phot,
-                                        transm_obs_merge, star_flx_obs_merge, indobs=indobs)
+                                        wav_obs_spectro, flx_obs_spectro, err_obs_spectro, flx_mod_spectro,
+                                        wav_obs_photo, flx_obs_photo, err_obs_photo, flx_mod_photo,
+                                        transm_obs, star_flx_obs, system_obs, indobs=indobs)
             ck = modif_spec_chi2[8]
 
             modif_spec_MOSAIC.append(modif_spec_chi2)
@@ -442,24 +567,21 @@ class PlottingForMoSA():
         return modif_spec_chi2, ck
     
 
-    def get_FULL_spectra(self, theta, grid_used = 'original', wavelengths=[], res_out=1000, re_interp=False, int_method="linear"):
+    def get_FULL_spectra(self, theta, grid_used = 'original', wavelengths=[], N_points=1000, re_interp=False, int_method="linear"):
         '''
-        To get the data and best model asociated 
-        Use numba: https://numba.pydata.org/.
+        Extract a model spectrum from another grid.
 
         Args:
-            theta:          List of model and extra-model parameters.
-            grid_used:      Default 'original' will use the raw grid. Else, input the path to your desired grid.
-            wavelengths:    Default [] will use max values of the wav_for_adapt range to create a model spectrum.
-                            Else, input the desired wavelength range.
-            res_out:        Default 1000 will be the resolution of your model spectrum. Else, input the desired resolution.
-            re_interp:      Default False. If true, will re-interpolate the grid's hole (WARNING, time consumming...).
-            int_method:     Default "linear" will be the interpolation method use for the grid. Else, input the desired interpolation method.
+            theta:                       (list): best parameter values
+            grid_used:                    (str): (default = 'original') Path to the grid from where to extract the spectrum. If 'original', the current grid will be used.
+            wavelengths:                 (list): (default = []) Desired wavelength range. If [] max and min values of wav_for_adapt range will be use to create the wavelength range.
+            N_points:                     (int): (default = 1000) Number of points.
+            re_interp:                (boolean): (default = False). Option to reinterpolate or not the grid.
+            int_method:                   (str): (default = "linear") Interpolation method for the grid (if reinterpolated).
         Returns:   
-            fig, ax, axr, axr2
-
-
-        Authors: Paulina Palma-Bifani and Matthieu Ravet
+            - wav_final                   (array): Wavelength array of the full model
+            - flx_final                   (array): Flux array of the full model
+            - ck                          (float): Scaling factor of the full model
         '''
         self._get_posteriors()
 
@@ -473,9 +595,9 @@ class PlottingForMoSA():
                 else:
                     wav = np.concatenate((wav, wav_ind))
             wav = np.sort(wav)
-            wavelengths = np.linspace(wav[0],wav[-1],res_out)
+            wavelengths = np.linspace(wav[0],wav[-1],N_points)
         else:
-            wavelengths = np.linspace(wavelengths[0],wavelengths[-1],res_out)
+            wavelengths = np.linspace(wavelengths[0],wavelengths[-1],N_points)
 
         # Recover the original grid
         if grid_used == 'original':
@@ -521,7 +643,7 @@ class PlottingForMoSA():
         #print(flx_mod_final[100],ck)
         err_mod_final_calib = flx_mod_final_calib*0.1
 
-        wav_final, _, _, flx_final, _, _, _, _, _ = modif_spec(self.global_params, theta, self.theta_index,
+        wav_final, _, _, flx_final, _, _, _, _, _, _, _, _, _ = modif_spec(self.global_params, theta, self.theta_index,
                                                                                     wavelengths, flx_mod_final_calib, err_mod_final_calib, flx_mod_final_calib/ck,
                                                                                     [], [], [], [], [], [])
     
@@ -534,16 +656,17 @@ class PlottingForMoSA():
         Plot the best fit comparing with the data.
 
         Args:
-            figsize:    x/y size of the plot
-            uncert:     'yes' or 'no' to plot spectra with associated error bars
-            trans:      'yes' or 'no' to plot transmision curves for photometry
-            logx:       'yes' or 'no' to plot the wavelength in log scale
-            logy:       'yes' or 'no' to plot the flux in log scale
-            norm:       'yes' or 'no' to plot the normalized spectra
+            figsize    (tuple): (default = (10, 5)) Size of the plot
+            uncert     (str): (default = no) 'yes' or 'no' to plot spectra with associated error bars
+            trans      (str): (default = no) 'yes' or 'no' to plot transmision curves for photometry
+            logx       (str): (default = no) 'yes' or 'no' to plot the wavelength in log scale
+            logy       (str): (default = no) 'yes' or 'no' to plot the flux in log scale
+            norm       (str): (default = no) 'yes' or 'no' to plot the normalized spectra
         Returns:
-            fig, ax, axr, axr2
-
-        Author: Paulina Palma-Bifani and Matthieu Ravet
+            - fig    (object) : matplotlib figure object
+            - ax     (object) : matplotlib axes objects, main spectra plot
+            - axr    (object) : matplotlib axes objects, residuals
+            - axr2   (object) : matplotlib axes objects, right side density histogram
         '''
         print('ForMoSA - Best fit and residuals plot')
 
@@ -556,11 +679,17 @@ class PlottingForMoSA():
 
        
         spectra, ck = self._get_spectra(self.theta_best)
+        iobs_spectro = 0
+        iobs_photo = 0
         
 
         # Scale or not in absolute flux
         if norm != 'yes': 
-            ck = np.full(len(spectra[0][0]), 1)
+            if len(spectra[0][0]) != 0:
+                ck = np.full(len(spectra[0][0]), 1)
+            else:
+                ck = np.full(len(spectra[0][4]), 1)
+
 
         for indobs, obs in enumerate(sorted(glob.glob(self.global_params.main_observation_path))):
             
@@ -570,9 +699,14 @@ class PlottingForMoSA():
                 spectra = list(spectra) # Transform spectra to a list so that we can modify its values
                 spectra[indobs] = list(spectra[indobs])
                 model, planet_contribution, stellar_contribution, star_flx = spectra[indobs][3], spectra[indobs][9], spectra[indobs][10], spectra[indobs][11]
-                spectra[indobs][3] = planet_contribution * model + stellar_contribution * star_flx
+                spectra[indobs][3] = planet_contribution * model + np.dot(stellar_contribution, star_flx[0].T)
+                systematics = spectra[indobs][12]
+                if len(systematics) > 0:
+                    spectra[indobs][3] += systematics
 
             if len(spectra[indobs][0]) != 0:
+                iobs_spectro += 1
+                iobs_photo += 1
                 if uncert=='yes':
                     ax.errorbar(spectra[indobs][0], spectra[indobs][1]/ck[indobs], yerr=spectra[indobs][2]/ck[indobs], c='k', alpha=0.2)
                 ax.plot(spectra[indobs][0], spectra[indobs][1]/ck[indobs], c='k')
@@ -586,14 +720,19 @@ class PlottingForMoSA():
                 axr2.hist(residuals/sigma_res, bins=100 ,color=self.color_out, alpha=0.5, density=True, orientation='horizontal')
                 axr2.legend(frameon=False,handlelength=0)
 
-                if indobs == 0:
+                if indobs == iobs_spectro-1:
                     # Add labels out of the loops
-                    ax.plot(spectra[0][0], np.empty(len(spectra[0][0]))*np.nan, c='k', label='data')
-                    ax.plot(spectra[0][0], np.empty(len(spectra[0][0]))*np.nan, c=self.color_out, label='model')
-                    axr.plot(spectra[0][0], np.empty(len(spectra[0][0]))*np.nan, c=self.color_out, label='model-data')
+                    ax.plot(spectra[0][0], np.empty(len(spectra[0][0]))*np.nan, c='k', label='Spectroscopic data')
+                    ax.plot(spectra[0][0], np.empty(len(spectra[0][0]))*np.nan, c=self.color_out, label='Spectroscopic model')
+                    axr.plot(spectra[0][0], np.empty(len(spectra[0][0]))*np.nan, c=self.color_out, label='Spectroscopic model-data')
                     axr2.hist(residuals/sigma_res, bins=100 ,color=self.color_out, alpha=0.5, density=True, orientation='horizontal', label='density')
+                    
+                    iobs_spectro = -1
+                    
 
             if len(spectra[indobs][4]) != 0:
+                iobs_photo += 1
+                iobs_spectro += 1
                 # If you want to plot the transmission filters
                 if trans == 'yes':
                     self.global_params.observation_path = obs
@@ -606,8 +745,8 @@ class PlottingForMoSA():
                         filter_pho = np.load(separator.join(path_list) + '/phototeque/' + pho + '.npz')
                         ax.fill_between(filter_pho['x_filt'], filter_pho['y_filt']*0.8*min(spectra[indobs][5]/ck[indobs]),color=self.color_out, alpha=0.3)
                         ax.text(np.mean(filter_pho['x_filt']), np.mean(filter_pho['y_filt']*0.4*min(spectra[indobs][5]/ck[indobs])), pho, horizontalalignment='center', c='gray')
-                ax.plot(spectra[indobs][4], spectra[indobs][5]/ck[indobs], 'ko', alpha=0.7)
-                ax.plot(spectra[indobs][4], spectra[indobs][7]/ck[indobs], 'o', color=self.color_out)
+                ax.plot(spectra[indobs][4], spectra[indobs][5] / ck[indobs], 'ko', alpha=0.7)
+                ax.plot(spectra[indobs][4], spectra[indobs][7] / ck[indobs], 'o', color=self.color_out)
                 
 
                 residuals_phot = spectra[indobs][7]-spectra[indobs][5]
@@ -615,12 +754,14 @@ class PlottingForMoSA():
                 axr.plot(spectra[indobs][4], residuals_phot/sigma_res, 'o', c=self.color_out, alpha=0.8)
                 axr.axhline(y=0, color='k', alpha=0.5, linestyle='--')
 
-                if indobs == 0:
+                if indobs == iobs_photo-1:
                     # Add labels out of the loops
                     ax.plot(spectra[0][4], np.empty(len(spectra[0][4]))*np.nan, 'ko', label='Photometry data')
                     ax.plot(spectra[0][4], np.empty(len(spectra[0][4]))*np.nan, 'o', c=self.color_out, label='Photometry model')
                     axr.plot(spectra[0][4], np.empty(len(spectra[0][4]))*np.nan, 'o', c=self.color_out, label='Photometry model-data')
-
+                    
+                    iobs_photo = -1
+                    
         # Set xlog-scale
         if logx == 'yes':
             ax.set_xscale('log')
@@ -644,127 +785,357 @@ class PlottingForMoSA():
             
         # define the data as global
         self.spectra = spectra
-        #self.residuals = residuals
 
-        return spectra
+        return fig, ax, axr, axr2
     
     
-    def plot_ccf(self, rv_grid = [-300,300], rv_step = 0.5, figsize = (10,5)):
+    def plot_fit_HiRes(self, figsize=(10, 5), uncert='no', trans='no', logx='no', logy='no', norm='no'):
         '''
-        Plot the ccf (used for high resolution data such as CRIRES+ / HiRISE)
+        Same as plot_fit but with the stellar and planetary models for high-resolution spectroscopy. Does not include residuals in a sub-axis.
+
+        Args:
+            figsize    (tuple): (default = (10, 5)) Size of the plot
+            uncert     (str): (default = no) 'yes' or 'no' to plot spectra with associated error bars
+            trans      (str): (default = no) 'yes' or 'no' to plot transmision curves for photometry
+            logx       (str): (default = no) 'yes' or 'no' to plot the wavelength in log scale
+            logy       (str): (default = no) 'yes' or 'no' to plot the flux in log scale
+            norm       (str): (default = no) 'yes' or 'no' to plot the normalized spectra
+        Returns:
+            - fig  (object) : matplotlib figure object
+            - ax   (object) : matplotlib axes objects
+        '''
+        print('ForMoSA - Best fit and residuals plot')
+
+        fig1, ax1 = plt.subplots(1,1, figsize=figsize)
+       
+        spectra, ck = self._get_spectra(self.theta_best)
+        iobs_spectro = 0
         
+
+        # Scale or not in absolute flux
+        if norm != 'yes': 
+            ck = np.full(len(spectra[0][0]), 1)
+
+        for indobs, obs in enumerate(sorted(glob.glob(self.global_params.main_observation_path))):
+            
+            if self.global_params.use_lsqr[indobs] == 'True':
+                # If we used the lsq function, it means that our data is contaminated by the starlight difraction
+                # so the model is the sum of the planet model + the estimated stellar contribution
+                spectra = list(spectra) # Transform spectra to a list so that we can modify its values
+                spectra[indobs] = list(spectra[indobs])
+                model, planet_contribution, stellar_contribution, star_flx, systematics = spectra[indobs][3], spectra[indobs][9], spectra[indobs][10], spectra[indobs][11], spectra[indobs][12]
+                transm = spectra[indobs][13]
+                spectra[indobs][3] = planet_contribution * model + np.dot(stellar_contribution, star_flx[0].T)
+                if len(systematics) > 0:
+                    spectra[indobs][3] += systematics
+
+            if len(spectra[indobs][0]) != 0:
+                iobs_spectro += 1
+                if uncert=='yes':
+                    ax1.errorbar(spectra[indobs][0], spectra[indobs][1]/ck[indobs], yerr=spectra[indobs][2]/ck[indobs], c='k', alpha=0.2)
+                ax1.plot(spectra[indobs][0], spectra[indobs][1] - spectra[indobs][3], 'o', alpha = 0.2, color='g')
+                ax1.plot(spectra[indobs][0], spectra[indobs][1]/ck[indobs], c='k')
+                ax1.plot(spectra[indobs][0], spectra[indobs][3]/ck[indobs], c='r')
+                ax1.plot(spectra[indobs][0], np.dot(stellar_contribution, star_flx[0].T), c='b')
+                ax1.plot(spectra[indobs][0], planet_contribution * model, c='purple')
+
+ 
+                if indobs == iobs_spectro - 1:
+                    # Add labels out of the loops
+                    ax1.plot(spectra[0][0], np.empty(len(spectra[0][0]))*np.nan, c='k', label='residuals')
+                    ax1.plot(spectra[0][0], np.empty(len(spectra[0][0]))*np.nan, c='k', label='data')
+                    ax1.plot(spectra[0][0], np.empty(len(spectra[0][0]))*np.nan, c=self.color_out, label='full model')
+                    ax1.plot(spectra[0][0], np.empty(len(spectra[0][0]))*np.nan, c='k', label='stellar model')
+                    ax1.plot(spectra[0][0], np.empty(len(spectra[0][0]))*np.nan, c='k', label='planetary model')
+                    
+                    iobs_spectro = -1
+
+            if len(spectra[indobs][4]) != 0:
+                # If you want to plot the transmission filters
+                if trans == 'yes':
+                    self.global_params.observation_path = obs
+                    obs_name = os.path.splitext(os.path.basename(self.global_params.observation_path))[0]
+                    spectrum_obs = np.load(os.path.join(self.global_params.result_path, f'spectrum_obs_{obs_name}.npz'), allow_pickle=True)
+                    obs_photo_ins = spectrum_obs['obs_photo_ins']
+                    for pho_ind, pho in enumerate(obs_photo_ins):
+                        path_list = __file__.split("/")[:-2]
+                        separator = '/'
+                        filter_pho = np.load(separator.join(path_list) + '/phototeque/' + pho + '.npz')
+                        ax1.fill_between(filter_pho['x_filt'], filter_pho['y_filt']*0.8*min(spectra[indobs][5]/ck[indobs]),color=self.color_out, alpha=0.3)
+                        ax1.text(np.mean(filter_pho['x_filt']), np.mean(filter_pho['y_filt']*0.4*min(spectra[indobs][5]/ck[indobs])), pho, horizontalalignment='center', c='gray')
+                ax1.plot(spectra[indobs][4], spectra[indobs][5]/ck[indobs], 'ko', alpha=0.7)
+                ax1.plot(spectra[indobs][4], spectra[indobs][7]/ck[indobs], 'o', color=self.color_out)
+                
+
+                residuals_phot = spectra[indobs][7]-spectra[indobs][5]
+                sigma_res = np.std(residuals_phot)
+
+
+                if indobs == 0:
+                    # Add labels out of the loops
+                    ax1.plot(spectra[0][4], np.empty(len(spectra[0][4]))*np.nan, 'ko', label='Photometry data')
+                    ax1.plot(spectra[0][4], np.empty(len(spectra[0][4]))*np.nan, 'o', c=self.color_out, label='Photometry model')
+
+        # Set xlog-scale
+        if logx == 'yes':
+            ax1.set_xscale('log')
+        # Set xlog-scale
+        if logy == 'yes':
+            ax1.set_yscale('log')
+        # Remove the xticks from the first ax
+        ax1.set_xticks([])
+        # Labels
+        if norm != 'yes': 
+            ax1.set_ylabel(r'Flux (ADU)')
+        else:
+            ax1.set_ylabel(r'Normalised flux (W m-2 µm-1)')
+            
+        ax1.set_xlabel('wavelength ($ \mu $m)')
+        
+        fig1.legend()
+        plt.figure(fig1)
+        plt.savefig(self.global_params.result_path + 'full_data.pdf')
+
+        # define the data as global
+        self.spectra = spectra
+
+        return fig1, ax1
+    
+    
+    def plot_HiRes_comp_model(self, figsize=(10, 5), norm='no', data_resolution = 0):
+        '''
+        Specific function to plot the best fit comparing with the data for high-resolution spectroscopy.
+
+        Args:
+            figsize             (tuple): (default = (10, 5)) Size of the plot
+            norm                  (str): (default = no) 'yes' or 'no' to plot the normalized spectra
+            data_resolution       (int): (default = 0) Custom resolution to broadened data
+        Returns:
+            - fig1  (object) : matplotlib figure object
+            - ax1   (object) : matplotlib axes objects
+        '''
+        print('ForMoSA - Planet model and data')
+       
+        spectra, ck = self._get_spectra(self.theta_best)
+        fig1, ax1 = plt.subplots(1, 1, figsize = figsize)
+        fig, ax = plt.subplots(1, 1, figsize = figsize)
+
+        # Scale or not in absolute flux
+        if norm != 'yes': 
+            ck = np.full(len(spectra[0][0]), 1)
+            
+        pdf = PdfPages(self.global_params.result_path + 'PLanet_model_and_data_resolution_degraded.pdf')
+        plt.ioff()
+        
+
+        for indobs, obs in enumerate(sorted(glob.glob(self.global_params.main_observation_path))):
+            
+            
+            if self.global_params.use_lsqr[indobs] == 'True':
+                # If we used the lsq function, it means that our data is contaminated by the starlight difraction
+                # so the model is the sum of the planet model + the estimated stellar contribution
+                spectra = list(spectra) # Transform spectra to a list so that we can modify its values
+                spectra[indobs] = list(spectra[indobs])
+                model, planet_contribution, stellar_contribution, star_flx, systematics, transm = spectra[indobs][3], spectra[indobs][9], spectra[indobs][10], spectra[indobs][11], spectra[indobs][12], spectra[indobs][13]
+
+            if len(spectra[indobs][0]) != 0:
+
+                if (len(systematics) > 0) and (len(star_flx) > 0):
+                    data = spectra[indobs][1] - np.dot(stellar_contribution, star_flx[0].T) - systematics
+                elif (len(star_flx) > 0):     # if len(systematics) = 0 but len(star_flx) > 0
+                    data = spectra[indobs][1] - np.dot(stellar_contribution, star_flx[0].T)
+                elif (len(systematics) > 0):  # if len(star_flx) = 0 but len(systematics) > 0
+                    data = spectra[indobs][1] - systematics
+                else:                         # if len(star_flx) = 0 and len(systematics) = 0
+                    data = spectra[indobs][1]
+
+                wave = spectra[indobs][0]
+                planet_model = planet_contribution * model 
+                
+                # Compute intrinsic resolution of the data because of the v.sini
+                resolution = 3.0*1e5 / (self.theta_best[self.theta_index == 'vsini'])
+                resolution = resolution * np.ones(len(wave))
+                
+                if data_resolution > 0:
+                    self.global_params.custom_reso[indobs] = 'NA'
+                    resolution_data = data_resolution * np.ones(len(wave))
+                    data_broadened = vsini_fct_accurate(wave, data, 0.6, self.theta_best[self.theta_index == 'vsini'])
+                    data_broadened = resolution_decreasing(self.global_params, wave, [], resolution, wave, data, resolution_data, 'mod')
+                    planet_model_broadened = resolution_decreasing(self.global_params, wave, [], resolution, wave, planet_model, resolution_data, 'mod')
+       
+                
+                fig = plt.figure('comp_model', figsize=figsize)
+                fig.clf()
+                ax = fig.add_subplot(111)
+                
+                ax.plot(wave, data_broadened, c='k')
+                ax.plot(wave, planet_model_broadened, c='r')
+                
+                ax.set_xlabel('wavelength ($\mu$m)')
+                ax.set_ylabel('Flux (ADU)')
+                
+                ax1.plot(wave, data, c='k')
+                ax1.plot(wave, planet_model, c = 'r')
+                
+                if self.global_params.use_lsqr[indobs] == 'True':
+                    legend_data = 'data - star'
+                else:
+                    legend_data = 'data'
+                    
+                ax.legend([legend_data, 'planet model'])
+                
+                pdf.savefig()
+                
+        pdf.close()
+        
+        ax1.legend([legend_data, "planet model"], fontsize = 18)
+        ax1.set_xlabel('wavelength ($ \mu $m)', fontsize=18)
+        ax1.set_ylabel('Flux (ADU)', fontsize=18)
+        plt.figure(fig1)
+        plt.savefig(self.global_params.result_path + 'Planet_model_and_data.pdf')
+                            
+        return fig1, ax1
+    
+    
+    def plot_ccf(self, figsize = (10,5), rv_grid = [-300,300], rv_step = 0.5, window_normalisation = 100, model_wavelength = [], model_spectra = [], model_resolution = [], model_name = 'Full', rv_cor=0):
+        '''
+        Plot the cross-correlation function. It is used for high resolution spectroscopy.
+
+        Args:
+            figsize                   (tuple): (default = (10, 5)) Size of the plot
+            rv_grid                    (list): (default = [-300,300]) Maximum and minumum values of the radial velocity shift (in km/s)
+            rv_step                   (float): (default = 0.5) Radial velocity shift steps (in km/s)
+            window_normalisation        (int): (default = 100) ?
+            model_wavelength           (list): (default = []) ?
+            model_spectra =            (list): (default = []) ?
+            model_resolution           (list): (default = []) ?
+            model_name                  (str): (default = 'Full') ?
+            rv_cor                      (int): (default = 0) ?
+        Returns:
+            - fig1                    (object) : matplotlib figure object
+            - ax1                     (object) : matplotlib axes objects
+            - rv_grid                    (list): Radial velocity grid
+            - ccf                        (list): Cross-correlation function
+            - acf                        (list): Auto-correlation function  
+
         Author: Allan Denis
         '''
         print('ForMoSA - CCF plot')
         
         
-        self._get_posteriors()
-        theta = self.theta_best
-        theta_index = self.theta_index
-        # Recovery of the spectroscopy data
-        spectrum_obs = np.load(self.global_params.result_path + '/spectrum_obs.npz', allow_pickle=True)
-        wav_obs_merge = spectrum_obs['obs_spectro_merge'][0]
-        flx_obs_merge = spectrum_obs['obs_spectro_merge'][1]
-        err_obs_merge = spectrum_obs['obs_spectro_merge'][2]
-        transm_obs_merge = spectrum_obs['obs_opt_merge'][1]
-        star_flx_obs_merge = spectrum_obs['obs_opt_merge'][2]
-
-        # Recovery of the spectroscopy and photometry model
-        path_grid_m = self.global_params.adapt_store_path + '/adapted_grid_merge_' + self.global_params.grid_name + '_nonan.nc'
-        ds = xr.open_dataset(path_grid_m, decode_cf=False, engine='netcdf4')
-        grid_merge = ds['grid']
-        ds.close()
-
-        if self.global_params.par3 == 'NA':
-            if len(grid_merge['wavelength']) != 0:
-                flx_mod_merge = np.asarray(grid_merge.interp(par1=theta[0], par2=theta[1],
-                                                          method="linear", kwargs={"fill_value": "extrapolate"}))
-            else:
-                flx_mod_merge = np.asarray([])
-        elif self.global_params.par4 == 'NA':
-            if len(grid_merge['wavelength']) != 0:
-                flx_mod_merge = np.asarray(grid_merge.interp(par1=theta[0], par2=theta[1], par3=theta[2],
-                                                          method="linear", kwargs={"fill_value": "extrapolate"}))
-            else:
-                flx_mod_merge = np.asarray([])
-        elif self.global_params.par5 == 'NA':
-            if len(grid_merge['wavelength']) != 0:
-                flx_mod_merge = np.asarray(grid_merge.interp(par1=theta[0], par2=theta[1], par3=theta[2], par4=theta[3],
-                                                          method="linear", kwargs={"fill_value": "extrapolate"}))
-            else:
-                flx_mod_merge = np.asarray([])
-        else:
-            if len(grid_merge['wavelength']) != 0:
-                flx_mod_merge = np.asarray(grid_merge.interp(par1=theta[0], par2=theta[1], par3=theta[2], par4=theta[3],
-                                                          par5=theta[4],
-                                                          method="linear", kwargs={"fill_value": "extrapolate"}))
-            else:
-                flx_mod_merge = np.asarray([])
+        fig1, ax1 = plt.subplots(1,1, figsize=figsize)
         
         rv_grid = np.arange(rv_grid[0], rv_grid[1], rv_step)
-        cp, cs = np.ones(len(rv_grid)), np.ones(len(rv_grid))
-        i = 0
+        ccf = np.array([])
+        acf = np.array([])
         
-        self.global_params.rv = "NA"
-        self.global_params.use_lsqr = "False"
-        modif_spec_chi2 = modif_spec(self.global_params, theta, self.theta_index,
-                                  wav_obs_merge, flx_obs_merge, err_obs_merge, flx_mod_merge,
-                                  [], [], [], [],
-                                  transm_obs_merge, star_flx_obs_merge)
+        spectra, ck = self._get_spectra(self.theta_best)
         
-        flx_mod_merge = modif_spec_chi2[3] / modif_spec_chi2[8]
+        model_array = np.array([])
+        wave_array = np.array([])
+        err_array = np.array([])
+        transm_array = np.array([])
+        data_array = np.array([])
         
-        # # Making sure we only call the doppler correction function and the lsq function
-        # # because we want to plot the cross correlation as a function of the radial velocity
-        self.global_params.rv = "uniform"
-        self.global_params.av = "NA"
-        self.global_params.vsini, self.global_params.ld = "NA", "NA"
-        self.global_params.bb_T, self.global_params.bb_R = "NA", "NA"
-        self.global_params.r, self.global_params.T = "NA", "NA"
-        self.global_params.ccf_method = 'continuum_unfiltered'
-        self.global_params.use_lsqr = 'True'
-        
-        for rv_i in tqdm(rv_grid):
-            theta[theta_index == 'rv'] = rv_i
+        for indobs, obs in enumerate(sorted(glob.glob(self.global_params.main_observation_path))):
             
-            modif_spec_chi2 = modif_spec(self.global_params, theta, self.theta_index,
-                                      np.copy(wav_obs_merge), np.copy(flx_obs_merge), np.copy(err_obs_merge), np.copy(flx_mod_merge),
-                                      [], [], [], [],
-                                      transm_obs_merge, np.copy(star_flx_obs_merge))
-            
-            cp[i] = modif_spec_chi2[9]
-            cs[i] = modif_spec_chi2[10]
+            if self.global_params.use_lsqr[indobs] == 'True':
+                # If we used the lsq function, it means that our data is contaminated by the starlight difraction
+                # so the model is the sum of the planet model + the estimated stellar contribution
+                spectra = list(spectra) # Transform spectra to a list so that we can modify its values
+                spectra[indobs] = list(spectra[indobs])
+                wavelength, err, model, stellar_contribution, star_flx, systematics = spectra[indobs][0], spectra[indobs][2], spectra[indobs][3], spectra[indobs][10], spectra[indobs][11], spectra[indobs][12]
+                transm = spectra[indobs][13]
+     
 
-            i += 1
+            if len(spectra[indobs][0]) != 0:
+
+                if (len(systematics) > 0) and (len(star_flx) > 0):
+                    data = spectra[indobs][1] - np.dot(stellar_contribution, star_flx[0].T) - systematics
+                elif (len(star_flx) > 0):     # if len(systematics) = 0 but len(star_flx) > 0
+                    data = spectra[indobs][1] - np.dot(stellar_contribution, star_flx[0].T)
+                elif (len(systematics) > 0):  # if len(star_flx) = 0 but len(systematics) > 0
+                    data = spectra[indobs][1] - systematics
+                else:                         # if len(star_flx) = 0 and len(systematics) = 0
+                    data = spectra[indobs][1]
+
+                _, _, _, model = doppler_fct(wavelength, data, err, model, -self.theta_best[self.theta_index == 'rv'])
+                    
+                if len(model_spectra) == 0:
+                    model_array = np.append(model_array, model)
+                else:
+                    obs_spectro, _, _, _, _ = adapt_observation_range(self.global_params, indobs=indobs)
+                    res_obs = obs_spectro[0][3]
+                    res_obs_interp = interp1d(obs_spectro[0][0], res_obs, fill_value = 'extrapolate')
+                    res_obs = res_obs_interp(wavelength)
+                    
+                    ind = np.where((model_wavelength >= wavelength[0]) & (model_wavelength <= wavelength[-1]))
+                    model_wavelength_adapt, model_resolution_adapt, model_spectra_adapt = model_wavelength[ind], model_resolution[ind], model_spectra[ind]
+                    model_resolution_interp = interp1d(model_wavelength_adapt, model_resolution_adapt, fill_value = 'extrapolate')
+                    model_resolution_adapt = model_resolution_interp(wavelength)
+                    model_adapted = resolution_decreasing(self.global_params, wavelength, [], res_obs, model_wavelength_adapt, model_spectra_adapt, model_resolution_adapt,
+                                                        'mod', indobs=indobs)
+                    
+                    
+                    if len(transm) > 0:
+                        _, _, model_adapted, _, _, _ = lsq_fct(spectra[indobs][1], err, star_flx, transm, model_adapted, systematics)
+                        
+                    model_adapted = vsini_fct_accurate(wavelength, model_adapted, 0.6, self.theta_best[self.theta_index=='vsini'])
+                    
+                    model_array = np.append(model_array, model_adapted)
+                
+                wave_array = np.append(wave_array, wavelength)
+                data_array = np.append(data_array, data)
+                transm_array = np.append(transm_array, transm)
+                err_array = np.append(err_array, err)
+
+        max_ccf = 0
+        for rv in tqdm(rv_grid):
+            _, _, _, model_doppler = doppler_fct(wave_array, data_array, err_array, model_array, rv+rv_cor)
+            ccf = np.append(ccf, np.nansum(model_doppler * data_array))
+            acf = np.append(acf, np.nansum(model_doppler * model_array))
             
+            if np.nansum(model_doppler * data_array) > max_ccf:
+                max_ccf = np.nansum(model_doppler * data_array)
+                model_max_ccf = model_doppler
             
-        normalization_limit = 100
+        # Rescaling cross-correlation function to estimate a SNR
+        acf_norm = acf - np.median(acf[(np.abs(rv_grid) > window_normalisation)])
+        ccf_norm = ccf - np.median(ccf[(np.abs(rv_grid-rv_grid[np.argmax(ccf)]) > window_normalisation)])
+        ccf_noise = np.std(ccf_norm[(np.abs(rv_grid-rv_grid[np.argmax(ccf)]) > window_normalisation)])
+        ccf_norm = ccf_norm / ccf_noise
         
+        # Rescaling autocorrelation function to make comparable with cross-correlation function
+        acf_norm = acf_norm / np.max(acf_norm) * np.max(ccf_norm)
         
-        fig, ax = plt.subplots(figsize = figsize)
-        fig.tight_layout()
-        
-        cp_norm = cp - np.median(cp[(np.abs(rv_grid-rv_grid[np.argmax(cp)]) > normalization_limit)])
-        cp_noise = np.std(cp_norm[(np.abs(rv_grid-rv_grid[np.argmax(cp)]) > normalization_limit)])
-        ccf_norm = cp_norm / cp_noise
-            
-        ax.plot(rv_grid, ccf_norm)
-        ax.set_xlabel('rv (km/s)')
-        ax.set_ylabel('ccf signal')
-        
-        return 
-            
-            
+        ax1.plot(rv_grid, ccf_norm, label = 'ccf')
+        ax1.plot(rv_grid + rv_grid[np.argmax(ccf_norm)] + rv_cor, acf_norm)
+        ax1.axvline(x = rv_grid[np.argmax(ccf_norm)], linestyle = '--', c='C3')
+        ax1.set_xlabel('RV (km/s)')
+        ax1.set_ylabel('S/N')
+        ax1.legend(['ccf', 'acf'])
+        print(f'SNR = {np.nanmax(ccf_norm):.1f}, RV = {rv_grid[np.argmax(ccf_norm)]:.1f} km/s')
+        #ax1.set_title(f'SNR = {np.nanmax(ccf_norm):.1f}, RV = {rv_grid[np.argmax(ccf_norm)]:.1f} km/s')
+        plt.figure(fig1)
+        plt.savefig(self.global_params.result_path + 'ccf_' + model_name + '.pdf')
+
+        return fig1, ax1, rv_grid, ccf, acf
+    
 
 
-    def plot_PT(self,path_temp_profile, figsize=(6,5), model = 'ExoREM'):
+    
+    def plot_PT(self, path_temp_profile, figsize=(6,5), model = 'ExoREM'):
         '''
-        Plot the Pressure-Temperature profiles 
-        Calculates the most probable temperature profile
+        Function to plot the Pressure-Temperature profiles.
+        Adpated from Nathan Zimniak.
 
-        Return: fig, ax
-
-        Author: Nathan Zimniak and Paulina Palma-Bifani
+        Args:
+            path_temp_profile    (str): Path to the temperature profile grid
+            figsize            (tuple): (default = (6, 5)) Size of the plot
+            model                (str): (default = 'ExoREM') Name of the model grid
+        Returns:
+            - fig  (object) : matplotlib figure object
+            - ax   (object) : matplotlib axes objects
         '''
         print('ForMoSA - Pressure-Temperature profile')
 
@@ -859,34 +1230,34 @@ class PlottingForMoSA():
 
     def plot_Clouds(self, cloud_prop, path_cloud_profile, figsize=(6,5)):
         ''' 
-        Cloud profiles calculations
+        Function to plot cloud profiles.
+        Adapted from Nathan Zimniak
 
-        Inputs: 
-        - cloud_prop (str) : choose the cloud 
-               'eddy_diffusion_coefficient',
-               'vmr_CH4',
-               'vmr_CO',
-               'vmr_CO2',
-               'vmr_FeH',
-               'vmr_H2O',
-               'vmr_H2S',
-               'vmr_HCN',
-               'vmr_K',
-               'vmr_Na',
-               'vmr_NH3',
-               'vmr_PH3',
-               'vmr_TiO',
-               'vmr_VO',
-               'cloud_opacity_Fe',
-               'cloud_opacity_Mg2SiO4',
-               'cloud_particle_radius_Fe',
-               'cloud_particle_radius_Mg2SiO4',
-               'cloud_vmr_Fe',
-               'cloud_vmr_Mg2SiO4'
-        
-        Return: fig, ax
-
-        Author: Nathan Zimniak and Paulina Palma-Bifani
+        Args: 
+            cloud_prop (str) : Choose the cloud species. The options are
+                                ['eddy_diffusion_coefficient',
+                                'vmr_CH4',
+                                'vmr_CO',
+                                'vmr_CO2',
+                                'vmr_FeH',
+                                'vmr_H2O',
+                                'vmr_H2S',
+                                'vmr_HCN',
+                                'vmr_K',
+                                'vmr_Na',
+                                'vmr_NH3',
+                                'vmr_PH3',
+                                'vmr_TiO',
+                                'vmr_VO',
+                                'cloud_opacity_Fe',
+                                'cloud_opacity_Mg2SiO4',
+                                'cloud_particle_radius_Fe',
+                                'cloud_particle_radius_Mg2SiO4',
+                                'cloud_vmr_Fe',
+                                'cloud_vmr_Mg2SiO4']
+        Returns:
+            - fig  (object) : matplotlib figure object
+            - ax   (object) : matplotlib axes objects
         '''
         print('ForMoSA - Cloud profile')
         
@@ -937,7 +1308,7 @@ class PlottingForMoSA():
             propsup95.append(np.percentile(cloud_prop_profiles[:, i], 98))
 
         # Plot le profil le plus probable et les percentiles associés
-        fig = plt.figure()
+        fig = plt.figure(figsize=figsize)
         ax = plt.axes()
 
         ax.fill_betweenx(P, propinf95, propsup95, color=self.color_out, alpha=0.1, label=r'2 $\sigma$')
@@ -996,5 +1367,6 @@ class PlottingForMoSA():
         ax.legend(frameon=False)
 
         return fig, ax
+    
 
 

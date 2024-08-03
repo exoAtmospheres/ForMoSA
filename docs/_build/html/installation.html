@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Installation &mdash; ForMoSA 2.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=fa44fd50" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=19f00094" />
+
+  
+    <link rel="shortcut icon" href="_static/favicon.ico"/>
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="_static/jquery.js?v=5d32c60e"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="_static/documentation_options.js?v=51b770b3"></script>
+        <script src="_static/doctools.js?v=9a2dae69"></script>
+        <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="DEMO" href="demo.html" />
+    <link rel="prev" title="Forward Modeling Tool for Spectral Analysis" href="index.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            ForMoSA
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#a-installation-though-pip">a) Installation though ‘pip’</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#b-installation-though-git-clone">b) Installation though ‘git clone’</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#issues">Issues?</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="demo.html">DEMO</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api.html">ForMoSA API</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">ForMoSA</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Installation</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/installation.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="installation">
+<span id="id1"></span><h1>Installation<a class="headerlink" href="#installation" title="Link to this heading"></a></h1>
+<p>We strongly recommend using a <code class="docutils literal notranslate"><span class="pre">conda</span></code> environment ([learn more here](<a class="reference external" href="https://conda.io/docs/user-guide/tasks/manage-environments.html">https://conda.io/docs/user-guide/tasks/manage-environments.html</a>)).</p>
+<p>There are two possibilities. Installation of the package through (a) ‘pip’ or through (b) ‘git clone’.</p>
+<section id="a-installation-though-pip">
+<h2>a) Installation though ‘pip’<a class="headerlink" href="#a-installation-though-pip" title="Link to this heading"></a></h2>
+<p>a1/ To run parallelization without warnings, make sure you are building your environment under an OSX-ARM64 architecture ([learn more here](<a class="reference external" href="https://stackoverflow.com/questions/65415996/how-to-specify-the-architecture-or-platform-for-a-new-conda-environment-apple">https://stackoverflow.com/questions/65415996/how-to-specify-the-architecture-or-platform-for-a-new-conda-environment-apple</a>)).</p>
+<blockquote>
+<div><p>$ CONDA_SUBDIR=osx-arm64 conda create -n env_formosa python=3.11 numpy -c conda-forge</p>
+<p>$ conda activate env_formosa</p>
+<p>$ conda config –env –set subdir osx-arm64</p>
+</div></blockquote>
+<p>a2/ Install ForMoSA thourgh pip, which will install all the required dependencies.</p>
+<blockquote>
+<div><p>$ pip install ForMoSA==2.0.0</p>
+</div></blockquote>
+<p>a3/ To solve a standard error, run the following line in your environment:</p>
+<blockquote>
+<div><p>$ conda install xarray dask netCDF4 bottleneck</p>
+</div></blockquote>
+<p>a4/ If you want to use Pymultinest to run your inversion, follow the installation instructions from [PyMultinest](<a class="reference external" href="https://johannesbuchner.github.io/PyMultiNest/install.html">https://johannesbuchner.github.io/PyMultiNest/install.html</a>), detailed below.</p>
+<p>If you don’t need PyMultinest, you can directly go to point 5/.</p>
+<p>First. Clone PyMultinest from GitHub and install it.</p>
+<blockquote>
+<div><p>$ git clone <a class="reference external" href="https://github.com/JohannesBuchner/PyMultiNest/">https://github.com/JohannesBuchner/PyMultiNest/</a>
+$ cd PyMultiNest
+$ python setup.py install</p>
+</div></blockquote>
+<p>Second. Make sure your system has a C++ and a Fortran interpreter. If you need to install brew, follow [these instructions](<a class="reference external" href="https://brew.sh/">https://brew.sh/</a>).</p>
+<blockquote>
+<div><p>$ brew install cmake
+$ brew install gcc
+$ brew install open-mpi</p>
+</div></blockquote>
+<p>Third. In your ForMoSA environment, install mpi4pi as:</p>
+<blockquote>
+<div><p>$ pip install mpi4py</p>
+</div></blockquote>
+<p>Fourth. Install MultiNest by cloning the GitHub repository and building it. Make sure you empty the build folder if you run this step more than once.</p>
+<blockquote>
+<div><p>$ git clone <a class="reference external" href="https://github.com/JohannesBuchner/MultiNest">https://github.com/JohannesBuchner/MultiNest</a>
+$ cd MultiNest/build
+$ cmake ..
+$ make</p>
+</div></blockquote>
+<p>Finally, copy the files that were generated by building MultiNest onto your conda (may be miniconda) environment by doing:</p>
+<blockquote>
+<div><p>$ cp -v ~/YOUR_PATH/MultiNest/lib/* /YOUR_PATH/opt/anaconda3/envs/env_formosa/lib/</p>
+</div></blockquote>
+</section>
+<section id="b-installation-though-git-clone">
+<h2>b) Installation though ‘git clone’<a class="headerlink" href="#b-installation-though-git-clone" title="Link to this heading"></a></h2>
+<p>To install and use our package in macOS with an M1 chip, proceed with the following sequence of commands:</p>
+<p>b1/ Follow a1.</p>
+<p>b2/ Install the following packages in your environment with pip install:</p>
+<blockquote>
+<div><p>$ numpy
+$ matplotlib
+$ corner
+$ astropy
+$ scipy
+$ configobj
+$ extinction
+$ nestle
+$ PyAstronomy
+$ spectres
+$ pyyaml
+$ importlib-metadata==4.13.0
+$ xarray==2023.10.1</p>
+</div></blockquote>
+<p>b3/ To solve a standard error, run the following line in your environment:</p>
+<blockquote>
+<div><p>$ conda install xarray dask netCDF4 bottleneck</p>
+</div></blockquote>
+<p>b4/ Follow a4.</p>
+<p>5/ The last instalation step is to actually get ForMoSA. ForMoSA can be installed throgh pip, however, to work on the final released version, please clone the main branch from our GitHub repository. You can do it by moving to the desired directory on your terminal and writing:</p>
+<blockquote>
+<div><p>$ git clone <a class="reference external" href="https://github.com/exoAtmospheres/ForMoSA.git">https://github.com/exoAtmospheres/ForMoSA.git</a></p>
+</div></blockquote>
+</section>
+<section id="issues">
+<h2>Issues?<a class="headerlink" href="#issues" title="Link to this heading"></a></h2>
+<p>If you run into any other problem, please create an issue on <a class="reference external" href="https://github.com/exoAtmospheres/ForMoSA/issues">GitHub</a>.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="index.html" class="btn btn-neutral float-left" title="Forward Modeling Tool for Spectral Analysis" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="demo.html" class="btn btn-neutral float-right" title="DEMO" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Simon Petrus, Paulina Palma-Bifani, Matthieu Ravet, Allan Denis, Mickaël Bonnefoy and Gaël Chauvin.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

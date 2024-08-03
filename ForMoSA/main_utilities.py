@@ -3,12 +3,15 @@ import numpy as np
 
 # ----------------------------------------------------------------------------------------------------------------------
 def yesno(text):
-    ''' Function to interact with the terminal and decide for different options when running ForMoSA
+    '''
+    Function to interact with the terminal and decide for different options when running ForMoSA (Loop to repeat question if answer is different to 'y' or 'n).
+
     Args:
         text    (str): (y/n) answer in the terminall in interactive mode
     Returns:
         asw     (str): answer y or n
-        (Loop to repeat question if answer is different to 'y' or 'n)
+
+    Author: Simon Petrus
     '''
     print(text)
     asw = input()
@@ -19,15 +22,17 @@ def yesno(text):
 
 # ----------------------------------------------------------------------------------------------------------------------
 def diag_mat(rem=[], result=np.empty((0, 0))):
-    ''' Function to concatenate and align iterativly block matrices (usefull during the extraction and the inversion)
-    Parameters:
+    '''
+    Function to concatenate and align iterativly block matrices (usefull during the extraction and the inversion).
+
+    Args:
         rem        (list): matrices to be add iterativly (use diag([mat1, mat2]))
         result    (array): final array with each sub-matrices aligned allong the diagonal
     Returns:
         diag_mat (matrix): Generated diagonal matrix
         (If rem input is empty, it wull return an empy array)
 
-    Credits : ishigoya, Stack-overflow : https://stackoverflow.com/questions/42154606/python-numpy-how-to-construct-a-big-diagonal-arraymatrix-from-two-small-array
+    Author : Ishigoya, Stack-overflow : https://stackoverflow.com/questions/42154606/python-numpy-how-to-construct-a-big-diagonal-arraymatrix-from-two-small-array
     '''
     if not rem:
         return result
@@ -45,7 +50,7 @@ def diag_mat(rem=[], result=np.empty((0, 0))):
 
 class GlobFile:
     '''
-    Import all the parameters from the config file and make them GLOBAL FORMOSA VARIABLES
+    Class that import all the parameters from the config file and make them GLOBAL FORMOSA VARIABLES.
     
     Author: Paulina Palma-Bifani
     '''
@@ -143,7 +148,7 @@ class GlobFile:
         # self.p_context = eval(config['config_pymultinest']['context'])
         # self.p_write_output = config['config_pymultinest']['write_output']
         # self.p_log_zero = eval(config['config_pymultinest']['log_zero'])
-        # self.p_max_iter = eval(config['config_pymultinest']['max_iter'])
+        # self.p_max_iter = eval(config['config_pymultinest']['max_iter'])
         # self.p_init_MPI = config['config_pymultinest']['init_MPI']
         # self.p_dump_callback = config['config_pymultinest']['dump_callback']
         # self.p_use_MPI = config['config_pymultinest']['use_MPI']
@@ -172,7 +177,7 @@ class GlobFile:
         # print()
         #
         # config_current = self.result_path + '/past_config.ini'
-        config.filename = ' '
+        # config.filename = ' '
         # config['config_path']['stock_interp_grid'] = stock_interp_grid
         # config['config_path']['stock_result'] = stock_result_subsub_dir
         # config.write()

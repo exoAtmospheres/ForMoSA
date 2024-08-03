@@ -8,6 +8,8 @@ Easy to understand and simple access for the new users.
 '''
 # ----------------------------------------------------------------------------------------------------------------------
 ## IMPORTS
+import os
+os.environ["OMP_NUM_THREADS"] = "1"
 import sys
 
 # Import ForMoSA
@@ -40,8 +42,9 @@ print('- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -')
 print('-> Initializing ForMoSA')
 print()
 
+
 if len(sys.argv) == 1:
-    y_n_par = yesno('Do you want to adapt the grid too your data? (y/n)')
+    y_n_par = yesno('Do you want to adapt the grid to your data? (y/n)')
 else:
     y_n_par = sys.argv[2]
 

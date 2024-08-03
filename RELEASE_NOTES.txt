@@ -208,3 +208,156 @@ Test that have been done to checkup the changes:
     - multiple observations with multiple alpha and rv ✓
     
 _ _ _
+
+12/05/2024
+
+Paulina Palma-Bifani
+
+Comments:
+    - This is the official date of the release 2.0.0 in Pipy in preparation for the ForM-X workshop.
+
+_ _ _
+
+11/06/2024
+
+Matthieu Ravet
+
+Comments:
+    - Changes in variables names in "adapt_grid.py", "nested_sampling.py", "modif_spec.py" and "plotting_class.py".
+    Name changes are listed below :
+
+        (In adapt_grid)
+        - wav_obs_spec -> wav_obs_spectro
+        - wav_obs_phot -> wav_obs_photo
+        - grid_new_np -> grid_spectro_np
+        - grid_phot_new_np -> grid_photo_np
+        - ds_new -> ds_spectro_new
+        - ds_new_photo -> ds_photo_new
+        - obs_new_phot -> obs_photo_new
+        - mod_phot -> mod_photo
+
+        (In nested_sampling, modif_spec and plotting_class)
+        - wav_obs_merge -> wav_obs_spectro
+        - flx_obs_merge -> flx_obs_spectro
+        - err_obs_merge -> err_obs_spectro
+        - wav_obs_phot -> wav_obs_photo
+        - flx_obs_phot -> flx_obs_photo
+        - err_obs_phot -> err_obs_photo
+        - grid_m -> grid_spectro
+        - grid_p -> grid_photo
+        - grid_merge -> grid_spectro
+        - grid_phot -> grid_photo
+        - inv_cov_obs_merge -> inv_cov_obs
+        - transm_obs_merge -> transm_obs
+        - star_flx_obs_merge -> star_flx_obs
+        - system_obs_merge -> system_obs
+        - ind_merge -> ind_spectro
+        - ind_phot -> ind_photo
+        - flx_obs -> flx_obs_spectro_modif
+        - err -> err_obs_spectro_modif
+        - flx_obs_phot -> flx_obs_photo_modif
+        - err_phot -> err_obs_photo_modif
+        - flx_mod -> flx_mod_spectro_modif
+        - flx_mod_phot -> flx_mod_photo_modif
+        - logL_spec -> logL_spectro
+        - logL_phot -> logL_photo
+
+    - Possibility to fit separate vsini (and ld) per observation (MOSAIC). Be carefull to put the same number/order
+    of vsini and ld !
+
+Correction :
+    - Correction of the systematics export in modif_spec to be able to run non-HiRISE runs
+
+Test that have been done to checkup the changes:
+    - 1 obs with/without multiple vsini ✓
+    - HiRISE ✓
+    - all plotting options ✓
+    - multiple observations (with the above tests) ✓
+
+_ _ _
+
+27/06/2024
+
+Matthieu Ravet
+
+Comments:
+    - Optimization of the continuum removal and resolution functions:
+        - The interpolated resolution array is now computed outside the adapt_grid loop to save time.
+        - The model is no longer reinterpolated during the continuum extraction phase, as it already is with the resolution decreasing step.
+        - Simplification of the nomenclature of the two functions (continuum removal + resolution)
+        - Small name change in adapt_grid: flx_mod_spectro >> mod_spectro to match all functions inputs
+
+Test that have been done to checkup the changes:
+    - 1 obs with/without windows for extraction  ✓
+    - 1 obs with/without windows for continuum  ✓
+    - with and without continuum removal
+    - multiple observations (with the above tests) ✓
+
+_ _ _
+
+08/07/2024
+
+Allan Denis
+
+Comment:
+    - Adding a fourth parameter on the 'vsini' prior to indicate the type of broadening we want to apply. The possibles values of this parameter are 'RotBroad', 'Accurate', 'FastRotBroad'.
+        - 'RotBroad' applies the classical PyAstronomy rotational broadening
+        - 'FastRotBroad' applies the PyAstronomy fast version  of rotational broadening (applicable only for small wavelength range i.e high resolution data)
+        - 'Accurate' applies an alternative version, faster than the PyAstronomy rotational broadening, slower than 'FastRotBroad' but applicable even for high wavelength ranges and more accurate than 'FastRotBroad'
+
+    - Adding the possibility of having multiple components for the starlight contamintation, often used for high resolution data
+
+    - New plotting functions in order to compare the planet model estimated by the least square function and the data substracted by the 'reference model'. 
+    In high resolution data, the 'reference model' refers to the estimated starlight contamination and the systematics (if they exist)
+
+Tests that have been done to checkup the changes:
+    - 1 obs with the 3 possible values for the fourth parameter of the vsini prior ✓
+    - a few obs with 5 components for the starlight contamintation (Rico data and HiRISE data) ✓
+    
+    
+- - - 
+
+18/07/2024
+
+Allan Denis 
+
+Comments:
+     - Fixing a small bug when using both photometric and spectroscopic data
+     - Adding the possibility to plot the planetary model and the data (substracted by the starlight contamination and the systematics if they exist) by decreasing their resolution, with the function plot_HiRes_comp_model (used for high resolution data)
+     The user must define in the function the resolution of the instrument (default to 0). is the default value is selected then the function doesn't decrease the resolution of the data. If the resolution of the instrument is defined then the instrument decrease the resolution of the data to the resolution given by the v.sini (= 3.0*10⁵ / v.sini)
+     - Adding a ccf function that computes the ccf of the data with the best model. A model can also be defined by the user and given as the input of the fonction (if the user wants to to the ccf with a molecular template for exemple)
+     
+Tests that have been done to checkup the changes:
+    - Different high resolution datasets
+    - Datasets combining photometric and spectroscopic data points 
+     
+
+
+- - - 
+
+28/07/2024
+
+Paulina Palma-Bifani, Matthieu Ravet 
+
+Comments:
+     - Commenting all functions
+     - Replacing physical constants with astropy ones
+
+Tests:
+    None
+
+
+- - - 
+
+02/08/2024
+
+Paulina Palma-Bifani
+
+Comments:
+     - Adapted docstrings returns in some functions (not all)
+     - Generated documentation for the webpage 
+     - This is a test. I will do a second commit afterwards with the complete updated docs.
+
+Tests:
+    Webpage API is generating without issues locally (make html)
+
