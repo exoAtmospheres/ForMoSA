@@ -6,7 +6,7 @@ We designed this tool to model exoplanetary atmospheres with a forward modeling 
 
 We encourage the community to exploit its capabilities!
 
-Get started at `https://formosa.readthedocs.io <https://formosa.readthedocs.io>`_
+Get started at [https://formosa.readthedocs.io](https://formosa.readthedocs.io)
 
 ***
 
