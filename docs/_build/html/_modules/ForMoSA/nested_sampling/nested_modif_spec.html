@@ -99,12 +99,12 @@
 <span class="sd">        system_obs       (n-array): Systematics of the data (spectroscopy)</span>
 <span class="sd">        flx_mod_spectro    (array): Flux of interpolated synthetic spectrum (spectroscopy)</span>
 <span class="sd">    Returns:</span>
-<span class="sd">        array           : (cp) Planetary contribution to the data (Spectroscopy)</span>
-<span class="sd">        array           : (cs) Stellar contribution to the data (Spectroscopy)</span>
-<span class="sd">        array           : (flx_mod_spectro) New model of the companion </span>
-<span class="sd">        array           : (flx_obs_spectro) New flux of the data</span>
-<span class="sd">        n-array         : (star_flx_obs) New star flux of the data</span>
-<span class="sd">        array           : (systematics)</span>
+<span class="sd">        - cp (array)                : Planetary contribution to the data (Spectroscopy)</span>
+<span class="sd">        - cs (array)                : Stellar contribution to the data (Spectroscopy)</span>
+<span class="sd">        - flx_mod_spectro (array)   : New model of the companion </span>
+<span class="sd">        - flx_obs_spectro (array)   : New flux of the data</span>
+<span class="sd">        - star_flx_obs (n-array)    : New star flux of the data</span>
+<span class="sd">        - systematics (array)       : The systematics</span>
 
 <span class="sd">    Author : Allan Denis</span>
 
@@ -189,9 +189,9 @@
 <span class="sd">        alpha            (float): Manual scaling factor (set to 1 by default) such that ck = alpha * (r/d)²</span>
 <span class="sd">        analytic           (str): = &#39;yes&#39; if Ck needs to be calculated analytically by the formula from Cushing et al. (2008)</span>
 <span class="sd">    Returns:</span>
-<span class="sd">        array           : (flx_mod_spectro) Re-normalysed model spectrum</span>
-<span class="sd">        array           : (flx_mod_photo) Re-normalysed model photometry</span>
-<span class="sd">        float           : (ck) Ck calculated</span>
+<span class="sd">        - flx_mod_spectro (array)   : Re-normalysed model spectrum</span>
+<span class="sd">        - flx_mod_photo (array)     : Re-normalysed model photometry</span>
+<span class="sd">        - ck (float)                : Ck calculated</span>
 
 <span class="sd">    Author: Simon Petrus</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -243,10 +243,10 @@
 <span class="sd">        flx_mod_spectro      (array): Flux of the interpolated synthetic spectrum</span>
 <span class="sd">        rv_picked            (float): Radial velocity randomly picked by the nested sampling (in km.s-1)</span>
 <span class="sd">    Returns:</span>
-<span class="sd">        array                       : (wav_obs_spectro) New wavelength grid of the data</span>
-<span class="sd">        array                       : (flx_obs_spectro) New flux of the data</span>
-<span class="sd">        array                       : (err_obs_spectro) New error of the data</span>
-<span class="sd">        array                       : (flx_post_doppler) New flux of the interpolated synthetic spectrum</span>
+<span class="sd">        - wav_obs_spectro (array)       : New wavelength grid of the data</span>
+<span class="sd">        - flx_obs_spectro (array)       : New flux of the data</span>
+<span class="sd">        - err_obs_spectro (array)       : New error of the data</span>
+<span class="sd">        - flx_post_doppler (array)      : New flux of the interpolated synthetic spectrum</span>
 
 <span class="sd">    Author: Simon Petrus</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -274,8 +274,8 @@
 <span class="sd">        flx_mod_photo    (array): Flux of the interpolated synthetic spectrum (photometry)</span>
 <span class="sd">        av_picked        (float): Extinction randomly picked by the nested sampling (in mag)</span>
 <span class="sd">    Returns:</span>
-<span class="sd">        array                   : (flx_mod_spectro) New flux of the interpolated synthetic spectrum (spectroscopy)</span>
-<span class="sd">        array                   : (flx_mod_photo) New flux of the interpolated synthetic spectrum (photometry)</span>
+<span class="sd">        - flx_mod_spectro (array) : New flux of the interpolated synthetic spectrum (spectroscopy)</span>
+<span class="sd">        - flx_mod_photo (array)   : New flux of the interpolated synthetic spectrum (photometry)</span>
 
 <span class="sd">    Author: Simon Petrus</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -305,7 +305,7 @@
 <span class="sd">        ld_picked        (float): Limd darkening randomly picked by the nested sampling</span>
 <span class="sd">        vsini_picked     (float): v.sin(i) randomly picked by the nested sampling (in km.s-1)</span>
 <span class="sd">    Returns:</span>
-<span class="sd">        array                   : (flx_mod_spectro) New flux of the interpolated synthetic spectrum</span>
+<span class="sd">        - flx_mod_spectro (array)   : New flux of the interpolated synthetic spectrum</span>
 
 <span class="sd">    Author: Simon Petrus</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -339,7 +339,7 @@
 <span class="sd">        ld_picked        (float): Limd darkening randomly picked by the nested sampling</span>
 <span class="sd">        vsini_picked     (float): v.sin(i) randomly picked by the nested sampling (in km.s-1)</span>
 <span class="sd">    Returns:</span>
-<span class="sd">        array                   : (flx_mod_spectro) New flux of the interpolated synthetic spectrum</span>
+<span class="sd">        - flx_mod_spectro (array)   : New flux of the interpolated synthetic spectrum</span>
 
 <span class="sd">    Author: Simon Petrus</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -379,7 +379,7 @@
 <span class="sd">                                    Dif = .23 is similar to observed solar differential rotation. Note: the th in the above expression is the stellar co-latitude, not the same as the integration variable used below. </span>
 <span class="sd">                                    This is a disk integration routine.</span>
 <span class="sd">    Returns:</span>
-<span class="sd">        array                   : (flx_mod_spectro) New flux of the interpolated synthetic spectrum</span>
+<span class="sd">        - flx_mod_spectro (array)  : New flux of the interpolated synthetic spectrum</span>
 
 <span class="sd">    Author: Allan Denis</span>
 <span class="sd">    &#39;&#39;&#39;</span> 
@@ -421,8 +421,8 @@
 <span class="sd">        bb_temp          (float): Temperature value randomly picked by the nested sampling in K units</span>
 <span class="sd">        bb_rad           (float): Radius randomly picked by the nested sampling in units of planetary radius</span>
 <span class="sd">    Returns:</span>
-<span class="sd">        array                   : (flx_mod_spectro) New flux of the interpolated synthetic spectrum (spectroscopy)</span>
-<span class="sd">        array                   : (flx_mod_photo) New flux of the interpolated synthetic spectrum (photometry)</span>
+<span class="sd">        - flx_mod_spectro (array)   : New flux of the interpolated synthetic spectrum (spectroscopy)</span>
+<span class="sd">        - flx_mod_photo (array)     : New flux of the interpolated synthetic spectrum (photometry)</span>
 
 <span class="sd">    Author: Paulina Palma-Bifani</span>
 <span class="sd">    &#39;&#39;&#39;</span>
@@ -481,14 +481,14 @@
 <span class="sd">        system_obs     (n-array): Systematics of the data (spectroscopy)</span>
 <span class="sd">        indobs             (int): Index of the current observation looping</span>
 <span class="sd">    Returns:</span>
-<span class="sd">        array                   : (wav_obs_spectro) New wavelength grid of the data (may change with the Doppler shift)</span>
-<span class="sd">        array                   : (flx_obs_spectro) New flux of the data (may change with the Doppler shift)</span>
-<span class="sd">        array                   : (err_obs_spectro) New error of the data (may change with the Doppler shift)</span>
-<span class="sd">        array                   : (flx_mod_spectro) New flux of the interpolated synthetic spectrum (spectroscopy)</span>
-<span class="sd">        array                   : (wav_obs_photo) Wavelength grid of the data (photometry)</span>
-<span class="sd">        array                   : (flx_obs_photo) Flux of the data (photometry)</span>
-<span class="sd">        array                   : (err_obs_photo) Error of the data (photometry)</span>
-<span class="sd">        array                   : (flx_mod_photo) New flux of the interpolated synthetic spectrum (photometry)</span>
+<span class="sd">        - wav_obs_spectro (array)  : New wavelength grid of the data (may change with the Doppler shift)</span>
+<span class="sd">        - flx_obs_spectro (array)  : New flux of the data (may change with the Doppler shift)</span>
+<span class="sd">        - err_obs_spectro (array)  : New error of the data (may change with the Doppler shift)</span>
+<span class="sd">        - flx_mod_spectro (array)  : New flux of the interpolated synthetic spectrum (spectroscopy)</span>
+<span class="sd">        - wav_obs_photo (array)    : Wavelength grid of the data (photometry)</span>
+<span class="sd">        - flx_obs_photo (array)    : Flux of the data (photometry)</span>
+<span class="sd">        - err_obs_photo (array)    : Error of the data (photometry)</span>
+<span class="sd">        - flx_mod_photo (array)    : New flux of the interpolated synthetic spectrum (photometry)</span>
 <span class="sd">    </span>
 <span class="sd">    Author: Simon Petrus, Paulina Palma-Bifani, Allan Denis and Matthieu Ravet</span>
 <span class="sd">    &quot;&quot;&quot;</span>

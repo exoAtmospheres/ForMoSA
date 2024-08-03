@@ -140,7 +140,10 @@
 </p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>main_file (list(array))</p>
+<dd class="field-odd"><p><ul class="simple">
+<li><p>main_file (list(array))</p></li>
+</ul>
+</p>
 </dd>
 </dl>
 <p>Authors: Simon Petrus, Matthieu Ravet and Allan Denis</p>
@@ -185,7 +188,10 @@ The evaluation depends on the choice of likelihood.
 <dd class="field-even"><p>Final evaluated loglikelihood for both spectra and photometry.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>FINAL_logL     (float)</p>
+<dd class="field-odd"><p><ul class="simple">
+<li><p>FINAL_logL     (float)</p></li>
+</ul>
+</p>
 </dd>
 </dl>
 <p>Authors: Simon Petrus, Matthieu Ravet and Allan Denis</p>
@@ -209,7 +215,10 @@ We check that the boundaries are consistent with the grid extension.</p>
 <dd class="field-even"><p>List containing all the prior information</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>prior           (list)</p>
+<dd class="field-odd"><p><ul class="simple">
+<li><p>prior           (list)</p></li>
+</ul>
+</p>
 </dd>
 </dl>
 <p>Author: Simon Petrus, Matthieu Ravet, Allan Denis</p>
@@ -234,11 +243,14 @@ We check that the boundaries are consistent with the grid extension.</p>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>(flx_mod_spectro) New flux of the interpolated synthetic spectrum (spectroscopy)
-array                   : (flx_mod_photo) New flux of the interpolated synthetic spectrum (photometry)</p>
+<dd class="field-even"><p>New flux of the interpolated synthetic spectrum (spectroscopy)
+- flx_mod_photo (array)     : New flux of the interpolated synthetic spectrum (photometry)</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>array</p>
+<dd class="field-odd"><p><ul class="simple">
+<li><p>flx_mod_spectro (array)</p></li>
+</ul>
+</p>
 </dd>
 </dl>
 <p>Author: Paulina Palma-Bifani</p>
@@ -265,12 +277,15 @@ and distance or analytically).</p>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>(flx_mod_spectro) Re-normalysed model spectrum
-array           : (flx_mod_photo) Re-normalysed model photometry
-float           : (ck) Ck calculated</p>
+<dd class="field-even"><p>Re-normalysed model spectrum
+- flx_mod_photo (array)     : Re-normalysed model photometry
+- ck (float)                : Ck calculated</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>array</p>
+<dd class="field-odd"><p><ul class="simple">
+<li><p>flx_mod_spectro (array)</p></li>
+</ul>
+</p>
 </dd>
 </dl>
 <p>Author: Simon Petrus</p>
@@ -292,13 +307,16 @@ Note: Observation can change due to side effects of the shifting.</p>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>(wav_obs_spectro) New wavelength grid of the data
-array                       : (flx_obs_spectro) New flux of the data
-array                       : (err_obs_spectro) New error of the data
-array                       : (flx_post_doppler) New flux of the interpolated synthetic spectrum</p>
+<dd class="field-even"><p>New wavelength grid of the data
+- flx_obs_spectro (array)       : New flux of the data
+- err_obs_spectro (array)       : New error of the data
+- flx_post_doppler (array)      : New flux of the interpolated synthetic spectrum</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>array</p>
+<dd class="field-odd"><p><ul class="simple">
+<li><p>wav_obs_spectro (array)</p></li>
+</ul>
+</p>
 </dd>
 </dl>
 <p>Author: Simon Petrus</p>
@@ -320,15 +338,18 @@ array                       : (flx_post_doppler) New flux of the interpolated sy
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>(cp) Planetary contribution to the data (Spectroscopy)
-array           : (cs) Stellar contribution to the data (Spectroscopy)
-array           : (flx_mod_spectro) New model of the companion
-array           : (flx_obs_spectro) New flux of the data
-n-array         : (star_flx_obs) New star flux of the data
-array           : (systematics)</p>
+<dd class="field-even"><p>Planetary contribution to the data (Spectroscopy)
+- cs (array)                : Stellar contribution to the data (Spectroscopy)
+- flx_mod_spectro (array)   : New model of the companion
+- flx_obs_spectro (array)   : New flux of the data
+- star_flx_obs (n-array)    : New star flux of the data
+- systematics (array)       : The systematics</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>array</p>
+<dd class="field-odd"><p><ul class="simple">
+<li><p>cp (array)</p></li>
+</ul>
+</p>
 </dd>
 </dl>
 <p>Author : Allan Denis</p>
@@ -361,17 +382,20 @@ Application of a circumplanetary disk (CPD).</p>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>(wav_obs_spectro) New wavelength grid of the data (may change with the Doppler shift)
-array                   : (flx_obs_spectro) New flux of the data (may change with the Doppler shift)
-array                   : (err_obs_spectro) New error of the data (may change with the Doppler shift)
-array                   : (flx_mod_spectro) New flux of the interpolated synthetic spectrum (spectroscopy)
-array                   : (wav_obs_photo) Wavelength grid of the data (photometry)
-array                   : (flx_obs_photo) Flux of the data (photometry)
-array                   : (err_obs_photo) Error of the data (photometry)
-array                   : (flx_mod_photo) New flux of the interpolated synthetic spectrum (photometry)</p>
+<dd class="field-even"><p>New wavelength grid of the data (may change with the Doppler shift)
+- flx_obs_spectro (array)  : New flux of the data (may change with the Doppler shift)
+- err_obs_spectro (array)  : New error of the data (may change with the Doppler shift)
+- flx_mod_spectro (array)  : New flux of the interpolated synthetic spectrum (spectroscopy)
+- wav_obs_photo (array)    : Wavelength grid of the data (photometry)
+- flx_obs_photo (array)    : Flux of the data (photometry)
+- err_obs_photo (array)    : Error of the data (photometry)
+- flx_mod_photo (array)    : New flux of the interpolated synthetic spectrum (photometry)</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>array</p>
+<dd class="field-odd"><p><ul class="simple">
+<li><p>wav_obs_spectro (array)</p></li>
+</ul>
+</p>
 </dd>
 </dl>
 <p>Author: Simon Petrus, Paulina Palma-Bifani, Allan Denis and Matthieu Ravet</p>
@@ -393,11 +417,14 @@ extinction.fm07.</p>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>(flx_mod_spectro) New flux of the interpolated synthetic spectrum (spectroscopy)
-array                   : (flx_mod_photo) New flux of the interpolated synthetic spectrum (photometry)</p>
+<dd class="field-even"><p>New flux of the interpolated synthetic spectrum (spectroscopy)
+- flx_mod_photo (array)   : New flux of the interpolated synthetic spectrum (photometry)</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>array</p>
+<dd class="field-odd"><p><ul class="simple">
+<li><p>flx_mod_spectro (array)</p></li>
+</ul>
+</p>
 </dd>
 </dl>
 <p>Author: Simon Petrus</p>
@@ -425,10 +452,13 @@ This is a disk integration routine.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>(flx_mod_spectro) New flux of the interpolated synthetic spectrum</p>
+<dd class="field-even"><p>New flux of the interpolated synthetic spectrum</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>array</p>
+<dd class="field-odd"><p><ul class="simple">
+<li><p>flx_mod_spectro (array)</p></li>
+</ul>
+</p>
 </dd>
 </dl>
 <p>Author: Allan Denis</p>
@@ -449,10 +479,13 @@ extinction.fm07.</p>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>(flx_mod_spectro) New flux of the interpolated synthetic spectrum</p>
+<dd class="field-even"><p>New flux of the interpolated synthetic spectrum</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>array</p>
+<dd class="field-odd"><p><ul class="simple">
+<li><p>flx_mod_spectro (array)</p></li>
+</ul>
+</p>
 </dd>
 </dl>
 <p>Author: Simon Petrus</p>
@@ -473,10 +506,13 @@ extinction.fm07.</p>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>(flx_mod_spectro) New flux of the interpolated synthetic spectrum</p>
+<dd class="field-even"><p>New flux of the interpolated synthetic spectrum</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>array</p>
+<dd class="field-odd"><p><ul class="simple">
+<li><p>flx_mod_spectro (array)</p></li>
+</ul>
+</p>
 </dd>
 </dl>
 <p>Author: Simon Petrus</p>
@@ -500,7 +536,10 @@ extinction.fm07.</p>
 <dd class="field-even"><p>Evaluated prior</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Evaluated      (float)</p>
+<dd class="field-odd"><p><ul class="simple">
+<li><p>Evaluated      (float)</p></li>
+</ul>
+</p>
 </dd>
 </dl>
 <p>Author: Simon Petrus</p>
@@ -521,7 +560,10 @@ extinction.fm07.</p>
 <dd class="field-even"><p>Evaluated prior</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Evaluated      (float)</p>
+<dd class="field-odd"><p><ul class="simple">
+<li><p>Evaluated      (float)</p></li>
+</ul>
+</p>
 </dd>
 </dl>
 <p>Author: Simon Petrus</p>
@@ -546,7 +588,10 @@ under the assumption of gaussian and spectrally constant noise.</p>
 <dd class="field-even"><p>the loglikelihood value</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>float</p>
+<dd class="field-odd"><p><ul class="simple">
+<li><p>logL (float)</p></li>
+</ul>
+</p>
 </dd>
 </dl>
 <p>Author: Matthieu Ravet</p>
@@ -568,7 +613,10 @@ under the assumption of gaussian and spectrally constant noise.</p>
 <dd class="field-even"><p>the loglikelihood value</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>array</p>
+<dd class="field-odd"><p><ul class="simple">
+<li><p>logL (float)</p></li>
+</ul>
+</p>
 </dd>
 </dl>
 <p>Author: Matthieu Ravet</p>
@@ -591,7 +639,10 @@ under the assumption of gaussian and spectrally constant noise.</p>
 <dd class="field-even"><p>the loglikelihood value</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>float</p>
+<dd class="field-odd"><p><ul class="simple">
+<li><p>logL (float)</p></li>
+</ul>
+</p>
 </dd>
 </dl>
 <p>Author: Matthieu Ravet</p>
@@ -610,10 +661,13 @@ under the assumption of gaussian and spectrally uncorrelated noise.</p>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>(logL) the loglikelihood value</p>
+<dd class="field-even"><p>the loglikelihood value</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>float</p>
+<dd class="field-odd"><p><ul class="simple">
+<li><p>logL (float)</p></li>
+</ul>
+</p>
 </dd>
 </dl>
 <p>Author: Matthieu Ravet</p>
@@ -635,7 +689,10 @@ under the assumption of gaussian and spectrally correlated noise.</p>
 <dd class="field-even"><p>the loglikelihood value</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>float</p>
+<dd class="field-odd"><p><ul class="simple">
+<li><p>logL (float)</p></li>
+</ul>
+</p>
 </dd>
 </dl>
 <p>Author: Matthieu Ravet</p>
@@ -657,7 +714,10 @@ under the assumption of gaussian and spectrally uncorrelated noise.</p>
 <dd class="field-even"><p>the loglikelihood value</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>float</p>
+<dd class="field-odd"><p><ul class="simple">
+<li><p>logL (float)</p></li>
+</ul>
+</p>
 </dd>
 </dl>
 <p>Author: Allan Denis</p>
@@ -679,7 +739,10 @@ under the assumption of gaussian and spectrally uncorrelated noise.</p>
 <dd class="field-even"><p>the loglikelihood value</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>float</p>
+<dd class="field-odd"><p><ul class="simple">
+<li><p>logL (float)</p></li>
+</ul>
+</p>
 </dd>
 </dl>
 <p>Author: Allan Denis</p>
@@ -702,7 +765,10 @@ with GP extimation of the covariance matrix.</p>
 <dd class="field-even"><p>the loglikelihood value</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>float</p>
+<dd class="field-odd"><p><ul class="simple">
+<li><p>logL (float)</p></li>
+</ul>
+</p>
 </dd>
 </dl>
 <p>Author: Matthieu Ravet</p>

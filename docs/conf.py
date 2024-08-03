@@ -11,6 +11,7 @@ import sys
 sys.path.insert(0, os.path.abspath('../'))
 sys.path.insert(1, os.path.abspath('../ForMoSA/'))
 sys.path.insert(2, os.path.abspath('../ForMoSA/adapt/'))
+sys.path.insert(3, os.path.abspath('../ForMoSA/nested_sampling/'))
 
 project = 'ForMoSA'
 copyright = '2024, Simon Petrus, Paulina Palma-Bifani, Matthieu Ravet, Allan Denis, Mickaël Bonnefoy and Gaël Chauvin'

@@ -1,14 +1,14 @@
 
 from __future__ import print_function, division
-import os
+import os, glob
 import numpy as np
 import matplotlib.pyplot as plt
+from matplotlib.backends.backend_pdf import PdfPages
+from scipy.interpolate import interp1d
 import corner
 import xarray as xr
 import pickle
-from scipy.interpolate import interp1d
 from tqdm import tqdm
-import glob
 
 # Import ForMoSA
 from main_utilities import GlobFile
@@ -18,7 +18,7 @@ from nested_sampling.nested_modif_spec import lsq_fct
 from nested_sampling.nested_modif_spec import vsini_fct_accurate
 from adapt.extraction_functions import resolution_decreasing, adapt_model, decoupe
 from adapt.extraction_functions import adapt_observation_range
-from matplotlib.backends.backend_pdf import PdfPages
+
 
 
 
@@ -890,7 +890,7 @@ class PlottingForMoSA():
         else:
             ax1.set_ylabel(r'Normalised flux (W m-2 µm-1)')
             
-        ax1.set_xlabel('wavelength ($ \mu $m)')
+        ax1.set_xlabel(r'wavelength ($ \mu $m)')
         
         fig1.legend()
         plt.figure(fig1)
@@ -971,7 +971,7 @@ class PlottingForMoSA():
                 ax.plot(wave, data_broadened, c='k')
                 ax.plot(wave, planet_model_broadened, c='r')
                 
-                ax.set_xlabel('wavelength ($\mu$m)')
+                ax.set_xlabel(r'wavelength ($\mu$m)')
                 ax.set_ylabel('Flux (ADU)')
                 
                 ax1.plot(wave, data, c='k')
@@ -989,7 +989,7 @@ class PlottingForMoSA():
         pdf.close()
         
         ax1.legend([legend_data, "planet model"], fontsize = 18)
-        ax1.set_xlabel('wavelength ($ \mu $m)', fontsize=18)
+        ax1.set_xlabel(r'wavelength ($ \mu $m)', fontsize=18)
         ax1.set_ylabel('Flux (ADU)', fontsize=18)
         plt.figure(fig1)
         plt.savefig(self.global_params.result_path + 'Planet_model_and_data.pdf')

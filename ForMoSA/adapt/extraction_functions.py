@@ -63,17 +63,13 @@ def extract_observation(global_params, wav_mod_nativ, res_mod_nativ, cont='no', 
         cont                 (str): Boolean string. If the function is used to estimate the continuum cont='yes'
         obs_name             (str): Name of the current observation looping
         indobs               (int): Index of the current observation looping
+
     Returns:
-        - obs_spectro (n-array)   : List containing the sub-spectra defined by the parameter "wav_for_adapt" with decreased resolution
-                                    [[wav_1, flx_1, err_1, reso_1], ..., [wav_n, flx_n, err_n, reso_n]]
-        - obs_photo (array)       : List containing the photometry (0 replace the spectral resolution here).
-                                    [wav_phot, flx_phot, err_phot, 0]
-        - obs_spectro_ins(array)  : List containing different instruments used for the data (1 per wavelength).
-                                    [[instru_range_1], ..., [instru_range_n]]
-        - obs_photo_ins (array)   : List containing different filters used for the data (1 per photometric point).
-                                    [filter_phot_1, filter_phot_2, ..., filter_phot_n]
-        - obs_opt (n-array)       : List containing the optional sub-arrays defined by the parameter "wav_for_adapt".
-                                    [[cov_1, tran_1, star_1], ..., [cov_n, tran_n, star_n]]  
+        - obs_spectro (n-array)   : List containing the sub-spectra defined by the parameter "wav_for_adapt" with decreased resolution [[wav_1, flx_1, err_1, reso_1], ..., [wav_n, flx_n, err_n, reso_n]]
+        - obs_photo (array)       : List containing the photometry (0 replace the spectral resolution here). [wav_phot, flx_phot, err_phot, 0]
+        - obs_spectro_ins(array)  : List containing different instruments used for the data (1 per wavelength). [[instru_range_1], ..., [instru_range_n]]
+        - obs_photo_ins (array)   : List containing different filters used for the data (1 per photometric point). [filter_phot_1, filter_phot_2, ..., filter_phot_n]
+        - obs_opt (n-array)       : List containing the optional sub-arrays defined by the parameter "wav_for_adapt". [[cov_1, tran_1, star_1], ..., [cov_n, tran_n, star_n]]  
 
     Author: Simon Petrus, Matthieu Ravet
     """
@@ -113,17 +109,13 @@ def adapt_observation_range(global_params, obs_name='', indobs=0):
         global_params  (object): Class containing each parameter
         obs_name          (str): Name of the current observation looping
         indobs            (int): Index of the current observation looping
+
     Returns:
-        - obs_spectro (n-array)   : List containing the sub-spectra defined by the parameter "wav_for_adapt" with decreased resolution
-                                    [[wav_1, flx_1, err_1, reso_1], ..., [wav_n, flx_n, err_n, reso_n]]
-        - obs_photo (array)       : List containing the photometry (0 replace the spectral resolution here).
-                                    [wav_phot, flx_phot, err_phot, 0]
-        - obs_spectro_ins(array)  : List containing different instruments used for the data (1 per wavelength).
-                                    [[instru_range_1], ..., [instru_range_n]]
-        - obs_photo_ins (array)   : List containing different filters used for the data (1 per photometric point).
-                                    [filter_phot_1, filter_phot_2, ..., filter_phot_n]
-        - obs_opt (n-array)       : List containing the optional sub-arrays defined by the parameter "wav_for_adapt".
-                                    [[cov_1, tran_1, star_1], ..., [cov_n, tran_n, star_n]] 
+        - obs_spectro (n-array)   : List containing the sub-spectra defined by the parameter "wav_for_adapt" with decreased resolution  [[wav_1, flx_1, err_1, reso_1], ..., [wav_n, flx_n, err_n, reso_n]]
+        - obs_photo (array)       : List containing the photometry (0 replace the spectral resolution here).  [wav_phot, flx_phot, err_phot, 0]
+        - obs_spectro_ins(array)  : List containing different instruments used for the data (1 per wavelength). [[instru_range_1], ..., [instru_range_n]]
+        - obs_photo_ins (array)   : List containing different filters used for the data (1 per photometric point). [filter_phot_1, filter_phot_2, ..., filter_phot_n]
+        - obs_opt (n-array)       : List containing the optional sub-arrays defined by the parameter "wav_for_adapt". [[cov_1, tran_1, star_1], ..., [cov_n, tran_n, star_n]] 
 
     Author: Simon Petrus, Matthieu Ravet and Allan Denis
     """
