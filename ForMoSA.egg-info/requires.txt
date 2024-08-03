@@ -9,5 +9,6 @@ nestle
 PyAstronomy
 spectres
 pyyaml
+tqdm
 importlib-metadata==4.13.0
 xarray==2023.10.1

@@ -1,5 +1,4 @@
 from setuptools import setup, find_packages, Extension
-import numpy, sys
 import re
 
 
@@ -23,7 +22,7 @@ def get_requires():
     return reqs
 
 setup(name='ForMoSA',
-      version=get_property("__version__", "exoSpin"),
+      version=get_property("__version__", "ForMoSA"),
       description='ForMoSA: Forward Modeling Tool for Spectral Analysis',
       url='https://github.com/exoAtmospheres/ForMoSA',
       author='P. Palma-Bifani, S. Petrus, M. Ravet, A. Denis, M. Bonnefoy, G. Chauvin',
