@@ -2,7 +2,9 @@ from __future__ import print_function, division
 import numpy as np
 import xarray as xr
 import time
-import os
+import os, sys
+
+sys.path.insert(0, os.path.abspath('../'))
 
 from adapt.extraction_functions import adapt_model, decoupe
 

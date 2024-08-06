@@ -1,6 +1,6 @@
 
 from __future__ import print_function, division
-import os, glob
+import os, glob, sys
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_pdf import PdfPages
@@ -9,6 +9,8 @@ import corner
 import xarray as xr
 import pickle
 from tqdm import tqdm
+
+sys.path.insert(0, os.path.abspath('../'))
 
 # Import ForMoSA
 from main_utilities import GlobFile

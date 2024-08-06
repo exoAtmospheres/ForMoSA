@@ -32,7 +32,7 @@ extensions = ['sphinx_rtd_theme',
               'sphinx.ext.mathjax',    
               'sphinx.ext.napoleon',
               'sphinx.ext.viewcode',
-              #'nbsphinx',
+              'nbsphinx',
               ]
 
 
