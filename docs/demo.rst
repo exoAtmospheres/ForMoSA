@@ -56,6 +56,8 @@ List of tutorials:
 .. toctree::
    :maxdepth: 1
 
+   tutorials/inputs
+
    tutorials/demoabpic
 ..
    demo_mosaic.rst
