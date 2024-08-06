@@ -39,12 +39,12 @@ Download the grid you want to use by clicking over it's name. Ideally, save it i
 * `ExoREM native <https://drive.google.com/file/d/1k9SQjHLnMCwmGOHtraRnhCgiZ1-4J3Wk/view?usp=share_link>`_ from `B. Charnay et al. 2018 <https://ui.adsabs.harvard.edu/abs/2018ApJ...854..172C/abstract>`_
 
 
-Learn more at:
+Learn more about:
 
 .. toctree::
    :maxdepth: 1
 
-   atm_grids
+   tutorials/exorem_info.ipynb
 
 
 

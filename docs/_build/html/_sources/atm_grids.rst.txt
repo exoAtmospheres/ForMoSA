@@ -2,3 +2,8 @@
 
 Atmospheric grids
 =================
+
+.. toctree::
+   :maxdepth: 1
+
+   tutorials/exorem_info.ipynb

@@ -4,6 +4,8 @@ import os,sys
 import xarray as xr
 from scipy.interpolate import interp1d
 
+sys.path.insert(0, os.path.abspath('../'))
+
 from adapt.extraction_functions import extract_observation
 from adapt.adapt_grid import adapt_grid
 from main_utilities import diag_mat

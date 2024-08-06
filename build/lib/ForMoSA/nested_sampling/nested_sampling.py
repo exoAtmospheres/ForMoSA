@@ -1,10 +1,12 @@
 import numpy as np
-import os
+import os, sys
 import glob
 import nestle
 import time
 import xarray as xr
 import pickle
+
+sys.path.insert(0, os.path.abspath('../'))
 
 from nested_sampling.nested_modif_spec import modif_spec
 from nested_sampling.nested_prior_function import uniform_prior, gaussian_prior
