@@ -59,17 +59,17 @@ def lsq_fct(flx_obs_spectro, err_obs_spectro, star_flx_obs, transm_obs, flx_mod_
     if len(system_obs) > 0:
         A_matrix = np.zeros([np.size(flx_obs_spectro), 1 + len(star_flx_obs[0][0]) + len(system_obs[0][0])])
         for j in range(len(system_obs[0][0])):
-            A_matrix[:,1+len(star_flx_obs[0][0])+j] = system_obs[0][:,j] * err_obs_spectro
+            A_matrix[:,1+len(star_flx_obs[0][0])+j] = system_obs[0][:,j] / err_obs_spectro
     else:
         A_matrix = np.zeros([np.size(flx_obs_spectro), 1 + len(star_flx_obs[0][0])])
         
     for j in range(len(star_flx_obs[0][0])):
-        A_matrix[:,1+j] = star_flx_obs[0][:,j] * err_obs_spectro
+        A_matrix[:,1+j] = star_flx_obs[0][:,j] / err_obs_spectro
         
-    A_matrix[:,0] = flx_mod_spectro * err_obs_spectro
+    A_matrix[:,0] = flx_mod_spectro / err_obs_spectro
     
     # Least square 
-    res = optimize.lsq_linear(A_matrix, flx_obs_spectro * err_obs_spectro, bounds=([0]*len(A_matrix[0]), [1]*len(A_matrix[0])))
+    res = optimize.lsq_linear(A_matrix, flx_obs_spectro / err_obs_spectro, bounds=([0]*len(A_matrix[0]), [1]*len(A_matrix[0])))
     cp = res.x[0]
     
     cs = np.array([])
