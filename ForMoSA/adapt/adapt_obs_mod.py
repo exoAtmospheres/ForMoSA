@@ -88,9 +88,9 @@ def launch_adapt(global_params, justobs='no'):
                     if len(transm_obs_extract) != 0:
                         transm_obs_extract = np.concatenate((transm_obs_extract, obs_opt[c][1]))
                     if len(star_flx_obs_extract) != 0:
-                        star_flx_obs_extract = np.concatenate((star_flx_obs_extract, obs_opt[c][2]))
+                        star_flx_obs_extract = np.concatenate((star_flx_obs_extract, obs_opt[c][2]), axis=1)
                     if len(system_obs_extract) != 0:
-                        system_obs_extract = np.concatenate((system_obs_extract, obs_opt[c][3]), axis=0)
+                        system_obs_extract = np.concatenate((system_obs_extract, obs_opt[c][3]), axis=1)
                     # Save the interpolated resolution of the grid
                     res_mod_obs_merge.append(res_mod_cut)
     

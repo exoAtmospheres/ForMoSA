@@ -361,3 +361,18 @@ Comments:
 Tests:
     Webpage API is generating without issues locally (make html)
 
+
+
+- - - 
+
+08/08/2024
+
+Matthieu Ravet
+
+Comments:
+     - Correcting for the HiRISE type data merging when using cuts (i.e. remplacing axis=0 by axis=1). In the future, it would be
+     nice to create a more simple version of the star and systematic matrix (for now its (1, lambda, sys/star) it would be best to
+     have (lambda, sys/star) to avoid keeping large matrices accross the inversion)
+
+Tests:
+    - Test with CRIRES+ datasets with cuts in the adapt and in the fit
