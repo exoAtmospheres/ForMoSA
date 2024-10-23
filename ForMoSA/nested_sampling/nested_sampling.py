@@ -20,10 +20,10 @@ def import_obsmod(global_params):
 
     Args:
         global_params  (object): Class containing every input from the .ini file.
-        
+
     Returns:
         - main_file (list(array)): Return a list of lists with the wavelengths, flux, errors, covariance matrix,
-                                transmission, star flux, systematics and the grids for both spectroscopic and photometric data. 
+                                transmission, star flux, systematics and the grids for both spectroscopic and photometric data.
 
     Authors: Simon Petrus, Matthieu Ravet and Allan Denis
     """
@@ -32,7 +32,7 @@ def import_obsmod(global_params):
     main_file = []
 
     for indobs, obs in enumerate(sorted(glob.glob(main_obs_path))):
-        
+
         global_params.observation_path = obs
         obs_name = os.path.splitext(os.path.basename(global_params.observation_path))[0]
         spectrum_obs = np.load(os.path.join(global_params.result_path, f'spectrum_obs_{obs_name}.npz'), allow_pickle=True)
@@ -64,7 +64,7 @@ def import_obsmod(global_params):
         ds = xr.open_dataset(path_grid_photo, decode_cf=False, engine='netcdf4')
         grid_photo = ds['grid']
         ds.close()
-        
+
 
         main_file.append([[wav_obs_spectro, wav_obs_photo], [flx_obs_spectro, flx_obs_photo], [err_obs_spectro, err_obs_photo], inv_cov_obs, transm_obs, star_flx_obs, system_obs, grid_spectro, grid_photo])
 
@@ -73,19 +73,19 @@ def import_obsmod(global_params):
 
 def loglike(theta, theta_index, global_params, main_file, for_plot='no'):
     """
-    Function that calculates the logarithm of the likelihood. 
+    Function that calculates the logarithm of the likelihood.
     The evaluation depends on the choice of likelihood.
     (If this function is used on the plotting module, it returns the outputs of the modif_spec function)
-    
+
     Args:
         theta           (list): Parameter values randomly picked by the nested sampling
         theta_index     (list): Index for the parameter values randomly picked
         global_params (object): Class containing every input from the .ini file.
         main_file (list(list)): List containing the wavelengths, flux, errors, covariance, and grid information
         for_plot         (str): Default is 'no'. When this function is called from the plotting functions module, we use 'yes'
-        
+
     Returns:
-        - FINAL_logL     (float): Final evaluated loglikelihood for both spectra and photometry. 
+        - FINAL_logL     (float): Final evaluated loglikelihood for both spectra and photometry.
 
     Authors: Simon Petrus, Matthieu Ravet and Allan Denis
     """
@@ -96,7 +96,7 @@ def loglike(theta, theta_index, global_params, main_file, for_plot='no'):
 
 
     for indobs, obs in enumerate(sorted(glob.glob(main_obs_path))):
-        
+
         # Recovery of spectroscopy and photometry data
         wav_obs_spectro = main_file[indobs][0][0]
         wav_obs_photo = main_file[indobs][0][1]
@@ -108,15 +108,15 @@ def loglike(theta, theta_index, global_params, main_file, for_plot='no'):
         transm_obs = main_file[indobs][4]
         star_flx_obs = main_file[indobs][5]
         system_obs = main_file[indobs][6]
-        
-        
+
+
         # Recovery of the spectroscopy and photometry model
         grid_spectro = main_file[indobs][7]
         grid_photo = main_file[indobs][8]
 
         # Calculation of the likelihood for each sub-spectrum defined by the parameter 'wav_fit'
         for ns_u_ind, ns_u in enumerate(global_params.wav_fit[indobs].split('/')):
-            
+
             min_ns_u = float(ns_u.split(',')[0])
             max_ns_u = float(ns_u.split(',')[1])
             ind_grid_spectro_sel = np.where((grid_spectro['wavelength'] >= min_ns_u) & (grid_spectro['wavelength'] <= max_ns_u))
@@ -225,10 +225,10 @@ def loglike(theta, theta_index, global_params, main_file, for_plot='no'):
         # Modification of the synthetic spectrum with the extra-grid parameters
         modif_spec_LL = modif_spec(global_params, theta, theta_index,
                                     wav_obs_spectro_ns_u,  flx_obs_spectro_ns_u,  err_obs_spectro_ns_u,  flx_mod_spectro_ns_u,
-                                    wav_obs_photo_ns_u,  flx_obs_photo_ns_u, err_obs_photo_ns_u,  flx_mod_photo_ns_u, 
+                                    wav_obs_photo_ns_u,  flx_obs_photo_ns_u, err_obs_photo_ns_u,  flx_mod_photo_ns_u,
                                     transm_obs_ns_u, star_flx_obs_ns_u, system_obs_ns_u, indobs=indobs)
-        
-        
+
+
 
         flx_obs_spectro_modif, flx_obs_photo_modif = modif_spec_LL[1], modif_spec_LL[5]
         flx_mod_spectro_modif, flx_mod_photo_modif = modif_spec_LL[3], modif_spec_LL[7]
@@ -239,7 +239,7 @@ def loglike(theta, theta_index, global_params, main_file, for_plot='no'):
 
         if global_params.use_lsqr[indobs] == 'True':
             # If our data is contaminated by starlight difraction, the model is the sum of the estimated stellar contribution + planet model
-  
+
             flx_mod_spectro_modif = flx_mod_spectro_modif + star_flx_obs
             if len(systematics) > 0:
                 flx_mod_spectro_modif += systematics
@@ -247,9 +247,9 @@ def loglike(theta, theta_index, global_params, main_file, for_plot='no'):
 
         # Computation of the photometry logL
         if len(flx_obs_photo_modif) != 0:
-            
+
             logL_photo = logL_chi2_classic(flx_obs_photo_modif-flx_mod_photo_modif, err_obs_photo_modif)
-            
+
         else:
             logL_photo = 0
 
@@ -290,18 +290,18 @@ def loglike(theta, theta_index, global_params, main_file, for_plot='no'):
 
 def prior_transform(theta, theta_index, lim_param_grid, global_params):
     """
-    Function that define the priors to be used for the inversion. 
+    Function that define the priors to be used for the inversion.
     We check that the boundaries are consistent with the grid extension.
-    
+
     Args:
         theta           (list): Parameter values randomly picked by the nested sampling
         theta_index     (list): Index for the parameter values randomly picked
         lim_param_grid  (list): Boundaries for the parameters explored
         global_params (object): Class containing every input from the .ini file.
-        
+
     Returns:
         - prior           (list): List containing all the prior information
-        
+
     Author: Simon Petrus, Matthieu Ravet, Allan Denis
     """
     prior = []
@@ -387,9 +387,9 @@ def prior_transform(theta, theta_index, lim_param_grid, global_params):
             prior.append(prior_d)
 
     # - - - - - - - - - - - - - - - - - - - - -
-            
+
     # Individual parameters / observation
-            
+
     if len(global_params.alpha) > 3: # If you want separate alpha for each observations
         main_obs_path = global_params.main_observation_path
         for indobs, obs in enumerate(sorted(glob.glob(main_obs_path))):
@@ -514,9 +514,9 @@ def prior_transform(theta, theta_index, lim_param_grid, global_params):
 
 def launch_nested_sampling(global_params):
     """
-    Function to launch the nested sampling. 
-    We first perform LogL function check-ups. 
-    Then the free parameters are counted and the data imported. 
+    Function to launch the nested sampling.
+    We first perform LogL function check-ups.
+    Then the free parameters are counted and the data imported.
     Finally, depending on the nested sampling methode chosen in the config file, we perform the inversion.
     (Methods succesfully implemented are Nestle and PyMultinest)
 
@@ -525,7 +525,7 @@ def launch_nested_sampling(global_params):
 
     Returns:
         None
-        
+
     Author: Simon Petrus and Matthieu Ravet
     """
 
@@ -535,7 +535,7 @@ def launch_nested_sampling(global_params):
     print()
 
     main_obs_path = global_params.main_observation_path
-    for indobs, obs in enumerate(sorted(glob.glob(main_obs_path))):      
+    for indobs, obs in enumerate(sorted(glob.glob(main_obs_path))):
         global_params.observation_path = obs
         obs_name = os.path.splitext(os.path.basename(global_params.observation_path))[0]
 
@@ -554,7 +554,7 @@ def launch_nested_sampling(global_params):
             print('WARNING. You cannot use CCF mappings without substracting the continuum')
             print()
             exit()
-            
+
         print()
     print('Done !')
     print()
@@ -589,10 +589,10 @@ def launch_nested_sampling(global_params):
         theta_index.append('d')
 
     # - - - - - - - - - - - - - - - - - - - - -
-            
+
     # Individual parameters / observation
-        
-    if len(global_params.alpha) > 3: 
+
+    if len(global_params.alpha) > 3:
         main_obs_path = global_params.main_observation_path
         for indobs, obs in enumerate(sorted(glob.glob(main_obs_path))):
             if global_params.alpha[indobs*3] != 'NA' and global_params.alpha[indobs*3] != 'constant': # Check if the idobs is different from constant
@@ -602,7 +602,7 @@ def launch_nested_sampling(global_params):
         if global_params.alpha != 'NA' and global_params.alpha[0] != 'constant':
             n_free_parameters += 1
             theta_index.append(f'alpha')
-    if len(global_params.rv) > 3: 
+    if len(global_params.rv) > 3:
         main_obs_path = global_params.main_observation_path
         for indobs, obs in enumerate(sorted(glob.glob(main_obs_path))):
             if global_params.rv[indobs*3] != 'NA' and global_params.rv[indobs*3] != 'constant': # Check if the idobs is different from constant
@@ -612,7 +612,7 @@ def launch_nested_sampling(global_params):
         if global_params.rv != 'NA' and global_params.rv[0] != 'constant':
             n_free_parameters += 1
             theta_index.append(f'rv')
-    if len(global_params.vsini) > 4: 
+    if len(global_params.vsini) > 4:
         main_obs_path = global_params.main_observation_path
         for indobs, obs in enumerate(sorted(glob.glob(main_obs_path))):
             if global_params.vsini[indobs*4] != 'NA' and global_params.vsini[indobs*4] != 'constant': # Check if the idobs is different from constant
@@ -622,7 +622,7 @@ def launch_nested_sampling(global_params):
         if global_params.vsini != 'NA' and global_params.vsini[0] != 'constant':
             n_free_parameters += 1
             theta_index.append('vsini')
-    if len(global_params.ld) > 3: 
+    if len(global_params.ld) > 3:
         main_obs_path = global_params.main_observation_path
         for indobs, obs in enumerate(sorted(glob.glob(main_obs_path))):
             if global_params.ld[indobs*3] != 'NA' and global_params.ld[indobs*3] != 'constant': # Check if the idobs is different from constant
@@ -634,7 +634,7 @@ def launch_nested_sampling(global_params):
             theta_index.append('ld')
 
     # - - - - - - - - - - - - - - - - - - - - -
-            
+
     if global_params.av != 'NA' and global_params.av[0] != 'constant':
         n_free_parameters += 1
         theta_index.append('av')
@@ -649,14 +649,14 @@ def launch_nested_sampling(global_params):
 
     # Import all the data (only done once)
     main_file = import_obsmod(global_params)
-    
+
     if global_params.ns_algo == 'nestle':
         tmpstot1 = time.time()
         loglike_gp = lambda theta: loglike(theta, theta_index, global_params, main_file=main_file)
         prior_transform_gp = lambda theta: prior_transform(theta, theta_index, lim_param_grid, global_params)
-        result = nestle.sample(loglike_gp, prior_transform_gp, n_free_parameters, 
+        result = nestle.sample(loglike_gp, prior_transform_gp, n_free_parameters,
                                callback=nestle.print_progress,
-                               npoints=int(float(global_params.npoint)), 
+                               npoints=int(float(global_params.npoint)),
                                method=global_params.n_method,
                                maxiter=global_params.n_maxiter,
                                maxcall=global_params.n_maxcall,
@@ -671,11 +671,18 @@ def launch_nested_sampling(global_params):
         logvol = result['logvol']
         logl = result['logl']
         tmpstot2 = time.time()-tmpstot1
+        if tmpstot2 < 60:
+            time_spent = f'{tmpstot2:.1f} sec'
+        elif tmpstot2 < 3600:
+            time_spent = f'{tmpstot2/60:.1f} min'
+        else:
+            time_spent = f'{tmpstot2/3600:.1f} hours'
+
         print(' ')
         print('- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -')
         print('-> Nestle  ')
         print(' ')
-        print('The code spent ' + str(tmpstot2) + ' sec to run.')
+        print(f'The code spent {time_spent} to run.')
         print(result.summary())
         print('\n')
 
@@ -740,11 +747,18 @@ def launch_nested_sampling(global_params):
         logvol = np.asarray(final_logvol_multi)
         logl = np.asarray(final_logl_multi)
         tmpstot2 = time.time()-tmpstot1
+        if tmpstot2 < 60:
+            time_spent = f'{tmpstot2:.1f} sec'
+        elif tmpstot2 < 3600:
+            time_spent = f'{tmpstot2/60:.1f} min'
+        else:
+            time_spent = f'{tmpstot2/3600:.1f} hours'
+
         print(' ')
         print('- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -')
         print('-> PyMultinest  ')
         print(' ')
-        print('The code spent ' + str(tmpstot2) + ' sec to run.')
+        print(f'The code spent {time_spent} to run.')
         print('The evidence is: %(logZ).1f +- %(logZerr).1f' % result)
         print('The parameter values are:')
         for name, col in zip(theta_index, result['samples'].transpose()):
@@ -755,7 +769,7 @@ def launch_nested_sampling(global_params):
     #     import ultranest, ultranest.stepsampler
 
     #     tmpstot1 = time.time()
-        
+
     #     loglike_gp = lambda theta: loglike(theta, theta_index, global_params)
 
     #     prior_transform_gp = lambda theta: prior_transform(theta, theta_index, lim_param_grid, global_params)
@@ -778,14 +792,20 @@ def launch_nested_sampling(global_params):
     #     #sampler.plot_corner()
 
     #     tmpstot2 = time.time()-tmpstot1
+    #     if tmpstot2 < 60:
+    #         time_spent = f'{tmpstot2:.1f} sec'
+    #     elif tmpstot2 < 3600:
+    #         time_spent = f'{tmpstot2/60:.1f} min'
+    #     else:
+    #         time_spent = f'{tmpstot2/3600:.1f} hours'
     #     print(' ')
     #     print('- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -')
     #     print('-> Ultranest  ')
     #     print(' ')
-    #     print('The code spent ' + str(tmpstot2) + ' sec to run.')
+    #     print(f'The code spent {time_spent} to run.')
     #     print(result.summary())
     #     print('\n')
-    
+
     # if global_params.ns_algo == 'dynesty':
     #     from dynesty import NestedSampler
 
@@ -804,7 +824,7 @@ def launch_nested_sampling(global_params):
     print(' ')
     print('-> Voilà, on est prêt')
 
-    return 
+    return
 
 # ----------------------------------------------------------------------------------------------------------------------
 
