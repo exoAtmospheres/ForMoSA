@@ -1,24 +1,24 @@
  _ _ _
 
-13/12/2023 
-Matthieu Ravet 
+13/12/2023
+Matthieu Ravet
 
 Comments:
     - First official release notes : Implementation of MOSAIC (Multimodal framework + likelihood functions).
     See /ForMoSA/DEMO/inputs/MOSAIC/ folder for more info
 
-_ _ _ 
+_ _ _
 
-20/12/2023 
-Matthieu Ravet 
+20/12/2023
+Matthieu Ravet
 
 Comments:
     - Correction of the os import in adapt/extraction_functions.py
 
-_ _ _ 
+_ _ _
 
-21/12/2023 
-Matthieu Ravet 
+21/12/2023
+Matthieu Ravet
 
 Comments:
     - No more covariance matrix if not provided in the impute observation file or if the covariance likelihood (chi2_covariance) is not used
@@ -27,44 +27,44 @@ Comments:
     - New function in main_utilities to compute the diagonal merging of covariance matrix (~ 100x faster)
     - Sorting of the glob.glob when using the MOSAIC (i.e. you can now number your observation files, ex: 1_obs1, 2_obs2, ...)
 
-_ _ _ 
+_ _ _
 
-01/02/2024 
-Matthieu Ravet 
+01/02/2024
+Matthieu Ravet
 
 Comments:
     - Addition of checkups for the likelihoods (continuum checkups for the CCF and iterative checkups for the logL loop)
     - Correction of the continuum substraction function to make it run with custom ranges
     - Changes of the num_sigma parameter in extraction_functions to not smooth to much the models during the resolution decrease
 
-_ _ _ 
+_ _ _
 
-15/02/2024 
-Matthieu Ravet 
+15/02/2024
+Matthieu Ravet
 
 Comments:
     - TEST BRANCH
 
-_ _ _ 
+_ _ _
 
-19/02/2024 
-Matthieu Ravet 
+19/02/2024
+Matthieu Ravet
 
 Comments:
     - Small correction in the rv and vsini loops (len(flx) != 0, if you run with photometry only, usefull for MOSAIC)
 
-_ _ _ 
+_ _ _
 
 08/03/2024
 Paulina Palma-Bifani
 
-Comments: 
+Comments:
     - I've modified the readme to include PyMultinest installation instructions.
     I've modified the authors list and requirements too.
     - I've added the lines Matthieu wrote about PyMultinest run.
-    - I've completed the docstrings for many functions. 
-    - I've modified the prints to have a consistent style over the code. 
-    - I'm working on adapting the plotting function to be consistent for: MOSAIC, pymultinest, have a fat-check plot generator, ect... 
+    - I've completed the docstrings for many functions.
+    - I've modified the prints to have a consistent style over the code.
+    - I'm working on adapting the plotting function to be consistent for: MOSAIC, pymultinest, have a fat-check plot generator, ect...
 
 _ _ _
 
@@ -127,7 +127,7 @@ Comments:
     a separate array:
             * "obs_opt" for the optional observational arrays (cov, star_flx and trans_obs at the moment)
     - Correction of the functions names and imports in nested_sampling, plotting_class
-    
+
 _ _ _
 
 05/04/2024
@@ -158,7 +158,7 @@ Test that have been done to checkup the changes:
 
 Note: alpha parameter is strongly correlated to R and d => need to be carefull about the physical interpretations. Inversion time is greatly lengthen
 with this new parameter when using MOSAIC
-    
+
 _ _ _
 
 30/04/2024
@@ -206,7 +206,7 @@ Test that have been done to checkup the changes:
     - all plotting options ✓
     - multiple observations (with the above tests) ✓
     - multiple observations with multiple alpha and rv ✓
-    
+
 _ _ _
 
 12/05/2024
@@ -307,38 +307,38 @@ Comment:
 
     - Adding the possibility of having multiple components for the starlight contamintation, often used for high resolution data
 
-    - New plotting functions in order to compare the planet model estimated by the least square function and the data substracted by the 'reference model'. 
+    - New plotting functions in order to compare the planet model estimated by the least square function and the data substracted by the 'reference model'.
     In high resolution data, the 'reference model' refers to the estimated starlight contamination and the systematics (if they exist)
 
 Tests that have been done to checkup the changes:
     - 1 obs with the 3 possible values for the fourth parameter of the vsini prior ✓
     - a few obs with 5 components for the starlight contamintation (Rico data and HiRISE data) ✓
-    
-    
-- - - 
+
+
+- - -
 
 18/07/2024
 
-Allan Denis 
+Allan Denis
 
 Comments:
      - Fixing a small bug when using both photometric and spectroscopic data
      - Adding the possibility to plot the planetary model and the data (substracted by the starlight contamination and the systematics if they exist) by decreasing their resolution, with the function plot_HiRes_comp_model (used for high resolution data)
      The user must define in the function the resolution of the instrument (default to 0). is the default value is selected then the function doesn't decrease the resolution of the data. If the resolution of the instrument is defined then the instrument decrease the resolution of the data to the resolution given by the v.sini (= 3.0*10⁵ / v.sini)
      - Adding a ccf function that computes the ccf of the data with the best model. A model can also be defined by the user and given as the input of the fonction (if the user wants to to the ccf with a molecular template for exemple)
-     
+
 Tests that have been done to checkup the changes:
     - Different high resolution datasets
-    - Datasets combining photometric and spectroscopic data points 
-     
+    - Datasets combining photometric and spectroscopic data points
 
 
 
-- - - 
+
+- - -
 
 28/07/2024
 
-Paulina Palma-Bifani, Matthieu Ravet 
+Paulina Palma-Bifani, Matthieu Ravet
 
 Comments:
      - Commenting all functions
@@ -348,7 +348,7 @@ Tests:
     None
 
 
-- - - 
+- - -
 
 02/08/2024
 
@@ -356,7 +356,7 @@ Paulina Palma-Bifani
 
 Comments:
      - Adapted docstrings returns in some functions (not all)
-     - Generated documentation for the webpage 
+     - Generated documentation for the webpage
      - This is a test. I will do a second commit afterwards with the complete updated docs.
 
 Tests:
@@ -364,7 +364,7 @@ Tests:
 
 
 
-- - - 
+- - -
 
 08/08/2024
 
@@ -383,12 +383,12 @@ Tests:
 
 29/08/2024
 
-Allan Denis 
+Allan Denis
 
 Comments:
       - New approach in the adaptation of the data in the case where the user defined separated windows in 'wave_for_adapt' (eg : '1.4, 1.5 / 1.6, 1.7 / 1.8, 1.9 / ... '). Instead of making a loop on each sub-interval, we now combine the data in one array and do the adaptation on one array
-      - New approach in the lsq function, we can now use the lsq in each sub wavelength separatly (eg. '1.4, 1.5', '1.6, 1.7', '1.8, 1.9' ...) and merge the results into a single array to compute the loglikelihood on one array only. This gives the advantage of limiting flux error calibration that can arrise between order for data such as CRIRES, HiRISE ... and being fast at the same time. Previously, the use had to define separated windows in 'wave_fit' (eg : '1.4, 1.5', '1.6, 1.7', '1.8, 1.9' ...) and one loglikelihood one computed for each of these windows. Now the user has to define separated windows in the format '1.4, 1.5 / 1.6, 1.7 / 1.8, 1.9 / ...' 
-      
+      - New approach in the lsq function, we can now use the lsq in each sub wavelength separatly (eg. '1.4, 1.5', '1.6, 1.7', '1.8, 1.9' ...) and merge the results into a single array to compute the loglikelihood on one array only. This gives the advantage of limiting flux error calibration that can arrise between order for data such as CRIRES, HiRISE ... and being fast at the same time. Previously, the use had to define separated windows in 'wave_fit' (eg : '1.4, 1.5', '1.6, 1.7', '1.8, 1.9' ...) and one loglikelihood one computed for each of these windows. Now the user has to define separated windows in the format '1.4, 1.5 / 1.6, 1.7 / 1.8, 1.9 / ...'
+
 Tests that have been done to checkup the changes:
      - High resolution datasets (HiRISE, CRIRES)
 
@@ -403,13 +403,13 @@ Comments:
       - Updating / correting the readthedocs
       - Correction of the rv input loop if you want to set it to constant during the ns
       - Correction of the plotting function (for constant extra grid and for the custom resolution grid)
-      
+
 
 Tests that have been done to checkup the changes:
      - Test with constant priors on the rv
 
 
-_ _ _ 
+_ _ _
 
 25/10/2024
 
@@ -439,11 +439,11 @@ Tests that have been done to checkup the changes:
      - Run with photometry / LRS / MRS and HRS
      - Run with/without MOSAIC
      - Run with/without multiple wav_for_adapt and multiple wav_fit
-     - Run with/without continuum 
+     - Run with/without continuum
 
-    
 
-_ _ _ 
+
+_ _ _
 
 30/10/2024
 
@@ -452,5 +452,21 @@ Matthieu Ravet
 Comments:
     - Removing the Nyquist checkup for the data (HRS tends to have jumps inside orders which creates weird
     artefacts during inversion)
-    - Adding new parameter in convolve_and_sample to give back an interpolated version of the model when its 
+    - Adding new parameter in convolve_and_sample to give back an interpolated version of the model when its
     resolution is lower than that of the data
+
+_ _ _
+
+08/11/2024
+
+Arthur Vigan
+
+Comments:
+    - Implement accurate and fast rotational broadening based on the method of Carvalho & Johns-Krull (2023)
+    - Fix a bug that caused the code to continue running when specifying a rotational broadening method that is not in the list of available methods!
+    - Implement better output of the time spent running
+    - Automatically create ouput directory if it does not exist
+    - Make a copy of the config file in the output directory (to go back to original parameters of a ForMoSA run)
+    - Fix import to allow importation of plotting module outside of the ForMoSA package context
+    - Update .gitignore file with more general patterns for a python package
+    - Remove files that should not have been committed

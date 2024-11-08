@@ -11,6 +11,7 @@ Easy to understand and simple access for the new users.
 import os
 # os.environ["OMP_NUM_THREADS"] = "1"
 import sys
+import shutil
 
 # Import ForMoSA
 #base_path = '/Users/ppalmabifani/Desktop/exoAtm/c0_ForMoSA/ForMoSA/'     # Give the path to ForMoSA to be able to import it. No need when this will be a pip package
@@ -37,12 +38,20 @@ if __name__ == '__main__':
     ## CONFIG_FILE reading and defining global parameters
     global_params = GlobFile(config_file_path)                          # To access any param.: global_params.parameter_name
 
+    # create output directory if needed
+    if not os.path.exists(global_params.result_path):
+        os.makedirs(global_params.result_path, exist_ok=True)
+
+    # make a copy of the input configuration file into the output directory for future reference
+    print('- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -')
+    print('-> save config file')
+    shutil.copy2(config_file_path, global_params.result_path + 'configuration.ini')
+
     # ----------------------------------------------------------------------------------------------------------------------
     ## Run ForMoSA
     print('- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -')
     print('-> Initializing ForMoSA')
     print()
-
 
     if len(sys.argv) == 1:
         y_n_par = yesno('Do you want to adapt the grid to your data? (y/n)')
