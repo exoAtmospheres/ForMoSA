@@ -457,7 +457,7 @@ Comments:
 
 _ _ _
 
-08/11/2024
+09/11/2024
 
 Arthur Vigan
 
@@ -470,3 +470,4 @@ Comments:
     - Fix import to allow importation of plotting module outside of the ForMoSA package context
     - Update .gitignore file with more general patterns for a python package
     - Remove files that should not have been committed
+    - Small improvements to plot_fit()

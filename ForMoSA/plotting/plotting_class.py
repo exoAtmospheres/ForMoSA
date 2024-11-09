@@ -350,8 +350,8 @@ class PlottingForMoSA():
         '''
         print('ForMoSA - Corner plot')
 
+        # make sure posteriors are loaded
         self._get_posteriors()
-
 
         fig = corner.corner(self.posterior_to_plot[burn_in:],
                             weights=self.weights[burn_in:],
@@ -392,6 +392,7 @@ class PlottingForMoSA():
         '''
         print('ForMoSA - Posteriors chains for each parameter')
 
+        # make sure posteriors are loaded
         self._get_posteriors()
 
         col = int(len(self.posterior_to_plot[0][:])/2)+int(len(self.posterior_to_plot[0][:])%2)
@@ -430,6 +431,7 @@ class PlottingForMoSA():
         '''
         print('ForMoSA - Radar plot')
 
+        # make sure posteriors are loaded
         self._get_posteriors()
 
         list_posteriors = []
@@ -467,7 +469,8 @@ class PlottingForMoSA():
                                             planet transmission, star fluxes, systematics
             - ck                list(floats): list scaling factor(s)
         '''
-        # Get the posteriors
+
+        # make sure posteriors are loaded
         self._get_posteriors()
 
         # Create a list for each spectra (obs and mod) for each observation + scaling factors
@@ -589,6 +592,8 @@ class PlottingForMoSA():
             - flx_final                   (array): Flux array of the full model
             - ck                          (float): Scaling factor of the full model
         '''
+
+        # make sure posteriors are loaded
         self._get_posteriors()
 
         if len(wavelengths)==0:
@@ -674,20 +679,22 @@ class PlottingForMoSA():
             - axr    (object) : matplotlib axes objects, residuals
             - axr2   (object) : matplotlib axes objects, right side density histogram
         '''
+
+        # make sure posteriors are loaded
+        self._get_posteriors()
+
         print('ForMoSA - Best fit and residuals plot')
 
         fig = plt.figure(figsize=figsize)
         fig.tight_layout()
         size = (7,11)
-        ax = plt.subplot2grid(size, (0, 0),rowspan=5 ,colspan=10)
-        axr= plt.subplot2grid(size, (5, 0),rowspan=2 ,colspan=10)
-        axr2= plt.subplot2grid(size, (5, 10),rowspan=2 ,colspan=1)
-
+        ax = plt.subplot2grid(size, (0, 0), rowspan=5, colspan=10)
+        axr = plt.subplot2grid(size, (5, 0), rowspan=2, colspan=10, sharex=ax)
+        axr2 = plt.subplot2grid(size, (5, 10), rowspan=2, colspan=1, sharey=axr)
 
         spectra, ck = self._get_spectra(self.theta_best)
         iobs_spectro = 0
         iobs_photo = 0
-
 
         # Scale or not in absolute flux
         if norm != 'yes':
@@ -696,9 +703,7 @@ class PlottingForMoSA():
             else:
                 ck = np.full(len(spectra[0][4]), 1)
 
-
         for indobs, obs in enumerate(sorted(glob.glob(self.global_params.main_observation_path))):
-
             if self.global_params.use_lsqr[indobs] == 'True':
                 # If we used the lsq function, it means that our data is contaminated by the starlight difraction
                 # so the model is the sum of the planet model + the estimated stellar contribution
@@ -722,8 +727,6 @@ class PlottingForMoSA():
                     ax.plot(spectra[indobs][0], star_flx, c='b')
                     ax.plot(spectra[indobs][0], model, c='r')
 
-
-
                 residuals = spectra[indobs][3] - spectra[indobs][1]
                 sigma_res = np.nanstd(residuals) # Replace np.std by np.nanstd if nans are in the array to ignore them
                 axr.plot(spectra[indobs][0], residuals/sigma_res, c=self.color_out, alpha=0.8)
@@ -741,7 +744,6 @@ class PlottingForMoSA():
                         ax.plot(spectra[0][0], np.empty(len(spectra[0][0]))*np.nan, c='b', label='Stellar model')
                         ax.plot(spectra[0][0], np.empty(len(spectra[0][0]))*np.nan, c='r', label='Planetary model')
                     iobs_spectro = -1
-
 
             if len(spectra[indobs][4]) != 0:
                 iobs_photo += 1
@@ -779,11 +781,14 @@ class PlottingForMoSA():
         if logx == 'yes':
             ax.set_xscale('log')
             axr.set_xscale('log')
+
         # Set xlog-scale
         if logy == 'yes':
             ax.set_yscale('log')
+
         # Remove the xticks from the first ax
         ax.set_xticks([])
+
         # Labels
         axr.set_xlabel(r'Wavelength (µm)')
         if norm != 'yes':
@@ -795,7 +800,6 @@ class PlottingForMoSA():
         axr2.axis('off')
         ax.legend(frameon=False)
         axr.legend(frameon=False)
-
 
         # define the data as global
         self.spectra = spectra
