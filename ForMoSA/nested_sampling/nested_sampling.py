@@ -224,13 +224,6 @@ def loglike(theta, theta_index, global_params, main_file, for_plot='no'):
         ck = modif_spec_LL[8]
         planet_contribution, stellar_contribution, star_flx_obs, systematics = modif_spec_LL[9], modif_spec_LL[10], modif_spec_LL[11], modif_spec_LL[12]
 
-        if global_params.use_lsqr[indobs] == 'True':
-            # If our data is contaminated by starlight difraction, the model is the sum of the estimated stellar contribution + planet model
-
-            flx_mod_spectro_modif = flx_mod_spectro_modif + star_flx_obs
-            if len(systematics) > 0:
-                flx_mod_spectro_modif += systematics
-
 
         # Computation of the photometry logL
         if len(flx_obs_photo_modif) != 0:
@@ -533,7 +526,7 @@ def launch_nested_sampling(global_params):
             print('WARNING. You cannot use CCF mappings without substracting the continuum')
             print()
             exit()
-        elif global_params.logL_type[indobs] == 'CCF_Zucker' and global_params.continuum_sub[indobs] == 'NA':
+        elif global_params.logL_type[indobs] == 'CCF_Zucker' and global_params.continuum_sub[indobs] == 'NA' and global_params.use_lsqr[indobs] == False:
             print('WARNING. You cannot use CCF mappings without substracting the continuum')
             print()
             exit()

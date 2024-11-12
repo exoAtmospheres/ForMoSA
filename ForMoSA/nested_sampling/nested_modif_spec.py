@@ -12,7 +12,7 @@ import scipy
 # ----------------------------------------------------------------------------------------------------------------------
 
 
-def lsq_fct(global_params, wave, indobs, flx_obs_spectro, err_obs_spectro, star_flx_obs, transm_obs, flx_mod_spectro, system_obs, ccf_method = 'continuum_unfiltered'):
+def lsq_fct(global_params, wave, indobs, flx_obs_spectro, err_obs_spectro, star_flx_obs, transm_obs, flx_mod_spectro, system_obs, ccf_method = 'continuum_unfiltered', build_matrix = True):
     """
     Estimation of the contribution of the planet and of the star to a spectrum (Used for HiRISE data)
 
@@ -67,66 +67,72 @@ def lsq_fct(global_params, wave, indobs, flx_obs_spectro, err_obs_spectro, star_
 
         if ccf_method == 'continuum_filtered':
             # Removal of low-pass filtered data
-            flx_obs_spectro_ind = flx_obs_spectro_ind - flx_obs_spectro_continuum + np.nanmedian(flx_obs_spectro_ind)
-            star_flx_obs_ind = star_flx_obs_ind - star_flx_obs_continuum + np.nanmedian(star_flx_obs_ind)
-            flx_mod_spectro_ind = flx_mod_spectro_ind - flx_mod_spectro_continuum + np.nanmedian(flx_mod_spectro_ind)
+            flx_obs_spectro_ind = flx_obs_spectro_ind - flx_obs_spectro_continuum / star_flx_obs_continuum * star_flx_0_ind
+            star_flx_obs_ind = star_flx_obs_ind - star_flx_obs_continuum
+            flx_mod_spectro_ind = flx_mod_spectro_ind - flx_mod_spectro_continuum
         elif ccf_method == 'continuum_unfiltered':
             flx_mod_spectro_ind = flx_mod_spectro_ind - flx_mod_spectro_continuum * star_flx_0_ind / star_flx_obs_continuum
             for i in range(len(star_flx_obs_ind[0])):
                 star_flx_obs_ind[:,i] = star_flx_obs_ind[:,i] * flx_obs_spectro_continuum / star_flx_obs_continuum
-
-
-        # # # # # Least squares estimation
-        #
-        # Construction of the matrix
-        if len(system_obs) > 0:
-            A = np.zeros([np.size(flx_obs_spectro_ind), 1 + len(star_flx_obs_ind[0]) + len(system_obs_ind[0])])
-            for j in range(len(system_obs[0])):
-                A[:,1+len(star_flx_obs_ind[0])+j] = system_obs_ind[:,j]
-        else:
-            A = np.zeros([np.size(flx_obs_spectro_ind), 1 + len(star_flx_obs_ind[0])])
-
-        for j in range(len(star_flx_obs[0])):
-            A[:,1+j] = star_flx_obs_ind[:,j] * 1 / np.sqrt(err_obs_spectro_ind)
-
-        A[:,0] = flx_mod_spectro_ind * 1 / np.sqrt(err_obs_spectro_ind)
-
-        # Least square
-        # Solve the linear system A.x = b
-        b = flx_obs_spectro_ind * 1 / np.sqrt(err_obs_spectro_ind)
-        res = optimize.lsq_linear(A, b, bounds = (0, 1))
-
-        cp_ind = res.x[0]
-
-
-        cs_ind = np.array([])
-        for i in range(len(star_flx_obs[0])):
-            cs_ind = np.append(cs_ind, res.x[i+1])
-
-        systematics_c = np.array([])
-        systematics_ind = np.asarray([])
-        if len(system_obs) > 0:
-            for i in range(len(system_obs[0])):
-                systematics_c = np.append(systematics_c, res.x[1+len(star_flx_obs_ind[0])+i])
-
-            systematics_ind = np.dot(systematics_c, system_obs_ind.T)
-
-        star_flx_obs_ind = np.dot(cs_ind, star_flx_obs_ind.T)
-
+                
         flx_mod_spectro_nativ_ind = np.copy(flx_mod_spectro_ind)
-        flx_mod_spectro_ind *= cp_ind
-        #
-        # # # # #
+
+        if build_matrix:
+            # # # # # Least squares estimation
+            #
+            # Construction of the matrix
+            if len(system_obs) > 0:
+                A = np.zeros([np.size(flx_obs_spectro_ind), 1 + len(star_flx_obs_ind[0]) + len(system_obs_ind[0])])
+                for j in range(len(system_obs[0])):
+                    A[:,1+len(star_flx_obs_ind[0])+j] = system_obs_ind[:,j]
+            else:
+                A = np.zeros([np.size(flx_obs_spectro_ind), 1 + len(star_flx_obs_ind[0])])
+    
+            for j in range(len(star_flx_obs[0])):
+                A[:,1+j] = star_flx_obs_ind[:,j] * 1 / np.sqrt(err_obs_spectro_ind)
+    
+            A[:,0] = flx_mod_spectro_ind * 1 / np.sqrt(err_obs_spectro_ind)
+    
+            # Least square
+            # Solve the linear system A.x = b
+            b = flx_obs_spectro_ind * 1 / np.sqrt(err_obs_spectro_ind)
+            res = optimize.lsq_linear(A, b, bounds = (0, 1))
+    
+            cp_ind = res.x[0]
+    
+    
+            cs_ind = np.array([])
+            for i in range(len(star_flx_obs[0])):
+                cs_ind = np.append(cs_ind, res.x[i+1])
+    
+            systematics_c = np.array([])
+            systematics_ind = np.asarray([])
+            if len(system_obs) > 0:
+                for i in range(len(system_obs[0])):
+                    systematics_c = np.append(systematics_c, res.x[1+len(star_flx_obs_ind[0])+i])
+    
+                systematics_ind = np.dot(systematics_c, system_obs_ind.T)
+    
+            star_flx_obs_ind = np.dot(cs_ind, star_flx_obs_ind.T)
+    
+            flx_mod_spectro_ind *= cp_ind
+            #
+            # # # # #
+            
+            cp_final = np.append(cp_final, cp_ind)
+            cs_final = np.append(cs_final, cs_ind)
+            systematics_final = np.append(systematics_final, systematics_ind)
+            
+            flx_mod_spectro_ind += star_flx_obs_ind
+            if len(system_obs) > 0:
+                flx_mod_spectro_ind += systematics_ind
 
         # Generate final products
 
         wave_final = np.append(wave_final, wave_ind)
-        cp_final = np.append(cp_final, cp_ind)
-        cs_final = np.append(cs_final, cs_ind)
         flx_mod_spectro_final = np.append(flx_mod_spectro_final, flx_mod_spectro_ind)
         flx_obs_spectro_final = np.append(flx_obs_spectro_final, flx_obs_spectro_ind)
-        star_flx_obs_final = np.append(star_flx_obs_final, star_flx_obs_ind)
-        systematics_final = np.append(systematics_final, systematics_ind)
+        star_flx_obs_final = np.append(star_flx_obs_final, star_flx_obs_ind) 
         flx_mod_spectro_nativ = np.append(flx_mod_spectro_nativ, flx_mod_spectro_nativ_ind)
         err_obs_spectro_final = np.append(err_obs_spectro_final, err_obs_spectro_ind)
 
@@ -640,7 +646,8 @@ def modif_spec(global_params, theta, theta_index,
     # From the radius and the distance.
 
     if global_params.use_lsqr[indobs] == 'True':
-        planet_contribution, stellar_contribution, flx_mod_spectro, flx_obs_spectro, star_flx_obs, systematics, flx_mod_spectro_nativ, wav_obs_spectro, err_obs_spectro = lsq_fct(global_params, wav_obs_spectro, indobs, flx_obs_spectro, err_obs_spectro, star_flx_obs, transm_obs, flx_mod_spectro, system_obs)
+        planet_contribution, stellar_contribution, flx_mod_spectro, flx_obs_spectro, star_flx_obs, systematics, flx_mod_spectro_nativ, wav_obs_spectro, err_obs_spectro = lsq_fct(global_params, wav_obs_spectro, indobs, flx_obs_spectro, err_obs_spectro, star_flx_obs, transm_obs, flx_mod_spectro, system_obs, ccf_method='continuum_filtered', build_matrix=False)
+            
         _, _, ck = calc_ck(np.copy(flx_obs_spectro), err_obs_spectro, np.copy(flx_mod_spectro),
                                   flx_obs_photo, err_obs_photo, flx_mod_photo, 0, 0, 0, analytic='yes')
     else:
