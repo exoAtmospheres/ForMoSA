@@ -87,13 +87,13 @@ def lsq_fct(global_params, wave, indobs, flx_obs_spectro, err_obs_spectro, star_
             A = np.zeros([np.size(flx_obs_spectro_ind), 1 + len(star_flx_obs_ind[0])])
 
         for j in range(len(star_flx_obs[0])):
-            A[:,1+j] = star_flx_obs_ind[:,j] * 1 / np.sqrt(err_obs_spectro_ind)
+            A[:,1+j] = star_flx_obs_ind[:,j] * 1 / err_obs_spectro_ind
 
-        A[:,0] = flx_mod_spectro_ind * 1 / np.sqrt(err_obs_spectro_ind)
+        A[:,0] = flx_mod_spectro_ind * 1 / err_obs_spectro_ind
 
         # Least square
         # Solve the linear system A.x = b
-        b = flx_obs_spectro_ind * 1 / np.sqrt(err_obs_spectro_ind)
+        b = flx_obs_spectro_ind * 1 / err_obs_spectro_ind
         res = optimize.lsq_linear(A, b, bounds = (0, 1))
 
         cp_ind = res.x[0]
