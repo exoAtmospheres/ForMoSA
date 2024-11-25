@@ -336,7 +336,7 @@ class PlottingForMoSA():
         self.posteriors_names = tot_list_param_title
 
 
-    def plot_corner(self, levels_sig=[0.997, 0.95, 0.68], bins=100, quantiles=(0.16, 0.5, 0.84), burn_in=0):
+    def plot_corner(self, levels_sig=[0.997, 0.95, 0.68], bins=100, quantiles=(0.16, 0.5, 0.84), burn_in=0, figsize=(15,15)):
         '''
         Function to display the corner plot
 
@@ -353,6 +353,7 @@ class PlottingForMoSA():
         # make sure posteriors are loaded
         self._get_posteriors()
 
+        fig = plt.figure(figsize=figsize)
         fig = corner.corner(self.posterior_to_plot[burn_in:],
                             weights=self.weights[burn_in:],
                             labels=self.posteriors_names,
@@ -371,6 +372,7 @@ class PlottingForMoSA():
                             title_kwargs=dict(fontsize=14),
                             contour_kwargs=dict(colors=self.color_out, linewidths=0.7),
                             pcolor_kwargs=dict(color='red'),
+                            fig=fig,
                             label_kwargs=dict(fontsize=14))
 
 
