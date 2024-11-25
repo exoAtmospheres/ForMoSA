@@ -896,7 +896,7 @@ class PlottingForMoSA():
         return fig1, ax1, fig, ax
 
 
-    def plot_ccf(self, rv_grid = [-300,300], rv_step = 0.5, figsize = (10,5), norm = 'no', window_normalisation = 100, model_spectra = [], model_wavelength = [], model_resolution = [], data_resolution = 0, model_name = 'Full', rv_cor=0, data_ccf = [], wave_ccf = [], star_ccf = [], transm_ccf = [], system_ccf = []):
+    def plot_ccf(self, rv_grid = [-300,300], rv_step = 0.5, figsize = (10,5), norm = 'no', window_normalisation = 100, model_spectra = [], model_wavelength = [], model_resolution = [], data_resolution = 0, model_name = 'Full', rv_cor=0):
         '''
         Plot the cross-correlation function. It is used for high resolution spectroscopy.
 
@@ -956,23 +956,6 @@ class PlottingForMoSA():
 
                 spectrum_obs = np.load(os.path.join(self.global_params.result_path, f'spectrum_obs_{obs_name}.npz'), allow_pickle=True)
                 star_flx_obs = np.asarray(spectrum_obs['obs_opt_merge'][2], dtype=float)
-
-                if len(data_ccf) > 0:
-                    ind = (wave_ccf >= np.min(wavelength)) & (wave_ccf <= np.max(wavelength)) & (~np.isnan(transm_ccf)) & (~np.isnan(data_ccf))
-                    for i in range(len(star_ccf[0,0])):
-                        ind = (ind) & (~np.isnan(star_ccf[0,:,i]))
-
-                    wave = wave_ccf[ind]
-                    data = data_ccf[ind]
-                    transm = transm_ccf[ind]
-                    star_flx = star_ccf[0,ind]
-                    if len(system_ccf) > 0:
-                        system_obs = system_ccf[0,ind]
-                    else:
-                        system_obs = []
-
-                    _, _, _, _, star_flx_obs, systematics, _, wavelength = lsq_fct(self.global_params, wavelength, indobs, data, err, star_flx, transm, model, system_obs)
-
 
                 if len(star_flx_obs_array) == 0:
                     star_flx_obs_array = star_flx_obs
