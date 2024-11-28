@@ -710,7 +710,7 @@ class PlottingForMoSA():
                 spectra = list(spectra) # Transform spectra to a list so that we can modify its values
                 spectra[indobs] = list(spectra[indobs])
                 model, planet_contribution, stellar_contribution, star_flx = spectra[indobs][3], spectra[indobs][9], spectra[indobs][10], spectra[indobs][11]
-                spectra[indobs][3] = model + star_flx
+                #spectra[indobs][3] = model + star_flx
                 systematics = spectra[indobs][12]
                 if len(systematics) > 0:
                     spectra[indobs][3] += systematics
@@ -725,7 +725,7 @@ class PlottingForMoSA():
                 ax.plot(spectra[indobs][0], spectra[indobs][3]/ck[indobs], c=self.color_out, alpha=0.8)
                 if self.global_params.use_lsqr[indobs] == 'True':
                     ax.plot(spectra[indobs][0], star_flx, c='b')
-                    ax.plot(spectra[indobs][0], model, c='r')
+                    ax.plot(spectra[indobs][0], model - star_flx, c='r')
 
                 residuals = spectra[indobs][3] - spectra[indobs][1]
                 sigma_res = np.nanstd(residuals) # Replace np.std by np.nanstd if nans are in the array to ignore them

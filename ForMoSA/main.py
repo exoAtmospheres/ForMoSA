@@ -34,7 +34,8 @@ if __name__ == '__main__':
     #    config_file_path = sys.argv[1]
     #print()
 
-    config_file_path = '/home/adenis/These/ForMoSA_Main/config_51_Eri_b_ExoREM_cloudless.ini'
+    config_file_path = '/home/adenis/These/ForMoSA_Main/config_AF_Lep_ExoREM_cloudless.ini'
+
 
     # ----------------------------------------------------------------------------------------------------------------------
     ## CONFIG_FILE reading and defining global parameters

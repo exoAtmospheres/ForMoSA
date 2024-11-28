@@ -53,7 +53,6 @@ def lsq_fct(global_params, wave, indobs, flx_obs_spectro, err_obs_spectro, star_
         if len(system_obs) > 0:
             system_obs_ind = system_obs[ind,:][0]
 
-        flx_mod_spectro_ind *= transm_obs_ind
         star_flx_0_ind = star_flx_obs_ind[:,len(star_flx_obs_ind[0]) // 2]
 
         # # # # # Continuum estimation with lowpass filtering
@@ -61,16 +60,19 @@ def lsq_fct(global_params, wave, indobs, flx_obs_spectro, err_obs_spectro, star_
         # Low-pass filtering
         flx_obs_spectro_continuum = sg.savgol_filter(flx_obs_spectro_ind, 301, 2)
         star_flx_obs_continuum = sg.savgol_filter(star_flx_0_ind, 301, 2)
-        flx_mod_spectro_continuum = sg.savgol_filter(flx_mod_spectro_ind, 301, 2)
         #
         # # # # #
 
         if ccf_method == 'continuum_filtered':
             # Removal of low-pass filtered data
+            flx_mod_spectro_continuum = sg.savgol_filter(flx_mod_spectro_ind, 301, 2)
             flx_obs_spectro_ind = flx_obs_spectro_ind - flx_obs_spectro_continuum / star_flx_obs_continuum * star_flx_0_ind
             star_flx_obs_ind = star_flx_obs_ind - star_flx_obs_continuum
             flx_mod_spectro_ind = flx_mod_spectro_ind - flx_mod_spectro_continuum
+            flx_mod_spectro_ind *= transm_obs_ind
         elif ccf_method == 'continuum_unfiltered':
+            flx_mod_spectro_ind *= transm_obs_ind
+            flx_mod_spectro_continuum = sg.savgol_filter(flx_mod_spectro_ind, 301, 2)
             flx_mod_spectro_ind = flx_mod_spectro_ind - flx_mod_spectro_continuum * star_flx_0_ind / star_flx_obs_continuum
             for i in range(len(star_flx_obs_ind[0])):
                 star_flx_obs_ind[:,i] = star_flx_obs_ind[:,i] * flx_obs_spectro_continuum / star_flx_obs_continuum
@@ -128,13 +130,18 @@ def lsq_fct(global_params, wave, indobs, flx_obs_spectro, err_obs_spectro, star_
                 flx_mod_spectro_ind += systematics_ind
 
         # Generate final products
-
         wave_final = np.append(wave_final, wave_ind)
         flx_mod_spectro_final = np.append(flx_mod_spectro_final, flx_mod_spectro_ind)
         flx_obs_spectro_final = np.append(flx_obs_spectro_final, flx_obs_spectro_ind)
         star_flx_obs_final = np.append(star_flx_obs_final, star_flx_obs_ind) 
         flx_mod_spectro_nativ = np.append(flx_mod_spectro_nativ, flx_mod_spectro_nativ_ind)
         err_obs_spectro_final = np.append(err_obs_spectro_final, err_obs_spectro_ind)
+        
+    print(np.nansum(np.square((flx_mod_spectro_final - flx_obs_spectro_final) / err_obs_spectro_final)))
+    plt.figure()
+    plt.plot(flx_obs_spectro_final, label = 'obs')
+    plt.plot(flx_mod_spectro_final, label = 'model')
+    plt.show()
 
     return cp_final, cs_final, flx_mod_spectro_final, flx_obs_spectro_final, star_flx_obs_final, systematics_final, flx_mod_spectro_nativ, wave_final, err_obs_spectro_final
 
@@ -646,7 +653,7 @@ def modif_spec(global_params, theta, theta_index,
     # From the radius and the distance.
 
     if global_params.use_lsqr[indobs] == 'True':
-        planet_contribution, stellar_contribution, flx_mod_spectro, flx_obs_spectro, star_flx_obs, systematics, flx_mod_spectro_nativ, wav_obs_spectro, err_obs_spectro = lsq_fct(global_params, wav_obs_spectro, indobs, flx_obs_spectro, err_obs_spectro, star_flx_obs, transm_obs, flx_mod_spectro, system_obs, ccf_method='continuum_filtered', build_matrix=False)
+        planet_contribution, stellar_contribution, flx_mod_spectro, flx_obs_spectro, star_flx_obs, systematics, flx_mod_spectro_nativ, wav_obs_spectro, err_obs_spectro = lsq_fct(global_params, wav_obs_spectro, indobs, flx_obs_spectro, err_obs_spectro, star_flx_obs, transm_obs, flx_mod_spectro, system_obs, ccf_method='continuum_unfiltered', build_matrix=True)
             
         _, _, ck = calc_ck(np.copy(flx_obs_spectro), err_obs_spectro, np.copy(flx_mod_spectro),
                                   flx_obs_photo, err_obs_photo, flx_mod_photo, 0, 0, 0, analytic='yes')
