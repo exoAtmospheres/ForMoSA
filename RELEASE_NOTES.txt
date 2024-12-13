@@ -471,3 +471,20 @@ Comments:
     - Update .gitignore file with more general patterns for a python package
     - Remove files that should not have been committed
     - Small improvements to plot_fit()
+    
+- - - 
+
+13/12/2024
+
+Allan Denis
+
+Comments: Several modifications, including :
+     - Adaptation of the model on a slightly larger wavelength range when we want to apply RV corrections to avoid losing data on the edges of the model
+     - Removing of the lsq function which has been replaced by a script forward_model.py containing different possible functions to forward model the planet and star speckles for the high-contrast planets
+     - Addition of 3 new parameters in the config file (fm_type, fm_continuum_res and bounds_lsq) which are related to the high-contrast planets, where the data are contaminated by the star speckles
+     - Cleaning a big the plotting_class script
+     
+Tests that have been done to checkup the changes:
+     - Runs with HiRISE data in the high-contrast scenario to check for the forward model scripts
+     - Different runs to check for the gain associated to the adaptation of the model on a larger wavelength grid to avoid losing data on the edges during the RV application
+     

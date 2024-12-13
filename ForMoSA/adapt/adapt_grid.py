@@ -124,6 +124,7 @@ def adapt_grid(global_params, res_mod_obs, wav_obs_spectro, res_obs_spectro, wav
     wav_mod_nativ = ds["wavelength"].values
     grid = ds['grid']
     attr = ds.attrs
+    attr['res'] = res_obs_spectro
     grid_np = grid.to_numpy()
 
     # create arrays without any assumptions on the number of parameters

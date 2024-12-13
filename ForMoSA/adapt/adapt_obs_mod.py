@@ -32,7 +32,7 @@ def launch_adapt(global_params, justobs='no'):
     res_mod_nativ = attr['res']
     ds.close()
 
-    # Check if the grid is Nyquist-sampled, else set the resolution to R = wav / 2 Deltawav to make sure we are adding any info
+    # Check if the grid is Nyquist-sampled, else set the resolution to R = wav / 2 Deltawav to make sure we are adding any info
     dwav = np.abs(wav_mod_nativ - np.roll(wav_mod_nativ, 1))
     dwav[0] = dwav[1]
     res_Nyquist = wav_mod_nativ / (2 * dwav)
@@ -61,11 +61,28 @@ def launch_adapt(global_params, justobs='no'):
             
         # Interpolate the resolution onto the wavelength of the data
         if len(obs_spectro[0]) != 0:
-            mask_mod_obs = (wav_mod_nativ <= obs_spectro[0][-1]) & (wav_mod_nativ > obs_spectro[0][0])
+            if (global_params.rv[indobs*3] == 'NA') or (global_params.rv == 'NA'):
+                mask_mod_obs = (wav_mod_nativ <= obs_spectro[0][-1]) & (wav_mod_nativ > obs_spectro[0][0])
+            else:
+                # If the user defined an RV prior, we slightly modify the strategy for the adaptation of the model
+                # Instead of adapting the model to the wavelength of the observations, we adapt the model to an extended version of the wavelength range of the observation
+                # so that we do not lose data on the edges of the wavelength of the observations when applying the RV correction
+                mask_mod_obs = (wav_mod_nativ <= 1.02 * obs_spectro[0][-1]) & (wav_mod_nativ >= 0.98 * obs_spectro[0][0])
+                wav_obs_spectro = obs_spectro[0]
+                res_obs_spectro = obs_spectro[3]
+                while wav_obs_spectro[0] > 0.98 * obs_spectro[0][0]:
+                    wav_obs_spectro = np.insert(wav_obs_spectro, 0, 2*wav_obs_spectro[0]-wav_obs_spectro[1])
+                    wav_obs_spectro = np.append(wav_obs_spectro, 2*wav_obs_spectro[-1]-wav_obs_spectro[-2])
+                    res_obs_spectro = np.insert(res_obs_spectro, 0, res_obs_spectro[0])
+                    res_obs_spectro = np.append(res_obs_spectro, res_obs_spectro[-1])
+                while wav_obs_spectro[-1] < 1.02 * obs_spectro[0][-1]:
+                    wav_obs_spectro = np.append(wav_obs_spectro, 2 * wav_obs_spectro[-1]-wav_obs_spectro[-2])
+                    res_obs_spectro = np.append(res_obs_spectro, res_obs_spectro[-1])
+                    
             wav_mod_cut = wav_mod_nativ[mask_mod_obs]
             res_mod_cut = res_mod_nativ[mask_mod_obs]
             interp_mod_to_obs = interp1d(wav_mod_cut, res_mod_cut, fill_value='extrapolate')
-            res_mod_obs = interp_mod_to_obs(obs_spectro[0])
+            res_mod_obs = interp_mod_to_obs(wav_obs_spectro)
         else:
             res_mod_obs = np.asarray([])
 
@@ -103,7 +120,7 @@ def launch_adapt(global_params, justobs='no'):
             print('- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -')
             print(f"-> Sarting the adaptation of {obs_name}")
 
-            adapt_grid(global_params, res_mod_obs, obs_spectro[0], obs_spectro[3], obs_photo[0], obs_photo_ins, obs_name=obs_name, indobs=indobs)
+            adapt_grid(global_params, res_mod_obs, wav_obs_spectro, res_obs_spectro, obs_photo[0], obs_photo_ins, obs_name=obs_name, indobs=indobs)
         
 # ----------------------------------------------------------------------------------------------------------------------
 

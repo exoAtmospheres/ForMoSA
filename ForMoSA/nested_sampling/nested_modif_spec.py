@@ -4,134 +4,8 @@ from scipy.interpolate import interp1d
 import astropy.units as u
 import astropy.constants as const
 from PyAstronomy.pyasl import rotBroad, fastRotBroad
-import scipy.signal as sg
-import scipy.optimize as optimize
-import matplotlib.pyplot as plt
-import time
-import scipy
+import ForMoSA.nested_sampling.forward_models as fm
 # ----------------------------------------------------------------------------------------------------------------------
-
-
-def lsq_fct(global_params, wave, indobs, flx_obs_spectro, err_obs_spectro, star_flx_obs, transm_obs, flx_mod_spectro, system_obs, ccf_method = 'continuum_unfiltered'):
-    """
-    Estimation of the contribution of the planet and of the star to a spectrum (Used for HiRISE data)
-
-    Args:
-        flx_obs_spectro    (array): Flux of the data (spectroscopy)
-        err_obs_spectro    (array): Error of the data (spectroscopy)
-        star_flx_obs     (n-array): Flux of star observation data (spectroscopy)
-        transm_obs         (array): Transmission (Atmospheric + Instrumental)
-        system_obs       (n-array): Systematics of the data (spectroscopy)
-        flx_mod_spectro    (array): Flux of interpolated synthetic spectrum (spectroscopy)
-    Returns:
-        - cp (array)                : Planetary contribution to the data (Spectroscopy)
-        - cs (array)                : Stellar contribution to the data (Spectroscopy)
-        - flx_mod_spectro (array)   : New model of the companion
-        - flx_obs_spectro (array)   : New flux of the data
-        - star_flx_obs (n-array)    : New star flux of the data
-        - systematics (array)       : The systematics
-
-    Author : Allan Denis
-
-    """
-
-    wave_final, cp_final, cs_final, flx_mod_spectro_final, flx_obs_spectro_final, star_flx_obs_final, systematics_final, flx_mod_spectro_nativ, err_obs_spectro_final = np.array([]), np.array([]), np.array([]), np.array([]), np.array([]), np.array([]), np.array([]), np.array([]), np.array([])
-
-    for wave_fit_i in global_params.wav_fit[indobs].split('/'):
-        min_wave_i = float(wave_fit_i.split(',')[0])
-        max_wave_i = float(wave_fit_i.split(',')[1])
-        ind = np.where((wave <= max_wave_i) & (wave >= min_wave_i))
-
-        wave_ind = wave[ind]
-        flx_mod_spectro_ind = flx_mod_spectro[ind]
-        transm_obs_ind = transm_obs[ind]
-        star_flx_obs_ind = star_flx_obs[ind,:][0]
-        star_flx_0_ind = star_flx_obs_ind[:,len(star_flx_obs_ind[0]) // 2]
-        flx_obs_spectro_ind = flx_obs_spectro[ind]
-        err_obs_spectro_ind = err_obs_spectro[ind]
-
-        if len(system_obs) > 0:
-            system_obs_ind = system_obs[ind,:][0]
-
-        flx_mod_spectro_ind *= transm_obs_ind
-        star_flx_0_ind = star_flx_obs_ind[:,len(star_flx_obs_ind[0]) // 2]
-
-        # # # # # Continuum estimation with lowpass filtering
-        #
-        # Low-pass filtering
-        flx_obs_spectro_continuum = sg.savgol_filter(flx_obs_spectro_ind, 301, 2)
-        star_flx_obs_continuum = sg.savgol_filter(star_flx_0_ind, 301, 2)
-        flx_mod_spectro_continuum = sg.savgol_filter(flx_mod_spectro_ind, 301, 2)
-        #
-        # # # # #
-
-        if ccf_method == 'continuum_filtered':
-            # Removal of low-pass filtered data
-            flx_obs_spectro_ind = flx_obs_spectro_ind - flx_obs_spectro_continuum + np.nanmedian(flx_obs_spectro_ind)
-            star_flx_obs_ind = star_flx_obs_ind - star_flx_obs_continuum + np.nanmedian(star_flx_obs_ind)
-            flx_mod_spectro_ind = flx_mod_spectro_ind - flx_mod_spectro_continuum + np.nanmedian(flx_mod_spectro_ind)
-        elif ccf_method == 'continuum_unfiltered':
-            flx_mod_spectro_ind = flx_mod_spectro_ind - flx_mod_spectro_continuum * star_flx_0_ind / star_flx_obs_continuum
-            for i in range(len(star_flx_obs_ind[0])):
-                star_flx_obs_ind[:,i] = star_flx_obs_ind[:,i] * flx_obs_spectro_continuum / star_flx_obs_continuum
-
-
-        # # # # # Least squares estimation
-        #
-        # Construction of the matrix
-        if len(system_obs) > 0:
-            A = np.zeros([np.size(flx_obs_spectro_ind), 1 + len(star_flx_obs_ind[0]) + len(system_obs_ind[0])])
-            for j in range(len(system_obs[0])):
-                A[:,1+len(star_flx_obs_ind[0])+j] = system_obs_ind[:,j]
-        else:
-            A = np.zeros([np.size(flx_obs_spectro_ind), 1 + len(star_flx_obs_ind[0])])
-
-        for j in range(len(star_flx_obs[0])):
-            A[:,1+j] = star_flx_obs_ind[:,j] * 1 / err_obs_spectro_ind
-
-        A[:,0] = flx_mod_spectro_ind * 1 / err_obs_spectro_ind
-
-        # Least square
-        # Solve the linear system A.x = b
-        b = flx_obs_spectro_ind * 1 / err_obs_spectro_ind
-        res = optimize.lsq_linear(A, b, bounds = (0, 1))
-
-        cp_ind = res.x[0]
-
-
-        cs_ind = np.array([])
-        for i in range(len(star_flx_obs[0])):
-            cs_ind = np.append(cs_ind, res.x[i+1])
-
-        systematics_c = np.array([])
-        systematics_ind = np.asarray([])
-        if len(system_obs) > 0:
-            for i in range(len(system_obs[0])):
-                systematics_c = np.append(systematics_c, res.x[1+len(star_flx_obs_ind[0])+i])
-
-            systematics_ind = np.dot(systematics_c, system_obs_ind.T)
-
-        star_flx_obs_ind = np.dot(cs_ind, star_flx_obs_ind.T)
-
-        flx_mod_spectro_nativ_ind = np.copy(flx_mod_spectro_ind)
-        flx_mod_spectro_ind *= cp_ind
-        #
-        # # # # #
-
-        # Generate final products
-
-        wave_final = np.append(wave_final, wave_ind)
-        cp_final = np.append(cp_final, cp_ind)
-        cs_final = np.append(cs_final, cs_ind)
-        flx_mod_spectro_final = np.append(flx_mod_spectro_final, flx_mod_spectro_ind)
-        flx_obs_spectro_final = np.append(flx_obs_spectro_final, flx_obs_spectro_ind)
-        star_flx_obs_final = np.append(star_flx_obs_final, star_flx_obs_ind)
-        systematics_final = np.append(systematics_final, systematics_ind)
-        flx_mod_spectro_nativ = np.append(flx_mod_spectro_nativ, flx_mod_spectro_nativ_ind)
-        err_obs_spectro_final = np.append(err_obs_spectro_final, err_obs_spectro_ind)
-
-    return cp_final, cs_final, flx_mod_spectro_final, flx_obs_spectro_final, star_flx_obs_final, systematics_final, flx_mod_spectro_nativ, wave_final, err_obs_spectro_final
-
 
 def calc_ck(flx_obs_spectro, err_obs_spectro, flx_mod_spectro, flx_obs_photo, err_obs_photo, flx_mod_photo, r_picked, d_picked,
             alpha=1, analytic='no'):
@@ -190,30 +64,32 @@ def calc_ck(flx_obs_spectro, err_obs_spectro, flx_mod_spectro, flx_obs_photo, er
 # ----------------------------------------------------------------------------------------------------------------------
 
 
-def doppler_fct(wav_obs_spectro, flx_obs_spectro, err_obs_spectro, flx_mod_spectro, rv_picked):
+def doppler_fct(wav_obs_spectro, wav_mod_spectro, flx_mod_spectro, rv_picked):
     """
     Application of a Doppler shifting to the interpolated synthetic spectrum using the function pyasl.dopplerShift.
-    Note: Observation can change due to side effects of the shifting.
+    The side effects of the Doppler shifting are taking into account by using a model interpolated on a larger wavelength grid as the wavelength grid of the data.
+    After the Doppler shifting, the model is then cut to the wavelength of the data.   
 
     Args:
         wav_obs_spectro      (array): Wavelength grid of the data
-        flx_obs_spectro      (array): Flux of the data
-        err_obs_spectro      (array): Error of the data
+        wav_mod_spectro      (array): Wavelength grid of the model 
         flx_mod_spectro      (array): Flux of the interpolated synthetic spectrum
         rv_picked            (float): Radial velocity randomly picked by the nested sampling (in km.s-1)
     Returns:
-        - wav_obs_spectro (array)       : New wavelength grid of the data
-        - flx_obs_spectro (array)       : New flux of the data
-        - err_obs_spectro (array)       : New error of the data
         - flx_post_doppler (array)      : New flux of the interpolated synthetic spectrum
 
-    Author: Simon Petrus
+    Author: Simon Petrus and Allan Denis
     """
-    new_wav = wav_obs_spectro * ((rv_picked / const.c.to(u.km/u.s).value) + 1)
-    rv_interp = interp1d(new_wav, flx_mod_spectro, fill_value="extrapolate")
-    flx_post_doppler = rv_interp(wav_obs_spectro)
-
-    return wav_obs_spectro, flx_obs_spectro, err_obs_spectro, flx_post_doppler
+    
+    new_wav = wav_mod_spectro * ((rv_picked / const.c.to(u.km/u.s).value) + 1)
+    rv_interp = interp1d(new_wav, flx_mod_spectro, bounds_error=False)
+    flx_post_doppler = rv_interp(wav_mod_spectro)
+    
+    # We adapt the model to the wavelength of the observations
+    mask_obs_spectro = (wav_mod_spectro >= np.min(wav_obs_spectro)) & (wav_mod_spectro <= np.max(wav_obs_spectro))
+    flx_post_doppler = flx_post_doppler[mask_obs_spectro]
+    
+    return flx_post_doppler
 
 # ----------------------------------------------------------------------------------------------------------------------
 
@@ -478,8 +354,8 @@ def bb_cpd_fct(wav_obs_spectro, wav_obs_photo, flx_mod_spectro, flx_mod_photo, d
 
 
 def modif_spec(global_params, theta, theta_index,
-               wav_obs_spectro, flx_obs_spectro, err_obs_spectro, flx_mod_spectro,
-               wav_obs_photo, flx_obs_photo, err_obs_photo, flx_mod_photo, transm_obs = [], star_flx_obs = [], system_obs = [], indobs=0):
+               wav_obs_spectro, wav_mod_spectro, flx_obs_spectro, flx_cont_obs_spectro, err_obs_spectro, flx_mod_spectro,
+               wav_obs_photo, flx_obs_photo, err_obs_photo, flx_mod_photo, res_obs_spectro, res_mod_spectro, transm_obs_spectro = [], star_flx_obs_spectro = [], star_flx_cont_obs_spectro = [], system_obs_spectro = [], indobs=0):
     """
     Modification of the interpolated synthetic spectra with the different extra-grid parameters.
     It can perform : Re-calibration on the data, Doppler shifting, Application of a substellar extinction, Application of a rotational velocity,
@@ -522,9 +398,7 @@ def modif_spec(global_params, theta, theta_index,
                 else:
                     ind_theta_rv = np.where(theta_index == f'rv_{indobs}')
                     rv_picked = theta[ind_theta_rv[0][0]]
-                wav_obs_spectro, flx_obs_spectro, err_obs_spectro, flx_mod_spectro = doppler_fct(wav_obs_spectro, flx_obs_spectro,
-                                                                                    err_obs_spectro, flx_mod_spectro,
-                                                                                    rv_picked)
+                flx_mod_spectro = doppler_fct(wav_obs_spectro, wav_mod_spectro, flx_mod_spectro, rv_picked)
         else: # If you want 1 common rv for all observations
             if global_params.rv != "NA":
                 if global_params.rv[0] == "constant":
@@ -532,9 +406,8 @@ def modif_spec(global_params, theta, theta_index,
                 else:
                     ind_theta_rv = np.where(theta_index == 'rv')
                     rv_picked = theta[ind_theta_rv[0][0]]
-                wav_obs_spectro, flx_obs_spectro, err_obs_spectro, flx_mod_spectro = doppler_fct(wav_obs_spectro, flx_obs_spectro,
-                                                                                        err_obs_spectro, flx_mod_spectro,
-                                                                                        rv_picked)
+                flx_mod_spectro = doppler_fct(wav_obs_spectro, wav_mod_spectro, flx_mod_spectro, rv_picked)
+
 
     # Application of a synthetic interstellar extinction to the interpolated synthetic spectrum.
     if global_params.av != "NA":
@@ -639,14 +512,14 @@ def modif_spec(global_params, theta, theta_index,
     # Calculation of the dilution factor Ck and re-normalization of the interpolated synthetic spectrum.
     # From the radius and the distance.
 
-    if global_params.use_lsqr[indobs] == 'True':
-        planet_contribution, stellar_contribution, flx_mod_spectro, flx_obs_spectro, star_flx_obs, systematics, flx_mod_spectro_nativ, wav_obs_spectro, err_obs_spectro = lsq_fct(global_params, wav_obs_spectro, indobs, flx_obs_spectro, err_obs_spectro, star_flx_obs, transm_obs, flx_mod_spectro, system_obs)
-        _, _, ck = calc_ck(np.copy(flx_obs_spectro), err_obs_spectro, np.copy(flx_mod_spectro),
-                                  flx_obs_photo, err_obs_photo, flx_mod_photo, 0, 0, 0, analytic='yes')
-    else:
-        # Set HiRES contribution to 1 if not used
-        planet_contribution, stellar_contribution, systematics = 1, 1, np.asarray([])
+    if global_params.fm_type[indobs] != 'NA':     
+        res, flx_mod_spectro, flx_obs_spectro, star_flx_obs_spectro, system_obs_spectro = fm.forward_model(global_params, wav_obs_spectro, res_obs_spectro, flx_cont_obs_spectro, 
+                                                                                       flx_mod_spectro, star_flx_obs_spectro, star_flx_cont_obs_spectro,
+                                                                                       err_obs_spectro, transm_obs_spectro, flx_obs_spectro, system_obs_spectro, indobs)
 
+        _, _, ck = calc_ck(np.copy(flx_obs_spectro), err_obs_spectro, np.copy(flx_mod_spectro), flx_obs_photo, err_obs_photo, flx_mod_photo, 0, 0, 0, analytic='yes')
+        
+    else:
         if global_params.r != "NA" and global_params.d != "NA":
             if global_params.r[0] == "constant":
                 r_picked = float(global_params.r[1])
@@ -699,7 +572,7 @@ def modif_spec(global_params, theta, theta_index,
             print('WARNING: You need to define a radius AND a distance, or set them both to "NA"')
             exit()
 
-    return wav_obs_spectro, flx_obs_spectro, err_obs_spectro, flx_mod_spectro, wav_obs_photo, flx_obs_photo, err_obs_photo, flx_mod_photo, ck, planet_contribution, stellar_contribution, star_flx_obs, systematics, transm_obs
+    return wav_obs_spectro, flx_obs_spectro, err_obs_spectro, flx_mod_spectro, wav_obs_photo, flx_obs_photo, err_obs_photo, flx_mod_photo, ck, star_flx_obs_spectro, system_obs_spectro, res_obs_spectro
 
 
 

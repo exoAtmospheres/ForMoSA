@@ -51,18 +51,28 @@ class GlobFile:
         model_name = model_name[0]
         self.model_name = model_name
 
-        if type(config['config_adapt']['wav_for_adapt']) != list: # Create lists if only one obs in the loop
+        if type(config['config_adapt']['wav_for_adapt']) != list: # Create lists if only one obs in the loop
             # [config_adapt] (5)
             self.wav_for_adapt = [config['config_adapt']['wav_for_adapt']]
             self.adapt_method = [config['config_adapt']['adapt_method']]
             self.custom_reso = [config['config_adapt']['custom_reso']]
             self.continuum_sub = [config['config_adapt']['continuum_sub']]
             self.wav_for_continuum = [config['config_adapt']['wav_for_continuum']]
-            self.use_lsqr = [config['config_adapt']['use_lsqr']]
 
             # [config_inversion] (4)
             self.logL_type = [config['config_inversion']['logL_type']]
             self.wav_fit = [config['config_inversion']['wav_fit']]
+            
+            # [config_forward_models] (3)
+            try:
+                self.fm_type = [config['config_forward_models']['fm_type']]
+                self.fm_continuum_res = [config['config_forward_models']['fm_continuum_res']]
+                self.bounds_lsq = [config['config_forward_models']['bounds_lsq']]
+            except KeyError:
+                self.fm_type = 'NA'
+                self.fm_continuum_res = 'NA'
+                self.bounds_lsq = 'NA'
+                
         else:
             # [config_adapt] (5)
             self.wav_for_adapt = config['config_adapt']['wav_for_adapt']
@@ -70,11 +80,22 @@ class GlobFile:
             self.custom_reso = config['config_adapt']['custom_reso']
             self.continuum_sub = config['config_adapt']['continuum_sub']
             self.wav_for_continuum = config['config_adapt']['wav_for_continuum']
-            self.use_lsqr = config['config_adapt']['use_lsqr']
 
             # [config_inversion] (4)
             self.logL_type = config['config_inversion']['logL_type']
             self.wav_fit = config['config_inversion']['wav_fit']
+            
+            # [config_forwarf_models] (3)
+            try:
+                self.fm_type =  config['config_forward_models']['fm_type']
+                self.fm_continuum_res = config['config_forward_models']['fm_continuum_res']
+                self.bounds_lsq = config['config_forward_models']['bounds_lsq']
+            except KeyError:
+                self.fm_type = 'NA'
+                self.fm_continuum_res = 'NA'
+                self.bounds_lsq = 'NA'
+                
+            # 
 
         # parallelisation of adapt
         try:
@@ -129,7 +150,7 @@ class GlobFile:
         # self.p_context = eval(config['config_pymultinest']['context'])
         # self.p_write_output = config['config_pymultinest']['write_output']
         # self.p_log_zero = eval(config['config_pymultinest']['log_zero'])
-        # self.p_max_iter = eval(config['config_pymultinest']['max_iter'])
+        # self.p_max_iter = eval(config['config_pymultinest']['max_iter'])
         # self.p_init_MPI = config['config_pymultinest']['init_MPI']
         # self.p_dump_callback = config['config_pymultinest']['dump_callback']
         # self.p_use_MPI = config['config_pymultinest']['use_MPI']
@@ -158,7 +179,7 @@ class GlobFile:
         # print()
         #
         # config_current = self.result_path + '/past_config.ini'
-        # config.filename = ' '
+        # config.filename = ' '
         # config['config_path']['stock_interp_grid'] = stock_interp_grid
         # config['config_path']['stock_result'] = stock_result_subsub_dir
         # config.write()
