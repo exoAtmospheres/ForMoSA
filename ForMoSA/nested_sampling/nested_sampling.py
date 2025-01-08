@@ -94,7 +94,7 @@ def import_obsmod(global_params):
             min_ns_u = float(ns_u.split(',')[0])
             max_ns_u = float(ns_u.split(',')[1])
             # Indices of each model and data
-            if global_params.rv[indobs] == 'NA' or global_params.rv == 'NA':   # If the user didn't define a prior in RV, we juste adapt the model to the values defined in 'wav_fit'
+            if global_params.rv[indobs] == 'NA' or global_params.rv == 'NA':   # If the user didn't define a prior in RV, we just adapt the model to the values defined in 'wav_fit'
                 mask_mod_spectro += (grid_spectro['wavelength'] >= min_ns_u) & (grid_spectro['wavelength'] <= max_ns_u)
             else:                                  # Otherwise we chose a slightly larger wavelength range to avoid loosing data onf the edges when applying RV correction
                 mask_mod_spectro += (grid_spectro['wavelength'] >= 0.98 * min_ns_u) & (grid_spectro['wavelength'] <= 1.02 * max_ns_u)
@@ -116,19 +116,19 @@ def import_obsmod(global_params):
         else:
             inv_cov_obs_ns_u = np.asarray([])
         if len(transm_obs_spectro) != 0: # Add the transmission (if necessary)
-            transm_obs_ns_u = transm_obs_spectro[mask_obs_spectro]
+            transm_obs_spectro_ns_u = transm_obs_spectro[mask_obs_spectro]
         else:
-            transm_obs_ns_u = np.asarray([])
+            transm_obs_spectro_ns_u = np.asarray([])
         if len(star_flx_obs_spectro) != 0: # Add star flux (if necessary)
-            star_flx_obs_ns_u = star_flx_obs_spectro[mask_obs_spectro]
-            star_flx_cont_obs_ns_u = star_flx_cont_obs_spectro[mask_obs_spectro]
+            star_flx_obs_spectro_ns_u = star_flx_obs_spectro[mask_obs_spectro]
+            star_flx_cont_obs_spectro_ns_u = star_flx_cont_obs_spectro[mask_obs_spectro]
         else:
-            star_flx_obs_ns_u = np.asarray([])
-            star_flx_cont_obs_ns_u = np.array([])
+            star_flx_obs_spectro_ns_u = np.asarray([])
+            star_flx_cont_obs_spectro_ns_u = np.array([])
         if len(system_obs_spectro) != 0: # Add systematics model (if necessary)
-            system_obs_ns_u = system_obs_spectro[mask_obs_spectro]
+            system_obs_spectro_ns_u = system_obs_spectro[mask_obs_spectro]
         else:
-            system_obs_ns_u = np.asarray([])
+            system_obs_spectro_ns_u = np.asarray([])
         wav_obs_photo_ns_u = wav_obs_photo[mask_obs_photo]
         flx_obs_photo_ns_u = flx_obs_photo[mask_obs_photo]
         err_obs_photo_ns_u = err_obs_photo[mask_obs_photo]
@@ -140,7 +140,7 @@ def import_obsmod(global_params):
         main_file.append([[wav_obs_spectro_ns_u, wav_obs_photo_ns_u],
                           [flx_obs_spectro_ns_u, flx_cont_obs_spectro_ns_u, flx_obs_photo_ns_u],
                           [err_obs_spectro_ns_u, err_obs_photo_ns_u],
-                          [transm_obs_ns_u, star_flx_obs_ns_u, star_flx_cont_obs_ns_u, system_obs_ns_u],
+                          [transm_obs_spectro_ns_u, star_flx_obs_spectro_ns_u, star_flx_cont_obs_spectro_ns_u, system_obs_spectro_ns_u],
                           [res_obs_spectro_ns_u, res_mod_spectro_ns_u],
                           inv_cov_obs_ns_u,
                           grid_spectro_ns_u,
@@ -562,7 +562,7 @@ def launch_nested_sampling(global_params):
             print('WARNING. You cannot use CCF mappings without substracting the continuum')
             print()
             exit()
-        elif global_params.logL_type[indobs] == 'CCF_Zucker' and global_params.continuum_sub[indobs] == 'NA' and global_params.star_contaminated[indobs] != 'Remove':
+        elif global_params.logL_type[indobs] == 'CCF_Zucker' and global_params.continuum_sub[indobs] == 'NA':
             print('WARNING. You cannot use CCF mappings without substracting the continuum')
             print()
             exit()
