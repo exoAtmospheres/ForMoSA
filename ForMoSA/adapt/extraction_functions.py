@@ -87,7 +87,7 @@ def extract_observation(global_params, wav_mod_nativ, res_mod_nativ, cont='no', 
             interp_mod_to_obs = interp1d(wav_mod_obs, res_mod_obs, fill_value='extrapolate')
             res_mod_obs = interp_mod_to_obs(obs_spectro[0][mask_spectro_cut])
             # If we want to decrease the resolution of the data: (if by_sample, the data don't need to be adapted)
-            if global_params.adapt_method[indobs] == 'by_reso':
+            if global_params.adapt_method[indobs] == 'by_reso' and ((global_params.rv == 'NA') or (global_params.rv[indobs*3] == 'NA')):
                 obs_spectro[1][mask_spectro_cut] = resolution_decreasing(global_params,
                                                                          obs_spectro[0][mask_spectro_cut],
                                                                          obs_spectro[1][mask_spectro_cut],
@@ -204,7 +204,7 @@ def adapt_observation_range(global_params, obs_name='', indobs=0):
         if len(system) != 0:
             system = np.delete(system, np.where(~nan_mod_ind), axis=0)
             
-        # - - - - - - - - - 
+        # - - - - - - - - - 
 
         # Separate photometry and spectroscopy + cuts
         mask_photo = (res == 0.0)
@@ -233,7 +233,7 @@ def adapt_observation_range(global_params, obs_name='', indobs=0):
         # Optional arrays
         if len(cov) != 0: # Check if the covariance exists
             cov_spectro = cov[np.ix_(~mask_photo,~mask_photo)]
-            inv_cov_spectro = np.linalg.inv(cov_spectro[np.ix_(mask_spectro,mask_spectro)]) # Save only the inverse covariance to speed up the inversion
+            inv_cov_spectro = np.linalg.inv(cov_spectro[np.ix_(mask_spectro,mask_spectro)]) # Save only the inverse covariance to speed up the inversion
         else:
             inv_cov_spectro = np.asarray([])
         if len(transm) != 0:
@@ -368,7 +368,7 @@ def extract_model(global_params, wav_mod_nativ, flx_mod_nativ, res_mod_obs, wav_
 # ----------------------------------------------------------------------------------------------------------------------
 
 
-def convolve_and_sample(wv_channels, sigmas_wvs, model_wvs, model_fluxes, num_sigma=3, force_int=False): # num_sigma = 3 is a good compromise between sampling enough the gaussian and fast interpolation
+def convolve_and_sample(wv_channels, sigmas_wvs, model_wvs, model_fluxes, num_sigma=3, force_int=False): # num_sigma = 3 is a good compromise between sampling enough the gaussian and fast interpolation
     """
     Simulate the observations of a model. Convolves the model with a variable Gaussian LSF, sampled at each desired
     spectral channel.
@@ -487,6 +487,7 @@ def continuum_estimate(global_params, wav, flx, res, indobs=0):
 
     """
 
+    continuum = np.asarray([])
     # Redifined a spectrum only composed by the wavelength ranges used to estimate the continuum
     for wav_for_cont_cut_ind, wav_for_cont_cut in enumerate(global_params.wav_for_continuum[indobs].split('/')):
         wav_for_cont_cut = wav_for_cont_cut.split(',')
@@ -498,21 +499,22 @@ def continuum_estimate(global_params, wav, flx, res, indobs=0):
             wav_for_cont_final = np.concatenate((wav_for_cont_final, wav[ind_cont_cut]))
             flx_for_cont_final = np.concatenate((flx_for_cont_final, flx[ind_cont_cut]))
 
-    model_interp = interp1d(wav_for_cont_final, flx_for_cont_final, kind='linear', bounds_error=False)
-    flx = model_interp(wav)
-
-    # # To limit the computing time, the convolution is not as a function of the wavelength but calculated
-    # from the median wavelength. We just want an estimate of the continuum here.
-    wav_median = np.median(wav)
-    dwav_median = np.median(np.abs(wav - np.roll(wav, 1))) # Estimated the median wavelength separation instead of taking wav_median - (wav_median+1) that could be on a border
-
-    fwhm = wav_median / np.median(res)
-    fwhm_continuum = wav_median / float(global_params.continuum_sub[indobs])
-
-
-    fwhm_conv = np.sqrt(fwhm_continuum**2 - fwhm**2)
-    sigma = fwhm_conv / (dwav_median * 2.355)
-    continuum = gaussian_filter(flx, sigma)
+        # # To limit the computing time, the convolution is not as a function of the wavelength but calculated
+        # from the median wavelength. We just want an estimate of the continuum here.
+        wav_median = np.median(wav[ind_cont_cut])
+        dwav_median = np.median(np.abs(wav[ind_cont_cut] - np.roll(wav[ind_cont_cut], 1))) # Estimated the median wavelength separation instead of taking wav_median - (wav_median+1) that could be on a border
+    
+        fwhm = wav_median / np.median(res)
+        fwhm_continuum = wav_median / float(global_params.continuum_sub[indobs])
+    
+        fwhm_conv = np.sqrt(fwhm_continuum**2 - fwhm**2)
+        sigma = fwhm_conv / (dwav_median * 2.355)
+        cont = gaussian_filter(flx[ind_cont_cut], sigma)
+        
+        continuum = np.concatenate((continuum, cont))
+    
+    continuum_interp = interp1d(wav_for_cont_final, continuum, kind='linear', bounds_error=False)
+    continuum = continuum_interp(wav)
 
     return continuum
 
