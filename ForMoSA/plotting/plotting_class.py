@@ -1109,16 +1109,16 @@ class PlottingForMoSA():
         #Calcule le profil le plus probable
         Tfit = []
         for i in range(0, len(P)):
-            Tfit.append(np.percentile(temperature_profiles[:,i], 50))
+            Tfit.append(np.nanpercentile(temperature_profiles[:,i], 50))
         #Calcule les percentiles 68 et 96 du profil le plus probable
         Tinf68, Tsup68, Tinf95, Tsup95 = [], [], [], []
         for i in range(0, len(P)):
-            Tinf68.append(np.percentile(temperature_profiles[:,i], 16))
-            Tsup68.append(np.percentile(temperature_profiles[:,i], 84))
-            Tinf95.append(np.percentile(temperature_profiles[:,i], 2))
-            Tsup95.append(np.percentile(temperature_profiles[:,i], 98))
+            Tinf68.append(np.nanpercentile(temperature_profiles[:,i], 16))
+            Tsup68.append(np.nanpercentile(temperature_profiles[:,i], 84))
+            Tinf95.append(np.nanpercentile(temperature_profiles[:,i], 2))
+            Tsup95.append(np.nanpercentile(temperature_profiles[:,i], 98))
         #Plot le profil le plus probable et les percentiles associés
-
+        
         fig = plt.figure(figsize=figsize)
         ax = plt.axes()
         ax.fill_betweenx(P, Tinf95, Tsup95, color=self.color_out, alpha=0.1, label=r'2 $\sigma$')
