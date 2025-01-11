@@ -3,6 +3,7 @@ from __future__ import print_function, division
 import os, glob, sys
 import numpy as np
 import matplotlib.pyplot as plt
+from matplotlib.ticker import MaxNLocator
 from scipy.interpolate import interp1d
 import corner
 import xarray as xr
@@ -328,10 +329,10 @@ class PlottingForMoSA():
         self._get_posteriors()
 
         fig = plt.figure(figsize=figsize)
-        fig = corner.corner(self.posterior_to_plot[burn_in:,2:],
+        fig = corner.corner(self.posterior_to_plot[burn_in:],
                             weights=self.weights[burn_in:],
-                            labels=self.posteriors_names[2:],
-                            range=[0.999999 for p in self.posteriors_names[2:]],
+                            labels=self.posteriors_names,
+                            range=[0.999999 for p in self.posteriors_names],
                             levels=levels_sig,
                             bins=bins,
                             smooth=1,
@@ -496,6 +497,8 @@ class PlottingForMoSA():
             grid_spectro = ds['grid']
             wav_mod_spectro = ds.coords['wavelength'].values
             res_mod_spectro = ds.attrs['res']
+            res_mod_spectro_interp = interp1d(wav_mod_spectro, res_mod_spectro)
+            res_mod_spectro = res_mod_spectro_interp(wav_obs_spectro)
             ds.close()
             ds = xr.open_dataset(path_grid_photo, decode_cf=False, engine='netcdf4')
             grid_photo = ds['grid']
@@ -694,7 +697,7 @@ class PlottingForMoSA():
             if self.global_params.fm_type[indobs] != 'NA':  # For high-contrast companion where the star flux speckles contaminate the data
                 spectra = list(spectra) # Transform spectra to a list so that we can modify its values
                 spectra[indobs] = list(spectra[indobs])
-                mod_flx, star_flx, system_obs = spectra[indobs][3], spectra[indobs][9], spectra[indobs][11]
+                mod_flx, star_flx, system_obs = spectra[indobs][3], spectra[indobs][9], spectra[indobs][10]
 
 
             if len(spectra[indobs][0]) != 0:
@@ -823,7 +826,7 @@ class PlottingForMoSA():
                 # so the model is the sum of the planet model + the estimated stellar contribution
                 spectra = list(spectra) # Transform spectra to a list so that we can modify its values
                 spectra[indobs] = list(spectra[indobs])
-                wave, flx_obs, flx_mod, star_flx, system_obs = spectra[indobs][0], spectra[indobs][1], spectra[indobs][3], spectra[indobs][9], spectra[indobs][11]
+                wave, flx_obs, flx_mod, star_flx, system_obs = spectra[indobs][0], spectra[indobs][1], spectra[indobs][3], spectra[indobs][9], spectra[indobs][10]
 
             if len(spectra[indobs][0]) != 0:
 
@@ -1032,7 +1035,7 @@ class PlottingForMoSA():
             
 
 
-    def plot_PT(self, path_temp_profile, figsize=(6,5), model = 'ExoREM'):
+    def plot_PT(self, path_temp_profile, figsize=(6,5), model = 'ExoREM', emission_contribution = False):
         '''
         Function to plot the Pressure-Temperature profiles.
         Adpated from Nathan Zimniak.
@@ -1084,7 +1087,7 @@ class PlottingForMoSA():
         #Charge la grille de profils de température
         temperature_grid_xa = xr.open_dataarray(path_temp_profile)
         #Crée les profils de température associés aux points de la grille
-        P = temperature_grid_xa.coords['P']
+        P = temperature_grid_xa.coords['P'].values
         temperature_profiles = np.full((len(samples), len(P)), np.nan)
         for i in range(0, len(samples)):
             if model == 'ExoREM':
@@ -1119,17 +1122,150 @@ class PlottingForMoSA():
             Tsup95.append(np.nanpercentile(temperature_profiles[:,i], 98))
         #Plot le profil le plus probable et les percentiles associés
         
+        P *= 1e-5
+        
+        if emission_contribution == True:
+            
+            for indobs, obs in enumerate(sorted(glob.glob(self.global_params.main_observation_path))):
+                
+                spectra, ck = self._get_spectra(self.theta_best)
+                wav_obs_spectro, mod_flx_spectro = spectra[indobs][0]*1e-6, spectra[indobs][12]*1e6
+                
+                h = cst.h.value      # Planck constant (J·s)
+                c = cst.c.value      # Speed light (m/s)
+                k_B = cst.k_B.value  # Boltzmann constant (J/K)
+    
+                term1 = (2 * h * (c)**2) / (wav_obs_spectro**5 * mod_flx_spectro)
+                brightness_temperature = (h * c) / (wav_obs_spectro * k_B) * 1 / np.log(term1 + 1)
+            
+                pressure_level = []
+                for b_T in brightness_temperature:
+                    idx = np.argmin(np.abs(Tfit - b_T))
+                    pressure_level.append(P[idx])
+                 
+        
         fig = plt.figure(figsize=figsize)
         ax = plt.axes()
         ax.fill_betweenx(P, Tinf95, Tsup95, color=self.color_out, alpha=0.1, label=r'2 $\sigma$')
         ax.fill_betweenx(P, Tinf68, Tsup68, color=self.color_out, alpha=0.2, label=r'1 $\sigma$')
         ax.plot(Tfit, P, c=self.color_out, label='Best fit')
+        
+        ax.plot()
         ax.set_yscale('log')
         ax.invert_yaxis()
         ax.set_xlim(left=0)
         ax.set_ylim([max(P), min(P)])
-        ax.minorticks_on()
+        
+        x_fill = [ax.get_xticks()[0], ax.get_xticks()[-1]]
+        ax.fill_between(x_fill, min(pressure_level), max(pressure_level), facecolor='lightblue', alpha=0.7, label='main contribution')
         ax.set_xlabel('Temperature (K)')
+        ax.set_ylabel('Pressure (bars)')
+        ax.legend(frameon=False)
+        
+        
+
+        return fig, ax
+    
+    
+    def plot_vmr(self, path_vmr, molecule, figsize=(6,5), model = 'ExoREM', fig=None, ax=None):
+        '''
+        Function to plot the vmr profiles of a molecule.
+        Adpated from Nathan Zimniak.
+
+        Args:
+            path_vmr    (str): Path to the temperature profile grid
+            molecule    (str): name of the molecule
+            figsize     (tuple): (default = (6, 5)) Size of the plot
+            model       (str): (default = 'ExoREM') Name of the model grid
+            fig         (object): (default = None) matplotlib figure object   
+            ax          (object): (default = None) matplotlib figure object
+        Returns:
+            - fig  (object) : matplotlib figure object
+            - ax   (object) : matplotlib axes objects
+        '''
+        print('ForMoSA - Volume Mixing Ratio profile -', molecule)
+
+        with open(self.global_params.result_path + '/result_' + self.global_params.ns_algo + '.pic', 'rb') as f1:
+            result = pickle.load(f1)
+            # samples = result.samples
+            samples = result['samples']
+
+        # put nans where data is not realistic
+        out=[]
+        for i in range(0, len(samples)):
+            if samples[i][0] < 400 or samples[i][0] > 2000:
+                out.append(i)
+            elif samples[i][1] < 3.00 or samples[i][1] > 5.00:
+                out.append(i)
+            elif 10**samples[i][2] < 0.32 or 10**samples[i][2] > 10.00:
+                out.append(i)
+            elif samples[i][3] < 0.10 or samples[i][3] > 0.80:
+                out.append(i)
+        for i in out:
+            samples[i] = np.nan
+        samples = samples[~np.isnan(samples).any(axis=1)]
+        #Crée une liste pour chaque paramètre
+        Teffs, loggs, MHs, COs = [], [], [], []
+        if model == 'ATMO':
+            gammas = []
+        for i in range(0, len(samples)):
+            Teffs.append(samples[i][0])
+            loggs.append(samples[i][1])
+            if model == 'ExoREM':
+                MHs.append(10**(samples[i][2]))
+                COs.append(samples[i][3])
+            if model == 'ATMO':
+                MHs.append(samples[i][2])
+                COs.append(samples[i][4])
+                gammas.append(samples[i][3])
+
+        #Charge la grille de profils de température
+        vmr_grid_xa = xr.open_dataarray(path_vmr)
+        #Crée les profils de température associés aux points de la grille
+        P = vmr_grid_xa.coords['P']
+        vmr_profiles = np.full((len(samples), len(P)), np.nan)
+        for i in range(0, len(samples)):
+            if model == 'ExoREM':
+                vmr_profiles[i][:] = vmr_grid_xa.interp(Teff=Teffs[i], logg=loggs[i], MH=MHs[i], CO=COs[i])#, kwargs={'fill_value':'extrapolate'})
+            elif model == 'ATMO':
+                vmr_profiles[i][:] = vmr_grid_xa.interp(Teff=Teffs[i], logg=loggs[i], MH=MHs[i], CO=COs[i], gamma=gammas[i])#, kwargs={'fill_value':'extrapolate'})
+        if model == 'ATMO':
+            #Calcule le 2eme facteur de robustesse (pour ATMO)
+            nbNans = [0]*len(P)
+            for i in range(0, len(vmr_profiles[0,:])):
+                for j in range(0, len(vmr_profiles[:,0])):
+                    if str(vmr_profiles[j,i]) == "nan":
+                        nbNans[i] = nbNans[i]+1
+            FdR2 = (len(samples)-np.array(nbNans))/len(samples)
+            FdR1 = vmr_grid_xa.attrs['Facteur de robustesse 1']
+            FdR = FdR1*FdR2
+            #Extrapole les températures
+            for i in range(0, len(samples)):
+                newT = xr.DataArray(list(vmr_profiles[i][:]), [('pressure', list(np.array(P)))])
+                newT = newT.interpolate_na(dim = 'pressure', method='linear', fill_value='extrapolate')
+                vmr_profiles[i][:] = list(newT)
+        #Calcule le profil le plus probable
+        vmrfit = []
+        for i in range(0, len(P)):
+            vmrfit.append(np.nanpercentile(vmr_profiles[:,i], 50))
+        #Calcule les percentiles 68 et 96 du profil le plus probable
+        vmrinf68, vmrsup68, vmrinf95, vmrsup95 = [], [], [], []
+        for i in range(0, len(P)):
+            vmrinf68.append(np.nanpercentile(vmr_profiles[:,i], 16))
+            vmrsup68.append(np.nanpercentile(vmr_profiles[:,i], 84))
+            vmrinf95.append(np.nanpercentile(vmr_profiles[:,i], 2))
+            vmrsup95.append(np.nanpercentile(vmr_profiles[:,i], 98))
+        #Plot le profil le plus probable et les percentiles associés
+        
+        if fig == None:
+            fig = plt.figure(figsize=figsize)
+            ax = plt.axes()
+            
+        ax.plot(vmrfit, P, label=molecule)
+        ax.set_yscale('log'), ax.set_xscale('log')
+        ax.invert_yaxis()
+        ax.set_ylim([max(P), min(P)])
+        ax.set_xlabel('Volume mixing ratio')
         ax.set_ylabel('Pressure (Pa)')
         ax.legend(frameon=False)
 
