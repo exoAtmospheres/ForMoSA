@@ -61,23 +61,40 @@ def launch_adapt(global_params, justobs='no'):
             
         # Interpolate the resolution onto the wavelength of the data
         if len(obs_spectro[0]) != 0:
-            if (global_params.rv[indobs*3] == 'NA') or (global_params.rv == 'NA'):
-                mask_mod_obs = (wav_mod_nativ <= obs_spectro[0][-1]) & (wav_mod_nativ > obs_spectro[0][0])
-            else:
-                # If the user defined an RV prior, we slightly modify the strategy for the adaptation of the model
-                # Instead of adapting the model to the wavelength of the observations, we adapt the model to an extended version of the wavelength range of the observation
-                # so that we do not lose data on the edges of the wavelength of the observations when applying the RV correction
-                mask_mod_obs = (wav_mod_nativ <= 1.02 * obs_spectro[0][-1]) & (wav_mod_nativ >= 0.98 * obs_spectro[0][0])
-                wav_obs_spectro = obs_spectro[0]
-                res_obs_spectro = obs_spectro[3]
-                while wav_obs_spectro[0] > 0.98 * obs_spectro[0][0]:
-                    wav_obs_spectro = np.insert(wav_obs_spectro, 0, 2*wav_obs_spectro[0]-wav_obs_spectro[1])
-                    wav_obs_spectro = np.append(wav_obs_spectro, 2*wav_obs_spectro[-1]-wav_obs_spectro[-2])
-                    res_obs_spectro = np.insert(res_obs_spectro, 0, res_obs_spectro[0])
-                    res_obs_spectro = np.append(res_obs_spectro, res_obs_spectro[-1])
-                while wav_obs_spectro[-1] < 1.02 * obs_spectro[0][-1]:
-                    wav_obs_spectro = np.append(wav_obs_spectro, 2 * wav_obs_spectro[-1]-wav_obs_spectro[-2])
-                    res_obs_spectro = np.append(res_obs_spectro, res_obs_spectro[-1])
+            if len(global_params.rv > 3):    # The user wants to estimate RV on different observations 
+                if global_params.rv[indobs*3] == 'NA':
+                    mask_mod_obs = (wav_mod_nativ <= obs_spectro[0][-1]) & (wav_mod_nativ > obs_spectro[0][0])
+                else:
+                    # If the user defined an RV prior, we slightly modify the strategy for the adaptation of the model
+                    # Instead of adapting the model to the wavelength of the observations, we adapt the model to an extended version of the wavelength range of the observation
+                    # so that we do not lose data on the edges of the wavelength of the observations when applying the RV correction
+                    mask_mod_obs = (wav_mod_nativ <= 1.02 * obs_spectro[0][-1]) & (wav_mod_nativ >= 0.98 * obs_spectro[0][0])
+                    wav_obs_spectro = obs_spectro[0]
+                    res_obs_spectro = obs_spectro[3]
+                    while wav_obs_spectro[0] > 0.98 * obs_spectro[0][0]:
+                        wav_obs_spectro = np.insert(wav_obs_spectro, 0, 2*wav_obs_spectro[0]-wav_obs_spectro[1])
+                        wav_obs_spectro = np.append(wav_obs_spectro, 2*wav_obs_spectro[-1]-wav_obs_spectro[-2])
+                        res_obs_spectro = np.insert(res_obs_spectro, 0, res_obs_spectro[0])
+                        res_obs_spectro = np.append(res_obs_spectro, res_obs_spectro[-1])
+                    while wav_obs_spectro[-1] < 1.02 * obs_spectro[0][-1]:
+                        wav_obs_spectro = np.append(wav_obs_spectro, 2 * wav_obs_spectro[-1]-wav_obs_spectro[-2])
+                        res_obs_spectro = np.append(res_obs_spectro, res_obs_spectro[-1])
+            else:                           # The user wants to estimate RV on one observation
+                if global_params.rv == 'NA':
+                    mask_mod_obs = (wav_mod_nativ <= obs_spectro[0][-1]) & (wav_mod_nativ > obs_spectro[0][0])
+                else:
+                    mask_mod_obs = (wav_mod_nativ <= 1.02 * obs_spectro[0][-1]) & (wav_mod_nativ >= 0.98 * obs_spectro[0][0])
+                    wav_obs_spectro = obs_spectro[0]
+                    res_obs_spectro = obs_spectro[3]
+                    while wav_obs_spectro[0] > 0.98 * obs_spectro[0][0]:
+                        wav_obs_spectro = np.insert(wav_obs_spectro, 0, 2*wav_obs_spectro[0]-wav_obs_spectro[1])
+                        wav_obs_spectro = np.append(wav_obs_spectro, 2*wav_obs_spectro[-1]-wav_obs_spectro[-2])
+                        res_obs_spectro = np.insert(res_obs_spectro, 0, res_obs_spectro[0])
+                        res_obs_spectro = np.append(res_obs_spectro, res_obs_spectro[-1])
+                    while wav_obs_spectro[-1] < 1.02 * obs_spectro[0][-1]:
+                        wav_obs_spectro = np.append(wav_obs_spectro, 2 * wav_obs_spectro[-1]-wav_obs_spectro[-2])
+                        res_obs_spectro = np.append(res_obs_spectro, res_obs_spectro[-1])
+                    
                     
             wav_mod_cut = wav_mod_nativ[mask_mod_obs]
             res_mod_cut = res_mod_nativ[mask_mod_obs]
