@@ -87,7 +87,7 @@ def extract_observation(global_params, wav_mod_nativ, res_mod_nativ, cont='no', 
             interp_mod_to_obs = interp1d(wav_mod_obs, res_mod_obs, fill_value='extrapolate')
             res_mod_obs = interp_mod_to_obs(obs_spectro[0][mask_spectro_cut])
             # If we want to decrease the resolution of the data: (if by_sample, the data don't need to be adapted)
-            if global_params.adapt_method[indobs] == 'by_reso' and ((global_params.rv == 'NA') or (global_params.rv[indobs*3] == 'NA')):
+            if global_params.adapt_method[indobs] == 'by_reso':
                 obs_spectro[1][mask_spectro_cut] = resolution_decreasing(global_params,
                                                                          obs_spectro[0][mask_spectro_cut],
                                                                          obs_spectro[1][mask_spectro_cut],
