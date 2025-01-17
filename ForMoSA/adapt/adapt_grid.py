@@ -80,24 +80,28 @@ def tpool_adapt(idx, global_params, wav_mod_nativ, res_mod_obs, wav_obs_spectro,
     '''
 
     # global variables
-    global grid_input_shape, grid_input_data, grid_spectro_shape, grid_spectro_data, grid_photo_shape, grid_photo_data
+    try:
+        global grid_input_shape, grid_input_data, grid_spectro_shape, grid_spectro_data, grid_photo_shape, grid_photo_data
+        grid_input   = array_to_numpy(grid_input_data, grid_input_shape, float)
+        grid_spectro = array_to_numpy(grid_spectro_data, grid_spectro_shape, float)
+        grid_photo   = array_to_numpy(grid_photo_data, grid_photo_shape, float)
+        
+        model_to_adapt = grid_input[(..., ) + idx]
+        nan_mod = np.isnan(model_to_adapt)
+        msg = ''
 
-    grid_input   = array_to_numpy(grid_input_data, grid_input_shape, float)
-    grid_spectro = array_to_numpy(grid_spectro_data, grid_spectro_shape, float)
-    grid_photo   = array_to_numpy(grid_photo_data, grid_photo_shape, float)
-
-    model_to_adapt = grid_input[(..., ) + idx]
-    nan_mod = np.isnan(model_to_adapt)
-
-    if np.any(nan_mod):
-        msg = 'Extraction of model failed : '
-        for i, (key, title) in enumerate(zip(keys, titles)):
-            msg += f'{title}={values[key][idx[i]]}, '
-        print(msg)
-    else:
-        mod_spectro, mod_photo = adapt_model(global_params, wav_mod_nativ, model_to_adapt, res_mod_obs, wav_obs_spectro, res_obs_spectro, obs_photo_ins, obs_name=obs_name, indobs=indobs)
-        grid_spectro[(..., ) + idx] = mod_spectro
-        grid_photo[(..., ) + idx]   = mod_photo
+        if np.any(nan_mod):
+            msg = 'Extraction of model failed : '
+            for i, (key, title) in enumerate(zip(keys, titles)):
+                msg += f'{title}={values[key][idx[i]]}, '
+            print(msg)
+        else:
+            mod_spectro, mod_photo = adapt_model(global_params, wav_mod_nativ, model_to_adapt, res_mod_obs, wav_obs_spectro, res_obs_spectro, obs_photo_ins, obs_name=obs_name, indobs=indobs)
+            grid_spectro[(..., ) + idx] = mod_spectro
+            grid_photo[(..., ) + idx]   = mod_photo
+        
+    except Exception as e:
+        print(f'Error in task: {e}')
 
 
 def adapt_grid(global_params, res_mod_obs, wav_obs_spectro, res_obs_spectro, wav_obs_photo, obs_photo_ins, obs_name='', indobs=0):
