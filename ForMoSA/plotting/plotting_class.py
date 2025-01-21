@@ -174,13 +174,14 @@ class PlottingForMoSA():
 
     def _get_posteriors(self, burn_in=0):
         '''
-        Function to get the posteriors, including luminosity derivation and Bayesian evidence logz.
+        Function to get the posteriors, including luminosity derivation and Bayesian evidence logz. It needs to be loaded first by the user
 
         Args:
             burn_in        (int): (default = 0) number of steps to remove from the plot
         Returns:
             None
         '''
+
         with open(self.global_params.result_path + '/result_' + self.global_params.ns_algo + '.pic', 'rb') as open_pic:
             result = pickle.load(open_pic)
         self.samples = result['samples'][burn_in:]
@@ -319,14 +320,10 @@ class PlottingForMoSA():
             levels_sig    (list): (default = [0.997, 0.95, 0.68]) 1, 2 and 3 sigma contour levels of the corner plot
             bins           (int): (default = 100) number of bins for the posteriors
             quantiles     (list): (default = (0.16, 0.5, 0.84)) mean +- sigma to report the posterior values
-            burn_in        (int): (default = 0) number of steps to remove from the plot
         Returns:
             - fig         (object): matplotlib figure object
         '''
         print('ForMoSA - Corner plot')
-
-        # make sure posteriors are loaded
-        self._get_posteriors()
 
         fig = plt.figure(figsize=figsize)
         fig = corner.corner(self.posterior_to_plot,
@@ -370,9 +367,6 @@ class PlottingForMoSA():
         '''
         print('ForMoSA - Posteriors chains for each parameter')
 
-        # make sure posteriors are loaded
-        self._get_posteriors()
-
         col = int(len(self.posterior_to_plot[0][:])/2)+int(len(self.posterior_to_plot[0][:])%2)
         fig, axs = plt.subplots(col, 2, figsize=figsize)
 
@@ -415,9 +409,6 @@ class PlottingForMoSA():
         '''
         print('ForMoSA - Radar plot')
 
-        # make sure posteriors are loaded
-        self._get_posteriors()
-
         list_posteriors = []
         list_uncert_down = []
         list_uncert_up = []
@@ -439,7 +430,7 @@ class PlottingForMoSA():
         return fig, radar.ax
 
 
-    def _get_spectra(self,theta,return_model=False):
+    def _get_spectra(self, theta):
         '''
         Function to get the data and best model asociated.
 
@@ -453,9 +444,6 @@ class PlottingForMoSA():
                                             planet transmission, star fluxes, systematics
             - ck                list(floats): list scaling factor(s)
         '''
-
-        # make sure posteriors are loaded
-        self._get_posteriors()
 
         # Create a list for each spectra (obs and mod) for each observation + scaling factors
         modif_spec_MOSAIC = []
@@ -590,9 +578,6 @@ class PlottingForMoSA():
             - ck                          (float): Scaling factor of the full model
         '''
 
-        # make sure posteriors are loaded
-        self._get_posteriors()
-
         if len(wavelengths)==0:
             # Define the wavelength grid for the full spectra as resolution and wavelength range function
             for indobs, obs in enumerate(sorted(glob.glob(self.global_params.main_observation_path))):
@@ -676,9 +661,6 @@ class PlottingForMoSA():
             - axr    (object) : matplotlib axes objects, residuals
             - axr2   (object) : matplotlib axes objects, right side density histogram
         '''
-
-        # make sure posteriors are loaded
-        self._get_posteriors()
 
         print('ForMoSA - Best fit and residuals plot')
 
@@ -814,7 +796,6 @@ class PlottingForMoSA():
             - ax1   (object) : matplotlib axes objects
         '''
         print('ForMoSA - Planet model and data')
-
 
         spectra, ck = self._get_spectra(self.theta_best)
 
@@ -1057,10 +1038,7 @@ class PlottingForMoSA():
         '''
         print('ForMoSA - Pressure-Temperature profile')
 
-        with open(self.global_params.result_path + '/result_' + self.global_params.ns_algo + '.pic', 'rb') as f1:
-            result = pickle.load(f1)
-            # samples = result.samples
-            samples = result['samples']
+        samples = self.samples
 
         # put nans where data is not realistic
         out=[]
@@ -1192,10 +1170,7 @@ class PlottingForMoSA():
         '''
         print('ForMoSA - Volume Mixing Ratio profile -', molecule)
 
-        with open(self.global_params.result_path + '/result_' + self.global_params.ns_algo + '.pic', 'rb') as f1:
-            result = pickle.load(f1)
-            # samples = result.samples
-            samples = result['samples']
+        samples = self.samples
 
         # put nans where data is not realistic
         out=[]
@@ -1312,10 +1287,7 @@ class PlottingForMoSA():
         '''
         print('ForMoSA - Cloud profile')
 
-        with open(self.global_params.result_path + '/result_' + self.global_params.ns_algo + '.pic', 'rb') as f1:
-            result = pickle.load(f1)
-            # samples = result.samples
-            samples = result['samples']
+        samples = self.samples
 
         #Supprime les points hors de la grille
         out=[]
