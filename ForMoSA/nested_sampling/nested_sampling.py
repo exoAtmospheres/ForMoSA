@@ -82,8 +82,13 @@ def import_obsmod(global_params):
         wav_obs_spectro_ns_u = wav_obs_spectro[mask_obs_spectro]
         flx_obs_spectro_ns_u = flx_obs_spectro[mask_obs_spectro]
         err_obs_spectro_ns_u = err_obs_spectro[mask_obs_spectro]
-        if len(inv_cov_obs) != 0:  # Add covariance in the loop (if necessary)
-            inv_cov_obs_ns_u = inv_cov_obs[np.ix_(mask_obs_spectro, mask_obs_spectro)]
+        res_obs_spectro_ns_u = res_obs_spectro[mask_obs_spectro]
+        res_mod_spectro_ns_u = res_mod_spectro[mask_obs_spectro]
+        if len(flx_cont_obs_spectro) != 0:            
+            flx_cont_obs_spectro_ns_u = flx_cont_obs_spectro[mask_obs_spectro]
+        else: flx_cont_obs_spectro_ns_u = np.asarray([])
+        if len(inv_cov_obs_spectro) != 0:  # Add covariance in the loop (if necessary)
+            inv_cov_obs_ns_u = inv_cov_obs_spectro[np.ix_(mask_obs_spectro, mask_obs_spectro)]
         else:
             inv_cov_obs_ns_u = np.asarray([])
         if len(transm_obs) != 0: # Add the transmission (if necessary)
@@ -539,28 +544,48 @@ def launch_nested_sampling(global_params):
     print('Done !')
     print()
 
+    theta_index = []
+    lim_param_grid = []
+    n_free_parameters = 0
     ds = xr.open_dataset(global_params.model_path, decode_cf=False, engine='netcdf4')
 
     # Count the number of free parameters and identify the parameter position in theta
     if global_params.par1 != 'NA':
-        theta_index = ['par1']
-        lim_param_grid = [[min(ds['par1'].values), max(ds['par1'].values)]]
-    else:
-        theta_index = []
-        lim_param_grid = []
+        if global_params.par1[0] != 'constant':    
+            lim_param_grid.append([min(ds['par1'].values), max(ds['par1'].values)])
+            theta_index.append('par1')
+            n_free_parameters += 1
+        else:
+            lim_param_grid.append([float(global_params.par1[1]), float(global_params.par1[1])])
     if global_params.par2 != 'NA':
-        theta_index.append('par2')
-        lim_param_grid.append([min(ds['par2'].values), max(ds['par2'].values)])
+        if global_params.par2[0] != 'constant':
+            lim_param_grid.append([min(ds['par2'].values), max(ds['par2'].values)])
+            theta_index.append('par2')
+            n_free_parameters += 1
+        else:
+            lim_param_grid.append([float(global_params.par2[1]), float(global_params.par2[1])])
     if global_params.par3 != 'NA':
-        theta_index.append('par3')
-        lim_param_grid.append([min(ds['par3'].values), max(ds['par3'].values)])
+        if global_params.par3[0] != 'constant':
+            lim_param_grid.append([min(ds['par3'].values), max(ds['par3'].values)])
+            theta_index.append('par3')
+            n_free_parameters += 1
+        else:
+            lim_param_grid.append([float(global_params.par3[1]), float(global_params.par3[1])])
     if global_params.par4 != 'NA':
-        theta_index.append('par4')
-        lim_param_grid.append([min(ds['par4'].values), max(ds['par4'].values)])
+        if global_params.par4[0]!= 'constant':
+            lim_param_grid.append([min(ds['par4'].values), max(ds['par4'].values)])
+            theta_index.append('par4')
+            n_free_parameters += 1
+        else:
+            lim_param_grid.append([float(global_params.par4[1]), float(global_params.par4[1])])
     if global_params.par5 != 'NA':
-        theta_index.append('par5')
-        lim_param_grid.append([min(ds['par5'].values), max(ds['par5'].values)])
-    n_free_parameters = len(ds.attrs['key'])
+        if global_params.par5[0] != 'constant':
+            lim_param_grid.append([min(ds['par5'].values), max(ds['par5'].values)])
+            theta_index.append('par5')
+            n_free_parameters += 1
+        else:
+            lim_param_grid.append([float(global_params.par5[1]), float(global_params.par5[1])])
+            
     if global_params.r != 'NA' and global_params.r[0] != 'constant':
         n_free_parameters += 1
         theta_index.append('r')
