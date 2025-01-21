@@ -78,29 +78,32 @@ def tpool_adapt(idx, global_params, wav_mod_nativ, res_mod_obs, wav_obs_spectro,
 
     Author: Arthur Vigan
     '''
-
     # global variables
-    global grid_input_shape, grid_input_data, grid_spectro_shape, grid_spectro_data, grid_photo_shape, grid_photo_data
+    try:
+        global grid_input_shape, grid_input_data, grid_spectro_shape, grid_spectro_data, grid_photo_shape, grid_photo_data
+        grid_input   = array_to_numpy(grid_input_data, grid_input_shape, float)
+        grid_spectro = array_to_numpy(grid_spectro_data, grid_spectro_shape, float)
+        grid_photo   = array_to_numpy(grid_photo_data, grid_photo_shape, float)
+        
+        model_to_adapt = grid_input[(..., ) + idx]
+        nan_mod = np.isnan(model_to_adapt)
+        msg = ''
 
-    grid_input   = array_to_numpy(grid_input_data, grid_input_shape, float)
-    grid_spectro = array_to_numpy(grid_spectro_data, grid_spectro_shape, float)
-    grid_photo   = array_to_numpy(grid_photo_data, grid_photo_shape, float)
-
-    model_to_adapt = grid_input[(..., ) + idx]
-    nan_mod = np.isnan(model_to_adapt)
-
-    if np.any(nan_mod):
-        msg = 'Extraction of model failed : '
-        for i, (key, title) in enumerate(zip(keys, titles)):
-            msg += f'{title}={values[key][idx[i]]}, '
-        print(msg)
-    else:
-        mod_spectro, mod_photo = adapt_model(global_params, wav_mod_nativ, model_to_adapt, res_mod_obs, wav_obs_spectro, res_obs_spectro, obs_photo_ins, obs_name=obs_name, indobs=indobs)
-        grid_spectro[(..., ) + idx] = mod_spectro
-        grid_photo[(..., ) + idx]   = mod_photo
+        if np.any(nan_mod):
+            msg = 'Extraction of model failed : '
+            for i, (key, title) in enumerate(zip(keys, titles)):
+                msg += f'{title}={values[key][idx[i]]}, '
+            print(msg)
+        else:
+            mod_spectro, mod_photo = adapt_model(global_params, wav_mod_nativ, model_to_adapt, res_mod_obs, wav_obs_spectro, res_obs_spectro, obs_photo_ins, obs_name=obs_name, indobs=indobs)
+            grid_spectro[(..., ) + idx] = mod_spectro
+            grid_photo[(..., ) + idx]   = mod_photo
+        
+    except Exception as e:
+        print(f'Error in task: {e}')
 
 
-def adapt_grid(global_params, res_mod_obs, wav_obs_spectro, res_obs_spectro, wav_obs_photo, obs_photo_ins, obs_name='', indobs=0):
+def adapt_grid(global_params, res_mod_obs, wav_obs_spectro, wav_mod_spectro, res_obs_spectro, wav_obs_photo, obs_photo_ins, obs_name='', indobs=0):
     """
     Adapt the synthetic spectra of a grid to make them comparable with the data.
 
@@ -108,6 +111,7 @@ def adapt_grid(global_params, res_mod_obs, wav_obs_spectro, res_obs_spectro, wav
         global_params    (object): Class containing each parameter
         res_mod_obs       (array): Spectral resolution of the model interpolated at wav_obs_spectro 
         wav_obs_spectro   (array): Merged wavelength array of the data
+        wav_mod_spectro   (array): Wavelength array of the model
         res_obs_spectro   (array): Merged resolution array of the data
         wav_obs_photo     (array): Wavelengths of the photometry points
         obs_photo_ins     (array): List containing different filters used for the data (1 per photometric point). [filter_phot_1, filter_phot_2, ..., filter_phot_n]
@@ -117,18 +121,19 @@ def adapt_grid(global_params, res_mod_obs, wav_obs_spectro, res_obs_spectro, wav
     Returns:
         None
 
-    Author: Simon Petrus, Matthieu Ravet, Paulina Palma-Bifani and Arthur Vigan
+    Author: Simon Petrus, Matthieu Ravet, Paulina Palma-Bifani, Arthur Vigan and Allan Denis
     """
 
     ds = xr.open_dataset(global_params.model_path, decode_cf=False, engine="netcdf4")
     wav_mod_nativ = ds["wavelength"].values
     grid = ds['grid']
     attr = ds.attrs
-    attr['res'] = res_obs_spectro
+    attr['res'] = res_mod_obs
     grid_np = grid.to_numpy()
+    ds.close()
 
     # create arrays without any assumptions on the number of parameters
-    shape_spectro = [len(wav_obs_spectro)]
+    shape_spectro = [len(wav_mod_spectro)]
     shape_photo = [len(wav_obs_photo)]
     values = {}
     for key in attr['key']:
@@ -157,6 +162,7 @@ def adapt_grid(global_params, res_mod_obs, wav_obs_spectro, res_obs_spectro, wav
     grid_photo_data    = mp.RawArray(ctypes.c_double, int(np.prod(grid_photo_shape)))
     grid_photo_np      = array_to_numpy(grid_photo_data, grid_photo_shape, float)
     grid_photo_np[:]   = np.nan
+    
 
     #
     # parallel grid adaptation
@@ -187,7 +193,7 @@ def adapt_grid(global_params, res_mod_obs, wav_obs_spectro, res_obs_spectro, wav
     for key in attr['key']:
         vars.append(key)
 
-    coords_spectro = {"wavelength": wav_obs_spectro}
+    coords_spectro = {"wavelength": wav_mod_spectro}
     coords_photo   = {"wavelength": wav_obs_photo}
     for key in attr['key']:
         coords_spectro[key] = grid[key].values
@@ -201,10 +207,20 @@ def adapt_grid(global_params, res_mod_obs, wav_obs_spectro, res_obs_spectro, wav
     print('-> The possible holes in the grid are interpolated: ')
     print()
     nkey = len(attr['key'])
+    
+    interp_kwargs = {
+    "method": "linear",
+    "fill_value": "extrapolate",
+    "limit": None,
+    "max_gap": None,
+    }
+    
     for idx, (key, title) in enumerate(zip(attr['key'], attr['title'])):
         print(f'{idx+1}/{nkey} - {title}')
-        ds_spectro_new = ds_spectro_new.interpolate_na(dim=key, method="linear", fill_value="extrapolate", limit=None, max_gap=None)
-        ds_photo_new = ds_photo_new.interpolate_na(dim=key, method="linear", fill_value="extrapolate", limit=None, max_gap=None)
+        if ds_spectro_new.isnull().any(dim=key):  # Check is there is any nan in the grid
+            ds_spectro_new = ds_spectro_new.interpolate_na(dim=key, **interp_kwargs)
+        if ds_photo_new.isnull().any()(dim=key):
+            ds_photo_new = ds_photo_new.interpolate_na(dim=key, **interp_kwargs)
 
     ds_spectro_new.to_netcdf(os.path.join(global_params.adapt_store_path, f'adapted_grid_spectro_{global_params.grid_name}_{obs_name}_nonan.nc'),
                              format='NETCDF4',

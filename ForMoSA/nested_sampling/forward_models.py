@@ -32,7 +32,7 @@ def forward_model(global_params, wav_mod_spectro, res_mod_spectro, flx_cont_obs,
     bounds = (float(global_params.bounds_lsq[indobs][1:-1].split(',')[0]), 
               float(global_params.bounds_lsq[indobs][1:-1].split(',')[1]))
     
-    weights = (1 / err_obs)**2
+    weights = (1 / err_obs)**2  # For now we consider diagonal covariance matrices only
 
     if global_params.fm_type[indobs] == 'nonlinear_fit_spec':
         res, flx_mod, flx_obs, star_flx_obs, system_obs = forward_model_nonlinear_estimate_speckles(
