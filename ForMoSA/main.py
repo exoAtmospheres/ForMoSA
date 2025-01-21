@@ -24,15 +24,17 @@ from nested_sampling.nested_sampling import launch_nested_sampling
 if __name__ == '__main__':
     # ----------------------------------------------------------------------------------------------------------------------
     ## USER configuration path
-    print()
-    print('- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -')
-    print('-> Configuration of environment')
-    if len(sys.argv) == 1:
-        print('Where is your configuration file?')
-        config_file_path = input()
-    else:
-        config_file_path = sys.argv[1]
-    print()
+    # print()
+    # print('- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -')
+    # print('-> Configuration of environment')
+    # if len(sys.argv) == 1:
+    #     print('Where is your configuration file?')
+    #     config_file_path = input()
+    # else:
+    #     config_file_path = sys.argv[1]
+    # print()
+
+    config_file_path = '/home/adenis/These/ForMoSA_Main/config_AFLep_ExoREM_cloudless_fixed_Teff_logg_prior_FeH.ini'
 
     # ----------------------------------------------------------------------------------------------------------------------
     ## CONFIG_FILE reading and defining global parameters
