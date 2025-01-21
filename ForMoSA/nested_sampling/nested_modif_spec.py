@@ -4,7 +4,11 @@ from scipy.interpolate import interp1d
 import astropy.units as u
 import astropy.constants as const
 from PyAstronomy.pyasl import rotBroad, fastRotBroad
-import ForMoSA.nested_sampling.forward_models as fm
+import os, sys
+
+sys.path.insert(0, os.path.abspath('../'))
+
+import nested_sampling.forward_models as fm
 # ----------------------------------------------------------------------------------------------------------------------
 
 def calc_ck(flx_obs_spectro, err_obs_spectro, flx_mod_spectro, flx_obs_photo, err_obs_photo, flx_mod_photo, r_picked, d_picked,

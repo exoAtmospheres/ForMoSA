@@ -1,6 +1,10 @@
 import numpy as np
 import scipy.optimize as optimize
-from ForMoSA.adapt.extraction_functions import continuum_estimate
+import os, sys
+
+sys.path.insert(0, os.path.abspath('../'))
+
+from adapt.extraction_functions import continuum_estimate
 
 
 def forward_model(global_params, wav_mod_spectro, res_mod_spectro, flx_cont_obs, flx_mod, star_flx_obs, star_flx_cont_obs, err_obs, transm_obs, flx_obs, system_obs, indobs):

@@ -487,4 +487,21 @@ Comments: Several modifications, including :
 Tests that have been done to checkup the changes:
      - Runs with HiRISE data in the high-contrast scenario to check for the forward model scripts
      - Different runs to check for the gain associated to the adaptation of the model on a larger wavelength grid to avoid losing data on the edges during the RV application
-     
+
+- - - 
+
+21/01/2025
+
+Matthieu Ravet
+
+Comments:
+    - Mainly corrections and improvements
+    - In main.py : removing the forced config_path
+    - In adapt_obs_mod : typo corrected when inverting on multiple obs checkup
+    - In nested_sampling : correction of the [mask] of flx_cont_obs_spectro_ns_u when its not used + correction of the import path for the new functions
+    - In nested_modif_spec : correction of the import path for the new functions
+    - In forward_model : correction of the import path for the new functions
+    - In plotting_class : putting the 'burn_in' parameter in _get_posterior() so that all further functions are affected the same way + correction of the import path for the new functions
+
+Tests that have been done to checkup the changes:
+    - Run with SINFONI to test the continuum subtraction and plotting options on a single target

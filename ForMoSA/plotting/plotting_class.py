@@ -13,15 +13,15 @@ import astropy.constants as cst
 sys.path.insert(0, os.path.abspath('../'))
 
 # Import ForMoSA
-from ForMoSA.main_utilities import GlobFile
-from ForMoSA.nested_sampling.nested_modif_spec import modif_spec
-from ForMoSA.nested_sampling.nested_modif_spec import doppler_fct
-from ForMoSA.nested_sampling.nested_modif_spec import vsini_fct_accurate
-from ForMoSA.nested_sampling.nested_modif_spec import vsini_fct_rot_broad
-from ForMoSA.nested_sampling.nested_modif_spec import vsini_fct_accurate_fast_rot_broad
-from ForMoSA.adapt.extraction_functions import resolution_decreasing, adapt_model, decoupe
-from ForMoSA.adapt.extraction_functions import adapt_observation_range
-from ForMoSA.adapt.extraction_functions import continuum_estimate
+from main_utilities import GlobFile
+from nested_sampling.nested_modif_spec import modif_spec
+from nested_sampling.nested_modif_spec import doppler_fct
+from nested_sampling.nested_modif_spec import vsini_fct_accurate
+from nested_sampling.nested_modif_spec import vsini_fct_rot_broad
+from nested_sampling.nested_modif_spec import vsini_fct_accurate_fast_rot_broad
+from adapt.extraction_functions import resolution_decreasing, adapt_model, decoupe
+from adapt.extraction_functions import adapt_observation_range
+from adapt.extraction_functions import continuum_estimate
 from scipy.optimize import curve_fit
 from tqdm import tqdm
 
@@ -172,22 +172,22 @@ class PlottingForMoSA():
         self.color_out     = color_out
 
 
-    def _get_posteriors(self):
+    def _get_posteriors(self, burn_in=0):
         '''
         Function to get the posteriors, including luminosity derivation and Bayesian evidence logz.
 
         Args:
-            None
+            burn_in        (int): (default = 0) number of steps to remove from the plot
         Returns:
             None
         '''
         with open(self.global_params.result_path + '/result_' + self.global_params.ns_algo + '.pic', 'rb') as open_pic:
             result = pickle.load(open_pic)
-        self.samples = result['samples']
-        self.weights = result['weights']
+        self.samples = result['samples'][burn_in:]
+        self.weights = result['weights'][burn_in:]
 
         # To test the quality of the fit
-        self.logl=result['logl']
+        self.logl=result['logl'][burn_in:]
         ind = np.where(self.logl==max(self.logl))
         self.theta_best = self.samples[ind][0]
 
@@ -311,7 +311,7 @@ class PlottingForMoSA():
         self.posteriors_names = tot_list_param_title
 
 
-    def plot_corner(self, levels_sig=[0.997, 0.95, 0.68], bins=100, quantiles=(0.16, 0.5, 0.84), burn_in=0, figsize=(15,15)):
+    def plot_corner(self, levels_sig=[0.997, 0.95, 0.68], bins=100, quantiles=(0.16, 0.5, 0.84), figsize=(15,15)):
         '''
         Function to display the corner plot
 
@@ -329,8 +329,8 @@ class PlottingForMoSA():
         self._get_posteriors()
 
         fig = plt.figure(figsize=figsize)
-        fig = corner.corner(self.posterior_to_plot[burn_in:],
-                            weights=self.weights[burn_in:],
+        fig = corner.corner(self.posterior_to_plot,
+                            weights=self.weights,
                             labels=self.posteriors_names,
                             range=[0.999999 for p in self.posteriors_names],
                             levels=levels_sig,
@@ -380,6 +380,11 @@ class PlottingForMoSA():
             for j in range(2):
                 axs[i, j].plot(self.posterior_to_plot[:,n], color=self.color_out, alpha=0.8)
                 axs[i, j].set_ylabel(self.posteriors_names[n])
+                ax_w = axs[i, j].twinx()
+                ax_w.plot(self.weights, color='black', alpha=0.5)
+                ax_w.text(x=0, y=0.00005, s='weights')
+                if j == 0:
+                    ax_w.set_yticks([])
                 if self.posteriors_names[n]=='log(L/L$\\mathrm{_{\\odot}}$)':
                     pass
                 else:

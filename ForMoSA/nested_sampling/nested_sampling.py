@@ -108,9 +108,12 @@ def import_obsmod(global_params):
         wav_obs_spectro_ns_u = wav_obs_spectro[mask_obs_spectro]
         flx_obs_spectro_ns_u = flx_obs_spectro[mask_obs_spectro]
         err_obs_spectro_ns_u = err_obs_spectro[mask_obs_spectro]
-        flx_cont_obs_spectro_ns_u = flx_cont_obs_spectro[mask_obs_spectro]
         res_obs_spectro_ns_u = res_obs_spectro[mask_obs_spectro]
         res_mod_spectro_ns_u = res_mod_spectro[mask_obs_spectro]
+        if len(flx_cont_obs_spectro) != 0:
+            flx_cont_obs_spectro_ns_u = flx_cont_obs_spectro[mask_obs_spectro]
+        else:
+            flx_cont_obs_spectro_ns_u = np.asarray([])
         if len(inv_cov_obs_spectro) != 0:  # Add covariance in the loop (if necessary)
             inv_cov_obs_ns_u = inv_cov_obs_spectro[np.ix_(mask_obs_spectro, mask_obs_spectro)]
         else:

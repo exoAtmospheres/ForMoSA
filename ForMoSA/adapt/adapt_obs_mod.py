@@ -61,7 +61,7 @@ def launch_adapt(global_params, justobs='no'):
             
         # Interpolate the resolution onto the wavelength of the data
         if len(obs_spectro[0]) != 0:
-            if len(global_params.rv > 3):    # The user wants to estimate RV on different observations 
+            if len(global_params.rv) > 3:    # The user wants to estimate RV on different observations 
                 if global_params.rv[indobs*3] == 'NA':
                     mask_mod_obs = (wav_mod_nativ <= obs_spectro[0][-1]) & (wav_mod_nativ > obs_spectro[0][0])
                 else:
