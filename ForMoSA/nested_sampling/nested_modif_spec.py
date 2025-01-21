@@ -5,7 +5,6 @@ import astropy.units as u
 import astropy.constants as const
 from PyAstronomy.pyasl import rotBroad, fastRotBroad
 <<<<<<< Updated upstream
-<<<<<<< Updated upstream
 import scipy.signal as sg
 import scipy.optimize as optimize
 import matplotlib.pyplot as plt
@@ -156,13 +155,6 @@ from ForMoSA.adapt.extraction_functions import resolution_decreasing
 
 def calc_ck(global_params, wav_obs_spectro, flx_obs_spectro, err_obs_spectro, res_obs_spectro, wav_mod_spectro, flx_mod_spectro, res_mod_spectro, flx_obs_photo, err_obs_photo, flx_mod_photo, r_picked, d_picked, indobs,
 >>>>>>> Stashed changes
-=======
-import ForMoSA.nested_sampling.forward_models as fm
-from ForMoSA.adapt.extraction_functions import resolution_decreasing
-# ----------------------------------------------------------------------------------------------------------------------
-
-def calc_ck(global_params, wav_obs_spectro, flx_obs_spectro, err_obs_spectro, res_obs_spectro, wav_mod_spectro, flx_mod_spectro, res_mod_spectro, flx_obs_photo, err_obs_photo, flx_mod_photo, r_picked, d_picked, indobs,
->>>>>>> Stashed changes
             alpha=1, analytic='no'):
     """
     Calculation of the dilution factor Ck and re-normalization of the interpolated synthetic spectrum (from the radius
@@ -222,11 +214,7 @@ def calc_ck(global_params, wav_obs_spectro, flx_obs_spectro, err_obs_spectro, re
 
 
 <<<<<<< Updated upstream
-<<<<<<< Updated upstream
 def doppler_fct(wav_obs_spectro, flx_obs_spectro, err_obs_spectro, flx_mod_spectro, rv_picked):
-=======
-def doppler_fct(wav_obs_spectro, wav_mod_spectro, flx_mod_spectro, rv_picked, return_nans = False):
->>>>>>> Stashed changes
 =======
 def doppler_fct(wav_obs_spectro, wav_mod_spectro, flx_mod_spectro, rv_picked, return_nans = False):
 >>>>>>> Stashed changes
@@ -249,15 +237,12 @@ def doppler_fct(wav_obs_spectro, wav_mod_spectro, flx_mod_spectro, rv_picked, re
     Author: Simon Petrus
     """
 <<<<<<< Updated upstream
-<<<<<<< Updated upstream
     new_wav = wav_obs_spectro * ((rv_picked / const.c.to(u.km/u.s).value) + 1)
     rv_interp = interp1d(new_wav, flx_mod_spectro, fill_value="extrapolate")
     flx_post_doppler = rv_interp(wav_obs_spectro)
 
     return wav_obs_spectro, flx_obs_spectro, err_obs_spectro, flx_post_doppler
 =======
-=======
->>>>>>> Stashed changes
     new_wav = wav_mod_spectro * ((rv_picked / const.c.to(u.km/u.s).value) + 1)
     rv_interp = interp1d(new_wav, flx_mod_spectro, bounds_error=False)
     flx_post_doppler = rv_interp(wav_mod_spectro)
@@ -269,9 +254,6 @@ def doppler_fct(wav_obs_spectro, wav_mod_spectro, flx_mod_spectro, rv_picked, re
     flx_post_doppler, wav_mod_spectro = flx_post_doppler[nans], wav_mod_spectro[nans]
    
     return flx_post_doppler, wav_mod_spectro
-<<<<<<< Updated upstream
->>>>>>> Stashed changes
-=======
 >>>>>>> Stashed changes
 
 # ----------------------------------------------------------------------------------------------------------------------
@@ -622,13 +604,9 @@ def modif_spec(global_params, theta, theta_index,
                     ind_theta_rv = np.where(theta_index == f'rv_{indobs}')
                     rv_picked = theta[ind_theta_rv[0][0]]
 <<<<<<< Updated upstream
-<<<<<<< Updated upstream
                 wav_obs_spectro, flx_obs_spectro, err_obs_spectro, flx_mod_spectro = doppler_fct(wav_obs_spectro, flx_obs_spectro,
                                                                                     err_obs_spectro, flx_mod_spectro,
                                                                                     rv_picked)
-=======
-                flx_mod_spectro, wav_mod_spectro = doppler_fct(wav_obs_spectro, wav_mod_spectro, flx_mod_spectro, rv_picked)
->>>>>>> Stashed changes
 =======
                 flx_mod_spectro, wav_mod_spectro = doppler_fct(wav_obs_spectro, wav_mod_spectro, flx_mod_spectro, rv_picked)
 >>>>>>> Stashed changes
@@ -640,20 +618,14 @@ def modif_spec(global_params, theta, theta_index,
                     ind_theta_rv = np.where(theta_index == 'rv')
                     rv_picked = theta[ind_theta_rv[0][0]]
 <<<<<<< Updated upstream
-<<<<<<< Updated upstream
                 wav_obs_spectro, flx_obs_spectro, err_obs_spectro, flx_mod_spectro = doppler_fct(wav_obs_spectro, flx_obs_spectro,
                                                                                         err_obs_spectro, flx_mod_spectro,
                                                                                         rv_picked)
 =======
-=======
->>>>>>> Stashed changes
                     print(rv_picked)
                 flx_mod_spectro, wav_mod_spectro = doppler_fct(wav_obs_spectro, wav_mod_spectro, flx_mod_spectro, rv_picked)
 
     print(wav_mod_spectro, 'after')
-<<<<<<< Updated upstream
->>>>>>> Stashed changes
-=======
 >>>>>>> Stashed changes
 
     # Application of a synthetic interstellar extinction to the interpolated synthetic spectrum.
@@ -746,7 +718,6 @@ def modif_spec(global_params, theta, theta_index,
     # Calculation of the dilution factor Ck and re-normalization of the interpolated synthetic spectrum.
     # From the radius and the distance.
 <<<<<<< Updated upstream
-<<<<<<< Updated upstream
 
     if global_params.use_lsqr[indobs] == 'True':
         planet_contribution, stellar_contribution, flx_mod_spectro, flx_obs_spectro, star_flx_obs, systematics, flx_mod_spectro_nativ, wav_obs_spectro, err_obs_spectro = lsq_fct(global_params, wav_obs_spectro, indobs, flx_obs_spectro, err_obs_spectro, star_flx_obs, transm_obs, flx_mod_spectro, system_obs, ccf_method='continuum_unfiltered', build_matrix=True)
@@ -757,9 +728,6 @@ def modif_spec(global_params, theta, theta_index,
         # Set HiRES contribution to 1 if not used
         planet_contribution, stellar_contribution, systematics = 1, 1, np.asarray([])
 
-=======
-    if global_params.fm_type[indobs] == "NA":
->>>>>>> Stashed changes
 =======
     if global_params.fm_type[indobs] == "NA":
 >>>>>>> Stashed changes
@@ -819,11 +787,8 @@ def modif_spec(global_params, theta, theta_index,
             exit()
 
 <<<<<<< Updated upstream
-<<<<<<< Updated upstream
     return wav_obs_spectro, flx_obs_spectro, err_obs_spectro, flx_mod_spectro, wav_obs_photo, flx_obs_photo, err_obs_photo, flx_mod_photo, ck, planet_contribution, stellar_contribution, star_flx_obs, systematics, transm_obs
 =======
-=======
->>>>>>> Stashed changes
     else:     
         ck = 1
         flx_mod_spectro_nativ = np.copy(flx_mod_spectro)
@@ -836,9 +801,6 @@ def modif_spec(global_params, theta, theta_index,
 
 
     return wav_obs_spectro, flx_obs_spectro, err_obs_spectro, flx_mod_spectro, wav_obs_photo, flx_obs_photo, err_obs_photo, flx_mod_photo, ck, star_flx_obs_spectro, system_obs_spectro, res_obs_spectro, transm_obs_spectro, wav_mod_spectro, flx_mod_spectro_nativ, res_mod_spectro
-<<<<<<< Updated upstream
->>>>>>> Stashed changes
-=======
 >>>>>>> Stashed changes
 
 

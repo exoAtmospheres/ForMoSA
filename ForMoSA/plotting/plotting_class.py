@@ -926,7 +926,6 @@ class PlottingForMoSA():
         spectra, ck, flux_nativ = self._get_spectra(self.theta_best, return_model=True)
         spectra2, ck, flux_nativ2 = self._get_spectra(self.theta_best, return_model=True)
 
-<<<<<<< Updated upstream
         model_array = np.array([])
         wave_array = np.array([])
         err_array = np.array([])
@@ -938,8 +937,6 @@ class PlottingForMoSA():
             self.global_params.observation_path = obs
             obs_name = os.path.splitext(os.path.basename(self.global_params.observation_path))[0]
 
-=======
->>>>>>> Stashed changes
         # First step, we retrieve the star and systematics contaminations associated to the best model 
         wav_obs, flx_obs, star_flx_obs, system_obs, res_obs, transm_obs = spectra[indobs][0], spectra[indobs][1], spectra[indobs][9], spectra[indobs][10], spectra[indobs][11], spectra[indobs][12]
         if self.global_params.fm_type[indobs] != 'NA':
