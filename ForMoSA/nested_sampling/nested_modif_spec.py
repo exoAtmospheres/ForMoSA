@@ -431,7 +431,6 @@ def modif_spec(global_params, theta, theta_index,
 
     Author: Simon Petrus, Paulina Palma-Bifani, Allan Denis and Matthieu Ravet
     """
-    print(wav_mod_spectro, 'before')
     
     # Correction of the radial velocity of the interpolated synthetic spectrum.
     if len(flx_obs_spectro) != 0:
@@ -450,10 +449,8 @@ def modif_spec(global_params, theta, theta_index,
                 else:
                     ind_theta_rv = np.where(theta_index == 'rv')
                     rv_picked = theta[ind_theta_rv[0][0]]
-                    print(rv_picked)
                 flx_mod_spectro, wav_mod_spectro = doppler_fct(wav_obs_spectro, wav_mod_spectro, flx_mod_spectro, rv_picked)
 
-    print(wav_mod_spectro, 'after')
 
     # Application of a synthetic interstellar extinction to the interpolated synthetic spectrum.
     if global_params.av != "NA":
