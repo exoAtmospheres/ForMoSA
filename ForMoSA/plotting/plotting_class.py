@@ -10,14 +10,13 @@ import pickle
 import astropy.constants as cst
 
 sys.path.insert(0, os.path.abspath('../'))
+sys.path.insert(0,'/home/adenis/These/ForMoSA/ForMoSA/')
 
 # Import ForMoSA
 from ForMoSA.main_utilities import GlobFile
 from ForMoSA.nested_sampling.nested_modif_spec import modif_spec
 from ForMoSA.nested_sampling.nested_modif_spec import doppler_fct
-from ForMoSA.nested_sampling.nested_modif_spec import lsq_fct
-from ForMoSA.nested_sampling.nested_modif_spec import vsini_fct_accurate
-from ForMoSA.nested_sampling.nested_modif_spec import vsini_fct_rot_broad
+from ForMoSA.nested_sampling.nested_modif_spec import vsini_fct
 from ForMoSA.adapt.extraction_functions import resolution_decreasing, adapt_model, decoupe
 from ForMoSA.adapt.extraction_functions import adapt_observation_range
 
@@ -235,19 +234,19 @@ class PlottingForMoSA():
 
         tot_list_param_title = []
         theta_index = []
-        if self.global_params.par1 != 'NA':
+        if self.global_params.par1 != 'NA' and self.global_params.par1[0] != 'constant':
             tot_list_param_title.append(attrs['title'][0] + ' ' + attrs['unit'][0])
             theta_index.append('par1')
-        if self.global_params.par2 != 'NA':
+        if self.global_params.par2 != 'NA' and self.global_params.par2[0] != 'constant':
             tot_list_param_title.append(attrs['title'][1] + ' ' + attrs['unit'][1])
             theta_index.append('par2')
-        if self.global_params.par3 != 'NA':
+        if self.global_params.par3 != 'NA' and self.global_params.par3[0] != 'constant':
             tot_list_param_title.append(attrs['title'][2] + ' ' + attrs['unit'][2])
             theta_index.append('par3')
-        if self.global_params.par4 != 'NA':
+        if self.global_params.par4 != 'NA' and self.global_params.par4[0] != 'constant':
             tot_list_param_title.append(attrs['title'][3] + ' ' + attrs['unit'][3])
             theta_index.append('par4')
-        if self.global_params.par5 != 'NA':
+        if self.global_params.par5 != 'NA' and self.global_params.par5[0] != 'constant':
             tot_list_param_title.append(attrs['title'][4] + ' ' + attrs['unit'][4])
             theta_index.append('par5')
 
@@ -809,7 +808,7 @@ class PlottingForMoSA():
 
 
 
-    def plot_HiRes_comp_model(self, figsize=(10, 5), norm='no', data_resolution = 0):
+    def plot_HiRes_comp_model(self, figsize=(10, 5), norm='no', indobs=0):
         '''
         Specific function to plot the best fit comparing with the data for high-resolution spectroscopy.
 
@@ -834,82 +833,72 @@ class PlottingForMoSA():
         # Scale or not in absolute flux
         if norm != 'yes':
             ck = np.full(len(spectra[0][0]), 1)
+            
+        if self.global_params.fm_type[indobs] != 'NA':
+            # If we used the lsq function, it means that our data is contaminated by the starlight difraction
+            # so the model is the sum of the planet model + the estimated stellar contribution
+            spectra = list(spectra) # Transform spectra to a list so that we can modify its values
+            spectra[indobs] = list(spectra[indobs])
+            wave, flx_obs, flx_mod, star_flx, system_obs = spectra[indobs][0], spectra[indobs][1], spectra[indobs][3], spectra[indobs][9], spectra[indobs][10]
 
-        for indobs, obs in enumerate(sorted(glob.glob(self.global_params.main_observation_path))):
+        if len(spectra[indobs][0]) != 0:
 
-
-            if self.global_params.use_lsqr[indobs] == 'True':
-                # If we used the lsq function, it means that our data is contaminated by the starlight difraction
-                # so the model is the sum of the planet model + the estimated stellar contribution
-                spectra = list(spectra) # Transform spectra to a list so that we can modify its values
-                spectra[indobs] = list(spectra[indobs])
-                model, planet_contribution, stellar_contribution, star_flx, systematics, transm = spectra[indobs][3], spectra[indobs][9], spectra[indobs][10], spectra[indobs][11], spectra[indobs][12], spectra[indobs][13]
-
-            if len(spectra[indobs][0]) != 0:
-
-                if (len(systematics) > 0) and (len(star_flx) > 0):
-                    data = spectra[indobs][1] - star_flx - systematics
-                elif (len(star_flx) > 0):     # if len(systematics) = 0 but len(star_flx) > 0
-                    data = spectra[indobs][1] - star_flx
-                elif (len(systematics) > 0):  # if len(star_flx) = 0 but len(systematics) > 0
-                    data = spectra[indobs][1] - systematics
-                else:                         # if len(star_flx) = 0 and len(systematics) = 0
-                    data = spectra[indobs][1]
-
-                wave = spectra[indobs][0]
-                planet_model = model
-
-                # Compute intrinsic resolution of the data because of the v.sini
-                resolution = 3.0*1e5 / (self.theta_best[self.theta_index == 'vsini'])
-                resolution = resolution * np.ones(len(wave))
-                if data_resolution > 0:
-                    self.global_params.custom_reso[indobs] = 'NA'
-                    resolution_data = data_resolution * np.ones(len(wave))
-                    data_broadened = vsini_fct_accurate(wave, data, 0.6, self.theta_best[self.theta_index == 'vsini'])
-                    data_broadened = resolution_decreasing(self.global_params, wave, [], resolution, wave, data_broadened, resolution_data, 'mod')
-                    planet_model_broadened = resolution_decreasing(self.global_params, wave, [], resolution, wave, planet_model, resolution_data, 'mod')
+            if (len(star_flx) > 0):     # if len(systematics) = 0 but len(star_flx) > 0
+                flx_obs = flx_obs - star_flx
+                flx_mod = flx_mod - star_flx
+            elif (len(system_obs) > 0):  # if len(star_flx) = 0 but len(systematics) > 0
+                flx_obs = flx_obs - system_obs
+                flx_mod = flx_mod - system_obs
 
 
+            # Compute intrinsic resolution of the data because of the v.sini
+            resolution = 3.0*1e5 / (self.theta_best[self.theta_index == 'vsini'])
+            resolution = resolution * np.ones(len(wave))
+            
+            res_obs = spectra[indobs][12]
+            flx_obs_broadened = resolution_decreasing(self.global_params, wave, [], resolution, wave, flx_obs, res_obs, 'mod')
 
-                ax.plot(wave, data_broadened, c='k')
-                ax.plot(wave, planet_model, c='r')
+            ax.plot(wave, flx_obs_broadened, c='k')
+            ax.plot(wave, flx_mod, c='r')
 
-                ax.set_xlabel(r'wavelength ($\mu$m)')
-                ax.set_ylabel('Flux (ADU)')
+            ax.set_xlabel(r'wavelength ($\mu$m)')
+            ax.set_ylabel('Flux (ADU)')
 
-                ax1.plot(wave, data, c='k')
-                ax1.plot(wave, planet_model, c = 'r')
+            ax1.plot(wave, flx_obs, c='k')
+            ax1.plot(wave, flx_mod, c = 'r')
 
-                if self.global_params.use_lsqr[indobs] == 'True':
-                    legend_data = 'data - star'
-                else:
-                    legend_data = 'data'
+            if self.global_params.fm_type[indobs] != 'NA':
+                legend_data = 'data - star'
+            else:
+                legend_data = 'data'
 
-                ax.legend([legend_data, 'planet model'])
-                ax.tick_params(axis='both')
+            ax.legend([legend_data, 'planet model'])
+            ax.tick_params(axis='both')
 
 
         ax1.legend([legend_data, "planet model"])
         ax1.set_xlabel('wavelength ($ \mu $m)')
         ax1.tick_params(axis='both')
 
-        return fig1, ax1, fig, ax
+        return fig1, ax1, fig, ax, flx_obs, flx_obs_broadened
 
 
-    def plot_ccf(self, rv_grid = [-300,300], rv_step = 0.5, figsize = (10,5), norm = 'no', window_normalisation = 100, model_spectra = [], model_wavelength = [], model_resolution = [], data_resolution = 0, model_name = 'Full', rv_cor=0, data_ccf = [], wave_ccf = [], star_ccf = [], transm_ccf = [], system_ccf = []):
+    def plot_ccf(self, rv_grid = [-300,300], rv_step = 0.5, figsize = (10,5), window_normalisation = 100, vsini = [], wav_mod_nativ=[], flx_mod_nativ=[], res_mod_nativ=[], indobs=0, plot=True):
         '''
         Plot the cross-correlation function. It is used for high resolution spectroscopy.
 
         Args:
             figsize                   (tuple): (default = (10, 5)) Size of the plot
-            rv_grid                    (list): (default = [-300,300]) Maximum and minumum values of the radial velocity shift (in km/s)
+            rv_grid                   (list): (default = [-300,300]) Maximum and minumum values of the radial velocity shift (in km/s)
             rv_step                   (float): (default = 0.5) Radial velocity shift steps (in km/s)
-            window_normalisation        (int): (default = 100) ?
-            model_wavelength           (list): (default = []) ?
-            model_spectra =            (list): (default = []) ?
-            model_resolution           (list): (default = []) ?
-            model_name                  (str): (default = 'Full') ?
-            rv_cor                      (int): (default = 0) ?
+            figsize                   (tuple): (default = (10,5)) Size of the figure to plot
+            window_normalisation      (int): (default = 100) Window used to exclude around the peak of the CCF for noise estimation
+            vsini                     (float): (default = []) v.sin(i) used to apply to the model (in the case the user wants to apply another v.sin(i) than the v.sin(i) estimated by the NS)     
+            wav_mod_nativ             (array): (default = []) Wavelength of the model to cross-correlate with the data in the case the user wants to use a different model (individual molecule for example)
+            flx_mod_nativ             (array): (default = []) Flux of the model to cross-correlate with the data in the case the user wants to use a different model (individual molecule for example)
+            res_mod_nativ             (array): (default = []) Resolution of the model to cross-correlate with the data in the case the user wants to use a different model (individual molecule for example)
+            indobs                    (ind): (default = 0) Index of the current observation loop
+            plot                      (bool): (default = True) Whether to plot the ccf
         Returns:
             - fig1                    (object) : matplotlib figure object
             - ax1                     (object) : matplotlib axes objects
@@ -921,6 +910,9 @@ class PlottingForMoSA():
         '''
         print('ForMoSA - CCF plot')
 
+        # Gauss function used to estimate the peak of the radial velocity
+        def gauss(x, a, x0, sigma):
+            return a*np.exp(-(x-x0)**2/(2*sigma**2))
 
         fig1, ax1 = plt.subplots(1,1, figsize=figsize)
 
@@ -945,99 +937,74 @@ class PlottingForMoSA():
             self.global_params.observation_path = obs
             obs_name = os.path.splitext(os.path.basename(self.global_params.observation_path))[0]
 
+        # First step, we retrieve the star and systematics contaminations associated to the best model 
+        wav_obs, flx_obs, star_flx_obs, system_obs, res_obs, transm_obs = spectra[indobs][0], spectra[indobs][1], spectra[indobs][9], spectra[indobs][10], spectra[indobs][11], spectra[indobs][12]
+        if self.global_params.fm_type[indobs] != 'NA':
+            spectra = list(spectra) # Transform spectra to a list so that we can modify its values
+            spectra[indobs] = list(spectra[indobs])
 
-            if self.global_params.use_lsqr[indobs] == 'True':
-                # If we used the lsq function, it means that our data is contaminated by the starlight difraction
-                # so the model is the sum of the planet model + the estimated stellar contribution
-                spectra = list(spectra) # Transform spectra to a list so that we can modify its values
-                spectra[indobs] = list(spectra[indobs])
-                wavelength, err, model, stellar_contribution, star_flx, systematics = spectra[indobs][0], spectra[indobs][2], spectra[indobs][3], spectra[indobs][10], spectra[indobs][11], spectra[indobs][12]
-                transm = spectra[indobs][13]
+        if len(wav_obs) != 0:
 
-                spectrum_obs = np.load(os.path.join(self.global_params.result_path, f'spectrum_obs_{obs_name}.npz'), allow_pickle=True)
-                star_flx_obs = np.asarray(spectrum_obs['obs_opt_merge'][2], dtype=float)
+            # Retrieve data to cross correlate the model with
+            if (len(system_obs) > 0) and (len(star_flx_obs) > 0):
+                flx_obs = flx_obs - star_flx_obs - system_obs
+            elif (len(star_flx_obs) > 0):     # if len(systematics) = 0 but len(star_flx) > 0
+                flx_obs = flx_obs - star_flx_obs
+            elif (len(system_obs) > 0):  # if len(star_flx) = 0 but len(systematics) > 0
+                flx_obs = flx_obs - system_obs
+                
+        # Normalize the data
+        flx_obs /= np.sqrt(np.sum(flx_obs**2))
+        
+        # Second step, we retrieve the native model at rv and v.sini = 0
+        if len(flx_mod_nativ) == 0:
+            theta_best = np.copy(self.theta_best)
+            theta_best[self.theta_index == 'rv'] = 0
+            theta_best[self.theta_index == 'vsini'] = 0
+            spectra, ck = self._get_spectra(theta_best)
+            wav_mod_nativ, flx_mod_nativ, res_mod_nativ = spectra[indobs][13], spectra[indobs][14], spectra[indobs][15]
+            
+        else:
+            res_mod_nativ = interp1d(wav_mod_nativ, res_mod_nativ)
+            res_mod_nativ = res_mod_nativ(wav_obs)
+                
+        # Third sted, we apply rotational broadening
+        if vsini == []:
+            flx_mod, res_mod_vsini = vsini_fct(self.global_params, wav_mod_nativ, flx_mod_nativ, res_mod_nativ, 0.6, self.theta_best[self.theta_index == 'vsini'], indobs)
+        else:  # This option is used for the rv / vsini mapping function
+            flx_mod, res_mod_vsini = vsini_fct(self.global_params, wav_mod_nativ, flx_mod_nativ, res_mod_nativ, 0.6, vsini , indobs) 
 
-                if len(data_ccf) > 0:
-                    ind = (wave_ccf >= np.min(wavelength)) & (wave_ccf <= np.max(wavelength)) & (~np.isnan(transm_ccf)) & (~np.isnan(data_ccf))
-                    for i in range(len(star_ccf[0,0])):
-                        ind = (ind) & (~np.isnan(star_ccf[0,:,i]))
+        # Finally, we generate the model at rv = 0 (for auto correlation) and the model at each rv of rv_grid
+        # For auto-correlation
+        self.global_params.continuum_sub[0] = 500
+        flx_mod_no_rv = resolution_decreasing(self.global_params, wav_obs, [], res_obs, wav_mod_nativ, flx_mod, res_mod_vsini, 'mod', indobs)
+        flx_cont_mod_no_rv = continuum_estimate(self.global_params, wav_obs, flx_mod_no_rv, res_mod_vsini, 0)
+        flx_mod_no_rv -= flx_cont_mod_no_rv
+        flx_mod_no_rv *= transm_obs
+        flx_mod_no_rv /= np.sqrt(np.sum(flx_mod_no_rv**2))
 
-                    wave = wave_ccf[ind]
-                    data = data_ccf[ind]
-                    transm = transm_ccf[ind]
-                    star_flx = star_ccf[0,ind]
-                    if len(system_ccf) > 0:
-                        system_obs = system_ccf[0,ind]
-                    else:
-                        system_obs = []
-
-                    _, _, _, _, star_flx_obs, systematics, _, wavelength = lsq_fct(self.global_params, wavelength, indobs, data, err, star_flx, transm, model, system_obs)
-
-
-                if len(star_flx_obs_array) == 0:
-                    star_flx_obs_array = star_flx_obs
-                else:
-                    star_flx_obs_array = np.concatenate((star_flx_obs_array, star_flx_obs), axis=1)
-
-            if len(spectra[indobs][0]) != 0:
-
-                # Retrieve data to cross correlate the model with
-                if (len(systematics) > 0) and (len(star_flx) > 0):
-                    data = spectra[indobs][1] - star_flx - systematics
-                elif (len(star_flx) > 0):     # if len(systematics) = 0 but len(star_flx) > 0
-                    data = spectra[indobs][1] - star_flx
-                elif (len(systematics) > 0):  # if len(star_flx) = 0 but len(systematics) > 0
-                    data = spectra[indobs][1] - systematics
-                else:                         # if len(star_flx) = 0 and len(systematics) = 0
-                    data = spectra[indobs][1]
-
-
-                if len(model_spectra) == 0:    # If the user didn't define a custom model (e.g. molecular template), then we cross correlate with the best model from the fit
-                    _, _, model_array = self._get_spectra(self.theta_best, return_model=True)
-                    for wave_fit_i in self.global_params.wav_fit[indobs].split('/'):
-                        min_wave_i = float(wave_fit_i.split(',')[0])
-                        max_wave_i = float(wave_fit_i.split(',')[1])
-                        ind = np.where((wavelength <= max_wave_i) & (wavelength >= min_wave_i))
-                else:                          # If the user defined a custom model (e.g. molecular template), then we cross correlate with the molecular template
-                    obs_spectro, _, _, _, _ = adapt_observation_range(self.global_params, indobs=indobs)
-                    res_obs = obs_spectro[0][3]
-                    res_obs_interp = interp1d(obs_spectro[0][0], res_obs, fill_value = 'extrapolate')
-                    res_obs = res_obs_interp(wavelength)
-
-                    ind = np.where((model_wavelength >= wavelength[0]) & (model_wavelength <= wavelength[-1]))
-                    model_wavelength_adapt, model_resolution_adapt, model_spectra_adapt = model_wavelength[ind], model_resolution[ind], model_spectra[ind]
-                    model_resolution_interp = interp1d(model_wavelength_adapt, model_resolution_adapt, fill_value = 'extrapolate')
-                    model_resolution_adapt = model_resolution_interp(wavelength)
-                    model_adapted = resolution_decreasing(self.global_params, wavelength, [], res_obs, model_wavelength_adapt, model_spectra_adapt, model_resolution_adapt,
-                                                        'mod', indobs=indobs)
-
-
-                    model_array = np.append(model_array, model_adapted)
-
-                wave_array = np.append(wave_array, wavelength)
-                data_array = np.append(data_array, data)
-                transm_array = np.append(transm_array, transm)
-                err_array = np.append(err_array, err)
-
-        model_array = vsini_fct_accurate(wave_array, model_array, 0.6, self.theta_best[self.theta_index=='vsini'])
-
-        if len(transm_array) > 0:
-            # Adapt the model to make it comparable with the data (multiply by transmission)
-            _, _, _, _, _, _, model_array, _, _ = lsq_fct(self.global_params, wave_array, indobs, data_array, err_array, star_flx_obs_array, transm_array, model_array, spectra[indobs][12])
-
-        # Normalize the model and the data to make them comparable in terms of flux
-        model_array /= np.sqrt(np.sum(model_array**2))
-        data_array /= np.sqrt(np.sum(data_array**2))
-
-        plt.figure()
-        plt.plot(wave_array, model_array)
-
+      
+        
         # Loop in rv
-        for rv in rv_grid:
-            _, _, _, model_rv = doppler_fct(wave_array, _, _, model_array, rv)
-            ccf = np.append(ccf, np.sum(model_rv * data_array))    # Cross correlation function
-            acf = np.append(acf, np.sum(model_rv * model_array))   # Auto correlation function
+        for rv in tqdm(rv_grid):
+            # For cross-correlation
+            flx_mod_rv, wav_mod_rv = doppler_fct(wav_obs, wav_mod_nativ, flx_mod, rv)                
+            flx_mod_rv = resolution_decreasing(self.global_params, wav_obs, [], res_obs, wav_mod_rv, flx_mod_rv, res_mod_vsini, 'mod', indobs)
+            flx_cont_mod_rv = continuum_estimate(self.global_params, wav_obs, flx_mod_rv, res_obs, indobs)
+            flx_mod_rv -= flx_cont_mod_rv
+            flx_mod_rv *= transm_obs
+            
+            # Normalize the model to make it comparable to the data in terms of flux
+            flx_mod_rv /= np.sqrt(np.nansum(flx_mod_rv**2))
+            ccf = np.append(ccf, np.nansum(flx_mod_rv * flx_obs))    # Cross correlation function
+            acf = np.append(acf, np.nansum(flx_mod_rv * flx_mod_no_rv))   # Auto correlation function
 
+            
+
+            Sf = np.nansum(np.square(flx_obs))
+            Sg = np.nansum(np.square(flx_mod_rv))
+            logL = np.append(logL, -len(flx_obs) / 2 * np.log(1 - np.sum(flx_mod_rv * flx_obs) / (Sf * Sg)))
+            
         # Rescaling cross-correlation function to estimate a SNR
         acf_norm = acf - np.median(acf[(np.abs(rv_grid) > window_normalisation)])
         ccf_norm = ccf - np.median(ccf[(np.abs(rv_grid-rv_grid[np.argmax(ccf)]) > window_normalisation)])
@@ -1045,26 +1012,76 @@ class PlottingForMoSA():
         ccf_norm = ccf_norm / ccf_noise
         #sigma_ccf = sigma_ccf / ccf_noise
 
-        # Compute the FWHM of the ccf
-        half_heigt = np.max(acf_norm) / 2
-        ind_FWHM = acf_norm >= half_heigt
-        FWHM = rv_grid[ind_FWHM] + rv_grid[np.argmax(ccf_norm)]
+        
+        if plot:  
+            # Rescaling autocorrelation function to make comparable with cross-correlation function
+            acf_norm = acf_norm / np.max(acf_norm) * np.max(ccf_norm)
+            ind_curve_fit = np.abs(rv_grid - rv_grid[np.argmax(ccf_norm)]) < 15
+            rv = rv_grid[np.argmax(ccf_norm)] 
+            p0 = [ccf_norm[np.argmax(ccf_norm)], rv, self.theta_best[self.theta_index=='vsini'][0]]
+            popt, pcov = curve_fit(gauss, rv_grid[ind_curve_fit], ccf_norm[ind_curve_fit], p0=p0)
+             
+            acf = gauss(rv_grid, popt[0], popt[1], popt[2])
+           
+            fig1, ax1 = plt.subplots(1,1, figsize=figsize)
+            ax1.plot(rv_grid, ccf_norm, label = 'ccf')
+            ax1.plot(rv_grid + popt[1], acf_norm)
+            ax1.axvline(x = popt[1], linestyle = '--', c='C3')
+            ax1.set_xlabel('RV (km/s)')
+            ax1.set_ylabel('S/N')
+            ax1.legend(['ccf', 'acf'])
+            
+            print(f'SNR = {np.nanmax(ccf_norm):.1f}, RV = {popt[1]:.1f} km/s')
+            return fig1, ax1, rv_grid, ccf_norm, acf_norm, ccf_noise, logL
+        
+        else:
+            # Rescaling autocorrelation function to make comparable with cross-correlation function
+            acf_norm = acf_norm / np.max(acf_norm) * np.max(ccf_norm)
+            ind_curve_fit = np.abs(rv_grid - rv_grid[np.argmax(ccf_norm)]) < 15
+            rv = rv_grid[np.argmax(ccf_norm)] 
+            p0 = [ccf_norm[np.argmax(ccf_norm)], rv, self.theta_best[self.theta_index=='vsini'][0]]
+            popt, pcov = curve_fit(gauss, rv_grid[ind_curve_fit], ccf_norm[ind_curve_fit], p0=p0)
+             
+            acf = gauss(rv_grid, popt[0], popt[1], popt[2])
+            
+            print(f'SNR = {np.nanmax(ccf_norm):.1f}, RV = {popt[1]:.1f} km/s')
+            return rv_grid, ccf_norm, acf_norm, ccf_noise, logL
 
-        # Rescaling autocorrelation function to make comparable with cross-correlation function
-        acf_norm = acf_norm / np.max(acf_norm) * np.max(ccf_norm)
 
-        ax1.plot(rv_grid, ccf_norm, label = 'ccf')
-        ax1.plot(rv_grid + rv_grid[np.argmax(ccf_norm)], acf_norm)
-        ax1.axvline(x = rv_grid[np.argmax(ccf_norm)], linestyle = '--', c='C3')
-        ax1.set_xlabel('RV (km/s)')
-        ax1.set_ylabel('S/N')
-        ax1.legend(['ccf', 'acf'])
-        print(f'SNR = {np.nanmax(ccf_norm):.1f}, RV = {rv_grid[np.argmax(ccf_norm)]:.1f} km/s')
-        #ax1.set_title(f'SNR = {np.nanmax(ccf_norm):.1f}, RV = {rv_grid[np.argmax(ccf_norm)]:.1f} km/s')
-
-        return fig1, ax1, rv_grid, ccf, acf / np.max(acf) * np.max(ccf), ccf_noise
-
-
+    def plot_map_rv_vsini(self, rv_grid = [-100,100], rv_step = 1.0, vsini_grid=[1,100], vsini_step = 1.0, figsize = (10,5), norm = 'no', window_normalisation = 100, indobs=0):
+        print('ForMoSA - RV-vsini mapping plot')
+        
+        vsini_grid = np.arange(vsini_grid[0], vsini_grid[1], vsini_step)
+        ccf_map = np.empty((len(vsini_grid), int((rv_grid[1] - rv_grid[0]) / rv_step)))
+        
+        i = 0
+        for vsini_i in tqdm(vsini_grid):
+            grid, _, _, _, ccf = self.plot_ccf(rv_grid=rv_grid, rv_step=rv_step, vsini=vsini_i, plot=False)
+            ccf_map[i] = ccf
+            i += 1
+        
+        rv_grid = grid
+        max_indices = np.unravel_index(np.argmax(ccf_map), ccf_map.shape)
+        rv_peak, vsini_peak = rv_grid[max_indices[1]], vsini_grid[max_indices[0]]
+        
+        fig  = plt.figure('rv-vsin(i) map', figsize=(8,5))
+        ax = fig.add_subplot()
+        
+        im = ax.imshow(ccf_map, cmap=plt.cm.RdBu_r, extent=[rv_grid[0], rv_grid[-1],vsini_grid[0],vsini_grid[-1]])
+        
+        ax.set_xlabel('RV (km/s)')
+        ax.set_ylabel('$v\,\sin i$ [km/s]')
+        
+        ax.axhline(y=vsini_peak, linestyle='--', c='C3')
+        ax.axvline(x=rv_peak, linestyle='--', c='C3')
+        
+        ax.set_title(f'RV = {rv_peak:.1f} km/s, $v\,\sin i$ = {vsini_peak:.1f} km/s')
+        
+        cbar = fig.colorbar(im)
+        cbar.set_label("logL", fontsize=22, labelpad=10)
+        
+        return ccf_map, fig, ax
+            
 
 
     def plot_PT(self, path_temp_profile, figsize=(6,5), model = 'ExoREM'):
@@ -1082,10 +1099,8 @@ class PlottingForMoSA():
         '''
         print('ForMoSA - Pressure-Temperature profile')
 
-        with open(self.global_params.result_path + '/result_' + self.global_params.ns_algo + '.pic', 'rb') as f1:
-            result = pickle.load(f1)
-            # samples = result.samples
-            samples = result['samples']
+        samples = self.posterior_to_plot
+        weights = self.weights
 
         # put nans where data is not realistic
         out=[]
@@ -1117,13 +1132,16 @@ class PlottingForMoSA():
                 gammas.append(samples[i][3])
 
         #Charge la grille de profils de température
-        temperature_grid_xa = xr.open_dataarray(path_temp_profile)
+        temperature_grid_xa = xr.open_dataarray(path_temp_profile, decode_cf=False, engine='netcdf4')
+        temperature_grid_xa = temperature_grid_xa.where(~np.isnan(temperature_grid_xa))
+        print(temperature_grid_xa)
         #Crée les profils de température associés aux points de la grille
-        P = temperature_grid_xa.coords['P']
+        P = temperature_grid_xa.coords['P'].values
+        P *= 1e-5
         temperature_profiles = np.full((len(samples), len(P)), np.nan)
         for i in range(0, len(samples)):
             if model == 'ExoREM':
-                temperature_profiles[i][:] = temperature_grid_xa.interp(Teff=Teffs[i], logg=loggs[i], MH=MHs[i], CO=COs[i])#, kwargs={'fill_value':'extrapolate'})
+                temperature_profiles[i][:] = np.asarray(temperature_grid_xa.interp(Teff=Teffs[i], logg=loggs[i], MH=MHs[i], CO=COs[i], kwargs={'fill_value':'extrapolate'}))#, kwargs={'fill_value':'extrapolate'})
             elif model == 'ATMO':
                 temperature_profiles[i][:] = temperature_grid_xa.interp(Teff=Teffs[i], logg=loggs[i], MH=MHs[i], CO=COs[i], gamma=gammas[i])#, kwargs={'fill_value':'extrapolate'})
         if model == 'ATMO':
@@ -1148,12 +1166,37 @@ class PlottingForMoSA():
         #Calcule les percentiles 68 et 96 du profil le plus probable
         Tinf68, Tsup68, Tinf95, Tsup95 = [], [], [], []
         for i in range(0, len(P)):
-            Tinf68.append(np.percentile(temperature_profiles[:,i], 16))
-            Tsup68.append(np.percentile(temperature_profiles[:,i], 84))
-            Tinf95.append(np.percentile(temperature_profiles[:,i], 2))
-            Tsup95.append(np.percentile(temperature_profiles[:,i], 98))
+            indices = np.argsort(temperature_profiles[:,i])
+            sorted_temperatures_profiles = temperature_profiles[indices,i]
+            sorted_weights = weights[indices]
+            cumweights = np.cumsum(sorted_weights)
+            Tinf68.append(np.interp(16/100, cumweights, sorted_temperatures_profiles))
+            Tsup68.append(np.interp(54/100, cumweights, sorted_temperatures_profiles))
+            Tinf95.append(np.interp(2/100, cumweights, sorted_temperatures_profiles))
+            Tsup95.append(np.interp(98/100, cumweights, sorted_temperatures_profiles))
         #Plot le profil le plus probable et les percentiles associés
-
+        
+        if emission_contribution == True:
+            
+            for indobs, obs in enumerate(sorted(glob.glob(self.global_params.main_observation_path))):
+                
+                spectra, ck = self._get_spectra(self.theta_best)
+                wav_obs_spectro, res_obs_spectro, wav_mod_nativ, flx_mod_nativ, res_mod_obs = spectra[indobs][0]*1e-6, spectra[indobs][11], spectra[indobs][13]*1e-6, spectra[indobs][14]*1e6, spectra[indobs][15]
+                flx_mod_spectro = resolution_decreasing(self.global_params, wav_obs_spectro, [], res_obs_spectro, wav_mod_nativ, flx_mod_nativ, res_mod_obs, 'mod', indobs)
+                
+                h = cst.h.value      # Planck constant (J·s)
+                c = cst.c.value      # Speed light (m/s)
+                k_B = cst.k_B.value  # Boltzmann constant (J/K)
+    
+                term1 = (2 * h * (c)**2) / (wav_obs_spectro**5 * flx_mod_spectro)
+                brightness_temperature = (h * c) / (wav_obs_spectro * k_B) * 1 / np.log(term1 + 1)
+            
+                pressure = interp1d(Tfit, P)
+                pressure_level = pressure(brightness_temperature)
+                # for b_T in brightness_temperature:
+                #     idx = np.argmin(np.abs(Tfit - b_T))
+                #     pressure_level.append(P[idx])
+        
         fig = plt.figure(figsize=figsize)
         ax = plt.axes()
         ax.fill_betweenx(P, Tinf95, Tsup95, color=self.color_out, alpha=0.1, label=r'2 $\sigma$')
@@ -1165,6 +1208,108 @@ class PlottingForMoSA():
         ax.set_ylim([max(P), min(P)])
         ax.minorticks_on()
         ax.set_xlabel('Temperature (K)')
+        ax.set_ylabel('Pressure (bars)')
+        ax.legend(frameon=False)
+        
+        return fig, ax
+    
+    
+    def plot_vmr(self, path_vmr, molecule, figsize=(6,5), model = 'ExoREM', fig=None, ax=None):
+        '''
+        Function to plot the vmr profiles of a molecule.
+        Adpated from Nathan Zimniak.
+
+        Args:
+            path_vmr    (str): Path to the temperature profile grid
+            molecule    (str): name of the molecule
+            figsize     (tuple): (default = (6, 5)) Size of the plot
+            model       (str): (default = 'ExoREM') Name of the model grid
+            fig         (object): (default = None) matplotlib figure object   
+            ax          (object): (default = None) matplotlib figure object
+        Returns:
+            - fig  (object) : matplotlib figure object
+            - ax   (object) : matplotlib axes objects
+        '''
+        print('ForMoSA - Volume Mixing Ratio profile -', molecule)
+
+        samples = self.posterior_to_plot
+
+        # put nans where data is not realistic
+        out=[]
+        for i in range(0, len(samples)):
+            if samples[i][0] < 400 or samples[i][0] > 2000:
+                out.append(i)
+            elif samples[i][1] < 3.00 or samples[i][1] > 5.00:
+                out.append(i)
+            elif 10**samples[i][2] < 0.32 or 10**samples[i][2] > 10.00:
+                out.append(i)
+            elif samples[i][3] < 0.10 or samples[i][3] > 0.80:
+                out.append(i)
+        for i in out:
+            samples[i] = np.nan
+        samples = samples[~np.isnan(samples).any(axis=1)]
+        #Crée une liste pour chaque paramètre
+        Teffs, loggs, MHs, COs = [], [], [], []
+        if model == 'ATMO':
+            gammas = []
+        for i in range(0, len(samples)):
+            Teffs.append(samples[i][0])
+            loggs.append(samples[i][1])
+            if model == 'ExoREM':
+                MHs.append(10**(samples[i][2]))
+                COs.append(samples[i][3])
+            if model == 'ATMO':
+                MHs.append(samples[i][2])
+                COs.append(samples[i][4])
+                gammas.append(samples[i][3])
+
+        #Charge la grille de profils de température
+        vmr_grid_xa = xr.open_dataarray(path_vmr)
+        #Crée les profils de température associés aux points de la grille
+        P = vmr_grid_xa.coords['P']
+        vmr_profiles = np.full((len(samples), len(P)), np.nan)
+        for i in range(0, len(samples)):
+            if model == 'ExoREM':
+                vmr_profiles[i][:] = vmr_grid_xa.interp(Teff=Teffs[i], logg=loggs[i], MH=MHs[i], CO=COs[i])#, kwargs={'fill_value':'extrapolate'})
+            elif model == 'ATMO':
+                vmr_profiles[i][:] = vmr_grid_xa.interp(Teff=Teffs[i], logg=loggs[i], MH=MHs[i], CO=COs[i], gamma=gammas[i])#, kwargs={'fill_value':'extrapolate'})
+        if model == 'ATMO':
+            #Calcule le 2eme facteur de robustesse (pour ATMO)
+            nbNans = [0]*len(P)
+            for i in range(0, len(vmr_profiles[0,:])):
+                for j in range(0, len(vmr_profiles[:,0])):
+                    if str(vmr_profiles[j,i]) == "nan":
+                        nbNans[i] = nbNans[i]+1
+            FdR2 = (len(samples)-np.array(nbNans))/len(samples)
+            FdR1 = vmr_grid_xa.attrs['Facteur de robustesse 1']
+            FdR = FdR1*FdR2
+            #Extrapole les températures
+            for i in range(0, len(samples)):
+                newT = xr.DataArray(list(vmr_profiles[i][:]), [('pressure', list(np.array(P)))])
+                newT = newT.interpolate_na(dim = 'pressure', method='linear', fill_value='extrapolate')
+                vmr_profiles[i][:] = list(newT)
+        #Calcule le profil le plus probable
+        vmrfit = []
+        for i in range(0, len(P)):
+            vmrfit.append(np.nanpercentile(vmr_profiles[:,i], 50))
+        #Calcule les percentiles 68 et 96 du profil le plus probable
+        vmrinf68, vmrsup68, vmrinf95, vmrsup95 = [], [], [], []
+        for i in range(0, len(P)):
+            vmrinf68.append(np.nanpercentile(vmr_profiles[:,i], 16))
+            vmrsup68.append(np.nanpercentile(vmr_profiles[:,i], 84))
+            vmrinf95.append(np.nanpercentile(vmr_profiles[:,i], 2))
+            vmrsup95.append(np.nanpercentile(vmr_profiles[:,i], 98))
+        #Plot le profil le plus probable et les percentiles associés
+        
+        if fig == None:
+            fig = plt.figure(figsize=figsize)
+            ax = plt.axes()
+            
+        ax.plot(vmrfit, P, label=molecule)
+        ax.set_yscale('log'), ax.set_xscale('log')
+        ax.invert_yaxis()
+        ax.set_ylim([max(P), min(P)])
+        ax.set_xlabel('Volume mixing ratio')
         ax.set_ylabel('Pressure (Pa)')
         ax.legend(frameon=False)
 
@@ -1204,10 +1349,8 @@ class PlottingForMoSA():
         '''
         print('ForMoSA - Cloud profile')
 
-        with open(self.global_params.result_path + '/result_' + self.global_params.ns_algo + '.pic', 'rb') as f1:
-            result = pickle.load(f1)
-            # samples = result.samples
-            samples = result['samples']
+        samples = self.posterior_to_plot
+        weights = self.weights
 
         #Supprime les points hors de la grille
         out=[]
@@ -1231,24 +1374,27 @@ class PlottingForMoSA():
             MHs.append(10**(samples[i][2]))
             COs.append(samples[i][3])
         #Charge la grille de profils d'une propriété d'un nuage
-        cloud_props_grids_xa = xr.open_dataset(path_cloud_profile)
-        cloud_prop_grid_xa = cloud_props_grids_xa['P_' + cloud_prop]
+        cloud_prop_grid_xa = xr.open_dataarray(path_cloud_profile)
         #Crée les profils d'une propriété d'un nuage associés aux points de la grille
-        P = cloud_prop_grid_xa.coords['P']
+        P = cloud_prop_grid_xa.coords['P'] * 1e-5
         cloud_prop_profiles = np.full((len(samples), len(P)), np.nan)
         for i in range(0, len(samples)):
             cloud_prop_profiles[i][:] = cloud_prop_grid_xa.interp(Teff=Teffs[i], logg=loggs[i], MH=MHs[i], CO=COs[i])#, kwargs={'fill_value':'extrapolate'})
         # Calcule le profil le plus probable
         propfit = []
         for i in range(0, len(P)):
-            propfit.append(np.percentile(cloud_prop_profiles[:, i], 50))
+            propfit.append(np.nanpercentile(cloud_prop_profiles[:, i], 50))
         # Calcule les percentiles 68 et 96 du profil le plus probable
         propinf68, propsup68, propinf95, propsup95 = [], [], [], []
         for i in range(0, len(P)):
-            propinf68.append(np.percentile(cloud_prop_profiles[:, i], 16))
-            propsup68.append(np.percentile(cloud_prop_profiles[:, i], 84))
-            propinf95.append(np.percentile(cloud_prop_profiles[:, i], 2))
-            propsup95.append(np.percentile(cloud_prop_profiles[:, i], 98))
+            indices = np.argsort(cloud_prop_profiles[:,i])
+            sorted_cloud_prop_profiles = cloud_prop_profiles[indices,i]
+            sorted_weights = weights[indices]
+            cumweights = np.cumsum(sorted_weights)
+            propinf68.append(np.interp(16/100, cumweights, sorted_cloud_prop_profiles))
+            propsup68.append(np.interp(54/100, cumweights, sorted_cloud_prop_profiles))
+            propinf95.append(np.interp(2/100, cumweights, sorted_cloud_prop_profiles))
+            propsup95.append(np.interp(98/100, cumweights, sorted_cloud_prop_profiles))
 
         # Plot le profil le plus probable et les percentiles associés
         fig = plt.figure(figsize=figsize)
@@ -1305,7 +1451,7 @@ class PlottingForMoSA():
             ax.set_xlabel('Fe cloud volume mixing ratio')
         elif cloud_prop == 'cloud_vmr_Mg2SiO4':
             ax.set_xlabel('$Mg_2SiO_4$ cloud volume mixing ratio')
-        ax.set_ylabel('Pressure (Pa)')
+        ax.set_ylabel('Pressure (bars)')
 
         ax.legend(frameon=False)
 
