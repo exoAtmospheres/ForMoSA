@@ -4,7 +4,6 @@ from scipy.interpolate import interp1d
 import astropy.units as u
 import astropy.constants as const
 from PyAstronomy.pyasl import rotBroad, fastRotBroad
-<<<<<<< Updated upstream
 import scipy.signal as sg
 import scipy.optimize as optimize
 import matplotlib.pyplot as plt
@@ -148,13 +147,6 @@ def lsq_fct(global_params, wave, indobs, flx_obs_spectro, err_obs_spectro, star_
 
 
 def calc_ck(flx_obs_spectro, err_obs_spectro, flx_mod_spectro, flx_obs_photo, err_obs_photo, flx_mod_photo, r_picked, d_picked,
-=======
-import ForMoSA.nested_sampling.forward_models as fm
-from ForMoSA.adapt.extraction_functions import resolution_decreasing
-# ----------------------------------------------------------------------------------------------------------------------
-
-def calc_ck(global_params, wav_obs_spectro, flx_obs_spectro, err_obs_spectro, res_obs_spectro, wav_mod_spectro, flx_mod_spectro, res_mod_spectro, flx_obs_photo, err_obs_photo, flx_mod_photo, r_picked, d_picked, indobs,
->>>>>>> Stashed changes
             alpha=1, analytic='no'):
     """
     Calculation of the dilution factor Ck and re-normalization of the interpolated synthetic spectrum (from the radius
@@ -176,7 +168,7 @@ def calc_ck(global_params, wav_obs_spectro, flx_obs_spectro, err_obs_spectro, re
         - flx_mod_photo (array)     : Re-normalysed model photometry
         - ck (float)                : Ck calculated
 
-    Author: Simon Petrus and Allan Denis
+    Author: Simon Petrus
     """
     # Calculation of the dilution factor ck as a function of the radius and distance
     if analytic == 'no':
@@ -185,8 +177,6 @@ def calc_ck(global_params, wav_obs_spectro, flx_obs_spectro, err_obs_spectro, re
         ck = alpha * (r_picked.to(u.m).value/d_picked.to(u.m).value)**2
     # Calculation of the dilution factor ck analytically
     else:
-        # If we calculate the dilution factor analytically, we first need to make sure that  the resolution of the model is the same as the resolution of the data
-        flx_mod_spectro = resolution_decreasing(global_params, wav_obs_spectro, [], res_obs_spectro, wav_mod_spectro, flx_mod_spectro, res_mod_spectro, 'mod', indobs)
         if len(flx_obs_spectro) != 0:
             ck_top_merge = np.sum((flx_mod_spectro * flx_obs_spectro) / (err_obs_spectro * err_obs_spectro))
             ck_bot_merge = np.sum((flx_mod_spectro / err_obs_spectro)**2)
@@ -213,11 +203,7 @@ def calc_ck(global_params, wav_obs_spectro, flx_obs_spectro, err_obs_spectro, re
 # ----------------------------------------------------------------------------------------------------------------------
 
 
-<<<<<<< Updated upstream
 def doppler_fct(wav_obs_spectro, flx_obs_spectro, err_obs_spectro, flx_mod_spectro, rv_picked):
-=======
-def doppler_fct(wav_obs_spectro, wav_mod_spectro, flx_mod_spectro, rv_picked, return_nans = False):
->>>>>>> Stashed changes
     """
     Application of a Doppler shifting to the interpolated synthetic spectrum using the function pyasl.dopplerShift.
     Note: Observation can change due to side effects of the shifting.
@@ -236,25 +222,11 @@ def doppler_fct(wav_obs_spectro, wav_mod_spectro, flx_mod_spectro, rv_picked, re
 
     Author: Simon Petrus
     """
-<<<<<<< Updated upstream
     new_wav = wav_obs_spectro * ((rv_picked / const.c.to(u.km/u.s).value) + 1)
     rv_interp = interp1d(new_wav, flx_mod_spectro, fill_value="extrapolate")
     flx_post_doppler = rv_interp(wav_obs_spectro)
 
     return wav_obs_spectro, flx_obs_spectro, err_obs_spectro, flx_post_doppler
-=======
-    new_wav = wav_mod_spectro * ((rv_picked / const.c.to(u.km/u.s).value) + 1)
-    rv_interp = interp1d(new_wav, flx_mod_spectro, bounds_error=False)
-    flx_post_doppler = rv_interp(wav_mod_spectro)
-    
-    # Remove the nans caused by the RV correction
-    # Note: this step is not problematic as the wavelength range of the model is slightly larger than the wavelength range of the data
-    # so we do not lose any data in the model within the wavelength range of the data
-    nans = np.where(~np.isnan(flx_post_doppler))[0]
-    flx_post_doppler, wav_mod_spectro = flx_post_doppler[nans], wav_mod_spectro[nans]
-   
-    return flx_post_doppler, wav_mod_spectro
->>>>>>> Stashed changes
 
 # ----------------------------------------------------------------------------------------------------------------------
 
@@ -284,44 +256,6 @@ def reddening_fct(wav_obs_spectro, wav_obs_photo, flx_mod_spectro, flx_mod_photo
         flx_mod_photo *= 10**(-0.4*dered_phot)
 
     return flx_mod_spectro, flx_mod_photo
-
-# ----------------------------------------------------------------------------------------------------------------------
-
-
-def vsini_fct(global_params, wav_mod_spectro, flx_mod_spectro, res_mod_obs, ld_picked, vsini_picked, indobs):
-    """
-    Application of a rotational velocity (line broadening) to the interpolated synthetic spectrum
-
-    Parameters
-    ----------
-    global_params    (object): Class containing each parameter
-    wav_mod_spectro  (array): Wavelength grid of the model 
-    flx_mod_spectro  (array): Flux of tge interpolated synthetic spectrum (spectroscopy)
-    ld_picked        (float): Limb darkening randomly picked by the nested sampling
-    vsini_picked     (float): v.sin(i) randomly picked by the nested samplin (in km.s-1)
-    res_mod_spectro  (array): Resolution of the model as a function of the wavelength grid of the data
-    indobs           (int): Index of the current observation looping
-    
-    Author: Allan Denis
-    """
-    
-    if vsini_picked != 0:
-        if global_params.vsini[indobs*4 + 3] == 'RotBroad':
-            flx_mod_spectro = vsini_fct_rot_broad(wav_mod_spectro, flx_mod_spectro, ld_picked, vsini_picked)
-        elif global_params.vsini[indobs*4 + 3] == 'FastRotBroad':
-            flx_mod_spectro = vsini_fct_fast_rot_broad(wav_mod_spectro, flx_mod_spectro, ld_picked, vsini_picked)
-        elif global_params.vsini[indobs*4 + 3] == 'Accurate':
-            flx_mod_spectro = vsini_fct_accurate(wav_mod_spectro, flx_mod_spectro, ld_picked, vsini_picked)
-        elif global_params.vsini[indobs*4 + 3] == 'AccurateFastRotBroad':
-            flx_mod_spectro = vsini_fct_accurate_fast_rot_broad(wav_mod_spectro, flx_mod_spectro, ld_picked, vsini_picked)
-        else:
-            raise ValueError(f'Unknow rotational broadening method {global_params.vsini[indobs*4 + 3]}')
-            
-    # Because of the v.sini correction, the resolution of the model has been downgraded, so we update it 
-    if vsini_picked != 0:
-        res_mod_obs = const.c.to('km/s').value / vsini_picked * np.ones(len(res_mod_obs))
-        
-    return flx_mod_spectro, res_mod_obs
 
 # ----------------------------------------------------------------------------------------------------------------------
 
@@ -592,8 +526,6 @@ def modif_spec(global_params, theta, theta_index,
 
     Author: Simon Petrus, Paulina Palma-Bifani, Allan Denis and Matthieu Ravet
     """
-    print(wav_mod_spectro, 'before')
-    
     # Correction of the radial velocity of the interpolated synthetic spectrum.
     if len(flx_obs_spectro) != 0:
         if len(global_params.rv) > 3: # If you want separate rv for each observations
@@ -603,13 +535,9 @@ def modif_spec(global_params, theta, theta_index,
                 else:
                     ind_theta_rv = np.where(theta_index == f'rv_{indobs}')
                     rv_picked = theta[ind_theta_rv[0][0]]
-<<<<<<< Updated upstream
                 wav_obs_spectro, flx_obs_spectro, err_obs_spectro, flx_mod_spectro = doppler_fct(wav_obs_spectro, flx_obs_spectro,
                                                                                     err_obs_spectro, flx_mod_spectro,
                                                                                     rv_picked)
-=======
-                flx_mod_spectro, wav_mod_spectro = doppler_fct(wav_obs_spectro, wav_mod_spectro, flx_mod_spectro, rv_picked)
->>>>>>> Stashed changes
         else: # If you want 1 common rv for all observations
             if global_params.rv != "NA":
                 if global_params.rv[0] == "constant":
@@ -617,16 +545,9 @@ def modif_spec(global_params, theta, theta_index,
                 else:
                     ind_theta_rv = np.where(theta_index == 'rv')
                     rv_picked = theta[ind_theta_rv[0][0]]
-<<<<<<< Updated upstream
                 wav_obs_spectro, flx_obs_spectro, err_obs_spectro, flx_mod_spectro = doppler_fct(wav_obs_spectro, flx_obs_spectro,
                                                                                         err_obs_spectro, flx_mod_spectro,
                                                                                         rv_picked)
-=======
-                    print(rv_picked)
-                flx_mod_spectro, wav_mod_spectro = doppler_fct(wav_obs_spectro, wav_mod_spectro, flx_mod_spectro, rv_picked)
-
-    print(wav_mod_spectro, 'after')
->>>>>>> Stashed changes
 
     # Application of a synthetic interstellar extinction to the interpolated synthetic spectrum.
     if global_params.av != "NA":
@@ -652,17 +573,23 @@ def modif_spec(global_params, theta, theta_index,
                 else:
                     ind_theta_ld = np.where(theta_index == f'ld_{indobs}')
                     ld_picked = theta[ind_theta_ld[0][0]]
-                    
-                if vsini_picked != 0:
-                    flx_mod_spectro, res_mod_spectro = vsini_fct(global_params, wav_mod_spectro, flx_mod_spectro, res_mod_spectro, ld_picked, vsini_picked, indobs)
+
+                if global_params.vsini[indobs*4 + 3] == 'RotBroad':
+                    flx_mod_spectro = vsini_fct_rot_broad(wav_obs_spectro, flx_mod_spectro, ld_picked, vsini_picked)
+                elif global_params.vsini[indobs*4 + 3] == 'FastRotBroad':
+                    flx_mod_spectro = vsini_fct_fast_rot_broad(wav_obs_spectro, flx_mod_spectro, ld_picked, vsini_picked)
+                elif global_params.vsini[indobs*4 + 3] == 'Accurate':
+                    flx_mod_spectro = vsini_fct_accurate(wav_obs_spectro, flx_mod_spectro, ld_picked, vsini_picked)
+                elif global_params.vsini[indobs*4 + 3] == 'AccurateFastRotBroad':
+                    flx_mod_spectro = vsini_fct_accurate_fast_rot_broad(wav_obs_spectro, flx_mod_spectro, ld_picked, vsini_picked)
+                else:
+                    raise ValueError(f'Unknow rotational broadening method {global_params.vsini[indobs*4 + 3]}')
 
             elif global_params.vsini[indobs*4] == "NA" and global_params.ld[indobs*3] == "NA":
                 pass
             else:
                 print(f'WARNING: You need to define a v.sin(i) AND a limb darkening, or set them both to NA for observation {indobs}')
                 exit()
-
-
 
         else:# If you want 1 common vsini/ld for all observations
             if global_params.vsini != "NA" and global_params.ld != "NA":
@@ -677,17 +604,24 @@ def modif_spec(global_params, theta, theta_index,
                 else:
                     ind_theta_ld = np.where(theta_index == 'ld')
                     ld_picked = theta[ind_theta_ld[0][0]]
-            
-                flx_mod_spectro, res_mod_spectro = vsini_fct(global_params, wav_mod_spectro, flx_mod_spectro, res_mod_spectro, ld_picked, vsini_picked, 0)
 
+                if global_params.vsini[3] == 'RotBroad':
+                    flx_mod_spectro = vsini_fct_rot_broad(wav_obs_spectro, flx_mod_spectro, ld_picked, vsini_picked)
+                elif global_params.vsini[3] == 'FastRotBroad':
+                    flx_mod_spectro = vsini_fct_fast_rot_broad(wav_obs_spectro, flx_mod_spectro, ld_picked, vsini_picked)
+                elif global_params.vsini[3] == 'Accurate':
+                    flx_mod_spectro = vsini_fct_accurate(wav_obs_spectro, flx_mod_spectro, ld_picked, vsini_picked)
+                elif global_params.vsini[indobs*4 + 3] == 'AccurateFastRotBroad':
+                    flx_mod_spectro = vsini_fct_accurate_fast_rot_broad(wav_obs_spectro, flx_mod_spectro, ld_picked, vsini_picked)
+                else:
+                    raise ValueError(f'Unknow rotational broadening method {global_params.vsini[indobs*4 + 3]}')
 
             elif global_params.vsini == "NA" and global_params.ld == "NA":
                 pass
             else:
                 print('WARNING: You need to define a v.sin(i) AND a limb darkening, or set them both to NA')
                 exit()
-            
-            
+
     # Adding a CPD
     if global_params.bb_T != "NA" and global_params.bb_R != "NA":
         # posteriors T_eff, R_disk
@@ -717,7 +651,6 @@ def modif_spec(global_params, theta, theta_index,
 
     # Calculation of the dilution factor Ck and re-normalization of the interpolated synthetic spectrum.
     # From the radius and the distance.
-<<<<<<< Updated upstream
 
     if global_params.use_lsqr[indobs] == 'True':
         planet_contribution, stellar_contribution, flx_mod_spectro, flx_obs_spectro, star_flx_obs, systematics, flx_mod_spectro_nativ, wav_obs_spectro, err_obs_spectro = lsq_fct(global_params, wav_obs_spectro, indobs, flx_obs_spectro, err_obs_spectro, star_flx_obs, transm_obs, flx_mod_spectro, system_obs, ccf_method='continuum_unfiltered', build_matrix=True)
@@ -728,9 +661,6 @@ def modif_spec(global_params, theta, theta_index,
         # Set HiRES contribution to 1 if not used
         planet_contribution, stellar_contribution, systematics = 1, 1, np.asarray([])
 
-=======
-    if global_params.fm_type[indobs] == "NA":
->>>>>>> Stashed changes
         if global_params.r != "NA" and global_params.d != "NA":
             if global_params.r[0] == "constant":
                 r_picked = float(global_params.r[1])
@@ -751,11 +681,12 @@ def modif_spec(global_params, theta, theta_index,
                     else:
                         ind_theta_alpha = np.where(theta_index == f'alpha_{indobs}')
                         alpha_picked = theta[ind_theta_alpha[0][0]]
-                    flx_mod_spectro, flx_mod_photo, ck = calc_ck(global_params, wav_obs_spectro, flx_obs_spectro, err_obs_spectro, res_obs_spectro, wav_mod_spectro, 
-                                                                 flx_mod_spectro, res_mod_spectro, flx_obs_photo, err_obs_photo, flx_mod_photo, r_picked, d_picked, indobs, alpha=alpha_picked)
+                    flx_mod_spectro, flx_mod_photo, ck = calc_ck(flx_obs_spectro, err_obs_spectro, flx_mod_spectro,
+                                                            flx_obs_photo, err_obs_photo, flx_mod_photo, r_picked, d_picked,
+                                                            alpha=alpha_picked)
                 else: # Without the extra alpha scaling
-                    flx_mod_spectro, flx_mod_photo, ck = calc_ck(global_params, wav_obs_spectro, flx_obs_spectro, err_obs_spectro, res_obs_spectro, wav_mod_spectro,
-                                                                 flx_mod_spectro, res_mod_spectro, flx_obs_photo, err_obs_photo, flx_mod_photo, r_picked, d_picked, indobs)
+                    flx_mod_spectro, flx_mod_photo, ck = calc_ck(flx_obs_spectro, err_obs_spectro, flx_mod_spectro,
+                                                      flx_obs_photo, err_obs_photo, flx_mod_photo, r_picked, d_picked)
             else: # If you want 1 common alpha for all observations
                 if global_params.alpha != "NA":
                     if global_params.alpha[0] == "constant":
@@ -763,45 +694,26 @@ def modif_spec(global_params, theta, theta_index,
                     else:
                         ind_theta_alpha = np.where(theta_index == 'alpha')
                         alpha_picked = theta[ind_theta_alpha[0][0]]
-                    flx_mod_spectro, flx_mod_photo, ck = calc_ck(global_params, wav_obs_spectro, flx_obs_spectro, err_obs_spectro, res_obs_spectro, wav_mod_spectro, 
-                                                                 flx_mod_spectro, res_mod_spectro, flx_obs_photo, err_obs_photo, flx_mod_photo, r_picked, d_picked, indobs, alpha=alpha_picked)
+                    flx_mod_spectro, flx_mod_photo, ck = calc_ck(flx_obs_spectro, err_obs_spectro, flx_mod_spectro,
+                                                            flx_obs_photo, err_obs_photo, flx_mod_photo, r_picked, d_picked,
+                                                            alpha=alpha_picked)
                 else: # Without the extra alpha scaling
-                    flx_mod_spectro, flx_mod_photo, ck = calc_ck(global_params, wav_obs_spectro, flx_obs_spectro, err_obs_spectro, res_obs_spectro, wav_mod_spectro,
-                                                                 flx_mod_spectro, res_mod_spectro, flx_obs_photo, err_obs_photo, flx_mod_photo, r_picked, d_picked, indobs)
-            
-            # After all the transformations above, we finally decrease the resolution of the model
-            flx_mod_spectro_nativ = np.copy(flx_mod_spectro)
-            flx_mod_spectro = resolution_decreasing(global_params, wav_obs_spectro, [], res_obs_spectro, wav_mod_spectro, flx_mod_spectro, res_mod_spectro, 'mod', indobs)
+                    flx_mod_spectro, flx_mod_photo, ck = calc_ck(flx_obs_spectro, err_obs_spectro, flx_mod_spectro,
+                                                        flx_obs_photo, err_obs_photo, flx_mod_photo, r_picked, d_picked)
 
         # Analytically
         # If MOSAIC
         elif global_params.r == "NA" and global_params.d == "NA":
-            # If we compute ck analytically, the resolution decreasing is already included in the function
-            flx_mod_spectro_nativ = np.copy(flx_mod_spectro)
-            flx_mod_spectro, flx_mod_photo, ck = calc_ck(global_params, wav_obs_spectro, flx_obs_spectro, err_obs_spectro, res_obs_spectro, wav_mod_spectro, flx_mod_spectro, res_mod_spectro,
-                                                    flx_obs_photo, err_obs_photo, flx_mod_photo, 0, 0, indobs, alpha=0, analytic='yes')
+            flx_mod_spectro, flx_mod_photo, ck = calc_ck(flx_obs_spectro, err_obs_spectro, flx_mod_spectro,
+                                                    flx_obs_photo, err_obs_photo, flx_mod_photo, 0, 0, 0,
+                                                    analytic='yes')
 
 
         else:   # either global_params.r or global_params.d is set to 'NA'
             print('WARNING: You need to define a radius AND a distance, or set them both to "NA"')
             exit()
 
-<<<<<<< Updated upstream
     return wav_obs_spectro, flx_obs_spectro, err_obs_spectro, flx_mod_spectro, wav_obs_photo, flx_obs_photo, err_obs_photo, flx_mod_photo, ck, planet_contribution, stellar_contribution, star_flx_obs, systematics, transm_obs
-=======
-    else:     
-        ck = 1
-        flx_mod_spectro_nativ = np.copy(flx_mod_spectro)
-        # Decrease the resolution of the model before using Least Squares 
-        flx_mod_spectro = resolution_decreasing(global_params, wav_obs_spectro, [], res_obs_spectro, wav_mod_spectro, flx_mod_spectro, res_mod_spectro, 'mod', indobs)
-        # Least Squares inversion
-        res, flx_mod_spectro, flx_obs_spectro, star_flx_obs_spectro, system_obs_spectro = fm.forward_model(global_params, wav_obs_spectro, res_obs_spectro, flx_cont_obs_spectro, 
-                                                                                       flx_mod_spectro, star_flx_obs_spectro, star_flx_cont_obs_spectro,
-                                                                                       err_obs_spectro, transm_obs_spectro, flx_obs_spectro, system_obs_spectro, indobs)
-
-
-    return wav_obs_spectro, flx_obs_spectro, err_obs_spectro, flx_mod_spectro, wav_obs_photo, flx_obs_photo, err_obs_photo, flx_mod_photo, ck, star_flx_obs_spectro, system_obs_spectro, res_obs_spectro, transm_obs_spectro, wav_mod_spectro, flx_mod_spectro_nativ, res_mod_spectro
->>>>>>> Stashed changes
 
 
 
