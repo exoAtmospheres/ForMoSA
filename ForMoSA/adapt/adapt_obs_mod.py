@@ -32,11 +32,11 @@ def launch_adapt(global_params, justobs='no'):
     res_mod_nativ = attr['res']
     ds.close()
 
-    # Check if the grid is Nyquist-sampled, else set the resolution to R = wav / 2 Deltawav to make sure we are adding any info
-    # dwav = np.abs(wav_mod_nativ - np.roll(wav_mod_nativ, 1))
-    # dwav[0] = dwav[1]
-    # res_Nyquist = wav_mod_nativ / (2 * dwav)
-    # res_mod_nativ[(res_mod_nativ > res_Nyquist)] = res_Nyquist[(res_mod_nativ > res_Nyquist)]
+    # Check if the grid is Nyquist-sampled, else set the resolution to R = wav / 2 Deltawav to make sure we are adding any info
+    dwav = np.abs(wav_mod_nativ - np.roll(wav_mod_nativ, 1))
+    dwav[0] = dwav[1]
+    res_Nyquist = wav_mod_nativ / (2 * dwav)
+    res_mod_nativ[(res_mod_nativ > res_Nyquist)] = res_Nyquist[(res_mod_nativ > res_Nyquist)]
 
     # Extract the data from the observation files
     main_obs_path = global_params.main_observation_path
@@ -58,38 +58,16 @@ def launch_adapt(global_params, justobs='no'):
             obs_spectro, obs_photo, obs_photo_ins, obs_opt  = extract_observation(global_params, wav_mod_nativ, res_mod_nativ,
                                                                                                    obs_name=obs_name, indobs=indobs)
 
-        wav_obs_spectro, res_obs_spectro, wav_obs_photo = obs_spectro[0], obs_spectro[3], obs_photo[0]
+            
         # Interpolate the resolution onto the wavelength of the data
         if len(obs_spectro[0]) != 0:
-            if len(global_params.rv) > 3:   # We want to estimate a different RV fo each observation
-                if global_params.rv[indobs*3] == 'NA':
-                    mask_mod_obs = (wav_mod_nativ <= obs_spectro[0][-1]) & (wav_mod_nativ > obs_spectro[0][0])
-                    res_mod_obs = res_obs_spectro
-                    wav_mod_obs = wav_obs_spectro
-                else:
-                    # If the user defined an RV prior, we slightly modify the strategy for the adaptation of the model
-                    # Instead of adapting the model to the wavelength of the observations, we just decrease the wavelength range of the model to a wavelength range slightly larger than the data
-                    # so that we do not lose data on the edges of the wavelength of the observations when applying the RV correction
-                    mask_mod_obs = (wav_mod_nativ <= 1.01 * obs_spectro[0][-1]) & (wav_mod_nativ >= 0.99 * obs_spectro[0][0])   # 1.01 corresponds to a value of 3000 km/s for the RV so we do no risk to lose data on the edges when applying the RV correction
-                    wav_mod_obs = wav_mod_nativ[mask_mod_obs]
-                    res_mod_obs = res_mod_nativ[mask_mod_obs]
-                    
-            else:
-                if global_params.rv == 'NA':
-                    mask_mod_obs = (wav_mod_nativ <= obs_spectro[0][-1]) & (wav_mod_nativ > obs_spectro[0][0])
-                    res_mod_obs = res_obs_spectro
-                    wav_mod_obs = wav_obs_spectro
-                else:
-                    # If the user defined an RV prior, we slightly modify the strategy for the adaptation of the model
-                    # Instead of adapting the model to the wavelength of the observations, we just decrease the wavelength range of the model to a wavelength range slightly larger than the data
-                    # so that we do not lose data on the edges of the wavelength of the observations when applying the RV correction
-                    mask_mod_obs = (wav_mod_nativ <= 1.01 * obs_spectro[0][-1]) & (wav_mod_nativ >= 0.99 * obs_spectro[0][0])   # 1.01 corresponds to a value of 3000 km/s for the RV so we do no risk to lose data on the edges when applying the RV correction
-                    wav_mod_obs = wav_mod_nativ[mask_mod_obs]
-                    res_mod_obs = res_mod_nativ[mask_mod_obs]
-                    
+            mask_mod_obs = (wav_mod_nativ <= obs_spectro[0][-1]) & (wav_mod_nativ > obs_spectro[0][0])
+            wav_mod_cut = wav_mod_nativ[mask_mod_obs]
+            res_mod_cut = res_mod_nativ[mask_mod_obs]
+            interp_mod_to_obs = interp1d(wav_mod_cut, res_mod_cut, fill_value='extrapolate')
+            res_mod_obs = interp_mod_to_obs(obs_spectro[0])
         else:
             res_mod_obs = np.asarray([])
-            wav_mod_obs = np.asarray([])
 
         # Check-ups and warnings for negative values in the diagonal of the covariance matrix
         if len(obs_opt[0]) != 0 and any(np.diag(obs_opt[0]) < 0):
@@ -125,7 +103,7 @@ def launch_adapt(global_params, justobs='no'):
             print('- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -')
             print(f"-> Sarting the adaptation of {obs_name}")
 
-            adapt_grid(global_params, res_mod_obs, wav_obs_spectro, wav_mod_obs, res_obs_spectro, wav_obs_photo, obs_photo_ins, obs_name=obs_name, indobs=indobs)
+            adapt_grid(global_params, res_mod_obs, obs_spectro[0], obs_spectro[3], obs_photo[0], obs_photo_ins, obs_name=obs_name, indobs=indobs)
         
 # ----------------------------------------------------------------------------------------------------------------------
 

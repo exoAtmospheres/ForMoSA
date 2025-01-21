@@ -1,10 +1,9 @@
 from __future__ import division
 import numpy as np
 from astropy.io import fits
-from scipy.ndimage import gaussian_filter, median_filter
+from scipy.ndimage import gaussian_filter
 from scipy.interpolate import interp1d
 from spectres import spectres
-import scipy
 # ----------------------------------------------------------------------------------------------------------------------
 
 
@@ -89,19 +88,7 @@ def extract_observation(global_params, wav_mod_nativ, res_mod_nativ, cont='no', 
             res_mod_obs = interp_mod_to_obs(obs_spectro[0][mask_spectro_cut])
             # If we want to decrease the resolution of the data: (if by_sample, the data don't need to be adapted)
             if global_params.adapt_method[indobs] == 'by_reso':
-                if len(global_params.rv) > 3:    # We estimate a different RV value for each observation
-                    if global_params.rv[indobs*3] == 'NA':
-                        obs_spectro[1][mask_spectro_cut] = resolution_decreasing(global_params,
-                                                                         obs_spectro[0][mask_spectro_cut],
-                                                                         obs_spectro[1][mask_spectro_cut],
-                                                                         obs_spectro[3][mask_spectro_cut],
-                                                                         wav_mod_nativ,
-                                                                         [], 
-                                                                         res_mod_obs,
-                                                                         'obs', indobs=indobs)
-                else:     # We estimate the same RV value for each observation
-                    if global_params.rv == 'NA':
-                        obs_spectro[1][mask_spectro_cut] = resolution_decreasing(global_params,
+                obs_spectro[1][mask_spectro_cut] = resolution_decreasing(global_params,
                                                                          obs_spectro[0][mask_spectro_cut],
                                                                          obs_spectro[1][mask_spectro_cut],
                                                                          obs_spectro[3][mask_spectro_cut],
@@ -341,31 +328,23 @@ def extract_model(global_params, wav_mod_nativ, flx_mod_nativ, res_mod_obs, wav_
     Author: Simon Petrus, Matthieu Ravet
     """
     # Create final models
-    if global_params.rv[indobs*3] == 'NA' or global_params.rv == 'NA':
-        mod_spectro = np.empty(len(wav_obs_spectro))
-    else:
-        mask_mod_spectro = (wav_mod_nativ >= 0.99 * wav_obs_spectro[0]) & (wav_mod_nativ <= 1.01 * wav_obs_spectro[-1])
-        mod_spectro = flx_mod_nativ[mask_mod_spectro]
-        
-    mod_photo = np.empty(len(obs_photo_ins), dtype=float)
-    
-    if global_params.rv[indobs*3] == 'NA' or global_params.rv == 'NA':
-        # Reduce the spectral resolution for each sub-spectrum.
-        for range_ind, rangee in enumerate(global_params.wav_for_adapt[indobs].split('/')):
-            rangee = rangee.split(',')
-            mask_spectro_cut = (float(rangee[0]) <= wav_obs_spectro) & (wav_obs_spectro <= float(rangee[1]))
-            if len(wav_obs_spectro[mask_spectro_cut]) != 0:
-                # If we want to decrease the resolution of the data:
-                if global_params.adapt_method[indobs] == 'by_reso':
-                    mod_spectro[mask_spectro_cut] = resolution_decreasing(global_params, wav_obs_spectro[mask_spectro_cut], [], res_obs_spectro[mask_spectro_cut], wav_mod_nativ, flx_mod_nativ, res_mod_obs[mask_spectro_cut],
-                                                        'mod', indobs=indobs)
-                else:
-                    mod_spectro[mask_spectro_cut] = spectres(wav_obs_spectro[mask_spectro_cut], wav_mod_nativ, flx_mod_nativ)
-    
-                # If we want to estimate the continuum of the data:
-                if cont == 'yes':     
-                    continuum = continuum_estimate(global_params, wav_obs_spectro[mask_spectro_cut], mod_spectro[mask_spectro_cut], res_mod_obs[mask_spectro_cut], indobs=indobs)
-                    mod_spectro[mask_spectro_cut] -= continuum
+    mod_spectro, mod_photo = np.empty(len(wav_obs_spectro), dtype=float), np.empty(len(obs_photo_ins), dtype=float)
+    # Reduce the spectral resolution for each sub-spectrum.
+    for range_ind, rangee in enumerate(global_params.wav_for_adapt[indobs].split('/')):
+        rangee = rangee.split(',')
+        mask_spectro_cut = (float(rangee[0]) <= wav_obs_spectro) & (wav_obs_spectro <= float(rangee[1]))
+        if len(wav_obs_spectro[mask_spectro_cut]) != 0:
+            # If we want to decrease the resolution of the data:
+            if global_params.adapt_method[indobs] == 'by_reso':
+                mod_spectro[mask_spectro_cut] = resolution_decreasing(global_params, wav_obs_spectro[mask_spectro_cut], [], res_obs_spectro[mask_spectro_cut], wav_mod_nativ, flx_mod_nativ, res_mod_obs[mask_spectro_cut],
+                                                    'mod', indobs=indobs)
+            else:
+                mod_spectro[mask_spectro_cut] = spectres(wav_obs_spectro[mask_spectro_cut], wav_mod_nativ, flx_mod_nativ)
+
+            # If we want to estimate the continuum of the data:
+            if cont == 'yes':     
+                continuum = continuum_estimate(global_params, wav_obs_spectro[mask_spectro_cut], mod_spectro[mask_spectro_cut], res_mod_obs[mask_spectro_cut], indobs=indobs)
+                mod_spectro[mask_spectro_cut] -= continuum
 
 
     # Calculate each photometry point.
@@ -412,6 +391,7 @@ def convolve_and_sample(wv_channels, sigmas_wvs, model_wvs, model_fluxes, num_si
     filter_size = int(np.ceil(np.max((2 * num_sigma * sigmas_wvs) / np.min(dwv_model))))
     filter_coords = np.linspace(-num_sigma, num_sigma, filter_size)
     filter_coords = np.tile(filter_coords, [wv_channels.shape[0], 1])  # shape of (N_output, filter_size)
+
     filter_wv_coords = filter_coords * sigmas_wvs[:, None] + wv_channels[:, None]  # model wavelengths we want
 
     lsf = np.exp(-filter_coords ** 2 / 2) / np.sqrt(2 * np.pi)
