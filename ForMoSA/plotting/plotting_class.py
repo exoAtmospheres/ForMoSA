@@ -356,13 +356,14 @@ class PlottingForMoSA():
         return fig
 
 
-    def plot_chains(self, figsize=(7,15)):
+    def plot_chains(self, figsize=(7,15), show_weights=True):
         '''
         Plot to check the convergence of the posterior chains.
         Multiple (sub-)axis plot.
 
         Args:
             figsize     (tuple): (default = (7, 15)) size of the plot
+            show_weights (bool): True or False if you want to show the weights on the chain
         Returns:
             - fig  (object) : matplotlib figure object
             - ax   (object) : matplotlib axes objects
@@ -380,11 +381,12 @@ class PlottingForMoSA():
             for j in range(2):
                 axs[i, j].plot(self.posterior_to_plot[:,n], color=self.color_out, alpha=0.8)
                 axs[i, j].set_ylabel(self.posteriors_names[n])
-                ax_w = axs[i, j].twinx()
-                ax_w.plot(self.weights, color='black', alpha=0.5)
-                ax_w.text(x=0, y=0.00005, s='weights')
-                if j == 0:
-                    ax_w.set_yticks([])
+                if show_weights == True:
+                    ax_w = axs[i, j].twinx()
+                    ax_w.plot(self.weights, color='black', alpha=0.5)
+                    ax_w.text(x=0, y=0.00005, s='weights')
+                    if j == 0:
+                        ax_w.set_yticks([])
                 if self.posteriors_names[n]=='log(L/L$\\mathrm{_{\\odot}}$)':
                     pass
                 else:
