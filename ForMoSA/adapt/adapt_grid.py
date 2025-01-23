@@ -219,7 +219,7 @@ def adapt_grid(global_params, res_mod_obs, wav_obs_spectro, wav_mod_spectro, res
         print(f'{idx+1}/{nkey} - {title}')
         if ds_spectro_new.isnull().any(dim=key):  # Check is there is any nan in the grid
             ds_spectro_new = ds_spectro_new.interpolate_na(dim=key, **interp_kwargs)
-        if ds_photo_new.isnull().any()(dim=key):
+        if ds_photo_new.isnull().any(dim=key):
             ds_photo_new = ds_photo_new.interpolate_na(dim=key, **interp_kwargs)
 
     ds_spectro_new.to_netcdf(os.path.join(global_params.adapt_store_path, f'adapted_grid_spectro_{global_params.grid_name}_{obs_name}_nonan.nc'),
