@@ -351,7 +351,7 @@ def extract_model(global_params, wav_mod_nativ, flx_mod_nativ, res_mod_obs, wav_
             mod_spectro = np.empty(len(wav_obs_spectro))
             use_RV = False
         
-    if not(use_RV):    
+    if use_RV:    
         mask_mod_spectro = (wav_mod_nativ >= 0.99 * wav_obs_spectro[0]) & (wav_mod_nativ <= 1.01 * wav_obs_spectro[-1])
         mod_spectro = flx_mod_nativ[mask_mod_spectro]
         
