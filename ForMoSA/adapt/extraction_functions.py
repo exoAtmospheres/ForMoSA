@@ -534,16 +534,15 @@ def continuum_estimate(global_params, wav, flx, res, indobs=0):
 
         # # To limit the computing time, the convolution is not as a function of the wavelength but calculated
         # from the median wavelength. We just want an estimate of the continuum here.
-        # wav_median = np.median(wav[ind_cont_cut])
-        # dwav_median = np.median(np.abs(wav[ind_cont_cut] - np.roll(wav[ind_cont_cut], 1))) # Estimated the median wavelength separation instead of taking wav_median - (wav_median+1) that could be on a border
+        wav_median = np.median(wav[ind_cont_cut])
+        dwav_median = np.median(np.abs(wav[ind_cont_cut] - np.roll(wav[ind_cont_cut], 1))) # Estimated the median wavelength separation instead of taking wav_median - (wav_median+1) that could be on a border
     
-        # fwhm = wav_median / np.median(res)
-        # fwhm_continuum = wav_median / float(global_params.continuum_sub[indobs])
+        fwhm = wav_median / np.median(res)
+        fwhm_continuum = wav_median / float(global_params.continuum_sub[indobs])
     
-        # fwhm_conv = np.sqrt(fwhm_continuum**2 - fwhm**2)
-        # sigma = fwhm_conv / (dwav_median * 2.355)
-        #cont = gaussian_filter(flx[ind_cont_cut], sigma)
-        cont = scipy.signal.savgol_filter(flx[ind_cont_cut], 301, 2)
+        fwhm_conv = np.sqrt(fwhm_continuum**2 - fwhm**2)
+        sigma = fwhm_conv / (dwav_median * 2.355)
+        cont = gaussian_filter(flx[ind_cont_cut], sigma)
         
         continuum = np.concatenate((continuum, cont))
     
