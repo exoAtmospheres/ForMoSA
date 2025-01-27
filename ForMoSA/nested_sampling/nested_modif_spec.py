@@ -8,7 +8,7 @@ import ForMoSA.nested_sampling.forward_models as fm
 from ForMoSA.adapt.extraction_functions import resolution_decreasing
 # ----------------------------------------------------------------------------------------------------------------------
 
-def calc_ck(global_params, wav_obs_spectro, flx_obs_spectro, err_obs_spectro, res_obs_spectro, wav_mod_spectro, flx_mod_spectro, res_mod_spectro, flx_obs_photo, err_obs_photo, flx_mod_photo, r_picked, d_picked, indobs,
+def calc_ck(global_params, flx_obs_spectro, err_obs_spectro, flx_mod_spectro, flx_obs_photo, err_obs_photo, flx_mod_photo, r_picked, d_picked, indobs,
             alpha=1, analytic='no'):
     """
     Calculation of the dilution factor Ck and re-normalization of the interpolated synthetic spectrum (from the radius
@@ -30,7 +30,7 @@ def calc_ck(global_params, wav_obs_spectro, flx_obs_spectro, err_obs_spectro, re
         - flx_mod_photo (array)     : Re-normalysed model photometry
         - ck (float)                : Ck calculated
 
-    Author: Simon Petrus and Allan Denis
+    Author: Simon Petrus 
     """
     # Calculation of the dilution factor ck as a function of the radius and distance
     if analytic == 'no':
@@ -39,8 +39,6 @@ def calc_ck(global_params, wav_obs_spectro, flx_obs_spectro, err_obs_spectro, re
         ck = alpha * (r_picked.to(u.m).value/d_picked.to(u.m).value)**2
     # Calculation of the dilution factor ck analytically
     else:
-        # If we calculate the dilution factor analytically, we first need to make sure that  the resolution of the model is the same as the resolution of the data
-        flx_mod_spectro = resolution_decreasing(global_params, wav_obs_spectro, [], res_obs_spectro, wav_mod_spectro, flx_mod_spectro, res_mod_spectro, 'mod', indobs)
         if len(flx_obs_spectro) != 0:
             ck_top_merge = np.sum((flx_mod_spectro * flx_obs_spectro) / (err_obs_spectro * err_obs_spectro))
             ck_bot_merge = np.sum((flx_mod_spectro / err_obs_spectro)**2)
@@ -538,6 +536,11 @@ def modif_spec(global_params, theta, theta_index,
     else:
         print('WARNING: You need to define a blackbody radius and blackbody temperature, or set them to "NA"')
         exit()
+        
+    
+    # After all the transformations above, we finally decrease the resolution of the model
+    flx_mod_spectro_nativ = np.copy(flx_mod_spectro)
+    flx_mod_spectro = resolution_decreasing(global_params, wav_obs_spectro, [], res_obs_spectro, wav_mod_spectro, flx_mod_spectro, res_mod_spectro, 'mod', indobs)
 
     # Calculation of the dilution factor Ck and re-normalization of the interpolated synthetic spectrum.
     # From the radius and the distance.
@@ -562,11 +565,9 @@ def modif_spec(global_params, theta, theta_index,
                     else:
                         ind_theta_alpha = np.where(theta_index == f'alpha_{indobs}')
                         alpha_picked = theta[ind_theta_alpha[0][0]]
-                    flx_mod_spectro, flx_mod_photo, ck = calc_ck(global_params, wav_obs_spectro, flx_obs_spectro, err_obs_spectro, res_obs_spectro, wav_mod_spectro, 
-                                                                 flx_mod_spectro, res_mod_spectro, flx_obs_photo, err_obs_photo, flx_mod_photo, r_picked, d_picked, indobs, alpha=alpha_picked)
+                    flx_mod_spectro, flx_mod_photo, ck = calc_ck(global_params, flx_obs_spectro, err_obs_spectro, flx_mod_spectro, flx_obs_photo, err_obs_photo, flx_mod_photo, r_picked, d_picked, indobs, alpha=alpha_picked)
                 else: # Without the extra alpha scaling
-                    flx_mod_spectro, flx_mod_photo, ck = calc_ck(global_params, wav_obs_spectro, flx_obs_spectro, err_obs_spectro, res_obs_spectro, wav_mod_spectro,
-                                                                 flx_mod_spectro, res_mod_spectro, flx_obs_photo, err_obs_photo, flx_mod_photo, r_picked, d_picked, indobs)
+                    flx_mod_spectro, flx_mod_photo, ck = calc_ck(global_params, flx_obs_spectro, err_obs_spectro, flx_mod_spectro, flx_obs_photo, err_obs_photo, flx_mod_photo, r_picked, d_picked, indobs)
             else: # If you want 1 common alpha for all observations
                 if global_params.alpha != "NA":
                     if global_params.alpha[0] == "constant":
@@ -574,23 +575,16 @@ def modif_spec(global_params, theta, theta_index,
                     else:
                         ind_theta_alpha = np.where(theta_index == 'alpha')
                         alpha_picked = theta[ind_theta_alpha[0][0]]
-                    flx_mod_spectro, flx_mod_photo, ck = calc_ck(global_params, wav_obs_spectro, flx_obs_spectro, err_obs_spectro, res_obs_spectro, wav_mod_spectro, 
-                                                                 flx_mod_spectro, res_mod_spectro, flx_obs_photo, err_obs_photo, flx_mod_photo, r_picked, d_picked, indobs, alpha=alpha_picked)
+                    flx_mod_spectro, flx_mod_photo, ck = calc_ck(global_params, flx_obs_spectro, err_obs_spectro, flx_mod_spectro, flx_obs_photo, err_obs_photo, flx_mod_photo, r_picked, d_picked, indobs, alpha=alpha_picked)
                 else: # Without the extra alpha scaling
-                    flx_mod_spectro, flx_mod_photo, ck = calc_ck(global_params, wav_obs_spectro, flx_obs_spectro, err_obs_spectro, res_obs_spectro, wav_mod_spectro,
-                                                                 flx_mod_spectro, res_mod_spectro, flx_obs_photo, err_obs_photo, flx_mod_photo, r_picked, d_picked, indobs)
-            
-            # After all the transformations above, we finally decrease the resolution of the model
-            flx_mod_spectro_nativ = np.copy(flx_mod_spectro)
-            flx_mod_spectro = resolution_decreasing(global_params, wav_obs_spectro, [], res_obs_spectro, wav_mod_spectro, flx_mod_spectro, res_mod_spectro, 'mod', indobs)
+                    flx_mod_spectro, flx_mod_photo, ck = calc_ck(global_params, flx_obs_spectro, err_obs_spectro, res_obs_spectro, flx_mod_spectro, flx_obs_photo, err_obs_photo, flx_mod_photo, r_picked, d_picked, indobs)
 
         # Analytically
         # If MOSAIC
         elif global_params.r == "NA" and global_params.d == "NA":
             # If we compute ck analytically, the resolution decreasing is already included in the function
             flx_mod_spectro_nativ = np.copy(flx_mod_spectro)
-            flx_mod_spectro, flx_mod_photo, ck = calc_ck(global_params, wav_obs_spectro, flx_obs_spectro, err_obs_spectro, res_obs_spectro, wav_mod_spectro, flx_mod_spectro, res_mod_spectro,
-                                                    flx_obs_photo, err_obs_photo, flx_mod_photo, 0, 0, indobs, alpha=0, analytic='yes')
+            flx_mod_spectro, flx_mod_photo, ck = calc_ck(global_params, flx_obs_spectro, err_obs_spectro, flx_mod_spectro, flx_obs_photo, err_obs_photo, flx_mod_photo, 0, 0, indobs, alpha=0, analytic='yes')
 
 
         else:   # either global_params.r or global_params.d is set to 'NA'
@@ -599,16 +593,13 @@ def modif_spec(global_params, theta, theta_index,
 
     else:     
         ck = 1
-        flx_mod_spectro_nativ = np.copy(flx_mod_spectro)
-        # Decrease the resolution of the model before using Least Squares 
-        flx_mod_spectro = resolution_decreasing(global_params, wav_obs_spectro, [], res_obs_spectro, wav_mod_spectro, flx_mod_spectro, res_mod_spectro, 'mod', indobs)
         # Least Squares inversion
-        res, flx_mod_spectro, flx_obs_spectro, star_flx_obs_spectro, system_obs_spectro = fm.forward_model(global_params, wav_obs_spectro, res_obs_spectro, flx_cont_obs_spectro, 
+        contributions, flx_mod_spectro, flx_obs_spectro, star_flx_obs_spectro, system_obs_spectro = fm.forward_model(global_params, wav_obs_spectro, res_obs_spectro, flx_cont_obs_spectro, 
                                                                                        flx_mod_spectro, star_flx_obs_spectro, star_flx_cont_obs_spectro,
                                                                                        err_obs_spectro, transm_obs_spectro, flx_obs_spectro, system_obs_spectro, indobs)
 
 
-    return wav_obs_spectro, flx_obs_spectro, err_obs_spectro, flx_mod_spectro, wav_obs_photo, flx_obs_photo, err_obs_photo, flx_mod_photo, ck, star_flx_obs_spectro, system_obs_spectro, res_obs_spectro, transm_obs_spectro, wav_mod_spectro, flx_mod_spectro_nativ, res_mod_spectro
+    return wav_obs_spectro, flx_obs_spectro, err_obs_spectro, flx_mod_spectro, wav_obs_photo, flx_obs_photo, err_obs_photo, flx_mod_photo, ck, star_flx_obs_spectro, system_obs_spectro, res_obs_spectro, transm_obs_spectro, wav_mod_spectro, flx_mod_spectro_nativ, res_mod_spectro, contributions
 
 
 

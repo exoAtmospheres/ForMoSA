@@ -340,16 +340,24 @@ def extract_model(global_params, wav_mod_nativ, flx_mod_nativ, res_mod_obs, wav_
 
     Author: Simon Petrus, Matthieu Ravet
     """
+    use_RV = True
     # Create final models
-    if global_params.rv[indobs*3] == 'NA' or global_params.rv == 'NA':
-        mod_spectro = np.empty(len(wav_obs_spectro))
+    if len(global_params.rv) > 3:
+        if global_params.rv[indobs*3] == 'NA' or global_params.rv == 'NA':
+            mod_spectro = np.empty(len(wav_obs_spectro))
+            use_RV = False
     else:
+        if global_params.rv == 'NA':
+            mod_spectro = np.empty(len(wav_obs_spectro))
+            use_RV = False
+        
+    if not(use_RV):    
         mask_mod_spectro = (wav_mod_nativ >= 0.99 * wav_obs_spectro[0]) & (wav_mod_nativ <= 1.01 * wav_obs_spectro[-1])
         mod_spectro = flx_mod_nativ[mask_mod_spectro]
         
     mod_photo = np.empty(len(obs_photo_ins), dtype=float)
     
-    if global_params.rv[indobs*3] == 'NA' or global_params.rv == 'NA':
+    if not(use_RV):
         # Reduce the spectral resolution for each sub-spectrum.
         for range_ind, rangee in enumerate(global_params.wav_for_adapt[indobs].split('/')):
             rangee = rangee.split(',')
@@ -367,6 +375,11 @@ def extract_model(global_params, wav_mod_nativ, flx_mod_nativ, res_mod_obs, wav_
                     continuum = continuum_estimate(global_params, wav_obs_spectro[mask_spectro_cut], mod_spectro[mask_spectro_cut], res_mod_obs[mask_spectro_cut], indobs=indobs)
                     mod_spectro[mask_spectro_cut] -= continuum
 
+    if use_RV:
+        if cont=='yes':
+            continuum = continuum_estimate(global_params, wav_mod_nativ[mask_mod_spectro], mod_spectro, res_mod_obs, indobs=indobs)
+            mod_spectro -= continuum
+        
 
     # Calculate each photometry point.
     for pho_ind, pho in enumerate(obs_photo_ins):
@@ -521,15 +534,16 @@ def continuum_estimate(global_params, wav, flx, res, indobs=0):
 
         # # To limit the computing time, the convolution is not as a function of the wavelength but calculated
         # from the median wavelength. We just want an estimate of the continuum here.
-        wav_median = np.median(wav[ind_cont_cut])
-        dwav_median = np.median(np.abs(wav[ind_cont_cut] - np.roll(wav[ind_cont_cut], 1))) # Estimated the median wavelength separation instead of taking wav_median - (wav_median+1) that could be on a border
+        # wav_median = np.median(wav[ind_cont_cut])
+        # dwav_median = np.median(np.abs(wav[ind_cont_cut] - np.roll(wav[ind_cont_cut], 1))) # Estimated the median wavelength separation instead of taking wav_median - (wav_median+1) that could be on a border
     
-        fwhm = wav_median / np.median(res)
-        fwhm_continuum = wav_median / float(global_params.continuum_sub[indobs])
+        # fwhm = wav_median / np.median(res)
+        # fwhm_continuum = wav_median / float(global_params.continuum_sub[indobs])
     
-        fwhm_conv = np.sqrt(fwhm_continuum**2 - fwhm**2)
-        sigma = fwhm_conv / (dwav_median * 2.355)
-        cont = gaussian_filter(flx[ind_cont_cut], sigma)
+        # fwhm_conv = np.sqrt(fwhm_continuum**2 - fwhm**2)
+        # sigma = fwhm_conv / (dwav_median * 2.355)
+        #cont = gaussian_filter(flx[ind_cont_cut], sigma)
+        cont = scipy.signal.savgol_filter(flx[ind_cont_cut], 301, 2)
         
         continuum = np.concatenate((continuum, cont))
     
@@ -537,5 +551,6 @@ def continuum_estimate(global_params, wav, flx, res, indobs=0):
     continuum = continuum_interp(wav)
 
     return continuum
+
 
 # ----------------------------------------------------------------------------------------------------------------------
