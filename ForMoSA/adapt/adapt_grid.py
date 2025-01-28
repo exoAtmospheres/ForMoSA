@@ -56,19 +56,19 @@ def tpool_adapt_init(grid_input_shape_i, grid_input_data_i, grid_spectro_shape_i
 
 # global_params, wav_mod_nativ, flx_mod_nativ, res_mod_obs, wav_obs_spectro, res_obs_spectro, obs_photo_ins
 
-def tpool_adapt(idx, global_params, wav_mod_nativ, res_mod_obs, wav_obs_spectro, res_obs_spectro, obs_photo_ins, obs_name, indobs, keys, titles, values):
+def tpool_adapt(idx, global_params, wav_mod_nativ, wav_grid_spectro, res_mod_obs, wav_obs_spectro, res_obs_spectro, obs_photo_ins, indobs, keys, titles, values):
     '''
     Worker function for the parallelisation process of adapt_model()
 
     Args:
         idx               (tuple): Index of the current model
         global_params    (object): Class containing each parameter 
-        wav_mod_nativ     (array): Wavelength of the input models
+        wav_mod_nativ     (array): Native wavelength array of the grid
+        wav_grid_spectro  (array): Model wavelength of the final spectroscopic grid
         res_mod_obs       (array): Spectral resolution of the model interpolated at wav_obs_spectro
         wav_obs_spectro   (array): Merged wavelength array of the data
         res_obs_spectro   (array): Merged resolution array of the data
         obs_photo_ins     (array): List containing different filters used for the data (1 per photometric point). [filter_phot_1, filter_phot_2, ..., filter_phot_n]
-        obs_name            (str): Name of the current observation looping
         indobs              (int): Index of the current observation looping
         keys               (list): Attribute keys
         titles             (list): Attribute titles
@@ -95,7 +95,7 @@ def tpool_adapt(idx, global_params, wav_mod_nativ, res_mod_obs, wav_obs_spectro,
                 msg += f'{title}={values[key][idx[i]]}, '
             print(msg)
         else:
-            mod_spectro, mod_photo = adapt_model(global_params, wav_mod_nativ, model_to_adapt, res_mod_obs, wav_obs_spectro, res_obs_spectro, obs_photo_ins, obs_name=obs_name, indobs=indobs)
+            mod_spectro, mod_photo = adapt_model(global_params, wav_mod_nativ, wav_grid_spectro, model_to_adapt, res_mod_obs, wav_obs_spectro, res_obs_spectro, obs_photo_ins, indobs=indobs)
             grid_spectro[(..., ) + idx] = mod_spectro
             grid_photo[(..., ) + idx]   = mod_photo
         
@@ -103,17 +103,17 @@ def tpool_adapt(idx, global_params, wav_mod_nativ, res_mod_obs, wav_obs_spectro,
         print(f'Error in task: {e}')
 
 
-def adapt_grid(global_params, res_mod_obs, wav_obs_spectro, wav_mod_spectro, res_obs_spectro, wav_obs_photo, obs_photo_ins, obs_name='', indobs=0):
+def adapt_grid(global_params, wav_grid_spectro, wav_grid_photo, res_mod_obs, wav_obs_spectro, res_obs_spectro, obs_photo_ins, obs_name, indobs=0):
     """
     Adapt the synthetic spectra of a grid to make them comparable with the data.
 
     Args:
         global_params    (object): Class containing each parameter
+        wav_grid_spectro  (array): Model wavelength of the final spectroscopic grid
+        wav_grid_photo    (array): Model wavelength of the final spectroscopic grid
         res_mod_obs       (array): Spectral resolution of the model interpolated at wav_obs_spectro 
-        wav_obs_spectro   (array): Merged wavelength array of the data
-        wav_mod_spectro   (array): Wavelength array of the model
-        res_obs_spectro   (array): Merged resolution array of the data
-        wav_obs_photo     (array): Wavelengths of the photometry points
+        wav_obs_spectro   (array): Wavelengths of the spectroscopy points
+        res_obs_spectro   (array): Spectral resolution of the spectroscopic data
         obs_photo_ins     (array): List containing different filters used for the data (1 per photometric point). [filter_phot_1, filter_phot_2, ..., filter_phot_n]
         obs_name            (str): Name of the current observation looping
         indobs              (int): Index of the current observation looping
@@ -130,11 +130,12 @@ def adapt_grid(global_params, res_mod_obs, wav_obs_spectro, wav_mod_spectro, res
     attr = ds.attrs
     attr['res'] = res_mod_obs
     grid_np = grid.to_numpy()
+    attr = ds.attrs
     ds.close()
 
-    # create arrays without any assumptions on the number of parameters
-    shape_spectro = [len(wav_mod_spectro)]
-    shape_photo = [len(wav_obs_photo)]
+    # Create arrays without any assumptions on the number of parameters
+    shape_spectro = [len(wav_grid_spectro)]
+    shape_photo = [len(wav_grid_photo)]
     values = {}
     for key in attr['key']:
         shape_spectro.append(len(grid[key].values))
@@ -177,7 +178,7 @@ def adapt_grid(global_params, res_mod_obs, wav_obs_spectro, wav_mod_spectro, res
         ncpu = mp.cpu_count()
         with ThreadPool(processes=ncpu, initializer=tpool_adapt_init, initargs=(grid_input_shape, grid_input_data, grid_spectro_shape, grid_spectro_data, grid_photo_shape, grid_photo_data)) as pool:
             for idx in np.ndindex(shape):
-                pool.apply_async(tpool_adapt, args=(idx, global_params, wav_mod_nativ, res_mod_obs, wav_obs_spectro, res_obs_spectro, obs_photo_ins, obs_name, indobs, attr['key'], attr['title'], values), callback=update)
+                pool.apply_async(tpool_adapt, args=(idx, global_params, wav_mod_nativ, wav_grid_spectro, res_mod_obs, wav_obs_spectro, res_obs_spectro, obs_photo_ins, indobs, attr['key'], attr['title'], values), callback=update)
 
             pool.close()
             pool.join()
@@ -185,7 +186,7 @@ def adapt_grid(global_params, res_mod_obs, wav_obs_spectro, wav_mod_spectro, res
         tpool_adapt_init(grid_input_shape, grid_input_data, grid_spectro_shape, grid_spectro_data, grid_photo_shape, grid_photo_data)
 
         for idx in np.ndindex(shape):
-            tpool_adapt(idx, global_params, wav_mod_nativ, res_mod_obs, wav_obs_spectro, res_obs_spectro, obs_photo_ins, obs_name, indobs, attr['key'], attr['title'], values)
+            tpool_adapt(idx, global_params, wav_mod_nativ, wav_grid_spectro, res_mod_obs, wav_obs_spectro, res_obs_spectro, obs_photo_ins, indobs, attr['key'], attr['title'], values)
             update()
 
     # create final datasets
@@ -193,8 +194,8 @@ def adapt_grid(global_params, res_mod_obs, wav_obs_spectro, wav_mod_spectro, res
     for key in attr['key']:
         vars.append(key)
 
-    coords_spectro = {"wavelength": wav_mod_spectro}
-    coords_photo   = {"wavelength": wav_obs_photo}
+    coords_spectro = {"wavelength": wav_grid_spectro}
+    coords_photo   = {"wavelength": wav_grid_photo}
     for key in attr['key']:
         coords_spectro[key] = grid[key].values
         coords_photo[key]   = grid[key].values

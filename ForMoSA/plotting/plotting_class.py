@@ -11,16 +11,15 @@ import pickle
 import astropy.constants as cst
 
 sys.path.insert(0, os.path.abspath('../'))
-sys.path.insert(0,'/home/adenis/These/ForMoSA/ForMoSA/')
 
 # Import ForMoSA
-from ForMoSA.main_utilities import GlobFile
-from ForMoSA.nested_sampling.nested_modif_spec import modif_spec
-from ForMoSA.nested_sampling.nested_modif_spec import doppler_fct
-from ForMoSA.nested_sampling.nested_modif_spec import vsini_fct
-from ForMoSA.adapt.extraction_functions import resolution_decreasing, adapt_model, decoupe
-from ForMoSA.adapt.extraction_functions import adapt_observation_range
-from ForMoSA.adapt.extraction_functions import continuum_estimate
+from main_utilities import GlobFile
+from nested_sampling.nested_modif_spec import modif_spec
+from nested_sampling.nested_modif_spec import doppler_fct
+from nested_sampling.nested_modif_spec import vsini_fct
+from adapt.extraction_functions import resolution_decreasing, adapt_model, decoupe
+from adapt.extraction_functions import adapt_observation_range
+from adapt.extraction_functions import continuum_estimate
 from scipy.optimize import curve_fit
 from tqdm import tqdm
 
@@ -171,7 +170,7 @@ class PlottingForMoSA():
         self.color_out     = color_out
 
 
-    def _get_posteriors(self):
+    def _get_posteriors(self, burn_in=0):
         '''
         Function to get the posteriors, including luminosity derivation and Bayesian evidence logz.
 
@@ -182,11 +181,11 @@ class PlottingForMoSA():
         '''
         with open(self.global_params.result_path + '/result_' + self.global_params.ns_algo + '.pic', 'rb') as open_pic:
             result = pickle.load(open_pic)
-        self.samples = result['samples']
-        self.weights = result['weights']
+        self.samples = result['samples'][burn_in:]
+        self.weights = result['weights'][burn_in:]
 
         # To test the quality of the fit
-        self.logl=result['logl']
+        self.logl=result['logl'][burn_in:]
         ind = np.where(self.logl==max(self.logl))
         self.theta_best = self.samples[ind][0]
 
@@ -310,7 +309,7 @@ class PlottingForMoSA():
         self.posteriors_names = tot_list_param_title
 
 
-    def plot_corner(self, levels_sig=[0.997, 0.95, 0.68], bins=100, quantiles=(0.16, 0.5, 0.84), burn_in=0, figsize=(15,15)):
+    def plot_corner(self, levels_sig=[0.997, 0.95, 0.68], bins=100, quantiles=(0.16, 0.5, 0.84), figsize=(15,15)):
         '''
         Function to display the corner plot
 
@@ -324,12 +323,9 @@ class PlottingForMoSA():
         '''
         print('ForMoSA - Corner plot')
 
-        # make sure posteriors are loaded
-        self._get_posteriors()
-
         fig = plt.figure(figsize=figsize)
-        fig = corner.corner(self.posterior_to_plot[burn_in:],
-                            weights=self.weights[burn_in:],
+        fig = corner.corner(self.posterior_to_plot,
+                            weights=self.weights,
                             labels=self.posteriors_names,
                             range=[0.999999 for p in self.posteriors_names],
                             levels=levels_sig,
@@ -355,21 +351,19 @@ class PlottingForMoSA():
         return fig
 
 
-    def plot_chains(self, figsize=(7,15)):
+    def plot_chains(self, figsize=(7,15), show_weights=True):
         '''
         Plot to check the convergence of the posterior chains.
         Multiple (sub-)axis plot.
 
         Args:
             figsize     (tuple): (default = (7, 15)) size of the plot
+            show_weights (bool): True or False if you want to show the weights on the chain
         Returns:
             - fig  (object) : matplotlib figure object
             - ax   (object) : matplotlib axes objects
         '''
         print('ForMoSA - Posteriors chains for each parameter')
-
-        # make sure posteriors are loaded
-        self._get_posteriors()
 
         col = int(len(self.posterior_to_plot[0][:])/2)+int(len(self.posterior_to_plot[0][:])%2)
         fig, axs = plt.subplots(col, 2, figsize=figsize)
@@ -379,6 +373,12 @@ class PlottingForMoSA():
             for j in range(2):
                 axs[i, j].plot(self.posterior_to_plot[:,n], color=self.color_out, alpha=0.8)
                 axs[i, j].set_ylabel(self.posteriors_names[n])
+                if show_weights == True:
+                    ax_w = axs[i, j].twinx()
+                    ax_w.plot(self.weights, color='black', alpha=0.5)
+                    ax_w.text(x=0, y=0.00005, s='weights')
+                    if j == 0:
+                        ax_w.set_yticks([])
                 if self.posteriors_names[n]=='log(L/L$\\mathrm{_{\\odot}}$)':
                     pass
                 else:
@@ -407,9 +407,6 @@ class PlottingForMoSA():
         '''
         print('ForMoSA - Radar plot')
 
-        # make sure posteriors are loaded
-        self._get_posteriors()
-
         list_posteriors = []
         list_uncert_down = []
         list_uncert_up = []
@@ -431,7 +428,7 @@ class PlottingForMoSA():
         return fig, radar.ax
 
 
-    def _get_spectra(self,theta,return_model=False):
+    def _get_spectra(self, theta):
         '''
         Function to get the data and best model asociated.
 
@@ -445,9 +442,6 @@ class PlottingForMoSA():
                                             planet transmission, star fluxes, systematics
             - ck                list(floats): list scaling factor(s)
         '''
-
-        # make sure posteriors are loaded
-        self._get_posteriors()
 
         # Create a list for each spectra (obs and mod) for each observation + scaling factors
         modif_spec_MOSAIC = []
@@ -494,10 +488,8 @@ class PlottingForMoSA():
             path_grid_photo = os.path.join(self.global_params.adapt_store_path, f'adapted_grid_photo_{self.global_params.grid_name}_{obs_name}_nonan.nc')
             ds = xr.open_dataset(path_grid_spectro, decode_cf=False, engine='netcdf4')
             grid_spectro = ds['grid']
-            wav_mod_spectro = ds.coords['wavelength'].values
-            res_mod_spectro = ds.attrs['res']
-            res_mod_spectro_interp = interp1d(wav_mod_spectro, res_mod_spectro)
-            res_mod_spectro = res_mod_spectro_interp(wav_obs_spectro)
+            wav_mod_spectro = np.asarray(ds.coords['wavelength'].values)
+            res_mod_obs_spectro = np.asarray(ds.attrs['res'])
             ds.close()
             ds = xr.open_dataset(path_grid_photo, decode_cf=False, engine='netcdf4')
             grid_photo = ds['grid']
@@ -553,7 +545,7 @@ class PlottingForMoSA():
             modif_spec_chi2 = modif_spec(self.global_params, theta, self.theta_index, wav_obs_spectro, 
                                          wav_mod_spectro, flx_obs_spectro, flx_cont_obs_spectro,
                                          err_obs_spectro, flx_mod_spectro, wav_obs_photo, flx_obs_photo, 
-                                         err_obs_photo, flx_mod_photo, res_obs_spectro, res_mod_spectro, transm_obs_spectro, star_flx_obs_spectro, star_flx_cont_obs_spectro, system_obs_spectro, indobs)
+                                         err_obs_photo, flx_mod_photo, res_obs_spectro, res_mod_obs_spectro, transm_obs_spectro, star_flx_obs_spectro, star_flx_cont_obs_spectro, system_obs_spectro, indobs)
             ck = modif_spec_chi2[8]
 
             modif_spec_MOSAIC.append(modif_spec_chi2)
@@ -581,9 +573,6 @@ class PlottingForMoSA():
             - flx_final                   (array): Flux array of the full model
             - ck                          (float): Scaling factor of the full model
         '''
-
-        # make sure posteriors are loaded
-        self._get_posteriors()
 
         if len(wavelengths)==0:
             # Define the wavelength grid for the full spectra as resolution and wavelength range function
@@ -669,17 +658,14 @@ class PlottingForMoSA():
             - axr2   (object) : matplotlib axes objects, right side density histogram
         '''
 
-        # make sure posteriors are loaded
-        self._get_posteriors()
-
         print('ForMoSA - Best fit and residuals plot')
 
         fig = plt.figure(figsize=figsize)
         fig.tight_layout()
         size = (7,11)
         ax = plt.subplot2grid(size, (0, 0), rowspan=5, colspan=10)
-        axr = plt.subplot2grid(size, (5, 0), rowspan=2, colspan=10, sharex=ax)
-        axr2 = plt.subplot2grid(size, (5, 10), rowspan=2, colspan=1, sharey=axr)
+        axr = plt.subplot2grid(size, (5, 0), rowspan=2, colspan=10)
+        axr2 = plt.subplot2grid(size, (5, 10), rowspan=2, colspan=1)
 
         spectra, ck = self._get_spectra(self.theta_best)
         iobs_spectro = 0
@@ -711,7 +697,7 @@ class PlottingForMoSA():
                     ax.plot(spectra[indobs][0], star_flx, c='b')
                     ax.plot(spectra[indobs][0], mod_flx - star_flx - system_obs, c='r')
 
-                residuals = spectra[indobs][3] - spectra[indobs][1]
+                residuals = spectra[indobs][1] - spectra[indobs][3]
                 sigma_res = np.nanstd(residuals) # Replace np.std by np.nanstd if nans are in the array to ignore them
                 axr.plot(spectra[indobs][0], residuals/sigma_res, c=self.color_out, alpha=0.8)
                 axr.axhline(y=0, color='k', alpha=0.5, linestyle='--')
@@ -748,7 +734,7 @@ class PlottingForMoSA():
                 ax.plot(spectra[indobs][4], spectra[indobs][7] / ck[indobs], 'o', color=self.color_out)
 
 
-                residuals_phot = spectra[indobs][7]-spectra[indobs][5]
+                residuals_phot = spectra[indobs][5]-spectra[indobs][7]
                 sigma_res = np.std(residuals_phot)
                 axr.plot(spectra[indobs][4], residuals_phot/sigma_res, 'o', c=self.color_out, alpha=0.8)
                 axr.axhline(y=0, color='k', alpha=0.5, linestyle='--')

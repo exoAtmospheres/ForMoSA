@@ -12,7 +12,7 @@ from nested_sampling.nested_modif_spec import modif_spec
 from nested_sampling.nested_prior_function import uniform_prior, gaussian_prior
 from nested_sampling.nested_logL_functions import *
 from scipy.interpolate import interp1d
-from ForMoSA.adapt.extraction_functions import continuum_estimate
+from adapt.extraction_functions import continuum_estimate
 
 
 
@@ -76,10 +76,8 @@ def import_obsmod(global_params):
         path_grid_photo = os.path.join(global_params.adapt_store_path, f'adapted_grid_photo_{global_params.grid_name}_{obs_name}_nonan.nc')
         ds = xr.open_dataset(path_grid_spectro, decode_cf=False, engine='netcdf4')
         grid_spectro = ds['grid']
-        res_mod_spectro = ds.attrs['res']
-        wav_mod_spectro = ds.coords['wavelength']
-        res_mod_spectro_interp = interp1d(wav_mod_spectro, res_mod_spectro)
-        res_mod_spectro = res_mod_spectro_interp(wav_obs_spectro)
+        wav_mod_spectro = np.asarray(ds.coords['wavelength'])
+        res_mod_obs_spectro = np.asarray(ds.attrs['res'])
         ds.close()
         ds = xr.open_dataset(path_grid_photo, decode_cf=False, engine='netcdf4')
         grid_photo = ds['grid']
@@ -109,7 +107,8 @@ def import_obsmod(global_params):
         flx_obs_spectro_ns_u = flx_obs_spectro[mask_obs_spectro]
         err_obs_spectro_ns_u = err_obs_spectro[mask_obs_spectro]
         res_obs_spectro_ns_u = res_obs_spectro[mask_obs_spectro]
-        res_mod_spectro_ns_u = res_mod_spectro[mask_obs_spectro]
+        wav_mod_spectro_ns_u = wav_mod_spectro
+        res_mod_obs_spectro_ns_u = res_mod_obs_spectro[mask_obs_spectro]
         if len(flx_cont_obs_spectro) != 0:            
             flx_cont_obs_spectro_ns_u = flx_cont_obs_spectro[mask_obs_spectro]
         else: flx_cont_obs_spectro_ns_u = np.asarray([])
@@ -139,11 +138,11 @@ def import_obsmod(global_params):
         grid_spectro_ns_u = grid_spectro.sel(wavelength=grid_spectro['wavelength'][mask_mod_spectro])
         grid_photo_ns_u = grid_photo.sel(wavelength=grid_photo['wavelength'][mask_mod_photo])
 
-        main_file.append([[wav_obs_spectro_ns_u, wav_obs_photo_ns_u],
+        main_file.append([[wav_obs_spectro_ns_u, wav_obs_photo_ns_u, wav_mod_spectro_ns_u],
                           [flx_obs_spectro_ns_u, flx_cont_obs_spectro_ns_u, flx_obs_photo_ns_u],
                           [err_obs_spectro_ns_u, err_obs_photo_ns_u],
                           [transm_obs_spectro_ns_u, star_flx_obs_spectro_ns_u, star_flx_cont_obs_spectro_ns_u, system_obs_spectro_ns_u],
-                          [res_obs_spectro_ns_u, res_mod_spectro_ns_u],
+                          [res_obs_spectro_ns_u, res_mod_obs_spectro_ns_u],
                           inv_cov_obs_ns_u,
                           grid_spectro_ns_u,
                           grid_photo_ns_u])
@@ -180,6 +179,7 @@ def loglike(theta, theta_index, global_params, main_file, for_plot='no'):
         # Recovery of spectroscopy and photometry data
         wav_obs_spectro_ns_u = main_file[indobs][0][0]
         wav_obs_photo_ns_u = main_file[indobs][0][1]
+        wav_mod_spectro_ns_u =main_file[indobs][0][2]
         flx_obs_spectro_ns_u = main_file[indobs][1][0]
         flx_cont_obs_spectro_ns_u = main_file[indobs][1][1]
         flx_obs_photo_ns_u = main_file[indobs][1][2]
@@ -190,7 +190,7 @@ def loglike(theta, theta_index, global_params, main_file, for_plot='no'):
         star_flx_cont_obs_ns_u = main_file[indobs][3][2]
         system_obs_ns_u = main_file[indobs][3][3]
         res_obs_spectro_ns_u = main_file[indobs][4][0]
-        res_mod_spectro_ns_u = main_file[indobs][4][1]
+        res_mod_obs_spectro_ns_u = main_file[indobs][4][1]
         inv_cov_obs_ns_u = main_file[indobs][5]
 
         # Recovery of the spectroscopy and photometry model
@@ -244,14 +244,12 @@ def loglike(theta, theta_index, global_params, main_file, for_plot='no'):
                                                         method="linear", kwargs={"fill_value": "extrapolate"}))
             else:
                 flx_mod_photo_ns_u = np.asarray([])
-                
-        wav_mod_spectro_ns_u = grid_spectro_ns_u.coords['wavelength'].values
         
         # Modification of the synthetic spectrum with the extra-grid parameters
         modif_spec_LL = modif_spec(global_params, theta, theta_index,
                                     wav_obs_spectro_ns_u,  wav_mod_spectro_ns_u, flx_obs_spectro_ns_u, flx_cont_obs_spectro_ns_u, err_obs_spectro_ns_u,  flx_mod_spectro_ns_u,
                                     wav_obs_photo_ns_u,  flx_obs_photo_ns_u, err_obs_photo_ns_u,  flx_mod_photo_ns_u,
-                                    res_obs_spectro_ns_u, res_mod_spectro_ns_u, transm_obs_ns_u, star_flx_obs_ns_u, star_flx_cont_obs_ns_u, system_obs_ns_u, indobs=indobs)
+                                    res_obs_spectro_ns_u, res_mod_obs_spectro_ns_u, transm_obs_ns_u, star_flx_obs_ns_u, star_flx_cont_obs_ns_u, system_obs_ns_u, indobs=indobs)
 
 
 
