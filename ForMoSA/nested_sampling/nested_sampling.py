@@ -92,12 +92,10 @@ def import_obsmod(global_params):
             min_ns_u = float(ns_u.split(',')[0])
             max_ns_u = float(ns_u.split(',')[1])
             # Indices of each model and data
-            if global_params.rv[indobs] == 'NA' or global_params.rv == 'NA':   # If the user didn't define a prior in RV, we just adapt the model to the values defined in 'wav_fit'
+            if len(wav_mod_spectro) == len(wav_obs_spectro):  # If the user didn't define a prior in RV, we just adapt the model to the values defined in 'wav_fit'
                 mask_mod_spectro += (grid_spectro['wavelength'] >= min_ns_u) & (grid_spectro['wavelength'] <= max_ns_u)
-            else:                                  # Otherwise we chose a slightly larger wavelength range to avoid loosing data onf the edges when applying RV correction
-                mask_mod_spectro += (grid_spectro['wavelength'] >= 0.98 * min_ns_u) & (grid_spectro['wavelength'] <= 1.02 * max_ns_u)
-
-                 
+            else: # Otherwise we chose a slightly larger wavelength range to avoid loosing data onf the edges when applying RV correction
+                mask_mod_spectro += (grid_spectro['wavelength'] >= 0.99 * min_ns_u) & (grid_spectro['wavelength'] <= 1.01 * max_ns_u)     
             mask_obs_spectro += (wav_obs_spectro >= min_ns_u) & (wav_obs_spectro <= max_ns_u)
             mask_mod_photo += (grid_photo['wavelength'] >= min_ns_u) & (grid_photo['wavelength'] <= max_ns_u)
             mask_obs_photo += (wav_obs_photo >= min_ns_u) & (wav_obs_photo <= max_ns_u)
@@ -107,7 +105,7 @@ def import_obsmod(global_params):
         flx_obs_spectro_ns_u = flx_obs_spectro[mask_obs_spectro]
         err_obs_spectro_ns_u = err_obs_spectro[mask_obs_spectro]
         res_obs_spectro_ns_u = res_obs_spectro[mask_obs_spectro]
-        wav_mod_spectro_ns_u = wav_mod_spectro
+        wav_mod_spectro_ns_u = wav_mod_spectro[mask_mod_spectro]
         res_mod_obs_spectro_ns_u = res_mod_obs_spectro[mask_obs_spectro]
         if len(flx_cont_obs_spectro) != 0:            
             flx_cont_obs_spectro_ns_u = flx_cont_obs_spectro[mask_obs_spectro]
@@ -179,7 +177,7 @@ def loglike(theta, theta_index, global_params, main_file, for_plot='no'):
         # Recovery of spectroscopy and photometry data
         wav_obs_spectro_ns_u = main_file[indobs][0][0]
         wav_obs_photo_ns_u = main_file[indobs][0][1]
-        wav_mod_spectro_ns_u =main_file[indobs][0][2]
+        wav_mod_spectro_ns_u = main_file[indobs][0][2]
         flx_obs_spectro_ns_u = main_file[indobs][1][0]
         flx_cont_obs_spectro_ns_u = main_file[indobs][1][1]
         flx_obs_photo_ns_u = main_file[indobs][1][2]
