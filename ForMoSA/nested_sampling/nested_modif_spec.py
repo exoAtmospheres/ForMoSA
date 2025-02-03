@@ -479,7 +479,7 @@ def modif_spec(global_params, theta, theta_index,
         if len(global_params.vsini) > 4 and len(global_params.ld) > 3: # If you want separate vsini/ld for each observations
             if global_params.vsini[indobs*4] != "NA" and global_params.ld[indobs*3] != "NA":
                 if global_params.vsini[indobs*4] == 'constant':
-                    vsini_picked = float(global_params.vsini[indobs*3+1])
+                    vsini_picked = float(global_params.vsini[indobs*4+1])
                 else:
                     ind_theta_vsini = np.where(theta_index == f'vsini_{indobs}')
                     vsini_picked = theta[ind_theta_vsini[0][0]]
