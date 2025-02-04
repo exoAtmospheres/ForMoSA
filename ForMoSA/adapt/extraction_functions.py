@@ -321,10 +321,10 @@ def extract_model(global_params, wav_mod_nativ, wav_grid_spectro, flx_mod_nativ,
         if len(wav_grid_spectro) == len(wav_obs_spectro): # Case where you don't fit for rv because the grid has the same dimension as your data
             # If we want to decrease the resolution of the data:
             if global_params.adapt_method[indobs] == 'by_reso':
-                mod_spectro = resolution_decreasing(global_params, wav_obs_spectro, [], res_obs_spectro, wav_grid_spectro, flx_mod_nativ, res_mod_obs,
+                mod_spectro = resolution_decreasing(global_params, wav_obs_spectro, [], res_obs_spectro, wav_mod_nativ, flx_mod_nativ, res_mod_obs,
                                                     'mod', indobs=indobs)
             else:
-                mod_spectro = spectres(wav_obs_spectro, wav_grid_spectro, flx_mod_nativ)
+                mod_spectro = spectres(wav_obs_spectro, wav_mod_nativ, flx_mod_nativ)
 
             # If we want to estimate the continuum of the data:
             if cont == 'yes':     
