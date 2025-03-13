@@ -78,6 +78,12 @@ def import_obsmod(global_params):
         grid_spectro = ds['grid']
         wav_mod_spectro = np.asarray(ds.coords['wavelength'])
         res_mod_obs_spectro = np.asarray(ds.attrs['res'])
+        
+        # Additional lines to make old versions of ForMoSA compatible with the new version
+        # This does not change anything for the new version, the resolution grid is interpolated in the same wavelength grid
+        res_mod_obs_spectro = interp1d(wav_mod_spectro, res_mod_obs_spectro)
+        res_mod_obs_spectro = res_mod_obs_spectro(wav_obs_spectro)
+        
         ds.close()
         ds = xr.open_dataset(path_grid_photo, decode_cf=False, engine='netcdf4')
         grid_photo = ds['grid']

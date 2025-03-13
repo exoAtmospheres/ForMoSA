@@ -490,6 +490,12 @@ class PlottingForMoSA():
             grid_spectro = ds['grid']
             wav_mod_spectro = np.asarray(ds.coords['wavelength'].values)
             res_mod_obs_spectro = np.asarray(ds.attrs['res'])
+            
+            # Additional lines to make old versions of ForMoSA compatible with the new version
+            # This does not change anything for the new version, the resolution grid is interpolated in the same wavelength grid
+            res_mod_obs_spectro = interp1d(wav_mod_spectro, res_mod_obs_spectro)
+            res_mod_obs_spectro = res_mod_obs_spectro(wav_obs_spectro)
+            
             ds.close()
             ds = xr.open_dataset(path_grid_photo, decode_cf=False, engine='netcdf4')
             grid_photo = ds['grid']
@@ -682,10 +688,9 @@ class PlottingForMoSA():
             if self.global_params.fm_type[indobs] != 'NA':  # For high-contrast companion where the star flux speckles contaminate the data
                 spectra = list(spectra) # Transform spectra to a list so that we can modify its values
                 spectra[indobs] = list(spectra[indobs])
-                mod_flx, star_flx, system_obs = spectra[indobs][3], spectra[indobs][9], spectra[indobs][10]
+                wav, flx_obs, mod_flx, star_flx, system_obs = spectra[indobs][0], spectra[indobs][3], spectra[indobs][9], spectra[indobs][10]
 
-
-            if len(spectra[indobs][0]) != 0:
+            if len(wav) != 0:
                 iobs_spectro += 1
                 iobs_photo += 1
                 if uncert=='yes':
@@ -693,9 +698,18 @@ class PlottingForMoSA():
 
                 ax.plot(spectra[indobs][0], spectra[indobs][1]/ck[indobs], c='k')
                 ax.plot(spectra[indobs][0], spectra[indobs][3]/ck[indobs], c=self.color_out, alpha=0.8)
-                if self.global_params.fm_type[indobs] != 'NA':
+                
+                if (len(star_flx) > 0) and (len(system_obs) > 0):
+                    ax.plot(spectra[indobs][0], star_flx, c='b')
+                    ax.plot(spectra[indobs][0], system_obs, c='grey', alpha=0.5)
+                    ax.plot(spectra[indobs][0], mod_flx - star_flx - system_obs, c='r')
+                    
+                elif len(star_flx > 0):
                     ax.plot(spectra[indobs][0], star_flx, c='b')
                     ax.plot(spectra[indobs][0], mod_flx - star_flx, c='r')
+                    
+                # elif len(system_obs > 0):
+                #     ax.plot(spectra[])
 
                 residuals = spectra[indobs][1] - spectra[indobs][3]
                 sigma_res = np.nanstd(residuals) # Replace np.std by np.nanstd if nans are in the array to ignore them
@@ -949,7 +963,7 @@ class PlottingForMoSA():
         # Loop in rv
         for i, rv in enumerate(tqdm(rv_grid)):
             # For cross-correlation
-            flx_mod_rv, wav_mod_rv = doppler_fct(wav_obs, wav_mod_nativ, flx_mod, rv)                
+            flx_mod_rv, wav_mod_rv = doppler_fct(wav_mod_nativ, flx_mod, rv)              
             flx_mod_rv = resolution_decreasing(self.global_params, wav_obs, [], res_obs, wav_mod_rv, flx_mod_rv, res_mod_vsini, 'mod', indobs)
             flx_cont_mod_rv = continuum_estimate(self.global_params, wav_obs, flx_mod_rv, res_obs, indobs)
             flx_mod_rv -= flx_cont_mod_rv
@@ -972,7 +986,7 @@ class PlottingForMoSA():
         ccf_norm = ccf_norm / ccf_noise
         #sigma_ccf = sigma_ccf / ccf_noise
         
-        if plot and not(map_rv_vsini):  
+        if (plot) and (not(map_rv_vsini)):  
             # Rescaling autocorrelation function to make it comparable with cross-correlation function
             acf_norm = acf_norm / np.max(acf_norm) * np.max(ccf_norm)
             ind_curve_fit = np.abs(rv_grid - rv_grid[np.argmax(ccf_norm)]) < 15
@@ -993,7 +1007,7 @@ class PlottingForMoSA():
             # print(f'SNR = {np.nanmax(ccf_norm):.1f}, RV = {popt[1]:.1f} km/s')
             return fig1, ax1, rv_grid, ccf_norm, acf_norm, ccf_noise, logL
         
-        elif not(plot) and not(map_rv_vsini):
+        elif (not(plot)) and (not(map_rv_vsini)):
             # Rescaling autocorrelation function to make it comparable with cross-correlation function
             acf_norm = acf_norm / np.max(acf_norm) * np.max(ccf_norm)
             ind_curve_fit = np.abs(rv_grid - rv_grid[np.argmax(ccf_norm)]) < 15
