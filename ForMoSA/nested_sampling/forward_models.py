@@ -29,8 +29,9 @@ def forward_model(global_params, wav_mod_spectro, res_mod_spectro, flx_cont_obs,
 
     star_flx_obs_master = star_flx_obs[:, len(star_flx_obs[0]) // 2]
 
-    bounds = (float(global_params.bounds_lsq[indobs][1:-1].split(',')[0]), 
-              float(global_params.bounds_lsq[indobs][1:-1].split(',')[1]))
+    if global_params.bounds_lsq[indobs] != 'NA':
+        bounds = (float(global_params.bounds_lsq[indobs][1:-1].split(',')[0]), 
+                  float(global_params.bounds_lsq[indobs][1:-1].split(',')[1]))
     
     weights = (1 / err_obs)**2  # For now we consider diagonal covariance matrices only
 
@@ -42,7 +43,7 @@ def forward_model(global_params, wav_mod_spectro, res_mod_spectro, flx_cont_obs,
             flx_cont_obs, flx_mod, flx_cont_mod, star_flx_obs_master, star_flx_obs, star_flx_cont_obs, weights, flx_obs, system_obs, bounds)
     elif global_params.fm_type[indobs] == 'rm_spec':
         res, flx_mod, flx_obs, star_flx_obs, system_obs = forward_model_remove_speckles(
-            flx_cont_obs, flx_mod, flx_cont_mod, star_flx_obs_master, star_flx_obs, star_flx_cont_obs, weights, flx_obs, system_obs, bounds)
+            flx_cont_obs, flx_mod, flx_cont_mod, star_flx_obs_master, star_flx_cont_obs, weights, flx_obs, system_obs, bounds)
     elif global_params.fm_type[indobs] == 'fit_spec_rm_cont':
         res, flx_mod, flx_obs, star_flx_obs, system_obs = forward_model_estimate_speckles_remove_continuum(
             flx_cont_obs, flx_mod, flx_cont_mod, star_flx_obs_master, star_flx_obs, star_flx_cont_obs, weights, flx_obs, system_obs, bounds)
@@ -73,16 +74,16 @@ def forward_model_nonlinear_estimate_speckles(flx_cont_obs, flx_mod, flx_cont_mo
 
     Authors: Allan Denis
     '''
-
     ind_star = 1 + len(star_flx_obs[0])
     # # # # # # # Solve non linear Least Squares full_model(theta) = flx_obs
 
     # Definition of f
     def f(theta):
-        res = theta[0] * flx_mod + np.dot(theta[1:ind_star], star_flx_obs / star_flx_cont_obs * (flx_cont_obs - theta[0] * flx_cont_mod))
+        star_speckles = np.dot(theta[1:ind_star], star_flx_obs.T / star_flx_cont_obs * (flx_cont_obs - theta[0] * flx_cont_mod))
+        res = theta[0] * flx_mod + star_speckles
         if len(theta) > ind_star:
-            res += np.dot(theta[ind_star:], system_obs) - flx_obs
-            return weights * res
+            res += np.dot(theta[ind_star:], system_obs.T) 
+        return weights * (res - flx_obs)
               
 
     # Solve non linear Least Squares
@@ -90,22 +91,22 @@ def forward_model_nonlinear_estimate_speckles(flx_cont_obs, flx_mod, flx_cont_mo
     theta0 = [0]
     for i in range(len(star_flx_obs[0])):
         # Arbitrary initial guesses for star speckles contribution
-        theta0.append((i / len(star_flx_obs[0]))**2)
+        theta0.append(((i+1) / len(star_flx_obs[0]))**2)
         
     if len(system_obs) > 0:
         for i in range(len(system_obs[0])):
             # Arbitrary initial guesses for systematics contribution
             theta0.append(1)
-            
-    # Solve non linear Least Squares
+    # Solve non linear Least
     res = optimize.least_squares(f, theta0, bounds=bounds)
-
+    
+    
     # Full model
     flx_mod_full = f(res.x) / weights + flx_obs
-    star_flx_obs = np.dot(res.x[1:ind_star], star_flx_obs / star_flx_cont_obs * flx_cont_obs)
-    system_obs = np.dot(res.x[ind_star:], system_obs)
+    star_flx_obs = np.dot(res.x[1:ind_star], star_flx_obs.T / star_flx_cont_obs * (flx_cont_obs - res.x[0] * flx_cont_mod))
+    system_obs = np.dot(res.x[ind_star:], system_obs.T)
 
-    return res.x, flx_mod_full, flx_obs, star_flx_obs, system_obs
+    return res, flx_mod_full, flx_obs, star_flx_obs, system_obs
 
 
 def forward_model_estimate_speckles(flx_cont_obs, flx_mod, flx_cont_mod, star_flx_obs_master, star_flx_obs, star_flx_cont_obs, weights, flx_obs, system_obs, bounds):
@@ -152,11 +153,12 @@ def forward_model_estimate_speckles(flx_cont_obs, flx_mod, flx_cont_mod, star_fl
     res = optimize.lsq_linear(A, b, bounds=bounds)
 
     # Full model
-    flx_mod_full = np.dot(A, res.x) / weights
-    star_flx_obs = np.dot(A[:, 1:ind_star], res.x[1:ind_star]) / weights
-    system_obs = np.dot(A[:, ind_star:], res.x[ind_star:])
+    flx_mod_full_final = np.dot(A, res.x) / weights
+    star_flx_obs_final = np.dot(A[:, 1:ind_star], res.x[1:ind_star]) / weights
+    system_obs_final = np.dot(A[:, ind_star:], res.x[ind_star:])
 
-    return res.x, flx_mod_full, flx_obs, star_flx_obs, system_obs
+
+    return res.x, flx_mod_full_final, flx_obs, star_flx_obs_final, system_obs_final
 
 
 def forward_model_remove_speckles(flx_cont_obs, flx_mod, flx_cont_mod, star_flx_obs_master, star_flx_cont_obs, weights, flx_obs, system_obs, bounds):
@@ -201,11 +203,12 @@ def forward_model_remove_speckles(flx_cont_obs, flx_mod, flx_cont_mod, star_flx_
     res = optimize.lsq_linear(A, b, bounds=bounds)
 
     # Full model
-    star_flx_obs = star_flx_obs_master / star_flx_cont_obs + flx_cont_obs
-    flx_mod_full = np.dot(A[:,0], res.x[0]) / weights + star_flx_obs
+    star_flx_obs = star_flx_obs_master / star_flx_cont_obs * flx_cont_obs
+    flx_obs_final = b / weights
+    flx_mod_full = np.dot(A[:,0], res.x[0]) / weights
     system_obs = np.dot(A[:, 1:], res.x[1:])
 
-    return res.x, flx_mod_full, flx_obs, star_flx_obs, system_obs
+    return res.x, flx_mod_full, flx_obs_final, star_flx_obs, system_obs
 
 
 def forward_model_estimate_speckles_remove_continuum(flx_cont_obs, flx_mod, flx_cont_mod, star_flx_obs_master, star_flx_obs, star_flx_cont_obs, weights, flx_obs, system_obs, bounds):

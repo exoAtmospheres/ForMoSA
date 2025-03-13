@@ -709,7 +709,7 @@ class PlottingForMoSA():
                 ax.plot(spectra[indobs][0], spectra[indobs][3]/ck[indobs], c=self.color_out, alpha=0.8)
                 if self.global_params.fm_type[indobs] != 'NA':
                     ax.plot(spectra[indobs][0], star_flx, c='b')
-                    ax.plot(spectra[indobs][0], mod_flx - star_flx - system_obs, c='r')
+                    ax.plot(spectra[indobs][0], mod_flx - star_flx, c='r')
 
                 residuals = spectra[indobs][3] - spectra[indobs][1]
                 sigma_res = np.nanstd(residuals) # Replace np.std by np.nanstd if nans are in the array to ignore them
@@ -771,7 +771,7 @@ class PlottingForMoSA():
             ax.set_yscale('log')
 
         # Remove the xticks from the first ax
-        ax.set_xticks([])
+        #ax.set_xticks([])
 
         # Labels
         axr.set_xlabel(r'Wavelength (µm)')
@@ -839,7 +839,7 @@ class PlottingForMoSA():
             resolution = resolution * np.ones(len(wave))
             
             res_obs = spectra[indobs][12]
-            flx_obs_broadened = resolution_decreasing(self.global_params, wave, [], resolution, wave, flx_obs, res_obs, 'mod')
+            flx_obs_broadened = resolution_decreasing(self.global_params, wave, flx_obs, resolution, wave, flx_obs, res_obs, 'mod')
 
             ax.plot(wave, flx_obs_broadened, c='k')
             ax.plot(wave, flx_mod, c='r')
@@ -866,7 +866,7 @@ class PlottingForMoSA():
         return fig1, ax1, fig, ax, flx_obs, flx_obs_broadened
 
 
-    def plot_ccf(self, rv_grid = [-300,300], rv_step = 0.5, figsize = (10,5), window_normalisation = 100, vsini = [], wav_mod_nativ=[], flx_mod_nativ=[], res_mod_nativ=[], indobs=0, plot=True):
+    def plot_ccf(self, rv_grid = [-300,300], rv_step = 0.5, figsize = (10,5), window_normalisation = 100, continuum_res = 500, vsini = [], wav_mod_nativ=[], flx_mod_nativ=[], res_mod_nativ=[], flx_mod_no_rv=[], indobs=0, plot=True, map_rv_vsini = False, flx_obs = [], wav_obs = [], res_obs = [], transm_obs = []):
         '''
         Plot the cross-correlation function. It is used for high resolution spectroscopy.
 
@@ -877,11 +877,17 @@ class PlottingForMoSA():
             figsize                   (tuple): (default = (10,5)) Size of the figure to plot
             window_normalisation      (int): (default = 100) Window used to exclude around the peak of the CCF for noise estimation
             vsini                     (float): (default = []) v.sin(i) used to apply to the model (in the case the user wants to apply another v.sin(i) than the v.sin(i) estimated by the NS)     
-            wav_mod_nativ             (array): (default = []) Wavelength of the model to cross-correlate with the data in the case the user wants to use a different model (individual molecule for example)
-            flx_mod_nativ             (array): (default = []) Flux of the model to cross-correlate with the data in the case the user wants to use a different model (individual molecule for example)
-            res_mod_nativ             (array): (default = []) Resolution of the model to cross-correlate with the data in the case the user wants to use a different model (individual molecule for example)
+            wav_mod_nativ             (array): (default = []) Wavelength of the model to cross-correlate with the data in the case the user wants to use the rv_vsini map function or a different model (individual molecule for example)
+            flx_mod_nativ             (array): (default = []) Flux of the model to cross-correlate with the data in the case the user wants to use the rv_vsini map function or a different model (individual molecule for example)
+            res_mod_nativ             (array): (default = []) Resolution of the model to cross-correlate with the data in the case the user wants to use the rv_vsini map function or a different model (individual molecule for example)
+            flx_mod_no_rv             (array): (default = []) flus of the model at rv = 0 (used for the autocorrelation) in the case the user uses the rv_vsini_map_function
             indobs                    (ind): (default = 0) Index of the current observation loop
             plot                      (bool): (default = True) Whether to plot the ccf
+            map_rv_vsini              (bool): (default = False) Whether the user wants to use the rv_vsini map function
+            flx_obs                   (array): (default = []) Data in the case the user wants to use the rv_vsini map function. This avoids repeating the same operation for each v.sini defined by the v.sini grid and sames some time
+            wav_obs                   (array): (default = []) Wavelength in the case the user wants to use the rv_vsini map function. This avoids repeating the same operation for each v.sini defined by the v.sini grid and sames some time
+            res_obs                   (array): (default = []) Resolution in the case the user wants to use the rv_vsini map function. This avoids repeating the same operation for each v.sini defined by the v.sini grid and sames some time
+            transm_obs                (array): (default = []) Transmission in the case the user wants to use the rv_vsini map function. This avoids repeating the same operation for each v.sini defined by the v.sini grid and sames some time
         Returns:
             - fig1                    (object) : matplotlib figure object
             - ax1                     (object) : matplotlib axes objects
@@ -898,24 +904,18 @@ class PlottingForMoSA():
             return a*np.exp(-(x-x0)**2/(2*sigma**2))
 
         rv_grid = np.arange(rv_grid[0], rv_grid[1], rv_step)
-        
-        ccf = np.array([])
-        acf = np.array([])
-        logL = np.array([])
-
         spectra, ck = self._get_spectra(self.theta_best)
         
-        obs = glob.glob(self.global_params.main_observation_path)[indobs]
-        obs_name = os.path.splitext(os.path.basename(self.global_params.observation_path))[indobs]
-
-        # First step, we retrieve the star and systematics contaminations associated to the best model 
-        wav_obs, flx_obs, star_flx_obs, system_obs, res_obs, transm_obs = spectra[indobs][0], spectra[indobs][1], spectra[indobs][9], spectra[indobs][10], spectra[indobs][11], spectra[indobs][12]
-        if self.global_params.fm_type[indobs] != 'NA':
-            spectra = list(spectra) # Transform spectra to a list so that we can modify its values
-            spectra[indobs] = list(spectra[indobs])
-
-        if len(wav_obs) != 0:
-
+        # This condition is used to retrieve the obseervations and the nativ model. 
+        # In the case the user uses the rv_vsini_map function, the observations and nativ models are already defined as inputs of the function
+        # This saves some time by avoiding the repetition of this set of operations at each v.sini of the v.sini grid in the rv_vsini_map function
+        if not(map_rv_vsini):  
+            # First step, we retrieve the star and systematics contaminations associated to the best model 
+            wav_obs, flx_obs, star_flx_obs, system_obs, res_obs, transm_obs = spectra[indobs][0], spectra[indobs][1], spectra[indobs][9], spectra[indobs][10], spectra[indobs][11], spectra[indobs][12]
+            if self.global_params.fm_type[indobs] != 'NA':
+                spectra = list(spectra) # Transform spectra to a list so that we can modify its values
+                spectra[indobs] = list(spectra[indobs])
+    
             # Retrieve data to cross correlate the model with
             if (len(system_obs) > 0) and (len(star_flx_obs) > 0):
                 flx_obs = flx_obs - star_flx_obs - system_obs
@@ -924,40 +924,44 @@ class PlottingForMoSA():
             elif (len(system_obs) > 0):  # if len(star_flx) = 0 but len(systematics) > 0
                 flx_obs = flx_obs - system_obs
                 
-        # Normalize the data
-        flx_obs /= np.sqrt(np.sum(flx_obs**2))
-        
-        # Second step, we retrieve the native model at rv and v.sini = 0
-        if len(flx_mod_nativ) == 0:
+            # Normalize the data
+            flx_obs /= np.sqrt(np.sum(flx_obs**2))
+            
+            # Second step, we retrieve the native model at rv and v.sini = 0
             theta_best = np.copy(self.theta_best)
             theta_best[self.theta_index == 'rv'] = 0
             theta_best[self.theta_index == 'vsini'] = 0
             spectra, ck = self._get_spectra(theta_best)
             wav_mod_nativ, flx_mod_nativ, res_mod_nativ = spectra[indobs][13], spectra[indobs][14], spectra[indobs][15]
             
-        else:
-            res_mod_nativ = interp1d(wav_mod_nativ, res_mod_nativ)
-            res_mod_nativ = res_mod_nativ(wav_obs)
-                
-        # Third sted, we apply rotational broadening
-        if vsini == []:
-            flx_mod, res_mod_vsini = vsini_fct(self.global_params, wav_mod_nativ, flx_mod_nativ, res_mod_nativ, 0.6, self.theta_best[self.theta_index == 'vsini'], indobs)
-        else:  # This option is used for the rv / vsini mapping function
-            flx_mod, res_mod_vsini = vsini_fct(self.global_params, wav_mod_nativ, flx_mod_nativ, res_mod_nativ, 0.6, vsini , indobs) 
+            # This condition arrises if the user does not use the rv_vsini_map function AND does not want to apply a specific vsini to the template
+            # in that case, we use the best v.sini infered by the nested sampling
+            if vsini == []:   
+                vsini = self.theta_best[self.theta_index == 'vsini']
+            
+        # Third sted, we apply rotational broadening]
+        flx_mod, res_mod_vsini = vsini_fct(self.global_params, wav_mod_nativ, flx_mod_nativ, res_mod_nativ, 0.6, vsini, indobs)  # We consider the limb darkening to be fixed at 0.6
 
-        # Finally, we generate the model at rv = 0 (for auto correlation) and the model at each rv of rv_grid
-        # For auto-correlation
-        self.global_params.continuum_sub[0] = 500
+        # Finally, we generate the model at rv = 0 (for auto correlation)
+        self.global_params.continuum_sub[indobs] = continuum_res
         flx_mod_no_rv = resolution_decreasing(self.global_params, wav_obs, [], res_obs, wav_mod_nativ, flx_mod, res_mod_vsini, 'mod', indobs)
         flx_cont_mod_no_rv = continuum_estimate(self.global_params, wav_obs, flx_mod_no_rv, res_mod_vsini, 0)
         flx_mod_no_rv -= flx_cont_mod_no_rv
-        flx_mod_no_rv *= transm_obs
-        flx_mod_no_rv /= np.sqrt(np.sum(flx_mod_no_rv**2))
-
-      
         
+        # Multiply by telluric and instrumental transmission (if any)
+        if len(transm_obs > 0):
+            flx_mod_no_rv *= transm_obs
+
+        flx_mod_no_rv /= np.sqrt(np.sum(flx_mod_no_rv**2))
+    
+        ccf = np.zeros(len(rv_grid))
+        acf = np.zeros(len(rv_grid))
+        logL = np.zeros(len(rv_grid))
+        
+        Sf = np.nansum(np.square(flx_obs))
+  
         # Loop in rv
-        for rv in tqdm(rv_grid):
+        for i, rv in enumerate(tqdm(rv_grid)):
             # For cross-correlation
             flx_mod_rv, wav_mod_rv = doppler_fct(wav_obs, wav_mod_nativ, flx_mod, rv)                
             flx_mod_rv = resolution_decreasing(self.global_params, wav_obs, [], res_obs, wav_mod_rv, flx_mod_rv, res_mod_vsini, 'mod', indobs)
@@ -967,14 +971,13 @@ class PlottingForMoSA():
             
             # Normalize the model to make it comparable to the data in terms of flux
             flx_mod_rv /= np.sqrt(np.nansum(flx_mod_rv**2))
-            ccf = np.append(ccf, np.nansum(flx_mod_rv * flx_obs))    # Cross correlation function
-            acf = np.append(acf, np.nansum(flx_mod_rv * flx_mod_no_rv))   # Auto correlation function
+            ccf[i] = np.nansum(flx_mod_rv * flx_obs)    # Cross correlation function
+            acf[i] = np.nansum(flx_mod_rv * flx_mod_no_rv)   # Auto correlation function
 
-            
-
-            Sf = np.nansum(np.square(flx_obs))
             Sg = np.nansum(np.square(flx_mod_rv))
-            logL = np.append(logL, -len(flx_obs) / 2 * np.log(1 - np.sum(flx_mod_rv * flx_obs) / (Sf * Sg)))
+            R = np.nansum(flx_obs * flx_mod_rv)
+            C2 = R**2 / (Sf * Sg)
+            logL[i] = -len(flx_obs) / 2 * np.log(1 - C2)
             
         # Rescaling cross-correlation function to estimate a SNR
         acf_norm = acf - np.median(acf[(np.abs(rv_grid) > window_normalisation)])
@@ -982,10 +985,9 @@ class PlottingForMoSA():
         ccf_noise = np.std(ccf_norm[(np.abs(rv_grid-rv_grid[np.argmax(ccf)]) > window_normalisation)])
         ccf_norm = ccf_norm / ccf_noise
         #sigma_ccf = sigma_ccf / ccf_noise
-
         
-        if plot:  
-            # Rescaling autocorrelation function to make comparable with cross-correlation function
+        if plot and not(map_rv_vsini):  
+            # Rescaling autocorrelation function to make it comparable with cross-correlation function
             acf_norm = acf_norm / np.max(acf_norm) * np.max(ccf_norm)
             ind_curve_fit = np.abs(rv_grid - rv_grid[np.argmax(ccf_norm)]) < 15
             rv = rv_grid[np.argmax(ccf_norm)] 
@@ -1002,11 +1004,11 @@ class PlottingForMoSA():
             ax1.set_ylabel('S/N')
             ax1.legend(['ccf', 'acf'])
             
-            print(f'SNR = {np.nanmax(ccf_norm):.1f}, RV = {popt[1]:.1f} km/s')
+            # print(f'SNR = {np.nanmax(ccf_norm):.1f}, RV = {popt[1]:.1f} km/s')
             return fig1, ax1, rv_grid, ccf_norm, acf_norm, ccf_noise, logL
         
-        else:
-            # Rescaling autocorrelation function to make comparable with cross-correlation function
+        elif not(plot) and not(map_rv_vsini):
+            # Rescaling autocorrelation function to make it comparable with cross-correlation function
             acf_norm = acf_norm / np.max(acf_norm) * np.max(ccf_norm)
             ind_curve_fit = np.abs(rv_grid - rv_grid[np.argmax(ccf_norm)]) < 15
             rv = rv_grid[np.argmax(ccf_norm)] 
@@ -1017,28 +1019,79 @@ class PlottingForMoSA():
             
             print(f'SNR = {np.nanmax(ccf_norm):.1f}, RV = {popt[1]:.1f} km/s')
             return rv_grid, ccf_norm, acf_norm, ccf_noise, logL
+            
+        else:
+            return rv_grid, logL
 
 
-    def plot_map_rv_vsini(self, rv_grid = [-100,100], rv_step = 1.0, vsini_grid=[1,100], vsini_step = 1.0, figsize = (10,5), norm = 'no', window_normalisation = 100, indobs=0):
+    def plot_map_rv_vsini(self, rv_grid = [-100,100], rv_step = 1.0, vsini_grid=[1,100], vsini_step = 1.0, figsize = (10,5), wav_mod_nativ=[], flx_mod_nativ=[], res_mod_nativ=[], indobs=0, continuum_res=500):
+        '''
+        Plot a RV v.sini map. It is used for high resolution spectroscopy
+
+        Args:
+            rv_grid                 (list): (default = [-100,100]) Maximum and minumum values of the radial velocity shift (in km/s)
+            rv_step                 (float): (default = 0.5) Radial velocity shift steps (in km/s)
+            vsini_grid              (list): (default = [1,100]) Maximum and minimum values of the v.sini broadening (in km/s)
+            vsini_step              (float): (default = 1.0) v.sini broadening steps (in km/s)
+            wav_mod_nativ           (array): (default = []) Wavelength of the model to cross-correlate with the data in the case the user wants to use a different model (individual molecule for example)
+            flx_mod_nativ           (array): (default = []) Flux of the model to cross-correlate with the data in the case the user wants to use a different model (individual molecule for example)
+            res_mod_nativ           (array): (default = []) Resolution of the model to cross-correlate with the data in the case the user wants to use a different model (individual molecule for example)
+        Returns:
+            - ccf_map               (ndarray): 2D cross correlation map of rv and v.sini
+            - fig                   (object) : matplotlib figure object
+            - ax                    (object) : matplotlib axes objects
+
+        Author: Allan Denis
+        '''
+        
         print('ForMoSA - RV-vsini mapping plot')
         
+        spectra, ck = self._get_spectra(self.theta_best)
+        
         vsini_grid = np.arange(vsini_grid[0], vsini_grid[1], vsini_step)
-        ccf_map = np.empty((len(vsini_grid), int((rv_grid[1] - rv_grid[0]) / rv_step)))
+        logL_map = np.empty((len(vsini_grid), int((rv_grid[1] - rv_grid[0]) / rv_step)))
         
-        i = 0
-        for vsini_i in tqdm(vsini_grid):
-            grid, _, _, _, ccf = self.plot_ccf(rv_grid=rv_grid, rv_step=rv_step, vsini=vsini_i, plot=False)
-            ccf_map[i] = ccf
-            i += 1
+        # First step, we retrieve the star and systematics contaminations associated to the best model (if any)
+        wav_obs, flx_obs, star_flx_obs, system_obs, res_obs, transm_obs = spectra[indobs][0], spectra[indobs][1], spectra[indobs][9], spectra[indobs][10], spectra[indobs][11], spectra[indobs][12]
+        if self.global_params.fm_type[indobs] != 'NA':
+            spectra = list(spectra) # Transform spectra to a list so that we can modify its values
+            spectra[indobs] = list(spectra[indobs])
+
+        # Retrieve data to cross correlate the model with
+        if (len(system_obs) > 0) and (len(star_flx_obs) > 0):
+            flx_obs = flx_obs - star_flx_obs - system_obs
+        elif (len(star_flx_obs) > 0):     # if len(systematics) = 0 but len(star_flx) > 0
+            flx_obs = flx_obs - star_flx_obs
+        elif (len(system_obs) > 0):  # if len(star_flx) = 0 but len(systematics) > 0
+            flx_obs = flx_obs - system_obs
+            
+        # Normalize the data
+        flx_obs /= np.sqrt(np.sum(flx_obs**2))
         
+        # Second step, we retrieve the native model at rv and v.sini = 0
+        if len(flx_mod_nativ) == 0:
+            theta_best = np.copy(self.theta_best)
+            theta_best[self.theta_index == 'rv'] = 0
+            theta_best[self.theta_index == 'vsini'] = 0
+            spectra, ck = self._get_spectra(theta_best)
+            wav_mod_nativ, flx_mod_nativ, res_mod_nativ = spectra[indobs][13], spectra[indobs][14], spectra[indobs][15]
+            
+        else:
+            res_mod_nativ = interp1d(wav_mod_nativ, res_mod_nativ)
+            res_mod_nativ = res_mod_nativ(wav_obs)
+        
+        for i, vsini_i in enumerate(tqdm(vsini_grid)):
+            grid, logL = self.plot_ccf(rv_grid=rv_grid, rv_step=rv_step, vsini=vsini_i, plot=False, wav_mod_nativ=wav_mod_nativ, flx_mod_nativ=flx_mod_nativ, res_mod_nativ=res_mod_nativ, map_rv_vsini=True, flx_obs=flx_obs, wav_obs=wav_obs, res_obs = res_obs, transm_obs = transm_obs)
+            logL_map[i] = logL
+ 
         rv_grid = grid
-        max_indices = np.unravel_index(np.argmax(ccf_map), ccf_map.shape)
+        max_indices = np.unravel_index(np.argmax(logL_map), logL_map.shape)
         rv_peak, vsini_peak = rv_grid[max_indices[1]], vsini_grid[max_indices[0]]
         
         fig  = plt.figure('rv-vsin(i) map', figsize=(8,5))
         ax = fig.add_subplot()
         
-        im = ax.imshow(ccf_map, cmap=plt.cm.RdBu_r, extent=[rv_grid[0], rv_grid[-1],vsini_grid[0],vsini_grid[-1]])
+        im = ax.imshow(logL_map, cmap=plt.cm.RdBu_r, extent=[rv_grid[0], rv_grid[-1],vsini_grid[0],vsini_grid[-1]])
         
         ax.set_xlabel('RV (km/s)')
         ax.set_ylabel('$v\,\sin i$ [km/s]')
@@ -1051,7 +1104,7 @@ class PlottingForMoSA():
         cbar = fig.colorbar(im)
         cbar.set_label("logL", fontsize=22, labelpad=10)
         
-        return ccf_map, fig, ax
+        return logL_map, fig, ax
             
 
 

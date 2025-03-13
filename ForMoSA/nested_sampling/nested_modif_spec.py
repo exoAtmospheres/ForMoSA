@@ -594,12 +594,14 @@ def modif_spec(global_params, theta, theta_index,
     else:     
         ck = 1
         # Least Squares inversion
+        star_flx_obs_spectro_nativ = np.copy(star_flx_obs_spectro)
         contributions, flx_mod_spectro, flx_obs_spectro, star_flx_obs_spectro, system_obs_spectro = fm.forward_model(global_params, wav_obs_spectro, res_obs_spectro, flx_cont_obs_spectro, 
                                                                                        flx_mod_spectro, star_flx_obs_spectro, star_flx_cont_obs_spectro,
                                                                                        err_obs_spectro, transm_obs_spectro, flx_obs_spectro, system_obs_spectro, indobs)
 
 
-    return wav_obs_spectro, flx_obs_spectro, err_obs_spectro, flx_mod_spectro, wav_obs_photo, flx_obs_photo, err_obs_photo, flx_mod_photo, ck, star_flx_obs_spectro, system_obs_spectro, res_obs_spectro, transm_obs_spectro, wav_mod_spectro, flx_mod_spectro_nativ, res_mod_spectro, contributions
+        
+    return wav_obs_spectro, flx_obs_spectro, err_obs_spectro, flx_mod_spectro, wav_obs_photo, flx_obs_photo, err_obs_photo, flx_mod_photo, ck, star_flx_obs_spectro, system_obs_spectro, res_obs_spectro, transm_obs_spectro, wav_mod_spectro, flx_mod_spectro_nativ, res_mod_spectro, star_flx_obs_spectro_nativ, contributions
 
 
 
