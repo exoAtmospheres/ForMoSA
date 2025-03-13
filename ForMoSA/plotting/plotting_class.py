@@ -866,7 +866,7 @@ class PlottingForMoSA():
         return fig1, ax1, fig, ax, flx_obs, flx_obs_broadened
 
 
-    def plot_ccf(self, rv_grid = [-300,300], rv_step = 0.5, figsize = (10,5), window_normalisation = 100, continuum_res = 500, vsini = [], wav_mod_nativ=[], flx_mod_nativ=[], res_mod_nativ=[], flx_mod_no_rv=[], indobs=0, plot=True, map_rv_vsini = False, flx_obs = [], wav_obs = [], res_obs = [], transm_obs = []):
+    def plot_ccf(self, rv_grid = [-300,300], rv_step = 0.5, figsize = (10,5), window_normalisation = 100, continuum_res = 500, vsini = [], wav_mod_nativ=[], flx_mod_nativ=[], res_mod_nativ=[], indobs=0, plot=True, map_rv_vsini = False, flx_obs = [], wav_obs = [], res_obs = [], transm_obs = []):
         '''
         Plot the cross-correlation function. It is used for high resolution spectroscopy.
 
@@ -880,7 +880,6 @@ class PlottingForMoSA():
             wav_mod_nativ             (array): (default = []) Wavelength of the model to cross-correlate with the data in the case the user wants to use the rv_vsini map function or a different model (individual molecule for example)
             flx_mod_nativ             (array): (default = []) Flux of the model to cross-correlate with the data in the case the user wants to use the rv_vsini map function or a different model (individual molecule for example)
             res_mod_nativ             (array): (default = []) Resolution of the model to cross-correlate with the data in the case the user wants to use the rv_vsini map function or a different model (individual molecule for example)
-            flx_mod_no_rv             (array): (default = []) flus of the model at rv = 0 (used for the autocorrelation) in the case the user uses the rv_vsini_map_function
             indobs                    (ind): (default = 0) Index of the current observation loop
             plot                      (bool): (default = True) Whether to plot the ccf
             map_rv_vsini              (bool): (default = False) Whether the user wants to use the rv_vsini map function
@@ -938,7 +937,7 @@ class PlottingForMoSA():
             # in that case, we use the best v.sini infered by the nested sampling
             if vsini == []:   
                 vsini = self.theta_best[self.theta_index == 'vsini']
-            
+    
         # Third sted, we apply rotational broadening]
         flx_mod, res_mod_vsini = vsini_fct(self.global_params, wav_mod_nativ, flx_mod_nativ, res_mod_nativ, 0.6, vsini, indobs)  # We consider the limb darkening to be fixed at 0.6
 
