@@ -1004,7 +1004,7 @@ class PlottingForMoSA():
             ax1.set_ylabel('S/N')
             ax1.legend(['ccf', 'acf'])
             
-            # print(f'SNR = {np.nanmax(ccf_norm):.1f}, RV = {popt[1]:.1f} km/s')
+            print(f'SNR = {np.nanmax(ccf_norm):.1f}, RV = {popt[1]:.1f} km/s')
             return fig1, ax1, rv_grid, ccf_norm, acf_norm, ccf_noise, logL
         
         elif (not(plot)) and (not(map_rv_vsini)):
