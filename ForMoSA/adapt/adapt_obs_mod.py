@@ -33,10 +33,10 @@ def launch_adapt(global_params, justobs='no'):
     ds.close()
 
     # Check if the grid is Nyquist-sampled, else set the resolution to R = wav / 2 Deltawav to make sure we are adding any info
-    # dwav = np.abs(wav_mod_nativ - np.roll(wav_mod_nativ, 1))
-    # dwav[0] = dwav[1]
-    # res_Nyquist = wav_mod_nativ / (2 * dwav)
-    # res_mod_nativ[(res_mod_nativ > res_Nyquist)] = res_Nyquist[(res_mod_nativ > res_Nyquist)]
+    dwav = np.abs(wav_mod_nativ - np.roll(wav_mod_nativ, 1))
+    dwav[0] = dwav[1]
+    res_Nyquist = wav_mod_nativ / (2 * dwav)
+    res_mod_nativ[(res_mod_nativ > res_Nyquist)] = res_Nyquist[(res_mod_nativ > res_Nyquist)]
 
     # Extract the data from the observation files
     main_obs_path = global_params.main_observation_path
@@ -52,44 +52,37 @@ def launch_adapt(global_params, justobs='no'):
             print(obs_name + ' will have a R=' + global_params.continuum_sub[indobs] + ' continuum removed using a ' 
                 + global_params.wav_for_continuum[indobs] + ' wavelength range')
             print()
-            obs_spectro, obs_photo, obs_photo_ins, obs_opt  = extract_observation(global_params, wav_mod_nativ, res_mod_nativ, 'yes', 
-                                                                                                  obs_name=obs_name, indobs=indobs)
+            obs_spectro, obs_photo, obs_photo_ins, obs_opt, res_mod_obs  = extract_observation(global_params, wav_mod_nativ, res_mod_nativ, 'yes', 
+                                                                                                indobs=indobs)
         else:
-            obs_spectro, obs_photo, obs_photo_ins, obs_opt  = extract_observation(global_params, wav_mod_nativ, res_mod_nativ,
-                                                                                                   obs_name=obs_name, indobs=indobs)
+            obs_spectro, obs_photo, obs_photo_ins, obs_opt, res_mod_obs  = extract_observation(global_params, wav_mod_nativ, res_mod_nativ,
+                                                                                                indobs=indobs)
 
         wav_obs_spectro, res_obs_spectro, wav_obs_photo = obs_spectro[0], obs_spectro[3], obs_photo[0]
-        # Interpolate the resolution onto the wavelength of the data
+
+        # - - - - - - - - 
+
+        # Masks to cut the spectroscopic grid
         if len(obs_spectro[0]) != 0:
-            if len(global_params.rv) > 3:   # We want to estimate a different RV fo each observation
+            # Extract larger windows but cuts the grid before extraction to speed-up the code
+            # Redifine grid shape if needed
+            if len(global_params.rv) > 3:
                 if global_params.rv[indobs*3] == 'NA':
-                    mask_mod_obs = (wav_mod_nativ <= obs_spectro[0][-1]) & (wav_mod_nativ > obs_spectro[0][0])
-                    res_mod_obs = res_obs_spectro
-                    wav_mod_obs = wav_obs_spectro
+                    wav_grid_spectro = wav_obs_spectro
                 else:
-                    # If the user defined an RV prior, we slightly modify the strategy for the adaptation of the model
-                    # Instead of adapting the model to the wavelength of the observations, we just decrease the wavelength range of the model to a wavelength range slightly larger than the data
-                    # so that we do not lose data on the edges of the wavelength of the observations when applying the RV correction
                     mask_mod_obs = (wav_mod_nativ <= 1.01 * obs_spectro[0][-1]) & (wav_mod_nativ >= 0.99 * obs_spectro[0][0])   # 1.01 corresponds to a value of 3000 km/s for the RV so we do no risk to lose data on the edges when applying the RV correction
-                    wav_mod_obs = wav_mod_nativ[mask_mod_obs]
-                    res_mod_obs = res_mod_nativ[mask_mod_obs]
-                    
+                    wav_grid_spectro = wav_mod_nativ[mask_mod_obs]
             else:
                 if global_params.rv == 'NA':
-                    mask_mod_obs = (wav_mod_nativ <= obs_spectro[0][-1]) & (wav_mod_nativ > obs_spectro[0][0])
-                    res_mod_obs = res_obs_spectro
-                    wav_mod_obs = wav_obs_spectro
+                    wav_grid_spectro = wav_obs_spectro
                 else:
-                    # If the user defined an RV prior, we slightly modify the strategy for the adaptation of the model
-                    # Instead of adapting the model to the wavelength of the observations, we just decrease the wavelength range of the model to a wavelength range slightly larger than the data
-                    # so that we do not lose data on the edges of the wavelength of the observations when applying the RV correction
                     mask_mod_obs = (wav_mod_nativ <= 1.01 * obs_spectro[0][-1]) & (wav_mod_nativ >= 0.99 * obs_spectro[0][0])   # 1.01 corresponds to a value of 3000 km/s for the RV so we do no risk to lose data on the edges when applying the RV correction
-                    wav_mod_obs = wav_mod_nativ[mask_mod_obs]
-                    res_mod_obs = res_mod_nativ[mask_mod_obs]
-                    
+                    wav_grid_spectro = wav_mod_nativ[mask_mod_obs]  
         else:
-            res_mod_obs = np.asarray([])
-            wav_mod_obs = np.asarray([])
+            wav_grid_spectro = wav_obs_spectro
+
+        wav_grid_photo = wav_obs_photo
+
 
         # Check-ups and warnings for negative values in the diagonal of the covariance matrix
         if len(obs_opt[0]) != 0 and any(np.diag(obs_opt[0]) < 0):
@@ -125,7 +118,7 @@ def launch_adapt(global_params, justobs='no'):
             print('- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -')
             print(f"-> Sarting the adaptation of {obs_name}")
 
-            adapt_grid(global_params, res_mod_obs, wav_obs_spectro, wav_mod_obs, res_obs_spectro, wav_obs_photo, obs_photo_ins, obs_name=obs_name, indobs=indobs)
+            adapt_grid(global_params, wav_grid_spectro, wav_grid_photo, res_mod_obs, wav_obs_spectro, res_obs_spectro, obs_photo_ins, obs_name, indobs)
         
 # ----------------------------------------------------------------------------------------------------------------------
 

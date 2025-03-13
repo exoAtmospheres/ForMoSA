@@ -488,3 +488,23 @@ Tests that have been done to checkup the changes:
      - Runs with HiRISE data in the high-contrast scenario to check for the forward model scripts
      - Different runs to check for the gain associated to the adaptation of the model on a larger wavelength grid to avoid losing data on the edges during the RV application
      
+
+- - - 
+
+28/01/2025
+
+Matthieu Ravet
+
+Comments: Optimization and correction :
+     - Removing the wav_for_adapt parameter (useless)
+     - Updating function documentation
+     - Cleaning part of the code in extraction function
+     - Correction bugs to allow for the inversion on MRS, LRS and photometry
+     - Updating the plotting_class with the weight display and the forced initialization with _get_posteriors(burn_in=int) to use a common posterior
+     chain throughout the class.
+     - Inverting the residuals in plotting_class so that missing line appears as absorption rather than emission
+     
+Tests that have been done to checkup the changes:
+     - Run and plotting MRS (GRAVITY+) with and without continuum
+     - Run and plotting LRS and photometry
+     

@@ -4,11 +4,11 @@ from scipy.interpolate import interp1d
 import astropy.units as u
 import astropy.constants as const
 from PyAstronomy.pyasl import rotBroad, fastRotBroad
-import ForMoSA.nested_sampling.forward_models as fm
-from ForMoSA.adapt.extraction_functions import resolution_decreasing
+import nested_sampling.forward_models as fm
+from adapt.extraction_functions import resolution_decreasing
 # ----------------------------------------------------------------------------------------------------------------------
 
-def calc_ck(global_params, flx_obs_spectro, err_obs_spectro, flx_mod_spectro, flx_obs_photo, err_obs_photo, flx_mod_photo, r_picked, d_picked, indobs,
+def calc_ck(flx_obs_spectro, err_obs_spectro, flx_mod_spectro, flx_obs_photo, err_obs_photo, flx_mod_photo, r_picked, d_picked,
             alpha=1, analytic='no'):
     """
     Calculation of the dilution factor Ck and re-normalization of the interpolated synthetic spectrum (from the radius
@@ -65,7 +65,7 @@ def calc_ck(global_params, flx_obs_spectro, err_obs_spectro, flx_mod_spectro, fl
 # ----------------------------------------------------------------------------------------------------------------------
 
 
-def doppler_fct(wav_obs_spectro, wav_mod_spectro, flx_mod_spectro, rv_picked, return_nans = False):
+def doppler_fct(wav_mod_spectro, flx_mod_spectro, rv_picked):
     """
     Application of a Doppler shifting to the interpolated synthetic spectrum using the function pyasl.dopplerShift.
     The side effects of the Doppler shifting are taking into account by using a model interpolated on a larger wavelength grid as the wavelength grid of the data.
@@ -136,8 +136,8 @@ def vsini_fct(global_params, wav_mod_spectro, flx_mod_spectro, res_mod_obs, ld_p
     flx_mod_spectro  (array): Flux of tge interpolated synthetic spectrum (spectroscopy)
     ld_picked        (float): Limb darkening randomly picked by the nested sampling
     vsini_picked     (float): v.sin(i) randomly picked by the nested samplin (in km.s-1)
-    res_mod_spectro  (array): Resolution of the model as a function of the wavelength grid of the data
-    indobs           (int): Index of the current observation looping
+    res_mod_obs      (array): Resolution of the model as a function of the wavelength grid of the data
+    indobs             (int): Index of the current observation looping
     
     Author: Allan Denis
     """
@@ -163,13 +163,13 @@ def vsini_fct(global_params, wav_mod_spectro, flx_mod_spectro, res_mod_obs, ld_p
 # ----------------------------------------------------------------------------------------------------------------------
 
 
-def vsini_fct_rot_broad(wav_obs_spectro, flx_mod_spectro, ld_picked, vsini_picked):
+def vsini_fct_rot_broad(wav_mod_spectro, flx_mod_spectro, ld_picked, vsini_picked):
     """
     Application of a rotation velocity (line broadening) to the interpolated synthetic spectrum using the function
     extinction.fm07.
 
     Args:
-        wav_obs_spectro  (array): Wavelength grid of the data
+        wav_mod_spectro  (array): Wavelength grid of the model
         flx_mod_spectro  (array): Flux of the interpolated synthetic spectrum
         ld_picked        (float): Limd darkening randomly picked by the nested sampling
         vsini_picked     (float): v.sin(i) randomly picked by the nested sampling (in km.s-1)
@@ -179,14 +179,14 @@ def vsini_fct_rot_broad(wav_obs_spectro, flx_mod_spectro, ld_picked, vsini_picke
     Author: Simon Petrus
     """
     # Correct irregulatities in the wavelength grid
-    wav_interval = wav_obs_spectro[1:] - wav_obs_spectro[:-1]
-    wav_to_vsini = np.arange(min(wav_obs_spectro), max(wav_obs_spectro), min(wav_interval) * 2/3)
-    vsini_interp = interp1d(wav_obs_spectro, flx_mod_spectro, fill_value="extrapolate")
+    wav_interval = wav_mod_spectro[1:] - wav_mod_spectro[:-1]
+    wav_to_vsini = np.arange(min(wav_mod_spectro), max(wav_mod_spectro), min(wav_interval) * 2/3)
+    vsini_interp = interp1d(wav_mod_spectro, flx_mod_spectro, fill_value="extrapolate")
     flx_to_vsini = vsini_interp(wav_to_vsini)
     # Apply the v.sin(i)
     new_flx = rotBroad(wav_to_vsini, flx_to_vsini, ld_picked, vsini_picked)
     vsini_interp = interp1d(wav_to_vsini, new_flx, fill_value="extrapolate")
-    flx_mod_spectro = vsini_interp(wav_obs_spectro)
+    flx_mod_spectro = vsini_interp(wav_mod_spectro)
 
     return flx_mod_spectro
 
@@ -194,13 +194,13 @@ def vsini_fct_rot_broad(wav_obs_spectro, flx_mod_spectro, ld_picked, vsini_picke
 # ----------------------------------------------------------------------------------------------------------------------
 
 
-def vsini_fct_fast_rot_broad(wav_obs_spectro, flx_mod_spectro, ld_picked, vsini_picked):
+def vsini_fct_fast_rot_broad(wav_mod_spectro, flx_mod_spectro, ld_picked, vsini_picked):
     """
     Application of a rotation velocity (line broadening) to the interpolated synthetic spectrum using the function
     extinction.fm07.
 
     Args:
-        wav_obs_spectro  (array): Wavelength grid of the data
+        wav_mod_spectro  (array): Wavelength grid of the model
         flx_mod_spectro  (array): Flux of the interpolated synthetic spectrum
         ld_picked        (float): Limd darkening randomly picked by the nested sampling
         vsini_picked     (float): v.sin(i) randomly picked by the nested sampling (in km.s-1)
@@ -210,14 +210,14 @@ def vsini_fct_fast_rot_broad(wav_obs_spectro, flx_mod_spectro, ld_picked, vsini_
     Author: Simon Petrus
     """
     # Correct irregulatities in the wavelength grid
-    wav_interval = wav_obs_spectro[1:] - wav_obs_spectro[:-1]
-    wav_to_vsini = np.arange(min(wav_obs_spectro), max(wav_obs_spectro), min(wav_interval) * 2/3)
-    vsini_interp = interp1d(wav_obs_spectro, flx_mod_spectro, fill_value="extrapolate")
+    wav_interval = wav_mod_spectro[1:] - wav_mod_spectro[:-1]
+    wav_to_vsini = np.arange(min(wav_mod_spectro), max(wav_mod_spectro), min(wav_interval) * 2/3)
+    vsini_interp = interp1d(wav_mod_spectro, flx_mod_spectro, fill_value="extrapolate")
     flx_to_vsini = vsini_interp(wav_to_vsini)
     # Apply the v.sin(i)
     new_flx = fastRotBroad(wav_to_vsini, flx_to_vsini, ld_picked, vsini_picked)
     vsini_interp = interp1d(wav_to_vsini, new_flx, fill_value="extrapolate")
-    flx_mod_spectro = vsini_interp(wav_obs_spectro)
+    flx_mod_spectro = vsini_interp(wav_mod_spectro)
 
     return flx_mod_spectro
 
@@ -276,12 +276,12 @@ def rot_int_cmj(w, s, vsini, eps=0.6, nr=10, ntheta=100, dif=0.0):
     return ns/tarea
 
 
-def vsini_fct_accurate_fast_rot_broad(wav_obs_spectro, flx_mod_spectro, ld_picked, vsini_picked):
+def vsini_fct_accurate_fast_rot_broad(wav_mod_spectro, flx_mod_spectro, ld_picked, vsini_picked):
     """
     Application of a rotation velocity (line broadening) to the interpolated synthetic spectrum using the Carvalho & Johns-Krull (2023) approach
 
     Args:
-        wav_obs_spectro  (array): Wavelength grid of the data
+        wav_mod_spectro  (array): Wavelength grid of the model
         flx_mod_spectro  (array): Flux of the interpolated synthetic spectrum
         ld_picked        (float): Limd darkening randomly picked by the nested sampling
         vsini_picked     (float): v.sin(i) randomly picked by the nested sampling (in km.s-1)
@@ -291,26 +291,26 @@ def vsini_fct_accurate_fast_rot_broad(wav_obs_spectro, flx_mod_spectro, ld_picke
     Author: Simon Petrus
     """
     # Correct irregulatities in the wavelength grid
-    wav_interval = wav_obs_spectro[1:] - wav_obs_spectro[:-1]
-    wav_to_vsini = np.arange(min(wav_obs_spectro), max(wav_obs_spectro), min(wav_interval) * 2/3)
-    vsini_interp = interp1d(wav_obs_spectro, flx_mod_spectro, fill_value="extrapolate")
+    wav_interval = wav_mod_spectro[1:] - wav_mod_spectro[:-1]
+    wav_to_vsini = np.arange(min(wav_mod_spectro), max(wav_mod_spectro), min(wav_interval) * 2/3)
+    vsini_interp = interp1d(wav_mod_spectro, flx_mod_spectro, fill_value="extrapolate")
     flx_to_vsini = vsini_interp(wav_to_vsini)
     # Apply the v.sin(i)
     new_flx = rot_int_cmj(wav_to_vsini, flx_to_vsini, vsini_picked, eps=ld_picked, nr=10, ntheta=100, dif=0.0)
     vsini_interp = interp1d(wav_to_vsini, new_flx, fill_value="extrapolate")
-    flx_mod_spectro = vsini_interp(wav_obs_spectro)
+    flx_mod_spectro = vsini_interp(wav_mod_spectro)
 
     return flx_mod_spectro
 
 # ----------------------------------------------------------------------------------------------------------------------
 
-def vsini_fct_accurate(wave_obs_merge, flx_mod_spectro, ld_picked, vsini_picked, nr=50, ntheta=100, dif=0.0):
+def vsini_fct_accurate(wav_mod_spectro, flx_mod_spectro, ld_picked, vsini_picked, nr=50, ntheta=100, dif=0.0):
     '''
     A routine to quickly rotationally broaden a spectrum in linear time.
     Adapted from Carvalho & Johns-Krull 2023 https://ui.adsabs.harvard.edu/abs/2023RNAAS...7...91C/abstract
 
     Args:
-        wav_obs_spectro   (array): Wavelength grid of the data
+        wav_mod_spectro   (array): Wavelength grid of the model
         flx_mod_spectro   (array): Flux of the interpolated synthetic spectrum
         ld_picked         (float): Limd darkening randomly picked by the nested sampling
         vsini_picked      (float): v.sin(i) randomly picked by the nested sampling (in km.s-1)
@@ -337,11 +337,11 @@ def vsini_fct_accurate(wave_obs_merge, flx_mod_spectro, ld_picked, vsini_picked,
             th = np.pi/int(ntheta*r) + k * 2.0*np.pi/int(ntheta*r)
             if dif != 0:
                 vl = vsini_picked * r * np.sin(th) * (1.0 - dif/2.0 - dif/2.0*np.cos(2.0*np.arccos(r*np.cos(th))))
-                ns += area * np.interp(wave_obs_merge + wave_obs_merge*vl/const.c.to(u.km/u.s).value, wave_obs_merge, flx_mod_spectro)
+                ns += area * np.interp(wav_mod_spectro + wav_mod_spectro*vl/const.c.to(u.km/u.s).value, wav_mod_spectro, flx_mod_spectro)
                 tarea += area
             else:
                 vl = r * vsini_picked * np.sin(th)
-                ns += area * np.interp(wave_obs_merge + wave_obs_merge*vl/const.c.to(u.km/u.s).value, wave_obs_merge, flx_mod_spectro)
+                ns += area * np.interp(wav_mod_spectro + wav_mod_spectro*vl/const.c.to(u.km/u.s).value, wav_mod_spectro, flx_mod_spectro)
                 tarea += area
 
     flx_mod_spectro = ns / tarea
@@ -395,37 +395,52 @@ def bb_cpd_fct(wav_obs_spectro, wav_obs_photo, flx_mod_spectro, flx_mod_photo, d
 
 def modif_spec(global_params, theta, theta_index,
                wav_obs_spectro, wav_mod_spectro, flx_obs_spectro, flx_cont_obs_spectro, err_obs_spectro, flx_mod_spectro,
-               wav_obs_photo, flx_obs_photo, err_obs_photo, flx_mod_photo, res_obs_spectro, res_mod_spectro, transm_obs_spectro = [], star_flx_obs_spectro = [], star_flx_cont_obs_spectro = [], system_obs_spectro = [], indobs=0):
+               wav_obs_photo, flx_obs_photo, err_obs_photo, flx_mod_photo, res_obs_spectro, res_mod_obs_spectro, transm_obs_spectro = [], star_flx_obs_spectro = [], star_flx_cont_obs_spectro = [], system_obs_spectro = [], indobs=0):
     """
     Modification of the interpolated synthetic spectra with the different extra-grid parameters.
     It can perform : Re-calibration on the data, Doppler shifting, Application of a substellar extinction, Application of a rotational velocity,
     Application of a circumplanetary disk (CPD).
 
     Args:
-        global_params   (object): Class containing each parameter
-        theta             (list): Parameter values randomly picked by the nested sampling
-        theta_index       (list): Parameter index identificator
-        wav_obs_spectro  (array): Wavelength grid of the data (spectroscopy)
-        flx_obs_spectro  (array): Flux of the data (spectroscopy)
-        err_obs_spectro  (array): Error of the data (spectroscopy)
-        flx_mod_spectro  (array): Flux of the interpolated synthetic spectrum (spectroscopy)
-        wav_obs_photo    (array): Wavelength grid of the data (photometry)
-        flx_obs_photo    (array): Flux of the data (photometry)
-        err_obs_photo    (array): Error of the data (photometry)
-        flx_mod_photo    (array): Flux of the interpolated synthetic spectrum (photometry)
-        transm_obs       (array): Transmission (Atmospheric + Instrumental)
-        star_flx_obs   (n-array): Flux of star observation data (spectroscopy)
-        system_obs     (n-array): Systematics of the data (spectroscopy)
-        indobs             (int): Index of the current observation looping
+        global_params               (object): Class containing each parameter
+        theta                         (list): Parameter values randomly picked by the nested sampling
+        theta_index                   (list): Parameter index identificator
+        wav_obs_spectro              (array): Wavelength grid of the data (spectroscopy)
+        wav_mod_spectro              (array): Wavelength grid of the model (spectroscopy). Can be different from wav_obs_spectro if rv is fitted
+        flx_obs_spectro              (array): Flux of the data (spectroscopy)
+        flx_cont_obs_spectro         (array): Continuum of the data (spectroscopy)
+        err_obs_spectro              (array): Error of the data (spectroscopy)
+        flx_mod_spectro              (array): Flux of the interpolated synthetic spectrum (spectroscopy)
+        wav_obs_photo                (array): Wavelength grid of the data (photometry)
+        flx_obs_photo                (array): Flux of the data (photometry)
+        err_obs_photo                (array): Error of the data (photometry)
+        flx_mod_photo                (array): Flux of the interpolated synthetic spectrum (photometry)
+        res_obs_spectro              (array): Resolution of the data (spectroscopy)
+        res_mod_obs_spectro          (array): Resolution of the model as a function of the wavelength grid of the data
+        transm_obs_spectro           (array): Transmission (Atmospheric + Instrumental)
+        star_flx_obs_spectro       (n-array): Flux of star observation data (spectroscopy)
+        star_flx_cont_obs_spectro  (n-array): Continuum of the star observation data (spectroscopy)
+        system_obs_spectro         (n-array): Systematics of the data (spectroscopy)
+        indobs                         (int): Index of the current observation looping
     Returns:
-        - wav_obs_spectro (array)  : New wavelength grid of the data (may change with the Doppler shift)
-        - flx_obs_spectro (array)  : New flux of the data (may change with the Doppler shift)
-        - err_obs_spectro (array)  : New error of the data (may change with the Doppler shift)
-        - flx_mod_spectro (array)  : New flux of the interpolated synthetic spectrum (spectroscopy)
-        - wav_obs_photo (array)    : Wavelength grid of the data (photometry)
-        - flx_obs_photo (array)    : Flux of the data (photometry)
-        - err_obs_photo (array)    : Error of the data (photometry)
-        - flx_mod_photo (array)    : New flux of the interpolated synthetic spectrum (photometry)
+        - wav_obs_spectro            (array): New wavelength grid of the data (may change with the Doppler shift)
+        - flx_obs_spectro            (array): New flux of the data (may change with the Doppler shift)
+        - err_obs_spectro            (array): New error of the data (may change with the Doppler shift)
+        - flx_mod_spectro            (array): New flux of the interpolated synthetic spectrum (spectroscopy)
+        - wav_obs_photo              (array): Wavelength grid of the data (photometry)
+        - flx_obs_photo              (array): Flux of the data (photometry)
+        - err_obs_photo              (array): Error of the data (photometry)
+        - flx_mod_photo              (array): New flux of the interpolated synthetic spectrum (photometry)
+        - ck                         (float): Scaling factor
+        - star_flx_obs_spectro     (n-array): Flux of star observation data (spectroscopy)
+        - system_obs_spectro       (n-array): Systematics of the data (spectroscopy)
+        - res_obs_spectro            (array): Resolution of the data (spectroscopy)
+        - transm_obs_spectro         (array): Transmission (Atmospheric + Instrumental)
+        - wav_mod_spectro            (array): Wavelength grid of the model (spectroscopy). Can be different from wav_obs_spectro if rv is fitted
+        - flx_mod_spectro_nativ      (array): Native flux of the interpolated synthetic spectrum (spectroscopy)
+        - res_mod_obs_spectro        (array): Resolution of the model as a function of the wavelength grid of the data
+        - contributions              (array): Hires residual contributions
+ 
 
     Author: Simon Petrus, Paulina Palma-Bifani, Allan Denis and Matthieu Ravet
     """
@@ -439,7 +454,7 @@ def modif_spec(global_params, theta, theta_index,
                 else:
                     ind_theta_rv = np.where(theta_index == f'rv_{indobs}')
                     rv_picked = theta[ind_theta_rv[0][0]]
-                flx_mod_spectro, wav_mod_spectro = doppler_fct(wav_obs_spectro, wav_mod_spectro, flx_mod_spectro, rv_picked)
+                flx_mod_spectro, wav_mod_spectro = doppler_fct(wav_mod_spectro, flx_mod_spectro, rv_picked)
         else: # If you want 1 common rv for all observations
             if global_params.rv != "NA":
                 if global_params.rv[0] == "constant":
@@ -447,7 +462,7 @@ def modif_spec(global_params, theta, theta_index,
                 else:
                     ind_theta_rv = np.where(theta_index == 'rv')
                     rv_picked = theta[ind_theta_rv[0][0]]
-                flx_mod_spectro, wav_mod_spectro = doppler_fct(wav_obs_spectro, wav_mod_spectro, flx_mod_spectro, rv_picked)
+                flx_mod_spectro, wav_mod_spectro = doppler_fct(wav_mod_spectro, flx_mod_spectro, rv_picked)
 
 
     # Application of a synthetic interstellar extinction to the interpolated synthetic spectrum.
@@ -464,7 +479,7 @@ def modif_spec(global_params, theta, theta_index,
         if len(global_params.vsini) > 4 and len(global_params.ld) > 3: # If you want separate vsini/ld for each observations
             if global_params.vsini[indobs*4] != "NA" and global_params.ld[indobs*3] != "NA":
                 if global_params.vsini[indobs*4] == 'constant':
-                    vsini_picked = float(global_params.vsini[indobs*3+1])
+                    vsini_picked = float(global_params.vsini[indobs*4+1])
                 else:
                     ind_theta_vsini = np.where(theta_index == f'vsini_{indobs}')
                     vsini_picked = theta[ind_theta_vsini[0][0]]
@@ -476,7 +491,7 @@ def modif_spec(global_params, theta, theta_index,
                     ld_picked = theta[ind_theta_ld[0][0]]
                     
                 if vsini_picked != 0:
-                    flx_mod_spectro, res_mod_spectro = vsini_fct(global_params, wav_mod_spectro, flx_mod_spectro, res_mod_spectro, ld_picked, vsini_picked, indobs)
+                    flx_mod_spectro, res_mod_obs_spectro = vsini_fct(global_params, wav_mod_spectro, flx_mod_spectro, res_mod_obs_spectro, ld_picked, vsini_picked, indobs)
 
             elif global_params.vsini[indobs*4] == "NA" and global_params.ld[indobs*3] == "NA":
                 pass
@@ -500,7 +515,7 @@ def modif_spec(global_params, theta, theta_index,
                     ind_theta_ld = np.where(theta_index == 'ld')
                     ld_picked = theta[ind_theta_ld[0][0]]
             
-                flx_mod_spectro, res_mod_spectro = vsini_fct(global_params, wav_mod_spectro, flx_mod_spectro, res_mod_spectro, ld_picked, vsini_picked, 0)
+                flx_mod_spectro, res_mod_obs_spectro = vsini_fct(global_params, wav_mod_spectro, flx_mod_spectro, res_mod_obs_spectro, ld_picked, vsini_picked, 0)
 
 
             elif global_params.vsini == "NA" and global_params.ld == "NA":
@@ -540,11 +555,12 @@ def modif_spec(global_params, theta, theta_index,
     
     # After all the transformations above, we finally decrease the resolution of the model
     flx_mod_spectro_nativ = np.copy(flx_mod_spectro)
-    flx_mod_spectro = resolution_decreasing(global_params, wav_obs_spectro, [], res_obs_spectro, wav_mod_spectro, flx_mod_spectro, res_mod_spectro, 'mod', indobs)
+    flx_mod_spectro = resolution_decreasing(global_params, wav_obs_spectro, [], res_obs_spectro, wav_mod_spectro, flx_mod_spectro, res_mod_obs_spectro, 'mod', indobs)
 
     # Calculation of the dilution factor Ck and re-normalization of the interpolated synthetic spectrum.
     # From the radius and the distance.
     if global_params.fm_type[indobs] == "NA":
+        contributions = np.asarray([])
         if global_params.r != "NA" and global_params.d != "NA":
             if global_params.r[0] == "constant":
                 r_picked = float(global_params.r[1])
@@ -565,9 +581,9 @@ def modif_spec(global_params, theta, theta_index,
                     else:
                         ind_theta_alpha = np.where(theta_index == f'alpha_{indobs}')
                         alpha_picked = theta[ind_theta_alpha[0][0]]
-                    flx_mod_spectro, flx_mod_photo, ck = calc_ck(global_params, flx_obs_spectro, err_obs_spectro, flx_mod_spectro, flx_obs_photo, err_obs_photo, flx_mod_photo, r_picked, d_picked, indobs, alpha=alpha_picked)
+                    flx_mod_spectro, flx_mod_photo, ck = calc_ck(flx_obs_spectro, err_obs_spectro, flx_mod_spectro, flx_obs_photo, err_obs_photo, flx_mod_photo, r_picked, d_picked, alpha=alpha_picked)
                 else: # Without the extra alpha scaling
-                    flx_mod_spectro, flx_mod_photo, ck = calc_ck(global_params, flx_obs_spectro, err_obs_spectro, flx_mod_spectro, flx_obs_photo, err_obs_photo, flx_mod_photo, r_picked, d_picked, indobs)
+                    flx_mod_spectro, flx_mod_photo, ck = calc_ck(flx_obs_spectro, err_obs_spectro, flx_mod_spectro, flx_obs_photo, err_obs_photo, flx_mod_photo, r_picked, d_picked)
             else: # If you want 1 common alpha for all observations
                 if global_params.alpha != "NA":
                     if global_params.alpha[0] == "constant":
@@ -575,16 +591,16 @@ def modif_spec(global_params, theta, theta_index,
                     else:
                         ind_theta_alpha = np.where(theta_index == 'alpha')
                         alpha_picked = theta[ind_theta_alpha[0][0]]
-                    flx_mod_spectro, flx_mod_photo, ck = calc_ck(global_params, flx_obs_spectro, err_obs_spectro, flx_mod_spectro, flx_obs_photo, err_obs_photo, flx_mod_photo, r_picked, d_picked, indobs, alpha=alpha_picked)
+                    flx_mod_spectro, flx_mod_photo, ck = calc_ck(flx_obs_spectro, err_obs_spectro, flx_mod_spectro, flx_obs_photo, err_obs_photo, flx_mod_photo, r_picked, d_picked, alpha=alpha_picked)
                 else: # Without the extra alpha scaling
-                    flx_mod_spectro, flx_mod_photo, ck = calc_ck(global_params, flx_obs_spectro, err_obs_spectro, res_obs_spectro, flx_mod_spectro, flx_obs_photo, err_obs_photo, flx_mod_photo, r_picked, d_picked, indobs)
+                    flx_mod_spectro, flx_mod_photo, ck = calc_ck(flx_obs_spectro, err_obs_spectro, flx_mod_spectro, flx_obs_photo, err_obs_photo, flx_mod_photo, r_picked, d_picked)
 
         # Analytically
         # If MOSAIC
         elif global_params.r == "NA" and global_params.d == "NA":
             # If we compute ck analytically, the resolution decreasing is already included in the function
             flx_mod_spectro_nativ = np.copy(flx_mod_spectro)
-            flx_mod_spectro, flx_mod_photo, ck = calc_ck(global_params, flx_obs_spectro, err_obs_spectro, flx_mod_spectro, flx_obs_photo, err_obs_photo, flx_mod_photo, 0, 0, indobs, alpha=0, analytic='yes')
+            flx_mod_spectro, flx_mod_photo, ck = calc_ck(flx_obs_spectro, err_obs_spectro, flx_mod_spectro, flx_obs_photo, err_obs_photo, flx_mod_photo, 0, 0, alpha=0, analytic='yes')
 
 
         else:   # either global_params.r or global_params.d is set to 'NA'
@@ -601,7 +617,7 @@ def modif_spec(global_params, theta, theta_index,
 
 
         
-    return wav_obs_spectro, flx_obs_spectro, err_obs_spectro, flx_mod_spectro, wav_obs_photo, flx_obs_photo, err_obs_photo, flx_mod_photo, ck, star_flx_obs_spectro, system_obs_spectro, res_obs_spectro, transm_obs_spectro, wav_mod_spectro, flx_mod_spectro_nativ, res_mod_spectro, star_flx_obs_spectro_nativ, contributions
+    return wav_obs_spectro, flx_obs_spectro, err_obs_spectro, flx_mod_spectro, wav_obs_photo, flx_obs_photo, err_obs_photo, flx_mod_photo, ck, star_flx_obs_spectro, system_obs_spectro, res_obs_spectro, transm_obs_spectro, wav_mod_spectro, flx_mod_spectro_nativ, res_mod_obs_spectro, star_flx_obs_spectro_nativ, contributions
 
 
 
