@@ -1,6 +1,6 @@
 import numpy as np
 import scipy.optimize as optimize
-from ForMoSA.adapt.extraction_functions import continuum_estimate
+from adapt.extraction_functions import continuum_estimate
 
 
 def forward_model(global_params, wav_mod_spectro, res_mod_spectro, flx_cont_obs, flx_mod, star_flx_obs, star_flx_cont_obs, err_obs, transm_obs, flx_obs, system_obs, indobs):
@@ -8,18 +8,25 @@ def forward_model(global_params, wav_mod_spectro, res_mod_spectro, flx_cont_obs,
     For high-contrast companions, where the star speckles signal contaminate the data
 
     Args:
-    global_params (object): Class containing each parameter used in ForMoSA
-    wav_mod_spectro (array): Wavelength grid of the model
-    res_mod_spectro (array): Resolution grid of the model
-    flx_cont_obs (array): Continuum of the data
-    flx_mod (array): Model of the companion
-    star_flx_obs (array): Star data
-    star_flx_cont_obs (array): Continuum of star data
-    err_obs (array): Noise of the data
-    transm_obs (array): Transmission
-    flx_obs (array): Data
-    system_obs (array): Systematics
-    indobs (int) : Index of the current observation loop
+        global_params      (object): Class containing each parameter used in ForMoSA
+        wav_mod_spectro     (array): Wavelength grid of the model
+        res_mod_spectro     (array): Resolution grid of the model
+        flx_cont_obs        (array): Continuum of the data
+        flx_mod             (array): Model of the companion
+        star_flx_obs        (array): Star data
+        star_flx_cont_obs   (array): Continuum of star data
+        err_obs             (array): Noise of the data
+        transm_obs          (array): Transmission
+        flx_obs             (array): Data
+        system_obs          (array): Systematics
+        indobs                (int): Index of the current observation loop
+    
+    Returns:
+        - res                 (array): Residuals of the forward model
+        - flx_mod             (array): Model of the forward model
+        - flx_obs             (array): Data of the forward model
+        - star_flx_obs        (array): Star flux of the forward model
+        - system_obs          (array): Systematics of the forward model
 
     Authors: Allan Denis
     '''
@@ -61,16 +68,23 @@ def forward_model_nonlinear_estimate_speckles(flx_cont_obs, flx_mod, flx_cont_mo
     because in the latter case we make the assumption that the star speckels dominate the data which is not the case here
 
     Args:
-    flx_cont_obs (array): Continuum of the data
-    flx_mod (array): Model of the companion
-    flx_cont_mod (array): Continuum of the model of the companion
-    star_flx_obs_master (array): Master star data
-    star_flx_obs (array): Star data
-    star_flx_cont_obs (array): Continuum of star data
-    weights (array): Weights to apply to the data
-    flx_obs (array): Data
-    system_obs (array): Systematics
-    bounds (tuple): Bounds to be applied to the estimated parameters
+        flx_cont_obs        (array): Continuum of the data
+        flx_mod             (array): Model of the companion
+        flx_cont_mod        (array): Continuum of the model of the companion
+        star_flx_obs_master (array): Master star data
+        star_flx_obs        (array): Star data
+        star_flx_cont_obs   (array): Continuum of star data
+        weights             (array): Weights to apply to the data
+        flx_obs             (array): Data
+        system_obs          (array): Systematics
+        bounds              (tuple): Bounds to be applied to the estimated parameters
+
+    Returns:
+        - res                 (array): Residuals of the forward model
+        - flx_mod             (array): Model of the forward model
+        - flx_obs             (array): Data of the forward model
+        - star_flx_obs        (array): Star flux of the forward model
+        - system_obs          (array): Systematics of the forward model
 
     Authors: Allan Denis
     '''
@@ -114,16 +128,23 @@ def forward_model_estimate_speckles(flx_cont_obs, flx_mod, flx_cont_mod, star_fl
     Linear forward model of planet and star contributions under the assumtion that the star speckles dominate the data  (see Landman et al. 2023)
 
     Args:
-    flx_cont_obs (array): Continuum of the data
-    flx_mod (array): Model of the companion
-    flx_cont_mod (array): Continuum of the model of the companion
-    star_flx_obs_master (array): Master star data
-    star_flx_obs (array): Star data
-    star_flx_cont_obs (array): Continuum of star data
-    weights (array): Weights to apply to the data
-    flx_obs (array): Data
-    system_obs (array): Systematics
-    bounds (tuple): Bounds to be applied to the estimated parameters
+        flx_cont_obs        (array): Continuum of the data
+        flx_mod             (array): Model of the companion
+        flx_cont_mod        (array): Continuum of the model of the companion
+        star_flx_obs_master (array): Master star data
+        star_flx_obs        (array): Star data
+        star_flx_cont_obs   (array): Continuum of star data
+        weights             (array): Weights to apply to the data
+        flx_obs             (array): Data
+        system_obs          (array): Systematics
+        bounds              (tuple): Bounds to be applied to the estimated parameters
+
+    Returns:
+        - res                 (array): Residuals of the forward model
+        - flx_mod             (array): Model of the forward model
+        - flx_obs             (array): Data of the forward model
+        - star_flx_obs        (array): Star flux of the forward model
+        - system_obs          (array): Systematics of the forward model
 
     Authors: Allan Denis
     '''
@@ -166,16 +187,23 @@ def forward_model_remove_speckles(flx_cont_obs, flx_mod, flx_cont_mod, star_flx_
     Linear forward model of planet contribution only where the speckles are filtered out from the data (see Landman et al. 2023)
 
     Args:
-    flx_cont_obs (array): Continuum of the data
-    flx_mod (array): Model of the companion
-    flx_cont_mod (array): Continuum of the model of the companion
-    star_flx_obs_master (array): Master star data
-    star_flx_obs (array): Star data
-    star_flx_cont_obs (array): Continuum of star data
-    weights (array): Weights to apply to the data
-    flx_obs (array): Data
-    system_obs (array): Systematics
-    bounds (tuple): Bounds to be applied to the estimated parameters
+        flx_cont_obs        (array): Continuum of the data
+        flx_mod             (array): Model of the companion
+        flx_cont_mod        (array): Continuum of the model of the companion
+        star_flx_obs_master (array): Master star data
+        star_flx_obs        (array): Star data
+        star_flx_cont_obs   (array): Continuum of star data
+        weights             (array): Weights to apply to the data
+        flx_obs             (array): Data
+        system_obs          (array): Systematics
+        bounds              (tuple): Bounds to be applied to the estimated parameters
+
+    Returns:
+        - res                 (array): Residuals of the forward model
+        - flx_mod             (array): Model of the forward model
+        - flx_obs             (array): Data of the forward model
+        - star_flx_obs        (array): Star flux of the forward model
+        - system_obs          (array): Systematics of the forward model
 
     Authors: Allan Denis
     '''
@@ -216,16 +244,23 @@ def forward_model_estimate_speckles_remove_continuum(flx_cont_obs, flx_mod, flx_
     Linear forward model of planet and star contributions where we remove the continuums (see Wang et al. 2021)
 
     Args:
-    flx_cont_obs (array): Continuum of the data
-    flx_mod (array): Model of the companion
-    flx_cont_mod (array): Continuum of the model of the companion
-    star_flx_obs_master (array): Master star data
-    star_flx_obs (array): Star data
-    star_flx_cont_obs (array): Continuum of star data
-    weights (array): Weights to apply to the data
-    flx_obs (array): Data
-    system_obs (array): Systematics
-    bounds (tuple): Bounds to be applied to the estimated parameters
+        flx_cont_obs        (array): Continuum of the data
+        flx_mod             (array): Model of the companion
+        flx_cont_mod        (array): Continuum of the model of the companion
+        star_flx_obs_master (array): Master star data
+        star_flx_obs        (array): Star data
+        star_flx_cont_obs   (array): Continuum of star data
+        weights             (array): Weights to apply to the data
+        flx_obs             (array): Data
+        system_obs          (array): Systematics
+        bounds              (tuple): Bounds to be applied to the estimated parameters
+
+    Returns:
+        - res                 (array): Residuals of the forward model
+        - flx_mod             (array): Model of the forward model
+        - flx_obs             (array): Data of the forward model
+        - star_flx_obs        (array): Star flux of the forward model
+        - system_obs          (array): Systematics of the forward model
 
     Authors: Allan Denis
     '''
