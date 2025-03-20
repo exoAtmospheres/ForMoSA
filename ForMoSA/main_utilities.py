@@ -51,8 +51,9 @@ class GlobFile:
         model_name = model_name[0]
         self.model_name = model_name
 
-        if type(config['config_adapt']['adapt_method']) != list: # Create lists if only one obs in the loop
+        if type(config['config_adapt']['wav_for_adapt']) != list: # Create lists if only one obs in the loop
             # [config_adapt] (5)
+            self.wav_for_adapt = [config['config_adapt']['wav_for_adapt']]
             self.adapt_method = [config['config_adapt']['adapt_method']]
             self.custom_reso = [config['config_adapt']['custom_reso']]
             self.continuum_sub = [config['config_adapt']['continuum_sub']]
@@ -74,6 +75,7 @@ class GlobFile:
                 
         else:
             # [config_adapt] (5)
+            self.wav_for_adapt = config['config_adapt']['wav_for_adapt']
             self.adapt_method = config['config_adapt']['adapt_method']
             self.custom_reso = config['config_adapt']['custom_reso']
             self.continuum_sub = config['config_adapt']['continuum_sub']
