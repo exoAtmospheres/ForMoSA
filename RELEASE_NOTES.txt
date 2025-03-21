@@ -508,3 +508,14 @@ Tests that have been done to checkup the changes:
      - Run and plotting MRS (GRAVITY+) with and without continuum
      - Run and plotting LRS and photometry
      
+
+- - - 
+
+28/01/2025
+
+Allan and Matthieu Ravet
+
+Comments: Corrections:
+     - Making old versions of ForMoSA compatible with the new ones (res in the nested sampling)
+     - Correction of the input of fm_type to be able to do it with MOSAIC
+     

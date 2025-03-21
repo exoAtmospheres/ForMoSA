@@ -1,5 +1,5 @@
 from configobj import ConfigObj
-import numpy as np
+import glob
 
 # ----------------------------------------------------------------------------------------------------------------------
 def yesno(text):
@@ -89,9 +89,9 @@ class GlobFile:
                 self.fm_continuum_res = config['config_forward_models']['fm_continuum_res']
                 self.bounds_lsq = config['config_forward_models']['bounds_lsq']
             except KeyError:
-                self.fm_type = 'NA'
-                self.fm_continuum_res = 'NA'
-                self.bounds_lsq = 'NA'
+                self.fm_type = ['NA' for i in range(len(glob.glob(self.main_observation_path)))]
+                self.fm_continuum_res = ['NA' for i in range(len(glob.glob(self.main_observation_path)))]
+                self.bounds_lsq = ['NA' for i in range(len(glob.glob(self.main_observation_path)))]
                 
             # 
 
