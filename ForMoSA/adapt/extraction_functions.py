@@ -313,12 +313,12 @@ def extract_model(global_params, wav_mod_nativ, wav_grid_spectro, flx_mod_nativ,
     """
 
     # Create final models
-    mod_spectro = np.empty(len(wav_grid_spectro))
+    mod_spectro = np.empty(len(wav_grid_spectro), dtype=float)
     mod_photo = np.empty(len(obs_photo_ins), dtype=float)
     
     # Reduce the spectral resolution and/or estimate the continuum
     if len(wav_obs_spectro) != 0:
-        if len(wav_grid_spectro) == len(wav_obs_spectro): # Case where you don't fit for rv because the grid has the same dimension as your data
+        if len(wav_grid_spectro) == len(wav_obs_spectro): # Case where you don't fit for rv because the grid has the same dimension as your data
             # If we want to decrease the resolution of the data:
             if global_params.adapt_method[indobs] == 'by_reso':
                 mod_spectro = resolution_decreasing(global_params, wav_obs_spectro, [], res_obs_spectro, wav_mod_nativ, flx_mod_nativ, res_mod_obs,
@@ -491,7 +491,7 @@ def continuum_estimate(global_params, wav, flx, res, indobs=0):
             flx_for_cont_final = np.concatenate((flx_for_cont_final, flx[ind_cont_cut]))
 
         # To limit the computing time, the convolution is not as a function of the wavelength but calculated
-        # from the median wavelength. We just want an estimate of the continuum here.
+        # from the median wavelength. We just want an estimate of the continuum here.
         wav_median = np.median(wav[ind_cont_cut])
         dwav_median = np.median(np.abs(wav[ind_cont_cut] - np.roll(wav[ind_cont_cut], 1))) # Estimated the median wavelength separation instead of taking wav_median - (wav_median+1) that could be on a border
     
