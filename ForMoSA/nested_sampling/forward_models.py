@@ -38,9 +38,9 @@ def forward_model(global_params, wav_mod_spectro, res_mod_spectro, flx_cont_obs,
         flx_mod -= flx_cont_mod
         flx_mod *= transm_obs
         flx_obs -= star_flx_obs_master / star_flx_cont_obs * flx_cont_obs
-        star_flx_obs = np.asarray([])
-        system_obs = np.asarray([])
-        res = np.asarray([])
+        flx_obs /= np.sqrt(np.sum(flx_obs**2))
+        flx_mod /= np.sqrt(np.sum(flx_mod**2))
+        star_flx_obs, system_obs, res = np.asarray([]), np.asarray([]), np.asarray([])
         
     else:   
         flx_mod *= transm_obs
