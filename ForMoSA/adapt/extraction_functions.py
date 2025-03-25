@@ -503,8 +503,8 @@ def continuum_estimate(global_params, wav, flx, res, indobs=0):
         cont = gaussian_filter(flx[ind_cont_cut], sigma)
         
         continuum = np.concatenate((continuum, cont))
-    
-    continuum_interp = interp1d(wav_for_cont_final, continuum, kind='linear', bounds_error=False)
+        
+    continuum_interp = interp1d(wav_for_cont_final, continuum, kind='linear', fill_value = 'extrapolate')
     continuum = continuum_interp(wav)
 
     return continuum
