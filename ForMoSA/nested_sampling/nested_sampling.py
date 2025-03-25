@@ -44,22 +44,24 @@ def import_obsmod(global_params):
         err_obs_spectro = np.asarray(spectrum_obs['obs_spectro'][2], dtype=float)
         res_obs_spectro = np.asarray(spectrum_obs['obs_spectro'][3], dtype=float)
         
-        if global_params.fm_type[indobs] != 'NA':
-            global_params.wav_for_continuum = global_params.wav_fit
-            global_params.continuum_sub = global_params.fm_continuum_res
-            flx_cont_obs_spectro = continuum_estimate(global_params, wav_obs_spectro, flx_obs_spectro, res_obs_spectro, indobs)
-        else:
-            flx_cont_obs_spectro = np.asarray([], dtype='float')
-            
         # Optional arrays
         inv_cov_obs_spectro = np.asarray(spectrum_obs['obs_opt'][0], dtype=float)
         transm_obs_spectro = np.asarray(spectrum_obs['obs_opt'][1], dtype=float)
         star_flx_obs_spectro = np.asarray(spectrum_obs['obs_opt'][2], dtype=float)
         system_obs_spectro = np.asarray(spectrum_obs['obs_opt'][3], dtype=float)
     
-        if global_params.fm_type[indobs] != 'NA':
-            star_flx_cont_obs_spectro = continuum_estimate(global_params, wav_obs_spectro, star_flx_obs_spectro[:,len(star_flx_obs_spectro[0]) // 2], res_obs_spectro, indobs)
+        if len(star_flx_obs_spectro) > 0:
+            if global_params.fm_continuum_res[indobs] != 'NA':
+                global_params.wav_for_continuum[indobs] = global_params.wav_fit[indobs]
+                global_params.continuum_sub[indobs] = global_params.fm_continuum_res[indobs]
+                flx_cont_obs_spectro = continuum_estimate(global_params, wav_obs_spectro, flx_obs_spectro, res_obs_spectro, indobs)
+                star_flx_cont_obs_spectro = continuum_estimate(global_params, wav_obs_spectro, star_flx_obs_spectro[:,len(star_flx_obs_spectro[0]) // 2], res_obs_spectro, indobs)
+            else:
+                print('Warning. You must define the resolution of the continuum estimation when you have star data')
+                print()
+                exit()
         else:
+            flx_cont_obs_spectro = np.asarray([], dtype='float')
             star_flx_cont_obs_spectro = np.asarray([], dtype='float')
 
         if 'obs_photo' in spectrum_obs.keys():
@@ -81,8 +83,9 @@ def import_obsmod(global_params):
         
         # Additional lines to make old versions of ForMoSA compatible with the new version
         # This does not change anything for the new version, the resolution grid is interpolated in the same wavelength grid
-        res_mod_obs_spectro = interp1d(wav_mod_spectro, res_mod_obs_spectro)
-        res_mod_obs_spectro = res_mod_obs_spectro(wav_obs_spectro)
+        if len(wav_mod_spectro) == len(res_mod_obs_spectro):
+            res_mod_obs_spectro = interp1d(wav_mod_spectro, res_mod_obs_spectro)
+            res_mod_obs_spectro = res_mod_obs_spectro(wav_obs_spectro)
         
         ds.close()
         ds = xr.open_dataset(path_grid_photo, decode_cf=False, engine='netcdf4')
@@ -561,16 +564,16 @@ def launch_nested_sampling(global_params):
 
         # Check the choice of likelihood (only for MOSAIC)
         print(obs_name + ' will be computed with ' + global_params.logL_type[indobs])
-
-        if global_params.logL_type[indobs] == 'CCF_Brogi' and global_params.continuum_sub[indobs] == 'NA':
+        
+        if global_params.logL_type[indobs] == 'CCF_Brogi' and global_params.continuum_sub[indobs] == 'NA' and global_params.fm_type[indobs] != 'nofit_rm_spec':
             print('WARNING. You cannot use CCF mappings without substracting the continuum')
             print()
             exit()
-        elif global_params.logL_type[indobs] == 'CCF_Zucker' and global_params.continuum_sub[indobs] == 'NA':
+        elif global_params.logL_type[indobs] == 'CCF_Zucker' and global_params.continuum_sub[indobs] == 'NA' and global_params.fm_type[indobs] != 'nofit_rm_spec':
             print('WARNING. You cannot use CCF mappings without substracting the continuum')
             print()
             exit()
-        elif global_params.logL_type[indobs] == 'CCF_custom' and global_params.continuum_sub[indobs] == 'NA':
+        elif global_params.logL_type[indobs] == 'CCF_custom' and global_params.continuum_sub[indobs] == 'NA' and global_params.fm_type[indobs] != 'nofit_rm_spec':
             print('WARNING. You cannot use CCF mappings without substracting the continuum')
             print()
             exit()

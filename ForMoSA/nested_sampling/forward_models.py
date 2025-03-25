@@ -8,7 +8,7 @@ def forward_model(global_params, wav_mod_spectro, res_mod_spectro, flx_cont_obs,
     For high-contrast companions, where the star speckles signal contaminate the data
 
     Args:
-        global_params      (object): Class containing each parameter used in ForMoSA
+        global_params       (object): Class containing each parameter used in ForMoSA
         wav_mod_spectro     (array): Wavelength grid of the model
         res_mod_spectro     (array): Resolution grid of the model
         flx_cont_obs        (array): Continuum of the data
@@ -31,33 +31,43 @@ def forward_model(global_params, wav_mod_spectro, res_mod_spectro, flx_cont_obs,
     Authors: Allan Denis
     '''
 
-    flx_mod *= transm_obs
-    flx_cont_mod = continuum_estimate(global_params, wav_mod_spectro, flx_mod, res_mod_spectro, indobs)
-
     star_flx_obs_master = star_flx_obs[:, len(star_flx_obs[0]) // 2]
 
-    if global_params.bounds_lsq[indobs] != 'NA':
-        bounds = (float(global_params.bounds_lsq[indobs][1:-1].split(',')[0]), 
-                  float(global_params.bounds_lsq[indobs][1:-1].split(',')[1]))
-    
-    weights = (1 / err_obs)**2  # For now we consider diagonal covariance matrices only
-
-    if global_params.fm_type[indobs] == 'nonlinear_fit_spec':
-        res, flx_mod, flx_obs, star_flx_obs, system_obs = forward_model_nonlinear_estimate_speckles(
-            flx_cont_obs, flx_mod, flx_cont_mod, star_flx_obs_master, star_flx_obs, star_flx_cont_obs, weights, flx_obs, system_obs, bounds)
-    elif global_params.fm_type[indobs] == 'fit_spec':
-        res, flx_mod, flx_obs, star_flx_obs, system_obs = forward_model_estimate_speckles(
-            flx_cont_obs, flx_mod, flx_cont_mod, star_flx_obs_master, star_flx_obs, star_flx_cont_obs, weights, flx_obs, system_obs, bounds)
-    elif global_params.fm_type[indobs] == 'rm_spec':
-        res, flx_mod, flx_obs, star_flx_obs, system_obs = forward_model_remove_speckles(
-            flx_cont_obs, flx_mod, flx_cont_mod, star_flx_obs_master, star_flx_cont_obs, weights, flx_obs, system_obs, bounds)
-    elif global_params.fm_type[indobs] == 'fit_spec_rm_cont':
-        res, flx_mod, flx_obs, star_flx_obs, system_obs = forward_model_estimate_speckles_remove_continuum(
-            flx_cont_obs, flx_mod, flx_cont_mod, star_flx_obs_master, star_flx_obs, star_flx_cont_obs, weights, flx_obs, system_obs, bounds)
-    elif global_params.fm_type[indobs] == 'fit_spec_fit_cont':
-        raise Exception(
-            'Continuum fitting-based forward model no implement yet ! Please use another function')
+    if global_params.fm_type[indobs] == 'nofit_rm_spec':   # The user does not want to fit for the contribution of the planet (used for CCF-to-loglikelihood mapping functions)
+        flx_cont_mod = continuum_estimate(global_params, wav_mod_spectro, flx_mod, res_mod_spectro, indobs)
+        flx_mod -= flx_cont_mod
+        flx_mod *= transm_obs
+        flx_obs -= star_flx_obs_master / star_flx_cont_obs * flx_cont_obs
+        star_flx_obs = np.asarray([])
+        system_obs = np.asarray([])
+        res = np.asarray([])
         
+    else:   
+        flx_mod *= transm_obs
+        flx_cont_mod = continuum_estimate(global_params, wav_mod_spectro, flx_mod, res_mod_spectro, indobs)
+
+        if global_params.bounds_lsq[indobs] != 'NA':
+            bounds = (float(global_params.bounds_lsq[indobs][1:-1].split(',')[0]), 
+                      float(global_params.bounds_lsq[indobs][1:-1].split(',')[1]))
+        
+        weights = (1 / err_obs)**2  # For now we consider diagonal covariance matrices only
+    
+        if global_params.fm_type[indobs] == 'nonlinear_fit_spec':
+            res, flx_mod, flx_obs, star_flx_obs, system_obs = forward_model_nonlinear_estimate_speckles(
+                flx_cont_obs, flx_mod, flx_cont_mod, star_flx_obs_master, star_flx_obs, star_flx_cont_obs, weights, flx_obs, system_obs, bounds)
+        elif global_params.fm_type[indobs] == 'fit_spec':
+            res, flx_mod, flx_obs, star_flx_obs, system_obs = forward_model_estimate_speckles(
+                flx_cont_obs, flx_mod, flx_cont_mod, star_flx_obs_master, star_flx_obs, star_flx_cont_obs, weights, flx_obs, system_obs, bounds)
+        elif global_params.fm_type[indobs] == 'rm_spec':
+            res, flx_mod, flx_obs, star_flx_obs, system_obs = forward_model_remove_speckles(
+                flx_cont_obs, flx_mod, flx_cont_mod, star_flx_obs_master, star_flx_cont_obs, weights, flx_obs, system_obs, bounds)
+        elif global_params.fm_type[indobs] == 'fit_spec_rm_cont':
+            res, flx_mod, flx_obs, star_flx_obs, system_obs = forward_model_estimate_speckles_remove_continuum(
+                flx_cont_obs, flx_mod, flx_cont_mod, star_flx_obs_master, star_flx_obs, star_flx_cont_obs, weights, flx_obs, system_obs, bounds)
+        elif global_params.fm_type[indobs] == 'fit_spec_fit_cont':
+            raise Exception(
+                'Continuum fitting-based forward model no implement yet ! Please use another function')
+            
     return res, flx_mod, flx_obs, star_flx_obs, system_obs
 
 
