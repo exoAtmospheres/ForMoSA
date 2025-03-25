@@ -518,4 +518,19 @@ Allan and Matthieu Ravet
 Comments: Corrections:
      - Making old versions of ForMoSA compatible with the new ones (res in the nested sampling)
      - Correction of the input of fm_type to be able to do it with MOSAIC
+
+
+- - - 
+
+25/03/2025 
+
+Allan
+
+Comments: 
+	- Various cleanings
+	- Addition of a new forward modeling function, used when the user wants to use CCF-to-loglikelihood mapping function with high contrast planets, where the spectrum of the planet is contaminated by the star speckles
+
+Tests that have been done to checkup the changes:
+	- Run ForMoSA with this function with HiRISE data
+          
      
