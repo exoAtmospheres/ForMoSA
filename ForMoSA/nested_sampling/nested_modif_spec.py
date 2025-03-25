@@ -559,7 +559,7 @@ def modif_spec(global_params, theta, theta_index,
 
     # Calculation of the dilution factor Ck and re-normalization of the interpolated synthetic spectrum.
     # From the radius and the distance.
-    if global_params.fm_type[indobs] == "NA":
+    if len(star_flx_obs_spectro) < 0:
         contributions = np.asarray([])
         if global_params.r != "NA" and global_params.d != "NA":
             if global_params.r[0] == "constant":
