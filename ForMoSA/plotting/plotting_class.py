@@ -493,8 +493,9 @@ class PlottingForMoSA():
             
             # Additional lines to make old versions of ForMoSA compatible with the new version
             # This does not change anything for the new version, the resolution grid is interpolated in the same wavelength grid
-            res_mod_obs_spectro = interp1d(wav_mod_spectro, res_mod_obs_spectro)
-            res_mod_obs_spectro = res_mod_obs_spectro(wav_obs_spectro)
+            if len(wav_mod_spectro) == len(res_mod_obs_spectro):
+                res_mod_obs_spectro = interp1d(wav_mod_spectro, res_mod_obs_spectro)
+                res_mod_obs_spectro = res_mod_obs_spectro(wav_obs_spectro)
             
             ds.close()
             ds = xr.open_dataset(path_grid_photo, decode_cf=False, engine='netcdf4')
@@ -688,32 +689,30 @@ class PlottingForMoSA():
             if self.global_params.fm_type[indobs] != 'NA':  # For high-contrast companion where the star flux speckles contaminate the data
                 spectra = list(spectra) # Transform spectra to a list so that we can modify its values
                 spectra[indobs] = list(spectra[indobs])
-                wav, flx_obs, mod_flx, star_flx, system_obs = spectra[indobs][0], spectra[indobs][3], spectra[indobs][9], spectra[indobs][10]
+                wav, flx_obs, err_obs, mod_flx, wav_photo, flx_obs_photo, err_obs_photo, flx_mod_photo, star_flx, system_obs = spectra[indobs][0], spectra[indobs][1], spectra[indobs][2], spectra[indobs][3], spectra[indobs][4], spectra[indobs][5], spectra[indobs][6], spectra[indobs][7], spectra[indobs][9], spectra[indobs][10]
 
             if len(wav) != 0:
                 iobs_spectro += 1
                 iobs_photo += 1
                 if uncert=='yes':
-                    ax.errorbar(spectra[indobs][0], spectra[indobs][1]/ck[indobs], yerr=spectra[indobs][2]/ck[indobs], c='k', alpha=0.2)
-
-                ax.plot(spectra[indobs][0], spectra[indobs][1]/ck[indobs], c='k')
-                ax.plot(spectra[indobs][0], spectra[indobs][3]/ck[indobs], c=self.color_out, alpha=0.8)
+                    ax.errorbar(wav, flx_obs/ck[indobs], yerr=err_obs/ck[indobs], c='k', alpha=0.2)
+                    
+                ax.plot(wav, flx_obs/ck[indobs], c='k')
+                ax.plot(wav, mod_flx/ck[indobs], c=self.color_out, alpha=0.8)
                 
                 if (len(star_flx) > 0) and (len(system_obs) > 0):
-                    ax.plot(spectra[indobs][0], star_flx, c='b')
-                    ax.plot(spectra[indobs][0], system_obs, c='grey', alpha=0.5)
-                    ax.plot(spectra[indobs][0], mod_flx - star_flx - system_obs, c='r')
+                    ax.plot(wav, star_flx, c='b')
+                    ax.plot(wav, system_obs, c='grey', alpha=0.5)
+                    ax.plot(wav, mod_flx - star_flx - system_obs, c='r')
                     
                 elif len(star_flx > 0):
                     ax.plot(spectra[indobs][0], star_flx, c='b')
                     ax.plot(spectra[indobs][0], mod_flx - star_flx, c='r')
                     
-                # elif len(system_obs > 0):
-                #     ax.plot(spectra[])
 
-                residuals = spectra[indobs][1] - spectra[indobs][3]
+                residuals = flx_obs - mod_flx
                 sigma_res = np.nanstd(residuals) # Replace np.std by np.nanstd if nans are in the array to ignore them
-                axr.plot(spectra[indobs][0], residuals/sigma_res, c=self.color_out, alpha=0.8)
+                axr.plot(wav, residuals/sigma_res, c=self.color_out, alpha=0.8)
                 axr.axhline(y=0, color='k', alpha=0.5, linestyle='--')
                 axr2.hist(residuals/sigma_res, bins=100 ,color=self.color_out, alpha=0.5, density=True, orientation='horizontal')
                 axr2.legend(frameon=False,handlelength=0)
@@ -722,14 +721,14 @@ class PlottingForMoSA():
                     # Add labels out of the loops
                     ax.plot(spectra[0][0], np.empty(len(spectra[0][0]))*np.nan, c='k', label='Spectroscopic data')
                     ax.plot(spectra[0][0], np.empty(len(spectra[0][0]))*np.nan, c=self.color_out, label='Spectroscopic model')
-                    axr.plot(spectra[0][0], np.empty(len(spectra[0][0]))*np.nan, c=self.color_out, label='Spectroscopic model-data')
+                    axr.plot(spectra[0][0], np.empty(len(spectra[0][0]))*np.nan, c=self.color_out, label='Spectroscopic data-model')
                     axr2.hist(residuals/sigma_res, bins=100 ,color=self.color_out, alpha=0.2, density=True, orientation='horizontal', label='density')
                     if self.global_params.fm_type[indobs] != 'NA':
                         ax.plot(spectra[0][0], np.empty(len(spectra[0][0]))*np.nan, c='b', label='Stellar model')
                         ax.plot(spectra[0][0], np.empty(len(spectra[0][0]))*np.nan, c='r', label='Planetary model')
                     iobs_spectro = -1
 
-            if len(spectra[indobs][4]) != 0:
+            if len(wav_photo) != 0:
                 iobs_photo += 1
                 iobs_spectro += 1
                 # If you want to plot the transmission filters
@@ -744,20 +743,20 @@ class PlottingForMoSA():
                         filter_pho = np.load(separator.join(path_list) + '/phototeque/' + pho + '.npz')
                         ax.fill_between(filter_pho['x_filt'], filter_pho['y_filt']*0.8*min(spectra[indobs][5]/ck[indobs]),color=self.color_out, alpha=0.3)
                         ax.text(np.mean(filter_pho['x_filt']), np.mean(filter_pho['y_filt']*0.4*min(spectra[indobs][5]/ck[indobs])), pho, horizontalalignment='center', c='gray')
-                ax.plot(spectra[indobs][4], spectra[indobs][5] / ck[indobs], 'ko', alpha=0.7)
-                ax.plot(spectra[indobs][4], spectra[indobs][7] / ck[indobs], 'o', color=self.color_out)
+                ax.plot(wav_photo, flx_obs_photo / ck[indobs], 'ko', alpha=0.7)
+                ax.plot(wav_photo, flx_mod_photo / ck[indobs], 'o', color=self.color_out)
 
 
-                residuals_phot = spectra[indobs][5]-spectra[indobs][7]
+                residuals_phot = flx_obs_photo - flx_mod_photo
                 sigma_res = np.std(residuals_phot)
-                axr.plot(spectra[indobs][4], residuals_phot/sigma_res, 'o', c=self.color_out, alpha=0.8)
+                axr.plot(wav_photo, residuals_phot/sigma_res, 'o', c=self.color_out, alpha=0.8)
                 axr.axhline(y=0, color='k', alpha=0.5, linestyle='--')
 
                 if indobs == iobs_photo-1:
                     # Add labels out of the loops
                     ax.plot(spectra[0][4], np.empty(len(spectra[0][4]))*np.nan, 'ko', label='Photometry data')
                     ax.plot(spectra[0][4], np.empty(len(spectra[0][4]))*np.nan, 'o', c=self.color_out, label='Photometry model')
-                    axr.plot(spectra[0][4], np.empty(len(spectra[0][4]))*np.nan, 'o', c=self.color_out, label='Photometry model-data')
+                    axr.plot(spectra[0][4], np.empty(len(spectra[0][4]))*np.nan, 'o', c=self.color_out, label='Photometry data-model')
 
                     iobs_photo = -1
 
@@ -1157,7 +1156,6 @@ class PlottingForMoSA():
         #Charge la grille de profils de température
         temperature_grid_xa = xr.open_dataarray(path_temp_profile, decode_cf=False, engine='netcdf4')
         temperature_grid_xa = temperature_grid_xa.where(~np.isnan(temperature_grid_xa))
-        print(temperature_grid_xa)
         #Crée les profils de température associés aux points de la grille
         P = temperature_grid_xa.coords['P'].values
         P *= 1e-5
