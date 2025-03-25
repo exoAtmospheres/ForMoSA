@@ -254,7 +254,7 @@ def loglike(theta, theta_index, global_params, main_file, for_plot='no'):
         
         # Modification of the synthetic spectrum with the extra-grid parameters
         modif_spec_LL = modif_spec(global_params, theta, theta_index,
-                                    wav_obs_spectro_ns_u,  wav_mod_spectro_ns_u, flx_obs_spectro_ns_u, flx_cont_obs_spectro_ns_u, err_obs_spectro_ns_u,  flx_mod_spectro_ns_u,
+                                    wav_obs_spectro_ns_u,  wav_mod_spectro_ns_u, np.copy(flx_obs_spectro_ns_u), flx_cont_obs_spectro_ns_u, err_obs_spectro_ns_u,  flx_mod_spectro_ns_u,
                                     wav_obs_photo_ns_u,  flx_obs_photo_ns_u, err_obs_photo_ns_u,  flx_mod_photo_ns_u,
                                     res_obs_spectro_ns_u, res_mod_obs_spectro_ns_u, transm_obs_ns_u, star_flx_obs_ns_u, star_flx_cont_obs_ns_u, system_obs_ns_u, indobs=indobs)
 
