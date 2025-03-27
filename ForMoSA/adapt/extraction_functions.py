@@ -172,7 +172,7 @@ def adapt_observation_range(global_params, indobs=0):
 
         # Only take the covariance if you use the chi2_covariance likelihood function (will need to be change when new likelihood functions using the
         # covariance matrix will come)
-        if global_params.logL_type[indobs] != 'chi2_covariance':
+        if global_params.logL_type[indobs] != 'chi2_covariance' and global_params.logL_type[indobs] != 'chi2_noisescaling_covariance':
             cov = np.asarray([])
 
         # Filter the NaN and inf values

@@ -555,11 +555,12 @@ def modif_spec(global_params, theta, theta_index,
     
     # After all the transformations above, we finally decrease the resolution of the model
     flx_mod_spectro_nativ = np.copy(flx_mod_spectro)
+    star_flx_obs_spectro_nativ = np.copy(star_flx_obs_spectro)
     flx_mod_spectro = resolution_decreasing(global_params, wav_obs_spectro, [], res_obs_spectro, wav_mod_spectro, flx_mod_spectro, res_mod_obs_spectro, 'mod', indobs)
 
     # Calculation of the dilution factor Ck and re-normalization of the interpolated synthetic spectrum.
     # From the radius and the distance.
-    if len(star_flx_obs_spectro) < 0:
+    if len(star_flx_obs_spectro) == 0:
         contributions = np.asarray([])
         if global_params.r != "NA" and global_params.d != "NA":
             if global_params.r[0] == "constant":
@@ -610,7 +611,6 @@ def modif_spec(global_params, theta, theta_index,
     else:     
         ck = 1
         # Least Squares inversion
-        star_flx_obs_spectro_nativ = np.copy(star_flx_obs_spectro)
         contributions, flx_mod_spectro, flx_obs_spectro, star_flx_obs_spectro, system_obs_spectro = fm.forward_model(global_params, wav_obs_spectro, res_obs_spectro, flx_cont_obs_spectro, 
                                                                                        flx_mod_spectro, star_flx_obs_spectro, star_flx_cont_obs_spectro,
                                                                                        err_obs_spectro, transm_obs_spectro, flx_obs_spectro, system_obs_spectro, indobs)
