@@ -72,13 +72,13 @@ def doppler_fct(wav_mod_spectro, flx_mod_spectro, rv_picked):
     After the Doppler shifting, the model is then cut to the wavelength of the data.   
 
     Args:
-        wav_obs_spectro      (array): Wavelength grid of the data
         wav_mod_spectro      (array): Wavelength grid of the model 
         flx_mod_spectro      (array): Flux of the interpolated synthetic spectrum
         rv_picked            (float): Radial velocity randomly picked by the nested sampling (in km.s-1)
     Returns:
-        - flx_post_doppler (array)      : New flux of the interpolated synthetic spectrum
-
+        flx_post_doppler (array): New flux of the interpolated synthetic spectrum
+        wav_mod_spectro (array): Wavelength grid after Doppler shifting
+    
     Author: Simon Petrus and Allan Denis
     """
     new_wav = wav_mod_spectro * ((rv_picked / const.c.to(u.km/u.s).value) + 1)
@@ -288,7 +288,7 @@ def vsini_fct_accurate_fast_rot_broad(wav_mod_spectro, flx_mod_spectro, ld_picke
     Returns:
         - flx_mod_spectro (array)   : New flux of the interpolated synthetic spectrum
 
-    Author: Simon Petrus
+    Author: Simon Petrus, Arthur Vigan and Allan Denis
     """
     # Correct irregulatities in the wavelength grid
     wav_interval = wav_mod_spectro[1:] - wav_mod_spectro[:-1]
