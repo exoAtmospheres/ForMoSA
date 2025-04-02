@@ -289,10 +289,10 @@ def loglike(theta, theta_index, global_params, main_file, for_plot='no'):
                 logL_spectro = logL_CCF_Zucker(flx_obs_spectro_modif, flx_mod_spectro_modif)
             elif global_params.logL_type[indobs] == 'CCF_custom':
                 logL_spectro = logL_CCF_custom(flx_obs_spectro_modif, flx_mod_spectro_modif, err_obs_spectro_modif)
-            elif global_params.logL_type[indobs] == 'chi2_extended':
-                logL_spectro = logL_chi2_extended(flx_obs_spectro_modif-flx_mod_spectro_modif, err_obs_spectro_modif)
-            elif global_params.logL_type[indobs] == 'chi2_extended_covariance' and len(inv_cov_obs_modif) != 0:
-                logL_spectro = logL_chi2_extended_covariance(flx_obs_spectro_modif-flx_mod_spectro_modif, inv_cov_obs_modif)
+            elif global_params.logL_type[indobs] == 'chi2_noisescaling':
+                logL_spectro = logL_chi2_noisescaling(flx_obs_spectro_modif-flx_mod_spectro_modif, err_obs_spectro_modif)
+            elif global_params.logL_type[indobs] == 'chi2_noisescaling_covariance' and len(inv_cov_obs_modif) != 0:
+                logL_spectro = logL_chi2_noisescaling_covariance(flx_obs_spectro_modif-flx_mod_spectro_modif, inv_cov_obs_modif)
             else:
                 print()
                 print('WARNING: One or more dataset are not included when performing the inversion.')

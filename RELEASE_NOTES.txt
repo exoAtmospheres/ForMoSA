@@ -534,3 +534,18 @@ Tests that have been done to checkup the changes:
 	- Run ForMoSA with this function with HiRISE data
           
      
+
+- - - 
+
+27/03/2025
+
+Matthieu Ravet
+
+Comments:
+    - Add the check loop for the logL_chi2_covariance_extended in adapt
+    - Change in the names of logL : extended => noisescaling 
+    - Changing len(star_flx) < 0 to len(star_flx) == 0 in nested_modif_spec
+    - Changing the position where the star_flx_obs_spectro_nativ is saved
+
+Tests that have been done to checkup the changes:
+    - Run with GRAVITY covariances
