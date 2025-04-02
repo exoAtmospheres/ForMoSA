@@ -147,7 +147,8 @@ class ComplexRadar():
 
 def compute_ccf_single_rv(global_params, rv, wav_mod, flx_mod, flx_mod_no_rv, res_mod, wav_obs, flx_obs, res_obs, transm_obs, Sf, indobs):
     '''
-    Compute a cross-correlation coefficient for a single rv. It is used for high resolution spectroscopy.
+    Compute a cross-correlation coefficient for a single rv. This function is used for the parallelised ccf computation
+    
 
     Args:
         rv            (float) : rv value to apply to the model
@@ -931,8 +932,6 @@ class PlottingForMoSA():
             - rv_grid                    (list): Radial velocity grid
             - ccf_norm                       (list): Cross-correlation function
             - acf_norm                       (list): Auto-correlation function
-
-        Author: Allan Denis
         '''
         print('ForMoSA - CCF plot')
 
@@ -1083,8 +1082,6 @@ class PlottingForMoSA():
             - ccf_map               (ndarray): 2D cross correlation map of rv and v.sini
             - fig                   (object) : matplotlib figure object
             - ax                    (object) : matplotlib axes objects
-
-        Author: Allan Denis
         '''
         
         print('ForMoSA - RV-vsini mapping plot')
