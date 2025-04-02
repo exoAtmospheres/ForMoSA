@@ -17,12 +17,12 @@ from main_utilities import GlobFile
 from nested_sampling.nested_modif_spec import modif_spec
 from nested_sampling.nested_modif_spec import doppler_fct
 from nested_sampling.nested_modif_spec import vsini_fct
-from adapt.extraction_functions import resolution_decreasing, adapt_model, decoupe
-from adapt.extraction_functions import adapt_observation_range
+from adapt.extraction_functions import resolution_decreasing
 from adapt.extraction_functions import continuum_estimate
 from scipy.optimize import curve_fit
 from tqdm import tqdm
-
+import multiprocessing as mp
+from multiprocessing.pool import ThreadPool
 
 # ----------------------------------------------------------------------------------------------------------------------
 # ----------------------------------------------------------------------------------------------------------------------
@@ -144,6 +144,47 @@ class ComplexRadar():
             sdata.append((d-y1) / (y2-y1) * (x2 - x1) + x1)
         return sdata
 
+
+def compute_ccf_single_rv(global_params, rv, wav_mod, flx_mod, flx_mod_no_rv, res_mod, wav_obs, flx_obs, res_obs, transm_obs, Sf, indobs):
+    '''
+    Compute a cross-correlation coefficient for a single rv. It is used for high resolution spectroscopy.
+
+    Args:
+        rv            (float) : rv value to apply to the model
+        wav_mod       (ndarray ) : wavelength grid of the model
+        flx_mod       (ndarray) : flux of the model
+        flx_mod_no_rv (ndarray) : flx of the model at 0 rv (used for autocorrelation)
+        res_mod       (ndarray) : resolution of the model
+        wav_obs       (ndarray) : wavelength grid of the observation
+        flx_obs       (ndarray) : flux of the observation
+        res_obs       (ndarray) : resolution of the observation
+        transm_obs    (ndarray) : atmospheric and instrumental transmission
+        Sf            (float) : L2 norm of the observation
+        indobs        (int) : Index of the current observation loop
+
+    Returns:
+        - ccf  (float) : cross-correlation coefficient
+        - acf  (float) : autocorrelation coefficient
+        - logL (float) : logL value
+    '''
+    
+    flx_mod_rv, wav_mod_rv = doppler_fct(wav_mod, flx_mod, rv)
+    flx_mod_rv = resolution_decreasing(global_params, wav_obs, [], res_obs, wav_mod_rv, flx_mod_rv, res_mod, 'mod', indobs)
+    flx_cont_mod_rv = continuum_estimate(global_params, wav_obs, flx_mod_rv, res_obs, indobs)
+    flx_mod_rv -= flx_cont_mod_rv
+    flx_mod_rv *= transm_obs
+    
+    # Normalize the model to make it comparable to the data in terms of flux
+    flx_mod_rv /= np.sqrt(np.nansum(flx_mod_rv**2))
+    ccf = np.nansum(flx_mod_rv * flx_obs)    # Cross correlation function
+    acf = np.nansum(flx_mod_rv * flx_mod_no_rv)   # Auto correlation function
+
+    Sg = np.nansum(np.square(flx_mod_rv))
+    R = np.nansum(flx_obs * flx_mod_rv)
+    C2 = R**2 / (Sf * Sg)
+    logL = -len(flx_obs) / 2 * np.log(1 - C2)
+    
+    return ccf, acf, logL
 
 
 # ----------------------------------------------------------------------------------------------------------------------
@@ -468,7 +509,7 @@ class PlottingForMoSA():
             transm_obs_spectro = np.asarray(spectrum_obs['obs_opt'][1], dtype=float)
             star_flx_obs_spectro = np.asarray(spectrum_obs['obs_opt'][2], dtype=float)
             system_obs_spectro = np.asarray(spectrum_obs['obs_opt'][3], dtype=float)
-            
+
             if self.global_params.fm_type[indobs] != 'NA':
                 star_flx_cont_obs_spectro = continuum_estimate(self.global_params, wav_obs_spectro, star_flx_obs_spectro[:,len(star_flx_obs_spectro[0]) // 2], res_obs_spectro, indobs)
             else:
@@ -790,8 +831,6 @@ class PlottingForMoSA():
         return fig, ax, axr, axr2
 
 
-
-
     def plot_HiRes_comp_model(self, figsize=(10, 5), norm='no', indobs=0):
         '''
         Specific function to plot the best fit comparing with the data for high-resolution spectroscopy.
@@ -879,7 +918,7 @@ class PlottingForMoSA():
             wav_mod_nativ             (array): (default = []) Wavelength of the model to cross-correlate with the data in the case the user wants to use the rv_vsini map function or a different model (individual molecule for example)
             flx_mod_nativ             (array): (default = []) Flux of the model to cross-correlate with the data in the case the user wants to use the rv_vsini map function or a different model (individual molecule for example)
             res_mod_nativ             (array): (default = []) Resolution of the model to cross-correlate with the data in the case the user wants to use the rv_vsini map function or a different model (individual molecule for example)
-            indobs                    (ind): (default = 0) Index of the current observation loop
+            indobs                    (int): (default = 0) Index of the current observation loop
             plot                      (bool): (default = True) Whether to plot the ccf
             map_rv_vsini              (bool): (default = False) Whether the user wants to use the rv_vsini map function
             flx_obs                   (array): (default = []) Data in the case the user wants to use the rv_vsini map function. This avoids repeating the same operation for each v.sini defined by the v.sini grid and sames some time
@@ -913,7 +952,6 @@ class PlottingForMoSA():
             if self.global_params.fm_type[indobs] != 'NA':
                 spectra = list(spectra) # Transform spectra to a list so that we can modify its values
                 spectra[indobs] = list(spectra[indobs])
-    
             # Retrieve data to cross correlate the model with
             if (len(system_obs) > 0) and (len(star_flx_obs) > 0):
                 flx_obs = flx_obs - star_flx_obs - system_obs
@@ -958,24 +996,31 @@ class PlottingForMoSA():
         
         Sf = np.nansum(np.square(flx_obs))
   
-        # Loop in rv
-        for i, rv in enumerate(tqdm(rv_grid)):
-            # For cross-correlation
-            flx_mod_rv, wav_mod_rv = doppler_fct(wav_mod_nativ, flx_mod, rv)              
-            flx_mod_rv = resolution_decreasing(self.global_params, wav_obs, [], res_obs, wav_mod_rv, flx_mod_rv, res_mod_vsini, 'mod', indobs)
-            flx_cont_mod_rv = continuum_estimate(self.global_params, wav_obs, flx_mod_rv, res_obs, indobs)
-            flx_mod_rv -= flx_cont_mod_rv
-            flx_mod_rv *= transm_obs
-            
-            # Normalize the model to make it comparable to the data in terms of flux
-            flx_mod_rv /= np.sqrt(np.nansum(flx_mod_rv**2))
-            ccf[i] = np.nansum(flx_mod_rv * flx_obs)    # Cross correlation function
-            acf[i] = np.nansum(flx_mod_rv * flx_mod_no_rv)   # Auto correlation function
+        # compute CCF with pool of workers
+        with ThreadPool(processes=mp.cpu_count()) as pool:
+            pbar = tqdm(total=len(rv_grid), leave=False)
 
-            Sg = np.nansum(np.square(flx_mod_rv))
-            R = np.nansum(flx_obs * flx_mod_rv)
-            C2 = R**2 / (Sf * Sg)
-            logL[i] = -len(flx_obs) / 2 * np.log(1 - C2)
+            def update(*a):
+                pbar.update()
+                
+            # Loop in rv
+            tasks = []
+            for rv in tqdm(rv_grid):
+                tasks.append(pool.apply_async(compute_ccf_single_rv, args=(self.global_params, rv, wav_mod_nativ, flx_mod, flx_mod_no_rv, res_mod_vsini, wav_obs, flx_obs, res_obs, transm_obs, Sf, indobs), callback=update))
+                
+            pool.close()
+            pool.join()
+            
+            # extract results
+            ccf = np.zeros(rv_grid.size)
+            acf = np.zeros(rv_grid.size)
+            logL = np.zeros(rv_grid.size)
+            for irv, task in enumerate(tasks):
+                res = task.get()
+                ccf[irv] = res[0]
+                acf[irv] = res[1]
+                logL[irv] = res[2]
+                
             
         # Rescaling cross-correlation function to estimate a SNR
         acf_norm = acf - np.median(acf[(np.abs(rv_grid) > window_normalisation)])
