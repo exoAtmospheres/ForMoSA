@@ -1,4 +1,4 @@
-<p align="left"><img src="docs/ForMoSA.png" alt="ForMoSA" width="250"/></p>
+<p align="left"><img src="docs/_static/ForMoSA.png" alt="ForMoSA" width="250"/></p>
 
 
 Welcome to ForMoSA, an open-source Python package. 
