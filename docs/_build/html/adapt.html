@@ -1,25 +1,23 @@
+
+
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" data-content_root="./">
 <head>
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Adapt the data &mdash; ForMoSA 2.0.0 documentation</title>
-      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=fa44fd50" />
-      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=19f00094" />
+  <title>Adapt the data &mdash; ForMoSA 1.1.5 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
 
   
     <link rel="shortcut icon" href="_static/favicon.ico"/>
-  <!--[if lt IE 9]>
-    <script src="_static/js/html5shiv.min.js"></script>
-  <![endif]-->
-  
-        <script src="_static/jquery.js?v=5d32c60e"></script>
-        <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="_static/documentation_options.js?v=51b770b3"></script>
-        <script src="_static/doctools.js?v=9a2dae69"></script>
-        <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
-        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=a48ae3df"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -37,6 +35,7 @@
           
           <a href="index.html" class="icon icon-home">
             ForMoSA
+              <img src="_static/ForMoSA.png" class="logo" alt="Logo"/>
           </a>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -53,24 +52,27 @@
 <li class="toctree-l1 current"><a class="reference internal" href="api.html">ForMoSA API</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="main_utilities.html">Main Utilities</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#">Adapt the data</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#module-ForMoSA.adapt.adapt_grid">Adapt Grid:</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#ForMoSA.adapt.adapt_grid.adapt_grid"><code class="docutils literal notranslate"><span class="pre">adapt_grid()</span></code></a></li>
-</ul>
-</li>
 <li class="toctree-l3"><a class="reference internal" href="#module-ForMoSA.adapt.adapt_obs_mod">Adapt Observations and Models:</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#ForMoSA.adapt.adapt_obs_mod.launch_adapt"><code class="docutils literal notranslate"><span class="pre">launch_adapt()</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="#module-ForMoSA.adapt.extraction_functions">Extraction Functions:</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#ForMoSA.adapt.extraction_functions.adapt_model"><code class="docutils literal notranslate"><span class="pre">adapt_model()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#ForMoSA.adapt.extraction_functions.adapt_observation_range"><code class="docutils literal notranslate"><span class="pre">adapt_observation_range()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#ForMoSA.adapt.extraction_functions.continuum_estimate"><code class="docutils literal notranslate"><span class="pre">continuum_estimate()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#ForMoSA.adapt.extraction_functions.convolve_and_sample"><code class="docutils literal notranslate"><span class="pre">convolve_and_sample()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#ForMoSA.adapt.extraction_functions.decoupe"><code class="docutils literal notranslate"><span class="pre">decoupe()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#ForMoSA.adapt.extraction_functions.extract_model"><code class="docutils literal notranslate"><span class="pre">extract_model()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#ForMoSA.adapt.extraction_functions.extract_observation"><code class="docutils literal notranslate"><span class="pre">extract_observation()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#ForMoSA.adapt.extraction_functions.find_nearest"><code class="docutils literal notranslate"><span class="pre">find_nearest()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#ForMoSA.adapt.extraction_functions.resolution_decreasing"><code class="docutils literal notranslate"><span class="pre">resolution_decreasing()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-ForMoSA.adapt.adapt_grid">Adapt Grid:</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#ForMoSA.adapt.adapt_grid.adapt_grid"><code class="docutils literal notranslate"><span class="pre">adapt_grid()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#ForMoSA.adapt.adapt_grid.array_to_numpy"><code class="docutils literal notranslate"><span class="pre">array_to_numpy()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#ForMoSA.adapt.adapt_grid.tpool_adapt"><code class="docutils literal notranslate"><span class="pre">tpool_adapt()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#ForMoSA.adapt.adapt_grid.tpool_adapt_init"><code class="docutils literal notranslate"><span class="pre">tpool_adapt_init()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#module-ForMoSA.adapt.adapt_extraction_functions">Extraction Functions:</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#ForMoSA.adapt.adapt_extraction_functions.adapt_model"><code class="docutils literal notranslate"><span class="pre">adapt_model()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#ForMoSA.adapt.adapt_extraction_functions.adapt_observation"><code class="docutils literal notranslate"><span class="pre">adapt_observation()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#ForMoSA.adapt.adapt_extraction_functions.extract_observation"><code class="docutils literal notranslate"><span class="pre">extract_observation()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#module-ForMoSA.adapt.adapt_emulators">Emulators:</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#ForMoSA.adapt.adapt_emulators.emulator_NMF"><code class="docutils literal notranslate"><span class="pre">emulator_NMF()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#ForMoSA.adapt.adapt_emulators.emulator_PCA"><code class="docutils literal notranslate"><span class="pre">emulator_PCA()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#ForMoSA.adapt.adapt_emulators.get_ws"><code class="docutils literal notranslate"><span class="pre">get_ws()</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -108,30 +110,6 @@
              
   <section id="adapt-the-data">
 <span id="adapt"></span><h1>Adapt the data<a class="headerlink" href="#adapt-the-data" title="Link to this heading"></a></h1>
-<section id="module-ForMoSA.adapt.adapt_grid">
-<span id="adapt-grid"></span><h2>Adapt Grid:<a class="headerlink" href="#module-ForMoSA.adapt.adapt_grid" title="Link to this heading"></a></h2>
-<dl class="py function">
-<dt class="sig sig-object py" id="ForMoSA.adapt.adapt_grid.adapt_grid">
-<span class="sig-prename descclassname"><span class="pre">ForMoSA.adapt.adapt_grid.</span></span><span class="sig-name descname"><span class="pre">adapt_grid</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">global_params</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wav_obs_spectro</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wav_obs_photo</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">res_mod_obs_merge</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">obs_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">indobs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ForMoSA/adapt/adapt_grid.html#adapt_grid"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ForMoSA.adapt.adapt_grid.adapt_grid" title="Link to this definition"></a></dt>
-<dd><p>Adapt the synthetic spectra of a grid to make them comparable with the data.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>global_params</strong> (<em>object</em>) – Class containing each parameter</p></li>
-<li><p><strong>wav_obs_spectro</strong> (<em>array</em>) – Merged wavelength grid of the data</p></li>
-<li><p><strong>wav_obs_photo</strong> (<em>array</em>) – Wavelengths of the photometry points</p></li>
-<li><p><strong>obs_name</strong> (<em>str</em>) – Name of the current observation looping</p></li>
-<li><p><strong>indobs</strong> (<em>int</em>) – Index of the current observation looping</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>None</p>
-</dd>
-</dl>
-<p>Author: Simon Petrus, Matthieu Ravet and Paulina Palma-Bifani</p>
-</dd></dl>
-
-</section>
 <section id="module-ForMoSA.adapt.adapt_obs_mod">
 <span id="adapt-observations-and-models"></span><h2>Adapt Observations and Models:<a class="headerlink" href="#module-ForMoSA.adapt.adapt_obs_mod" title="Link to this heading"></a></h2>
 <dl class="py function">
@@ -153,42 +131,150 @@
 </dd></dl>
 
 </section>
-<section id="module-ForMoSA.adapt.extraction_functions">
-<span id="extraction-functions"></span><h2>Extraction Functions:<a class="headerlink" href="#module-ForMoSA.adapt.extraction_functions" title="Link to this heading"></a></h2>
+<section id="module-ForMoSA.adapt.adapt_grid">
+<span id="adapt-grid"></span><h2>Adapt Grid:<a class="headerlink" href="#module-ForMoSA.adapt.adapt_grid" title="Link to this heading"></a></h2>
 <dl class="py function">
-<dt class="sig sig-object py" id="ForMoSA.adapt.extraction_functions.adapt_model">
-<span class="sig-prename descclassname"><span class="pre">ForMoSA.adapt.extraction_functions.</span></span><span class="sig-name descname"><span class="pre">adapt_model</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">global_params</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wav_mod_nativ</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flx_mod_nativ</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">res_mod_obs_merge</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">obs_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">indobs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ForMoSA/adapt/extraction_functions.html#adapt_model"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ForMoSA.adapt.extraction_functions.adapt_model" title="Link to this definition"></a></dt>
-<dd><p>Extracts a synthetic spectrum from a grid and decreases its spectral resolution. The photometry points are
-calculated too. Then each sub-spectrum are merged.</p>
+<dt class="sig sig-object py" id="ForMoSA.adapt.adapt_grid.adapt_grid">
+<span class="sig-prename descclassname"><span class="pre">ForMoSA.adapt.adapt_grid.</span></span><span class="sig-name descname"><span class="pre">adapt_grid</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">global_params</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">obs_dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">res_mod_nativ</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_wav_mod</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_res_mod</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">obs_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">indobs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ForMoSA/adapt/adapt_grid.html#adapt_grid"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ForMoSA.adapt.adapt_grid.adapt_grid" title="Link to this definition"></a></dt>
+<dd><p>Adapt the synthetic spectra of a grid to make them comparable with the data.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>global_params</strong> (<em>object</em>) – Class containing each parameter used in ForMoSA</p></li>
-<li><p><strong>wav_mod_nativ</strong> (<em>array</em>) – Wavelength grid of the model</p></li>
-<li><p><strong>wave_reso_tab</strong> (<em>array</em>) – Wavelength grid of the model at specified resolution</p></li>
-<li><p><strong>flx_mod_nativ</strong> (<em>array</em>) – Flux of the model</p></li>
-<li><p><strong>res_mod_nativ</strong> (<em>array</em>) – Spectral resolution of the model as a function of the wavelength grid</p></li>
+<li><p><strong>global_params</strong> (<em>object</em>) – Class containing each parameter</p></li>
+<li><p><strong>obs_dict</strong> (<em>dict</em>) – Dictionay containing all the observationnal entries (photometry, spectroscopy and/or optional)</p></li>
+<li><p><strong>res_mod_nativ</strong> (<em>array</em>) – Native resolution of the grid (might have changed if Nyquist is not respected or resample at wav_obs_spectro)</p></li>
+<li><p><strong>target_wav_mod</strong> (<em>array</em>) – Targeted wavelength grid of the final grid</p></li>
+<li><p><strong>target_res_mod</strong> (<em>array</em>) – Targeted spectral resolution of the final grid</p></li>
 <li><p><strong>obs_name</strong> (<em>str</em>) – Name of the current observation looping</p></li>
 <li><p><strong>indobs</strong> (<em>int</em>) – Index of the current observation looping</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>Flux of the spectrum with a decreased spectral resolution, re-sampled on the data wavelength grid
-- mod_photo (array)       : List containing the photometry (‘0’ replace the spectral resolution here).</p>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+<p>Author: Simon Petrus, Matthieu Ravet, Paulina Palma-Bifani, Arthur Vigan and Allan Denis</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="ForMoSA.adapt.adapt_grid.array_to_numpy">
+<span class="sig-prename descclassname"><span class="pre">ForMoSA.adapt.adapt_grid.</span></span><span class="sig-name descname"><span class="pre">array_to_numpy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">shared_array</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shape</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dtype</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ForMoSA/adapt/adapt_grid.html#array_to_numpy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ForMoSA.adapt.adapt_grid.array_to_numpy" title="Link to this definition"></a></dt>
+<dd><p>Return a numpy array from a shared array</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>shared_array</strong> (<em>mp.RawArray</em>) – Raw shared array</p></li>
+<li><p><strong>shape</strong> (<em>tuple</em>) – Shape of the array</p></li>
+<li><p><strong>dtype</strong> (<em>numpy dtype</em>) – Data type of the array</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="simple">
+<dt>Returns</dt><dd><p>numpy_array       (np.ndarray): Numpy array mapped to shared array</p>
+</dd>
+</dl>
+<p>Author: Arthur Vigan</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="ForMoSA.adapt.adapt_grid.tpool_adapt">
+<span class="sig-prename descclassname"><span class="pre">ForMoSA.adapt.adapt_grid.</span></span><span class="sig-name descname"><span class="pre">tpool_adapt</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">idx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">global_params</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">obs_dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wav_mod_nativ</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">res_mod_nativ</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_wav_mod</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_res_mod</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">indobs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">keys</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">titles</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">values</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ForMoSA/adapt/adapt_grid.html#tpool_adapt"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ForMoSA.adapt.adapt_grid.tpool_adapt" title="Link to this definition"></a></dt>
+<dd><p>Worker function for the parallelisation process of adapt_model()</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>idx</strong> (<em>tuple</em>) – Index of the current model</p></li>
+<li><p><strong>global_params</strong> (<em>object</em>) – Class containing each parameter</p></li>
+<li><p><strong>wav_mod_nativ</strong> (<em>array</em>) – Native wavelength array of the grid</p></li>
+<li><p><strong>res_mod_nativ</strong> (<em>array</em>) – Native resolution of the grid (might have changed if Nyquist is not respected or resample at wav_obs_spectro)</p></li>
+<li><p><strong>target_wav_mod</strong> (<em>array</em>) – Targeted wavelength grid of the final grid</p></li>
+<li><p><strong>target_res_mod</strong> (<em>array</em>) – Targeted spectral resolution of the final grid</p></li>
+<li><p><strong>indobs</strong> (<em>int</em>) – Index of the current observation looping</p></li>
+<li><p><strong>keys</strong> (<em>list</em>) – Attribute keys</p></li>
+<li><p><strong>titles</strong> (<em>list</em>) – Attribute titles</p></li>
+<li><p><strong>values</strong> (<em>dict</em>) – Values for each attribute</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+<p>Author: Arthur Vigan</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="ForMoSA.adapt.adapt_grid.tpool_adapt_init">
+<span class="sig-prename descclassname"><span class="pre">ForMoSA.adapt.adapt_grid.</span></span><span class="sig-name descname"><span class="pre">tpool_adapt_init</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">grid_input_shape_i</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">grid_input_data_i</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">grid_spectro_shape_i</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">grid_spectro_data_i</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">grid_photo_shape_i</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">grid_photo_data_i</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ForMoSA/adapt/adapt_grid.html#tpool_adapt_init"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ForMoSA.adapt.adapt_grid.tpool_adapt_init" title="Link to this definition"></a></dt>
+<dd><p>Thread pool init function for the parallelisation process of adapt_model()</p>
+<p>This function initializes the global variables stored as shared arrays</p>
+</dd></dl>
+
+</section>
+<section id="module-ForMoSA.adapt.adapt_extraction_functions">
+<span id="extraction-functions"></span><h2>Extraction Functions:<a class="headerlink" href="#module-ForMoSA.adapt.adapt_extraction_functions" title="Link to this heading"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="ForMoSA.adapt.adapt_extraction_functions.adapt_model">
+<span class="sig-prename descclassname"><span class="pre">ForMoSA.adapt.adapt_extraction_functions.</span></span><span class="sig-name descname"><span class="pre">adapt_model</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">global_params</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">obs_dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wav_mod_nativ</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flx_mod_nativ</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">res_mod_nativ</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_wav_mod</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_res_mod</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">indobs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ForMoSA/adapt/adapt_extraction_functions.html#adapt_model"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ForMoSA.adapt.adapt_extraction_functions.adapt_model" title="Link to this definition"></a></dt>
+<dd><p>Extracts a synthetic spectrum from a grid and decreases its spectral resolution. The photometry points are
+calculated too.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>global_params</strong> (<em>object</em>) – Class containing each parameter used in ForMoSA</p></li>
+<li><p><strong>obs_dict</strong> (<em>dict</em>) – Dictionay containing all the observationnal entries (photometry, spectroscopy and/or optional)</p></li>
+<li><p><strong>wav_mod_nativ</strong> (<em>array</em>) – Native wavelength grid of the model</p></li>
+<li><p><strong>flx_mod_nativ</strong> (<em>array</em>) – Flux of the model</p></li>
+<li><p><strong>res_mod_nativ</strong> (<em>array</em>) – Spectral resolution of the model</p></li>
+<li><p><strong>target_wav_mod</strong> (<em>array</em>) – Targeted wavelength grid of the final grid</p></li>
+<li><p><strong>target_res_mod</strong> (<em>array</em>) – Targeted spectral resolution of the final grid</p></li>
+<li><p><strong>indobs</strong> (<em>int</em>) – Index of the current observation looping</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>List containing the sub-spectra defined by the parameter “wav_for_adapt”.
+- mod_photo     (array): List containing the photometry (‘0’ replace the spectral resolution here).</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><ul class="simple">
-<li><p>mod_spectro (array)</p></li>
+<li><p>mod_spectro   (array)</p></li>
 </ul>
 </p>
 </dd>
 </dl>
-<p>Author: Simon Petrus</p>
+<p>Author: Simon Petrus, Matthieu Ravet</p>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="ForMoSA.adapt.extraction_functions.adapt_observation_range">
-<span class="sig-prename descclassname"><span class="pre">ForMoSA.adapt.extraction_functions.</span></span><span class="sig-name descname"><span class="pre">adapt_observation_range</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">global_params</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">obs_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">indobs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ForMoSA/adapt/extraction_functions.html#adapt_observation_range"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ForMoSA.adapt.extraction_functions.adapt_observation_range" title="Link to this definition"></a></dt>
+<dt class="sig sig-object py" id="ForMoSA.adapt.adapt_extraction_functions.adapt_observation">
+<span class="sig-prename descclassname"><span class="pre">ForMoSA.adapt.adapt_extraction_functions.</span></span><span class="sig-name descname"><span class="pre">adapt_observation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">global_params</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wav_mod_nativ</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">res_mod_nativ</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">obs_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">indobs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ForMoSA/adapt/adapt_extraction_functions.html#adapt_observation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ForMoSA.adapt.adapt_extraction_functions.adapt_observation" title="Link to this definition"></a></dt>
+<dd><p>Take back the extracted data spectrum from the function ‘extract_observation’, decrease its spectral
+resolution and remove the continuum if necessary</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>global_params</strong> (<em>object</em>) – Class containing each parameter</p></li>
+<li><p><strong>wav_mod_nativ</strong> (<em>array</em>) – Wavelength grid of the model</p></li>
+<li><p><strong>res_mod_nativ</strong> (<em>array</em>) – Spectral resolution of the model</p></li>
+<li><p><strong>obs_name</strong> (<em>str</em>) – Name of the current observation looping</p></li>
+<li><p><strong>indobs</strong> (<em>int</em>) – Index of the current observation looping</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Dictionay containing all the observationnal entries (photometry, spectroscopy and/or optional)</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><ul class="simple">
+<li><p>obs_dict          (dict)</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+<p>Author: Simon Petrus, Matthieu Ravet</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="ForMoSA.adapt.adapt_extraction_functions.extract_observation">
+<span class="sig-prename descclassname"><span class="pre">ForMoSA.adapt.adapt_extraction_functions.</span></span><span class="sig-name descname"><span class="pre">extract_observation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">global_params</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">indobs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ForMoSA/adapt/adapt_extraction_functions.html#extract_observation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ForMoSA.adapt.adapt_extraction_functions.extract_observation" title="Link to this definition"></a></dt>
 <dd><p>Extract the information from the observation file, including the wavelengths (um - vacuum), flux (W.m-2.um.1), errors (W.m-2.um.1), covariance (W.m-2.um.1)**2, spectral resolution,
 instrument/filter name, transmission (Atmo+inst) and star flux (W.m-2.um.1). The wavelength range is define by the parameter “wav_for_adapt”.</p>
 <dl class="field-list simple">
@@ -200,15 +286,11 @@ instrument/filter name, transmission (Atmo+inst) and star flux (W.m-2.um.1). The
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>List containing the sub-spectra defined by the parameter “wav_for_adapt” with decreased resolution  [[wav_1, flx_1, err_1, reso_1], …, [wav_n, flx_n, err_n, reso_n]]
-- obs_photo (array)       : List containing the photometry (0 replace the spectral resolution here).  [wav_phot, flx_phot, err_phot, 0]
-- obs_spectro_ins(array)  : List containing different instruments used for the data (1 per wavelength). [[instru_range_1], …, [instru_range_n]]
-- obs_photo_ins (array)   : List containing different filters used for the data (1 per photometric point). [filter_phot_1, filter_phot_2, …, filter_phot_n]
-- obs_opt (n-array)       : List containing the optional sub-arrays defined by the parameter “wav_for_adapt”. [[cov_1, tran_1, star_1], …, [cov_n, tran_n, star_n]]</p>
+<dd class="field-even"><p>Dictionay containing all the observationnal entries (photometry, spectroscopy and/or optional)</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><ul class="simple">
-<li><p>obs_spectro (n-array)</p></li>
+<li><p>obs_dict       (dict)</p></li>
 </ul>
 </p>
 </dd>
@@ -216,208 +298,76 @@ instrument/filter name, transmission (Atmo+inst) and star flux (W.m-2.um.1). The
 <p>Author: Simon Petrus, Matthieu Ravet and Allan Denis</p>
 </dd></dl>
 
+</section>
+<section id="module-ForMoSA.adapt.adapt_emulators">
+<span id="emulators"></span><h2>Emulators:<a class="headerlink" href="#module-ForMoSA.adapt.adapt_emulators" title="Link to this heading"></a></h2>
 <dl class="py function">
-<dt class="sig sig-object py" id="ForMoSA.adapt.extraction_functions.continuum_estimate">
-<span class="sig-prename descclassname"><span class="pre">ForMoSA.adapt.extraction_functions.</span></span><span class="sig-name descname"><span class="pre">continuum_estimate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">global_params</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wav</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">res</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">indobs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ForMoSA/adapt/extraction_functions.html#continuum_estimate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ForMoSA.adapt.extraction_functions.continuum_estimate" title="Link to this definition"></a></dt>
-<dd><p>Decrease the resolution of a spectrum (data or model). The function calculates the FWHM as a function of the
-wavelengths of the custom spectral resolution (estimated for the continuum). It then calculates a sigma to decrease
-the resolution of the spectrum to this custom FWHM for each wavelength using a gaussian filter and resample it on
-the wavelength grid of the data.</p>
+<dt class="sig sig-object py" id="ForMoSA.adapt.adapt_emulators.emulator_NMF">
+<span class="sig-prename descclassname"><span class="pre">ForMoSA.adapt.adapt_emulators.</span></span><span class="sig-name descname"><span class="pre">emulator_NMF</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ds</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">NMF_comp</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ForMoSA/adapt/adapt_emulators.html#emulator_NMF"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ForMoSA.adapt.adapt_emulators.emulator_NMF" title="Link to this definition"></a></dt>
+<dd><p>Emulator of a grid spectra with NMF decomposition. Need CUDA to work on GPU</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>global_params</strong> (<em>object</em>) – Class containing each parameter used in ForMoSA</p></li>
-<li><p><strong>wav</strong> (<em>array</em>) – Wavelength grid of the spectrum for which you want to estimate the continuum</p></li>
-<li><p><strong>flx</strong> (<em>array</em>) – Flux of the spectrum for which you want to estimate the continuum</p></li>
-<li><p><strong>res</strong> (<em>int</em>) – Spectral resolution of the spectrum for which you want to estimate the continuum</p></li>
-<li><p><strong>indobs</strong> (<em>int</em>) – Index of the current observation looping</p></li>
+<li><p><strong>ds</strong> (<em>xarray</em>) – Grid used for the NMF</p></li>
+<li><p><strong>PCA_comp</strong> (<em>str</em><em> or </em><em>float</em>) – Number of NMF component to use.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>Estimated continuum of the spectrum re-sampled on the data wavelength grid</p>
+<dd class="field-even"><p>Reformated H matrix of the NMF decomposion = List of eigenspectra
+weights                 (xarray): Reformated W matrix of the NMF decomposion = Grid of weights (format = (NMF_comp, grid_shape))</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><ul class="simple">
-<li><p>continuum (array)</p></li>
-</ul>
-</p>
+<dd class="field-odd"><p>NMF_spectra         (np.ndarray)</p>
 </dd>
 </dl>
-<p>Author: Simon Petrus, Matthieu Ravet</p>
+<p>Author: Matthieu Ravet</p>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="ForMoSA.adapt.extraction_functions.convolve_and_sample">
-<span class="sig-prename descclassname"><span class="pre">ForMoSA.adapt.extraction_functions.</span></span><span class="sig-name descname"><span class="pre">convolve_and_sample</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">wv_channels</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sigmas_wvs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_wvs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_fluxes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_sigma</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ForMoSA/adapt/extraction_functions.html#convolve_and_sample"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ForMoSA.adapt.extraction_functions.convolve_and_sample" title="Link to this definition"></a></dt>
-<dd><p>Simulate the observations of a model. Convolves the model with a variable Gaussian LSF, sampled at each desired
-spectral channel.</p>
+<dt class="sig sig-object py" id="ForMoSA.adapt.adapt_emulators.emulator_PCA">
+<span class="sig-prename descclassname"><span class="pre">ForMoSA.adapt.adapt_emulators.</span></span><span class="sig-name descname"><span class="pre">emulator_PCA</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ds</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">PCA_comp</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'NA'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ForMoSA/adapt/adapt_emulators.html#emulator_PCA"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ForMoSA.adapt.adapt_emulators.emulator_PCA" title="Link to this definition"></a></dt>
+<dd><p>Emulator of a grid spectra with PCA decomposition</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>wv_channels</strong> (<em>list</em><em>(</em><em>floats</em><em>)</em>) – the wavelengths values desired</p></li>
-<li><p><strong>sigmas_wvs</strong> (<em>list</em><em>(</em><em>floats</em><em>)</em>) – the LSF gaussian standard deviation of each wv_channels [IN UNITS OF model_wvs]</p></li>
-<li><p><strong>model_wvs</strong> (<em>array</em>) – the wavelengths of the model</p></li>
-<li><p><strong>model_fluxes</strong> (<em>array</em>) – the fluxes of the model</p></li>
-<li><p><strong>num_sigma</strong> (<em>float</em>) – number of +/- sigmas to evaluate the LSF to.</p></li>
+<li><p><strong>ds</strong> (<em>xarray</em>) – Grid used for the PCA</p></li>
+<li><p><strong>PCA_comp</strong> (<em>str</em><em> or </em><em>float</em>) – Number of PCA component to use.
+‘NA’ by default means that the emulator will try to explain at least 99% of the variance of the grid</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>the fluxes in each of the wavelength channels</p>
+<dd class="field-even"><p>Mean flux of the normalized grid
+flx_grid_std        (np.ndarray): Standart deviation of the normalized grid
+PCA_vectors         (np.ndarray): Eigenspectra of the PCA decomposion
+PCA_weights             (xarray): Grid of normalization factors and weights (format = (PCA_comp, grid_shape))</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><ul class="simple">
-<li><p>output_model (array)</p></li>
-</ul>
-</p>
+<dd class="field-odd"><p>flx_grid_mean       (np.ndarray)</p>
 </dd>
 </dl>
-<p>Author: Jason Wang</p>
+<p>Author: Matthieu Ravet, adapted from <a class="reference external" href="https://iopscience.iop.org/article/10.1088/0004-637X/812/2/128/pdf">https://iopscience.iop.org/article/10.1088/0004-637X/812/2/128/pdf</a></p>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="ForMoSA.adapt.extraction_functions.decoupe">
-<span class="sig-prename descclassname"><span class="pre">ForMoSA.adapt.extraction_functions.</span></span><span class="sig-name descname"><span class="pre">decoupe</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">second</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ForMoSA/adapt/extraction_functions.html#decoupe"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ForMoSA.adapt.extraction_functions.decoupe" title="Link to this definition"></a></dt>
-<dd><p>Re-arranged a number of seconds in the hours-minutes-seconds format.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>second</strong> (<em>float</em>) – number of second</p>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>hours
-- float     : minutes
-- float     : seconds</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><ul class="simple">
-<li><p>float</p></li>
-</ul>
-</p>
-</dd>
-</dl>
-<p>Author: Simon Petrus</p>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="ForMoSA.adapt.extraction_functions.extract_model">
-<span class="sig-prename descclassname"><span class="pre">ForMoSA.adapt.extraction_functions.</span></span><span class="sig-name descname"><span class="pre">extract_model</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">global_params</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wav_mod_nativ</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flx_mod_nativ</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">res_mod_obs_merge</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cont</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'no'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">obs_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">indobs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ForMoSA/adapt/extraction_functions.html#extract_model"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ForMoSA.adapt.extraction_functions.extract_model" title="Link to this definition"></a></dt>
-<dd><p>Extracts a synthetic spectrum from a grid and decreases its spectral resolution. The photometry points are
-calculated too.</p>
+<dt class="sig sig-object py" id="ForMoSA.adapt.adapt_emulators.get_ws">
+<span class="sig-prename descclassname"><span class="pre">ForMoSA.adapt.adapt_emulators.</span></span><span class="sig-name descname"><span class="pre">get_ws</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">eigenspectra</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flx_grid</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ForMoSA/adapt/adapt_emulators.html#get_ws"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ForMoSA.adapt.adapt_emulators.get_ws" title="Link to this definition"></a></dt>
+<dd><p>Since we will overflow memory if we actually calculate Phi, we have to
+determine ws in a memory-efficient manner.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>global_params</strong> (<em>object</em>) – Class containing each parameter used in ForMoSA</p></li>
-<li><p><strong>wav_mod_nativ</strong> (<em>array</em>) – Wavelength grid of the model</p></li>
-<li><p><strong>flx_mod_nativ</strong> (<em>array</em>) – Flux of the model</p></li>
-<li><p><strong>res_mod_nativ</strong> (<em>array</em>) – Spectral resolution of the model as a function of the wavelength grid</p></li>
-<li><p><strong>cont</strong> (<em>str</em>) – Boolean string. If the function is used to estimate the continuum cont=’yes’</p></li>
-<li><p><strong>obs_name</strong> (<em>str</em>) – Name of the current observation looping</p></li>
-<li><p><strong>indobs</strong> (<em>int</em>) – Index of the current observation looping</p></li>
+<li><p><strong>eigenspectra</strong> (<em>-</em>) – Eigenspectra of the PCA decomposion</p></li>
+<li><p><strong>flx_grid</strong> (<em>-</em>) – Flux of the normalized grid</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>List containing the sub-spectra defined by the parameter “wav_for_adapt”.
-- mod (array)         : List containing the photometry (‘0’ replace the spectral resolution here).</p>
+<dd class="field-even"><p>Array of weights</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><ul class="simple">
-<li><p>mod_spectro (array)</p></li>
-</ul>
-</p>
+<dd class="field-odd"><p>ws                    (np.ndarray)</p>
 </dd>
 </dl>
-<p>Author: Simon Petrus</p>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="ForMoSA.adapt.extraction_functions.extract_observation">
-<span class="sig-prename descclassname"><span class="pre">ForMoSA.adapt.extraction_functions.</span></span><span class="sig-name descname"><span class="pre">extract_observation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">global_params</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wav_mod_nativ</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">res_mod_nativ</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cont</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'no'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">obs_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">indobs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ForMoSA/adapt/extraction_functions.html#extract_observation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ForMoSA.adapt.extraction_functions.extract_observation" title="Link to this definition"></a></dt>
-<dd><p>Take back the extracted data spectrum from the function ‘adapt_observation_range’ and decrease its spectral
-resolution.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>global_params</strong> (<em>object</em>) – Class containing each parameter</p></li>
-<li><p><strong>wav_mod_nativ</strong> (<em>array</em>) – Wavelength grid of the model</p></li>
-<li><p><strong>res_mod_nativ</strong> (<em>array</em><em>(</em><em>int</em><em>)</em>) – Spectral resolution of the model</p></li>
-<li><p><strong>cont</strong> (<em>str</em>) – Boolean string. If the function is used to estimate the continuum cont=’yes’</p></li>
-<li><p><strong>obs_name</strong> (<em>str</em>) – Name of the current observation looping</p></li>
-<li><p><strong>indobs</strong> (<em>int</em>) – Index of the current observation looping</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>List containing the sub-spectra defined by the parameter “wav_for_adapt” with decreased resolution [[wav_1, flx_1, err_1, reso_1], …, [wav_n, flx_n, err_n, reso_n]]
-- obs_photo (array)       : List containing the photometry (0 replace the spectral resolution here). [wav_phot, flx_phot, err_phot, 0]
-- obs_spectro_ins(array)  : List containing different instruments used for the data (1 per wavelength). [[instru_range_1], …, [instru_range_n]]
-- obs_photo_ins (array)   : List containing different filters used for the data (1 per photometric point). [filter_phot_1, filter_phot_2, …, filter_phot_n]
-- obs_opt (n-array)       : List containing the optional sub-arrays defined by the parameter “wav_for_adapt”. [[cov_1, tran_1, star_1], …, [cov_n, tran_n, star_n]]</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><ul class="simple">
-<li><p>obs_spectro (n-array)</p></li>
-</ul>
-</p>
-</dd>
-</dl>
-<p>Author: Simon Petrus, Matthieu Ravet</p>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="ForMoSA.adapt.extraction_functions.find_nearest">
-<span class="sig-prename descclassname"><span class="pre">ForMoSA.adapt.extraction_functions.</span></span><span class="sig-name descname"><span class="pre">find_nearest</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">array</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ForMoSA/adapt/extraction_functions.html#find_nearest"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ForMoSA.adapt.extraction_functions.find_nearest" title="Link to this definition"></a></dt>
-<dd><p>Return the indice of the closest values from a desire value in an array.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>array</strong> (<em>array</em>) – Array to explore</p></li>
-<li><p><strong>value</strong> (<em>float</em>) – Desire value</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>Indice of the closest values from the desire value</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><ul class="simple">
-<li><p>idx (int)</p></li>
-</ul>
-</p>
-</dd>
-</dl>
-<p>Author: Simon Petrus</p>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="ForMoSA.adapt.extraction_functions.resolution_decreasing">
-<span class="sig-prename descclassname"><span class="pre">ForMoSA.adapt.extraction_functions.</span></span><span class="sig-name descname"><span class="pre">resolution_decreasing</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">global_params</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wav_obs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flx_obs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">res_obs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wav_mod_nativ</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flx_mod_nativ</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">res_mod_obs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">obs_or_mod</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">indobs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ForMoSA/adapt/extraction_functions.html#resolution_decreasing"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ForMoSA.adapt.extraction_functions.resolution_decreasing" title="Link to this definition"></a></dt>
-<dd><p>Decrease the resolution of a spectrum (data or model). The function calculates the FWHM as a function of the
-wavelengths for the data, the model, and for a custom spectral resolution (optional) and estimates the highest one
-for each wavelength (the lowest spectral resolution). It then calculates a sigma to decrease the resolution of the
-spectrum to this lowest FWHM for each wavelength and resample it on the wavelength grid of the data using the
-function ‘convolve_and_sample’.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>global_params</strong> (<em>object</em>) – Class containing each parameter used in ForMoSA</p></li>
-<li><p><strong>wav_obs</strong> (<em>array</em>) – Wavelength grid of the data</p></li>
-<li><p><strong>flx_obs</strong> (<em>array</em>) – Flux of the data</p></li>
-<li><p><strong>res_obs</strong> (<em>array</em>) – Spectral resolution of the data</p></li>
-<li><p><strong>wav_mod_nativ</strong> (<em>array</em>) – Wavelength grid of the model</p></li>
-<li><p><strong>flx_mod_nativ</strong> (<em>array</em>) – Flux of the model</p></li>
-<li><p><strong>res_mod_obs</strong> (<em>array</em>) – Spectral resolution of the model as a function of the wavelength grid of the data</p></li>
-<li><p><strong>obs_or_mod</strong> (<em>str</em>) – Parameter to identify if you want to manage a data or a model spectrum. ‘obs’ or ‘mod’</p></li>
-<li><p><strong>indobs</strong> (<em>int</em>) – Index of the current observation looping</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>Flux of the spectrum with a decreased spectral resolution, re-sampled on the data wavelength grid</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><ul class="simple">
-<li><p>flx_obs_final (array)</p></li>
-</ul>
-</p>
-</dd>
-</dl>
-<p>Author: Simon Petrus, Matthieu Ravet</p>
+<p>Author: Miles Lucas</p>
 </dd></dl>
 
 </section>

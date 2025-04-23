@@ -3,17 +3,22 @@
 Adapt the data
 ==============
 
-Adapt Grid:
-+++++++++++
-.. automodule:: ForMoSA.adapt.adapt_grid
-	:members:
-
 Adapt Observations and Models:
 ++++++++++++++++++++++++++++++
 .. automodule:: ForMoSA.adapt.adapt_obs_mod
 	:members:
 
+Adapt Grid:
++++++++++++
+.. automodule:: ForMoSA.adapt.adapt_grid
+	:members:
+
 Extraction Functions:
 +++++++++++++++++++++
-.. automodule:: ForMoSA.adapt.extraction_functions
+.. automodule:: ForMoSA.adapt.adapt_extraction_functions
+	:members:
+
+Emulators:
+++++++++++
+.. automodule:: ForMoSA.adapt.adapt_emulators
 	:members:

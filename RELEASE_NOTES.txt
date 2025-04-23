@@ -549,3 +549,41 @@ Comments:
 
 Tests that have been done to checkup the changes:
     - Run with GRAVITY covariances
+
+
+
+- - - 
+
+23/04/2025
+
+Matthieu Ravet
+
+Comments:
+    - Multiple corrections (logL functions, loops, imports, bb function, ...)
+    - Switching 'obs' arrays to dictionary for clarity and future-proof developpements
+    - Config file now automatically generate at each run => allows to keep track of new changes
+    - Name changes (e.g. extraction_functions => adapt_extraction_functions) for clarity
+    - Addition of ultranest
+    - Update of setup.py and all init.py to allow for cleaner imports in the .pip version
+    - Merging with Hires updates
+    - New parameters / rename : 
+        > 'target_res_mod' and 'target_res_obs' to select the desired resolution prior to the inversion
+        > 'res_con' and 'wav_cont' for the continuum
+        > 'emulator' if you want to fit your grid using either PCA or NMF
+        > 'method' now refers to the interpolation method both during adaptation and inversion (you can use cubic for exemple). The old method was not used anymore
+        > removal of 'wav_for_adapt' => not used anymore (you can use 'wav_fit' if you want to exclude part of the spectra)
+        > renaming 'chi2_classic' in 'chi2' for consistency with other functions
+        > renaming 'fm' with 'hc' (high-contrast)
+        > renaming 'bb_R' and 'bb_T' with 'bb_r' and 'bb_t' respectively
+    - Putting utilities function in separate .py. Spectral utils are now available outside ForMoSA (global_params removed from all of them)
+    - Updating the readthedocs (tuto and removing demo => in the tuto basically)
+
+
+Tests that have been done to checkup the changes:
+    - Run with GPI + photometry on each mode and parameter (grid and extra-grid)
+    - Run with GRAVITY (with covariance) on each mode and parameter (grid and extra-grid)
+    - MOSAIC with GRAVITY + GPI + photometry
+    - All plotting function except HRS, PT, vmr (NEED TO BE UPDATED)
+
+
+==> Test for High-contrast options needs to be performed !

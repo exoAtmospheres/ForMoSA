@@ -1,25 +1,23 @@
+
+
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" data-content_root="./">
 <head>
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Installation &mdash; ForMoSA 2.0.0 documentation</title>
-      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=fa44fd50" />
-      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=19f00094" />
+  <title>Installation &mdash; ForMoSA 1.1.5 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
 
   
     <link rel="shortcut icon" href="_static/favicon.ico"/>
-  <!--[if lt IE 9]>
-    <script src="_static/js/html5shiv.min.js"></script>
-  <![endif]-->
-  
-        <script src="_static/jquery.js?v=5d32c60e"></script>
-        <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="_static/documentation_options.js?v=51b770b3"></script>
-        <script src="_static/doctools.js?v=9a2dae69"></script>
-        <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
-        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=a48ae3df"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -37,6 +35,7 @@
           
           <a href="index.html" class="icon icon-home">
             ForMoSA
+              <img src="_static/ForMoSA.png" class="logo" alt="Logo"/>
           </a>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -53,6 +52,7 @@
 <li class="toctree-l2"><a class="reference internal" href="#a-installation-though-pypi">A. Installation though PyPI</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#b-installation-though-github">B. Installation though GitHub</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#pymultinest-users">PyMultiNest users</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#torch-users">torch users</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="demo.html">Tutorials</a></li>
@@ -125,12 +125,18 @@ To install the latest version run:</p>
 <span class="gp">$ </span>corner
 <span class="gp">$ </span>astropy
 <span class="gp">$ </span>scipy
+<span class="gp">$ </span>scikit-learn
 <span class="gp">$ </span>configobj
 <span class="gp">$ </span>extinction
 <span class="gp">$ </span>nestle
+<span class="gp">$ </span>ultranest
 <span class="gp">$ </span>PyAstronomy
 <span class="gp">$ </span>spectres
 <span class="gp">$ </span>pyyaml
+<span class="gp">$ </span>torch
+<span class="gp">$ </span>torchvision
+<span class="gp">$ </span>torchaudio
+<span class="gp">$ </span>torchnmf
 <span class="gp">$ </span>importlib-metadata<span class="o">==</span><span class="m">4</span>.13.0
 <span class="gp">$ </span><span class="nv">xarray</span><span class="o">==</span><span class="m">2023</span>.10.1
 </pre></div>
@@ -181,6 +187,10 @@ Make sure you empty the build folder if you run this step more than once.</p>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>cp<span class="w"> </span>-v<span class="w"> </span>~/YOUR_PATH/MultiNest/lib/*<span class="w"> </span>/YOUR_PATH/opt/anaconda3/envs/env_formosa/lib/
 </pre></div>
 </div>
+</section>
+<section id="torch-users">
+<h2>torch users<a class="headerlink" href="#torch-users" title="Link to this heading"></a></h2>
+<p>If you wish to use torch on CPU, you will need to have the right version on CUDA install on your device. Please follow the installation instructions from <a class="reference external" href="https://pytorch.org/">PyTorch</a>.</p>
 </section>
 </section>
 

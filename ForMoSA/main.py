@@ -4,22 +4,19 @@ ForMoSA run script
 Here we open the config file and extract all the needed information.
 Easy to understand and simple access for the new users.
 
-@authors: S. Petrus & P. Palma-Bifani
+@authors: S. Petrus, P. Palma-Bifani and Matthieu Ravet
 '''
 # ----------------------------------------------------------------------------------------------------------------------
 ## IMPORTS
 import os
 # os.environ["OMP_NUM_THREADS"] = "1"
 import sys
-import shutil
 
 # Import ForMoSA
-#base_path = '/Users/ppalmabifani/Desktop/exoAtm/c0_ForMoSA/ForMoSA/'     # Give the path to ForMoSA to be able to import it. No need when this will be a pip package
-#sys.path.insert(1, base_path)
-from main_utilities import yesno
-from main_utilities import GlobFile
-from adapt.adapt_obs_mod import launch_adapt
-from nested_sampling.nested_sampling import launch_nested_sampling
+from .utils import yesno
+from .global_file import GlobFile
+from .adapt.adapt_obs_mod import launch_adapt
+from .nested_sampling.nested_sampling import launch_nested_sampling
 
 if __name__ == '__main__':
     # ----------------------------------------------------------------------------------------------------------------------
@@ -42,11 +39,6 @@ if __name__ == '__main__':
     # create output directory if needed
     if not os.path.exists(global_params.result_path):
         os.makedirs(global_params.result_path, exist_ok=True)
-
-    # make a copy of the input configuration file into the output directory for future reference
-    print('- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -')
-    print('-> save config file')
-    shutil.copy2(config_file_path, global_params.result_path + 'configuration.ini')
 
     # ----------------------------------------------------------------------------------------------------------------------
     ## Run ForMoSA

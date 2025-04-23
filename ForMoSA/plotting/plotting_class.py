@@ -1,28 +1,25 @@
 
 from __future__ import print_function, division
-import os, glob, sys
+import os, glob
 import numpy as np
 import matplotlib.pyplot as plt
-from matplotlib.ticker import MaxNLocator
+from scipy.ndimage import gaussian_filter
 from scipy.interpolate import interp1d
+from scipy.optimize import curve_fit
 import corner
 import xarray as xr
 import pickle
 import astropy.constants as cst
-
-sys.path.insert(0, os.path.abspath('../'))
-
-# Import ForMoSA
-from main_utilities import GlobFile
-from nested_sampling.nested_modif_spec import modif_spec
-from nested_sampling.nested_modif_spec import doppler_fct
-from nested_sampling.nested_modif_spec import vsini_fct
-from adapt.extraction_functions import resolution_decreasing
-from adapt.extraction_functions import continuum_estimate
-from scipy.optimize import curve_fit
 from tqdm import tqdm
 import multiprocessing as mp
 from multiprocessing.pool import ThreadPool
+
+# Import ForMoSA
+from ..global_file import GlobFile
+from ..utils_spec import resolution_decreasing, continuum_estimate
+from ..nested_sampling.nested_modif_spec import modif_spec
+from ..nested_sampling.nested_modif_spec import doppler_fct
+from ..nested_sampling.nested_modif_spec import vsini_fct
 
 # ----------------------------------------------------------------------------------------------------------------------
 # ----------------------------------------------------------------------------------------------------------------------
@@ -133,7 +130,8 @@ class ComplexRadar():
             None
         '''
         for d, (y1, y2) in zip(data[1:], ranges[1:]):
-            assert (y1 <= d <= y2) or (y2 <= d <= y1)
+            if not np.isnan(d):
+                assert (y1 <= d <= y2) or (y2 <= d <= y1)
         x1, x2 = ranges[0]
         d = data[0]
         sdata = [d]
@@ -145,49 +143,6 @@ class ComplexRadar():
         return sdata
 
 
-def compute_ccf_single_rv(global_params, rv, wav_mod, flx_mod, flx_mod_no_rv, res_mod, wav_obs, flx_obs, res_obs, transm_obs, Sf, indobs):
-    '''
-    Compute a cross-correlation coefficient for a single rv. This function is used for the parallelised ccf computation
-    
-
-    Args:
-        rv            (float) : rv value to apply to the model
-        wav_mod       (ndarray ) : wavelength grid of the model
-        flx_mod       (ndarray) : flux of the model
-        flx_mod_no_rv (ndarray) : flx of the model at 0 rv (used for autocorrelation)
-        res_mod       (ndarray) : resolution of the model
-        wav_obs       (ndarray) : wavelength grid of the observation
-        flx_obs       (ndarray) : flux of the observation
-        res_obs       (ndarray) : resolution of the observation
-        transm_obs    (ndarray) : atmospheric and instrumental transmission
-        Sf            (float) : L2 norm of the observation
-        indobs        (int) : Index of the current observation loop
-
-    Returns:
-        - ccf  (float) : cross-correlation coefficient
-        - acf  (float) : autocorrelation coefficient
-        - logL (float) : logL value
-    '''
-    
-    flx_mod_rv, wav_mod_rv = doppler_fct(wav_mod, flx_mod, rv)
-    flx_mod_rv = resolution_decreasing(global_params, wav_obs, [], res_obs, wav_mod_rv, flx_mod_rv, res_mod, 'mod', indobs)
-    flx_cont_mod_rv = continuum_estimate(global_params, wav_obs, flx_mod_rv, res_obs, indobs)
-    flx_mod_rv -= flx_cont_mod_rv
-    flx_mod_rv *= transm_obs
-    
-    # Normalize the model to make it comparable to the data in terms of flux
-    flx_mod_rv /= np.sqrt(np.nansum(flx_mod_rv**2))
-    ccf = np.nansum(flx_mod_rv * flx_obs)    # Cross correlation function
-    acf = np.nansum(flx_mod_rv * flx_mod_no_rv)   # Auto correlation function
-
-    Sg = np.nansum(np.square(flx_mod_rv))
-    R = np.nansum(flx_obs * flx_mod_rv)
-    C2 = R**2 / (Sf * Sg)
-    logL = -len(flx_obs) / 2 * np.log(1 - C2)
-    
-    return ccf, acf, logL
-
-
 # ----------------------------------------------------------------------------------------------------------------------
 # ----------------------------------------------------------------------------------------------------------------------
 class PlottingForMoSA():
@@ -197,19 +152,24 @@ class PlottingForMoSA():
     Author: Paulina Palma-Bifani, Simon Petrus, Matthieu Ravet and Allan Denis
     '''
 
-    def __init__(self, config_file_path, color_out):
+    def __init__(self, config_file_path=None, color_out='blue', global_params=None):
         '''
         Initialize class by inheriting the global parameter class of ForMoSA.
 
         Args:
-            config_file_path   (str): path to the config.ini file currently used
-            color_out          (str): color to use for the model
+            config_file_path                (str): path to the config.ini file currently used
+            color_out                       (str): color to use for the model
+            global_params    (GlobFile, optional): already-initialized GlobFile object
         Returns:
             None
         '''
-
-        self.global_params = GlobFile(config_file_path)
-        self.color_out     = color_out
+        if global_params is not None:
+            self.global_params = global_params
+        elif config_file_path is not None:
+            self.global_params = GlobFile(config_file_path)
+        else:
+            raise ValueError("Either 'config_file_path' or 'global_params' must be provided.")
+        self.color_out = color_out
 
 
     def _get_posteriors(self, burn_in=0):
@@ -244,98 +204,95 @@ class PlottingForMoSA():
                             ['av', 'Av', '(mag)'],
                             ['vsini', 'v.sin(i)', r'(km.s$\mathrm{^{-1}}$)'],
                             ['ld', 'limb darkening', ''],
-                            ['bb_T', 'bb_T', '(K)'],
-                            ['bb_R', 'bb_R', r'(R$\mathrm{_{Jup}}$)']
+                            ['bb_t', 'bb_t', '(K)'],
+                            ['bb_r', 'bb_r', r'(R$\mathrm{_{Jup}}$)']
                             ]
 
         tot_list_param_title = []
         theta_index = []
-        if self.global_params.par1 != 'NA' and self.global_params.par1[0] != 'constant':
+        if self.global_params.par1[0] != 'NA' and self.global_params.par1[0] != 'constant':
             tot_list_param_title.append(attrs['title'][0] + ' ' + attrs['unit'][0])
             theta_index.append('par1')
-        if self.global_params.par2 != 'NA' and self.global_params.par2[0] != 'constant':
+        if self.global_params.par2[0] != 'NA' and self.global_params.par2[0] != 'constant':
             tot_list_param_title.append(attrs['title'][1] + ' ' + attrs['unit'][1])
             theta_index.append('par2')
-        if self.global_params.par3 != 'NA' and self.global_params.par3[0] != 'constant':
+        if self.global_params.par3[0] != 'NA' and self.global_params.par3[0] != 'constant':
             tot_list_param_title.append(attrs['title'][2] + ' ' + attrs['unit'][2])
             theta_index.append('par3')
-        if self.global_params.par4 != 'NA' and self.global_params.par4[0] != 'constant':
+        if self.global_params.par4[0] != 'NA' and self.global_params.par4[0] != 'constant':
             tot_list_param_title.append(attrs['title'][3] + ' ' + attrs['unit'][3])
             theta_index.append('par4')
-        if self.global_params.par5 != 'NA' and self.global_params.par5[0] != 'constant':
+        if self.global_params.par5[0] != 'NA' and self.global_params.par5[0] != 'constant':
             tot_list_param_title.append(attrs['title'][4] + ' ' + attrs['unit'][4])
             theta_index.append('par5')
 
         # Extra-grid parameters
 
-        if self.global_params.r != 'NA' and self.global_params.r[0] != 'constant':
+        if self.global_params.r[0] != 'NA' and self.global_params.r[0] != 'constant':
             tot_list_param_title.append(extra_parameters[0][1] + ' ' + extra_parameters[0][2])
             theta_index.append('r')
-        if self.global_params.d != 'NA' and self.global_params.d[0] != 'constant':
+        if self.global_params.d[0] != 'NA' and self.global_params.d[0] != 'constant':
             tot_list_param_title.append(extra_parameters[1][1] + ' ' + extra_parameters[1][2])
             theta_index.append('d')
 
         # - - - - - - - - - - - - - - - - - - - - -
 
         # Individual parameters / observation
+        main_obs_path = self.global_params.main_observation_path
 
         if len(self.global_params.alpha) > 3: # If you want separate alpha for each observations
-            main_obs_path = self.global_params.main_observation_path
             for indobs, obs in enumerate(sorted(glob.glob(main_obs_path))):
                 if self.global_params.alpha[indobs*3] != 'NA' and self.global_params.alpha[indobs*3] != 'constant': # Check if the idobs is different from constant
                     tot_list_param_title.append(extra_parameters[2][1] + fr'$_{indobs}$' + ' ' + extra_parameters[2][2])
                     theta_index.append(f'alpha_{indobs}')
         else: # If you want 1 common alpha for all observations
-            if self.global_params.alpha != 'NA' and self.global_params.alpha[0] != 'constant':
+            if self.global_params.alpha[0] != 'NA' and self.global_params.alpha[0] != 'constant':
                 tot_list_param_title.append(extra_parameters[2][1] + ' ' + extra_parameters[2][2])
                 theta_index.append('alpha')
         if len(self.global_params.rv) > 3: # If you want separate rv for each observations
-            main_obs_path = self.global_params.main_observation_path
             for indobs, obs in enumerate(sorted(glob.glob(main_obs_path))):
                 if self.global_params.rv[indobs*3] != 'NA' and self.global_params.rv[indobs*3] != 'constant': # Check if the idobs is different from constant
                     tot_list_param_title.append(extra_parameters[3][1] + fr'$_{indobs}$' + ' ' + extra_parameters[3][2])
                     theta_index.append(f'rv_{indobs}')
         else: # If you want 1 common rv for all observations
-            if self.global_params.rv != 'NA' and self.global_params.rv[0] != 'constant':
+            if self.global_params.rv[0] != 'NA' and self.global_params.rv[0] != 'constant':
                 tot_list_param_title.append(extra_parameters[3][1] + ' ' + extra_parameters[3][2])
                 theta_index.append('rv')
         if len(self.global_params.vsini) > 4: # If you want separate vsini for each observations
-            main_obs_path = self.global_params.main_observation_path
             for indobs, obs in enumerate(sorted(glob.glob(main_obs_path))):
                 if self.global_params.vsini[indobs*4] != 'NA' and self.global_params.vsini[indobs*4] != 'constant': # Check if the idobs is different from constant
                     tot_list_param_title.append(extra_parameters[5][1] + fr'$_{indobs}$' + ' ' + extra_parameters[5][2])
                     theta_index.append(f'vsini_{indobs}')
         else: # If you want 1 common vsini for all observations
-            if self.global_params.vsini != 'NA' and self.global_params.vsini[0] != 'constant':
+            if self.global_params.vsini[0] != 'NA' and self.global_params.vsini[0] != 'constant':
                 tot_list_param_title.append(extra_parameters[5][1] + ' ' + extra_parameters[5][2])
                 theta_index.append('vsini')
         if len(self.global_params.ld) > 3: # If you want separate ld for each observations
-            main_obs_path = self.global_params.main_observation_path
             for indobs, obs in enumerate(sorted(glob.glob(main_obs_path))):
                 if self.global_params.ld[indobs*3] != 'NA' and self.global_params.ld[indobs*3] != 'constant': # Check if the idobs is different from constant
                     tot_list_param_title.append(extra_parameters[6][1] + fr'$_{indobs}$' + ' ' + extra_parameters[6][2])
                     theta_index.append(f'ld_{indobs}')
         else: # If you want 1 common vsini for all observations
-            if self.global_params.ld != 'NA' and self.global_params.ld[0] != 'constant':
+            if self.global_params.ld[0] != 'NA' and self.global_params.ld[0] != 'constant':
                 tot_list_param_title.append(extra_parameters[6][1] + ' ' + extra_parameters[6][2])
                 theta_index.append('ld')
 
         # - - - - - - - - - - - - - - - - - - - - -
 
-        if self.global_params.av != 'NA' and self.global_params.av[0] != 'constant':
+        if self.global_params.av[0] != 'NA' and self.global_params.av[0] != 'constant':
             tot_list_param_title.append(extra_parameters[4][1] + ' ' + extra_parameters[4][2])
             theta_index.append('av')
         ## cpd bb
-        if self.global_params.bb_T != 'NA' and self.global_params.bb_T[0] != 'constant':
+        if self.global_params.bb_t[0] != 'NA' and self.global_params.bb_t[0] != 'constant':
             tot_list_param_title.append(extra_parameters[7][1] + ' ' + extra_parameters[7][2])
-            theta_index.append('bb_T')
-        if self.global_params.bb_R != 'NA' and self.global_params.bb_R[0] != 'constant':
+            theta_index.append('bb_t')
+        if self.global_params.bb_r[0] != 'NA' and self.global_params.bb_r[0] != 'constant':
             tot_list_param_title.append(extra_parameters[8][1] + ' ' + extra_parameters[8][2])
-            theta_index.append('bb_R')
+            theta_index.append('bb_r')
         self.theta_index = np.asarray(theta_index)
 
         posterior_to_plot = self.samples
-        if self.global_params.r != 'NA' and self.global_params.r[0] != 'constant':
+        if self.global_params.r[0] != 'NA' and self.global_params.r[0] != 'constant':
             posterior_to_plot = []
             tot_list_param_title.append(r'log(L/L$\mathrm{_{\odot}}$)')
 
@@ -455,7 +412,7 @@ class PlottingForMoSA():
         for l in range(len(self.posterior_to_plot[1,:])):
             q16, q50, q84 = corner.quantile(self.posterior_to_plot[:,l], quantiles)
 
-            list_posteriors.append(self.theta_best)
+            list_posteriors.append(q50)
             list_uncert_down.append(q16)
             list_uncert_up.append(q84)
 
@@ -477,165 +434,147 @@ class PlottingForMoSA():
         Args:
             theta                   (list): best parameter values
         Returns:
-            - modif_spec_chi2  list(n-array): list containing the spectroscopic wavelength, spectroscopic fluxes of the data,
+            - modif_spec_LL  list(n-array): list containing the spectroscopic wavelength, spectroscopic fluxes of the data,
                                             spectroscopic errors of the data, spectroscopic fluxes of the model,
                                             photometric wavelength, photometric fluxes of the data, photometric errors of the data,
                                             spectroscopic fluxes of the model,
-                                            planet transmission, star fluxes, systematics
-            - ck                list(floats): list scaling factor(s)
+                                            planet transmission, star fluxes, systematics and scaling factors
         '''
 
         # Create a list for each spectra (obs and mod) for each observation + scaling factors
-        modif_spec_MOSAIC = []
-        CK = []
+        modif_spec_LL = []
 
         for indobs, obs in enumerate(sorted(glob.glob(self.global_params.main_observation_path))):
 
+            # Recovery of the observational dictionnary
             self.global_params.observation_path = obs
             obs_name = os.path.splitext(os.path.basename(self.global_params.observation_path))[0]
+            obs_dict = np.load(os.path.join(self.global_params.result_path, f'spectrum_obs_{obs_name}.npz'), allow_pickle=True)
 
-            spectrum_obs = np.load(os.path.join(self.global_params.result_path, f'spectrum_obs_{obs_name}.npz'), allow_pickle=True)
-            wav_obs_spectro = np.asarray(spectrum_obs['obs_spectro'][0], dtype=float)
-            flx_obs_spectro = np.asarray(spectrum_obs['obs_spectro'][1], dtype=float)
-            err_obs_spectro = np.asarray(spectrum_obs['obs_spectro'][2], dtype=float)
-            res_obs_spectro = np.asarray(spectrum_obs['obs_spectro'][3], dtype=float)
-            
-            if self.global_params.fm_type[indobs] != 'NA':
-                self.global_params.wav_for_continuum = self.global_params.wav_fit
-                self.global_params.continuum_sub = self.global_params.fm_continuum_res
-                flx_cont_obs_spectro = continuum_estimate(self.global_params, wav_obs_spectro, flx_obs_spectro, res_obs_spectro, indobs)
-            else:
-                flx_cont_obs_spectro = np.asarray([], dtype='float')
-            
-            transm_obs_spectro = np.asarray(spectrum_obs['obs_opt'][1], dtype=float)
-            star_flx_obs_spectro = np.asarray(spectrum_obs['obs_opt'][2], dtype=float)
-            system_obs_spectro = np.asarray(spectrum_obs['obs_opt'][3], dtype=float)
-
-            if self.global_params.fm_type[indobs] != 'NA':
-                star_flx_cont_obs_spectro = continuum_estimate(self.global_params, wav_obs_spectro, star_flx_obs_spectro[:,len(star_flx_obs_spectro[0]) // 2], res_obs_spectro, indobs)
-            else:
-                star_flx_cont_obs_spectro = np.asarray([], dtype='float')
-            
-            if 'obs_photo' in spectrum_obs.keys():
-                wav_obs_photo = np.asarray(spectrum_obs['obs_photo'][0], dtype=float)
-                flx_obs_photo = np.asarray(spectrum_obs['obs_photo'][1], dtype=float)
-                err_obs_photo = np.asarray(spectrum_obs['obs_photo'][2], dtype=float)
-            else:
-                wav_obs_photo = np.asarray([], dtype=float)
-                flx_obs_photo = np.asarray([], dtype=float)
-                err_obs_photo = np.asarray([], dtype=float)
 
             # Recovery of the spectroscopy and photometry model
             path_grid_spectro = os.path.join(self.global_params.adapt_store_path, f'adapted_grid_spectro_{self.global_params.grid_name}_{obs_name}_nonan.nc')
+            ds_spectro = xr.open_dataset(path_grid_spectro, decode_cf=False, engine='netcdf4')
+            grid_spectro = ds_spectro['grid']
             path_grid_photo = os.path.join(self.global_params.adapt_store_path, f'adapted_grid_photo_{self.global_params.grid_name}_{obs_name}_nonan.nc')
-            ds = xr.open_dataset(path_grid_spectro, decode_cf=False, engine='netcdf4')
-            grid_spectro = ds['grid']
-            wav_mod_spectro = np.asarray(ds.coords['wavelength'].values)
-            res_mod_obs_spectro = np.asarray(ds.attrs['res'])
-            
-            # Additional lines to make old versions of ForMoSA compatible with the new version
-            # This does not change anything for the new version, the resolution grid is interpolated in the same wavelength grid
-            if len(wav_mod_spectro) == len(res_mod_obs_spectro):
-                res_mod_obs_spectro = interp1d(wav_mod_spectro, res_mod_obs_spectro)
-                res_mod_obs_spectro = res_mod_obs_spectro(wav_obs_spectro)
-            
-            ds.close()
-            ds = xr.open_dataset(path_grid_photo, decode_cf=False, engine='netcdf4')
-            grid_photo = ds['grid']
-            ds.close()
+            ds_photo = xr.open_dataset(path_grid_photo, decode_cf=False, engine='netcdf4')
+            grid_photo = ds_photo['grid']
 
-            if self.global_params.par3 == 'NA':
-                if len(grid_spectro['wavelength']) != 0:
-                    flx_mod_spectro = np.asarray(grid_spectro.interp(par1=theta[0], par2=theta[1],
-                                                            method="linear", kwargs={"fill_value": "extrapolate"}))
-                else:
-                    flx_mod_spectro = np.asarray([])
-                if len(grid_photo['wavelength']) != 0:
-                    flx_mod_photo = np.asarray(grid_photo.interp(par1=theta[0], par2=theta[1],
-                                                            method="linear", kwargs={"fill_value": "extrapolate"}))
-                else:
-                    flx_mod_photo = np.asarray([])
-            elif self.global_params.par4 == 'NA':
-                if len(grid_spectro['wavelength']) != 0:
-                    flx_mod_spectro = np.asarray(grid_spectro.interp(par1=theta[0], par2=theta[1], par3=theta[2],
-                                                            method="linear", kwargs={"fill_value": "extrapolate"}))
-                else:
-                    flx_mod_spectro = np.asarray([])
-                if len(grid_photo['wavelength']) != 0:
-                    flx_mod_photo = np.asarray(grid_photo.interp(par1=theta[0], par2=theta[1], par3=theta[2],
-                                                            method="linear", kwargs={"fill_value": "extrapolate"}))
-                else:
-                    flx_mod_photo = np.asarray([])
-            elif self.global_params.par5 == 'NA':
-                if len(grid_spectro['wavelength']) != 0:
-                    flx_mod_spectro = np.asarray(grid_spectro.interp(par1=theta[0], par2=theta[1], par3=theta[2], par4=theta[3],
-                                                            method="linear", kwargs={"fill_value": "extrapolate"}))
-                else:
-                    flx_mod_spectro = np.asarray([])
-                if len(grid_photo['wavelength']) != 0:
-                    flx_mod_photo = np.asarray(grid_photo.interp(par1=theta[0], par2=theta[1], par3=theta[2], par4=theta[3],
-                                                            method="linear", kwargs={"fill_value": "extrapolate"}))
-                else:
-                    flx_mod_photo = np.asarray([])
+            # Emulator (if necessary)
+            if self.global_params.emulator[0] != 'NA':
+                # PCA or NMF
+                mod_dict = dict(np.load(os.path.join(self.global_params.result_path, f'{self.global_params.emulator[0]}_mod_{obs_name}.npz'), allow_pickle=True))
             else:
-                if len(grid_spectro['wavelength']) != 0:
-                    flx_mod_spectro = np.asarray(grid_spectro.interp(par1=theta[0], par2=theta[1], par3=theta[2], par4=theta[3],
-                                                            par5=theta[4],
-                                                            method="linear", kwargs={"fill_value": "extrapolate"}))
+                # Standard method
+                mod_dict = {'wav_spectro': np.asarray(ds_spectro.coords['wavelength']), 'res_spectro': np.asarray(ds_spectro.attrs['res'])}
+            ds_spectro.close()
+            ds_photo.close()
+
+            # Interpolating the model resolution
+            interp_mod_to_obs = interp1d(mod_dict['wav_spectro'], mod_dict['res_spectro'], fill_value='extrapolate') # Interpolate model resolution onto the data
+            mod_dict['res_spectro'] = interp_mod_to_obs(obs_dict['wav_spectro'])
+
+            if self.global_params.par3[0] == 'NA':
+                if len(obs_dict['wav_spectro']) != 0:
+                    interp_spectro = np.asarray(grid_spectro.interp(par1=theta[0], par2=theta[1],
+                                                            method=self.global_params.method, kwargs={"fill_value": "extrapolate"}))
                 else:
-                    flx_mod_spectro = np.asarray([])
-                if len(grid_photo['wavelength']) != 0:
-                    flx_mod_photo = np.asarray(grid_photo.interp(par1=theta[0], par2=theta[1], par3=theta[2], par4=theta[3],
-                                                            par5=theta[4],
-                                                            method="linear", kwargs={"fill_value": "extrapolate"}))
+                    interp_spectro = np.asarray([])
+                if len(obs_dict['wav_photo']) != 0:
+                    interp_photo = np.asarray(grid_photo.interp(par1=theta[0], par2=theta[1],
+                                                            method=self.global_params.method, kwargs={"fill_value": "extrapolate"}))
                 else:
-                    flx_mod_photo = np.asarray([])
+                    interp_photo = np.asarray([])
+            elif self.global_params.par4[0] == 'NA':
+                if len(obs_dict['wav_spectro']) != 0:
+                    interp_spectro = np.asarray(grid_spectro.interp(par1=theta[0], par2=theta[1], par3=theta[2],
+                                                            method=self.global_params.method, kwargs={"fill_value": "extrapolate"}))
+                else:
+                    interp_spectro = np.asarray([])
+                if len(obs_dict['wav_photo']) != 0:
+                    interp_photo = np.asarray(grid_photo.interp(par1=theta[0], par2=theta[1], par3=theta[2],
+                                                            method=self.global_params.method, kwargs={"fill_value": "extrapolate"}))
+                else:
+                    interp_photo = np.asarray([])
+            elif self.global_params.par5[0] == 'NA':
+                if len(obs_dict['wav_spectro']) != 0:
+                    interp_spectro = np.asarray(grid_spectro.interp(par1=theta[0], par2=theta[1], par3=theta[2], par4=theta[3],
+                                                            method=self.global_params.method, kwargs={"fill_value": "extrapolate"}))
+                else:
+                    interp_spectro = np.asarray([])
+                if len(obs_dict['wav_photo']) != 0:
+                    interp_photo = np.asarray(grid_photo.interp(par1=theta[0], par2=theta[1], par3=theta[2], par4=theta[3],
+                                                            method=self.global_params.method, kwargs={"fill_value": "extrapolate"}))
+                else:
+                    interp_photo = np.asarray([])
+            else:
+                if len(obs_dict['wav_spectro']) != 0:
+                    interp_spectro = np.asarray(grid_spectro.interp(par1=theta[0], par2=theta[1], par3=theta[2], par4=theta[3],
+                                                            par5=theta[4],
+                                                            method=self.global_params.method, kwargs={"fill_value": "extrapolate"}))
+                else:
+                    interp_spectro = np.asarray([])
+                if len(obs_dict['wav_photo']) != 0:
+                    interp_photo = np.asarray(grid_photo.interp(par1=theta[0], par2=theta[1], par3=theta[2], par4=theta[3],
+                                                            par5=theta[4],
+                                                            method=self.global_params.method, kwargs={"fill_value": "extrapolate"}))
+                else:
+                    interp_photo = np.asarray([])
+
+            # Recreate the flux array
+            if self.global_params.emulator[0] != 'NA':
+                if self.global_params.emulator[0] == 'PCA':
+                    if len(mod_dict['vectors_spectro']) != 0:
+                        flx_mod_spectro = (mod_dict['flx_mean_spectro']+mod_dict['flx_std_spectro'] * (interp_spectro[1:] @ mod_dict['vectors_spectro'])) * interp_spectro[0][np.newaxis]
+                    else:
+                        flx_mod_spectro = np.asarray([])
+                    if len(mod_dict['vectors_photo']) != 0:
+                        flx_mod_photo = (mod_dict['flx_mean_photo']+mod_dict['flx_std_photo'] * (interp_photo[1:] @ mod_dict['vectors_photo'])) * interp_photo[0][np.newaxis]
+                    else:
+                        flx_mod_photo = np.asarray([])
+                elif self.global_params.emulator[0] == 'NMF':
+                    if len(mod_dict['vectors_spectro']) != 0:
+                        flx_mod_spectro = interp_spectro[:] @ mod_dict['vectors_spectro']
+                    else:
+                        flx_mod_spectro = np.asarray([])
+                    if len(mod_dict['vectors_photo']) != 0:
+                        flx_mod_photo = interp_photo[:] @ mod_dict['vectors_photo']
+                    else:
+                        flx_mod_photo = np.asarray([])
+            else:
+                flx_mod_spectro = interp_spectro
+                flx_mod_photo = interp_photo
+
             # Modification of the synthetic spectrum with the extra-grid parameters
-            modif_spec_chi2 = modif_spec(self.global_params, theta, self.theta_index, wav_obs_spectro, 
-                                         wav_mod_spectro, flx_obs_spectro, flx_cont_obs_spectro,
-                                         err_obs_spectro, flx_mod_spectro, wav_obs_photo, flx_obs_photo, 
-                                         err_obs_photo, flx_mod_photo, res_obs_spectro, res_mod_obs_spectro, transm_obs_spectro, star_flx_obs_spectro, star_flx_cont_obs_spectro, system_obs_spectro, indobs)
-            ck = modif_spec_chi2[8]
+            modif_spec_LL.append(modif_spec(self.global_params, theta, self.theta_index,
+                                      obs_dict, 
+                                      flx_mod_spectro, flx_mod_photo, 
+                                      mod_dict['wav_spectro'], mod_dict['res_spectro'],
+                                      indobs=indobs))
 
-            modif_spec_MOSAIC.append(modif_spec_chi2)
-            CK.append(ck)
-
-        modif_spec_chi2 = modif_spec_MOSAIC
-        ck = CK
-
-        return modif_spec_chi2, ck
+        return modif_spec_LL
 
 
-    def get_FULL_spectra(self, theta, grid_used = 'original', wavelengths=[], N_points=1000, re_interp=False, int_method="linear"):
+    def _get_full_spectra(self, theta, grid_used='original', wav_bounds=[], res=1000, re_interp=False, int_method="linear", indobs=0):
         '''
-        Extract a model spectrum from another grid.
+        Extract a model spectrum from a grid at a given theta, resolution and wavelength extent.
 
         Args:
-            theta:                       (list): best parameter values
-            grid_used:                    (str): (default = 'original') Path to the grid from where to extract the spectrum. If 'original', the current grid will be used.
-            wavelengths:                 (list): (default = []) Desired wavelength range. If [] max and min values of wav_for_adapt range will be use to create the wavelength range.
-            N_points:                     (int): (default = 1000) Number of points.
-            re_interp:                (boolean): (default = False). Option to reinterpolate or not the grid.
-            int_method:                   (str): (default = "linear") Interpolation method for the grid (if reinterpolated).
+            theta                       (list): best parameter values
+            grid_used                    (str): (default = 'original') Path to the grid from where to extract the spectrum. If 'original', the current grid will be used.
+            wav_bounds                  (list): (default = []) Desired wavelength range. If [] max and min values of the model wavelength range will be use to create the final wavelength range.
+            res                          (int): (default = 1000) Spectral resolution (at Nyquist).
+            re_interp                (boolean): (default = False). Option to reinterpolate or not the grid.
+            int_method                   (str): (default = "linear") Interpolation method for the grid (if reinterpolated).
         Returns:
-            - wav_final                   (array): Wavelength array of the full model
-            - flx_final                   (array): Flux array of the full model
-            - ck                          (float): Scaling factor of the full model
+            - wav_final                (array): Wavelength array of the full model
+            - flx_final                (array): Flux array of the full model
+            - ck                       (float): Scaling factor of the full model
         '''
 
-        if len(wavelengths)==0:
-            # Define the wavelength grid for the full spectra as resolution and wavelength range function
-            for indobs, obs in enumerate(sorted(glob.glob(self.global_params.main_observation_path))):
-                my_string_ind = self.global_params.wav_for_adapt[indobs].split('/')[0].split(',')
-                wav_ind = [float(x) for x in my_string_ind]
-                if indobs == 0:
-                    wav = wav_ind
-                else:
-                    wav = np.concatenate((wav, wav_ind))
-            wav = np.sort(wav)
-            wavelengths = np.linspace(wav[0],wav[-1],N_points)
-        else:
-            wavelengths = np.linspace(wavelengths[0],wavelengths[-1],N_points)
+        obs_dict, _, _, _, _, ck = self._get_spectra(theta)[indobs]
+        # WARNING : In case of multiple spectra, it is possible to work with different scaling factors. Here we only take the scaling factor of the first spectrum
+        #in the MOSAIC (used for the plot_fit)
 
         # Recover the original grid
         if grid_used == 'original':
@@ -643,6 +582,7 @@ class PlottingForMoSA():
         else:
             path_grid = grid_used
 
+        # Recover the original grid
         ds = xr.open_dataset(path_grid, decode_cf=False, engine="netcdf4")
 
         # Possibility of re-interpolating holes if the grid contains to much of them (WARNING: Very long process)
@@ -650,11 +590,15 @@ class PlottingForMoSA():
             print('-> The possible holes in the grid are (re)interpolated: ')
             for key_ind, key in enumerate(ds.attrs['key']):
                 print(str(key_ind+1) + '/' + str(len(ds.attrs['key'])))
-                ds = ds.interpolate_na(dim=key, method="linear", fill_value="extrapolate", limit=None,
+                ds = ds.interpolate_na(dim=key, method=self.global_params.method, fill_value="extrapolate", limit=None,
                                             max_gap=None)
 
         wav_mod_nativ = ds["wavelength"].values
+        res_mod_nativ = np.asarray(ds.attrs['res'])
         grid = ds['grid']
+        # Interpolating grid's resolution
+        interp_mod_to_obs = interp1d(wav_mod_nativ, res_mod_nativ, fill_value='extrapolate') # Interpolate model resolution onto the data
+        res_mod_obs_nativ = interp_mod_to_obs(obs_dict['wav_spectro'])
         ds.close()
 
         if self.global_params.par3 == 'NA':
@@ -666,24 +610,50 @@ class PlottingForMoSA():
         else:
             flx_mod_nativ = grid.interp(par1=theta[0], par2=theta[1], par3=theta[2], par4=theta[3],par5=theta[4],method=int_method, kwargs={"fill_value": "extrapolate"})
 
-        # Interpolate to desire wavelength range
-        interp_mod_to_obs = interp1d(wav_mod_nativ, flx_mod_nativ, fill_value='extrapolate')
-        flx_mod_final = interp_mod_to_obs(wavelengths)
+        # Convert everything into array
+        wav_mod_nativ = np.asarray(wav_mod_nativ, dtype=float)
+        flx_mod_nativ = np.asarray(flx_mod_nativ, dtype=float)
 
-        spectra = self._get_spectra(theta)
-        # WARNING : In case of multiple spectra, it is possible to work with different scaling factors. Here we only take the scaling factor of the first spectrum
-        #in the MOSAIC (used for the plot_fit)
-        ck = float(spectra[-1][0])
+        # Apply theta modifications
+        modif_spec_LL = modif_spec(self.global_params, theta, self.theta_index,
+                                      obs_dict, 
+                                      flx_mod_nativ, [], 
+                                      wav_mod_nativ, res_mod_obs_nativ,
+                                      indobs=indobs)
+        
+        # Get back the modified model flux to compute the logL
+        flx_mod_modif = modif_spec_LL[3]
 
-        wavelengths = np.asarray(wavelengths, dtype=float)
-        flx_mod_final = np.asarray(flx_mod_final, dtype=float)
-        flx_mod_final_calib = np.asarray(flx_mod_final*ck, dtype=float)
-        #print(flx_mod_final[100],ck)
-        err_mod_final_calib = flx_mod_final_calib*0.1
+        # Check that the imputed resolution is lower than the grid's, otherwise will use the grid resolution
+        if res > np.min(res_mod_nativ):
+            res = np.min(res_mod_nativ)
+            print(f"WARNING: The requested resolution is too high for this grid (Rgrid = {np.round(np.min(res_mod_nativ), 2)})")
+            print('replacing it...')
+            print()
 
-        wav_final, _, _, flx_final, _, _, _, _, _, _, _, _, _ = modif_spec(self.global_params, theta, self.theta_index,
-                                                                                    wavelengths, flx_mod_final_calib, err_mod_final_calib, flx_mod_final_calib/ck,
-                                                                                    [], [], [], [], [], [])
+        # Decrease the resolution (simple smoothing)
+        dwav = np.abs(obs_dict['wav_spectro'] - np.roll(obs_dict['wav_spectro'], 1))
+        dwav[0] = dwav[1]
+        sigma_lsf = 1. / res / (2. * np.sqrt(2. * np.log(2.)))
+        sigma_lsf_gauss_filter = np.mean(sigma_lsf / dwav)
+        flx_mod_modif = gaussian_filter(flx_mod_modif,
+                                    sigma=sigma_lsf_gauss_filter,
+                                    mode='nearest')
+
+        # Resample the final spectrum
+        if len(wav_bounds) == 0:
+            wav_bounds = [min(wav_mod_nativ), max(wav_mod_nativ)]
+        wav_final = [wav_bounds[0]]  # Start with the minimum wavelength
+        dwav = [0]
+        while wav_final[-1] < wav_bounds[1]:
+            dwav_unit = wav_final[-1] / (2 * res)  # Compute spacing (Nyquist sampling)
+            dwav.append(dwav_unit)
+            wav_final.append(wav_final[-1] + dwav_unit)
+        wav_final = np.array(wav_final)[(wav_mod_nativ[0] < wav_final) * (wav_final < wav_mod_nativ[-1])] # Make sure you don't extrapolate
+
+        # Interpolate
+        inter_func = interp1d(wav_mod_nativ, flx_mod_modif, fill_value='extrapolate')
+        flx_final = inter_func(wav_final)
 
         return wav_final, flx_final, ck
 
@@ -701,104 +671,89 @@ class PlottingForMoSA():
             logy       (str): (default = no) 'yes' or 'no' to plot the flux in log scale
             norm       (str): (default = no) 'yes' or 'no' to plot the normalized spectra
         Returns:
-            - fig    (object) : matplotlib figure object
-            - ax     (object) : matplotlib axes objects, main spectra plot
-            - axr    (object) : matplotlib axes objects, residuals
-            - axr2   (object) : matplotlib axes objects, right side density histogram
+            - fig   (object): matplotlib figure object
+            - ax    (object): matplotlib axes objects, main spectra plot
+            - axr   (object): matplotlib axes objects, residuals
+            - axr2  (object): matplotlib axes objects, right side density histogram
         '''
 
         print('ForMoSA - Best fit and residuals plot')
 
+        # Figure setup
         fig = plt.figure(figsize=figsize)
         fig.tight_layout()
         size = (7,11)
         ax = plt.subplot2grid(size, (0, 0), rowspan=5, colspan=10)
-        axr = plt.subplot2grid(size, (5, 0), rowspan=2, colspan=10)
+        axr = plt.subplot2grid(size, (5, 0), rowspan=2, colspan=10, sharex=ax)
         axr2 = plt.subplot2grid(size, (5, 10), rowspan=2, colspan=1)
 
-        spectra, ck = self._get_spectra(self.theta_best)
+        # Indices for plot
         iobs_spectro = 0
         iobs_photo = 0
 
-        # Scale or not in absolute flux
-        if norm != 'yes':
-            if len(spectra[0][0]) != 0:
-                ck = np.full(len(spectra[0][0]), 1)
-            else:
-                ck = np.full(len(spectra[0][4]), 1)
-
+        # Iterate on each obs
         for indobs, obs in enumerate(sorted(glob.glob(self.global_params.main_observation_path))):
-            if self.global_params.fm_type[indobs] != 'NA':  # For high-contrast companion where the star flux speckles contaminate the data
-                spectra = list(spectra) # Transform spectra to a list so that we can modify its values
-                spectra[indobs] = list(spectra[indobs])
-                wav, flx_obs, err_obs, mod_flx, wav_photo, flx_obs_photo, err_obs_photo, flx_mod_photo, star_flx, system_obs = spectra[indobs][0], spectra[indobs][1], spectra[indobs][2], spectra[indobs][3], spectra[indobs][4], spectra[indobs][5], spectra[indobs][6], spectra[indobs][7], spectra[indobs][9], spectra[indobs][10]
+            # Get back spectra
+            obs_dict, flx_mod_spectro, flx_mod_photo, _, _, ck = self._get_spectra(self.theta_best)[indobs]
 
-            if len(wav) != 0:
+            # Scale or not in absolute flux
+            if norm != 'yes':
+                ck = 1
+
+            # Spectroscopic part
+            if len(obs_dict['wav_spectro']) != 0:
                 iobs_spectro += 1
                 iobs_photo += 1
                 if uncert=='yes':
-                    ax.errorbar(wav, flx_obs/ck[indobs], yerr=err_obs/ck[indobs], c='k', alpha=0.2)
+                    ax.errorbar(obs_dict['wav_spectro'], obs_dict['flx_spectro']/ck, yerr=obs_dict['err_spectro']/ck, c='k', alpha=0.2)
+                ax.plot(obs_dict['wav_spectro'], obs_dict['flx_spectro']/ck, c='k')
+                ax.plot(obs_dict['wav_spectro'], flx_mod_spectro/ck, c=self.color_out, alpha=0.8)
                     
-                ax.plot(wav, flx_obs/ck[indobs], c='k')
-                ax.plot(wav, mod_flx/ck[indobs], c=self.color_out, alpha=0.8)
-                
-                if (len(star_flx) > 0) and (len(system_obs) > 0):
-                    ax.plot(wav, star_flx, c='b')
-                    ax.plot(wav, system_obs, c='grey', alpha=0.5)
-                    ax.plot(wav, mod_flx - star_flx - system_obs, c='r')
-                    
-                elif len(star_flx > 0):
-                    ax.plot(spectra[indobs][0], star_flx, c='b')
-                    ax.plot(spectra[indobs][0], mod_flx - star_flx, c='r')
-                    
-
-                residuals = flx_obs - mod_flx
+                # Residuals
+                residuals = obs_dict['flx_spectro'] - flx_mod_spectro
                 sigma_res = np.nanstd(residuals) # Replace np.std by np.nanstd if nans are in the array to ignore them
-                axr.plot(wav, residuals/sigma_res, c=self.color_out, alpha=0.8)
+                axr.plot(obs_dict['wav_spectro'], residuals/sigma_res, c=self.color_out, alpha=0.8)
                 axr.axhline(y=0, color='k', alpha=0.5, linestyle='--')
-                axr2.hist(residuals/sigma_res, bins=100 ,color=self.color_out, alpha=0.5, density=True, orientation='horizontal')
-                axr2.legend(frameon=False,handlelength=0)
+                axr2.hist(residuals/sigma_res, bins=100, color=self.color_out, alpha=0.5, density=True, orientation='horizontal')
 
                 if indobs == iobs_spectro-1:
                     # Add labels out of the loops
-                    ax.plot(spectra[0][0], np.empty(len(spectra[0][0]))*np.nan, c='k', label='Spectroscopic data')
-                    ax.plot(spectra[0][0], np.empty(len(spectra[0][0]))*np.nan, c=self.color_out, label='Spectroscopic model')
-                    axr.plot(spectra[0][0], np.empty(len(spectra[0][0]))*np.nan, c=self.color_out, label='Spectroscopic data-model')
-                    axr2.hist(residuals/sigma_res, bins=100 ,color=self.color_out, alpha=0.2, density=True, orientation='horizontal', label='density')
-                    if self.global_params.fm_type[indobs] != 'NA':
-                        ax.plot(spectra[0][0], np.empty(len(spectra[0][0]))*np.nan, c='b', label='Stellar model')
-                        ax.plot(spectra[0][0], np.empty(len(spectra[0][0]))*np.nan, c='r', label='Planetary model')
+                    ax.plot(obs_dict['wav_spectro'], np.empty(len(obs_dict['wav_spectro']))*np.nan, c='k', label='Spectroscopic data')
+                    ax.plot(obs_dict['wav_spectro'], np.empty(len(obs_dict['wav_spectro']))*np.nan, c=self.color_out, label='Spectroscopic model')
+                    axr.plot(obs_dict['wav_spectro'], np.empty(len(obs_dict['wav_spectro']))*np.nan, c=self.color_out, label='Spectroscopic data-model')
+                    axr2.hist(residuals/sigma_res, bins=100 , color=self.color_out, alpha=0.2, density=True, orientation='horizontal', label='density')
                     iobs_spectro = -1
+                axr2.legend(frameon=False,handlelength=0)
 
-            if len(wav_photo) != 0:
+            # Photometry part
+            if len(obs_dict['wav_photo']) != 0:
                 iobs_photo += 1
                 iobs_spectro += 1
                 # If you want to plot the transmission filters
                 if trans == 'yes':
-                    self.global_params.observation_path = obs
-                    obs_name = os.path.splitext(os.path.basename(self.global_params.observation_path))[0]
-                    spectrum_obs = np.load(os.path.join(self.global_params.result_path, f'spectrum_obs_{obs_name}.npz'), allow_pickle=True)
-                    obs_photo_ins = spectrum_obs['obs_photo_ins']
-                    for pho_ind, pho in enumerate(obs_photo_ins):
+                    for pho_ind, pho in enumerate(obs_dict['ins_photo']):
                         path_list = __file__.split("/")[:-2]
                         separator = '/'
                         filter_pho = np.load(separator.join(path_list) + '/phototeque/' + pho + '.npz')
-                        ax.fill_between(filter_pho['x_filt'], filter_pho['y_filt']*0.8*min(spectra[indobs][5]/ck[indobs]),color=self.color_out, alpha=0.3)
-                        ax.text(np.mean(filter_pho['x_filt']), np.mean(filter_pho['y_filt']*0.4*min(spectra[indobs][5]/ck[indobs])), pho, horizontalalignment='center', c='gray')
-                ax.plot(wav_photo, flx_obs_photo / ck[indobs], 'ko', alpha=0.7)
-                ax.plot(wav_photo, flx_mod_photo / ck[indobs], 'o', color=self.color_out)
+                        ax.fill_between(filter_pho['x_filt'], filter_pho['y_filt']*0.8*min(obs_dict['flx_photo']/ck),color=self.color_out, alpha=0.3)
+                        ax.text(np.mean(filter_pho['x_filt']), np.mean(filter_pho['y_filt']*0.4*min(obs_dict['flx_photo']/ck)), pho, horizontalalignment='center', c='gray')
 
+                if uncert=='yes':
+                    ax.errorbar(obs_dict['wav_photo'], obs_dict['flx_photo']/ck, yerr=obs_dict['err_photo']/ck, c='k', fmt='o', alpha=0.7)    
+                ax.plot(obs_dict['wav_photo'], obs_dict['flx_photo']/ck, 'ko', alpha=0.7)
+                ax.plot(obs_dict['wav_photo'], flx_mod_photo/ck, 'o', color=self.color_out)
 
-                residuals_phot = flx_obs_photo - flx_mod_photo
+                # Residuals
+                residuals_phot = obs_dict['flx_photo'] - flx_mod_photo
                 sigma_res = np.std(residuals_phot)
-                axr.plot(wav_photo, residuals_phot/sigma_res, 'o', c=self.color_out, alpha=0.8)
+                axr.plot(obs_dict['wav_photo'], residuals_phot/sigma_res, 'o', c=self.color_out, alpha=0.8)
                 axr.axhline(y=0, color='k', alpha=0.5, linestyle='--')
 
                 if indobs == iobs_photo-1:
                     # Add labels out of the loops
-                    ax.plot(spectra[0][4], np.empty(len(spectra[0][4]))*np.nan, 'ko', label='Photometry data')
-                    ax.plot(spectra[0][4], np.empty(len(spectra[0][4]))*np.nan, 'o', c=self.color_out, label='Photometry model')
-                    axr.plot(spectra[0][4], np.empty(len(spectra[0][4]))*np.nan, 'o', c=self.color_out, label='Photometry data-model')
+                    ax.plot(obs_dict['wav_photo'], np.empty(len(obs_dict['wav_photo']))*np.nan, 'ko', label='Photometry data')
+                    ax.plot(obs_dict['wav_photo'], np.empty(len(obs_dict['wav_photo']))*np.nan, 'o', c=self.color_out, label='Photometry model')
+                    axr.plot(obs_dict['wav_photo'], np.empty(len(obs_dict['wav_photo']))*np.nan, 'o', c=self.color_out, label='Photometry data-model')
 
                     iobs_photo = -1
 
@@ -811,9 +766,6 @@ class PlottingForMoSA():
         if logy == 'yes':
             ax.set_yscale('log')
 
-        # Remove the xticks from the first ax
-        #ax.set_xticks([])
-
         # Labels
         axr.set_xlabel(r'Wavelength (µm)')
         if norm != 'yes':
@@ -823,73 +775,63 @@ class PlottingForMoSA():
         axr.set_ylabel(r'Residuals ($\sigma$)')
 
         axr2.axis('off')
+        ax.tick_params(labelbottom=False, bottom=False)
         ax.legend(frameon=False)
         axr.legend(frameon=False)
-
-        # define the data as global
-        self.spectra = spectra
 
         return fig, ax, axr, axr2
 
 
-    def plot_HiRes_comp_model(self, figsize=(10, 5), norm='no', indobs=0):
+    def plot_HiRes_comp_model(self, figsize=(10, 5), indobs=0):
         '''
         Specific function to plot the best fit comparing with the data for high-resolution spectroscopy.
 
         Args:
-            figsize             (tuple): (default = (10, 5)) Size of the plot
-            norm                  (str): (default = no) 'yes' or 'no' to plot the normalized spectra
-            data_resolution       (int): (default = 0) Custom resolution to broadened data
-        Returns:
-            - fig1  (object) : matplotlib figure object
-            - ax1   (object) : matplotlib axes objects
+            figsize                   (tuple): (default = (10, 5)) Size of the plot
+            indobs                      (int): Index of the current observation loop
+        Returns:      
+            - fig1, ax1              (object): matplotlib figure object
+            - fig, ax                (object): matplotlib axes objects
+            - flx_obs_broadened       (array): Flux of the observation with all fitted contributions removed + broadened at vsini
         '''
         print('ForMoSA - Planet model and data')
 
 
-        spectra, ck = self._get_spectra(self.theta_best)
+        # Get back spectra
+        obs_dict, flx_mod_spectro, _, _, _, _ = self._get_spectra(self.theta_best)[indobs]
 
+        # Prepare plot
         fig1, ax1 = plt.subplots(1, 1, figsize = figsize)
         fig, ax = plt.subplots(1, 1, figsize = figsize)
 
-        # Scale or not in absolute flux
-        if norm != 'yes':
-            ck = np.full(len(spectra[0][0]), 1)
-            
-        if self.global_params.fm_type[indobs] != 'NA':
-            # If we used the lsq function, it means that our data is contaminated by the starlight difraction
-            # so the model is the sum of the planet model + the estimated stellar contribution
-            spectra = list(spectra) # Transform spectra to a list so that we can modify its values
-            spectra[indobs] = list(spectra[indobs])
-            wave, flx_obs, flx_mod, star_flx, system_obs = spectra[indobs][0], spectra[indobs][1], spectra[indobs][3], spectra[indobs][9], spectra[indobs][10]
+        # Spectroscopic part
+        if len(obs_dict['wav_spectro']) != 0:
 
-        if len(spectra[indobs][0]) != 0:
+            # Remove contributions to show planetary signal if necessary
+            flx_obs_calib = obs_dict['flx_spectro'] - obs_dict['system'] - obs_dict['star_flx']
+            flx_mod_calib = flx_mod_spectro- obs_dict['system'] - obs_dict['star_flx']
 
-            if (len(star_flx) > 0):     # if len(systematics) = 0 but len(star_flx) > 0
-                flx_obs = flx_obs - star_flx
-                flx_mod = flx_mod - star_flx
-            elif (len(system_obs) > 0):  # if len(star_flx) = 0 but len(systematics) > 0
-                flx_obs = flx_obs - system_obs
-                flx_mod = flx_mod - system_obs
+            # Compute intrinsic resolution of the data because of the v.sini (if defined)
+            try:
+                if len(self.global_params.vsini) > 4:
+                    new_res = 3.0*1e5 / (self.theta_best[self.theta_index == f'vsini_{indobs}'])
+                else:
+                    new_res = 3.0*1e5 / (self.theta_best[self.theta_index == 'vsini'])
+                new_res = new_res * np.ones(len(obs_dict['wav_spectro']))
+                flx_obs_broadened = resolution_decreasing(obs_dict['wav_spectro'], flx_obs_calib, obs_dict['res_spectro'], obs_dict['wav_spectro'], new_res)
+            except:
+                flx_obs_broadened = flx_obs_calib
 
-
-            # Compute intrinsic resolution of the data because of the v.sini
-            resolution = 3.0*1e5 / (self.theta_best[self.theta_index == 'vsini'])
-            resolution = resolution * np.ones(len(wave))
-            
-            res_obs = spectra[indobs][12]
-            flx_obs_broadened = resolution_decreasing(self.global_params, wave, flx_obs, resolution, wave, flx_obs, res_obs, 'mod')
-
-            ax.plot(wave, flx_obs_broadened, c='k')
-            ax.plot(wave, flx_mod, c='r')
+            ax.plot(obs_dict['wav_spectro'], flx_obs_broadened, c='k')
+            ax.plot(obs_dict['wav_spectro'], flx_mod_calib, c='r')
 
             ax.set_xlabel(r'wavelength ($\mu$m)')
             ax.set_ylabel('Flux (ADU)')
 
-            ax1.plot(wave, flx_obs, c='k')
-            ax1.plot(wave, flx_mod, c = 'r')
+            ax1.plot(obs_dict['wav_spectro'], flx_obs_calib, c='k')
+            ax1.plot(obs_dict['wav_spectro'], flx_mod_calib, c = 'r')
 
-            if self.global_params.fm_type[indobs] != 'NA':
+            if self.global_params.hc_type[indobs % len(self.global_params.hc_type)] != 'NA':
                 legend_data = 'data - star'
             else:
                 legend_data = 'data'
@@ -902,7 +844,50 @@ class PlottingForMoSA():
         ax1.set_xlabel('wavelength ($ \mu $m)')
         ax1.tick_params(axis='both')
 
-        return fig1, ax1, fig, ax, flx_obs, flx_obs_broadened
+        return fig1, ax1, fig, ax, flx_obs_broadened
+
+
+    def compute_ccf_single_rv(self, rv, wav_mod, flx_mod, flx_mod_no_rv, res_mod_obs, wav_obs, flx_obs, res_obs, transm_obs, Sf, indobs):
+        '''
+        Compute a cross-correlation coefficient for a single rv. This function is used for the parallelised ccf computation
+        
+
+        Args:
+            rv            (float) : rv value to apply to the model
+            wav_mod       (ndarray ) : wavelength grid of the model
+            flx_mod       (ndarray) : flux of the model
+            flx_mod_no_rv (ndarray) : flx of the model at 0 rv (used for autocorrelation)
+            res_mod_obs   (ndarray) : resolution of the model interpolated onto obs_wav
+            wav_obs       (ndarray) : wavelength grid of the observation
+            flx_obs       (ndarray) : flux of the observation
+            res_obs       (ndarray) : resolution of the observation
+            transm_obs    (ndarray) : atmospheric and instrumental transmission
+            Sf            (float) : L2 norm of the observation
+            indobs        (int) : Index of the current observation loop
+
+        Returns:
+            - ccf  (float) : cross-correlation coefficient
+            - acf  (float) : autocorrelation coefficient
+            - logL (float) : logL value
+        '''
+        
+        wav_mod_rv, flx_mod_rv = doppler_fct(wav_mod, flx_mod, rv)
+        flx_mod_rv = resolution_decreasing(wav_mod_rv, flx_mod_rv, res_mod_obs, wav_obs, res_obs)
+        flx_cont_mod_rv = continuum_estimate(wav_obs, flx_mod_rv, res_obs, self.global_params.wav_cont[indobs % len(self.global_params.wav_cont)], float(self.global_params.res_cont[indobs % len(self.global_params.res_cont)]))
+        flx_mod_rv -= flx_cont_mod_rv
+        flx_mod_rv *= transm_obs
+        
+        # Normalize the model to make it comparable to the data in terms of flux
+        flx_mod_rv /= np.sqrt(np.nansum(flx_mod_rv**2))
+        ccf = np.nansum(flx_mod_rv * flx_obs)    # Cross correlation function
+        acf = np.nansum(flx_mod_rv * flx_mod_no_rv)   # Auto correlation function
+
+        Sg = np.nansum(np.square(flx_mod_rv))
+        R = np.nansum(flx_obs * flx_mod_rv)
+        C2 = R**2 / (Sf * Sg)
+        logL = -len(flx_obs) / 2 * np.log(1 - C2)
+        
+        return ccf, acf, logL
 
 
     def plot_ccf(self, rv_grid = [-300,300], rv_step = 0.5, figsize = (10,5), window_normalisation = 100, continuum_res = 500, vsini = [], wav_mod_nativ=[], flx_mod_nativ=[], res_mod_nativ=[], indobs=0, plot=True, map_rv_vsini = False, flx_obs = [], wav_obs = [], res_obs = [], transm_obs = []):
@@ -911,27 +896,27 @@ class PlottingForMoSA():
 
         Args:
             figsize                   (tuple): (default = (10, 5)) Size of the plot
-            rv_grid                   (list): (default = [-300,300]) Maximum and minumum values of the radial velocity shift (in km/s)
+            rv_grid                    (list): (default = [-300,300]) Maximum and minumum values of the radial velocity shift (in km/s)
             rv_step                   (float): (default = 0.5) Radial velocity shift steps (in km/s)
             figsize                   (tuple): (default = (10,5)) Size of the figure to plot
-            window_normalisation      (int): (default = 100) Window used to exclude around the peak of the CCF for noise estimation
+            window_normalisation        (int): (default = 100) Window used to exclude around the peak of the CCF for noise estimation
             vsini                     (float): (default = []) v.sin(i) used to apply to the model (in the case the user wants to apply another v.sin(i) than the v.sin(i) estimated by the NS)     
             wav_mod_nativ             (array): (default = []) Wavelength of the model to cross-correlate with the data in the case the user wants to use the rv_vsini map function or a different model (individual molecule for example)
             flx_mod_nativ             (array): (default = []) Flux of the model to cross-correlate with the data in the case the user wants to use the rv_vsini map function or a different model (individual molecule for example)
             res_mod_nativ             (array): (default = []) Resolution of the model to cross-correlate with the data in the case the user wants to use the rv_vsini map function or a different model (individual molecule for example)
-            indobs                    (int): (default = 0) Index of the current observation loop
-            plot                      (bool): (default = True) Whether to plot the ccf
-            map_rv_vsini              (bool): (default = False) Whether the user wants to use the rv_vsini map function
+            indobs                      (int): (default = 0) Index of the current observation loop
+            plot                       (bool): (default = True) Whether to plot the ccf
+            map_rv_vsini               (bool): (default = False) Whether the user wants to use the rv_vsini map function
             flx_obs                   (array): (default = []) Data in the case the user wants to use the rv_vsini map function. This avoids repeating the same operation for each v.sini defined by the v.sini grid and sames some time
             wav_obs                   (array): (default = []) Wavelength in the case the user wants to use the rv_vsini map function. This avoids repeating the same operation for each v.sini defined by the v.sini grid and sames some time
             res_obs                   (array): (default = []) Resolution in the case the user wants to use the rv_vsini map function. This avoids repeating the same operation for each v.sini defined by the v.sini grid and sames some time
             transm_obs                (array): (default = []) Transmission in the case the user wants to use the rv_vsini map function. This avoids repeating the same operation for each v.sini defined by the v.sini grid and sames some time
         Returns:
-            - fig1                    (object) : matplotlib figure object
-            - ax1                     (object) : matplotlib axes objects
-            - rv_grid                    (list): Radial velocity grid
-            - ccf_norm                       (list): Cross-correlation function
-            - acf_norm                       (list): Auto-correlation function
+            - fig1                   (object): matplotlib figure object
+            - ax1                    (object): matplotlib axes objects
+            - rv_grid                  (list): Radial velocity grid
+            - ccf_norm                 (list): Cross-correlation function
+            - acf_norm                 (list): Auto-correlation function
         '''
         print('ForMoSA - CCF plot')
 
@@ -940,54 +925,66 @@ class PlottingForMoSA():
             return a*np.exp(-(x-x0)**2/(2*sigma**2))
 
         rv_grid = np.arange(rv_grid[0], rv_grid[1], rv_step)
-        spectra, ck = self._get_spectra(self.theta_best)
         
         # This condition is used to retrieve the obseervations and the nativ model. 
         # In the case the user uses the rv_vsini_map function, the observations and nativ models are already defined as inputs of the function
         # This saves some time by avoiding the repetition of this set of operations at each v.sini of the v.sini grid in the rv_vsini_map function
-        if not(map_rv_vsini):  
-            # First step, we retrieve the star and systematics contaminations associated to the best model 
-            wav_obs, flx_obs, star_flx_obs, system_obs, res_obs, transm_obs = spectra[indobs][0], spectra[indobs][1], spectra[indobs][9], spectra[indobs][10], spectra[indobs][11], spectra[indobs][12]
-            if self.global_params.fm_type[indobs] != 'NA':
-                spectra = list(spectra) # Transform spectra to a list so that we can modify its values
-                spectra[indobs] = list(spectra[indobs])
+        if not(map_rv_vsini):
+            # In this case, we extract the obs
+            obs_dict, _, _, _, _, _ = self._get_spectra(self.theta_best)[indobs]
+            wav_obs, flx_obs, star_flx_obs, system_obs, res_obs, transm_obs = obs_dict['wav_spectro'], obs_dict['flx_spectro'], obs_dict['star_flx'], obs_dict['system'], obs_dict['res_spectro'], obs_dict['transm']
+
             # Retrieve data to cross correlate the model with
-            if (len(system_obs) > 0) and (len(star_flx_obs) > 0):
-                flx_obs = flx_obs - star_flx_obs - system_obs
-            elif (len(star_flx_obs) > 0):     # if len(systematics) = 0 but len(star_flx) > 0
-                flx_obs = flx_obs - star_flx_obs
-            elif (len(system_obs) > 0):  # if len(star_flx) = 0 but len(systematics) > 0
-                flx_obs = flx_obs - system_obs
+            flx_obs = flx_obs - star_flx_obs - system_obs # If star_flx and/or system are not define, this won't change anything
                 
             # Normalize the data
             flx_obs /= np.sqrt(np.sum(flx_obs**2))
             
             # Second step, we retrieve the native model at rv and v.sini = 0
             theta_best = np.copy(self.theta_best)
-            theta_best[self.theta_index == 'rv'] = 0
-            theta_best[self.theta_index == 'vsini'] = 0
-            spectra, ck = self._get_spectra(theta_best)
-            wav_mod_nativ, flx_mod_nativ, res_mod_nativ = spectra[indobs][13], spectra[indobs][14], spectra[indobs][15]
+            try:
+                if len(self.global_params.rv) > 3:
+                    theta_best[self.theta_index == f'rv_{indobs}'] = 0
+                else:
+                    theta_best[self.theta_index == 'rv'] = 0
+            except:
+                pass
+            try:
+                if len(self.global_params.vsini) > 4:
+                    theta_best[self.theta_index == f'vsini_{indobs}'] = 0
+                else:
+                    theta_best[self.theta_index == 'vsini'] = 0
+            except:
+                pass
+            # Recover the grid
+            ds = xr.open_dataset(self.global_params.model_path, decode_cf=False, engine="netcdf4")
+            wav_mod_nativ = ds["wavelength"].values
+            res_mod_nativ = np.asarray(ds.attrs['res'])
+            _, _, _, flx_mod_nativ, _, _ = self._get_spectra(self.theta_best)[indobs]
             
             # This condition arrises if the user does not use the rv_vsini_map function AND does not want to apply a specific vsini to the template
             # in that case, we use the best v.sini infered by the nested sampling
             if vsini == []:   
                 vsini = self.theta_best[self.theta_index == 'vsini']
+
+        # Second.5, interpolate the resolution of the model
+        interp_mod_to_obs = interp1d(wav_mod_nativ, res_mod_nativ, fill_value='extrapolate')
+        res_mod_obs = interp_mod_to_obs(wav_obs)
     
         # Third sted, we apply rotational broadening]
-        flx_mod, res_mod_vsini = vsini_fct(self.global_params, wav_mod_nativ, flx_mod_nativ, res_mod_nativ, 0.6, vsini, indobs)  # We consider the limb darkening to be fixed at 0.6
+        flx_mod_vsini, res_mod_vsini = vsini_fct(wav_mod_nativ, flx_mod_nativ, res_mod_obs, 0.6, vsini, self.global_params.vsini[indobs*4 + 3 % len(self.global_params.vsini)])  # We consider the limb darkening to be fixed at 0.6
 
         # Finally, we generate the model at rv = 0 (for auto correlation)
         self.global_params.continuum_sub[indobs] = continuum_res
-        flx_mod_no_rv = resolution_decreasing(self.global_params, wav_obs, [], res_obs, wav_mod_nativ, flx_mod, res_mod_vsini, 'mod', indobs)
-        flx_cont_mod_no_rv = continuum_estimate(self.global_params, wav_obs, flx_mod_no_rv, res_mod_vsini, 0)
-        flx_mod_no_rv -= flx_cont_mod_no_rv
+        flx_mod_vsini_no_rv = resolution_decreasing(wav_mod_nativ, flx_mod_vsini, res_mod_vsini, wav_obs, res_obs)
+        flx_cont_mod_vsini_no_rv = continuum_estimate(wav_obs, flx_mod_vsini_no_rv, res_obs, self.global_params.wav_cont[indobs % len(self.global_params.wav_cont)], float(self.global_params.res_cont[indobs % len(self.global_params.res_cont)]))
+        flx_mod_vsini_no_rv -= flx_cont_mod_vsini_no_rv
         
         # Multiply by telluric and instrumental transmission (if any)
         if len(transm_obs > 0):
-            flx_mod_no_rv *= transm_obs
+            flx_mod_vsini_no_rv *= transm_obs
 
-        flx_mod_no_rv /= np.sqrt(np.sum(flx_mod_no_rv**2))
+        flx_mod_vsini_no_rv /= np.sqrt(np.sum(flx_mod_vsini_no_rv**2))
     
         ccf = np.zeros(len(rv_grid))
         acf = np.zeros(len(rv_grid))
@@ -1005,7 +1002,7 @@ class PlottingForMoSA():
             # Loop in rv
             tasks = []
             for rv in tqdm(rv_grid):
-                tasks.append(pool.apply_async(compute_ccf_single_rv, args=(self.global_params, rv, wav_mod_nativ, flx_mod, flx_mod_no_rv, res_mod_vsini, wav_obs, flx_obs, res_obs, transm_obs, Sf, indobs), callback=update))
+                tasks.append(pool.apply_async(compute_ccf_single_rv, args=(self, rv, wav_mod_nativ, flx_mod_vsini, flx_mod_vsini_no_rv, res_mod_vsini, wav_obs, flx_obs, res_obs, transm_obs, Sf, indobs), callback=update))
                 
             pool.close()
             pool.join()
@@ -1066,7 +1063,7 @@ class PlottingForMoSA():
             return rv_grid, logL
 
 
-    def plot_map_rv_vsini(self, rv_grid = [-100,100], rv_step = 1.0, vsini_grid=[1,100], vsini_step = 1.0, figsize = (10,5), wav_mod_nativ=[], flx_mod_nativ=[], res_mod_nativ=[], indobs=0, continuum_res=500):
+    def plot_map_rv_vsini(self, rv_grid = [-100,100], rv_step = 1.0, vsini_grid=[1,100], vsini_step = 1.0, wav_mod_nativ=[], flx_mod_nativ=[], res_mod_nativ=[], indobs=0, continuum_res=500):
         '''
         Plot a RV v.sini map. It is used for high resolution spectroscopy
 
@@ -1086,39 +1083,44 @@ class PlottingForMoSA():
         
         print('ForMoSA - RV-vsini mapping plot')
         
-        spectra, ck = self._get_spectra(self.theta_best)
-        
         vsini_grid = np.arange(vsini_grid[0], vsini_grid[1], vsini_step)
         logL_map = np.empty((len(vsini_grid), int((rv_grid[1] - rv_grid[0]) / rv_step)))
         
         # First step, we retrieve the star and systematics contaminations associated to the best model (if any)
-        wav_obs, flx_obs, star_flx_obs, system_obs, res_obs, transm_obs = spectra[indobs][0], spectra[indobs][1], spectra[indobs][9], spectra[indobs][10], spectra[indobs][11], spectra[indobs][12]
-        if self.global_params.fm_type[indobs] != 'NA':
-            spectra = list(spectra) # Transform spectra to a list so that we can modify its values
-            spectra[indobs] = list(spectra[indobs])
+        obs_dict, _, _, _, _, _ = self._get_spectra(self.theta_best)[indobs]
+        wav_obs, flx_obs, star_flx_obs, system_obs, res_obs, transm_obs = obs_dict['wav_spectro'], obs_dict['flx_spectro'], obs_dict['star_flx'], obs_dict['system'], obs_dict['res_spectro'], obs_dict['transm']
 
         # Retrieve data to cross correlate the model with
-        if (len(system_obs) > 0) and (len(star_flx_obs) > 0):
-            flx_obs = flx_obs - star_flx_obs - system_obs
-        elif (len(star_flx_obs) > 0):     # if len(systematics) = 0 but len(star_flx) > 0
-            flx_obs = flx_obs - star_flx_obs
-        elif (len(system_obs) > 0):  # if len(star_flx) = 0 but len(systematics) > 0
-            flx_obs = flx_obs - system_obs
+        flx_obs = flx_obs - star_flx_obs - system_obs
             
         # Normalize the data
         flx_obs /= np.sqrt(np.sum(flx_obs**2))
         
         # Second step, we retrieve the native model at rv and v.sini = 0
-        if len(flx_mod_nativ) == 0:
+        if (len(flx_mod_nativ) == 0) and (len(res_mod_nativ) == 0):
             theta_best = np.copy(self.theta_best)
-            theta_best[self.theta_index == 'rv'] = 0
-            theta_best[self.theta_index == 'vsini'] = 0
-            spectra, ck = self._get_spectra(theta_best)
-            wav_mod_nativ, flx_mod_nativ, res_mod_nativ = spectra[indobs][13], spectra[indobs][14], spectra[indobs][15]
-            
+            try:
+                if len(self.global_params.rv) > 3:
+                    theta_best[self.theta_index == f'rv_{indobs}'] = 0
+                else:
+                    theta_best[self.theta_index == 'rv'] = 0
+            except:
+                pass
+            try:
+                if len(self.global_params.vsini) > 4:
+                    theta_best[self.theta_index == f'vsini_{indobs}'] = 0
+                else:
+                    theta_best[self.theta_index == 'vsini'] = 0
+            except:
+                pass
+            # Recover the grid
+            ds = xr.open_dataset(self.global_params.model_path, decode_cf=False, engine="netcdf4")
+            wav_mod_nativ = ds["wavelength"].values
+            res_mod_nativ = np.asarray(ds.attrs['res'])
+            _, _, _, flx_mod_nativ, _, _ = self._get_spectra(self.theta_best)[indobs]
         else:
-            res_mod_nativ = interp1d(wav_mod_nativ, res_mod_nativ)
-            res_mod_nativ = res_mod_nativ(wav_obs)
+            pass
+        
         
         for i, vsini_i in enumerate(tqdm(vsini_grid)):
             grid, logL = self.plot_ccf(rv_grid=rv_grid, rv_step=rv_step, vsini=vsini_i, plot=False, wav_mod_nativ=wav_mod_nativ, flx_mod_nativ=flx_mod_nativ, res_mod_nativ=res_mod_nativ, map_rv_vsini=True, flx_obs=flx_obs, wav_obs=wav_obs, res_obs = res_obs, transm_obs = transm_obs)

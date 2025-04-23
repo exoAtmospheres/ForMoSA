@@ -1,16 +1,17 @@
 from __future__ import print_function, division
 import numpy as np
 import xarray as xr
-import os, sys
+import os
 import ctypes
 import multiprocessing as mp
+from scipy.interpolate import interp1d
 
 from tqdm import tqdm
 from multiprocessing.pool import ThreadPool
 
-sys.path.insert(0, os.path.abspath('../'))
-
-from adapt.extraction_functions import adapt_model
+from ..utils import format_grid
+from .adapt_emulators import emulator_PCA, emulator_NMF
+from .adapt_extraction_functions import adapt_model
 
 
 # ----------------------------------------------------------------------------------------------------------------------
@@ -54,9 +55,7 @@ def tpool_adapt_init(grid_input_shape_i, grid_input_data_i, grid_spectro_shape_i
     grid_photo_shape   = grid_photo_shape_i
     grid_photo_data    = grid_photo_data_i
 
-# global_params, wav_mod_nativ, flx_mod_nativ, res_mod_obs, wav_obs_spectro, res_obs_spectro, obs_photo_ins
-
-def tpool_adapt(idx, global_params, wav_mod_nativ, wav_grid_spectro, res_mod_obs, wav_obs_spectro, res_obs_spectro, obs_photo_ins, indobs, keys, titles, values):
+def tpool_adapt(idx, global_params, obs_dict, wav_mod_nativ, res_mod_nativ, target_wav_mod, target_res_mod, indobs, keys, titles, values):
     '''
     Worker function for the parallelisation process of adapt_model()
 
@@ -64,11 +63,9 @@ def tpool_adapt(idx, global_params, wav_mod_nativ, wav_grid_spectro, res_mod_obs
         idx               (tuple): Index of the current model
         global_params    (object): Class containing each parameter 
         wav_mod_nativ     (array): Native wavelength array of the grid
-        wav_grid_spectro  (array): Model wavelength of the final spectroscopic grid
-        res_mod_obs       (array): Spectral resolution of the model interpolated at wav_obs_spectro
-        wav_obs_spectro   (array): Merged wavelength array of the data
-        res_obs_spectro   (array): Merged resolution array of the data
-        obs_photo_ins     (array): List containing different filters used for the data (1 per photometric point). [filter_phot_1, filter_phot_2, ..., filter_phot_n]
+        res_mod_nativ       (array): Native resolution of the grid (might have changed if Nyquist is not respected or resample at wav_obs_spectro)
+        target_wav_mod    (array): Targeted wavelength grid of the final grid
+        target_res_mod    (array): Targeted spectral resolution of the final grid
         indobs              (int): Index of the current observation looping
         keys               (list): Attribute keys
         titles             (list): Attribute titles
@@ -95,7 +92,7 @@ def tpool_adapt(idx, global_params, wav_mod_nativ, wav_grid_spectro, res_mod_obs
                 msg += f'{title}={values[key][idx[i]]}, '
             print(msg)
         else:
-            mod_spectro, mod_photo = adapt_model(global_params, wav_mod_nativ, wav_grid_spectro, model_to_adapt, res_mod_obs, wav_obs_spectro, res_obs_spectro, obs_photo_ins, indobs=indobs)
+            mod_spectro, mod_photo = adapt_model(global_params, obs_dict, wav_mod_nativ, model_to_adapt, res_mod_nativ, target_wav_mod, target_res_mod, indobs)
             grid_spectro[(..., ) + idx] = mod_spectro
             grid_photo[(..., ) + idx]   = mod_photo
         
@@ -103,39 +100,36 @@ def tpool_adapt(idx, global_params, wav_mod_nativ, wav_grid_spectro, res_mod_obs
         print(f'Error in task: {e}')
 
 
-def adapt_grid(global_params, wav_grid_spectro, wav_grid_photo, res_mod_obs, wav_obs_spectro, res_obs_spectro, obs_photo_ins, obs_name, indobs=0):
+def adapt_grid(global_params, obs_dict, res_mod_nativ, target_wav_mod, target_res_mod, obs_name, indobs=0):
     """
     Adapt the synthetic spectra of a grid to make them comparable with the data.
 
     Args:
-        global_params    (object): Class containing each parameter
-        wav_grid_spectro  (array): Model wavelength of the final spectroscopic grid
-        wav_grid_photo    (array): Model wavelength of the final spectroscopic grid
-        res_mod_obs       (array): Spectral resolution of the model interpolated at wav_obs_spectro 
-        wav_obs_spectro   (array): Wavelengths of the spectroscopy points
-        res_obs_spectro   (array): Spectral resolution of the spectroscopic data
-        obs_photo_ins     (array): List containing different filters used for the data (1 per photometric point). [filter_phot_1, filter_phot_2, ..., filter_phot_n]
-        obs_name            (str): Name of the current observation looping
-        indobs              (int): Index of the current observation looping
-        parallel           (bool): Specify if parallelisation is used for adaptation
+        global_params      (object): Class containing each parameter
+        obs_dict             (dict): Dictionay containing all the observationnal entries (photometry, spectroscopy and/or optional)
+        res_mod_nativ       (array): Native resolution of the grid (might have changed if Nyquist is not respected or resample at wav_obs_spectro)
+        target_wav_mod      (array): Targeted wavelength grid of the final grid
+        target_res_mod      (array): Targeted spectral resolution of the final grid
+        obs_name              (str): Name of the current observation looping
+        indobs                (int): Index of the current observation looping
     Returns:
         None
 
     Author: Simon Petrus, Matthieu Ravet, Paulina Palma-Bifani, Arthur Vigan and Allan Denis
     """
 
+    # Open raw grid
     ds = xr.open_dataset(global_params.model_path, decode_cf=False, engine="netcdf4")
     wav_mod_nativ = ds["wavelength"].values
     grid = ds['grid']
     attr = ds.attrs
-    attr['res'] = res_mod_obs
     grid_np = grid.to_numpy()
     attr = ds.attrs
     ds.close()
 
     # Create arrays without any assumptions on the number of parameters
-    shape_spectro = [len(wav_grid_spectro)]
-    shape_photo = [len(wav_grid_photo)]
+    shape_spectro = [len(target_wav_mod)]
+    shape_photo = [len(obs_dict['wav_photo'])]
     values = {}
     for key in attr['key']:
         shape_spectro.append(len(grid[key].values))
@@ -174,19 +168,19 @@ def adapt_grid(global_params, wav_grid_spectro, wav_grid_photo, res_mod_obs, wav
     def update(*a):
         pbar.update()
 
-    if global_params.parallel:
+    try: # Parallel if possible
         ncpu = mp.cpu_count()
         with ThreadPool(processes=ncpu, initializer=tpool_adapt_init, initargs=(grid_input_shape, grid_input_data, grid_spectro_shape, grid_spectro_data, grid_photo_shape, grid_photo_data)) as pool:
             for idx in np.ndindex(shape):
-                pool.apply_async(tpool_adapt, args=(idx, global_params, wav_mod_nativ, wav_grid_spectro, res_mod_obs, wav_obs_spectro, res_obs_spectro, obs_photo_ins, indobs, attr['key'], attr['title'], values), callback=update)
+                pool.apply_async(tpool_adapt, args=(idx, global_params, obs_dict, wav_mod_nativ, res_mod_nativ, target_wav_mod, target_res_mod, indobs, attr['key'], attr['title'], values), callback=update)
 
             pool.close()
             pool.join()
-    else:
+    except:
         tpool_adapt_init(grid_input_shape, grid_input_data, grid_spectro_shape, grid_spectro_data, grid_photo_shape, grid_photo_data)
 
         for idx in np.ndindex(shape):
-            tpool_adapt(idx, global_params, wav_mod_nativ, wav_grid_spectro, res_mod_obs, wav_obs_spectro, res_obs_spectro, obs_photo_ins, indobs, attr['key'], attr['title'], values)
+            tpool_adapt(idx, global_params, obs_dict, wav_mod_nativ, res_mod_nativ, target_wav_mod, target_res_mod, indobs, attr['key'], attr['title'], values)
             update()
 
     # create final datasets
@@ -194,8 +188,11 @@ def adapt_grid(global_params, wav_grid_spectro, wav_grid_photo, res_mod_obs, wav
     for key in attr['key']:
         vars.append(key)
 
-    coords_spectro = {"wavelength": wav_grid_spectro}
-    coords_photo   = {"wavelength": wav_grid_photo}
+    # Save new attributes and coords
+    attr['res'] = target_res_mod
+    coords_spectro = {"wavelength": target_wav_mod}
+    coords_photo   = {"wavelength": obs_dict['wav_photo']}
+
     for key in attr['key']:
         coords_spectro[key] = grid[key].values
         coords_photo[key]   = grid[key].values
@@ -210,7 +207,7 @@ def adapt_grid(global_params, wav_grid_spectro, wav_grid_photo, res_mod_obs, wav
     nkey = len(attr['key'])
     
     interp_kwargs = {
-    "method": "linear",
+    "method": global_params.method,
     "fill_value": "extrapolate",
     "limit": None,
     "max_gap": None,
@@ -222,6 +219,87 @@ def adapt_grid(global_params, wav_grid_spectro, wav_grid_photo, res_mod_obs, wav
             ds_spectro_new = ds_spectro_new.interpolate_na(dim=key, **interp_kwargs)
         if ds_photo_new.isnull().any(dim=key):
             ds_photo_new = ds_photo_new.interpolate_na(dim=key, **interp_kwargs)
+
+
+    # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+
+    # Chose the method of adaptation of the grid. It can either be :
+    # "NA" = we keep the spectra xarray grid and interpolate it during the inversion
+    # "PCA" = we use PCA to decompose the grid into eigenspectra and weight and keep the weigths grid and interpolate it during the inversion
+    # "NMF" = we use NMF to decompose the grid into H (~eigenspectra) W (~weights) and keep the weigths grid and interpolate it during the inversion
+    if global_params.emulator[0] != 'NA':
+
+        # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+
+        if global_params.emulator[0] == 'PCA':
+            print()
+            print('- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -')
+            print('-> Decomposing the grid using PCA... ')
+            print()
+
+            # PCA components
+            ncomp = int(global_params.emulator[1])
+
+            # Check if the grid is not empty and compute PCA 
+            if len(target_wav_mod) != 0:
+                flx_grid_mean_spectro, flx_grid_std_spectro, vectors_spectro, weights_spectro = emulator_PCA(ds_spectro_new, ncomp)
+            else:
+                flx_grid_mean_spectro, flx_grid_std_spectro, vectors_spectro, weights_spectro = np.asarray([]), np.asarray([]), np.empty((0,0), dtype=object), np.empty((0,) + grid.shape[1:], dtype=object)
+            if len(obs_dict['wav_photo']) != 0:
+                flx_grid_mean_photo, flx_grid_std_photo, vectors_photo, weights_photo = emulator_PCA(ds_photo_new, ncomp)
+            else:
+                flx_grid_mean_photo, flx_grid_std_photo, vectors_photo, weights_photo = np.asarray([]), np.asarray([]), np.empty((0,0), dtype=object), np.empty((0,) + grid.shape[1:], dtype=object)
+            
+            # Save the new grids and PCA outputs
+            mod_dict = {'wav_spectro': target_wav_mod,
+                       'res_spectro': target_res_mod,
+                       'flx_mean_spectro': flx_grid_mean_spectro,
+                       'flx_std_spectro': flx_grid_std_spectro,
+                       'vectors_spectro': vectors_spectro,
+                       'flx_mean_photo': flx_grid_mean_photo,
+                       'flx_std_photo': flx_grid_std_photo,
+                       'vectors_photo': vectors_photo}
+            np.savez(os.path.join(global_params.result_path, f'PCA_mod_{obs_name}.npz'), **mod_dict)
+            
+            # Format the new grids in xarray
+            attr.pop('res') # You don't need the res array anymore
+            ds_spectro_new = format_grid(grid, attr, weights_spectro.shape[0], weights_spectro)
+            ds_photo_new = format_grid(grid, attr, weights_photo.shape[0], weights_photo)
+
+        # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+
+        elif global_params.emulator[0] == 'NMF':
+            print()
+            print('- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -')
+            print('-> Decomposing the grid using NMF... ')
+            print()
+
+            #NMF components
+            ncomp = int(global_params.emulator[1])
+
+            # Check if the grid is not empty and compute PCA 
+            if len(target_wav_mod) != 0:
+                vectors_spectro, weights_spectro = emulator_NMF(ds_spectro_new, ncomp)
+            else:
+                vectors_spectro, weights_spectro = np.empty((0,0), dtype=object), np.empty((0,) + grid.shape[1:], dtype=object)
+            if len(obs_dict['wav_photo']) != 0:
+                vectors_photo, weights_photo = emulator_NMF(ds_photo_new, ncomp)
+            else:
+                vectors_photo, weights_photo = np.empty((0,0), dtype=object), np.empty((0,) + grid.shape[1:], dtype=object)
+            
+            # Save the new grids and NMF outputs
+            mod_dict = {'wav_spectro': target_wav_mod,
+                       'res_spectro': target_res_mod,
+                       'vectors_spectro': vectors_spectro,
+                       'vectors_photo': vectors_photo}
+            np.savez(os.path.join(global_params.result_path, f'NMF_mod_{obs_name}.npz'), **mod_dict)
+            
+            # Format the new grids in xarray
+            attr.pop('res') # You don't need the res array anymore
+            ds_spectro_new = format_grid(grid, attr, weights_spectro.shape[0], weights_spectro)
+            ds_photo_new = format_grid(grid, attr, weights_photo.shape[0], weights_photo)
+    else:
+        pass
 
     ds_spectro_new.to_netcdf(os.path.join(global_params.adapt_store_path, f'adapted_grid_spectro_{global_params.grid_name}_{obs_name}_nonan.nc'),
                              format='NETCDF4',

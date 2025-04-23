@@ -1,6 +1,6 @@
 import numpy as np
 
-def logL_chi2_classic(delta_flx, err, full=False):
+def logL_chi2(delta_flx, err, full=False):
     """
     Function to compute logL based on the classical chi2
     under the assumption of gaussian and spectrally uncorrelated noise.

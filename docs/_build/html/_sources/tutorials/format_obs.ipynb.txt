@@ -27,13 +27,13 @@
    "source": [
     "## Data ``.fits``\n",
     "\n",
-    "Your observed data (spectroscopy and/or photometry) should be formated in a ``.fits`` file with the following extensions:\n",
+    "Your observed data (spectroscopy and/or photometry) should be formated in a ``.fits`` file with the following extensions :\n",
     "\n",
-    "- **'WAV'** : (array) wavelength grid\n",
-    "- **'FLX'** : (array) flux\n",
-    "- **'ERR'** or **'COV'** : (array or 2D-array) errors or covariance matrix. The covariance matrix should have ``diag(COV)=ERR²``\n",
-    "- **'RES'** : (array) resolution\n",
-    "- **'INS'** : (array) instrument name\n",
+    "- **'WAV'** : (array) wavelength grid.\n",
+    "- **'FLX'** : (array) flux.\n",
+    "- **'ERR'** or **'COV'** : (array or 2D-array) errors or covariance matrix. The covariance matrix should have ``diag(COV)=ERR²``.\n",
+    "- **'RES'** : (array) resolution. <u>Note :</u> You must put res = 0.0 where you have photometric points.\n",
+    "- **'INS'** : (array) instrument name. <u>Note :</u> You must use the right filter name when you have photometric points. Check the phototeque for more information.\n",
     "\n",
     "exemple :"
    ]

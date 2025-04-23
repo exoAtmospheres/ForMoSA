@@ -2,9 +2,18 @@
 
 Main Utilities
 ==============
-.. module:: ForMoSA
 
 Global functions:
 +++++++++++++++++
-.. automodule:: ForMoSA.main_utilities
+.. automodule:: ForMoSA.global_file
+	:members:
+
+Utilities:
+++++++++++
+.. automodule:: ForMoSA.utils
+	:members:
+
+Spectra utilities:
+++++++++++++++++++
+.. automodule:: ForMoSA.utils_spec
 	:members:

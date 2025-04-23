@@ -8,16 +8,14 @@
 
 import os
 import sys
-sys.path.insert(0, os.path.abspath('../'))
-sys.path.insert(1, os.path.abspath('../ForMoSA/'))
-sys.path.insert(2, os.path.abspath('../ForMoSA/adapt/'))
-sys.path.insert(3, os.path.abspath('../ForMoSA/nested_sampling/'))
+base_dir = os.path.abspath("..")
+sys.path.insert(0, base_dir)
 
 
 project = 'ForMoSA'
 copyright = '2024, Simon Petrus, Paulina Palma-Bifani, Matthieu Ravet, Allan Denis, Mickaël Bonnefoy and Gaël Chauvin'
 author = 'Simon Petrus, Paulina Palma-Bifani, Matthieu Ravet, Allan Denis, Mickaël Bonnefoy and Gaël Chauvin'
-release = '2.0.0'
+release = '1.1.5'
 root_doc = 'index'
 
 language = 'en'
@@ -63,9 +61,12 @@ todo_include_todos = True
 import sphinx_rtd_theme
 import sphinx_rtd_theme
 
+html_static_path = ['_static']
 
 #html_theme = 'bizstyle'
 html_theme = 'sphinx_rtd_theme'
+html_logo = "_static/ForMoSA.png"
+html_favicon = '_static/favicon.ico'
 #html_theme = 'classic'
 
 #html_theme_options = {
@@ -81,11 +82,7 @@ html_theme = 'sphinx_rtd_theme'
 #    'use_download_button': True,
 #}
 
-html_static_path = ['_static']
-
 # These paths are either relative to html_static_path
 # or fully qualified paths (eg. https://...)
 html_theme_path = [sphinx_rtd_theme.get_html_theme_path()]
 
-
-html_favicon = 'favicon.ico'

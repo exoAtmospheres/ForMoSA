@@ -1,25 +1,23 @@
+
+
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" data-content_root="./">
 <head>
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Plotting Class &mdash; ForMoSA 2.0.0 documentation</title>
-      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=fa44fd50" />
-      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=19f00094" />
+  <title>Plotting Class &mdash; ForMoSA 1.1.5 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
 
   
     <link rel="shortcut icon" href="_static/favicon.ico"/>
-  <!--[if lt IE 9]>
-    <script src="_static/js/html5shiv.min.js"></script>
-  <![endif]-->
-  
-        <script src="_static/jquery.js?v=5d32c60e"></script>
-        <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="_static/documentation_options.js?v=51b770b3"></script>
-        <script src="_static/doctools.js?v=9a2dae69"></script>
-        <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
-        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=a48ae3df"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -36,6 +34,7 @@
           
           <a href="index.html" class="icon icon-home">
             ForMoSA
+              <img src="_static/ForMoSA.png" class="logo" alt="Logo"/>
           </a>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -57,7 +56,6 @@
 <li class="toctree-l3"><a class="reference internal" href="#module-ForMoSA.plotting.plotting_class">The plotting module of ForMoSA:</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#ForMoSA.plotting.plotting_class.ComplexRadar"><code class="docutils literal notranslate"><span class="pre">ComplexRadar</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#ForMoSA.plotting.plotting_class.PlottingForMoSA"><code class="docutils literal notranslate"><span class="pre">PlottingForMoSA</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#ForMoSA.plotting.plotting_class.bin_data"><code class="docutils literal notranslate"><span class="pre">bin_data()</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -195,7 +193,7 @@
 
 <dl class="py class">
 <dt class="sig sig-object py" id="ForMoSA.plotting.plotting_class.PlottingForMoSA">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ForMoSA.plotting.plotting_class.</span></span><span class="sig-name descname"><span class="pre">PlottingForMoSA</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config_file_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">color_out</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ForMoSA/plotting/plotting_class.html#PlottingForMoSA"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ForMoSA.plotting.plotting_class.PlottingForMoSA" title="Link to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ForMoSA.plotting.plotting_class.</span></span><span class="sig-name descname"><span class="pre">PlottingForMoSA</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config_file_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">color_out</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'blue'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">global_params</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ForMoSA/plotting/plotting_class.html#PlottingForMoSA"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ForMoSA.plotting.plotting_class.PlottingForMoSA" title="Link to this definition"></a></dt>
 <dd><p>Class containing all the plotting functionalities of ForMoSA.</p>
 <p>Author: Paulina Palma-Bifani, Simon Petrus, Matthieu Ravet and Allan Denis</p>
 <p>Initialize class by inheriting the global parameter class of ForMoSA.</p>
@@ -204,6 +202,7 @@
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>config_file_path</strong> (<em>str</em>) – path to the config.ini file currently used</p></li>
 <li><p><strong>color_out</strong> (<em>str</em>) – color to use for the model</p></li>
+<li><p><strong>global_params</strong> (<a class="reference internal" href="main_utilities.html#ForMoSA.global_file.GlobFile" title="ForMoSA.global_file.GlobFile"><em>GlobFile</em></a><em>, </em><em>optional</em>) – already-initialized GlobFile object</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -211,28 +210,33 @@
 </dd>
 </dl>
 <dl class="py method">
-<dt class="sig sig-object py" id="ForMoSA.plotting.plotting_class.PlottingForMoSA.get_FULL_spectra">
-<span class="sig-name descname"><span class="pre">get_FULL_spectra</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">theta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">grid_used</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'original'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wavelengths</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">N_points</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">re_interp</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">int_method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'linear'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ForMoSA/plotting/plotting_class.html#PlottingForMoSA.get_FULL_spectra"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ForMoSA.plotting.plotting_class.PlottingForMoSA.get_FULL_spectra" title="Link to this definition"></a></dt>
-<dd><p>Extract a model spectrum from another grid.</p>
+<dt class="sig sig-object py" id="ForMoSA.plotting.plotting_class.PlottingForMoSA.compute_ccf_single_rv">
+<span class="sig-name descname"><span class="pre">compute_ccf_single_rv</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rv</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wav_mod</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flx_mod</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flx_mod_no_rv</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">res_mod_obs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wav_obs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flx_obs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">res_obs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transm_obs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Sf</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">indobs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ForMoSA/plotting/plotting_class.html#PlottingForMoSA.compute_ccf_single_rv"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ForMoSA.plotting.plotting_class.PlottingForMoSA.compute_ccf_single_rv" title="Link to this definition"></a></dt>
+<dd><p>Compute a cross-correlation coefficient for a single rv. This function is used for the parallelised ccf computation</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>theta</strong> – (list): best parameter values</p></li>
-<li><p><strong>grid_used</strong> – (str): (default = ‘original’) Path to the grid from where to extract the spectrum. If ‘original’, the current grid will be used.</p></li>
-<li><p><strong>wavelengths</strong> – (list): (default = []) Desired wavelength range. If [] max and min values of wav_for_adapt range will be use to create the wavelength range.</p></li>
-<li><p><strong>N_points</strong> – (int): (default = 1000) Number of points.</p></li>
-<li><p><strong>re_interp</strong> – (boolean): (default = False). Option to reinterpolate or not the grid.</p></li>
-<li><p><strong>int_method</strong> – (str): (default = “linear”) Interpolation method for the grid (if reinterpolated).</p></li>
+<li><p><strong>rv</strong> (<em>float</em>) – rv value to apply to the model</p></li>
+<li><p><strong>wav_mod</strong> (<em>ndarray</em>) – wavelength grid of the model</p></li>
+<li><p><strong>flx_mod</strong> (<em>ndarray</em>) – flux of the model</p></li>
+<li><p><strong>flx_mod_no_rv</strong> (<em>ndarray</em>) – flx of the model at 0 rv (used for autocorrelation)</p></li>
+<li><p><strong>res_mod_obs</strong> (<em>ndarray</em>) – resolution of the model interpolated onto obs_wav</p></li>
+<li><p><strong>wav_obs</strong> (<em>ndarray</em>) – wavelength grid of the observation</p></li>
+<li><p><strong>flx_obs</strong> (<em>ndarray</em>) – flux of the observation</p></li>
+<li><p><strong>res_obs</strong> (<em>ndarray</em>) – resolution of the observation</p></li>
+<li><p><strong>transm_obs</strong> (<em>ndarray</em>) – atmospheric and instrumental transmission</p></li>
+<li><p><strong>Sf</strong> (<em>float</em>) – L2 norm of the observation</p></li>
+<li><p><strong>indobs</strong> (<em>int</em>) – Index of the current observation loop</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>Wavelength array of the full model
-- flx_final                   (array): Flux array of the full model
-- ck                          (float): Scaling factor of the full model</p>
+<dd class="field-even"><p>cross-correlation coefficient
+- acf  (float) : autocorrelation coefficient
+- logL (float) : logL value</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><ul class="simple">
-<li><p>wav_final                   (array)</p></li>
+<li><p>ccf  (float)</p></li>
 </ul>
 </p>
 </dd>
@@ -283,23 +287,23 @@ Adapted from Nathan Zimniak</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="ForMoSA.plotting.plotting_class.PlottingForMoSA.plot_HiRes_comp_model">
-<span class="sig-name descname"><span class="pre">plot_HiRes_comp_model</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">figsize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(10,</span> <span class="pre">5)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">norm</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'no'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_resolution</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ForMoSA/plotting/plotting_class.html#PlottingForMoSA.plot_HiRes_comp_model"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ForMoSA.plotting.plotting_class.PlottingForMoSA.plot_HiRes_comp_model" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">plot_HiRes_comp_model</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">figsize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(10,</span> <span class="pre">5)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">indobs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ForMoSA/plotting/plotting_class.html#PlottingForMoSA.plot_HiRes_comp_model"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ForMoSA.plotting.plotting_class.PlottingForMoSA.plot_HiRes_comp_model" title="Link to this definition"></a></dt>
 <dd><p>Specific function to plot the best fit comparing with the data for high-resolution spectroscopy.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>figsize</strong> (<em>tuple</em>) – (default = (10, 5)) Size of the plot</p></li>
-<li><p><strong>norm</strong> (<em>str</em>) – (default = no) ‘yes’ or ‘no’ to plot the normalized spectra</p></li>
-<li><p><strong>data_resolution</strong> (<em>int</em>) – (default = 0) Custom resolution to broadened data</p></li>
+<li><p><strong>indobs</strong> (<em>int</em>) – Index of the current observation loop</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>matplotlib figure object
-- ax1   (object) : matplotlib axes objects</p>
+- fig, ax                (object): matplotlib axes objects
+- flx_obs_broadened       (array): Flux of the observation with all fitted contributions removed + broadened at vsini</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><ul class="simple">
-<li><p>fig1  (object)</p></li>
+<li><p>fig1, ax1              (object)</p></li>
 </ul>
 </p>
 </dd>
@@ -308,7 +312,7 @@ Adapted from Nathan Zimniak</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="ForMoSA.plotting.plotting_class.PlottingForMoSA.plot_PT">
-<span class="sig-name descname"><span class="pre">plot_PT</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path_temp_profile</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">figsize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(6,</span> <span class="pre">5)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'ExoREM'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ForMoSA/plotting/plotting_class.html#PlottingForMoSA.plot_PT"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ForMoSA.plotting.plotting_class.PlottingForMoSA.plot_PT" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">plot_PT</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path_temp_profile</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">figsize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(6,</span> <span class="pre">5)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'ExoREM'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">emission_contribution</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ForMoSA/plotting/plotting_class.html#PlottingForMoSA.plot_PT"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ForMoSA.plotting.plotting_class.PlottingForMoSA.plot_PT" title="Link to this definition"></a></dt>
 <dd><p>Function to plot the Pressure-Temperature profiles.
 Adpated from Nathan Zimniak.</p>
 <dl class="field-list simple">
@@ -334,7 +338,7 @@ Adpated from Nathan Zimniak.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="ForMoSA.plotting.plotting_class.PlottingForMoSA.plot_ccf">
-<span class="sig-name descname"><span class="pre">plot_ccf</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rv_grid</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[-300,</span> <span class="pre">300]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rv_step</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">figsize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(10,</span> <span class="pre">5)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">norm</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'no'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">window_normalisation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_spectra</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_wavelength</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_resolution</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_resolution</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Full'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rv_cor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_ccf</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wave_ccf</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">star_ccf</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transm_ccf</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">system_ccf</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ForMoSA/plotting/plotting_class.html#PlottingForMoSA.plot_ccf"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ForMoSA.plotting.plotting_class.PlottingForMoSA.plot_ccf" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">plot_ccf</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rv_grid</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[-300,</span> <span class="pre">300]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rv_step</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">figsize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(10,</span> <span class="pre">5)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">window_normalisation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">continuum_res</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">500</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vsini</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wav_mod_nativ</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flx_mod_nativ</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">res_mod_nativ</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">indobs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plot</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">map_rv_vsini</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flx_obs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wav_obs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">res_obs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transm_obs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ForMoSA/plotting/plotting_class.html#PlottingForMoSA.plot_ccf"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ForMoSA.plotting.plotting_class.PlottingForMoSA.plot_ccf" title="Link to this definition"></a></dt>
 <dd><p>Plot the cross-correlation function. It is used for high resolution spectroscopy.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -342,39 +346,48 @@ Adpated from Nathan Zimniak.</p>
 <li><p><strong>figsize</strong> (<em>tuple</em>) – (default = (10, 5)) Size of the plot</p></li>
 <li><p><strong>rv_grid</strong> (<em>list</em>) – (default = [-300,300]) Maximum and minumum values of the radial velocity shift (in km/s)</p></li>
 <li><p><strong>rv_step</strong> (<em>float</em>) – (default = 0.5) Radial velocity shift steps (in km/s)</p></li>
-<li><p><strong>window_normalisation</strong> (<em>int</em>) – (default = 100) ?</p></li>
-<li><p><strong>model_wavelength</strong> (<em>list</em>) – (default = []) ?</p></li>
-<li><p><strong>=</strong> (<em>model_spectra</em>) – (default = []) ?</p></li>
-<li><p><strong>model_resolution</strong> (<em>list</em>) – (default = []) ?</p></li>
-<li><p><strong>model_name</strong> (<em>str</em>) – (default = ‘Full’) ?</p></li>
-<li><p><strong>rv_cor</strong> (<em>int</em>) – (default = 0) ?</p></li>
+<li><p><strong>figsize</strong> – (default = (10,5)) Size of the figure to plot</p></li>
+<li><p><strong>window_normalisation</strong> (<em>int</em>) – (default = 100) Window used to exclude around the peak of the CCF for noise estimation</p></li>
+<li><p><strong>vsini</strong> (<em>float</em>) – (default = []) v.sin(i) used to apply to the model (in the case the user wants to apply another v.sin(i) than the v.sin(i) estimated by the NS)</p></li>
+<li><p><strong>wav_mod_nativ</strong> (<em>array</em>) – (default = []) Wavelength of the model to cross-correlate with the data in the case the user wants to use the rv_vsini map function or a different model (individual molecule for example)</p></li>
+<li><p><strong>flx_mod_nativ</strong> (<em>array</em>) – (default = []) Flux of the model to cross-correlate with the data in the case the user wants to use the rv_vsini map function or a different model (individual molecule for example)</p></li>
+<li><p><strong>res_mod_nativ</strong> (<em>array</em>) – (default = []) Resolution of the model to cross-correlate with the data in the case the user wants to use the rv_vsini map function or a different model (individual molecule for example)</p></li>
+<li><p><strong>indobs</strong> (<em>int</em>) – (default = 0) Index of the current observation loop</p></li>
+<li><p><strong>plot</strong> (<em>bool</em>) – (default = True) Whether to plot the ccf</p></li>
+<li><p><strong>map_rv_vsini</strong> (<em>bool</em>) – (default = False) Whether the user wants to use the rv_vsini map function</p></li>
+<li><p><strong>flx_obs</strong> (<em>array</em>) – (default = []) Data in the case the user wants to use the rv_vsini map function. This avoids repeating the same operation for each v.sini defined by the v.sini grid and sames some time</p></li>
+<li><p><strong>wav_obs</strong> (<em>array</em>) – (default = []) Wavelength in the case the user wants to use the rv_vsini map function. This avoids repeating the same operation for each v.sini defined by the v.sini grid and sames some time</p></li>
+<li><p><strong>res_obs</strong> (<em>array</em>) – (default = []) Resolution in the case the user wants to use the rv_vsini map function. This avoids repeating the same operation for each v.sini defined by the v.sini grid and sames some time</p></li>
+<li><p><strong>transm_obs</strong> (<em>array</em>) – (default = []) Transmission in the case the user wants to use the rv_vsini map function. This avoids repeating the same operation for each v.sini defined by the v.sini grid and sames some time</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>matplotlib figure object
-- ax1                     (object) : matplotlib axes objects
-- rv_grid                    (list): Radial velocity grid
-- ccf                        (list): Cross-correlation function
-- acf                        (list): Auto-correlation function</p>
+- ax1                    (object): matplotlib axes objects
+- rv_grid                  (list): Radial velocity grid
+- ccf_norm                 (list): Cross-correlation function
+- acf_norm                 (list): Auto-correlation function</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><ul class="simple">
-<li><p>fig1                    (object)</p></li>
+<li><p>fig1                   (object)</p></li>
 </ul>
 </p>
 </dd>
 </dl>
-<p>Author: Allan Denis</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="ForMoSA.plotting.plotting_class.PlottingForMoSA.plot_chains">
-<span class="sig-name descname"><span class="pre">plot_chains</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">figsize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(7,</span> <span class="pre">15)</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ForMoSA/plotting/plotting_class.html#PlottingForMoSA.plot_chains"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ForMoSA.plotting.plotting_class.PlottingForMoSA.plot_chains" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">plot_chains</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">figsize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(7,</span> <span class="pre">15)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">show_weights</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ForMoSA/plotting/plotting_class.html#PlottingForMoSA.plot_chains"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ForMoSA.plotting.plotting_class.PlottingForMoSA.plot_chains" title="Link to this definition"></a></dt>
 <dd><p>Plot to check the convergence of the posterior chains.
 Multiple (sub-)axis plot.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>figsize</strong> (<em>tuple</em>) – (default = (7, 15)) size of the plot</p>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>figsize</strong> (<em>tuple</em>) – (default = (7, 15)) size of the plot</p></li>
+<li><p><strong>show_weights</strong> (<em>bool</em>) – True or False if you want to show the weights on the chain</p></li>
+</ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>matplotlib figure object
@@ -391,7 +404,7 @@ Multiple (sub-)axis plot.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="ForMoSA.plotting.plotting_class.PlottingForMoSA.plot_corner">
-<span class="sig-name descname"><span class="pre">plot_corner</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">levels_sig</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[0.997,</span> <span class="pre">0.95,</span> <span class="pre">0.68]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bins</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">quantiles</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(0.16,</span> <span class="pre">0.5,</span> <span class="pre">0.84)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">burn_in</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ForMoSA/plotting/plotting_class.html#PlottingForMoSA.plot_corner"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ForMoSA.plotting.plotting_class.PlottingForMoSA.plot_corner" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">plot_corner</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">levels_sig</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[0.997,</span> <span class="pre">0.95,</span> <span class="pre">0.68]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bins</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">quantiles</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(0.16,</span> <span class="pre">0.5,</span> <span class="pre">0.84)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">figsize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(15,</span> <span class="pre">15)</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ForMoSA/plotting/plotting_class.html#PlottingForMoSA.plot_corner"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ForMoSA.plotting.plotting_class.PlottingForMoSA.plot_corner" title="Link to this definition"></a></dt>
 <dd><p>Function to display the corner plot</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -416,7 +429,7 @@ Multiple (sub-)axis plot.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="ForMoSA.plotting.plotting_class.PlottingForMoSA.plot_fit">
-<span class="sig-name descname"><span class="pre">plot_fit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">figsize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(10,</span> <span class="pre">5)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">uncert</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'no'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">trans</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'no'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logx</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'no'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logy</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'no'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">norm</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'no'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ForMoSA/plotting/plotting_class.html#PlottingForMoSA.plot_fit"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ForMoSA.plotting.plotting_class.PlottingForMoSA.plot_fit" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">plot_fit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">figsize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(13,</span> <span class="pre">7)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">uncert</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'no'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">trans</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'no'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logx</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'no'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logy</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'no'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">norm</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'no'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ForMoSA/plotting/plotting_class.html#PlottingForMoSA.plot_fit"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ForMoSA.plotting.plotting_class.PlottingForMoSA.plot_fit" title="Link to this definition"></a></dt>
 <dd><p>Plot the best fit comparing with the data.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -431,13 +444,13 @@ Multiple (sub-)axis plot.</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>matplotlib figure object
-- ax     (object) : matplotlib axes objects, main spectra plot
-- axr    (object) : matplotlib axes objects, residuals
-- axr2   (object) : matplotlib axes objects, right side density histogram</p>
+- ax    (object): matplotlib axes objects, main spectra plot
+- axr   (object): matplotlib axes objects, residuals
+- axr2  (object): matplotlib axes objects, right side density histogram</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><ul class="simple">
-<li><p>fig    (object)</p></li>
+<li><p>fig   (object)</p></li>
 </ul>
 </p>
 </dd>
@@ -445,27 +458,29 @@ Multiple (sub-)axis plot.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="ForMoSA.plotting.plotting_class.PlottingForMoSA.plot_fit_HiRes">
-<span class="sig-name descname"><span class="pre">plot_fit_HiRes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">figsize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(10,</span> <span class="pre">5)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">uncert</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'no'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">trans</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'no'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logx</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'no'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logy</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'no'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">norm</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'no'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ForMoSA/plotting/plotting_class.html#PlottingForMoSA.plot_fit_HiRes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ForMoSA.plotting.plotting_class.PlottingForMoSA.plot_fit_HiRes" title="Link to this definition"></a></dt>
-<dd><p>Same as plot_fit but with the stellar and planetary models for high-resolution spectroscopy. Does not include residuals in a sub-axis.</p>
+<dt class="sig sig-object py" id="ForMoSA.plotting.plotting_class.PlottingForMoSA.plot_map_rv_vsini">
+<span class="sig-name descname"><span class="pre">plot_map_rv_vsini</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rv_grid</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[-100,</span> <span class="pre">100]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rv_step</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vsini_grid</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[1,</span> <span class="pre">100]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vsini_step</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wav_mod_nativ</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flx_mod_nativ</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">res_mod_nativ</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">indobs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">continuum_res</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">500</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ForMoSA/plotting/plotting_class.html#PlottingForMoSA.plot_map_rv_vsini"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ForMoSA.plotting.plotting_class.PlottingForMoSA.plot_map_rv_vsini" title="Link to this definition"></a></dt>
+<dd><p>Plot a RV v.sini map. It is used for high resolution spectroscopy</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>figsize</strong> (<em>tuple</em>) – (default = (10, 5)) Size of the plot</p></li>
-<li><p><strong>uncert</strong> (<em>str</em>) – (default = no) ‘yes’ or ‘no’ to plot spectra with associated error bars</p></li>
-<li><p><strong>trans</strong> (<em>str</em>) – (default = no) ‘yes’ or ‘no’ to plot transmision curves for photometry</p></li>
-<li><p><strong>logx</strong> (<em>str</em>) – (default = no) ‘yes’ or ‘no’ to plot the wavelength in log scale</p></li>
-<li><p><strong>logy</strong> (<em>str</em>) – (default = no) ‘yes’ or ‘no’ to plot the flux in log scale</p></li>
-<li><p><strong>norm</strong> (<em>str</em>) – (default = no) ‘yes’ or ‘no’ to plot the normalized spectra</p></li>
+<li><p><strong>rv_grid</strong> (<em>list</em>) – (default = [-100,100]) Maximum and minumum values of the radial velocity shift (in km/s)</p></li>
+<li><p><strong>rv_step</strong> (<em>float</em>) – (default = 0.5) Radial velocity shift steps (in km/s)</p></li>
+<li><p><strong>vsini_grid</strong> (<em>list</em>) – (default = [1,100]) Maximum and minimum values of the v.sini broadening (in km/s)</p></li>
+<li><p><strong>vsini_step</strong> (<em>float</em>) – (default = 1.0) v.sini broadening steps (in km/s)</p></li>
+<li><p><strong>wav_mod_nativ</strong> (<em>array</em>) – (default = []) Wavelength of the model to cross-correlate with the data in the case the user wants to use a different model (individual molecule for example)</p></li>
+<li><p><strong>flx_mod_nativ</strong> (<em>array</em>) – (default = []) Flux of the model to cross-correlate with the data in the case the user wants to use a different model (individual molecule for example)</p></li>
+<li><p><strong>res_mod_nativ</strong> (<em>array</em>) – (default = []) Resolution of the model to cross-correlate with the data in the case the user wants to use a different model (individual molecule for example)</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>matplotlib figure object
-- ax   (object) : matplotlib axes objects</p>
+<dd class="field-even"><p>2D cross correlation map of rv and v.sini
+- fig                   (object) : matplotlib figure object
+- ax                    (object) : matplotlib axes objects</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><ul class="simple">
-<li><p>fig  (object)</p></li>
+<li><p>ccf_map               (ndarray)</p></li>
 </ul>
 </p>
 </dd>
@@ -498,32 +513,35 @@ Useful to compare different models.</p>
 </dl>
 </dd></dl>
 
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="ForMoSA.plotting.plotting_class.bin_data">
-<span class="sig-prename descclassname"><span class="pre">ForMoSA.plotting.plotting_class.</span></span><span class="sig-name descname"><span class="pre">bin_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">wave</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bin_size</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ForMoSA/plotting/plotting_class.html#bin_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ForMoSA.plotting.plotting_class.bin_data" title="Link to this definition"></a></dt>
-<dd><p>Function to bin data given a bin size</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="ForMoSA.plotting.plotting_class.PlottingForMoSA.plot_vmr">
+<span class="sig-name descname"><span class="pre">plot_vmr</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path_vmr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">molecule</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">figsize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(6,</span> <span class="pre">5)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'ExoREM'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fig</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ForMoSA/plotting/plotting_class.html#PlottingForMoSA.plot_vmr"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ForMoSA.plotting.plotting_class.PlottingForMoSA.plot_vmr" title="Link to this definition"></a></dt>
+<dd><p>Function to plot the vmr profiles of a molecule.
+Adpated from Nathan Zimniak.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>wave</strong> (<em>array</em>) – wavelength of the data</p></li>
-<li><p><strong>data</strong> (<em>array</em>) – data</p></li>
-<li><p><strong>bin_size</strong> (<em>int</em>) – size of the bin to apply</p></li>
+<li><p><strong>path_vmr</strong> (<em>str</em>) – Path to the temperature profile grid</p></li>
+<li><p><strong>molecule</strong> (<em>str</em>) – name of the molecule</p></li>
+<li><p><strong>figsize</strong> (<em>tuple</em>) – (default = (6, 5)) Size of the plot</p></li>
+<li><p><strong>model</strong> (<em>str</em>) – (default = ‘ExoREM’) Name of the model grid</p></li>
+<li><p><strong>fig</strong> (<em>object</em>) – (default = None) matplotlib figure object</p></li>
+<li><p><strong>ax</strong> (<em>object</em>) – (default = None) matplotlib figure object</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>binned wavelength
-- data_binned  (array): binned data</p>
+<dd class="field-even"><p>matplotlib figure object
+- ax   (object) : matplotlib axes objects</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><ul class="simple">
-<li><p>wave_binned  (array)</p></li>
+<li><p>fig  (object)</p></li>
 </ul>
 </p>
 </dd>
 </dl>
-<p>Author: Allan Denis</p>
+</dd></dl>
+
 </dd></dl>
 
 </section>

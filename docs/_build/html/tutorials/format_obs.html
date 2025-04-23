@@ -1,28 +1,26 @@
+
+
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" data-content_root="../">
 <head>
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Observation format &mdash; ForMoSA 2.0.0 documentation</title>
-      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
-      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=19f00094" />
+  <title>Observation format &mdash; ForMoSA 1.1.5 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../_static/nbsphinx-code-cells.css?v=2aa19091" />
 
   
     <link rel="shortcut icon" href="../_static/favicon.ico"/>
-  <!--[if lt IE 9]>
-    <script src="../_static/js/html5shiv.min.js"></script>
-  <![endif]-->
-  
-        <script src="../_static/jquery.js?v=5d32c60e"></script>
-        <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="../_static/documentation_options.js?v=51b770b3"></script>
-        <script src="../_static/doctools.js?v=9a2dae69"></script>
-        <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
-        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
-        <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
-        <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=a48ae3df"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+      <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
@@ -40,6 +38,7 @@
           
           <a href="../index.html" class="icon icon-home">
             ForMoSA
+              <img src="../_static/ForMoSA.png" class="logo" alt="Logo"/>
           </a>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
@@ -103,21 +102,21 @@
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">astropy.io</span> <span class="kn">import</span> <span class="n">fits</span>
-<span class="kn">from</span> <span class="nn">astropy.table</span> <span class="kn">import</span> <span class="n">Table</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">astropy.io</span><span class="w"> </span><span class="kn">import</span> <span class="n">fits</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">astropy.table</span><span class="w"> </span><span class="kn">import</span> <span class="n">Table</span>
 </pre></div>
 </div>
 </div>
 </section>
 <section id="Data-.fits">
 <h2>Data <code class="docutils literal notranslate"><span class="pre">.fits</span></code><a class="headerlink" href="#Data-.fits" title="Link to this heading"></a></h2>
-<p>Your observed data (spectroscopy and/or photometry) should be formated in a <code class="docutils literal notranslate"><span class="pre">.fits</span></code> file with the following extensions:</p>
+<p>Your observed data (spectroscopy and/or photometry) should be formated in a <code class="docutils literal notranslate"><span class="pre">.fits</span></code> file with the following extensions :</p>
 <ul class="simple">
-<li><p><strong>‘WAV’</strong> : (array) wavelength grid</p></li>
-<li><p><strong>‘FLX’</strong> : (array) flux</p></li>
-<li><p><strong>‘ERR’</strong> or <strong>‘COV’</strong> : (array or 2D-array) errors or covariance matrix. The covariance matrix should have <code class="docutils literal notranslate"><span class="pre">diag(COV)=ERR²</span></code></p></li>
-<li><p><strong>‘RES’</strong> : (array) resolution</p></li>
-<li><p><strong>‘INS’</strong> : (array) instrument name</p></li>
+<li><p><strong>‘WAV’</strong> : (array) wavelength grid.</p></li>
+<li><p><strong>‘FLX’</strong> : (array) flux.</p></li>
+<li><p><strong>‘ERR’</strong> or <strong>‘COV’</strong> : (array or 2D-array) errors or covariance matrix. The covariance matrix should have <code class="docutils literal notranslate"><span class="pre">diag(COV)=ERR²</span></code>.</p></li>
+<li><p><strong>‘RES’</strong> : (array) resolution. Note : You must put res = 0.0 where you have photometric points.</p></li>
+<li><p><strong>‘INS’</strong> : (array) instrument name. Note : You must use the right filter name when you have photometric points. Check the phototeque for more information.</p></li>
 </ul>
 <p>exemple :</p>
 <div class="nbinput docutils container">
@@ -149,7 +148,12 @@ ColDefs(
 )
 </pre></div></div>
 </div>
-<p>optional extensions can also be used when dealing with stellar-contaminated high-resolution spectroscopy: - <strong>‘TRANSM’</strong> : (array) transmission (atmospheric + instrumental) - <strong>‘STAR_FLX’</strong> or <strong>‘STAR_FLXi’</strong> : (array or i arrays) star flux or shifted star flux (to account for LSF changes) - <strong>‘SYSTEM’</strong> or <strong>‘SYSTEMj’</strong> : (array or j arrays) systematic model(s) (usually computed from PCA)</p>
+<p>optional extensions can also be used when dealing with stellar-contaminated high-resolution spectroscopy:</p>
+<ul class="simple">
+<li><p><strong>‘TRANSM’</strong> : (array) transmission (atmospheric + instrumental)</p></li>
+<li><p><strong>‘STAR_FLX’</strong> or <strong>‘STAR_FLXi’</strong> : (array or i arrays) star flux or shifted star flux (to account for LSF changes)</p></li>
+<li><p><strong>‘SYSTEM’</strong> or <strong>‘SYSTEMj’</strong> : (array or j arrays) systematic model(s) (usually computed from PCA)</p></li>
+</ul>
 <section id="Format-your-data">
 <h3>Format your data<a class="headerlink" href="#Format-your-data" title="Link to this heading"></a></h3>
 <p>To format your data, you can use the simple Python routine below :</p>

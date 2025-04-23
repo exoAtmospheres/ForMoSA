@@ -25,9 +25,9 @@ Follow the :doc:`installation`
 
 
 Observation(s)
-+++++++++++++++++
+++++++++++++++
 
-First, you need to format the observation you wish to invert in a ``.fits`` file. It should have the following extensions:
+First, you need to format the observation you wish to invert in a ``.fits`` file. It should have (at least) the following extensions:
 
 * **'WAV'**
 * **'FLX'** 
@@ -74,7 +74,7 @@ Learn more about:
 
 
 Configuration file
-+++++++++++++++++
+++++++++++++++++++
 
 Finally, you need to prepare a configuration file.
 
@@ -89,7 +89,7 @@ Learn how to set it up in various cases:
 
 
 Demos
-+++++++++++++++++
++++++
 
 .. toctree::
    :maxdepth: 1
