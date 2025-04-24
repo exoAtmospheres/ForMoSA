@@ -10,7 +10,6 @@ from tqdm import tqdm
 from multiprocessing.pool import ThreadPool
 
 from ..utils import format_grid
-from .adapt_emulators import emulator_PCA, emulator_NMF
 from .adapt_extraction_functions import adapt_model
 
 
@@ -228,6 +227,7 @@ def adapt_grid(global_params, obs_dict, res_mod_nativ, target_wav_mod, target_re
     # "PCA" = we use PCA to decompose the grid into eigenspectra and weight and keep the weigths grid and interpolate it during the inversion
     # "NMF" = we use NMF to decompose the grid into H (~eigenspectra) W (~weights) and keep the weigths grid and interpolate it during the inversion
     if global_params.emulator[0] != 'NA':
+        from .adapt_emulators import emulator_PCA, emulator_NMF
 
         # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 
