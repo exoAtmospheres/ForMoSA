@@ -1,7 +1,7 @@
 import numpy as np
 import scipy.optimize as optimize
 
-from ..utils_spec import continuum_estimate
+from utils_spec import continuum_estimate
 
 
 def hc_model(global_params, obs_dict, flx_mod_spectro, indobs):

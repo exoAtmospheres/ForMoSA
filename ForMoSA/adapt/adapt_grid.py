@@ -9,9 +9,10 @@ from scipy.interpolate import interp1d
 from tqdm import tqdm
 from multiprocessing.pool import ThreadPool
 
-from ..utils import format_grid
-from .adapt_emulators import emulator_PCA, emulator_NMF
-from .adapt_extraction_functions import adapt_model
+import ForMoSA
+from utils import format_grid
+from adapt.adapt_emulators import emulator_PCA, emulator_NMF
+from adapt.adapt_extraction_functions import adapt_model
 
 
 # ----------------------------------------------------------------------------------------------------------------------
@@ -168,7 +169,7 @@ def adapt_grid(global_params, obs_dict, res_mod_nativ, target_wav_mod, target_re
     def update(*a):
         pbar.update()
 
-    try: # Parallel if possible
+    try: # Parallel if possible
         ncpu = mp.cpu_count()
         with ThreadPool(processes=ncpu, initializer=tpool_adapt_init, initargs=(grid_input_shape, grid_input_data, grid_spectro_shape, grid_spectro_data, grid_photo_shape, grid_photo_data)) as pool:
             for idx in np.ndindex(shape):
@@ -221,15 +222,15 @@ def adapt_grid(global_params, obs_dict, res_mod_nativ, target_wav_mod, target_re
             ds_photo_new = ds_photo_new.interpolate_na(dim=key, **interp_kwargs)
 
 
-    # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+    # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 
-    # Chose the method of adaptation of the grid. It can either be :
+    # Chose the method of adaptation of the grid. It can either be :
     # "NA" = we keep the spectra xarray grid and interpolate it during the inversion
-    # "PCA" = we use PCA to decompose the grid into eigenspectra and weight and keep the weigths grid and interpolate it during the inversion
-    # "NMF" = we use NMF to decompose the grid into H (~eigenspectra) W (~weights) and keep the weigths grid and interpolate it during the inversion
+    # "PCA" = we use PCA to decompose the grid into eigenspectra and weight and keep the weigths grid and interpolate it during the inversion
+    # "NMF" = we use NMF to decompose the grid into H (~eigenspectra) W (~weights) and keep the weigths grid and interpolate it during the inversion
     if global_params.emulator[0] != 'NA':
 
-        # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+        # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 
         if global_params.emulator[0] == 'PCA':
             print()
@@ -237,10 +238,10 @@ def adapt_grid(global_params, obs_dict, res_mod_nativ, target_wav_mod, target_re
             print('-> Decomposing the grid using PCA... ')
             print()
 
-            # PCA components
+            # PCA components
             ncomp = int(global_params.emulator[1])
 
-            # Check if the grid is not empty and compute PCA 
+            # Check if the grid is not empty and compute PCA 
             if len(target_wav_mod) != 0:
                 flx_grid_mean_spectro, flx_grid_std_spectro, vectors_spectro, weights_spectro = emulator_PCA(ds_spectro_new, ncomp)
             else:
@@ -262,11 +263,11 @@ def adapt_grid(global_params, obs_dict, res_mod_nativ, target_wav_mod, target_re
             np.savez(os.path.join(global_params.result_path, f'PCA_mod_{obs_name}.npz'), **mod_dict)
             
             # Format the new grids in xarray
-            attr.pop('res') # You don't need the res array anymore
+            attr.pop('res') # You don't need the res array anymore
             ds_spectro_new = format_grid(grid, attr, weights_spectro.shape[0], weights_spectro)
             ds_photo_new = format_grid(grid, attr, weights_photo.shape[0], weights_photo)
 
-        # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+        # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 
         elif global_params.emulator[0] == 'NMF':
             print()
@@ -277,7 +278,7 @@ def adapt_grid(global_params, obs_dict, res_mod_nativ, target_wav_mod, target_re
             #NMF components
             ncomp = int(global_params.emulator[1])
 
-            # Check if the grid is not empty and compute PCA 
+            # Check if the grid is not empty and compute PCA 
             if len(target_wav_mod) != 0:
                 vectors_spectro, weights_spectro = emulator_NMF(ds_spectro_new, ncomp)
             else:
@@ -295,7 +296,7 @@ def adapt_grid(global_params, obs_dict, res_mod_nativ, target_wav_mod, target_re
             np.savez(os.path.join(global_params.result_path, f'NMF_mod_{obs_name}.npz'), **mod_dict)
             
             # Format the new grids in xarray
-            attr.pop('res') # You don't need the res array anymore
+            attr.pop('res') # You don't need the res array anymore
             ds_spectro_new = format_grid(grid, attr, weights_spectro.shape[0], weights_spectro)
             ds_photo_new = format_grid(grid, attr, weights_photo.shape[0], weights_photo)
     else:

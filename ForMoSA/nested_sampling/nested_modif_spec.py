@@ -1,7 +1,7 @@
 import numpy as np
 
-from .nested_highcont_models import hc_model
-from ..utils_spec import *
+from nested_sampling.nested_highcont_models import hc_model
+from utils_spec import *
 
 
 def modif_spec(global_params, theta, theta_index,

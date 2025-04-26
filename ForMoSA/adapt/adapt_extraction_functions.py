@@ -3,7 +3,7 @@ import numpy as np
 from astropy.io import fits
 from scipy.interpolate import interp1d
 
-from ..utils_spec import resolution_decreasing, continuum_estimate
+from utils_spec import resolution_decreasing, continuum_estimate
 
 
 def adapt_observation(global_params, wav_mod_nativ, res_mod_nativ, obs_name, indobs=0):

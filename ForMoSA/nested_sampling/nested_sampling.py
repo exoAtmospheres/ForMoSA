@@ -7,9 +7,9 @@ import xarray as xr
 import pickle
 from scipy.interpolate import interp1d
 
-from .nested_modif_spec import modif_spec
-from .nested_prior_functions import uniform_prior, loguniform_prior, gaussian_prior
-from .nested_logL_functions import *
+from nested_sampling.nested_modif_spec import modif_spec
+from nested_sampling.nested_prior_functions import uniform_prior, loguniform_prior, gaussian_prior
+from nested_sampling.nested_logL_functions import *
 
 
 

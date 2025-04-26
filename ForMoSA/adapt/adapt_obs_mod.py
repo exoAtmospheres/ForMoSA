@@ -5,8 +5,8 @@ import glob
 import xarray as xr
 from scipy.interpolate import interp1d
 
-from .adapt_grid import adapt_grid
-from .adapt_extraction_functions import adapt_observation
+from adapt.adapt_grid import adapt_grid
+from adapt.adapt_extraction_functions import adapt_observation
 
 # ----------------------------------------------------------------------------------------------------------------------
 
@@ -74,7 +74,7 @@ def launch_adapt(global_params, justobs='no'):
             if global_params.target_res_mod[indobs % len(global_params.target_res_mod)] == 'mod': # Kepping the model's resolution
                 target_wav_mod = wav_mod_nativ
                 target_res_mod = res_mod_nativ
-            elif global_params.target_res_mod[indobs % len(global_params.target_res_mod)] == 'obs': # Using the observation's resolution except where its higher than the model's
+            elif global_params.target_res_mod[indobs % len(global_params.target_res_mod)] == 'obs': # Using the observation's resolution except where its higher than the model's
                 target_wav_mod = obs_dict['wav_spectro']
                 target_res_mod = obs_dict['res_spectro']
             else:                                             # Using a custom resolution except where its higher than the model's
