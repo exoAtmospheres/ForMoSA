@@ -32,7 +32,7 @@ def import_obsmod(global_params):
 
     for indobs, obs in enumerate(sorted(glob.glob(main_obs_path))):
 
-        # Recovery of the observational dictionnary
+        # Recovery of the observational dictionnary
         global_params.observation_path = obs
         obs_name = os.path.splitext(os.path.basename(global_params.observation_path))[0]
         obs_dict = dict(np.load(os.path.join(global_params.result_path, f'spectrum_obs_{obs_name}.npz'), allow_pickle=True))
@@ -50,7 +50,7 @@ def import_obsmod(global_params):
             # PCA or NMF
             mod_dict = dict(np.load(os.path.join(global_params.result_path, f'{global_params.emulator[0]}_mod_{obs_name}.npz'), allow_pickle=True))
         else:
-            # Standard method
+            # Standard method
             mod_dict = {'wav_spectro': np.asarray(ds_spectro.coords['wavelength']), 'res_spectro': np.asarray(ds_spectro.attrs['res'])}
         ds_spectro.close()
         ds_photo.close()
@@ -82,7 +82,7 @@ def import_obsmod(global_params):
             else:
                 pass
 
-        # Cutting the model to a wavelength grid defined by the parameter 'wav_fit'
+        # Cutting the model to a wavelength grid defined by the parameter 'wav_fit'
         for key in mod_dict:
             if mod_dict[key].size != 0:
                 if key[-5:] == 'photo':
@@ -226,7 +226,7 @@ def loglike(theta, theta_index, global_params, main_file, for_plot='no'):
                                       mod_dict['wav_spectro'], mod_dict['res_spectro'],
                                       indobs=indobs)
 
-        # Get back the modified arrays to compute the logL
+        # Get back the modified arrays to compute the logL
         obs_dict_modif = modif_spec_LL[0]
         flx_mod_spectro_modif, flx_mod_photo_modif = modif_spec_LL[1], modif_spec_LL[2]
  
@@ -728,7 +728,7 @@ def launch_nested_sampling(global_params):
                         null_log_evidence=global_params.pm_null_log_evidence,
                         max_modes=global_params.pm_max_modes,
                         mode_tolerance=global_params.pm_mode_tolerance,
-                        outputfiles_basename=global_params.result_path + '/pymultinest/' + 'RAW_',
+                        outputfiles_basename=global_params.result_path + '/pymultinest/' + 'RAW',
                         seed=global_params.pm_seed,
                         verbose=global_params.pm_verbose,
                         resume=global_params.pm_resume,
