@@ -728,7 +728,7 @@ def launch_nested_sampling(global_params):
                         null_log_evidence=global_params.pm_null_log_evidence,
                         max_modes=global_params.pm_max_modes,
                         mode_tolerance=global_params.pm_mode_tolerance,
-                        outputfiles_basename=global_params.result_path + '/pymultinest/' + 'RAW',
+                        outputfiles_basename=global_params.result_path + '/pymultinest/' + 'RAW_',
                         seed=global_params.pm_seed,
                         verbose=global_params.pm_verbose,
                         resume=global_params.pm_resume,
