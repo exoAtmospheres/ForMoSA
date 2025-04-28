@@ -767,7 +767,7 @@ def launch_nested_sampling(global_params):
         weights_multi = []
         final_logl_multi = []
         final_logvol_multi = []
-        with open(global_params.result_path + '/pymultinest/' + 'RAW.txt',
+        with open(global_params.result_path + '/pymultinest/' + 'RAW_.txt',
                   'rb') as open_dat:
             for l, line in enumerate(open_dat):
                 line = line.strip().split()
