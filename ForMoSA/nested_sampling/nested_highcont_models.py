@@ -1,7 +1,7 @@
 import numpy as np
 import scipy.optimize as optimize
 
-from utils_spec import continuum_estimate
+from ForMoSA.utils_spec import continuum_estimate
 
 
 def hc_model(global_params, obs_dict, flx_mod_spectro, indobs):
@@ -51,7 +51,7 @@ def hc_model(global_params, obs_dict, flx_mod_spectro, indobs):
         
         weights = (1 / obs_dict['err_spectro'])**2  # For now we consider diagonal covariance matrices only
     
-        # Select model
+        # Select model
         if global_params.hc_type[indobs % len(global_params.hc_type)] == 'nonlinear_fit_spec':
             results, flx_mod_spectro = hc_model_nonlinear_estimate_speckles(obs_dict , flx_mod_spectro, flx_cont_mod, weights, bounds)
 

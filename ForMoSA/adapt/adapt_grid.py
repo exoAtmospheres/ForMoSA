@@ -9,9 +9,9 @@ from scipy.interpolate import interp1d
 from tqdm import tqdm
 from multiprocessing.pool import ThreadPool
 
-from utils import format_grid
-from adapt.adapt_emulators import emulator_PCA, emulator_NMF
-from adapt.adapt_extraction_functions import adapt_model
+from ForMoSA.utils import format_grid
+from ForMoSA.adapt.adapt_emulators import emulator_PCA, emulator_NMF
+from ForMoSA.adapt.adapt_extraction_functions import adapt_model
 
 
 # ----------------------------------------------------------------------------------------------------------------------

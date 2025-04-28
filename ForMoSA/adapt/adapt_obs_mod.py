@@ -5,8 +5,8 @@ import glob
 import xarray as xr
 from scipy.interpolate import interp1d
 
-from adapt.adapt_grid import adapt_grid
-from adapt.adapt_extraction_functions import adapt_observation
+from ForMoSA.adapt.adapt_grid import adapt_grid
+from ForMoSA.adapt.adapt_extraction_functions import adapt_observation
 
 # ----------------------------------------------------------------------------------------------------------------------
 

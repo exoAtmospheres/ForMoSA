@@ -1,7 +1,7 @@
 import numpy as np
 
-from nested_sampling.nested_highcont_models import hc_model
-from utils_spec import *
+from ForMoSA.nested_sampling.nested_highcont_models import hc_model
+from ForMoSA.utils_spec import *
 
 
 def modif_spec(global_params, theta, theta_index,
@@ -168,7 +168,7 @@ def modif_spec(global_params, theta, theta_index,
     
     # Decrease the resolution the model (if necessary). Save the non-resampled model beforehand
     flx_mod_spectro_nativ = np.copy(flx_mod_spectro) 
-    # If you don't shift the spectrum and don't have it at higher resolution, you do not need to convolve and resample it
+    # If you don't shift the spectrum and don't have it at higher resolution, you do not need to convolve and resample it
     if len(wav_mod_spectro) == len(obs_dict['wav_spectro']) and global_params.rv[indobs*3 % len(global_params.rv)] == "NA":
         pass
     else:
@@ -197,7 +197,7 @@ def modif_spec(global_params, theta, theta_index,
 
     # Calculation of the dilution factor Ck and re-normalization of the interpolated synthetic spectrum.
 
-    if global_params.hc_type[indobs % len(global_params.hc_type)] == "NA": # hc already rescale everything
+    if global_params.hc_type[indobs % len(global_params.hc_type)] == "NA": # hc already rescale everything
 
         # From the radius and the distance.
         if global_params.r[0] != "NA" and global_params.d[0] != "NA":
@@ -221,8 +221,8 @@ def modif_spec(global_params, theta, theta_index,
                         ind_theta_alpha = np.where(theta_index == f'alpha_{indobs}')
                         alpha_picked = theta[ind_theta_alpha[0][0]]
                     flx_mod_spectro, flx_mod_photo, ck = calc_ck(obs_dict, flx_mod_spectro, flx_mod_photo, r_picked, d_picked, alpha=alpha_picked)
-                # - - - - - - 
-                # SPECIAL CASE FOR MOSAIC WHEN YOU DONT FIT R AND D FOR ONE OF THE OBS BUT STILL WANTS TO FIT IT FOR THE OTHERS !!
+                # - - - - - - 
+                # SPECIAL CASE FOR MOSAIC WHEN YOU DONT FIT R AND D FOR ONE OF THE OBS BUT STILL WANTS TO FIT IT FOR THE OTHERS !!
                 # - - - - - - 
                 else:
                     flx_mod_spectro, flx_mod_photo, ck = calc_ck(obs_dict, flx_mod_spectro, flx_mod_photo, 0, 0, alpha=0, analytic='yes')

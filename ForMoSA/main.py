@@ -13,10 +13,10 @@ import os
 import sys
 
 # Import ForMoSA
-from .utils import yesno
-from .global_file import GlobFile
-from .adapt.adapt_obs_mod import launch_adapt
-from .nested_sampling.nested_sampling import launch_nested_sampling
+from ForMoSA.utils import yesno
+from ForMoSA.global_file import GlobFile
+from ForMoSA.adapt.adapt_obs_mod import launch_adapt
+from ForMoSA.nested_sampling.nested_sampling import launch_nested_sampling
 
 if __name__ == '__main__':
     # ----------------------------------------------------------------------------------------------------------------------
