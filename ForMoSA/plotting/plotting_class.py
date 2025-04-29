@@ -15,11 +15,11 @@ import multiprocessing as mp
 from multiprocessing.pool import ThreadPool
 
 # Import ForMoSA
-from global_file import GlobFile
-from utils_spec import resolution_decreasing, continuum_estimate
-from nested_sampling.nested_modif_spec import modif_spec
-from nested_sampling.nested_modif_spec import doppler_fct
-from nested_sampling.nested_modif_spec import vsini_fct
+from ForMoSA.global_file import GlobFile
+from ForMoSA.utils_spec import resolution_decreasing, continuum_estimate
+from ForMoSA.nested_sampling.nested_modif_spec import modif_spec
+from ForMoSA.nested_sampling.nested_modif_spec import doppler_fct
+from ForMoSA.nested_sampling.nested_modif_spec import vsini_fct
 
 # ----------------------------------------------------------------------------------------------------------------------
 # ----------------------------------------------------------------------------------------------------------------------
