@@ -3,6 +3,7 @@ from pathlib import Path
 import glob
 import logging
 import os
+from ForMoSA.AnalysisPath import AnalysisPath
 
 # log
 _log = logging.getLogger(__name__)
@@ -19,8 +20,6 @@ if not _log.handlers:
 _log.setLevel(logging.INFO)
 _log.propagate = False 
 
-
-
 class GlobalParams(object):
     '''
     Class that import all the parameters from the config file and make them GLOBAL FORMOSA VARIABLES.
@@ -28,53 +27,31 @@ class GlobalParams(object):
     Authors: Paulina Palma-Bifani, Matthieu Ravet and Allan Denis
     '''
 
-    def __new__(cls, config_file_path):
+    def __init__(self, config_file_path):
         # Generate the config object
-        config = ConfigObj(config_file_path, encoding='utf8')
+        analysis_path = AnalysisPath(config_file_path)
         
-        # Paths
-        observation_path = config['config_path']['observation_path'] + '*'
-        adapt_store_path = config['config_path']['adapt_store_path']
-        result_path = config['config_path']['result_path']
-        model_path = config['config_path']['model_path']
+        grid_name = str(analysis_path.model_path).split('/')[-1].split('.nc')[0]
+        N_obs = len(analysis_path.observation_files)   
         
-        # Check that paths and files exist
-        # The command .expanduser().resolve() transforms the path in a full absolute path, removing any '~' in the path
-        observation_files = glob.glob(str(Path(observation_path).expanduser().resolve()))
-        adapt_store_path = Path(adapt_store_path).expanduser().resolve()
-        result_path = Path(result_path).expanduser().resolve()
-        model_file = Path(model_path).expanduser().resolve()
-        model_root = model_file.parent
-        grid_name = str(model_file).split('/')[-1].split('.nc')[0]
-        
-        N_obs = len(observation_files)   
-        
-        if not adapt_store_path.exists():
-            _log.info(f'{adapt_store_path} does not exist. Creating {adapt_store_path}.')
-            os.mkdir(adapt_store_path)
-        if not result_path.exists():
-            _log.info(f'{result_path} does not exist. Creating {result_path}')
-            os.mkdir(result_path)
-        
-        if N_obs == 0:
-            _log.error(f'No observation. {observation_path} does not contain any observation.')
-            return None
-        elif not model_file.exists():
-            _log.error(f'No grid model. {model_root} does not contain any grid model file.')
-            return None
-        else:
-            global_params = super(GlobalParams, cls).__new__(cls)
-            
         # Basic inits
-        global_params.config = config
-        global_params.observation_path = observation_path
-        global_params.adapt_store_path = adapt_store_path
-        global_params.result_path = result_path
-        global_params.model_root = model_root
-        global_params.grid_name = grid_name
-        global_params.n_obs = N_obs
+        self.paths = analysis_path
+        self.grid_name = grid_name
+        self.n_obs = N_obs
         
-        return global_params
+    ##################################################
+    # Representation
+    ##################################################
+
+    def __repr__(self):
+        return f'<GlobalParams, n_obs={self.n_obs}, grid_name={self.grid_name}, observation_path={self.paths.observation_path}, adapt_store_path={self.paths.adapt_store_path}, result_path={self.paths.result_path}>'
+
+    def __format__(self) -> str:
+        return self.__repr__()
+    
+    ##################################################
+    # Methods
+    ##################################################
     
     @staticmethod
     def get_config_value(config, section, key, default, N_obs, cast=None):
@@ -119,6 +96,7 @@ class GlobalParams(object):
 
         return val
     
+    
     def _read_info(self):
         '''
         Read config file information. Put default values if no value is assigned for a parameter
@@ -128,7 +106,6 @@ class GlobalParams(object):
         global_params : 
 
         '''
-        
         # [config_adapt] (5)
         self.method = self.get_config_value(self.config, 'config_adapt', 'method', 'linear', 0, None)
         self.emulator = self.get_config_value(self.config, 'config_adapt', 'emulator', 'NA', 0, list)
@@ -317,12 +294,3 @@ class GlobalParams(object):
         self.config.filename = self.result_path / 'config_file_ref.ini'
         self.config.write()
       
-    ##################################################
-    # Representation
-    ##################################################
-
-    def __repr__(self):
-        return f'<global_params, n_obs={self.n_obs}, grid_name={self.grid_name}, observation_path={self.observation_path}, adapt_store_path={self.adapt_store_path}, result_path={self.result_path}>'
-
-    def __format__(self) -> str:
-        return self.__repr__()

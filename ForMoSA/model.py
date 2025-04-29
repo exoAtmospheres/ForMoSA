@@ -1,11 +1,3 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-"""
-Created on Tue Apr 29 10:14:10 2025
-
-@author: allandenis
-"""
-
 import numpy as np 
 import logging
 from pathlib import Path
@@ -43,9 +35,6 @@ class Model(object):
         # the command .expanduser() transforms the path in a full absolute path, removing any '~' in the path
         self._root = Path(path).expanduser().parent
         self._name = str(Path(path).expanduser()).split('/')[-1].split('.nc')[0]
-        self._attrs = None
-        self._wavelength = None 
-        self._resolution = None
         
         
     ##################################################
@@ -53,6 +42,7 @@ class Model(object):
     ##################################################
 
     def __repr__(self) -> str:
+        self._read_info()
         return f'<Model, name={self.name}, root={self.root}, wavelength={min(self.wavelength):.3f}-{max(self.wavelength):.3f}, resolution={min(self.resolution):.3f}-{max(self.resolution):.3f}>'
 
     def __format__(self) -> str:
@@ -90,7 +80,10 @@ class Model(object):
     def resolution(self):   # Resolution defined as the minimum between the given resolution and the Nyquist resolution
         return np.minimum(self.nyquist, self._resolution)
     
-    
+    @property  
+    def grid(self):
+        return self._grid
+
     
     ##################################################
     # Methods
@@ -101,11 +94,13 @@ class Model(object):
         Read the model grid and store important information
         '''
         
+        _log.info('Read model grid')
         ds = xr.open_dataset(self.path, decode_cf=False, engine="netcdf4")
         self._wavelength = ds['wavelength'].values
         self._resolution = ds.attrs['res']
         self._attrs = ds.attrs
         self._attrs['res'] = self.resolution
+        self._grid = ds['grid']
         
         
         
