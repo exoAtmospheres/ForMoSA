@@ -601,11 +601,11 @@ class PlottingForMoSA():
         res_mod_obs_nativ = interp_mod_to_obs(obs_dict['wav_spectro'])
         ds.close()
 
-        if self.global_params.par3 == 'NA':
+        if self.global_params.par3[0] == 'NA':
             flx_mod_nativ = grid.interp(par1=theta[0], par2=theta[1],method=int_method, kwargs={"fill_value": "extrapolate"})
-        elif self.global_params.par4 == 'NA':
+        elif self.global_params.par4[0] == 'NA':
             flx_mod_nativ = grid.interp(par1=theta[0], par2=theta[1], par3=theta[2],method=int_method, kwargs={"fill_value": "extrapolate"})
-        elif self.global_params.par5 == 'NA':
+        elif self.global_params.par5[0] == 'NA':
             flx_mod_nativ = grid.interp(par1=theta[0], par2=theta[1], par3=theta[2], par4=theta[3],method=int_method, kwargs={"fill_value": "extrapolate"})
         else:
             flx_mod_nativ = grid.interp(par1=theta[0], par2=theta[1], par3=theta[2], par4=theta[3],par5=theta[4],method=int_method, kwargs={"fill_value": "extrapolate"})
