@@ -75,7 +75,7 @@ class Model(object):
     # Methods
     ##################################################
     
-    def _read_info(self):
+    def read_info(self):
         '''
         Read the model grid and store important information
         '''
@@ -91,4 +91,4 @@ class Model(object):
         
 # These lines are just for testing purposes, they will be removed for the final version
 model = Model('/Users/allandenis/These/ForMoSA_Main/INPUT_MODELS/EXOREM_native.nc')
-model._read_info()
+model.read_info()
