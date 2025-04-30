@@ -12,6 +12,9 @@ from ForMoSA.AnalysisPath import AnalysisPath
 # log
 _log = logging.getLogger(__name__)
 
+class ForMoSAError(Exception):
+    pass
+
 class Analysis(object):
     '''
     ForMoSA data analysis class
@@ -35,9 +38,10 @@ class Analysis(object):
     
     def __new__(cls, config_file_path: str | os.PathLike, adapted: bool = False, log_level: str = 'info') -> 'Analysis | None' :
 
+        # PathAnalysis method handling the paths used in the configuration file
         paths = AnalysisPath(config_file_path)
         
-        # Check that the files defined in the config file and the config file itself exist
+        # Check that the files defined in the configuration file and the configuration file itself exist
         if paths.path_error == True:   # A path error is raised in tne AnalysisPath class
             return None
         else:
@@ -47,6 +51,21 @@ class Analysis(object):
         analysis._paths = paths
         analysis._model = Model(paths.model_path)
         analysis._adapted = adapted
+        
+        # Logging
+        logger = logging.getLogger(str(paths.config_file_path))
+        logger.setLevel(log_level.upper())
+        if logger.hasHandlers():
+            for hdlr in logger.handlers:
+                logger.removeHandler(hdlr)
+
+        handler = logging.FileHandler(paths._result_path / 'analysis.log', mode='w', encoding='utf-8')
+        formatter = logging.Formatter('%(asctime)s\t%(levelname)8s\t%(message)s')
+        formatter.default_msec_format = '%s.%03d'
+        handler.setFormatter(formatter)
+        logger.addHandler(handler)
+
+        analysis._logger = logger
  
         return analysis
     
@@ -61,6 +80,14 @@ class Analysis(object):
     ##################################################
     # Properties
     ##################################################
+    
+    @property
+    def loglevel(self) -> str:
+        return logging.getLevelName(self._logger.level)
+
+    @loglevel.setter
+    def loglevel(self, level: str):
+        self._logger.setLevel(level.upper())
     
     @property  
     def paths(self):
@@ -82,10 +109,10 @@ class Analysis(object):
     # Methods
     ##################################################
     
-    def _adapt(self):
-        for inobs, obs in enumerate(sorted(self.global_params.paths.observation_files)):
-            #TODO
-            return
+    def _adapt(self, global_params):
+        for inobs, obs in enumerate(sorted(global_params.paths.observation_files)):
+            self._logger.info(f'Read observation file {obs}')
+            
         
    
 # These lines are just for testing purposes. They will be removed for the final version
@@ -93,4 +120,5 @@ config = '/Users/allandenis/These/ForMoSA_Main/51_Eri/config_51Eri_b_ExoREM_all_
 model_path = '/Users/allandenis/test.nc'
 
 analysis = Analysis(config)
-        
+global_params = GlobalParams(config)
+analysis._adapt(global_params)

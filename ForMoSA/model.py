@@ -4,21 +4,6 @@ from pathlib import Path
 import os 
 import xarray as xr
 
-# log
-_log = logging.getLogger(__name__)
-
-# Format logging for this module
-if not _log.handlers:
-    handler = logging.StreamHandler()
-    handler.setLevel(logging.INFO)  # Minimal logging level for this module
-    formatter = logging.Formatter('%(asctime)s\t%(levelname)8s\t%(message)s')
-    formatter.default_msec_format = '%s.%03d'
-    handler.setFormatter(formatter)
-    _log.addHandler(handler)
-
-_log.setLevel(logging.INFO)
-_log.propagate = False 
-
 
 class Model(object):
     '''
@@ -35,6 +20,7 @@ class Model(object):
         # the command .expanduser() transforms the path in a full absolute path, removing any '~' in the path
         self._root = Path(path).expanduser().parent
         self._name = str(Path(path).expanduser()).split('/')[-1].split('.nc')[0]
+        
         
         
     ##################################################
@@ -94,7 +80,6 @@ class Model(object):
         Read the model grid and store important information
         '''
         
-        _log.info('Read model grid')
         ds = xr.open_dataset(self.path, decode_cf=False, engine="netcdf4")
         self._wavelength = ds['wavelength'].values
         self._resolution = ds.attrs['res']
