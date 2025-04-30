@@ -62,7 +62,12 @@ class AnalysisPath(object):
     
     @property  
     def config_file_path(self):
-        return self._config_file_path
+        if not self._config_file_path.exists():
+            _log.error(f'No config file. {self._config_file_path} is not a valid configuration path.')
+            self._path_error = True
+            return ''
+        else:
+            return self._config_file_path
     
     @property 
     def observation_path(self):

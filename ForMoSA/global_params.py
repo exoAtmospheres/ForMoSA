@@ -44,7 +44,7 @@ class GlobalParams(object):
     ##################################################
 
     def __repr__(self):
-        return f'<GlobalParams, n_obs={self.n_obs}, grid_name={self.grid_name}, observation_path={self.paths.observation_path}, adapt_store_path={self.paths.adapt_store_path}, result_path={self.paths.result_path}>'
+        return f'<GlobalParams, n_obs={self.n_obs}, config_file_path={self.path.config_file_path}>'
 
     def __format__(self) -> str:
         return self.__repr__()
