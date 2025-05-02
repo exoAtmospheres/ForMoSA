@@ -9,6 +9,11 @@ import ForMoSA
 from ForMoSA.global_params import GlobalParams
 from ForMoSA.model import Model
 from ForMoSA.AnalysisPath import AnalysisPath
+from scipy.interpolate import interp1d
+from tqdm import tqdm
+from multiprocessing.pool import ThreadPool
+import multiprocessing as mp
+from ForMoSA.utils_spec import resolution_decreasing, continuum_estimate
 
 # log
 _log = logging.getLogger(__name__)
@@ -126,16 +131,14 @@ class Analysis(object):
     
     @property 
     def obs_data(self):
-        _obs_data = dict()
-        for indobs in self.obs_file.keys():
-            _obs_data[indobs] = self.extract_observation(indobs)
-        return _obs_data
+        return self._obs_data
         
     ##################################################
     # Methods
     ##################################################
     
-    def extract_observation(self, indobs):
+    
+    def extract_observation(self, indobs=0):
         """
         Extract the information from the observation file, including the wavelengths (um - vacuum), flux (W.m-2.um.1), errors (W.m-2.um.1), covariance (W.m-2.um.1)**2, spectral resolution, 
         instrument/filter name, transmission (Atmo+inst) and star flux (W.m-2.um.1). The wavelength range is define by the parameter "wav_for_adapt".
@@ -151,13 +154,21 @@ class Analysis(object):
         Author: Simon Petrus, Matthieu Ravet and Allan Denis
         """
         # Extraction
+        self._logger.info(f'Extract observation data from {self.obs_file[indobs]}')
+        
         with fits.open(self.obs_file[indobs]) as hdul:
+            self._logger.debug('> Extract information from file {self.obs_file[indobs]}')
 
             # Check the format of the file and extract data accordingly
-            wav = hdul[1].data['WAV']
-            flx = hdul[1].data['FLX']
-            res = hdul[1].data['RES']
-            ins = hdul[1].data['INS']
+            try:
+                wav = hdul[1].data['WAV']
+                flx = hdul[1].data['FLX']
+                res = hdul[1].data['RES']
+                ins = hdul[1].data['INS']
+            except KeyError:
+                self._logger.critical(' Key error.')
+                raise ForMoSAError()
+            
             try: # Check for spectral covariances
                 err = hdul[1].data['ERR']
                 cov = np.asarray([]) # Create an empty covariance matrix if not already present in the data (to not slow the inversion)
@@ -214,6 +225,7 @@ class Analysis(object):
             if len(system) != 0:
                 for i in range(len(system[0])):
                     nan_mod_ind = (nan_mod_ind) & (~np.isnan(system.T[i])) & (np.isfinite(system.T[i])) 
+                    
             wav = wav[nan_mod_ind]
             flx = flx[nan_mod_ind]
             res = res[nan_mod_ind]
@@ -232,9 +244,15 @@ class Analysis(object):
                 system = np.delete(system, np.where(~nan_mod_ind), axis=0)
 
             # - - - - - - - - - 
-
+            
             # Separate photometry from spectroscopy
             mask_photo = (res == 0.0)
+            
+            # Check-ups and warnings for negative values in the diagonal of the covariance matrix
+            if len(wav[~mask_photo]) != 0 and any(np.diag(inv_cov) < 0):
+                self._logger.critical("Negative value(s) is(are) present on the diagonal of the covariance matrix.") 
+                raise ForMoSAError
+           
             # Observation dictionary
             obs_dict = {'wav_photo': wav[mask_photo], # Photometry part
                         'flx_photo': flx[mask_photo],
@@ -252,21 +270,177 @@ class Analysis(object):
             
             return obs_dict
     
-    def read_obs(self, global_params):
+    
+    def adapt_observation(self, target_res_obs: str='obs', res_cont: str='NA', wav_cont: np.ndarray=[], hc_type: str='NA', indobs: int=0):
+        """
+        Decrease the spectral resolution of the observations and remove the continuum if necessary
+
+        Args:
+            global_params   (object): Class containing each parameter
+            target_res_obs     (str): Target resolution of the observation
+            res_cont           (str): Continuum resolution
+            indobs             (int): Index of the current observation looping
+
+        Author: Simon Petrus, Matthieu Ravet and Allan Denis
+        """
+        
+        self._logger.info(' Adapt observation {self.obs_file[indobs]}')
+
+        # Decrease the resolution and remove the continuum if necessary
+        if len(self.obs_data[indobs]['wav_spectro']) != 0:
+
+            # - - - - - -
+            # Setup target resolution for the observation
+            # Interpolate the resolution of the model onto the wavelength of the data to properly decrease the resolution if necessary
+            interp_mod_to_obs = interp1d(self.model.wavelength, self.model.resolution, fill_value='extrapolate')
+            res_mod_obs = interp_mod_to_obs(self.obs_data[indobs]['wav_spectro'])
+
+            if target_res_obs == 'obs': # Keeping the resolution of the observation except where its higher than the model's
+                target_res_obs = np.min([self.obs_data[indobs]['res_spectro'], res_mod_obs], axis=0)
+            else:                                             # Using a custom resolution except where its higher than the model's or the observation's
+                res_custom = np.full(len(self.obs_data[indobs]['res_spectro']), float(target_res_obs))
+                target_res_obs = np.min([self.obs_data[indobs]['res_spectro'], res_mod_obs, res_custom], axis=0)
+
+            # - - - - - -
+
+            
+            # If we want to decrease the resolution of the spectroscopic data:
+            if (target_res_obs < res_mod_obs) or (target_res_obs != 'obs'):
+                self._logger.info(' Decreasing the resolution of the data.')
+                self.obs_data[indobs]['flx_spectro'] = resolution_decreasing(self.obs_data[indobs]['wav_spectro'],
+                                                        self.obs_data[indobs]['flx_spectro'],
+                                                        self.obs_data[indobs]['res_spectro'],
+                                                        self.obs_data[indobs]['wav_spectro'],
+                                                        target_res_obs)
+                
+                self.obs_data[indobs]['transm'] = resolution_decreasing(self.obs_data[indobs]['wav_spectro'],
+                                                        self.obs_data[indobs]['transm'],
+                                                        self.obs_data[indobs]['res_spectro'],
+                                                        self.obs_data[indobs]['wav_spectro'],
+                                                        target_res_obs)
+                
+                self.obs_data[indobs]['star_flx'] = np.asarray([resolution_decreasing(self.obs_data[indobs]['wav_spectro'],
+                                                        self.obs_data[indobs]['star_flx'][:,i],
+                                                        self.obs_data[indobs]['res_spectro'],
+                                                        self.obs_data[indobs]['wav_spectro'],
+                                                        target_res_obs) for i in range(self.obs_data[indobs]['star_flx'].shape[-1])]).T
+            
+                self.obs_data[indobs]['system'] = np.asarray([resolution_decreasing(self.obs_data[indobs]['wav_spectro'],
+                                                                                    self.obs_data[indobs]['system'][:,i],
+                                                                                    self.obs_data[indobs]['res_spectro'],
+                                                                                    self.obs_data[indobs]['wav_spectro'],
+                                                                                    target_res_obs) for i in range(self.obs_data[indobs]['system'].shape[-1])]).T
+            
+            
+            # Since the resolution of the observation might have change, we need to save the new one
+            self.obs_data[indobs]['res_spectro'] = target_res_obs
+            
+            # If we want to estimate and substract the continuum of the data:
+            if res_cont != 'NA':
+                self._logger.info(' Substract the continuum to the data')
+                self._logger.info(f' {self.obs_name[indobs]} will have a R = {res_cont} continuum removed using a {wav_cont} wavelength range')
+
+                self.obs_data[indobs]['flx_spectro_cont'] = continuum_estimate(self.obs_data[indobs]['wav_spectro'], 
+                                                                               self.obs_data[indobs]['flx_spectro'], 
+                                                                               self.obs_data[indobs]['res_spectro'], 
+                                                                               wav_cont, res_cont)
+                
+                # If you don't use hc models, the data continuum is directly removed
+                if hc_type == 'NA':
+                    self.obs_data[indobs]['flx_spectro'] -= self.obs_data[indobs]['flx_spectro_cont']
+
+                else: # If you use hc models, the data is kept; we just need to estimate the continuum of the star flux as well
+                    self.obs_data[indobs]['star_flx_cont'] = continuum_estimate(self.obs_data[indobs]['wav_spectro'],
+                                                                self.obs_data[indobs]['star_flx'][:,len(self.obs_data[indobs]['star_flx'][0]) // 2], # Continuum of the star on the central pixel
+                                                                self.obs_data[indobs]['res_spectro'],
+                                                                wav_cont, res_cont)
+    
+    
+    def adapt(self, observation_files, target_res_obs: str='obs', res_cont: str='NA', wav_cont: np.ndarray=[], hc_type: str='NA', remove_continuum = False):
         '''
-        Method to read and store the observation files
+        Method to adapt the grid of model to each observation
 
         Parameters
         ----------
-        global_params  (object): Class containing each parameter
+        observation_files (list): List of the observation files
+        remove_continuum  (bool): Whether to remove the continuum of the model
+
+        Returns
+        -------
+        None.
+
         '''
-        for indobs, obs in enumerate(sorted(global_params.paths.observation_files)):
-            self._obs_file[indobs] = obs
         
-    
-    def adapt(self, global_params):
-        for inobs, obs in enumerate(sorted(global_params.paths.observation_files)):
-            self._logger.info(f'Read observation file {obs}')
+        for indobs, obs in enumerate(observation_files):
+            
+            self._obs_file[indobs] = obs
+            self._obs_data[indobs] = self.extract_observation(indobs)
+            
+            obs_name = self.obs_name[indobs]
+            
+            self.adapt_observation(target_res_obs, res_cont, wav_cont, hc_type, indobs)
+            
+            # Save the data
+            self._logger.info(f'Save observation file {obs}')
+            np.savez(os.path.join(global_params.paths.result_path, f'spectrum_obs_{self.obs_name[indobs]}.npz'), **self.obs_data[indobs])
+            
+            # if not self.adapted:   # If the model is not already adapted to the data, or if the user wants to redo the adaptation
+            #     self._logger.info(f'adapt observation file {self.obs_file[indobs]}')
+                
+            #     # Setup target wavelength and resolution for the observation and the model
+            #     if global_params.target_res_mod[indobs % len(global_params.target_res_mod)] == 'mod': # Kepping the model's resolution
+            #         target_wavelength, target_resolution = self.model.wavelength, self.model.resolution
+            #     if global_params.target_res_mod[indobs % len(global_params.target_res_mod)] == 'obs': # Using the observation's resolution except where its higher than the model's
+            #         target_wavelength, target_resolution =    self.obs_data[indobs]['wav_spectro'], self.obs_data[indobs]['res_spectro']
+            #     else:                                             # Using a custom resolution except where its higher than the model's
+            #         target_wavelength, target_resolution = self.model.wavelength, np.full(len(self.model.wavelength), float(global_params.target_res_mod[indobs]))
+   
+            #     # # Masks to have larger cuts of the spectroscopic grid if needed (if rv is defined)
+            #     if global_params.rv[indobs*3 % len(global_params.rv)] == 'NA':
+            #         mask_mod_obs = (self.model.adapt_grid[indobs]['wavelength'] <= self.obs_data[indobs]['wav_spectro'][-1]) & (target_wavelength >= self.obs_data[indobs]['wav_spectro'][0]) 
+            #         target_wavelength = target_wavelength[mask_mod_obs]
+            #         target_resolution = target_resolution[mask_mod_obs]
+            #     else:
+            #         mask_mod_obs = (target_wavelength <= 1.01 * self.obs_data[indobs]['wav_spectro'][-1]) & (target_wavelength >= 0.99 * self.obs_data[indobs]['wav_spectro'][0])   # 1.01 corresponds to a value of 3000 km/s for the RV so we do no risk to lose data on the edges when applying the RV correction
+            #         target_wavelength = target_wavelength[mask_mod_obs]
+            #         target_resolution = target_resolution[mask_mod_obs]
+
+            #     # Interpolate the resolution of the model onto the wavelength of the data to properly decrease the resolution if necessary
+            #     interp_mod_to_obs = interp1d(self.model.wavelength, self.model.resolution, fill_value='extrapolate')
+            #     target_resolution = interp_mod_to_obs(target_wavelength)
+                
+            #     shape = self.model.grid.values.shape
+            #     pbar = tqdm(total=np.prod(shape), leave=False)
+
+            #     def update(*a):
+            #         pbar.update()
+
+            #     try: # Parallel if possible
+            #         ncpu = mp.cpu_count()
+            #         with ThreadPool(processes=ncpu) as pool:
+            #             for idx in np.ndindex(shape):
+            #                 pool.apply_async(self.model.adapt_to_observation, args=(idx, self.obs_name[indobs], target_resolution, target_wavelength, remove_continuum), callback=update)
+
+            #             pool.close()
+            #             pool.join()
+            #     except:
+            #         for idx in np.ndindex(shape):
+            #             self.model.adapt_to_observation(idx, self.obs_name[indobs], target_resolution, target_wavelength, remove_continuum)
+            #             update()
+
+                # print()
+                # print('- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -')
+                # print("-> To compare synthetic spectra with the observation we need to manage them. The following actions are performed:")
+                # print("- extraction -")
+                # print("- resizing on the observation's wavelength range -")
+                # print("- adjustement of the spectral resolution -")
+                # print("- substraction of the continuum (if needed) -")
+                # print()
+                # print('- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -')
+                # print(f"-> Sarting the adaptation of {obs_name}")
+
+                # adapt_grid(global_params, obs_dict, res_mod_nativ_interp, target_wav_mod, target_res_mod, obs_name, indobs)
+            
             
         
    
@@ -274,7 +448,7 @@ class Analysis(object):
 config = '/Users/allandenis/These/ForMoSA_Main/51_Eri/config_51Eri_b_ExoREM_all_spectro.ini'
 model_path = '/Users/allandenis/test.nc'
 
-analysis = Analysis(config)
+analysis = Analysis(config, log_level='info')
 global_params = GlobalParams(config)
 global_params.read_info()
-analysis.read_obs(global_params)
+analysis.adapt(global_params.paths.observation_files, target_res_obs=global_params.target_res_obs)
