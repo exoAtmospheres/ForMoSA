@@ -1,10 +1,18 @@
 import numpy as np 
-import logging
 from pathlib import Path
+import logging
 import os 
 import xarray as xr
 from ForMoSA.utils_spec import resolution_decreasing, continuum_estimate
+from scipy.interpolate import interp1d
+from tqdm import tqdm
+from multiprocessing.pool import ThreadPool
+import multiprocessing as mp
+from functools import partial
 
+
+class ForMoSAError(Exception):
+    pass
 
 class Model(object):
     '''
@@ -12,17 +20,18 @@ class Model(object):
     
     Parameters
     ----------
-    path : str | os.PathLike
-        Path to the grid of model.
+    path (str | os.PathLike): Path to the grid of model.
+    log_level (str): Log level of the handler, by default ``'info'`` for all important informations.
     '''
     
-    def __init__(self, path: str | os.PathLike) -> None:
+    def __init__(self, path: str | os.PathLike, logger) -> None:
         
         # the command .expanduser() transforms the path in a full absolute path, removing any '~' in the path
         self._root = Path(path).expanduser().parent
         self._name = str(Path(path).expanduser()).split('/')[-1].split('.nc')[0]
         self._adapted_grid = dict()
         self.load_model()
+        self._logger = logger
         
     ##################################################
     # Representation
@@ -73,6 +82,10 @@ class Model(object):
     @property  
     def adapted_grid(self):
         return self._adapted_grid
+    
+    @property 
+    def counter(self):
+        return len(self.adapted_grid) - 1
 
     
     ##################################################
@@ -92,75 +105,83 @@ class Model(object):
         self._grid = ds['grid']
         
         
-    def add_grid(self, indobs: int, obs_name: str, wavelength: np.ndarray, resolution: np.ndarray, grid: np.float64):
+    def _add_adapted_grid(self, wavelength: np.ndarray, resolution: np.ndarray, grid: np.float64):
         '''
-        Add a grid correspondong to< the observation obs_name
+        Add a grid to be adapted to a specific wavelength and a specific resolution
 
         Parameters
         ----------
-        indobs : int
-            Observation number
-        obs_name : str
-            Name of the observation
-        wavelength : np.ndarray
-            wavelength grid of the model
-        resolution : np.ndarray
-            resolution grid of the model
-        grid : np.float64
-            grid of the model
+        indobs (int): Observation number
+        wavelength (np.ndarray): wavelength grid of the model
+        resolution (np.ndarray): resolution grid of the model
+        grid (np.float64): grid of the model
         '''
-        self._adapted_grid[indobs] = {'obs_name': obs_name, 'wavelength': wavelength, 'resolution': resolution, 'grid': grid}
+        self._adapted_grid[self.counter+1] = {'wavelength': wavelength, 'resolution': resolution, 'grid': grid}
         
         
-    def adapt_to_observation(self, idx, obs_name: str, target_resolution: np.float64, target_wavelength: np.float64, remove_continuum: bool=False):
+    def adapt_grid(self, target_resolution: np.ndarray, target_wavelength: np.ndarray, wav_cont: np.ndarray=[], res_cont: np.ndarray=[], remove_continuum: bool=False):
         '''
-        Adapt the grid of models to a given resolution.
+        Adapt the grid of models to a given resolution and wavelength.
     
         Parameters
         ----------
-        idx : (tuple)
-            Index of the current model
-        obs_name : str
-            Name of the observation
-        target_resolution : np.float64
-            Target resolution to reach
-        target_wavelength : np.float64
-            Target wavelength to reach
-        remove_continuum : bool
-            Whether to remove the continuum
+        target_resolution (np.float64): Target resolution to reach
+        target_wavelength (np.float64): Target wavelength to reach
+        remove_continuum (bool): Whether to remove the continuum
         '''
         
+        grid = np.empty((len(target_wavelength),) + np.shape(self.grid.values)[1:])
+        self._add_adapted_grid(target_wavelength, target_resolution, grid)
         
-        
-        self._adapted_grid[obs_name] = {
-            'wavelength': self._wavelength,
-            'flux': degraded_flux,
-            'resolution': target_resolution
-        }
-        
-    
-    def degrade_resolution(self, grid_values: np.ndarray, target_resolution: np.float64, target_wavelength: np.float64):
-        '''
-        Degrade the resolution of a grid to a given resolution        
+        interp_mod_to_obs = interp1d(self.wavelength, self.resolution, fill_value='extrapolate')
+        resolution_model = interp_mod_to_obs(target_wavelength)
+             
+        shape = self.grid.values.shape[1:]
+        pbar = tqdm(total=np.prod(shape), leave=False)
 
-        Parameters
+        def update_result(result, idx, model):
+            model._adapted_grid[model.counter]['grid'][(..., ) + idx] = result
+            pbar.update(1)
+            
+        try: # Parallel if possible
+            ncpu = mp.cpu_count()
+            with ThreadPool(processes=ncpu) as pool:
+                for idx in np.ndindex(shape):
+                    # Dans votre boucle, pour chaque idx :
+                    callback = partial(update_result, idx=idx, model=self)
+                    pool.apply_async(self.adapt_model, args=(self.grid.values[(..., ) + idx], target_resolution, target_wavelength, resolution_model, wav_cont, res_cont, remove_continuum), callback=callback)
+                pool.close()
+                pool.join()
+                
+        except:
+            for idx in np.ndindex(shape):
+                self._adapted_grid[self.counter]['grid'][(..., ) + idx] = self.adapt_model(self.grid.values[(..., ) + idx], target_resolution, target_wavelength, resolution_model, wav_cont, res_cont, remove_continuum)
+        
+    def adapt_model(self, model_to_adapt: np.ndarray, target_resolution: np.ndarray, target_wavelength: np.ndarray, resolution_model: np.ndarray, wav_cont: np.ndarray=[], res_cont: np.ndarray=[], remove_continuum: bool=False):
+        '''
+        Method to adapt a specific model at a given resolution and wavelength grid
+
+        Args
         ----------
-        grid_values : np.ndarray
-            grid values
-        target_resolution : np.float64
-            Target resolution to reach
-        target_wavelength : np.float64
-            Target wavelength to reach
+        model_to_adapt    (np.ndarray): Model to adapt
+        target_resolution      (float): Target resolution for to reach
+        target_wavelength (np.ndarray): Target wavelength grid to reah
+        resolution_model  (np.ndarray): Resolution of the model interpolated onto the target wavelength grid
+        wav_cont          (np.ndarray): Wavelength of the continuum
+        res_cont          (np.ndarray): Resolution of the continuum
+        remove_continuum        (bool): Whether to remove the continuum
         '''
         
-        
-    
-        return
-
-        
-    
+        if len(resolution_model) != len(target_wavelength):
+            print('The resolution of the model has not been interpolated to the target wavelength grid')
+            raise ForMoSAError()
         
         
+        model_spectro = resolution_decreasing(self.wavelength, model_to_adapt, resolution_model, target_wavelength, target_resolution)
         
-# These lines are just for testing purposes, they will be removed for the final version
-model = Model('/Users/allandenis/These/ForMoSA_Main/INPUT_MODELS/EXOREM_native.nc')
+        # If we want to estimate and substract the continuum of the data (except for high contrast where we need to keeo the og spectrum):
+        if remove_continuum == True:
+            model_spectro -= continuum_estimate(target_wavelength, model_spectro, target_resolution, wav_cont, res_cont)  
+        
+        return model_spectro
+ 

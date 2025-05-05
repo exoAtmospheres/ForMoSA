@@ -79,15 +79,8 @@ def resolution_decreasing(wav_input, flx_input, res_input, wav_output, res_outpu
     else:
 
         # Estimate of the FWHM of the input as a function of the wavelength
-        fwhm_input = wav_output / res_input
-        # Estimate of the FWHM of the output as a function of the wavelength
-        fwhm_output = wav_output / res_output
-
-        # Estimate of the sigma for the convolution as a function of the wavelength and decrease the resolution
-        max_fwhm = np.nanmax([fwhm_input, fwhm_output], axis=0)
-        min_fwhm = np.nanmin([fwhm_input, fwhm_output], axis=0)
-        fwhm_conv = np.sqrt(max_fwhm ** 2 - min_fwhm ** 2)
-        sigma_conv = fwhm_conv / 2.355
+        fwhm = wav_output / res_input
+        sigma_conv = fwhm / 2.355
         flx_output = convolve_and_sample(wav_output, sigma_conv, wav_input, flx_input, force_int=True)
 
     return flx_output
@@ -115,7 +108,7 @@ def continuum_estimate(wav_input, flx_input, res_input, wav_cont_bounds, res_con
 
     """
 
-    # Initialize
+    # Initialize
     flx_cont = np.asarray([])
     wav_cont = np.asarray([])
     # Redifined a spectrum only composed by the wavelength ranges used to estimate the continuum
@@ -135,11 +128,11 @@ def continuum_estimate(wav_input, flx_input, res_input, wav_cont_bounds, res_con
         sigma = fwhm_conv / (dwav_median * 2.355)
         cont = gaussian_filter(flx_input[ind_cont_cut], sigma)
         
-        # Concatenate everything
+        # Concatenate everything
         wav_cont = np.concatenate((wav_cont, wav_input[ind_cont_cut]))
         flx_cont = np.concatenate((flx_cont, cont))
         
-    # Reinterpolate onto the original wavelength grid
+    # Reinterpolate onto the original wavelength grid
     continuum_interp = interp1d(wav_cont, flx_cont, kind='linear', fill_value = 'extrapolate')
     continuum = continuum_interp(wav_input)
 

@@ -3,7 +3,7 @@ from pathlib import Path
 import glob
 import logging
 import os
-from ForMoSA.AnalysisPath import AnalysisPath
+from ForMoSA.ForMoSAPaths import ForMoSAPaths
 
 # log
 _log = logging.getLogger(__name__)
@@ -31,16 +31,16 @@ class GlobalParams(object):
         # Generate the config object
         config = ConfigObj(config_file_path, encoding='utf8')
         
-        analysis_path = AnalysisPath(config_file_path)
+        formosa_path = ForMoSAPaths(config_file_path)
         
-        grid_name = str(analysis_path.model_path).split('/')[-1].split('.nc')[0]
-        N_obs = len(analysis_path.observation_files)   
+        grid_name = str(formosa_path.model_path).split('/')[-1].split('.nc')[0]
+        N_obs = len(formosa_path.observation_files)   
         
         # Basic inits
-        self.paths = analysis_path
+        self.paths = formosa_path
         self.grid_name = grid_name
         self.n_obs = N_obs
-        self.read_info(config)
+        self._read_info(config)
         
     ##################################################
     # Representation
@@ -100,7 +100,7 @@ class GlobalParams(object):
         return val
     
     
-    def read_info(self, config):
+    def _read_info(self, config):
         '''
         Read config file information. Put default values if no value is assigned for a parameter
 
