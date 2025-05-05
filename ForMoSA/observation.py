@@ -1,15 +1,8 @@
 import numpy as np 
-import logging
 import os
 from pathlib import Path
 import glob
 from astropy.io import fits
-
-import ForMoSA  
-from ForMoSA.global_params import GlobalParams
-from ForMoSA.model import Model
-from ForMoSA.ForMoSAPaths import ForMoSAPaths
-from scipy.interpolate import interp1d
 from ForMoSA.utils_spec import resolution_decreasing, continuum_estimate
 
 class ForMoSAError(Exception):

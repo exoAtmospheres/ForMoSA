@@ -7,7 +7,7 @@ from astropy.io import fits
 
 import ForMoSA  
 from ForMoSA.global_params import GlobalParams
-from ForMoSA.model import Model
+from ForMoSA.ModelGrid import ModelGrid
 from ForMoSA.ForMoSAPaths import ForMoSAPaths
 from ForMoSA.observation import Observation
 from scipy.interpolate import interp1d
@@ -85,7 +85,7 @@ class Analysis(object):
         # Inits
         analysis._paths = paths
         analysis._observation = Observation(paths.observation_path, logger)
-        analysis._model = Model(paths.model_path, logger)
+        analysis._grid = ModelGrid(paths.model_path, logger)
         analysis._adapted = adapted  
 
  
@@ -123,8 +123,8 @@ class Analysis(object):
         return self._config_file 
     
     @property 
-    def model(self):
-        return self._model
+    def grid(self):
+        return self._grid
     
     @property 
     def observation(self):
@@ -155,16 +155,18 @@ class Analysis(object):
                 raise ForMoSAError()
     
     
-    def adapt(self, observation_files: list, target_res_obs: list=['obs'], target_res_mod: list=['obs'], res_cont: list=['NA'], wav_cont: list=[], hc_type: list=['NA'], rv: list=['NA']):
+    def adapt(self, observation_files: list, target_res_obs: list=['obs'], target_res_mod: list=['obs'], res_cont: list=['NA'], wav_cont: list=[], hc_type: list=['NA'], rv: list=['NA'], emulator: list=['NA']):
         '''
         Method to adapt the grid of model to each observation
 
         Args
             observation_files (list): List of the observation files
-            target_res_obs (list): Target resolution of the observation
-            res_cont (list): Resolution of the continuum
-            wav_cont (list): Wavelength range on which we want to estimate the continuum
-            hc_type (list): High contrast function
+            target_res_obs    (list): Target resolution of the observation
+            res_cont          (list): Resolution of the continuum
+            wav_cont          (list): Wavelength range on which we want to estimate the continuum
+            hc_type           (list): High contrast function
+            rv                (list): Prior to put in the rv (will be probably removed later)
+            emulator          (list): Method of adaptation of the grid ('NA', 'PCA' of 'NMF')
         '''
         
         # Check that inputs are of type 'list'
@@ -182,7 +184,7 @@ class Analysis(object):
    
             # Setup target resolution for the observation
             # Interpolate the resolution of the model onto the wavelength of the data to properly decrease the resolution if necessary
-            interp_mod_to_obs = interp1d(self.model.wavelength, self.model.resolution, fill_value='extrapolate')
+            interp_mod_to_obs = interp1d(self.grid.wavelength, self.grid.resolution, fill_value='extrapolate')
             res_mod_obs = interp_mod_to_obs(obs_data['wav_spectro'])
 
             if target_res_obs[indobs % len(target_res_obs)] == 'obs': # Keeping the resolution of the observation except where its higher than the model's
@@ -202,11 +204,11 @@ class Analysis(object):
                 
                 # Setup target wavelength and resolution for the observation and the model
                 if target_res_mod[indobs % len(target_res_mod)] == 'mod': # Kepping the model's resolution
-                    target_wavelength, target_resolution = self.model.wavelength, self.model.resolution
+                    target_wavelength, target_resolution = self.grid.wavelength, self.grid.resolution
                 if target_res_mod[indobs % len(target_res_mod)] == 'obs': # Using the observation's resolution except where its higher than the model's
                     target_wavelength, target_resolution = obs_data['wav_spectro'], obs_data['res_spectro']
                 else:                                             # Using a custom resolution except where its higher than the model's
-                    target_wavelength, target_resolution = self.model.wavelength, np.full(len(self.model.wavelength), float(target_res_mod[indobs % len(target_res_mod)]))
+                    target_wavelength, target_resolution = self.grid.wavelength, np.full(len(self.grid.wavelength), float(target_res_mod[indobs % len(target_res_mod)]))
    
                 # # Masks to have larger cuts of the spectroscopic grid if needed (if rv is defined)
                 if rv[indobs*3 % len(rv)] == 'NA':
@@ -216,8 +218,8 @@ class Analysis(object):
                     mask_mod_obs = (target_wavelength <= 1.01 * obs_data['wav_spectro'][-1]) & (target_wavelength >= 0.99 * obs_data['wav_spectro'][0])   # 1.01 corresponds to a value of 3000 km/s for the RV so we do no risk to lose data on the edges when applying the RV correction
                     target_wavelength, target_resolution = target_wavelength[mask_mod_obs], target_resolution[mask_mod_obs]
 
-                self._logger.debug(f' Adapt model {self.model.name} to the observation {obs_name}')
-                self.model.adapt_grid(target_resolution, target_wavelength, wav_cont, res_cont, False)
+                self._logger.debug(f' Adapt model {self.grid.name} to the observation {obs_name}')
+                self.grid.adapt_grid(target_resolution, target_wavelength, wav_cont, res_cont, False)
 
              
         
