@@ -85,7 +85,8 @@ class ModelGrid(object):
     
     @property  
     def resolution(self):   # Resolution defined as the minimum between the given resolution and the Nyquist resolution
-        return np.minimum(self.nyquist, self._resolution)
+        # Sometimes self.nyquist < 0 (e.g. photometric data with a few points) so we need to make sure to keep the resolution to 0 in this case    
+        return np.maximum(np.zeros(len(self.nyquist)), np.minimum(self.nyquist, self._resolution))   
     
     @property  
     def grid(self):
@@ -158,7 +159,7 @@ class ModelGrid(object):
         else:
             return model_to_return
         
-    def _add_subgrid(self, wavelength_spectro: np.ndarray, resolution_spectro: np.ndarray, wavelength_photo: np.ndarray, ins_photo: str):
+    def _add_subgrid(self, wavelength_spectro: np.ndarray, resolution_spectro: np.ndarray, wavelength_photo: np.ndarray, ins_photo: str, obs_name: str):
         '''
         Add a subgrid to be adapted to a specific wavelength and a specific resolution
         The subgrid inherits from the Grid class so the same methods can be used for the subgrid
@@ -176,10 +177,10 @@ class ModelGrid(object):
         sub_spectro = ModelSubGrid(parent_grid=self, logger=self._logger, target_wavelength=wavelength_spectro, target_resolution=resolution_spectro)
         sub_photo = ModelSubGrid(parent_grid=self, logger=self._logger, target_wavelength=wavelength_photo, target_resolution=np.zeros(len(wavelength_photo)))
         
-        self._adapted_grid[self.counter+1] = {'spectro': sub_spectro, 'photo': sub_photo, 'ins_photo': ins_photo}
+        self._adapted_grid[self.counter+1] = {'obs_name': obs_name, 'spectro': sub_spectro, 'photo': sub_photo, 'ins_photo': ins_photo}
     
         
-    def adapt_grid(self, target_resolution: np.ndarray = [], target_wavelength: np.ndarray = [], wavelength_photo: np.ndarray = [], ins_photo: np.ndarray = [], wav_cont: np.ndarray = [], res_cont: np.ndarray = [], remove_continuum: bool = False):
+    def adapt_grid(self, target_resolution: np.ndarray, target_wavelength: np.ndarray, wavelength_photo: np.ndarray = [], ins_photo: np.ndarray = [], wav_cont: np.ndarray = [], res_cont: np.ndarray = [], remove_continuum: bool = False, obs_name: str = ''):
         '''
         Adapt the grid of models to a given resolution and wavelength.
     
@@ -199,7 +200,7 @@ class ModelGrid(object):
                 self._logger.critical(msg)
                 raise ForMoSAError(msg)
 
-        self._add_subgrid(target_wavelength, target_resolution, wavelength_photo, ins_photo)
+        self._add_subgrid(target_wavelength, target_resolution, wavelength_photo, ins_photo, obs_name)
         
         interp_mod_to_obs = interp1d(self.wavelength, self.resolution, fill_value='extrapolate')
         resolution_model = interp_mod_to_obs(target_wavelength)
@@ -420,8 +421,57 @@ class ModelGrid(object):
         weights = W.T.reshape((NMF_comp,) + og_grid.shape[1:])
     
         return vectors, weights
-
     
+    
+
+    def _interpolate_holes(self) -> None: 
+        '''
+        Interpolate between the holes of the grid
+
+        
+
+        Authors: Allan Denis
+        '''
+        for key, grid in self.adapted_grid.items():
+            spectro, photo = grid['spectro'], grid['photo']
+        
+    
+    def _save_grid(self, store_path: str | os.PathLike) -> None:
+        '''
+        Save the adapted spectroscopic and photometric grids separately to a specified directory.
+    
+        Parameters
+        ----------
+        store_path (str | os.PathLike): Path to the directory where adapted grids will be saved.
+        
+        Authors: Allan Denis
+        '''
+        
+        store_path = Path(store_path).expanduser()
+    
+        for key, grid in self.adapted_grid.items():
+            spectro, photo, obs_name = grid['spectro'], grid['photo'], grid['obs_name']
+    
+            if spectro:
+                if isinstance(spectro.grid, xr.DataArray):
+                    spectro.grid.to_netcdf(os.path.join(store_path, f'adapted_grid_spectro_{self.name}_{obs_name}_nonan.nc'),
+                                             format='NETCDF4',
+                                             engine='netcdf4',
+                                             mode='w')
+                else:
+                    self._logger.error(f"Spectroscopic grid {key} is not a xarray.DataArray.")
+    
+            if photo:
+                if isinstance(photo.grid, xr.DataArray):
+                    photo.grid.to_netcdf(os.path.join(store_path, f'adapted_grid_photo_{self.name}_{obs_name}_nonan.nc'),
+                                             format='NETCDF4',
+                                             engine='netcdf4',
+                                             mode='w')
+                else:
+                    self._logger.error(f"Photometric grid {key} is not a xarray.DataArray.")
+    
+
+        
     
     
 class ModelSubGrid(ModelGrid):
