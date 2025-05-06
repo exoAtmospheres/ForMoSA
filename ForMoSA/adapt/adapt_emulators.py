@@ -50,7 +50,7 @@ def emulator_PCA(ds, PCA_comp = 'NA'):
     Author: Matthieu Ravet, adapted from https://iopscience.iop.org/article/10.1088/0004-637X/812/2/128/pdf  
     """
 
-    # Extract grid
+    # Extract grid
     grid = ds['grid']
     attr = ds.attrs
     attr.pop("res")
@@ -71,7 +71,7 @@ def emulator_PCA(ds, PCA_comp = 'NA'):
     flx_grid /= flx_grid_std
 
     # Perform PCA using sklearn
-    if PCA_comp == 'NA': # Will automatically choose the number of component explaining at leat 99% of the variance of the grid
+    if PCA_comp == 'NA': # Will automatically choose the number of component explaining at leat 99% of the variance of the grid
         default_pca_kwargs = dict(n_components=0.99, svd_solver="full")
     else:
         default_pca_kwargs = dict(n_components=PCA_comp, svd_solver="full")
@@ -82,9 +82,9 @@ def emulator_PCA(ds, PCA_comp = 'NA'):
     # Extract wheights
     ws = get_ws(vectors, flx_grid)
 
-    # - - - - - - - -
+    # - - - - - - - -
 
-    # Reshape weights and norm_factor and merge them
+    # Reshape weights and norm_factor and merge them
     ws = ws.reshape((pca.n_components_,) + og_grid.shape[1:])
     nfs = nfs.reshape(og_grid.shape[1:])
     weights = np.concatenate((nfs[np.newaxis,:], ws), axis=0)
@@ -112,7 +112,7 @@ def emulator_NMF(ds, NMF_comp):
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     torch.manual_seed(0)  # For reproducibility of the NMF decomposition
 
-    # Extract grid
+    # Extract grid
     grid = ds['grid']
     attr = ds.attrs
     attr.pop("res")
@@ -123,18 +123,18 @@ def emulator_NMF(ds, NMF_comp):
     # Reshape the grid to be 2D and in the right dimension
     flx_grid = flx_grid.reshape(flx_grid.shape[0], -1)
 
-    # Model with NNF (Non-Negative matrix Factorization)
+    # Model with NNF (Non-Negative matrix Factorization)
     flx_grid_torch = torch.tensor(flx_grid, device=device, requires_grad=False, dtype=torch.float64)
 
-    # Model
+    # Model
     model = NMF(flx_grid_torch.shape, rank=NMF_comp).to(device)
     model.fit(flx_grid_torch, max_iter=10000)
 
-    # Extract weights and eigenspectra
+    # Extract weights and eigenspectra
     H = model.H.cpu().detach().numpy()
     W = model.W.cpu().detach().numpy()
 
-    # Convert/reformat them
+    # Convert/reformat them
     vectors = H.T
     weights = W.T.reshape((NMF_comp,) + og_grid.shape[1:])
 

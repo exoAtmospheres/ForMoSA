@@ -12,6 +12,7 @@ from ForMoSA.ForMoSAPaths import ForMoSAPaths
 from ForMoSA.observation import Observation
 from scipy.interpolate import interp1d
 from ForMoSA.utils_spec import resolution_decreasing, continuum_estimate
+import ForMoSA.utils as utils
 import colorlog
 
 # log
@@ -97,7 +98,7 @@ class Analysis(object):
     ##################################################
     
     def __repr__(self) -> str:
-        return f'<Analysis, config_file={self.paths.config_file_path}, model={self.model.name}>'
+        return f'<Analysis, config_file={self.paths.config_file_path}, grid={self.grid.name}>'
 
     def __format__(self) -> str:
         return self.__repr__()
@@ -140,22 +141,7 @@ class Analysis(object):
     ##################################################
     
     
-    def _islist(self, *params):
-        '''
-        Method to check that all the components defined in params are a list
-
-        Args
-            *params : list of parameters
-            
-        Author: Allan Denis
-        '''
-        for param in params:
-            if not(isinstance(param, list)):
-                self._logger.critical(f' {param} is not a list.')
-                raise ForMoSAError()
-    
-    
-    def adapt(self, observation_files: list, target_res_obs: list=['obs'], target_res_mod: list=['obs'], res_cont: list=['NA'], wav_cont: list=[], hc_type: list=['NA'], rv: list=['NA'], emulator: list=['NA']):
+    def adapt(self, observation_files: list, target_res_obs: list=['obs'], target_res_mod: list=['obs'], res_cont: list=['NA'], wav_cont: list=[], hc_type: list=['NA'], rv: list=['NA'], emulator: str='NA', ):
         '''
         Method to adapt the grid of model to each observation
 
@@ -170,7 +156,11 @@ class Analysis(object):
         '''
         
         # Check that inputs are of type 'list'
-        self._islist(observation_files, target_res_obs, res_cont, hc_type)
+        is_not_list = utils.check_format(observation_files, target_res_obs, res_cont, hc_type, type_expected=list)
+        if len(is_not_list) > 0:
+                msg = f" Params in wrong format : {', '.join(is_not_list)}"
+                self._logger.critical(msg)
+                raise ForMoSAError(msg)
         
         for indobs, obs in enumerate(observation_files):
             
@@ -193,15 +183,16 @@ class Analysis(object):
                 res_custom = np.full(len(obs_data['res_spectro']), float(target_res_obs[indobs % len(target_res_obs)]))
                 _target_res_obs = np.minimum(obs_data['res_spectro'], res_mod_obs, res_custom)
 
-            self.observation._adapt_observation(_target_res_obs, res_cont[indobs % len(res_cont)], wav_cont[indobs % len(wav_cont)], hc_type[indobs % len(hc_type)], indobs)
-            self._logger.info(f' Observation {obs_name} adapted.')
+            if len(_target_res_obs) > 0:
+                self.observation._adapt_observation(_target_res_obs, res_cont[indobs % len(res_cont)], wav_cont[indobs % len(wav_cont)], hc_type[indobs % len(hc_type)], indobs)
+                self._logger.info(f' Observation {obs_name} adapted.')
             
             # Save the data
             self._logger.debug(f'> Save observation file {self.paths.result_path}' + f'/spectrum_obs_{obs_name}.npz')
             np.savez(os.path.join(self.paths.result_path, f'spectrum_obs_{obs_name}.npz'), **self.observation.obs_data[indobs])
             
             if not self.adapted:   # If the model is not already adapted to the data, or if the user wants to redo the adaptation
-                
+                wavelength_photo, ins_photo = obs_data['wav_photo'], obs_data['ins_photo']
                 # Setup target wavelength and resolution for the observation and the model
                 if target_res_mod[indobs % len(target_res_mod)] == 'mod': # Kepping the model's resolution
                     target_wavelength, target_resolution = self.grid.wavelength, self.grid.resolution
@@ -210,18 +201,25 @@ class Analysis(object):
                 else:                                             # Using a custom resolution except where its higher than the model's
                     target_wavelength, target_resolution = self.grid.wavelength, np.full(len(self.grid.wavelength), float(target_res_mod[indobs % len(target_res_mod)]))
    
-                # # Masks to have larger cuts of the spectroscopic grid if needed (if rv is defined)
-                if rv[indobs*3 % len(rv)] == 'NA':
-                    mask_mod_obs = (target_wavelength <= obs_data['wav_spectro'][-1]) & (target_wavelength >= obs_data['wav_spectro'][0]) 
-                    target_wavelength, target_resolution = target_wavelength[mask_mod_obs], target_resolution[mask_mod_obs]
-                else:
-                    mask_mod_obs = (target_wavelength <= 1.01 * obs_data['wav_spectro'][-1]) & (target_wavelength >= 0.99 * obs_data['wav_spectro'][0])   # 1.01 corresponds to a value of 3000 km/s for the RV so we do no risk to lose data on the edges when applying the RV correction
-                    target_wavelength, target_resolution = target_wavelength[mask_mod_obs], target_resolution[mask_mod_obs]
+                if len(obs_data['wav_spectro']) > 0:
+                    # # Masks to have larger cuts of the spectroscopic grid if needed (if rv is defined)
+                    if rv[indobs*3 % len(rv)] == 'NA':
+                        mask_mod_obs = (target_wavelength <= obs_data['wav_spectro'][-1]) & (target_wavelength >= obs_data['wav_spectro'][0]) 
+                        target_wavelength, target_resolution = target_wavelength[mask_mod_obs], target_resolution[mask_mod_obs]
+                    else:
+                        mask_mod_obs = (target_wavelength <= 1.01 * obs_data['wav_spectro'][-1]) & (target_wavelength >= 0.99 * obs_data['wav_spectro'][0])   # 1.01 corresponds to a value of 3000 km/s for the RV so we do no risk to lose data on the edges when applying the RV correction
+                        target_wavelength, target_resolution = target_wavelength[mask_mod_obs], target_resolution[mask_mod_obs]
 
                 self._logger.debug(f' Adapt model {self.grid.name} to the observation {obs_name}')
-                self.grid.adapt_grid(target_resolution, target_wavelength, wav_cont, res_cont, False)
+                self.grid._add_subgrid(target_wavelength, target_resolution, wavelength_photo, ins_photo)
+                self.grid.adapt_grid(target_resolution, target_wavelength, wavelength_photo, ins_photo, wav_cont, res_cont, False)
 
-             
+                if emulator == 'PCA':
+                    self._logger.info(' Decomposing the grid using PCA')
+                    
+                    # TODO
+                    
+                
         
    
 # These lines are just for testing purposes. They will be removed for the final version
@@ -230,4 +228,4 @@ model_path = '/Users/allandenis/test.nc'
 
 analysis = Analysis(config, log_level='debug')
 global_params = GlobalParams(config)
-analysis.adapt(global_params.paths.observation_files, target_res_obs=global_params.target_res_obs, res_cont=global_params.res_cont, wav_cont=global_params.wav_cont, hc_type=global_params.hc_type)
+analysis.adapt(observation_files=global_params.paths.observation_files, target_res_obs=global_params.target_res_obs, res_cont=global_params.res_cont, wav_cont=global_params.wav_cont, hc_type=global_params.hc_type)

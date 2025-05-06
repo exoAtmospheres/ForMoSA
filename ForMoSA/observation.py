@@ -93,7 +93,7 @@ class Observation(object):
         Returns:
             - obs_dict       (dict): Dictionay containing all the observationnal entries (photometry, spectroscopy and/or optional)
 
-        Author: Simon Petrus, Matthieu Ravet and Allan Denis
+        Authors: Simon Petrus, Matthieu Ravet and Allan Denis
         """
         # Extraction
         self._logger.info(f' Current observation {self.obs_files[indobs]}.')
@@ -101,24 +101,51 @@ class Observation(object):
         with fits.open(self.obs_files[indobs]) as hdul:
             self._logger.debug(f'> Read file {self.obs_files[indobs]}.')
 
-            # Check the format of the file and extract data accordingly
+            missing_keys = []
+            
+            # Check that parameters are well defined
+            # General parameters 
             try:
                 wav = hdul[1].data['WAV']
-                flx = hdul[1].data['FLX']
-                res = hdul[1].data['RES']
-                ins = hdul[1].data['INS']
             except KeyError:
-                self._logger.critical(' Key error.')
-                raise ForMoSAError()
+                missing_keys.append('WAV')
+            try:
+                flx = hdul[1].data['FLX']
+            except KeyError:
+                missing_keys.append('FLX')
+            try:
+                res = hdul[1].data['RES']
+            except KeyError:
+                missing_keys.append('RES')
+            try:
+                ins = np.asarray(hdul[1].data['INS'], dtype=str)
+            except KeyError:
+                missing_keys.append('INS')
             
-            try: # Check for spectral covariances
+            if len(missing_keys) > 0:
+                
+                msg = f" Keys missing : {', '.join(missing_keys)}"
+                self._logger.critical(msg)
+                raise ForMoSAError(msg)
+            
+            # Errors and covariances
+            try: 
                 err = hdul[1].data['ERR']
                 cov = np.asarray([]) # Create an empty covariance matrix if not already present in the data (to not slow the inversion)
                 self._logger.info(f' Your observation {self.obs_name[indobs]} contains an error vector.')
-            except:
-                cov = hdul[1].data['COV']
-                err = np.sqrt(np.diag(np.abs(cov)))
-                self._logger.info(f' Your observation {self.obs_name[indobs]} contains a covariance matrix.')
+            except KeyError:
+                missing_keys.append('ERR')
+                try:
+                    cov = hdul[1].data['COV']
+                    err = np.sqrt(np.diag(np.abs(cov)))
+                    self._logger.info(f' Your observation {self.obs_name[indobs]} contains a covariance matrix.')
+                except KeyError:
+                    missing_keys.append('COV')
+                    msg = f" Keys missing : {', '.join(missing_keys)}"
+                    self._logger.critical(msg)
+                    raise ForMoSAError(msg)
+                    
+            # High-contrast parameters
             try: # Check for transmission
                 transm = hdul[1].data['TRANSM']
                 self._logger.info(f' Your observation {self.obs_name[indobs]} contains a transmission vector.')
@@ -139,6 +166,8 @@ class Observation(object):
                     except:
                         self._logger.info(f' Your observation {self.obs_name[indobs]} contains {i-1} star vectors.')
                         break
+            
+            # Additional systematics parameters (sometimes used for high-contrast data)
             try:
                 is_system = True
                 system = hdul[1].data['SYSTEMATICS1'][:,np.newaxis]
@@ -218,10 +247,11 @@ class Observation(object):
                         'system': system
                         }
             
+            
             self._obs_data[indobs] = obs_dict
             
             
-    def _adapt_observation(self, target_res_obs: np.ndarray, res_cont: np.ndarray, wav_cont: np.ndarray=[], hc_type: str='NA', indobs: int=0):
+    def _adapt_observation(self, target_res_obs: np.ndarray, res_cont: np.ndarray, wav_cont: np.ndarray=[], star_continuum: str='NA', indobs: int=0):
         """
         Decrease the spectral resolution of the current observation and remove the continuum if necessary
 
@@ -235,7 +265,7 @@ class Observation(object):
         Returns:
             obs_data          (dict): Adapted current observation
 
-        Author: Simon Petrus, Matthieu Ravet and Allan Denis
+        Authors: Simon Petrus, Matthieu Ravet and Allan Denis
         """
 
         # Decrease the resolution and remove the continuum if necessary
@@ -287,12 +317,12 @@ class Observation(object):
                                                               obs_data['res_spectro'], 
                                                               wav_cont, res_cont)
             
-            # If you don't use hc models, the data continuum is directly removed
-            if hc_type == 'NA':
+            # We want to remove the continuum of the star (generally if you do not use high contrast data)
+            if star_continuum == 'remove':
                 obs_data['flx_spectro'] -= obs_data['flx_spectro_cont']
                 self._logger.info(f' {obs_name} will have a R = {res_cont} continuum removed using a {wav_cont} wavelength range')
 
-            else: # If you use hc models, the data is kept; we just need to estimate the continuum of the star flux as well
+            elif star_continuum == 'estimate': # We just want to estimate the continuum of the star (generally if you use high contrast data)
                 self._logger.debug('> Estimate the continuum to the stellar data')
                 obs_data['star_flx_cont'] = continuum_estimate(obs_data['wav_spectro'],
                                                             obs_data['star_flx'][:,len(obs_data['star_flx'][0]) // 2], # Continuum of the star on the central pixel

@@ -88,7 +88,7 @@ def format_grid(grid, attr, free_comp, weights):
     vars_nfs_ws = ["eigen_indices"]
     for key in attr['key']:
         vars_nfs_ws.append(key)
-    coords_nfs_ws = {"eigen_indices": np.arange(free_comp)} # The first columns are the normalization factors so you need to add 1
+    coords_nfs_ws = {"eigen_indices": np.arange(free_comp)} # The first columns are the normalization factors so you need to add 1
     for key in attr['key']:
         coords_nfs_ws[key] = grid[key].values
     ds_weights= xr.Dataset(data_vars=dict(grid=(vars_nfs_ws, weights)), coords=coords_nfs_ws, attrs=attr)
@@ -96,3 +96,22 @@ def format_grid(grid, attr, free_comp, weights):
     return ds_weights
 
 # ----------------------------------------------------------------------------------------------------------------------
+
+
+def check_format(*params, type_expected):
+    '''
+    Method to check that all the components defined in params are a list
+
+    Args
+        *params            : list of parameters
+        type_expeced (type): Expected type (list, str, tuple, ...)
+        
+    Author: Allan Denis
+    '''
+    
+    wrong_format = []
+    for param in params:
+        if not(isinstance(param, type_expected)):
+            wrong_format.append(param)
+    
+    return wrong_format
