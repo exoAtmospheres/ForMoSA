@@ -211,13 +211,19 @@ class Analysis(object):
                         target_wavelength, target_resolution = target_wavelength[mask_mod_obs], target_resolution[mask_mod_obs]
 
                 self._logger.debug(f' Adapt model {self.grid.name} to the observation {obs_name}')
-                self.grid._add_subgrid(target_wavelength, target_resolution, wavelength_photo, ins_photo)
-                self.grid.adapt_grid(target_resolution, target_wavelength, wavelength_photo, ins_photo, wav_cont, res_cont, False)
+                self.grid.adapt_grid(target_resolution, target_wavelength, wavelength_photo, ins_photo, wav_cont, res_cont, False, obs_name)
 
                 if emulator == 'PCA':
                     self._logger.info(' Decomposing the grid using PCA')
                     
                     # TODO
+                    
+                if emulator == 'NMF':
+                    self._logger.info(' Decomposing the grid using NMF')
+                    
+                    # TODO
+                    
+                    
                     
                 
         
