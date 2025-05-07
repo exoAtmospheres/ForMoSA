@@ -25,7 +25,7 @@ class Observation(object):
         
         # extract observation data
         for indobs in range(self.n_obs):
-            self._extract_observation(indobs)
+            self._obs_data[indobs] = self._extract_observation(indobs)
         
     ##################################################
     # Representation
@@ -80,23 +80,25 @@ class Observation(object):
     # Methods
     ##################################################
         
-    def _extract_observation(self, indobs=0):
+    def _extract_observation(self, indobs=0) -> dict():
         """
-        Extract the information from the observation file, including the wavelengths (um - vacuum), flux (W.m-2.um.1), errors (W.m-2.um.1), covariance (W.m-2.um.1)**2, spectral resolution, 
-        instrument/filter name, transmission (Atmo+inst) and star flux (W.m-2.um.1). The wavelength range is define by the parameter "wav_for_adapt".
+       Method to extract the information from the observation file number indobs
+       Extracts the wavelengths (um - vacuum), flux (W.m-2.um.1), errors (W.m-2.um.1), covariance (W.m-2.um.1)**2, spectral resolution, 
+       instrument/filter name, transmission (Atmo+inst) and star flux (W.m-2.um.1). 
 
         Args:
             global_params  (object): Class containing each parameter
-            obs_name          (str): Name of the current observation looping
-            indobs            (int): Index of the current observation looping
-
+            indobs            (int): Index of the current observation
+            
         Returns:
-            - obs_dict       (dict): Dictionay containing all the observationnal entries (photometry, spectroscopy and/or optional)
+            obs_dict (dict): Dictionnaries containing all the extracted data
 
         Authors: Simon Petrus, Matthieu Ravet and Allan Denis
         """
         # Extraction
         self._logger.info(f' Current observation {self.obs_files[indobs]}.')
+        
+        obs_dict = dict()
         
         with fits.open(self.obs_files[indobs]) as hdul:
             self._logger.debug(f'> Read file {self.obs_files[indobs]}.')
@@ -141,7 +143,7 @@ class Observation(object):
                     self._logger.info(f' Your observation {self.obs_name[indobs]} contains a covariance matrix.')
                 except KeyError:
                     missing_keys.append('COV')
-                    msg = f" Keys missing : {', '.join(missing_keys)}"
+                    msg = f" One of the following keys if missing : {', '.join(missing_keys)}"
                     self._logger.critical(msg)
                     raise ForMoSAError(msg)
                     
@@ -229,27 +231,34 @@ class Observation(object):
             self._logger.info(f' Your observation {self.obs_name[indobs]} contains {len(wav[~mask_photo])} spectroscopic points and {len(wav[mask_photo])} photometric points.')
             # Check-ups and warnings for negative values in the diagonal of the covariance matrix
             if len(wav[~mask_photo]) != 0 and any(np.diag(inv_cov) < 0):
-                self._logger.critical(" Negative value(s) is(are) present on the diagonal of the covariance matrix.") 
-                raise ForMoSAError
+                msg = " Negative value(s) is(are) present on the diagonal of the covariance matrix."
+                self._logger.critical(msg) 
+                raise ForMoSAError(msg)
            
+            if len(ins[mask_photo]) > 0:
+                self._logger.info(f' The names of the filters defined are {ins[mask_photo]}')
+            
+            self._logger.debug('< Format spectroscopic data into a dictionary.>')
             # Observation dictionary
-            obs_dict = {'wav_photo': wav[mask_photo], # Photometry part
-                        'flx_photo': flx[mask_photo],
-                        'err_photo': err[mask_photo],
-                        'ins_photo': ins[mask_photo],
-                        'wav_spectro': wav[~mask_photo], # Spectroscopy part
-                        'flx_spectro': flx[~mask_photo],
-                        'err_spectro': err[~mask_photo],
-                        'res_spectro': res[~mask_photo],
-                        'inv_cov': inv_cov, # Optional part
-                        'transm': transm,
-                        'star_flx': star_flx,
-                        'system': system
-                        }
+            obs_dict['spectroscopy'] = {'wav': wav[~mask_photo],
+                                        'flx': flx[~mask_photo],
+                                        'err': err[~mask_photo],
+                                        'res': res[~mask_photo],
+                                        'inv_cov': inv_cov, # Optional part
+                                        'transm': transm,
+                                        'star_flx': star_flx,
+                                        'system': system}
+           
+            self._logger.debug('< Format photometric data into a dictionary.>')
+            obs_dict['photometry'] = {'wav': wav[mask_photo], 
+                        'flx': flx[mask_photo],
+                        'err': err[mask_photo],
+                        'ins': ins[mask_photo]}
             
+            obs_dict['transmission'] = dict()     # Preparing for the transmission spectroscopy part
             
-            self._obs_data[indobs] = obs_dict
-            
+            return obs_dict
+                        
             
     def _adapt_observation(self, target_res_obs: np.ndarray, res_cont: np.ndarray, wav_cont: np.ndarray=[], star_continuum: str='NA', indobs: int=0):
         """
@@ -269,39 +278,39 @@ class Observation(object):
         """
 
         # Decrease the resolution and remove the continuum if necessary
-        obs_data = self.obs_data[indobs]
+        obs_data = self.obs_data[indobs]['spectroscopy']
         obs_name = self.obs_name[indobs]
 
         # If we want to decrease the resolution of the spectroscopic data:
         self._logger.info(f' Target resolution for the data: {target_res_obs}.')
         self._logger.debug('> Decrease the resolution of the flux if necessary.')
-        obs_data['flx_spectro'] = resolution_decreasing(obs_data['wav_spectro'],
-                                                        obs_data['flx_spectro'],
-                                                        obs_data['res_spectro'],
-                                                        obs_data['wav_spectro'],
-                                                        target_res_obs)
+        obs_data['flx'] = resolution_decreasing(obs_data['wav'],
+                                                obs_data['flx'],
+                                                obs_data['res'],
+                                                obs_data['wav'],
+                                                target_res_obs)
         
         if len(obs_data['transm']) > 0:
             self._logger.debug('> Decrease the resolution of the transmission if necessary..')
-            obs_data['transm'] = resolution_decreasing(obs_data['wav_spectro'],
+            obs_data['transm'] = resolution_decreasing(obs_data['wav'],
                                                        obs_data['transm'],
-                                                       obs_data['res_spectro'],
-                                                       obs_data['wav_spectro'],
+                                                       obs_data['res'],
+                                                       obs_data['wav'],
                                                        target_res_obs)
         if len(obs_data['star_flx']) > 0:
             self._logger.debug('> Decrease the resolution of the star flux if necessary.')
-            obs_data['star_flx'] = np.asarray([resolution_decreasing(obs_data['wav_spectro'],
+            obs_data['star_flx'] = np.asarray([resolution_decreasing(obs_data['wav'],
                                                                      obs_data['star_flx'][:,i],
-                                                                     obs_data['res_spectro'],
-                                                                     obs_data['wav_spectro'],
+                                                                     obs_data['res'],
+                                                                     obs_data['wav'],
                                                                      target_res_obs) for i in range(obs_data['star_flx'].shape[-1])]).T
         
         if len(obs_data['system']) > 0:
             self._logger.debug('> Decrease the resolution of the systematics if necessary.')
-            obs_data['system'] = np.asarray([resolution_decreasing(obs_data['wav_spectro'],
+            obs_data['system'] = np.asarray([resolution_decreasing(obs_data['wav'],
                                                                    obs_data['system'][:,i],
-                                                                   obs_data['res_spectro'],
-                                                                   obs_data['wav_spectro'],
+                                                                   obs_data['res'],
+                                                                   obs_data['wav'],
                                                                    target_res_obs) for i in range(obs_data['system'].shape[-1])]).T
     
     
@@ -312,23 +321,23 @@ class Observation(object):
         if res_cont != 'NA':
             self._logger.debug('> Substract the continuum to the data')
             
-            obs_data['flx_spectro_cont'] = continuum_estimate(obs_data['wav_spectro'], 
-                                                              obs_data['flx_spectro'], 
-                                                              obs_data['res_spectro'], 
-                                                              wav_cont, res_cont)
+            obs_data['flx_cont'] = continuum_estimate(obs_data['wav'], 
+                                                      obs_data['flx'], 
+                                                      obs_data['res'], 
+                                                      wav_cont, res_cont)
             
             # We want to remove the continuum of the star (generally if you do not use high contrast data)
             if star_continuum == 'remove':
-                obs_data['flx_spectro'] -= obs_data['flx_spectro_cont']
+                obs_data['flx'] -= obs_data['flx_cont']
                 self._logger.info(f' {obs_name} will have a R = {res_cont} continuum removed using a {wav_cont} wavelength range')
 
             elif star_continuum == 'estimate': # We just want to estimate the continuum of the star (generally if you use high contrast data)
                 self._logger.debug('> Estimate the continuum to the stellar data')
-                obs_data['star_flx_cont'] = continuum_estimate(obs_data['wav_spectro'],
+                obs_data['star_flx_cont'] = continuum_estimate(obs_data['wav'],
                                                             obs_data['star_flx'][:,len(obs_data['star_flx'][0]) // 2], # Continuum of the star on the central pixel
-                                                            obs_data['res_spectro'],
+                                                            obs_data['res'],
                                                             wav_cont, res_cont)
     
-        self._obs_data[indobs] = obs_data
+        self._obs_data[indobs]['spectroscopy'] = obs_data
         
     

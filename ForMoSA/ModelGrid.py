@@ -159,7 +159,7 @@ class ModelGrid(object):
         else:
             return model_to_return
         
-    def _add_subgrid(self, wavelength_spectro: np.ndarray, resolution_spectro: np.ndarray, wavelength_photo: np.ndarray, ins_photo: str, obs_name: str):
+    def _add_subgrid(self, wavelength_spectro: np.ndarray, resolution_spectro: np.ndarray, wavelength_photo: np.ndarray, ins_photo: str, obs_name: str = 'unknown'):
         '''
         Add a subgrid to be adapted to a specific wavelength and a specific resolution
         The subgrid inherits from the Grid class so the same methods can be used for the subgrid
@@ -174,13 +174,13 @@ class ModelGrid(object):
         Authors: Allan Denis
         '''
         
-        sub_spectro = ModelSubGrid(parent_grid=self, logger=self._logger, target_wavelength=wavelength_spectro, target_resolution=resolution_spectro)
-        sub_photo = ModelSubGrid(parent_grid=self, logger=self._logger, target_wavelength=wavelength_photo, target_resolution=np.zeros(len(wavelength_photo)))
+        sub_spectro = ModelSubGrid(parent_grid=self, logger=self._logger, target_wavelength=wavelength_spectro, target_resolution=resolution_spectro, obs_name=obs_name)
+        sub_photo = ModelSubGrid(parent_grid=self, logger=self._logger, target_wavelength=wavelength_photo, target_resolution=np.zeros(len(wavelength_photo)), ins_photo=ins_photo, obs_name=obs_name)
         
-        self._adapted_grid[self.counter+1] = {'obs_name': obs_name, 'spectro': sub_spectro, 'photo': sub_photo, 'ins_photo': ins_photo}
+        self._adapted_grid[self.counter+1] = {'spectro': sub_spectro, 'photo': sub_photo}
     
         
-    def adapt_grid(self, target_resolution: np.ndarray, target_wavelength: np.ndarray, wavelength_photo: np.ndarray = [], ins_photo: np.ndarray = [], wav_cont: np.ndarray = [], res_cont: np.ndarray = [], remove_continuum: bool = False, obs_name: str = ''):
+    def adapt_grid(self, target_resolution: np.ndarray, target_wavelength: np.ndarray, wavelength_photo: np.ndarray = [], ins_photo: np.ndarray = [], wav_cont: np.ndarray = [], res_cont: np.ndarray = [], remove_continuum: bool = False, obs_name: str = 'unknown'):
         '''
         Adapt the grid of models to a given resolution and wavelength.
     
@@ -193,13 +193,12 @@ class ModelGrid(object):
         Authors: Simon Petrus, Matthieu Ravet, Paulina Palma-Bifani, Arthur Vigan and Allan Denis
         '''
       
+        self._logger.info(f' Adapt model {self.grid.name} to the observation {obs_name}')  
+      
         if len(ins_photo) > 0:
-            missing_filters = self._check_photometry_filters_exist(ins_photo)
-            if missing_filters:
-                msg = f" Filter files cannot be found : {', '.join(missing_filters)}"
-                self._logger.critical(msg)
-                raise ForMoSAError(msg)
+            self._check_photometry_filters_exist(ins_photo)
 
+        self._logger.debug('< Add a subgrid.>')
         self._add_subgrid(target_wavelength, target_resolution, wavelength_photo, ins_photo, obs_name)
         
         interp_mod_to_obs = interp1d(self.wavelength, self.resolution, fill_value='extrapolate')
@@ -214,20 +213,26 @@ class ModelGrid(object):
             pbar.update(1)
             
         try: # Parallel if possible
+            self._logger.info('< Parallel adaptation.>')
             ncpu = mp.cpu_count()
             with ThreadPool(processes=ncpu) as pool:
                 for idx in np.ndindex(shape):
                     callback = partial(update_result, idx=idx, model=self)
-                    pool.apply_async(self.adapt_model, args=(idx, target_resolution, target_wavelength, wavelength_photo, ins_photo, resolution_model, wav_cont, res_cont, remove_continuum), callback=callback)
+                    pool.apply_async(self._adapt_model, args=(idx, target_resolution, target_wavelength, wavelength_photo, ins_photo, resolution_model, wav_cont, res_cont, remove_continuum), callback=callback)
                 pool.close()
                 pool.join()
                 
-        except Exception:
-            for idx in np.ndindex(shape):
-                self._adapted_grid.grid[self.counter]['spectro']._grid[(..., ) + idx] = self.adapt_model(idx, target_resolution, target_wavelength, resolution_model, wav_cont, res_cont, remove_continuum)
+        except Exception as e:
+            self._logger.warning(f'< Parallel adaptation produced the following error: {e}. Trying non parallel implementation.')
+            try:
+                for idx in np.ndindex(shape):
+                    self._adapted_grid.grid[self.counter]['spectro']._grid[(..., ) + idx] = self._adapt_model(idx, target_resolution, target_wavelength, resolution_model, wav_cont, res_cont, remove_continuum)
+            except Exception as e:
+                msg = f' Non parallel adaptation produced the following error: {e}.'
+                self._logger.critical(msg)
+                raise ForMoSAError(msg)
         
-        
-    def adapt_model(self, idx: np.ndarray, target_resolution: np.ndarray, target_wavelength: np.ndarray, wavelength_photo: np.ndarray, ins_photo: str, resolution_model: np.ndarray, wav_cont: np.ndarray=[], res_cont: np.ndarray=[], remove_continuum: bool=False):
+    def _adapt_model(self, idx: np.ndarray, target_resolution: np.ndarray, target_wavelength: np.ndarray, wavelength_photo: np.ndarray, ins_photo: str, resolution_model: np.ndarray, wav_cont: np.ndarray=[], res_cont: np.ndarray=[], remove_continuum: bool=False):
         '''
         Method to adapt a specific model at a given resolution and wavelength grid
 
@@ -246,14 +251,6 @@ class ModelGrid(object):
         
         try:
             model_to_adapt = self._load_model_at_specific_index(idx)
-        
-            if model_to_adapt is None or np.any(np.isnan(model_to_adapt)):
-                msg = 'Extraction of model failed : '
-                for i, (key, title) in enumerate(zip(self.keys, self.titles)):
-                    msg += f'{title}={self.key_values[key][idx[i]]}, '
-                self._logger.warning(f'{msg}')
-                return None, None
-            
             model_spectro = None
             model_photo = None
             
@@ -268,6 +265,10 @@ class ModelGrid(object):
             # Photometry
             if len(wavelength_photo) > 0 and len(ins_photo) > 0:
                 model_photo = np.zeros(len(ins_photo))
+                
+                # Check that all the filters file exist
+                self._check_photometry_filters_exist(ins_photo)
+                    
                 for pho_ind, pho in enumerate(ins_photo):
                     filter_path = self._find_filter_file(pho)
                     filter_pho = np.load(filter_path)
@@ -282,7 +283,7 @@ class ModelGrid(object):
                     denom = np.sum(y_filt_interp[ind] * delta_lambda)
                     model_photo[pho_ind] = num / denom if denom != 0 else np.nan
     
-        except ForMoSAError as e:  # When we are in a ThreadPool, this line is necessary to make the thread stop the execution of the code
+        except ForMoSAError as e:   # This line is necessary when we are in a Threapool to stop the execution of the code
             raise e  
     
         return model_spectro, model_photo
@@ -316,15 +317,12 @@ class ModelGrid(object):
     
     def _check_photometry_filters_exist(self, filters: list[str]) -> list[str]:
         '''
-        Check that photometric filters exist
+        Method to check that photometric filters exist
         
         Parameters
         ----------
         filters (list of str): List of name of filters
-    
-        Returns
-        -------
-        list of str: List of lacking filters
+ 
         
         Authors: Allan Denis
         '''
@@ -332,9 +330,13 @@ class ModelGrid(object):
         missing = []
         for filt in filters:
             if self._find_filter_file(filt) is None:
-                missing.append(filt)
+                file_filt = '/'.join(__file__.split("/")[:-1]) + '/phototeque/' + filt + '.npz'
+                missing.append(file_filt)
         
-        return missing
+        if missing:
+            msg = f" Filter files cannot be found : {', '.join(missing)}."
+            self._logger.critical(msg)
+            raise ForMoSAError(msg)
 
 
     def _emulate_with_PCA(self, PCA_comp='NA'):
@@ -423,17 +425,65 @@ class ModelGrid(object):
         return vectors, weights
     
     
-
-    def _interpolate_holes(self) -> None: 
+    def _interpolate_missing_values(self, method: str = "linear", limit: int = None, fill_value: str = 'extrapolate', max_gap: int = None) -> None:
         '''
-        Interpolate between the holes of the grid
-
+        Interpolate missing (NaN) values in the adapted spectroscopic and photometric grids.
+    
+        Parameters
+        ----------
+        method      (str): Interpolation method to use.
+        limit       (int): Maximum number of consecutive NaNs to fill.
+        fill_value  (str): Method to fill in points outside of data range
+        max_gap     (int): Maximum size of gap, a continuous sequence of NaNs, that will be filled
+    
+        Authors: Simon Petrus, Paulina Palma-Bifani, Mathieu Ravet and Allan Denis
+        '''
         
-
-        Authors: Allan Denis
-        '''
-        for key, grid in self.adapted_grid.items():
-            spectro, photo = grid['spectro'], grid['photo']
+        self._logger.info('Interpolate between holes of the grid')
+        
+        interp_kwargs = {
+        "method": method,
+        "fill_value": fill_value,
+        "limit": limit,
+        "max_gap": max_gap,
+        }
+        
+        # If self is an instance of spectro/photo (e.g. GridModel[0]['spectro'])
+        if isinstance(self, ModelSubGrid):
+            component_type = "spectro" if "spectro" in str(type(self)).lower() else "photo"
+            for idx, (key, title) in enumerate(zip(self.keys, self.titles)):
+                self._logger.info(f' {component_type} - {idx+1}/{len(self.keys)} - {title}')
+                if self.grid.isnull().any(dim=key).any().item():
+                    self._logger.debug(f'< Interpolate between the holes of the grid {self.grid.name}>')
+                    self._grid = self.grid.interpolate_na(dim = key, **interp_kwargs)
+            return  
+    
+        # If self is an instance of GridModel
+        else:
+            for key, grid in self._adapted_grid.items():
+                spectro, photo = grid['spectro'], grid['photo']
+    
+                if spectro and isinstance(spectro.grid, xr.DataArray) and len(spectro.wavelength) > 0:
+                    self._logger.info(' -- Spectroscopy -- ')
+                    for idx, (key, title) in enumerate(zip(self.keys, self.titles)):
+                        self._logger.info(f' {idx+1}/{len(self.keys)} - {title}')
+                        if spectro.grid.isnull().any(dim=key).any().item():
+                            spectro._grid = spectro.grid.interpolate_na(dim=key, **interp_kwargs)
+                elif spectro and not(isinstance(spectro.grid, xr.DataArray)):
+                    msg = f"Spectroscopic grid '{key}' is not a valid xarray.DataArray."
+                    self._logger.error(msg)
+                    raise ForMoSAError(msg)
+    
+                if photo and isinstance(photo.grid, xr.DataArray) and len(photo.wavelength) > 0:
+                    self._logger.info(' -- Photometry -- ')
+                    for idx, (key, title) in enumerate(zip(self.keys, self.titles)):
+                        self._logger.info(f' {idx+1}/{len(self.keys)} - {title}')
+                        if photo.grid.isnull().any(dim=key).any().item():
+                            photo._grid = photo.grid.interpolate_na(dim=key, **interp_kwargs)
+                elif photo and not(isinstance(photo.grid, xr.DataArray)):
+                    msg = f"Photometric grid '{key}' is not a valid xarray.DataArray."
+                    self._logger.error(msg)
+                    raise ForMoSAError(msg)
         
     
     def _save_grid(self, store_path: str | os.PathLike) -> None:
@@ -443,36 +493,42 @@ class ModelGrid(object):
         Parameters
         ----------
         store_path (str | os.PathLike): Path to the directory where adapted grids will be saved.
-        
-        Authors: Allan Denis
+    
+        Authors: Simon Petrus, Paulina Palma-Bifani, Mathieu Ravet and Allan Denis
         '''
         
+        self._logger.info(' Save the grid.')
+    
         store_path = Path(store_path).expanduser()
     
-        for key, grid in self.adapted_grid.items():
-            spectro, photo, obs_name = grid['spectro'], grid['photo'], grid['obs_name']
+        # If self is an instance of SubGridModel (e.g. GridModel[0]['spectro'])
+        if isinstance(self, ModelSubGrid):
+            component_type = "spectro" if "spectro" in str(type(self)).lower() else "photo"
+            grid_name, obs_name = self.name, self.obs_name
+            filename = f"adapted_grid_{component_type}_{grid_name}_{obs_name}_nonan.nc"
+            self._logger.debug(f'< Save grid to {store_path / filename}.>')
+            self.grid.to_netcdf(store_path / filename, format="NETCDF4", engine="netcdf4", mode="w")
     
-            if spectro:
-                if isinstance(spectro.grid, xr.DataArray):
-                    spectro.grid.to_netcdf(os.path.join(store_path, f'adapted_grid_spectro_{self.name}_{obs_name}_nonan.nc'),
-                                             format='NETCDF4',
-                                             engine='netcdf4',
-                                             mode='w')
-                else:
-                    self._logger.error(f"Spectroscopic grid {key} is not a xarray.DataArray.")
-    
-            if photo:
-                if isinstance(photo.grid, xr.DataArray):
-                    photo.grid.to_netcdf(os.path.join(store_path, f'adapted_grid_photo_{self.name}_{obs_name}_nonan.nc'),
-                                             format='NETCDF4',
-                                             engine='netcdf4',
-                                             mode='w')
-                else:
-                    self._logger.error(f"Photometric grid {key} is not a xarray.DataArray.")
-    
-
+        # If self is an instance of GridModel
+        else:
+            grid_name = self.name
+            for key, grid in self._adapted_grid.items():
+                spectro, photo, obs_name = grid['spectro'], grid['photo'], grid['spectro'].obs_name
         
-    
+                if spectro and isinstance(spectro.grid, xr.DataArray) and len(spectro.wavelength) > 0:
+                    filename = f"adapted_grid_spectro_{grid_name}_{obs_name}_nonan.nc"
+                    self._logger.debug(f'< Save grid to {store_path / filename}.>')
+                    spectro.grid.to_netcdf(store_path / filename, format="NETCDF4", engine="netcdf4", mode="w")
+                elif spectro and not(isinstance(spectro.grid, xr.DataArray)):
+                    self._logger.error(f"Spectroscopic grid '{key}' is not a valid xarray.DataArray.")
+        
+                if photo and isinstance(photo.grid, xr.DataArray) and len(photo.wavelength) > 0:
+                    filename = store_path / f"adapted_grid_photo_{grid_name}_{obs_name}_nonan.nc"
+                    self._logger.debug(f'< Save grid to {store_path / filename}.>')
+                    photo.grid.to_netcdf(store_path / filename, format="NETCDF4", engine="netcdf4", mode="w")
+                elif photo and not(isinstance(photo.grid, xr.DataArray)):
+                    self._logger.error(f"Photometric grid '{key}' is not a valid xarray.DataArray.")
+
     
 class ModelSubGrid(ModelGrid):
     '''
@@ -486,17 +542,21 @@ class ModelSubGrid(ModelGrid):
     target_resolution (np.ndarray): Target resolution of the subgrid
     '''
     
-    def __init__(self, parent_grid: ModelGrid, logger, target_wavelength: np.ndarray, target_resolution: np.ndarray):
+    def __init__(self, parent_grid: ModelGrid, logger, target_wavelength: np.ndarray, target_resolution: np.ndarray, ins_photo: np.ndarray = np.array([]), obs_name: str = 'unknown'):
         # Copy of attritutes ModelGrid
         self._logger = logger
         self._root = parent_grid.root
         self._name = parent_grid.name
         self._attrs = parent_grid.attrs.copy()
     
-        # Valeurs spectrales spécifiques à cette sous-grille
+        # Attributes specific to this subgrid
         self._wavelength = target_wavelength
         self._resolution = target_resolution
         self._attrs['res'] = self.resolution
+        self._ins_photo = ins_photo
+        self._parent_wavelength = parent_grid.wavelength
+        self._parent_resolution = parent_grid.resolution
+        self._obs_name = obs_name
     
         # Shape of the 
         base_shape = parent_grid.grid.shape[1:]
@@ -511,4 +571,24 @@ class ModelSubGrid(ModelGrid):
 
         self._grid = xr.DataArray(data=empty_grid, dims=('wavelength',) + parent_grid.grid.dims[1:], coords=coords, name='grid')
     
-
+    
+    ##################################################
+    # Properties
+    ##################################################
+    
+    @property 
+    def obs_name(self):
+        return self._obs_name
+    
+    @property 
+    def ins_photo(self):
+        return self._ins_photo
+    
+    @property
+    def parent_wavelength(self):
+        return self._parent_wavelength
+    
+    @property
+    def parent_resolution(self):
+        return self._parent_resolution
+    

@@ -141,7 +141,7 @@ class Analysis(object):
     ##################################################
     
     
-    def adapt(self, observation_files: list, target_res_obs: list=['obs'], target_res_mod: list=['obs'], res_cont: list=['NA'], wav_cont: list=[], hc_type: list=['NA'], rv: list=['NA'], emulator: str='NA', ):
+    def adapt(self, observation_files: list, target_res_obs: list=['obs'], target_res_mod: list=['obs'], res_cont: list=['NA'], wav_cont: list=[], hc_type: list=['NA'], rv: list=['NA'], emulator: str='NA', interp_method: list=['linear']):
         '''
         Method to adapt the grid of model to each observation
 
@@ -164,7 +164,8 @@ class Analysis(object):
         
         for indobs, obs in enumerate(observation_files):
             
-            obs_data = self.observation.obs_data[indobs]
+            obs_data_spectro = self.observation.obs_data[indobs]['spectroscopy']
+            obs_data_photo = self.observation.obs_data[indobs]['photometry']
             obs_name = self.observation.obs_name[indobs]
             
             self._logger.info(f' Current observation: {obs_name}')
@@ -175,13 +176,13 @@ class Analysis(object):
             # Setup target resolution for the observation
             # Interpolate the resolution of the model onto the wavelength of the data to properly decrease the resolution if necessary
             interp_mod_to_obs = interp1d(self.grid.wavelength, self.grid.resolution, fill_value='extrapolate')
-            res_mod_obs = interp_mod_to_obs(obs_data['wav_spectro'])
+            res_mod_obs = interp_mod_to_obs(obs_data_spectro['wav'])
 
             if target_res_obs[indobs % len(target_res_obs)] == 'obs': # Keeping the resolution of the observation except where its higher than the model's
-                _target_res_obs = np.minimum(obs_data['res_spectro'], res_mod_obs)
+                _target_res_obs = np.minimum(obs_data_spectro['res'], res_mod_obs)
             else:                                             # Using a custom resolution except where its higher than the model's or the observation's
-                res_custom = np.full(len(obs_data['res_spectro']), float(target_res_obs[indobs % len(target_res_obs)]))
-                _target_res_obs = np.minimum(obs_data['res_spectro'], res_mod_obs, res_custom)
+                res_custom = np.full(len(obs_data_spectro['res']), float(target_res_obs[indobs % len(target_res_obs)]))
+                _target_res_obs = np.minimum(obs_data_spectro['res'], res_mod_obs, res_custom)
 
             if len(_target_res_obs) > 0:
                 self.observation._adapt_observation(_target_res_obs, res_cont[indobs % len(res_cont)], wav_cont[indobs % len(wav_cont)], hc_type[indobs % len(hc_type)], indobs)
@@ -192,25 +193,24 @@ class Analysis(object):
             np.savez(os.path.join(self.paths.result_path, f'spectrum_obs_{obs_name}.npz'), **self.observation.obs_data[indobs])
             
             if not self.adapted:   # If the model is not already adapted to the data, or if the user wants to redo the adaptation
-                wavelength_photo, ins_photo = obs_data['wav_photo'], obs_data['ins_photo']
+                wavelength_photo, ins_photo = obs_data_photo['wav'], obs_data_photo['ins']
                 # Setup target wavelength and resolution for the observation and the model
                 if target_res_mod[indobs % len(target_res_mod)] == 'mod': # Kepping the model's resolution
                     target_wavelength, target_resolution = self.grid.wavelength, self.grid.resolution
                 if target_res_mod[indobs % len(target_res_mod)] == 'obs': # Using the observation's resolution except where its higher than the model's
-                    target_wavelength, target_resolution = obs_data['wav_spectro'], obs_data['res_spectro']
+                    target_wavelength, target_resolution = obs_data_spectro['wav'], obs_data_spectro['res']
                 else:                                             # Using a custom resolution except where its higher than the model's
                     target_wavelength, target_resolution = self.grid.wavelength, np.full(len(self.grid.wavelength), float(target_res_mod[indobs % len(target_res_mod)]))
    
-                if len(obs_data['wav_spectro']) > 0:
+                if len(obs_data_spectro['wav']) > 0:
                     # # Masks to have larger cuts of the spectroscopic grid if needed (if rv is defined)
                     if rv[indobs*3 % len(rv)] == 'NA':
-                        mask_mod_obs = (target_wavelength <= obs_data['wav_spectro'][-1]) & (target_wavelength >= obs_data['wav_spectro'][0]) 
+                        mask_mod_obs = (target_wavelength <= obs_data_spectro['wav'][-1]) & (target_wavelength >= obs_data_spectro['wav'][0]) 
                         target_wavelength, target_resolution = target_wavelength[mask_mod_obs], target_resolution[mask_mod_obs]
                     else:
-                        mask_mod_obs = (target_wavelength <= 1.01 * obs_data['wav_spectro'][-1]) & (target_wavelength >= 0.99 * obs_data['wav_spectro'][0])   # 1.01 corresponds to a value of 3000 km/s for the RV so we do no risk to lose data on the edges when applying the RV correction
+                        mask_mod_obs = (target_wavelength <= 1.01 * obs_data_spectro['wav'][-1]) & (target_wavelength >= 0.99 * obs_data_spectro['wav'][0])   # 1.01 corresponds to a value of 3000 km/s for the RV so we do no risk to lose data on the edges when applying the RV correction
                         target_wavelength, target_resolution = target_wavelength[mask_mod_obs], target_resolution[mask_mod_obs]
 
-                self._logger.debug(f' Adapt model {self.grid.name} to the observation {obs_name}')
                 self.grid.adapt_grid(target_resolution, target_wavelength, wavelength_photo, ins_photo, wav_cont, res_cont, False, obs_name)
 
                 if emulator == 'PCA':
@@ -223,8 +223,9 @@ class Analysis(object):
                     
                     # TODO
                     
-                    
-                    
+        self.grid._interpolate_missing_values()
+        self.grid._save_grid(self.paths.adapt_store_path)
+        
                 
         
    
@@ -234,4 +235,4 @@ model_path = '/Users/allandenis/test.nc'
 
 analysis = Analysis(config, log_level='debug')
 global_params = GlobalParams(config)
-analysis.adapt(observation_files=global_params.paths.observation_files, target_res_obs=global_params.target_res_obs, res_cont=global_params.res_cont, wav_cont=global_params.wav_cont, hc_type=global_params.hc_type)
+analysis.adapt(observation_files=global_params.paths.observation_files, target_res_obs=global_params.target_res_obs, res_cont=global_params.res_cont, wav_cont=global_params.wav_cont, hc_type=global_params.hc_type, interp_method=global_params.method)
