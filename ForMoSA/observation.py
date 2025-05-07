@@ -16,6 +16,8 @@ class Observation(object):
     ----------
     observation_path (str | os.PathLike): Path to the observation file(s) (multiple observation files can exist)
     log_level (str): Log level of the handler, by default ``'info'`` for all important informations.
+    
+    Authors: Allan Denis
     '''
     
     def __init__(self, observation_path: str | os.PathLike, logger) -> None:
@@ -355,6 +357,8 @@ class Observation(object):
         ----------
         path    (str | os.PathLike): Path to save the date to
         indobs                (int): Index of the observation to save
+        
+        Authors: Allan Denis
         '''
         
         if not(os.path.isdir(path)):
@@ -374,6 +378,8 @@ class Observation(object):
         Parameters
         ----------
         path    (str | os.PathLike): Path to save the date to
+        
+        Authors: Allan Denis
         '''
         
         for indobs in range(self.n_obs):
@@ -388,6 +394,8 @@ class Observation(object):
         ----------
         path : str | os.PathLike
             DESCRIPTION.
+            
+        Authors: Simon Petrus, Paulina Palma-Bifani, Mathieu Ravet and Allan Denis
         '''
         
         obs_files = glob.glob(str(path) + '/spectrum_obs_*.npz')

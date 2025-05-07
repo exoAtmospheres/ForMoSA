@@ -228,8 +228,14 @@ class Analysis(object):
         
         
     def launch_nested_sampling(self):
-        # Load adapted observations
+        '''
+        Method to launch the nested sampling
+
+        Authors: Allan Denis
+        '''
+        # Load adapted observations and grids
         self.observation._load_adapted_observations_from_files(self.paths.result_path)
+        self.model._load_grid_from_files(self.paths.adapt_store_path)
         
     
     

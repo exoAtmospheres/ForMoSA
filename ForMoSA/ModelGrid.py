@@ -441,50 +441,44 @@ class ModelGrid(object):
         '''
         
         self._logger.info('Interpolate between holes of the grid')
-        
-        interp_kwargs = {
-        "method": method,
-        "fill_value": fill_value,
-        "limit": limit,
-        "max_gap": max_gap,
-        }
-        
-        # If self is an instance of spectro/photo (e.g. GridModel[0]['spectro'])
-        if isinstance(self, ModelSubGrid):
-            component_type = self.component_type
-            for idx, (key, title) in enumerate(zip(self.keys, self.titles)):
-                self._logger.info(f' {component_type} - {idx+1}/{len(self.keys)} - {title}')
-                if self.grid.isnull().any(dim=key).any().item():
-                    self._logger.debug(f'< Interpolate between the holes of the grid {self.grid.name}>')
-                    self._grid = self.grid.interpolate_na(dim = key, **interp_kwargs)
-            return  
     
-        # If self is an instance of GridModel
+        interp_kwargs = {
+            "method": method,
+            "fill_value": fill_value,
+            "limit": limit,
+            "max_gap": max_gap,
+        }
+    
+        def interpolate_component(component, comp_type):
+            self._logger.info(f' {component.name} -- {component.obs_name} -- {comp_type.capitalize()} ')
+            # Check that grid is a xarray.DataArray
+            if not(isinstance(component.grid, xr.DataArray)):
+                msg = " Grid is not a valid xarray.DataArray."
+                self._logger.error(msg)
+                raise ForMoSAError(msg)
+            # Check that grid is not empty
+            if len(component.wavelength) == 0:
+                   msg = ' Empty grid.'
+                   self._logger.warning(msg)
+            else:       
+                for idx, (key, title) in enumerate(zip(self.keys, self.titles)):
+                    self._logger.info(f' {idx+1}/{len(self.keys)} - {title}')
+                    if component.grid.isnull().any(dim=key).any().item():
+                        self._logger.debug(f'< Interpolate between holes of the grid {component.grid.name} >')
+                        component._grid = component.grid.interpolate_na(dim=key, **interp_kwargs)
+        
+        # If self is an instance of ModelSubGrid (e.g. ModelGrid[0]['spectro])
+        if isinstance(self, ModelSubGrid):
+            interpolate_component(self, self.component_type)
+        # If self is an instance of ModelGrid (Recommanded case)
         else:
             for key, grid in self._adapted_grid.items():
-                spectro, photo = grid['spectro'], grid['photo']
-    
-                if spectro and isinstance(spectro.grid, xr.DataArray) and len(spectro.wavelength) > 0:
-                    self._logger.info(' -- Spectroscopy -- ')
-                    for idx, (key, title) in enumerate(zip(self.keys, self.titles)):
-                        self._logger.info(f' {idx+1}/{len(self.keys)} - {title}')
-                        if spectro.grid.isnull().any(dim=key).any().item():
-                            spectro._grid = spectro.grid.interpolate_na(dim=key, **interp_kwargs)
-                elif spectro and not(isinstance(spectro.grid, xr.DataArray)):
-                    msg = f"Spectroscopic grid '{key}' is not a valid xarray.DataArray."
-                    self._logger.error(msg)
-                    raise ForMoSAError(msg)
-    
-                if photo and isinstance(photo.grid, xr.DataArray) and len(photo.wavelength) > 0:
-                    self._logger.info(' -- Photometry -- ')
-                    for idx, (key, title) in enumerate(zip(self.keys, self.titles)):
-                        self._logger.info(f' {idx+1}/{len(self.keys)} - {title}')
-                        if photo.grid.isnull().any(dim=key).any().item():
-                            photo._grid = photo.grid.interpolate_na(dim=key, **interp_kwargs)
-                elif photo and not(isinstance(photo.grid, xr.DataArray)):
-                    msg = f"Photometric grid '{key}' is not a valid xarray.DataArray."
-                    self._logger.error(msg)
-                    raise ForMoSAError(msg)
+                for comp_type in ['spectro', 'photo']:
+                    component = grid[comp_type]
+                    # Avoid interpolate_component function to produce Empty grid warnings for the grids that do not correspond to the current observation (e.g. 'spectro' grid for photometric observations)
+                    if len(component.wavelength) > 0:
+                        interpolate_component(component, comp_type)
+           
         
     
     def _save_grid(self, store_path: str | os.PathLike) -> None:
@@ -498,38 +492,39 @@ class ModelGrid(object):
         Authors: Simon Petrus, Paulina Palma-Bifani, Mathieu Ravet and Allan Denis
         '''
         
-        self._logger.info(' Save the adapted grids.')
-    
+        self._logger.info('Save the adapted grids')
         store_path = Path(store_path).expanduser()
     
-        # If self is an instance of SubGridModel (e.g. GridModel[0]['spectro'])
-        if isinstance(self, ModelSubGrid):
-            component_type = self.component_type
-            grid_name, obs_name = self.name, self.obs_name
-            filename = f"adapted_grid_{component_type}_{grid_name}_{obs_name}_nonan.nc"
-            self._logger.debug(f'< Save grid to {store_path / filename}.>')
-            self.grid.to_netcdf(store_path / filename, format="NETCDF4", engine="netcdf4", mode="w")
+        def save_component(component, comp_type, grid_name, obs_name):
+            self._logger.info(f' {component.name} -- {component.obs_name} -- {comp_type.capitalize()} ')
+            # Check that the grid is a xr.DataArray
+            if not(isinstance(component.grid, xr.DataArray)):
+                msg = " Grid is not a valid xarray.DataArray."
+                self._logger.error(msg)
+                raise ForMoSAError(msg)
+            # Check that the grid is not empty
+            if len(component.wavelength) == 0:
+                msg = ' Empty grid.'
+                self._logger.warning(msg)
+            else:
+                filename = f"adapted_grid_{comp_type}_{grid_name}_{obs_name}_nonan.nc"
+                self._logger.debug(f'< Save grid to {store_path / filename} >')
+                component.grid.to_netcdf(store_path / filename, format="NETCDF4", engine="netcdf4", mode="w")
     
-        # If self is an instance of GridModel
+        # If self is an instance of ModelSubGrid (e.g. ModelGrid[0]['spectro])
+        if isinstance(self, ModelSubGrid):
+            save_component(self, self.component_type, self.name, self.obs_name)
+        # If self is an instance of ModelGrid (Recommanded case)
         else:
-            grid_name = self.name
             for key, grid in self._adapted_grid.items():
-                spectro, photo, obs_name = grid['spectro'], grid['photo'], grid['spectro'].obs_name
-        
-                if spectro and isinstance(spectro.grid, xr.DataArray) and len(spectro.wavelength) > 0:
-                    filename = f"adapted_grid_spectro_{grid_name}_{obs_name}_nonan.nc"
-                    self._logger.debug(f'< Save grid to {store_path / filename}.>')
-                    spectro.grid.to_netcdf(store_path / filename, format="NETCDF4", engine="netcdf4", mode="w")
-                elif spectro and not(isinstance(spectro.grid, xr.DataArray)):
-                    self._logger.error(f" Spectroscopic grid '{key}' is not a valid xarray.DataArray.")
-        
-                if photo and isinstance(photo.grid, xr.DataArray) and len(photo.wavelength) > 0:
-                    filename = store_path / f"adapted_grid_photo_{grid_name}_{obs_name}_nonan.nc"
-                    self._logger.debug(f'< Save grid to {store_path / filename}.>')
-                    photo.grid.to_netcdf(store_path / filename, format="NETCDF4", engine="netcdf4", mode="w")
-                elif photo and not(isinstance(photo.grid, xr.DataArray)):
-                    self._logger.error(f"Photometric grid '{key}' is not a valid xarray.DataArray.")
-
+                grid_name = self.name
+                obs_name = grid['spectro'].obs_name  
+                for comp_type in ['spectro', 'photo']:
+                    component = grid[comp_type]
+                    # Avoid save_component function to produce Empty grid warnings for the grids that do not correspond to the current observation (e.g. 'spectro' grid for photometric observations)
+                    if len(component.wavelength) > 0:   
+                        save_component(component, comp_type, grid_name, obs_name)
+            
 
     def _load_grid_from_files(self, store_path: str | os.PathLike) -> None:  
         '''
@@ -538,54 +533,50 @@ class ModelGrid(object):
         Parameters
         ----------
         store_path (str | os.PathLike) : Path where the grid data are saved
+        
+        Authors: Simon Petrus, Paulina Palma-Bifani, Mathieu Ravet and Allan Denis
         '''
         
-        self._logger.info(' Load adapted grid from stored adapted grid files.')
-        
-        grid_files = glob.glob(str(store_path) + '/adapted_grid_*.nc')
+        self._logger.info('Load adapted grid from stored adapted grid files.')
+        store_path = Path(store_path).expanduser()
+        grid_files = list(store_path.glob('adapted_grid_*.nc'))
         grid_name = self.name
-        
-        if len(grid_files) == 0:
-            msg = f' No grid file in {store_path}.' + ' Make sure your grid files have the format adapted_grid_{spectro/photo}_{obs_name}_nonan.nc.'
+    
+        if not grid_files:
+            msg = f" No grid file in {store_path}. Ensure file format is adapted_grid_{'spectro/photo'}_{'obs_name'}_nonan.nc"
             self._logger.error(msg)
             raise ForMoSAError(msg)
-            
-        if isinstance(self, ModelSubGrid):   # self is an instance of ModelSubGrid
-            obs_name = self.obs_name
-            component_type = self.component_type
-            grid_file = str(store_path) + f'/adapted_grid_{component_type}_{grid_name}_{obs_name}_nonan.nc'
-            if not(Path(grid_file).exists()):
-                msg = f' Grid file canno be found : {grid_file}'
+    
+        def load_component(component, comp_type, grid_name, obs_name):
+            self._logger.info(f' {component.name} -- {component.obs_name} -- {comp_type.capitalize()}')
+            grid_file = store_path / f"adapted_grid_{comp_type}_{grid_name}_{obs_name}_nonan.nc"
+            if not grid_file.exists():
+                return grid_file, False
+            self._logger.debug(f'< Open grid file {grid_file} >')
+            component._grid = xr.open_dataset(grid_file, decode_cf=False, engine='netcdf4')
+            return None, True
+    
+        if isinstance(self, ModelSubGrid):
+            missing, loaded = load_component(self, self.component_type, self.name, self.obs_name)
+            if not loaded:
+                msg = f"Grid file cannot be found: {missing}"
                 self._logger.error(msg)
                 raise ForMoSAError(msg)
-            
-            self._logger.debug(f' Open grid file {grid_file}')
-            self._grid = xr.open_dataset(grid_file, decode_cf=False, engine='netcdf4')
-            
-        # If self is an instance of ModelGrid
-        else:   
+        else:
             for indobs in range(self.counter + 1):
                 obs_name = self._adapted_grid[indobs]['spectro'].obs_name
                 missing_files = []
-                # Loop over the component ('spectro', 'photo')
-                for component_type in ['spectro', 'photo']:
-                    grid_file = str(store_path) + f'/adapted_grid_{component_type}_{grid_name}_{obs_name}_nonan.nc'
-                    # Check that grid file exists
-                    if not(Path(grid_file).exists()):
-                        missing_files.append(grid_file)
-                    else:
-                        self._logger.debug(f'< Open grid file {grid_file}')
-                        self._adapted_grid[indobs][component_type]._grid = xr.open_dataset(grid_file, decode_cf=False, engine='netcdf4')
-                
+                for comp_type in ['spectro', 'photo']:
+                    component = self._adapted_grid[indobs][comp_type]
+                    missing, loaded = load_component(component, comp_type, grid_name, obs_name)
+                    if not loaded:
+                        missing_files.append(str(missing))
                 if len(missing_files) == 2:
-                    msg = f" Grid files cannot be found : {', '.join(missing_files)}."
+                    msg = f"Grid files cannot be found: {', '.join(missing_files)}"
                     self._logger.error(msg)
                     raise ForMoSAError(msg)
+                        
                     
-         
-
-
-
 class ModelSubGrid(ModelGrid):
     '''
     Subclass of the class ModelGrid defining a subgrid to be adapted to a specific wavelength and a specific resolution
@@ -596,6 +587,8 @@ class ModelSubGrid(ModelGrid):
     logger                (Logger): Logger
     target_wavelength (np.ndarray): Target wavelength of the subgrid
     target_resolution (np.ndarray): Target resolution of the subgrid
+    
+    Authors: Allan Denis
     '''
     
     def __init__(self, parent_grid: ModelGrid, logger, target_wavelength: np.ndarray, target_resolution: np.ndarray, ins_photo: np.ndarray = np.array([]), obs_name: str = 'unknown', component_type = 'unknown'):
