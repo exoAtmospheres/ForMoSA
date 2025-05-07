@@ -232,6 +232,7 @@ class ModelGrid(object):
                 self._logger.critical(msg)
                 raise ForMoSAError(msg)
         
+        
     def _adapt_model(self, idx: np.ndarray, target_resolution: np.ndarray, target_wavelength: np.ndarray, wavelength_photo: np.ndarray, ins_photo: str, resolution_model: np.ndarray, wav_cont: np.ndarray=[], res_cont: np.ndarray=[], remove_continuum: bool=False):
         '''
         Method to adapt a specific model at a given resolution and wavelength grid
@@ -529,7 +530,11 @@ class ModelGrid(object):
                 elif photo and not(isinstance(photo.grid, xr.DataArray)):
                     self._logger.error(f"Photometric grid '{key}' is not a valid xarray.DataArray.")
 
-    
+
+    def _load_grid_from_files(self, store_path: str | os.PathLike) -> None:    
+        # TODO
+        return
+
 class ModelSubGrid(ModelGrid):
     '''
     Subclass of the class ModelGrid defining a subgrid to be adapted to a specific wavelength and a specific resolution

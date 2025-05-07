@@ -158,7 +158,7 @@ class Analysis(object):
         # Check that inputs are of type 'list'
         is_not_list = utils.check_format(observation_files, target_res_obs, res_cont, hc_type, type_expected=list)
         if len(is_not_list) > 0:
-                msg = f" Params in wrong format : {', '.join(is_not_list)}"
+                msg = f" Params in wrong format : {', '.join(is_not_list)}."
                 self._logger.critical(msg)
                 raise ForMoSAError(msg)
         
@@ -168,10 +168,10 @@ class Analysis(object):
             obs_data_photo = self.observation.obs_data[indobs]['photometry']
             obs_name = self.observation.obs_name[indobs]
             
-            self._logger.info(f' Current observation: {obs_name}')
+            self._logger.info(f' Current observation: {obs_name}.')
             
             # Adapt observation in case you need to degrade the resolution of the observations
-            self._logger.debug(f'Adapt observation {obs_name}')
+            self._logger.debug(f'Adapt observation {obs_name}.')
    
             # Setup target resolution for the observation
             # Interpolate the resolution of the model onto the wavelength of the data to properly decrease the resolution if necessary
@@ -187,10 +187,6 @@ class Analysis(object):
             if len(_target_res_obs) > 0:
                 self.observation._adapt_observation(_target_res_obs, res_cont[indobs % len(res_cont)], wav_cont[indobs % len(wav_cont)], hc_type[indobs % len(hc_type)], indobs)
                 self._logger.info(f' Observation {obs_name} adapted.')
-            
-            # Save the data
-            self._logger.debug(f'> Save observation file {self.paths.result_path}' + f'/spectrum_obs_{obs_name}.npz')
-            np.savez(os.path.join(self.paths.result_path, f'spectrum_obs_{obs_name}.npz'), **self.observation.obs_data[indobs])
             
             if not self.adapted:   # If the model is not already adapted to the data, or if the user wants to redo the adaptation
                 wavelength_photo, ins_photo = obs_data_photo['wav'], obs_data_photo['ins']
@@ -223,10 +219,20 @@ class Analysis(object):
                     
                     # TODO
                     
+        
+        # Save the data
+        self.observation._save_all_observations(self.paths.result_path)
+        
         self.grid._interpolate_missing_values()
         self.grid._save_grid(self.paths.adapt_store_path)
         
-                
+        
+    def launch_nested_sampling(self):
+        # Load adapted observations
+        self.observation._load_adapted_observations_from_files(self.paths.result_path)
+        
+    
+    
         
    
 # These lines are just for testing purposes. They will be removed for the final version

@@ -107,7 +107,7 @@ class GlobalParams(object):
         Returns
         -------
         global_params : 
-
+            
         '''
         # [config_adapt] (5)
         self.method = self._get_config_value(config, 'config_adapt', 'method', 'linear', 0, None)

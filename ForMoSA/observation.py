@@ -68,6 +68,11 @@ class Observation(object):
         return _obs_name
     
     @property 
+    def obs_name_list(self):
+        _obs_name_list = [self.obs_name[key] for key in range(self.n_obs)]
+        return _obs_name_list
+    
+    @property 
     def obs_data(self):
         return self._obs_data
     
@@ -240,6 +245,7 @@ class Observation(object):
             
             self._logger.debug('< Format spectroscopic data into a dictionary.>')
             # Observation dictionary
+            obs_dict['obs_name'] = self.obs_name[indobs]
             obs_dict['spectroscopy'] = {'wav': wav[~mask_photo],
                                         'flx': flx[~mask_photo],
                                         'err': err[~mask_photo],
@@ -340,4 +346,72 @@ class Observation(object):
     
         self._obs_data[indobs]['spectroscopy'] = obs_data
         
+        
+    def _save_observation_file(self, path: str | os.PathLike, indobs: int = 0) -> None:
+        '''
+        Method to save the observation indobs
+
+        Parameters
+        ----------
+        path    (str | os.PathLike): Path to save the date to
+        indobs                (int): Index of the observation to save
+        '''
+        
+        if not(os.path.isdir(path)):
+            msg = f' {path} does not exist'
+            self._logger.error(msg)
+            raise ForMoSAError(msg)
+        
+        self._logger.info(f' Save observation {self.obs_name[indobs]}')
+        self._logger.debug(f'> Save observation file to {path}' + f'/spectrum_obs_{self.obs_name[indobs]}.npz')
+        np.savez(os.path.join(path, f'spectrum_obs_{self.obs_name[indobs]}.npz'), **self.obs_data[indobs])
+        
     
+    def _save_all_observations(self, path) -> None:
+        '''
+        Method to save all the observation files
+
+        Parameters
+        ----------
+        path    (str | os.PathLike): Path to save the date to
+        '''
+        
+        for indobs in range(self.n_obs):
+            self._save_observation_file(path, indobs)
+            
+            
+    def _load_adapted_observations_from_files(self, path: str | os.PathLike) -> None:
+        '''
+        Method to load observations that have already been adapted
+
+        Parameters
+        ----------
+        path : str | os.PathLike
+            DESCRIPTION.
+        '''
+        
+        obs_files = glob.glob(str(path) + '/spectrum_obs_*.npz')
+        
+        if len(obs_files) == 0:
+            msg = f' No observation file in {path}.' + ' Make sure your observation files have the format spectrum_obs_{obs_name}.npz.'
+            self._logger.error(msg)
+            raise ForMoSAError(msg)
+            
+        if len(obs_files) != self.n_obs:
+            msg = f' The number of files in the folder {path} does not correspond to the number of observations. Using only observations with the right name.'
+            self._logger.wargning(msg)
+        
+        missing_files = []
+        for indobs in range(self.n_obs):
+            obs_file = str(path) + 'spectrum_obs_' + self.obs_name[indobs] + '.npz'
+            self._logger.debug(f'< Load observation file {obs_file}')
+            
+            if not(Path(obs_file).exists()):
+                missing_files.append(obs_file)
+            else:
+                self._obs_data[indobs] = dict(np.load(os.path.join(path, obs_file), allow_pickle=True))
+        
+        if len(missing_files) > 0:
+            msg = f" Observation files cannot be found : {', '.join(missing_files)}."
+            self._logger.error(msg)
+            raise ForMoSAError(msg)
