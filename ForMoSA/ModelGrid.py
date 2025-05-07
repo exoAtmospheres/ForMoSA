@@ -139,6 +139,7 @@ class ModelGrid(object):
         self._attrs['res'] = self.resolution
         self._grid = ds['grid']
         
+        
     def _load_model_at_specific_index(self, idx: tuple):
         '''
         Method to load a model in the grid at a given index
@@ -158,6 +159,7 @@ class ModelGrid(object):
             return None
         else:
             return model_to_return
+      
         
     def _add_subgrid(self, wavelength_spectro: np.ndarray, resolution_spectro: np.ndarray, wavelength_photo: np.ndarray, ins_photo: str, obs_name: str = 'unknown'):
         '''
@@ -231,7 +233,7 @@ class ModelGrid(object):
                 msg = f' Non parallel adaptation produced the following error: {e}.'
                 self._logger.critical(msg)
                 raise ForMoSAError(msg)
-        
+       
         
     def _adapt_model(self, idx: np.ndarray, target_resolution: np.ndarray, target_wavelength: np.ndarray, wavelength_photo: np.ndarray, ins_photo: str, resolution_model: np.ndarray, wav_cont: np.ndarray=[], res_cont: np.ndarray=[], remove_continuum: bool=False):
         '''
@@ -479,7 +481,6 @@ class ModelGrid(object):
                     if len(component.wavelength) > 0:
                         interpolate_component(component, comp_type)
            
-        
     
     def _save_grid(self, store_path: str | os.PathLike) -> None:
         '''

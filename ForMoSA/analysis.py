@@ -1,19 +1,15 @@
 import numpy as np 
 import logging
 import os
-from pathlib import Path
-import glob
-from astropy.io import fits
+from scipy.interpolate import interp1d
+import ForMoSA.utils as utils
+import colorlog
 
-import ForMoSA  
 from ForMoSA.global_params import GlobalParams
 from ForMoSA.ModelGrid import ModelGrid
 from ForMoSA.ForMoSAPaths import ForMoSAPaths
 from ForMoSA.observation import Observation
-from scipy.interpolate import interp1d
-from ForMoSA.utils_spec import resolution_decreasing, continuum_estimate
-import ForMoSA.utils as utils
-import colorlog
+from ForMoSA.nested_sampling import Nested_Sampling
 
 # log
 _log = logging.getLogger(__name__)
@@ -135,6 +131,10 @@ class Analysis(object):
     def adapted(self):
         return self._adapted
     
+    @property  
+    def nested_sampling(self):
+        return self._nested_sampling
+    
         
     ##################################################
     # Methods
@@ -227,7 +227,7 @@ class Analysis(object):
         self.grid._save_grid(self.paths.adapt_store_path)
         
         
-    def launch_nested_sampling(self):
+    def launch_nested_sampling(self, algorithm: str, logL_function: list):
         '''
         Method to launch the nested sampling
 
@@ -235,7 +235,9 @@ class Analysis(object):
         '''
         # Load adapted observations and grids
         self.observation._load_adapted_observations_from_files(self.paths.result_path)
-        self.model._load_grid_from_files(self.paths.adapt_store_path)
+        self.grid._load_grid_from_files(self.paths.adapt_store_path)
+        self._nested_sampling = Nested_Sampling(self.grid, self.observation, algorithm, logL_function)
+        
         
     
     
