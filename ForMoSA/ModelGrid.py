@@ -174,8 +174,8 @@ class ModelGrid(object):
         Authors: Allan Denis
         '''
         
-        sub_spectro = ModelSubGrid(parent_grid=self, logger=self._logger, target_wavelength=wavelength_spectro, target_resolution=resolution_spectro, obs_name=obs_name)
-        sub_photo = ModelSubGrid(parent_grid=self, logger=self._logger, target_wavelength=wavelength_photo, target_resolution=np.zeros(len(wavelength_photo)), ins_photo=ins_photo, obs_name=obs_name)
+        sub_spectro = ModelSubGrid(parent_grid=self, logger=self._logger, target_wavelength=wavelength_spectro, target_resolution=resolution_spectro, obs_name=obs_name, component_type = 'spectro')
+        sub_photo = ModelSubGrid(parent_grid=self, logger=self._logger, target_wavelength=wavelength_photo, target_resolution=np.zeros(len(wavelength_photo)), ins_photo=ins_photo, obs_name=obs_name, component_type = 'photo')
         
         self._adapted_grid[self.counter+1] = {'spectro': sub_spectro, 'photo': sub_photo}
     
@@ -451,7 +451,7 @@ class ModelGrid(object):
         
         # If self is an instance of spectro/photo (e.g. GridModel[0]['spectro'])
         if isinstance(self, ModelSubGrid):
-            component_type = "spectro" if "spectro" in str(type(self)).lower() else "photo"
+            component_type = self.component_type
             for idx, (key, title) in enumerate(zip(self.keys, self.titles)):
                 self._logger.info(f' {component_type} - {idx+1}/{len(self.keys)} - {title}')
                 if self.grid.isnull().any(dim=key).any().item():
@@ -498,13 +498,13 @@ class ModelGrid(object):
         Authors: Simon Petrus, Paulina Palma-Bifani, Mathieu Ravet and Allan Denis
         '''
         
-        self._logger.info(' Save the grid.')
+        self._logger.info(' Save the adapted grids.')
     
         store_path = Path(store_path).expanduser()
     
         # If self is an instance of SubGridModel (e.g. GridModel[0]['spectro'])
         if isinstance(self, ModelSubGrid):
-            component_type = "spectro" if "spectro" in str(type(self)).lower() else "photo"
+            component_type = self.component_type
             grid_name, obs_name = self.name, self.obs_name
             filename = f"adapted_grid_{component_type}_{grid_name}_{obs_name}_nonan.nc"
             self._logger.debug(f'< Save grid to {store_path / filename}.>')
@@ -521,7 +521,7 @@ class ModelGrid(object):
                     self._logger.debug(f'< Save grid to {store_path / filename}.>')
                     spectro.grid.to_netcdf(store_path / filename, format="NETCDF4", engine="netcdf4", mode="w")
                 elif spectro and not(isinstance(spectro.grid, xr.DataArray)):
-                    self._logger.error(f"Spectroscopic grid '{key}' is not a valid xarray.DataArray.")
+                    self._logger.error(f" Spectroscopic grid '{key}' is not a valid xarray.DataArray.")
         
                 if photo and isinstance(photo.grid, xr.DataArray) and len(photo.wavelength) > 0:
                     filename = store_path / f"adapted_grid_photo_{grid_name}_{obs_name}_nonan.nc"
@@ -531,9 +531,60 @@ class ModelGrid(object):
                     self._logger.error(f"Photometric grid '{key}' is not a valid xarray.DataArray.")
 
 
-    def _load_grid_from_files(self, store_path: str | os.PathLike) -> None:    
-        # TODO
-        return
+    def _load_grid_from_files(self, store_path: str | os.PathLike) -> None:  
+        '''
+        Method to load adapted grid files 
+
+        Parameters
+        ----------
+        store_path (str | os.PathLike) : Path where the grid data are saved
+        '''
+        
+        self._logger.info(' Load adapted grid from stored adapted grid files.')
+        
+        grid_files = glob.glob(str(store_path) + '/adapted_grid_*.nc')
+        grid_name = self.name
+        
+        if len(grid_files) == 0:
+            msg = f' No grid file in {store_path}.' + ' Make sure your grid files have the format adapted_grid_{spectro/photo}_{obs_name}_nonan.nc.'
+            self._logger.error(msg)
+            raise ForMoSAError(msg)
+            
+        if isinstance(self, ModelSubGrid):   # self is an instance of ModelSubGrid
+            obs_name = self.obs_name
+            component_type = self.component_type
+            grid_file = str(store_path) + f'/adapted_grid_{component_type}_{grid_name}_{obs_name}_nonan.nc'
+            if not(Path(grid_file).exists()):
+                msg = f' Grid file canno be found : {grid_file}'
+                self._logger.error(msg)
+                raise ForMoSAError(msg)
+            
+            self._logger.debug(f' Open grid file {grid_file}')
+            self._grid = xr.open_dataset(grid_file, decode_cf=False, engine='netcdf4')
+            
+        # If self is an instance of ModelGrid
+        else:   
+            for indobs in range(self.counter + 1):
+                obs_name = self._adapted_grid[indobs]['spectro'].obs_name
+                missing_files = []
+                # Loop over the component ('spectro', 'photo')
+                for component_type in ['spectro', 'photo']:
+                    grid_file = str(store_path) + f'/adapted_grid_{component_type}_{grid_name}_{obs_name}_nonan.nc'
+                    # Check that grid file exists
+                    if not(Path(grid_file).exists()):
+                        missing_files.append(grid_file)
+                    else:
+                        self._logger.debug(f'< Open grid file {grid_file}')
+                        self._adapted_grid[indobs][component_type]._grid = xr.open_dataset(grid_file, decode_cf=False, engine='netcdf4')
+                
+                if len(missing_files) == 2:
+                    msg = f" Grid files cannot be found : {', '.join(missing_files)}."
+                    self._logger.error(msg)
+                    raise ForMoSAError(msg)
+                    
+         
+
+
 
 class ModelSubGrid(ModelGrid):
     '''
@@ -547,7 +598,7 @@ class ModelSubGrid(ModelGrid):
     target_resolution (np.ndarray): Target resolution of the subgrid
     '''
     
-    def __init__(self, parent_grid: ModelGrid, logger, target_wavelength: np.ndarray, target_resolution: np.ndarray, ins_photo: np.ndarray = np.array([]), obs_name: str = 'unknown'):
+    def __init__(self, parent_grid: ModelGrid, logger, target_wavelength: np.ndarray, target_resolution: np.ndarray, ins_photo: np.ndarray = np.array([]), obs_name: str = 'unknown', component_type = 'unknown'):
         # Copy of attritutes ModelGrid
         self._logger = logger
         self._root = parent_grid.root
@@ -562,6 +613,7 @@ class ModelSubGrid(ModelGrid):
         self._parent_wavelength = parent_grid.wavelength
         self._parent_resolution = parent_grid.resolution
         self._obs_name = obs_name
+        self._component_type = component_type
     
         # Shape of the 
         base_shape = parent_grid.grid.shape[1:]
@@ -596,4 +648,12 @@ class ModelSubGrid(ModelGrid):
     @property
     def parent_resolution(self):
         return self._parent_resolution
+    
+    @property 
+    def component_type(self):
+        if self._component_type == 'unknown':
+            if len(self.ins_photo) == 0:
+                return 'spectro'
+            return 'photo'
+        return self._component_type
     

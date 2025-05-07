@@ -382,7 +382,7 @@ class Observation(object):
             
     def _load_adapted_observations_from_files(self, path: str | os.PathLike) -> None:
         '''
-        Method to load observations that have already been adapted
+        Method to load adapted observations
 
         Parameters
         ----------
