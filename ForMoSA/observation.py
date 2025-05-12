@@ -70,9 +70,13 @@ class Observation(object):
         return _obs_name
     
     @property 
+    def obs_files_list(self):
+        return [self.obs_files[key] for key in range(self.n_obs)]
+    
+    @property 
     def obs_name_list(self):
-        _obs_name_list = [self.obs_name[key] for key in range(self.n_obs)]
-        return _obs_name_list
+        return [self.obs_name[key] for key in range(self.n_obs)]
+    
     
     @property 
     def obs_data(self):
@@ -407,11 +411,11 @@ class Observation(object):
             
         if len(obs_files) != self.n_obs:
             msg = f' The number of files in the folder {path} does not correspond to the number of observations. Using only observations with the right name.'
-            self._logger.wargning(msg)
+            self._logger.warning(msg)
         
         missing_files = []
         for indobs in range(self.n_obs):
-            obs_file = str(path) + 'spectrum_obs_' + self.obs_name[indobs] + '.npz'
+            obs_file = str(os.path.join(path, f'spectrum_obs_{self.obs_name[indobs]}.npz'))
             self._logger.debug(f'< Load observation file {obs_file}')
             
             if not(Path(obs_file).exists()):

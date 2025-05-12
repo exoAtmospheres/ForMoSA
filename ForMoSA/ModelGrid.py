@@ -33,8 +33,7 @@ class ModelGrid(object):
     def __init__(self, path: str | os.PathLike, logger) -> None:
         
         # the command .expanduser() transforms the path in a full absolute path, removing any '~' in the path
-        self._root = Path(path).expanduser().parent
-        self._name = str(Path(path).expanduser()).split('/')[-1].split('.nc')[0]
+        self._model_path = Path(path).expanduser()
         self._adapted_grid = dict()
         self._logger = logger
         self._read_grid()
@@ -57,66 +56,66 @@ class ModelGrid(object):
     ##################################################
 
     @property  
-    def root(self): 
-        return self._root
-
-    @property  
-    def name(self):
-        return self._name 
+    def model_path(self):               # Path to the grid
+        return self._model_path
     
     @property 
-    def path(self):
-        return Path(str(self.root / self.name) + '.nc')
-    
+    def root(self):                     # Root of path to the grid
+        return self.model_path.parent
+
+    @property 
+    def name(self):                     # Name of the grid
+        return str(self.model_path).split('/')[-1].split('.nc')[0]
+        
     @property  
-    def attrs(self):
+    def attrs(self):                    # Attritutes of the grid
         return self._attrs
     
     @property  
-    def wavelength(self):
+    def wavelength(self):               # Wavelength of the grid
         return self._wavelength
     
     @property  
-    def nyquist(self):      # Nyquist resolution
+    def nyquist(self):                  # Nyquist resolution
         if len(self.wavelength) > 1:
             return self.wavelength / (2 * np.diff(self.wavelength, append=(2*self.wavelength[-1] - self.wavelength[-2])))
         else:
             return self.wavelength
     
     @property  
-    def resolution(self):   # Resolution defined as the minimum between the given resolution and the Nyquist resolution
+    def resolution(self):               # Resolution defined as the minimum between the given resolution and the Nyquist resolution
         # Sometimes self.nyquist < 0 (e.g. photometric data with a few points) so we need to make sure to keep the resolution to 0 in this case    
         return np.maximum(np.zeros(len(self.nyquist)), np.minimum(self.nyquist, self._resolution))   
     
     @property  
-    def grid(self):
+    def grid(self):                     # Grid
         return self._grid
     
     @property  
-    def adapted_grid(self):  
+    def adapted_grid(self):             # Adapted grid
         return self._adapted_grid
     
     @property 
-    def counter(self):    # Counter for the number of adapted grids : starts from 0
+    def counter(self):                  # Counter for the number of adapted grids : starts from 0
         return len(self.adapted_grid) - 1
     
     @property 
-    def keys(self):          
+    def keys(self):                     # Keys of the grid parameters
         return self.attrs['key']
     
     @property 
-    def titles(self):        # Names of the grid parameters
+    def titles(self):                   # Names of the grid parameters
         return self.attrs['title']
     
     @property 
-    def key_values(self):    # Values taken by the grid parameters
+    def key_values(self):               # Values taken by the grid parameters
         values = {}
         for key in self.keys:
             values[key] = self.grid[key].values
         return values
     
     @property 
-    def valid_spectra(self):   # Boolean where False correspond to grid indices with no spectra
+    def valid_spectra(self):            # Boolean where False correspond to grid indices with no spectra
         return ~np.isnan(self.grid).values
 
     
@@ -200,7 +199,7 @@ class ModelGrid(object):
         if len(ins_photo) > 0:
             self._check_photometry_filters_exist(ins_photo)
 
-        self._logger.debug('< Add a subgrid.>')
+        self._logger.debug(f'< Add a subgrid for the observation {obs_name}.>')
         self._add_subgrid(target_wavelength, target_resolution, wavelength_photo, ins_photo, obs_name)
         
         interp_mod_to_obs = interp1d(self.wavelength, self.resolution, fill_value='extrapolate')
@@ -466,7 +465,6 @@ class ModelGrid(object):
                 for idx, (key, title) in enumerate(zip(self.keys, self.titles)):
                     self._logger.info(f' {idx+1}/{len(self.keys)} - {title}')
                     if component.grid.isnull().any(dim=key).any().item():
-                        self._logger.debug(f'< Interpolate between holes of the grid {component.grid.name} >')
                         component._grid = component.grid.interpolate_na(dim=key, **interp_kwargs)
         
         # If self is an instance of ModelSubGrid (e.g. ModelGrid[0]['spectro])
@@ -549,10 +547,10 @@ class ModelGrid(object):
             raise ForMoSAError(msg)
     
         def load_component(component, comp_type, grid_name, obs_name):
-            self._logger.info(f' {component.name} -- {component.obs_name} -- {comp_type.capitalize()}')
             grid_file = store_path / f"adapted_grid_{comp_type}_{grid_name}_{obs_name}_nonan.nc"
             if not grid_file.exists():
                 return grid_file, False
+            self._logger.info(f' {component.name} -- {component.obs_name} -- {comp_type.capitalize()}')
             self._logger.debug(f'< Open grid file {grid_file} >')
             component._grid = xr.open_dataset(grid_file, decode_cf=False, engine='netcdf4')
             return None, True
@@ -628,23 +626,23 @@ class ModelSubGrid(ModelGrid):
     ##################################################
     
     @property 
-    def obs_name(self):
+    def obs_name(self):               # Name of observation
         return self._obs_name
     
     @property 
-    def ins_photo(self):
+    def ins_photo(self):              # Name of instrument for photometry
         return self._ins_photo
     
     @property
-    def parent_wavelength(self):
+    def parent_wavelength(self):      # Wavelength of parent grid
         return self._parent_wavelength
     
     @property
-    def parent_resolution(self):
+    def parent_resolution(self):      # Resolution of parent grid
         return self._parent_resolution
     
     @property 
-    def component_type(self):
+    def component_type(self):         # Compoent type ('spectro', 'photo')
         if self._component_type == 'unknown':
             if len(self.ins_photo) == 0:
                 return 'spectro'

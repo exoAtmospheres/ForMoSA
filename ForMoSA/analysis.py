@@ -9,7 +9,7 @@ from ForMoSA.global_params import GlobalParams
 from ForMoSA.ModelGrid import ModelGrid
 from ForMoSA.ForMoSAPaths import ForMoSAPaths
 from ForMoSA.observation import Observation
-from ForMoSA.nested_sampling import Nested_Sampling
+from ForMoSA.nested_sampling import NestedSampling, NestedSampling_Params
 
 # log
 _log = logging.getLogger(__name__)
@@ -48,6 +48,9 @@ class Analysis(object):
             return None
         else:
             analysis = super(Analysis, cls).__new__(cls)
+        
+        analysis._global_params = GlobalParams(config_file_path)
+        NS_params = NestedSampling_Params(analysis.global_params.config_parameters)
             
         logger = logging.getLogger("ForMoSA")
 
@@ -77,15 +80,14 @@ class Analysis(object):
         console_handler.setFormatter(console_formatter)
         logger.addHandler(console_handler)
 
-        analysis._logger = logger
-        
         # Inits
         analysis._paths = paths
         analysis._observation = Observation(paths.observation_path, logger)
         analysis._grid = ModelGrid(paths.model_path, logger)
         analysis._adapted = adapted  
+        analysis._nested_sampling = NestedSampling(analysis.grid, analysis.observation, logger, NS_params)
+        analysis._logger = logger
 
- 
         return analysis
     
 
@@ -134,6 +136,10 @@ class Analysis(object):
     @property  
     def nested_sampling(self):
         return self._nested_sampling
+    
+    @property 
+    def global_params(self):
+        return self._global_params
     
         
     ##################################################
@@ -227,7 +233,7 @@ class Analysis(object):
         self.grid._save_grid(self.paths.adapt_store_path)
         
         
-    def launch_nested_sampling(self, algorithm: str, logL_function: list):
+    def launch_nested_sampling(self, algorithm: str, logL_function: list, wav_for_fitting: list, grid_parameters):
         '''
         Method to launch the nested sampling
 
@@ -236,7 +242,7 @@ class Analysis(object):
         # Load adapted observations and grids
         self.observation._load_adapted_observations_from_files(self.paths.result_path)
         self.grid._load_grid_from_files(self.paths.adapt_store_path)
-        self._nested_sampling = Nested_Sampling(self.grid, self.observation, algorithm, logL_function)
+
         
         
     
@@ -249,4 +255,6 @@ model_path = '/Users/allandenis/test.nc'
 
 analysis = Analysis(config, log_level='debug')
 global_params = GlobalParams(config)
-analysis.adapt(observation_files=global_params.paths.observation_files, target_res_obs=global_params.target_res_obs, res_cont=global_params.res_cont, wav_cont=global_params.wav_cont, hc_type=global_params.hc_type, interp_method=global_params.method)
+# analysis.adapt(observation_files=global_params.paths.observation_files, target_res_obs=global_params.target_res_obs, res_cont=global_params.res_cont, wav_cont=global_params.wav_cont, hc_type=global_params.hc_type, interp_method=global_params.method)
+# analysis.launch_nested_sampling('nestle', global_params.logL_type, global_params.wav_fit)
+                                
