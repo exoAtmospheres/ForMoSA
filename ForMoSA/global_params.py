@@ -4,6 +4,7 @@ import glob
 import logging
 import os
 from ForMoSA.ForMoSAPaths import ForMoSAPaths
+from ForMoSA.nested_sampling import Parameter
 
 # log
 _log = logging.getLogger(__name__)
@@ -20,9 +21,12 @@ if not _log.handlers:
 _log.setLevel(logging.INFO)
 _log.propagate = False 
 
+class ForMoSAError(Exception):
+    pass
+
 class GlobalParams(object):
     '''
-    Class that import all the parameters from the config file and make them GLOBAL FORMOSA VARIABLES.
+    Class that import all the parameters from the config file.
 
     Authors: Paulina Palma-Bifani, Matthieu Ravet and Allan Denis
     '''
@@ -100,6 +104,57 @@ class GlobalParams(object):
         return val
     
     
+    @staticmethod 
+    def _process_multi_obs_parameter(param_name, param_values, N_obs, step):
+        '''
+        Treats a multi-observation parameter (alpha, rv, vsini, ld).
+    
+        Args:
+            param_name    (str): Name of the parameter ('alpha', 'rv', 'vsini', 'ld').
+            param_values (list): List of values (['uniform', '0', '100', ...]).
+            N_obs         (int): Number of obs to invert. If set to 0, the parameter cannot be set with MOSAIC
+            step          (int): Step between blocs in param_values (3 for [prior, min, max], 4 for [prior, min, max, vsini_function]).
+
+        Returns:
+            name          (str): Name of the parameter accounting for different values for different observations (e.g. 'rv_0', 'rv_1')
+            parameter    (list): List of parameters where each element is an instance of :class:`~ForMoSA.Parameter
+            
+        Authors: Allan Denis
+        '''
+
+
+        parameter = []
+        name = []
+        
+        if len(param_values) > step:
+            for indobs in range(N_obs):
+                prior_type = param_values[indobs * step]
+                if prior_type != 'NA':
+                    name.append(f"{param_name}_{indobs}")
+                    if prior_type in {'uniform', 'log-uniform'}:
+                        bounds, mean, std, value = [float(param_values[indobs * step + 1]), float(param_values[indobs * step + 2])], None, None, None
+                    elif prior_type == 'gaussian':
+                        bounds, mean, std, value = None, float(param_values[indobs * step + 1]), float(param_values[indobs * step + 2]), None
+                    elif prior_type == 'constant':
+                        bounds, mean, std, value = None, None, None, float(param_values[indobs * step + 1])
+                    parameter.append(Parameter(name=name[-1], prior=prior_type, bounds=bounds, mean=mean, std=std, value=value)
+)
+        else:
+            prior_type = param_values[0]
+            if prior_type != 'NA':
+                name.append(param_name)
+                if prior_type in {'uniform', 'log-uniform'}:
+                    bounds, mean, std, value = [float(param_values[1]), float(param_values[2])], None, None, None
+                elif prior_type == 'gaussian':
+                    bounds, mean, std, value = float(param_values[1]), float(param_values[2]), None, None
+                elif prior_type == 'constant':
+                    bounds, mean, std, value = None, None, None, float(param_values[1])
+                parameter.append(Parameter(name=name[-1], prior=prior_type, bounds=bounds, mean=mean, std=std, value=value))
+
+        return name, parameter
+
+    
+    
     def _read_info(self, config):
         '''
         Read config file information. Put default values if no value is assigned for a parameter
@@ -108,105 +163,132 @@ class GlobalParams(object):
         -------
         global_params : 
             
+        Authors; Simon Petrus, Paulina Palma-Bifani, Mathieu Ravet and Allan Denis 
         '''
         # [config_adapt] (5)
-        self.method = self._get_config_value(config, 'config_adapt', 'method', 'linear', 0, None)
-        self.emulator = self._get_config_value(config, 'config_adapt', 'emulator', 'NA', 0, list)
-        self.target_res_obs = self._get_config_value(config, 'config_adapt', 'target_res_obs', 'obs', self.n_obs, list)
-        self.target_res_mod = self._get_config_value(config, 'config_adapt', 'target_res_mod', 'obs', self.n_obs, list)
-        self.res_cont = self._get_config_value(config, 'config_adapt', 'res_cont', 'NA', self.n_obs, list)
-        self.wav_cont = self._get_config_value(config, 'config_adapt', 'wav_cont', 'NA', self.n_obs, list)
+        method = self._get_config_value(config, 'config_adapt', 'method', 'linear', 0, None)
+        emulator = self._get_config_value(config, 'config_adapt', 'emulator', 'NA', 0, list)
+        target_res_obs = self._get_config_value(config, 'config_adapt', 'target_res_obs', 'obs', self.n_obs, list)
+        target_res_mod = self._get_config_value(config, 'config_adapt', 'target_res_mod', 'obs', self.n_obs, list)
+        res_cont = self._get_config_value(config, 'config_adapt', 'res_cont', 'NA', self.n_obs, list)
+        wav_cont = self._get_config_value(config, 'config_adapt', 'wav_cont', 'NA', self.n_obs, list)
+        self.config_adapt = {'method': method, 'emulator': emulator, 'target_res_obs': target_res_obs, 'target_res_mod': target_res_mod, 'res_cont': res_cont, 'wav_cont': wav_cont}
 
         # [config_inversion] (4)
-        self.logL_type = self._get_config_value(config, 'config_inversion', 'logL_type', 'chi2', self.n_obs, list)
-        self.wav_fit = self._get_config_value(config, 'config_inversion', 'wav_fit', '0,100', self.n_obs, list)
-        self.ns_algo = self._get_config_value(config, 'config_inversion', 'ns_algo', 'nestle', 0, None)
-        self.npoint = self._get_config_value(config, 'config_inversion', 'npoint', '100', 0, eval)
+        logL_type = self._get_config_value(config, 'config_inversion', 'logL_type', 'chi2', self.n_obs, list)
+        wav_fit = self._get_config_value(config, 'config_inversion', 'wav_fit', '0,100', self.n_obs, list)
+        ns_algo = self._get_config_value(config, 'config_inversion', 'ns_algo', 'nestle', 0, None)
+        npoints = self._get_config_value(config, 'config_inversion', 'npoint', '100', 0, eval)
+        self.config_inversion = {'logL_type': logL_type, 'wav_fit': wav_fit, 'ns_algo': ns_algo, 'npoints': npoints}
 
         # [config_highcont_models] (2)
-        self.hc_type = self._get_config_value(config, 'config_highcont_models', 'hc_type', 'NA', self.n_obs, list)
-        self.hc_bounds_lsq = self._get_config_value(config, 'config_highcont_models', 'hc_bounds_lsq', 'NA', self.n_obs, list)
+        hc_type = self._get_config_value(config, 'config_highcont_models', 'hc_type', 'NA', self.n_obs, list)
+        hc_bounds_lsq = self._get_config_value(config, 'config_highcont_models', 'hc_bounds_lsq', 'NA', self.n_obs, list)
+        self.config_highcont_models = {'hc_type': hc_type, 'hc_bounds_lsq': hc_bounds_lsq}
     
         # [config_parameters] (11)
-        self.par1 = self._get_config_value(config, 'config_parameters', 'par1', 'NA', 0, list)
-        self.par2 = self._get_config_value(config, 'config_parameters', 'par2', 'NA', 0, list)
-        self.par3 = self._get_config_value(config, 'config_parameters', 'par3', 'NA', 0, list)
-        self.par4 = self._get_config_value(config, 'config_parameters', 'par4', 'NA', 0, list)
-        self.par5 = self._get_config_value(config, 'config_parameters', 'par5', 'NA', 0, list)
-        self.r = self._get_config_value(config, 'config_parameters', 'r', 'NA', 0, list)
-        self.d = self._get_config_value(config, 'config_parameters', 'd', 'NA', 0, list)
-        self.alpha = self._get_config_value(config, 'config_parameters', 'alpha', 'NA', self.n_obs, list)
-        self.rv = self._get_config_value(config, 'config_parameters', 'rv', 'NA', self.n_obs, list)
-        self.av = self._get_config_value(config, 'config_parameters', 'av', 'NA', 0, list)
-        self.vsini = self._get_config_value(config, 'config_parameters', 'vsini', 'NA', self.n_obs, list)
-        self.ld = self._get_config_value(config, 'config_parameters', 'ld', 'NA', self.n_obs, list)
-        self.bb_t = self._get_config_value(config, 'config_parameters', 'bb_t', 'NA', 0, list)
-        self.bb_r = self._get_config_value(config, 'config_parameters', 'bb_r', 'NA', 0, list)
+        grid_parameters = {}        # Refers to the grid parameters (Teff, logg, ...)
+        physical_parameters = {}    # Refers to the other parameters (rv, vsini, ...)
+        
+        for name, raw_value in config['config_parameters'].items():
+            if (name == 'rv') or (name == 'vsini') or (name == 'alpha') or (name == 'ls'):
+                values = self._get_config_value(config, 'config_parameters', name, 'NA', self.n_obs, list)
+            else:
+                values = self._get_config_value(config, 'config_parameters', name, 'NA', 0, list)
+        
+            try:
+                if name == 'vsini':
+                    name_list, param_list = self._process_multi_obs_parameter(name, values, self.n_obs, 4)
+                else:
+                    name_list, param_list = self._process_multi_obs_parameter(name, values, self.n_obs, 3)
+            
+                # Separation by name
+                if name.lower().startswith("par") and name[3:].isdigit():
+                    if param_list != []:
+                        for param_i, name_i in list(zip(param_list, name_list)):
+                            grid_parameters[name_i] = param_i
+                else:
+                    if param_list != []:
+                        for param_i, name_i in zip(param_list, name_list):
+                            physical_parameters[name_i] = param_i
+            except ForMoSAError as e:
+                raise e
+                self._logger.critical(e)
 
-        # [config_nestle] (8) (n_ prefix for params)
-        self.n_method = self._get_config_value(config, 'config_nestle', 'method', 'single', 0, None)
-        self.n_update_interval = self._get_config_value(config, 'config_nestle', 'update_interval', 'None', 0, eval)
-        self.n_npdim = self._get_config_value(config, 'config_nestle', 'npdim', 'None', 0, eval)
-        self.n_maxiter = self._get_config_value(config, 'config_nestle', 'maxiter', 'None', 0, eval)
-        self.n_maxcall = self._get_config_value(config, 'config_nestle', 'maxcall', 'None', 0, eval)
-        self.n_dlogz = self._get_config_value(config, 'config_nestle', 'dlogz', 'None', 0, eval)
-        self.n_decline_factor = self._get_config_value(config, 'config_nestle', 'decline_factor', 'None', 0, eval)
-        self.n_rstate = self._get_config_value(config, 'config_nestle', 'rstate', 'None', 0, eval)
+        # [config_nestle] (8) 
+        method = self._get_config_value(config, 'config_nestle', 'method', 'single', 0, None)
+        update_interval = self._get_config_value(config, 'config_nestle', 'update_interval', 'None', 0, eval)
+        npdim = self._get_config_value(config, 'config_nestle', 'npdim', 'None', 0, eval)
+        maxiter = self._get_config_value(config, 'config_nestle', 'maxiter', 'None', 0, eval)
+        maxcall = self._get_config_value(config, 'config_nestle', 'maxcall', 'None', 0, eval)
+        dlogz = self._get_config_value(config, 'config_nestle', 'dlogz', 'None', 0, eval)
+        decline_factor = self._get_config_value(config, 'config_nestle', 'decline_factor', 'None', 0, eval)
+        rstate = self._get_config_value(config, 'config_nestle', 'rstate', 'None', 0, eval)
+        self.config_parameters = {'grid_parameters': grid_parameters, 'physical_parameters': physical_parameters, 'method': method, 'update_interval': update_interval, 'npdim': npdim, 'maxiter': maxiter, 'maxcall': maxcall, 'dlogz': dlogz, 'decline_factor': decline_factor, 'rstate': rstate}
 
         # [config_pymultinest] (20, pm_ prefix for params)
-        self.pm_n_clustering_params = self._get_config_value(config, 'config_pymultinest', 'n_clustering_params', 'None', 0, eval)
-        self.pm_wrapped_params = self._get_config_value(config, 'config_pymultinest', 'wrapped_params', 'None', 0, eval)
-        self.pm_importance_nested_sampling = self._get_config_value(config, 'config_pymultinest', 'importance_nested_sampling', 'True', 0, eval)
-        self.pm_multimodal = self._get_config_value(config, 'config_pymultinest', 'multimodal', 'True', 0, eval)
-        self.pm_const_efficiency_mode = self._get_config_value(config, 'config_pymultinest', 'const_efficiency_mode', 'False', 0, eval)
-        self.pm_evidence_tolerance = self._get_config_value(config, 'config_pymultinest', 'evidence_tolerance', '0.5', 0, eval)
-        self.pm_sampling_efficiency = self._get_config_value(config, 'config_pymultinest', 'sampling_efficiency', '0.8', 0, eval)
-        self.pm_n_iter_before_update = self._get_config_value(config, 'config_pymultinest', 'n_iter_before_update', '100', 0, eval)
-        self.pm_null_log_evidence = self._get_config_value(config, 'config_pymultinest', 'null_log_evidence', '-1e90', 0, eval)
-        self.pm_max_modes = self._get_config_value(config, 'config_pymultinest', 'max_modes', '100', 0, eval)
-        self.pm_mode_tolerance = self._get_config_value(config, 'config_pymultinest', 'mode_tolerance', '-1e90', 0, eval)
-        self.pm_seed = self._get_config_value(config, 'config_pymultinest', 'seed', '-1', 0, eval)
-        self.pm_verbose = self._get_config_value(config, 'config_pymultinest', 'verbose', 'True', 0, eval)
-        self.pm_resume = self._get_config_value(config, 'config_pymultinest', 'resume', 'False', 0, eval) # This is the only parameter not set by default to True, you can change it if your inversion crash and you don't want to start anew
-        self.pm_context = self._get_config_value(config, 'config_pymultinest', 'context', '0', 0, eval)
-        self.pm_log_zero = self._get_config_value(config, 'config_pymultinest', 'log_zero', '-1e100', 0, eval)
-        self.pm_max_iter = self._get_config_value(config, 'config_pymultinest', 'max_iter', '0', 0, eval) # Unlimited
-        self.pm_init_MPI = self._get_config_value(config, 'config_pymultinest', 'init_MPI', 'False', 0, eval)
-        self.pm_dump_callback = self._get_config_value(config, 'config_pymultinest', 'dump_callback', 'None', 0, eval)
-        self.pm_use_MPI = self._get_config_value(config, 'config_pymultinest', 'use_MPI', 'True', 0, eval)
+        clustering_params = self._get_config_value(config, 'config_pymultinest', 'n_clustering_params', 'None', 0, eval)
+        wrapped_params = self._get_config_value(config, 'config_pymultinest', 'wrapped_params', 'None', 0, eval)
+        importance_nested_sampling = self._get_config_value(config, 'config_pymultinest', 'importance_nested_sampling', 'True', 0, eval)
+        multimodal = self._get_config_value(config, 'config_pymultinest', 'multimodal', 'True', 0, eval)
+        const_efficiency_mode = self._get_config_value(config, 'config_pymultinest', 'const_efficiency_mode', 'False', 0, eval)
+        evidence_tolerance = self._get_config_value(config, 'config_pymultinest', 'evidence_tolerance', '0.5', 0, eval)
+        sampling_efficiency = self._get_config_value(config, 'config_pymultinest', 'sampling_efficiency', '0.8', 0, eval)
+        n_iter_before_update = self._get_config_value(config, 'config_pymultinest', 'n_iter_before_update', '100', 0, eval)
+        null_log_evidence = self._get_config_value(config, 'config_pymultinest', 'null_log_evidence', '-1e90', 0, eval)
+        max_modes = self._get_config_value(config, 'config_pymultinest', 'max_modes', '100', 0, eval)
+        mode_tolerance = self._get_config_value(config, 'config_pymultinest', 'mode_tolerance', '-1e90', 0, eval)
+        seed = self._get_config_value(config, 'config_pymultinest', 'seed', '-1', 0, eval)
+        verbose = self._get_config_value(config, 'config_pymultinest', 'verbose', 'True', 0, eval)
+        resume = self._get_config_value(config, 'config_pymultinest', 'resume', 'False', 0, eval) # This is the only parameter not set by default to True, you can change it if your inversion crash and you don't want to start anew
+        scontext = self._get_config_value(config, 'config_pymultinest', 'context', '0', 0, eval)
+        log_zero = self._get_config_value(config, 'config_pymultinest', 'log_zero', '-1e100', 0, eval)
+        max_iter = self._get_config_value(config, 'config_pymultinest', 'max_iter', '0', 0, eval) # Unlimited
+        init_MPI = self._get_config_value(config, 'config_pymultinest', 'init_MPI', 'False', 0, eval)
+        dump_callback = self._get_config_value(config, 'config_pymultinest', 'dump_callback', 'None', 0, eval)
+        use_MPI = self._get_config_value(config, 'config_pymultinest', 'use_MPI', 'True', 0, eval)
+        self.config_pymultinest = {'clustering_params': clustering_params, 'wrapped_params': wrapped_params, 'importance_nested_sampling': importance_nested_sampling, 'multimodal': multimodal, 
+                                   'const_efficiency_mode': const_efficiency_mode, 'evidence_tolerance': evidence_tolerance, 'sampling_efficiency': sampling_efficiency, 'n_iter_before_update': n_iter_before_update,
+                                   'null_log_evidence': null_log_evidence, 'max_modes': max_modes, 'mode_tolerance': mode_tolerance, 'seed': seed, 'verbose': verbose, 'resume': resume, 'scontext': scontext,
+                                   'log_zero': log_zero, 'max_iter': max_iter, 'init_MPI': init_MPI, 'dump_callback': dump_callback, 'use_MPI': use_MPI}
 
-        # [config_ultranest] (29, u_ prefix for params)
-        self.u_resume = self._get_config_value(config, 'config_ultranest', 'resume', 'subfolder', 0, None)
-        self.u_run_num = self._get_config_value(config, 'config_ultranest', 'run_num', 'None', 0, eval)
-        self.u_wrapped_params = self._get_config_value(config, 'config_ultranest', 'wrapped_params', 'None', 0, eval)
-        self.u_num_test_samples = self._get_config_value(config, 'config_ultranest', 'num_test_samples', '2', 0, eval)
-        self.u_vectorized = self._get_config_value(config, 'config_ultranest', 'vectorized', 'False', 0, eval)
-        self.u_draw_multiple = self._get_config_value(config, 'config_ultranest', 'draw_multiple', 'True', 0, eval)
-        self.u_ndraw_min = self._get_config_value(config, 'config_ultranest', 'ndraw_min', '128', 0, eval)
-        self.u_ndraw_max = self._get_config_value(config, 'config_ultranest', 'ndraw_max', '65536', 0, eval)
-        self.u_num_bootstraps = self._get_config_value(config, 'config_ultranest', 'num_bootstraps', '30', 0, eval)
-        self.u_storage_backend = self._get_config_value(config, 'config_ultranest', 'storage_backend', 'hdf5', 0, None)
-        self.u_warmstart_max_tau = self._get_config_value(config, 'config_ultranest', 'warmstart_max_tau', '-1', 0, eval)
+        # [config_ultranest] (29)
+        resume = self._get_config_value(config, 'config_ultranest', 'resume', 'subfolder', 0, None)
+        run_num = self._get_config_value(config, 'config_ultranest', 'run_num', 'None', 0, eval)
+        wrapped_params = self._get_config_value(config, 'config_ultranest', 'wrapped_params', 'None', 0, eval)
+        num_test_samples = self._get_config_value(config, 'config_ultranest', 'num_test_samples', '2', 0, eval)
+        vectorized = self._get_config_value(config, 'config_ultranest', 'vectorized', 'False', 0, eval)
+        draw_multiple = self._get_config_value(config, 'config_ultranest', 'draw_multiple', 'True', 0, eval)
+        ndraw_min = self._get_config_value(config, 'config_ultranest', 'ndraw_min', '128', 0, eval)
+        ndraw_max = self._get_config_value(config, 'config_ultranest', 'ndraw_max', '65536', 0, eval)
+        num_bootstraps = self._get_config_value(config, 'config_ultranest', 'num_bootstraps', '30', 0, eval)
+        storage_backend = self._get_config_value(config, 'config_ultranest', 'storage_backend', 'hdf5', 0, None)
+        warmstart_max_tau = self._get_config_value(config, 'config_ultranest', 'warmstart_max_tau', '-1', 0, eval)
         # - - - (run params)
-        self.u_update_interval_volume_fraction = self._get_config_value(config, 'config_ultranest', 'update_interval_volume_fraction', '0.8', 0, eval)
-        self.u_update_interval_ncall = self._get_config_value(config, 'config_ultranest', 'update_interval_ncall', 'None', 0, eval)
-        self.u_log_interval = self._get_config_value(config, 'config_ultranest', 'log_interval', 'None', 0, eval)
-        self.u_show_status = self._get_config_value(config, 'config_ultranest', 'show_status', 'True', 0, eval)
-        self.u_viz_callback = self._get_config_value(config, 'config_ultranest', 'viz_callback', 'auto', 0, None)
-        self.u_dlogz = self._get_config_value(config, 'config_ultranest', 'dlogz', '0.5', 0, eval) 
-        self.u_dKL = self._get_config_value(config, 'config_ultranest', 'dKL', '0.5', 0, eval)
-        self.u_frac_remain = self._get_config_value(config, 'config_ultranest', 'frac_remain', '0.01', 0, eval)
-        self.u_Lepsilon = self._get_config_value(config, 'config_ultranest', 'Lepsilon', '0.001', 0, eval)
-        self.u_min_ess = self._get_config_value(config, 'config_ultranest', 'min_ess', '400', 0, eval)
-        self.u_max_iters = self._get_config_value(config, 'config_ultranest', 'max_iters', 'None', 0, eval)
-        self.u_max_ncalls = self._get_config_value(config, 'config_ultranest', 'max_ncalls', 'None', 0, eval)
-        self.u_max_num_improvement_loops = self._get_config_value(config, 'config_ultranest', 'max_num_improvement_loops', '-1', 0, eval)
-        self.u_cluster_num_live_points = self._get_config_value(config, 'config_ultranest', 'cluster_num_live_points', '40', 0, eval)
-        self.u_insertion_test_zscore_threshold = self._get_config_value(config, 'config_ultranest', 'insertion_test_zscore_threshold', '4', 0, eval)
-        self.u_insertion_test_window = self._get_config_value(config, 'config_ultranest', 'insertion_test_window', '10', 0, eval)
-        self.u_widen_before_initial_plateau_num_warn = self._get_config_value(config, 'config_ultranest', 'widen_before_initial_plateau_num_warn', '10000', 0, eval)
-        self.u_widen_before_initial_plateau_num_max = self._get_config_value(config, 'config_ultranest', 'widen_before_initial_plateau_num_max', '50000', 0, eval)
-
+        update_interval_volume_fraction = self._get_config_value(config, 'config_ultranest', 'update_interval_volume_fraction', '0.8', 0, eval)
+        update_interval_ncall = self._get_config_value(config, 'config_ultranest', 'update_interval_ncall', 'None', 0, eval)
+        log_interval = self._get_config_value(config, 'config_ultranest', 'log_interval', 'None', 0, eval)
+        show_status = self._get_config_value(config, 'config_ultranest', 'show_status', 'True', 0, eval)
+        viz_callback = self._get_config_value(config, 'config_ultranest', 'viz_callback', 'auto', 0, None)
+        dlogz = self._get_config_value(config, 'config_ultranest', 'dlogz', '0.5', 0, eval) 
+        dKL = self._get_config_value(config, 'config_ultranest', 'dKL', '0.5', 0, eval)
+        frac_remain = self._get_config_value(config, 'config_ultranest', 'frac_remain', '0.01', 0, eval)
+        Lepsilon = self._get_config_value(config, 'config_ultranest', 'Lepsilon', '0.001', 0, eval)
+        min_ess = self._get_config_value(config, 'config_ultranest', 'min_ess', '400', 0, eval)
+        max_iters = self._get_config_value(config, 'config_ultranest', 'max_iters', 'None', 0, eval)
+        max_ncalls = self._get_config_value(config, 'config_ultranest', 'max_ncalls', 'None', 0, eval)
+        max_num_improvement_loops = self._get_config_value(config, 'config_ultranest', 'max_num_improvement_loops', '-1', 0, eval)
+        cluster_num_live_points = self._get_config_value(config, 'config_ultranest', 'cluster_num_live_points', '40', 0, eval)
+        insertion_test_zscore_threshold = self._get_config_value(config, 'config_ultranest', 'insertion_test_zscore_threshold', '4', 0, eval)
+        insertion_test_window = self._get_config_value(config, 'config_ultranest', 'insertion_test_window', '10', 0, eval)
+        widen_before_initial_plateau_num_warn = self._get_config_value(config, 'config_ultranest', 'widen_before_initial_plateau_num_warn', '10000', 0, eval)
+        widen_before_initial_plateau_num_max = self._get_config_value(config, 'config_ultranest', 'widen_before_initial_plateau_num_max', '50000', 0, eval)
+        self.config_ultranest = {'resume': resume, 'run_num': run_num, 'wrapped_params': wrapped_params, 'num_test_samples': num_test_samples, 'vectorized': vectorized, 'draw_multiple': draw_multiple, 'ndraw_min': ndraw_min,
+                                 'ndraw_max': ndraw_max, 'num_bootstraps': num_bootstraps, 'storage_backend': storage_backend, 'warmstart_max_tau': warmstart_max_tau, 'update_interval_volume_fraction': update_interval_volume_fraction,
+                                 'update_interval_ncall': update_interval_ncall, 'log_interval': log_interval, 'show_status': show_status, 'viz_callback': viz_callback, 'dlogz': dlogz, 'dKL': dKL, 'frac_remain': frac_remain,
+                                 'Lepsilon': Lepsilon, 'min_ess': min_ess, 'max_iters': max_iters, 'max_ncalls': max_ncalls, 'max_num_improvement_loops': max_num_improvement_loops, 'cluster_num_live_points': cluster_num_live_points, 
+                                 'intertion_test_zscore_threshold': insertion_test_zscore_threshold, 'insertion_test_window': insertion_test_window, 'widen_before_initial_plateau_num_warn': widen_before_initial_plateau_num_warn, 'widen_before_initial_plateau_num_max': widen_before_initial_plateau_num_max}
+        
 
         # - - - - - - - - - - - - - - 
 
