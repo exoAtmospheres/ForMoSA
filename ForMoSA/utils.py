@@ -100,7 +100,7 @@ def format_grid(grid, attr, free_comp, weights):
 
 def check_format(*params, type_expected):
     '''
-    Method to check that all the components defined in params are a list
+    Method to check that all the components defined in params are in the expected formats
 
     Args
         *params            : list of parameters

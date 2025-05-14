@@ -144,13 +144,14 @@ def continuum_estimate(wav_input, flx_input, res_input, wav_cont_bounds, res_con
 
 
 
-def calc_ck(obs_dict, flx_mod_spectro, flx_mod_photo, r_picked, d_picked, alpha=1, analytic='no'):
+def calc_ck(obs_dict_spectro, obs_dict_photo, flx_mod_spectro, flx_mod_photo, r_picked, d_picked, alpha=1, analytic='no'):
     """
     Calculation of the dilution factor Ck and re-normalization of the interpolated synthetic spectrum (from the radius
     and distance or analytically).
 
     Args:
-        obs_dict                (dict): Dictionay containing all the observationnal entries (photometry, spectroscopy and/or optional)
+        obs_dict_spectro       (dict): Dictionay containing all the observationnal entries (spectroscopy)
+        obs_dict_photo         (dict): Dictionay containing all the observationnal entries (photometry)
         flx_mod_spectro        (array): Flux of the interpolated synthetic spectrum (spectroscopy)
         flx_mod_photo          (array): Flux of the interpolated synthetic spectrum (photometry)
         r_picked               (float): Radius randomly picked by the nested sampling (in RJup)
@@ -171,15 +172,15 @@ def calc_ck(obs_dict, flx_mod_spectro, flx_mod_photo, r_picked, d_picked, alpha=
         ck = alpha * (r_picked.to(u.m).value/d_picked.to(u.m).value)**2
     # Calculation of the dilution factor ck analytically
     else:
-        if len(obs_dict['wav_spectro']) != 0:
-            ck_top_merge = np.sum((flx_mod_spectro * obs_dict['flx_spectro']) / (obs_dict['err_spectro'] * obs_dict['err_spectro']))
-            ck_bot_merge = np.sum((flx_mod_spectro / obs_dict['err_spectro'])**2)
+        if len(obs_dict_spectro['wav']) != 0:
+            ck_top_merge = np.sum((flx_mod_spectro * obs_dict_spectro['flx']) / (obs_dict_spectro['err'] * obs_dict_spectro['err']))
+            ck_bot_merge = np.sum((flx_mod_spectro / obs_dict_spectro['err'])**2)
         else:
             ck_top_merge = 0
             ck_bot_merge = 0
-        if len(obs_dict['wav_photo']) != 0:
-            ck_top_phot = np.sum((flx_mod_photo * obs_dict['flx_photo']) / (obs_dict['err_photo'] * obs_dict['err_photo']))
-            ck_bot_phot = np.sum((flx_mod_photo / obs_dict['err_photo'])**2)
+        if len(obs_dict_photo['wav']) != 0:
+            ck_top_phot = np.sum((flx_mod_photo * obs_dict_photo['flx']) / (obs_dict_photo['err'] * obs_dict_photo['err']))
+            ck_bot_phot = np.sum((flx_mod_photo / obs_dict_photo['err'])**2)
         else:
             ck_top_phot = 0
             ck_bot_phot = 0
@@ -187,11 +188,11 @@ def calc_ck(obs_dict, flx_mod_spectro, flx_mod_photo, r_picked, d_picked, alpha=
         ck = (ck_top_merge + ck_top_phot) / (ck_bot_merge + ck_bot_phot)
 
     # Re-normalization of the interpolated synthetic spectra with ck
-    if len(obs_dict['wav_spectro']) != 0:
+    if len(obs_dict_spectro['wav']) != 0:
         flx_mod_spectro_ck = flx_mod_spectro * ck
     else:
         flx_mod_spectro_ck = flx_mod_spectro
-    if len(obs_dict['wav_photo']) != 0:
+    if len(obs_dict_photo['wav']) != 0:
         flx_mod_photo_ck = flx_mod_photo * ck
     else:
         flx_mod_photo_ck = flx_mod_photo
