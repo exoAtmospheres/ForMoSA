@@ -252,20 +252,20 @@ class Observation(object):
             self._logger.debug('< Format spectroscopic data into a dictionary.>')
             # Observation dictionary
             obs_dict['obs_name'] = self.obs_name[indobs]
-            obs_dict['spectroscopy'] = {'wav': wav[~mask_photo],
-                                        'flx': flx[~mask_photo],
-                                        'err': err[~mask_photo],
-                                        'res': res[~mask_photo],
-                                        'inv_cov': inv_cov, # Optional part
-                                        'transm': transm,
-                                        'star_flx': star_flx,
-                                        'system': system}
+            obs_dict['spectro'] = {'wav': wav[~mask_photo],
+                                   'flx': flx[~mask_photo],
+                                   'err': err[~mask_photo],
+                                   'res': res[~mask_photo],
+                                   'inv_cov': inv_cov, # Optional part
+                                   'transm': transm,
+                                   'star_flx': star_flx,
+                                   'system': system}
            
             self._logger.debug('< Format photometric data into a dictionary.>')
-            obs_dict['photometry'] = {'wav': wav[mask_photo], 
-                        'flx': flx[mask_photo],
-                        'err': err[mask_photo],
-                        'ins': ins[mask_photo]}
+            obs_dict['photo'] = {'wav': wav[mask_photo], 
+                                 'flx': flx[mask_photo],
+                                 'err': err[mask_photo],
+                                 'ins': ins[mask_photo]}
             
             obs_dict['transmission'] = dict()     # Preparing for the transmission spectroscopy part
             
@@ -290,7 +290,7 @@ class Observation(object):
         """
 
         # Decrease the resolution and remove the continuum if necessary
-        obs_data = self.obs_data[indobs]['spectroscopy']
+        obs_data = self.obs_data[indobs]['spectro']
         obs_name = self.obs_name[indobs]
 
         # If we want to decrease the resolution of the spectroscopic data:
@@ -350,7 +350,7 @@ class Observation(object):
                                                             obs_data['res'],
                                                             wav_cont, res_cont)
     
-        self._obs_data[indobs]['spectroscopy'] = obs_data
+        self._obs_data[indobs]['spectro'] = obs_data
         
         
     def _save_observation_file(self, path: str | os.PathLike, indobs: int = 0) -> None:
@@ -399,7 +399,7 @@ class Observation(object):
         path : str | os.PathLike
             DESCRIPTION.
             
-        Authors: Simon Petrus, Paulina Palma-Bifani, Mathieu Ravet and Allan Denis
+        Authors: Simon Petrus, Paulina Palma-Bifani, Matthieu Ravet and Allan Denis
         '''
         
         obs_files = glob.glob(str(path) + '/spectrum_obs_*.npz')
@@ -422,6 +422,14 @@ class Observation(object):
                 missing_files.append(obs_file)
             else:
                 self._obs_data[indobs] = dict(np.load(os.path.join(path, obs_file), allow_pickle=True))
+                # For some reasons, after loading the data with this method, the dictionary self._obs_data[indobs][component_type] is transformed into an array containing a dictionary,
+                # so we use the following lines to transform it back into a dictionary
+                if 'spectro' in self._obs_data[indobs] and isinstance(self._obs_data[indobs]['spectro'], np.ndarray) and self._obs_data[indobs]['spectro'].dtype == object:
+                    self._obs_data[indobs]['spectro'] = self._obs_data[indobs]['spectro'].item()
+                if 'photo' in self._obs_data[indobs] and isinstance(self._obs_data[indobs]['photo'], np.ndarray) and self._obs_data[indobs]['photo'].dtype == object:
+                    self._obs_data[indobs]['photo'] = self._obs_data[indobs]['photo'].item()
+               
+
         
         if len(missing_files) > 0:
             msg = f" Observation files cannot be found : {', '.join(missing_files)}."
