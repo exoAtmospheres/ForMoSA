@@ -125,8 +125,9 @@ class GlobalParams(object):
 
         parameter = []
         name = []
+        vsini_function = None
         
-        if len(param_values) > step:
+        if len(param_values) > step:   # Multiple observations
             for indobs in range(N_obs):
                 prior_type = param_values[indobs * step]
                 if prior_type != 'NA':
@@ -137,7 +138,9 @@ class GlobalParams(object):
                         bounds, mean, std, value = None, float(param_values[indobs * step + 1]), float(param_values[indobs * step + 2]), None
                     elif prior_type == 'constant':
                         bounds, mean, std, value = None, None, None, float(param_values[indobs * step + 1])
-                    parameter.append(Parameter(name=name[-1], prior=prior_type, bounds=bounds, mean=mean, std=std, value=value)
+                    if param_name == 'vsini':
+                        vsini_function = str(param_values[indobs * step + 3])
+                    parameter.append(Parameter(name=name[-1], prior=prior_type, bounds=bounds, mean=mean, std=std, value=value, vsini_function = vsini_function)
 )
         else:
             prior_type = param_values[0]
@@ -149,7 +152,9 @@ class GlobalParams(object):
                     bounds, mean, std, value = float(param_values[1]), float(param_values[2]), None, None
                 elif prior_type == 'constant':
                     bounds, mean, std, value = None, None, None, float(param_values[1])
-                parameter.append(Parameter(name=name[-1], prior=prior_type, bounds=bounds, mean=mean, std=std, value=value))
+                if param_name == 'vsini':
+                    vsini_function = str(param_values[3])
+                parameter.append(Parameter(name=name[-1], prior=prior_type, bounds=bounds, mean=mean, std=std, value=value, vsini_function=vsini_function))
 
         return name, parameter
 
@@ -163,7 +168,7 @@ class GlobalParams(object):
         -------
         global_params : 
             
-        Authors; Simon Petrus, Paulina Palma-Bifani, Mathieu Ravet and Allan Denis 
+        Authors; Simon Petrus, Paulina Palma-Bifani, Matthieu Ravet and Allan Denis 
         '''
         # [config_adapt] (5)
         method = self._get_config_value(config, 'config_adapt', 'method', 'linear', 0, None)
@@ -186,7 +191,7 @@ class GlobalParams(object):
         hc_bounds_lsq = self._get_config_value(config, 'config_highcont_models', 'hc_bounds_lsq', 'NA', self.n_obs, list)
         self.config_highcont_models = {'hc_type': hc_type, 'hc_bounds_lsq': hc_bounds_lsq}
     
-        # [config_parameters] (11)
+        # [config_parameters] (1)
         grid_parameters = {}        # Refers to the grid parameters (Teff, logg, ...)
         physical_parameters = {}    # Refers to the other parameters (rv, vsini, ...)
         
@@ -211,9 +216,12 @@ class GlobalParams(object):
                     if param_list != []:
                         for param_i, name_i in zip(param_list, name_list):
                             physical_parameters[name_i] = param_i
+                            
             except ForMoSAError as e:
                 raise e
                 self._logger.critical(e)
+                
+        self.config_parameters = {'grid_parameters': grid_parameters, 'physical_parameters': physical_parameters}
 
         # [config_nestle] (8) 
         method = self._get_config_value(config, 'config_nestle', 'method', 'single', 0, None)
@@ -224,7 +232,7 @@ class GlobalParams(object):
         dlogz = self._get_config_value(config, 'config_nestle', 'dlogz', 'None', 0, eval)
         decline_factor = self._get_config_value(config, 'config_nestle', 'decline_factor', 'None', 0, eval)
         rstate = self._get_config_value(config, 'config_nestle', 'rstate', 'None', 0, eval)
-        self.config_parameters = {'grid_parameters': grid_parameters, 'physical_parameters': physical_parameters, 'method': method, 'update_interval': update_interval, 'npdim': npdim, 'maxiter': maxiter, 'maxcall': maxcall, 'dlogz': dlogz, 'decline_factor': decline_factor, 'rstate': rstate}
+        self.config_nestle = {'method': method, 'update_interval': update_interval, 'npdim': npdim, 'maxiter': maxiter, 'maxcall': maxcall, 'dlogz': dlogz, 'decline_factor': decline_factor, 'rstate': rstate}
 
         # [config_pymultinest] (20, pm_ prefix for params)
         clustering_params = self._get_config_value(config, 'config_pymultinest', 'n_clustering_params', 'None', 0, eval)
