@@ -170,8 +170,8 @@ class Analysis(object):
         
         for indobs, obs in enumerate(observation_files):
             
-            obs_data_spectro = self.observation.obs_data[indobs]['spectroscopy']
-            obs_data_photo = self.observation.obs_data[indobs]['photometry']
+            obs_data_spectro = self.observation.obs_data[indobs]['spectro']
+            obs_data_photo = self.observation.obs_data[indobs]['photo']
             obs_name = self.observation.obs_name[indobs]
             
             self._logger.info(f' Current observation: {obs_name}.')
@@ -233,7 +233,7 @@ class Analysis(object):
         self.grid._save_grid(self.paths.adapt_store_path)
         
         
-    def launch_nested_sampling(self, algorithm: str, logL_function: list, wav_for_fitting: list, grid_parameters):
+    def launch_nested_sampling(self, algorithm: str, logL_function: list, wav_for_fitting: list, npoints: int, nestle_params: dict, ultranest_params: dict, pymultinest_params: dict, interp_method: str = 'linear'):
         '''
         Method to launch the nested sampling
 
@@ -241,7 +241,8 @@ class Analysis(object):
         '''
         # Load adapted observations and grids
         self.observation._load_adapted_observations_from_files(self.paths.result_path)
-        self.grid._load_grid_from_files(self.paths.adapt_store_path)
+        self.grid._load_grid_from_files(self.paths.adapt_store_path, self.observation.obs_name_list)
+        self.nested_sampling.run(global_params.config_inversion['logL_type'], global_params.config_inversion['npoints'], global_params.config_inversion['ns_algo'], global_params.config_nestle, global_params.config_ultranest, global_params.config_pymultinest, global_params.paths.result_path)
 
         
         
@@ -255,6 +256,6 @@ model_path = '/Users/allandenis/test.nc'
 
 analysis = Analysis(config, log_level='debug')
 global_params = GlobalParams(config)
-# analysis.adapt(observation_files=global_params.paths.observation_files, target_res_obs=global_params.target_res_obs, res_cont=global_params.res_cont, wav_cont=global_params.wav_cont, hc_type=global_params.hc_type, interp_method=global_params.method)
-# analysis.launch_nested_sampling('nestle', global_params.logL_type, global_params.wav_fit)
+#analysis.adapt(observation_files=global_params.paths.observation_files, target_res_obs=global_params.config_adapt['target_res_obs'], res_cont=global_params.config_adapt['res_cont'], wav_cont=global_params.config_adapt['wav_cont'], hc_type=global_params.config_highcont_models['hc_type'], interp_method=global_params.config_adapt['method'])
+analysis.launch_nested_sampling('nestle', global_params.config_inversion['logL_type'], global_params.config_inversion['wav_fit'], 500, dict(), dict(), dict())
                                 
