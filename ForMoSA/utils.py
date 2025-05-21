@@ -1,5 +1,7 @@
 import numpy as np
 import xarray as xr
+import os 
+import glob
 
 # ----------------------------------------------------------------------------------------------------------------------
 
@@ -51,17 +53,20 @@ def decoupe(second):
 
 
 def find_nearest(array, value):
-    """
+    '''
     Return the indice of the closest values from a desire value in an array.
 
-    Args:
-        array (array): Array to explore
-        value (float): Desire value
+    Parameters
+    ----------
+    array (array): Array to explore
+    value (float): Desire value
+    
     Returns:
         - idx (int)          : Indice of the closest values from the desire value
 
     Author: Simon Petrus
-    """
+    '''
+    
     idx = (np.abs(array - value)).argmin()
 
     return idx
@@ -71,19 +76,22 @@ def find_nearest(array, value):
 
 
 def format_grid(grid, attr, free_comp, weights):
-    """
+    '''
     Format PCA or NMF outputs into a single xarray
     
-    Args:
-        - grid              (np.ndarray): Original grid 
-        - attr                    (dict): Original grid attributs
-        - free_comp                (int): Number of free components in the new grid (= PCA component used during PCA + 1 (nfs))
-        - weights           (np.ndarray): PCA or NMF weights grid
+    Parameters
+    ----------
+    grid              (np.ndarray): Original grid 
+    attr                    (dict): Original grid attributs
+    free_comp                (int): Number of free components in the new grid (= PCA component used during PCA + 1 (nfs))
+    weights           (np.ndarray): PCA or NMF weights grid
+    
     Returns:
-        ds_weights              (xarray): Xarray of the PCA or NMF weights grid
+        - ds_weights              (xarray): Xarray of the PCA or NMF weights grid
 
     Author: Matthieu Ravet
-    """
+    '''
+    
     # Format the new grids in xarray
     vars_nfs_ws = ["eigen_indices"]
     for key in attr['key']:
@@ -100,7 +108,7 @@ def format_grid(grid, attr, free_comp, weights):
 
 def check_format(*params, type_expected):
     '''
-    Method to check that all the components defined in params are in the expected formats
+    Check that all the components defined in params are in the expected formats
 
     Args
         *params            : list of parameters
@@ -115,3 +123,72 @@ def check_format(*params, type_expected):
             wrong_format.append(param)
     
     return wrong_format
+
+
+# ----------------------------------------------------------------------------------------------------------------------
+
+
+def weighted_quantile(values, quantiles, weights = None):
+    '''
+    Compute quantiles for weighted data.
+    '''
+    values = np.asarray(values)
+    quantiles = np.atleast_1d(quantiles)
+    
+    if weights is None:
+        sample_weight = np.ones(len(values))
+        
+    sorter = np.argsort(values)
+    values = values[sorter]
+    weights = weights[sorter]
+    cumulative_weights = np.cumsum(weights)
+    cumulative_weights /= cumulative_weights[-1]
+   
+    return np.interp(quantiles, cumulative_weights, values)
+
+
+# ----------------------------------------------------------------------------------------------------------------------
+
+
+def find_filter_file(filter_name: str) -> str | None:
+    '''
+    Find a filter file .npz given a filter name, ignoring lowercase and uppercase letters.
+    
+    Parameters
+    ----------
+    filter_name (str): Name of the filter ('Keck_NIRC2_H', 'NACO_Lp', 'MIRI_F1065', ...)
+
+    Returns:
+        file_path (str | None): Path of the file if it exists, None otherwise
+    
+    Authors: Allan Denis
+    '''
+    
+    path_list = __file__.split("/")[:-1]
+    filter_dir = '/'.join(path_list) + '/phototeque/'
+    
+    for file_path in glob.glob(os.path.join(filter_dir, '*.npz')):
+        root = os.path.basename(file_path).split('.')[0]
+        if root.lower() == filter_name.lower():
+            return file_path
+    
+    return None
+
+
+# ----------------------------------------------------------------------------------------------------------------------
+
+
+def scale_to_one_significant_digit(flux):
+    '''
+    Returns a tuple (scaled_flux, factor) such that flux ≈ scaled_flux * 10**factor
+    
+    Authors: Allan Denis
+    '''
+    
+    if len(flux) == 0:
+        return 0, 0
+
+    factor = int(np.floor(np.log10(abs(np.mean(flux)))))
+    scaled_flux = flux / (10 ** factor)
+    
+    return scaled_flux, factor

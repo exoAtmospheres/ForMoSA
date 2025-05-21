@@ -34,7 +34,7 @@ class Observation(object):
     ##################################################
     
     def __repr__(self) -> str:
-        return f'<Observation, n_obs = {self.n_obs}>'
+        return f'<Observation : {self.obs_name}>'
 
     def __format__(self) -> str:
         return self.__repr__()    
@@ -85,6 +85,17 @@ class Observation(object):
     @property 
     def n_obs(self):
         return len(self.obs_files)
+    
+    @property 
+    def max_resolution(self):
+        resolutions = [res for i in range(self.n_obs) for res in self.obs_data[i]['spectro']['res']]
+        
+        return max(resolutions)
+        
+    @property 
+    def wave_from_max_resolution(self):
+        return
+    
         
     
     ##################################################
@@ -239,6 +250,16 @@ class Observation(object):
             # Separate photometry from spectroscopy
             mask_photo = (res == 0.0)
             
+            ins_spectro, ins_photo = ins[~mask_photo], ins[mask_photo]
+            
+            if len(np.unique(ins_spectro)) == 1:
+                ins_spectro = np.unique(ins_spectro)
+            else:
+                ins_spectro = ins
+                
+            if len(np.unique(ins_photo)) == 1:
+                ins_photo = np.unique(ins_photo)
+            
             self._logger.info(f' Your observation {self.obs_name[indobs]} contains {len(wav[~mask_photo])} spectroscopic points and {len(wav[mask_photo])} photometric points.')
             # Check-ups and warnings for negative values in the diagonal of the covariance matrix
             if len(wav[~mask_photo]) != 0 and any(np.diag(inv_cov) < 0):
@@ -256,6 +277,7 @@ class Observation(object):
                                    'flx': flx[~mask_photo],
                                    'err': err[~mask_photo],
                                    'res': res[~mask_photo],
+                                   'ins': ins_spectro,
                                    'inv_cov': inv_cov, # Optional part
                                    'transm': transm,
                                    'star_flx': star_flx,
@@ -265,7 +287,7 @@ class Observation(object):
             obs_dict['photo'] = {'wav': wav[mask_photo], 
                                  'flx': flx[mask_photo],
                                  'err': err[mask_photo],
-                                 'ins': ins[mask_photo]}
+                                 'ins': ins_photo}
             
             obs_dict['transmission'] = dict()     # Preparing for the transmission spectroscopy part
             
@@ -280,7 +302,7 @@ class Observation(object):
             target_res_obs     (str): Target resolution of the observation
             res_cont           (str): Resolution of the continuum
             wav_cont       (ndarray): Wavelength of the continuum
-            hc_type            (str): High contrast function
+            star_continuum     (str): Star continuum type ('remove', 'estimate', 'NA')
             indobs             (int): Index of the current observation
             
         Returns:

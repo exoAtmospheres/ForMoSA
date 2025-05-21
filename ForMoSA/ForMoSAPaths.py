@@ -1,20 +1,13 @@
 from __future__ import annotations
 
-# standard libraries
-import shutil
 import logging
 import os
 import glob
 from configobj import ConfigObj
 
 from pathlib import Path
-from typing import Any
 import colorlog
 
-# log
-_log = logging.getLogger(__name__)
-
-# Format logging for this module
 
 class ForMoSAError(Exception):
     pass
@@ -31,7 +24,6 @@ class ForMoSAPaths(object):
     '''
     
     def __init__(self, config_file_path: str | os.PathLike, log_level: str = 'info', logger = None) -> None:
-        _log.info('Read configuration file')
         config = ConfigObj(config_file_path, encoding='utf8')
 
         self._config_file_path = Path(config_file_path).expanduser()
@@ -77,7 +69,7 @@ class ForMoSAPaths(object):
     ##################################################
 
     def __repr__(self):
-        return f'<AnalysisPath, config_file_path={self.config_file_path}, observation_path={self.observation_path}, adapt_store_path={self.adapt_store_path}, result_path={self.result_path}>'
+        return f'<ForMoSAPath, config_file_path={self.config_file_path}, observation_path={self.observation_path}, adapt_store_path={self.adapt_store_path}, result_path={self.result_path}>'
 
     def __format__(self) -> str:
         return self.__repr__()

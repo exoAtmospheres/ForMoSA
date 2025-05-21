@@ -4,7 +4,7 @@ import scipy.optimize as optimize
 from ForMoSA.utils_spec import continuum_estimate
 
 
-def hc_model(hc_type, wav_cont, res_cont, bounds, obs_dict_spectro, flx_mod_spectro, indobs):
+def hc_model(hc_type, wav_cont, res_cont, bounds, obs_dict_spectro, flx_mod_spectro, indobs: int=0):
     '''
     For high-contrast companions, where the star speckles signal contaminate the data
 

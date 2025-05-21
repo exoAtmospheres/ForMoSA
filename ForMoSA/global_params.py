@@ -40,6 +40,7 @@ class GlobalParams(object):
         grid_name = str(formosa_path.model_path).split('/')[-1].split('.nc')[0]
         N_obs = len(formosa_path.observation_files)   
         
+        
         # Basic inits
         self.paths = formosa_path
         self.grid_name = grid_name
@@ -133,7 +134,7 @@ class GlobalParams(object):
                 if prior_type != 'NA':
                     name.append(f"{param_name}_{indobs}")
                     if prior_type in {'uniform', 'log-uniform'}:
-                        bounds, mean, std, value = [float(param_values[indobs * step + 1]), float(param_values[indobs * step + 2])], None, None, None
+                        bounds, mean, std, value = [float(param_values[indobs * step + 1]), float(param_values[indobs * step + 2])], None, None,
                     elif prior_type == 'gaussian':
                         bounds, mean, std, value = None, float(param_values[indobs * step + 1]), float(param_values[indobs * step + 2]), None
                     elif prior_type == 'constant':
@@ -149,7 +150,7 @@ class GlobalParams(object):
                 if prior_type in {'uniform', 'log-uniform'}:
                     bounds, mean, std, value = [float(param_values[1]), float(param_values[2])], None, None, None
                 elif prior_type == 'gaussian':
-                    bounds, mean, std, value = float(param_values[1]), float(param_values[2]), None, None
+                    bounds, mean, std, value = None, float(param_values[1]), float(param_values[2]), None
                 elif prior_type == 'constant':
                     bounds, mean, std, value = None, None, None, float(param_values[1])
                 if param_name == 'vsini':
@@ -184,13 +185,10 @@ class GlobalParams(object):
         wav_fit = self._get_config_value(config, 'config_inversion', 'wav_fit', '0,100', self.n_obs, list)
         ns_algo = self._get_config_value(config, 'config_inversion', 'ns_algo', 'nestle', 0, None)
         npoints = self._get_config_value(config, 'config_inversion', 'npoint', '100', 0, eval)
-        self.config_inversion = {'logL_type': logL_type, 'wav_fit': wav_fit, 'ns_algo': ns_algo, 'npoints': npoints}
-
-        # [config_highcont_models] (2)
         hc_type = self._get_config_value(config, 'config_highcont_models', 'hc_type', 'NA', self.n_obs, list)
         hc_bounds_lsq = self._get_config_value(config, 'config_highcont_models', 'hc_bounds_lsq', 'NA', self.n_obs, list)
-        self.config_highcont_models = {'hc_type': hc_type, 'hc_bounds_lsq': hc_bounds_lsq}
-    
+        self.config_inversion = {'logL_type': logL_type, 'wav_fit': wav_fit, 'ns_algo': ns_algo, 'npoints': npoints, 'hc_type': hc_type, 'hc_bounds_lsq': hc_bounds_lsq}
+
         # [config_parameters] (1)
         grid_parameters = {}        # Refers to the grid parameters (Teff, logg, ...)
         physical_parameters = {}    # Refers to the other parameters (rv, vsini, ...)
@@ -219,7 +217,6 @@ class GlobalParams(object):
                             
             except ForMoSAError as e:
                 raise e
-                self._logger.critical(e)
                 
         self.config_parameters = {'grid_parameters': grid_parameters, 'physical_parameters': physical_parameters}
 
@@ -232,10 +229,10 @@ class GlobalParams(object):
         dlogz = self._get_config_value(config, 'config_nestle', 'dlogz', 'None', 0, eval)
         decline_factor = self._get_config_value(config, 'config_nestle', 'decline_factor', 'None', 0, eval)
         rstate = self._get_config_value(config, 'config_nestle', 'rstate', 'None', 0, eval)
-        self.config_nestle = {'method': method, 'update_interval': update_interval, 'npdim': npdim, 'maxiter': maxiter, 'maxcall': maxcall, 'dlogz': dlogz, 'decline_factor': decline_factor, 'rstate': rstate}
+        config_nestle = {'method': method, 'update_interval': update_interval, 'npdim': npdim, 'maxiter': maxiter, 'maxcall': maxcall, 'dlogz': dlogz, 'decline_factor': decline_factor, 'rstate': rstate}
 
         # [config_pymultinest] (20, pm_ prefix for params)
-        clustering_params = self._get_config_value(config, 'config_pymultinest', 'n_clustering_params', 'None', 0, eval)
+        n_clustering_params = self._get_config_value(config, 'config_pymultinest', 'n_clustering_params', 'None', 0, eval)
         wrapped_params = self._get_config_value(config, 'config_pymultinest', 'wrapped_params', 'None', 0, eval)
         importance_nested_sampling = self._get_config_value(config, 'config_pymultinest', 'importance_nested_sampling', 'True', 0, eval)
         multimodal = self._get_config_value(config, 'config_pymultinest', 'multimodal', 'True', 0, eval)
@@ -249,15 +246,15 @@ class GlobalParams(object):
         seed = self._get_config_value(config, 'config_pymultinest', 'seed', '-1', 0, eval)
         verbose = self._get_config_value(config, 'config_pymultinest', 'verbose', 'True', 0, eval)
         resume = self._get_config_value(config, 'config_pymultinest', 'resume', 'False', 0, eval) # This is the only parameter not set by default to True, you can change it if your inversion crash and you don't want to start anew
-        scontext = self._get_config_value(config, 'config_pymultinest', 'context', '0', 0, eval)
+        context = self._get_config_value(config, 'config_pymultinest', 'context', '0', 0, eval)
         log_zero = self._get_config_value(config, 'config_pymultinest', 'log_zero', '-1e100', 0, eval)
         max_iter = self._get_config_value(config, 'config_pymultinest', 'max_iter', '0', 0, eval) # Unlimited
         init_MPI = self._get_config_value(config, 'config_pymultinest', 'init_MPI', 'False', 0, eval)
         dump_callback = self._get_config_value(config, 'config_pymultinest', 'dump_callback', 'None', 0, eval)
         use_MPI = self._get_config_value(config, 'config_pymultinest', 'use_MPI', 'True', 0, eval)
-        self.config_pymultinest = {'clustering_params': clustering_params, 'wrapped_params': wrapped_params, 'importance_nested_sampling': importance_nested_sampling, 'multimodal': multimodal, 
+        config_pymultinest = {'n_clustering_params': n_clustering_params, 'wrapped_params': wrapped_params, 'importance_nested_sampling': importance_nested_sampling, 'multimodal': multimodal, 
                                    'const_efficiency_mode': const_efficiency_mode, 'evidence_tolerance': evidence_tolerance, 'sampling_efficiency': sampling_efficiency, 'n_iter_before_update': n_iter_before_update,
-                                   'null_log_evidence': null_log_evidence, 'max_modes': max_modes, 'mode_tolerance': mode_tolerance, 'seed': seed, 'verbose': verbose, 'resume': resume, 'scontext': scontext,
+                                   'null_log_evidence': null_log_evidence, 'max_modes': max_modes, 'mode_tolerance': mode_tolerance, 'seed': seed, 'verbose': verbose, 'resume': resume, 'context': context,
                                    'log_zero': log_zero, 'max_iter': max_iter, 'init_MPI': init_MPI, 'dump_callback': dump_callback, 'use_MPI': use_MPI}
 
         # [config_ultranest] (29)
@@ -291,16 +288,14 @@ class GlobalParams(object):
         insertion_test_window = self._get_config_value(config, 'config_ultranest', 'insertion_test_window', '10', 0, eval)
         widen_before_initial_plateau_num_warn = self._get_config_value(config, 'config_ultranest', 'widen_before_initial_plateau_num_warn', '10000', 0, eval)
         widen_before_initial_plateau_num_max = self._get_config_value(config, 'config_ultranest', 'widen_before_initial_plateau_num_max', '50000', 0, eval)
-        self.config_ultranest = {'resume': resume, 'run_num': run_num, 'wrapped_params': wrapped_params, 'num_test_samples': num_test_samples, 'vectorized': vectorized, 'draw_multiple': draw_multiple, 'ndraw_min': ndraw_min,
+        config_ultranest = {'resume': resume, 'run_num': run_num, 'wrapped_params': wrapped_params, 'num_test_samples': num_test_samples, 'vectorized': vectorized, 'draw_multiple': draw_multiple, 'ndraw_min': ndraw_min,
                                  'ndraw_max': ndraw_max, 'num_bootstraps': num_bootstraps, 'storage_backend': storage_backend, 'warmstart_max_tau': warmstart_max_tau, 'update_interval_volume_fraction': update_interval_volume_fraction,
                                  'update_interval_ncall': update_interval_ncall, 'log_interval': log_interval, 'show_status': show_status, 'viz_callback': viz_callback, 'dlogz': dlogz, 'dKL': dKL, 'frac_remain': frac_remain,
                                  'Lepsilon': Lepsilon, 'min_ess': min_ess, 'max_iters': max_iters, 'max_ncalls': max_ncalls, 'max_num_improvement_loops': max_num_improvement_loops, 'cluster_num_live_points': cluster_num_live_points, 
-                                 'intertion_test_zscore_threshold': insertion_test_zscore_threshold, 'insertion_test_window': insertion_test_window, 'widen_before_initial_plateau_num_warn': widen_before_initial_plateau_num_warn, 'widen_before_initial_plateau_num_max': widen_before_initial_plateau_num_max}
+                                 'insertion_test_zscore_threshold': insertion_test_zscore_threshold, 'insertion_test_window': insertion_test_window, 'widen_before_initial_plateau_num_warn': widen_before_initial_plateau_num_warn, 'widen_before_initial_plateau_num_max': widen_before_initial_plateau_num_max}
         
-
-        # - - - - - - - - - - - - - - 
-
-
+        self.config_ns_algo = {'nestle': config_nestle, 'ultranest': config_ultranest, 'pymultinest': config_pymultinest}
+       
         ## Save CONFIG: - - - - - - -
 
         # [config_path] (4)
@@ -346,13 +341,11 @@ class GlobalParams(object):
         config['config_inversion'].comments['npoint'] = ['', '# Number of living points during the nested sampling procedure.', 
                                                          "# Format : int",
                                                          "# MOSAIC : No"]
-        
-        # [config_highcont_models] (2)
-        config.comments['config_highcont_models'] = ['']
-        config['config_highcont_models'].comments['hc_type'] = ['# Method to compute the high-contrast model.', 
+    
+        config['config_inversion'].comments['hc_type'] = ['# Method to compute the high-contrast model.', 
                                                              "# Format : 'NA' or 'nofit_rm_spec' or 'nonlinear_fit_spec' or 'fit_spec' or 'rm_spec' or 'fit_spec_rm_cont' or 'fit_spec_fit_cont'",
                                                              "# MOSAIC : Yes"]
-        config['config_highcont_models'].comments['hc_bounds_lsq'] = ['', '# Least-square bounds.', 
+        config['config_inversion'].comments['hc_bounds_lsq'] = ['', '# Least-square bounds.', 
                                                              "# Format : 'NA' or 'lower, upper'",
                                                              "# MOSAIC : Yes"]
         
