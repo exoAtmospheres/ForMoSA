@@ -471,8 +471,9 @@ class PlottingForMoSA():
             ds_photo.close()
 
             # Interpolating the model resolution
-            interp_mod_to_obs = interp1d(mod_dict['wav_spectro'], mod_dict['res_spectro'], fill_value='extrapolate') # Interpolate model resolution onto the data
-            mod_dict['res_spectro'] = interp_mod_to_obs(obs_dict['wav_spectro'])
+            if len(obs_dict['wav_spectro']) != 0:
+                interp_mod_to_obs = interp1d(mod_dict['wav_spectro'], mod_dict['res_spectro'], fill_value='extrapolate') # Interpolate model resolution onto the data
+                mod_dict['res_spectro'] = interp_mod_to_obs(obs_dict['wav_spectro'])
 
             if self.global_params.par3[0] == 'NA':
                 if len(obs_dict['wav_spectro']) != 0:

@@ -99,8 +99,9 @@ def import_obsmod(global_params):
                 pass
 
         # Cutting of the grid on the wavelength grid defined by the parameter 'wav_fit' and interpolating model resolution onto the data
-        interp_mod_to_obs = interp1d(mod_dict['wav_spectro'], mod_dict['res_spectro'], fill_value='extrapolate') 
-        mod_dict['res_spectro'] = interp_mod_to_obs(obs_dict['wav_spectro'])
+        if len(obs_dict['wav_spectro']) != 0:
+            interp_mod_to_obs = interp1d(mod_dict['wav_spectro'], mod_dict['res_spectro'], fill_value='extrapolate') 
+            mod_dict['res_spectro'] = interp_mod_to_obs(obs_dict['wav_spectro'])
         if global_params.emulator[0] == 'NA':
             grid_spectro = grid_spectro.sel(wavelength=grid_spectro['wavelength'][mask_mod_spectro])
             grid_photo = grid_photo.sel(wavelength=grid_photo['wavelength'][mask_photo])

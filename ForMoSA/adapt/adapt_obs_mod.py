@@ -69,32 +69,32 @@ def launch_adapt(global_params, justobs='no'):
                 pass
             else:
                 os.mkdir(global_params.adapt_store_path)
+            if len(obs_dict['wav_spectro']) != 0:
+                # Setup target wavelength and resolution for the observation and the model
+                if global_params.target_res_mod[indobs % len(global_params.target_res_mod)] == 'mod': # Kepping the model's resolution
+                    target_wav_mod = wav_mod_nativ
+                    target_res_mod = res_mod_nativ
+                elif global_params.target_res_mod[indobs % len(global_params.target_res_mod)] == 'obs': # Using the observation's resolution except where its higher than the model's
+                    target_wav_mod = obs_dict['wav_spectro']
+                    target_res_mod = obs_dict['res_spectro']
+                else:                                             # Using a custom resolution except where its higher than the model's
+                    res_custom = np.full(len(wav_mod_nativ), float(global_params.target_res_mod[indobs]))
+                    target_wav_mod = wav_mod_nativ
+                    target_res_mod = np.min([res_mod_nativ, res_custom], axis=0)
 
-            # Setup target wavelength and resolution for the observation and the model
-            if global_params.target_res_mod[indobs % len(global_params.target_res_mod)] == 'mod': # Kepping the model's resolution
-                target_wav_mod = wav_mod_nativ
-                target_res_mod = res_mod_nativ
-            elif global_params.target_res_mod[indobs % len(global_params.target_res_mod)] == 'obs': # Using the observation's resolution except where its higher than the model's
-                target_wav_mod = obs_dict['wav_spectro']
-                target_res_mod = obs_dict['res_spectro']
-            else:                                             # Using a custom resolution except where its higher than the model's
-                res_custom = np.full(len(wav_mod_nativ), float(global_params.target_res_mod[indobs]))
-                target_wav_mod = wav_mod_nativ
-                target_res_mod = np.min([res_mod_nativ, res_custom], axis=0)
+                # Masks to have larger cuts of the spectroscopic grid if needed (if rv is defined)
+                if global_params.rv[indobs*3 % len(global_params.rv)] == 'NA':
+                    mask_mod_obs = (target_wav_mod <= obs_dict['wav_spectro'][-1]) & (target_wav_mod >= obs_dict['wav_spectro'][0]) 
+                    target_wav_mod = target_wav_mod[mask_mod_obs]
+                    target_res_mod = target_res_mod[mask_mod_obs]
+                else:
+                    mask_mod_obs = (target_wav_mod <= 1.01 * obs_dict['wav_spectro'][-1]) & (target_wav_mod >= 0.99 * obs_dict['wav_spectro'][0])   # 1.01 corresponds to a value of 3000 km/s for the RV so we do no risk to lose data on the edges when applying the RV correction
+                    target_wav_mod = target_wav_mod[mask_mod_obs]
+                    target_res_mod = target_res_mod[mask_mod_obs]
 
-            # Masks to have larger cuts of the spectroscopic grid if needed (if rv is defined)
-            if global_params.rv[indobs*3 % len(global_params.rv)] == 'NA':
-                mask_mod_obs = (target_wav_mod <= obs_dict['wav_spectro'][-1]) & (target_wav_mod >= obs_dict['wav_spectro'][0]) 
-                target_wav_mod = target_wav_mod[mask_mod_obs]
-                target_res_mod = target_res_mod[mask_mod_obs]
-            else:
-                mask_mod_obs = (target_wav_mod <= 1.01 * obs_dict['wav_spectro'][-1]) & (target_wav_mod >= 0.99 * obs_dict['wav_spectro'][0])   # 1.01 corresponds to a value of 3000 km/s for the RV so we do no risk to lose data on the edges when applying the RV correction
-                target_wav_mod = target_wav_mod[mask_mod_obs]
-                target_res_mod = target_res_mod[mask_mod_obs]
-
-            # Interpolate the resolution of the model onto the wavelength of the data to properly decrease the resolution if necessary
-            interp_mod_to_obs = interp1d(wav_mod_nativ, res_mod_nativ, fill_value='extrapolate')
-            res_mod_nativ_interp = interp_mod_to_obs(target_wav_mod)
+                # Interpolate the resolution of the model onto the wavelength of the data to properly decrease the resolution if necessary
+                interp_mod_to_obs = interp1d(wav_mod_nativ, res_mod_nativ, fill_value='extrapolate')
+                res_mod_nativ_interp = interp_mod_to_obs(target_wav_mod)
 
             print()
             print('- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -')
