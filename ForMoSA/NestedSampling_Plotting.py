@@ -26,27 +26,6 @@ class NestedSampling_Plotting(object):
         self._logger = logger  # Optionnel mais utile
         
         
-    def _plot(self, results: dict, param_names: list, param_best_values: dict, modif_data: dict, best_model: dict) -> None:
-        '''
-        Method to use all the plotting methods
-
-        Parameters
-        ----------
-        results       (dict): Dictionary of the results {'samples': samples, 'weights': weights}
-        param_names   (list): Names of the parameters
-        param_best_value    (dict): Dictionary of best results of nested sampling {param_name: best_value}
-        modif_data (dict): Dictionary containing the modified data {indobs: {'spectro': dict, 'photo': dict}}
-        best_model (dict): Dictionary containing the best model {indobs: {'spectro': dict, 'photo': dict}}
-    
-        Authors: Allan Denis
-        '''
-
-        self._plot_corner(results, param_names)
-        self._plot_chains(results, param_names, param_best_values)
-        self._plot_radar(results, param_names)
-        self._plot_fit(modif_data, best_model)
-        
-
     def _plot_corner(self, results: dict, param_names: list, levels_sig: list=[0.997, 0.95, 0.68], bins: int=100, quantiles: tuple=(0.16, 0.5, 0.84), figsize: tuple=(15, 15)) -> matplotlib.figure.Figure:
         '''
         Method to corner plot the results samples
