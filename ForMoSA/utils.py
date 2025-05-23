@@ -192,3 +192,36 @@ def scale_to_one_significant_digit(flux):
     scaled_flux = flux / (10 ** factor)
     
     return scaled_flux, factor
+
+
+# ----------------------------------------------------------------------------------------------------------------------
+
+
+def determine_continuum_types(hc_type: str, res_cont: str | float) -> str:
+    '''
+    Method to determine the star continuum type ("estimate", "remove", "NA") from the high contrast function type
+
+    Parameters
+    ----------
+    hc_type          (str): high-contrast function type
+    res_cont (str | float): Resolution of the continuum
+
+    Returns:
+        - star_continuum    (str): star_continuum type ("estimate", "remove" or "NA")
+        - remove_continuum (bool): Whether to remove the continuum of the grid models
+
+    Authors: Allan Denis
+    '''
+    
+    if res_cont != 'NA':
+        if hc_type != 'NA':
+            star_continuum = 'estimate'
+            remove_continuum = False
+        else:
+            star_continuum = 'remove'
+            remove_continuum = True
+    else:
+        star_continuum = 'NA'
+        remove_continuum = False
+    
+    return star_continuum, remove_continuum

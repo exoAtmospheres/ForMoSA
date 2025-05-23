@@ -1,6 +1,5 @@
 import numpy as np 
 from pathlib import Path
-import glob
 import os 
 import xarray as xr
 from ForMoSA.utils_spec import resolution_decreasing, continuum_estimate
@@ -12,6 +11,7 @@ import multiprocessing as mp
 from functools import partial
 from sklearn.decomposition import PCA
 from torchnmf.nmf import NMF
+from ForMoSA.NestedSampling_Parameters import NestedSampling_Params
 import torch
 
 
@@ -30,10 +30,10 @@ class ModelGrid(object):
     Authors: Allan Denis
     '''
     
-    def __init__(self, path: str | os.PathLike, logger) -> None:
+    def __init__(self, model_path: str | os.PathLike, logger) -> None:
         
         # the command .expanduser() transforms the path in a full absolute path, removing any '~' in the path
-        self._model_path = Path(path).expanduser()
+        self._model_path = Path(model_path).expanduser()
         self._adapted_grid = dict()
         self._logger = logger
         self._read_grid()
@@ -66,6 +66,10 @@ class ModelGrid(object):
     @property 
     def name(self):                     # Name of the grid
         return str(self.model_path).split('/')[-1].split('.nc')[0]
+    
+    @property 
+    def logger(self):
+        return self._logger
         
     @property  
     def attrs(self):                    # Attritutes of the grid
@@ -149,6 +153,7 @@ class ModelGrid(object):
         Authors: Allan Denis
         '''
         
+        self._logger.debug(f'< Read grid in {self.model_path}')
         ds = xr.open_dataset(self.model_path, decode_cf=False, engine="netcdf4")
         self._wavelength = ds['wavelength'].values
         self._resolution = ds.attrs['res']
@@ -201,23 +206,57 @@ class ModelGrid(object):
         
         self._adapted_grid[indobs] = {'spectro': sub_spectro, 'photo': sub_photo}
     
+    
+    def adapt_all_grids(self, obs_data: dict, target_res_mod: list, parameters: NestedSampling_Params, wav_cont: list=['NA'], res_cont: list=['NA'], hc_type: list=['NA']):
+        '''
+        Method to adapt the grid of models to each observation present in obs_data
+
+        Parameters
+        ----------
+        obs_data                       (dict): Dictionary of observations {indobs: {'spectro': spectro_data}, {'photo': photo_data}}
+        target_res_mod                 (list): Target resolution of the model to reach for each observation (['obs' | 'mod' | float, ...])
+        parameters    (NestedSampling_Params): Instance of :clacc:'~NestedSampling_Params'
+        res_cont                 (list): Resolution of the continuum of each of the adapted grid ([float | 'NA', ...])
+        wav_cont                 (list): Wavelength grid of the continuum of each of the adapted grid ([np.ndarray | 'NA', ...])
+        hc_type                  (list): High-contrast function for each of the adapted grid ([str, ...])
+ 
+        Authors: Allan Denis
+        '''
         
-    def adapt_grid(self, target_resolution: np.ndarray, target_wavelength: np.ndarray, wavelength_photo: np.ndarray = np.array([]), ins_spectro: np.ndarray = np.array([]), ins_photo: np.ndarray = np.array([]), wav_cont: np.ndarray | str = 'NA', res_cont: float | str = 'NA', remove_continuum: bool = False, obs_name: str = 'unknown'):
+        for indobs in range(len(obs_data)):
+            # Determine continuum types 
+            star_continuum, remove_continuum = u.determine_continuum_types(hc_type[indobs % len(hc_type)], res_cont[indobs % len(res_cont)])
+    
+            # Determine target wavelength and target resolution to reach
+            target_wavelength, target_resolution = self._determine_grid_target_wavelength_and_resolution(obs_data[indobs]['spectro']['wav'], obs_data[indobs]['spectro']['res'], target_res_mod[indobs % len(target_res_mod)], parameters, indobs)
+            
+            # Launch adaptation of grid
+            self._adapt_grid(target_resolution, target_wavelength, obs_data[indobs]['photo']['wav'], obs_data[indobs]['spectro']['ins'], obs_data[indobs]['photo']['ins'], wav_cont = wav_cont[indobs % len(wav_cont)], res_cont = res_cont[indobs % len(res_cont)], remove_continuum=remove_continuum, obs_name = obs_data[indobs]['obs_name'])
+    
+    
+    def _adapt_grid(self, target_resolution_spectro: np.ndarray, target_wavelength_spectro: np.ndarray, target_wavelength_photo: np.ndarray = np.array([]), ins_spectro: np.ndarray = np.array([]), ins_photo: np.ndarray = np.array([]), wav_cont: np.ndarray | str = 'NA', res_cont: float | str = 'NA', remove_continuum: bool = False, obs_name: str = 'unknown'):
         '''
         Adapt the grid of models to a given resolution and wavelength.
     
         Parameters
         ----------
-        target_resolution (np.float64): Target resolution to reach
-        target_wavelength (np.float64): Target wavelength to reach
-        remove_continuum (bool): Whether to remove the continuum
+        target_resolution_spectro (np.ndarray): Target resolution to reach for the spectroscopic adapted grid
+        target_wavelength_spectro (np.ndarray): Target wavelength to reach for the spectroscopic adapted grid
+        remove_continuum                (bool): Whether to remove the continuum
+        target_wavelength_photo  (np.ndarray): Target wavelength to reach for the photometric adapted grid
+        ins_spectro              (np.ndarray): Spectroscopic instrument 
+        ins_photo                (np.ndarray): Photometric instrument
+        wav_cont           (np.ndarray | str): Wavelength grid of the continuum estimation
+        res_cont           (np.ndarray | str): Resolution of the continuum
+        remove_continuum               (bool): Whether to remove the continuum
+        obs_name                        (str): Name of the observation associated to the adapted grid
         
         Authors: Simon Petrus, Matthieu Ravet, Paulina Palma-Bifani, Arthur Vigan and Allan Denis
         '''
       
         self._logger.info(f' Adapt model {self.grid.name} to the observation {obs_name}')  
       
-        if len(wavelength_photo) > 0:
+        if len(target_wavelength_photo) > 0:
             self._check_photometry_filters_exist(ins_photo)
             
         if remove_continuum == True and res_cont == 'NA':
@@ -228,10 +267,10 @@ class ModelGrid(object):
             self._logger.warning(" You do not want to remove the continuum but 'res_cont' is defined. Ignoring it and chosing not to remove the continuum.")
 
         self._logger.debug(f'< Add a subgrid for the observation {obs_name}.>')
-        self._add_subgrid(target_wavelength, target_resolution, wavelength_photo, ins_spectro = ins_spectro, ins_photo = ins_photo, indobs = self.counter + 1, obs_name = obs_name)
+        self._add_subgrid(target_wavelength_spectro, target_resolution_spectro, target_wavelength_photo, ins_spectro = ins_spectro, ins_photo = ins_photo, indobs = self.counter + 1, obs_name = obs_name)
         
         interp_mod_to_obs = interp1d(self.wavelength, self.resolution, fill_value='extrapolate')
-        resolution_model = interp_mod_to_obs(target_wavelength)
+        resolution_model = interp_mod_to_obs(target_wavelength_spectro)
              
         shape = self.grid.values.shape[1:]
         pbar = tqdm(total=np.prod(shape), leave=False)
@@ -248,7 +287,7 @@ class ModelGrid(object):
                 for idx in np.ndindex(shape):
                     callback = partial(update_result, idx=idx, model=self)
                     model_to_adapt = self._load_model_at_specific_index(idx)
-                    pool.apply_async(self._adapt_model, args=(model_to_adapt, target_resolution, target_wavelength, wavelength_photo, ins_photo, resolution_model, wav_cont, res_cont, remove_continuum), callback=callback)
+                    pool.apply_async(self._adapt_model, args=(model_to_adapt, target_resolution_spectro, target_wavelength_spectro, target_wavelength_photo, ins_photo, resolution_model, wav_cont, res_cont, remove_continuum), callback=callback)
                 pool.close()
                 pool.join()
                 
@@ -257,7 +296,7 @@ class ModelGrid(object):
             try:
                 for idx in np.ndindex(shape):
                     model_to_adapt = self._load_model_at_specific_index(idx)
-                    result = self._adapt_model(model_to_adapt, target_resolution, target_wavelength, wavelength_photo, ins_photo, resolution_model, wav_cont, res_cont, remove_continuum)
+                    result = self._adapt_model(model_to_adapt, target_resolution_spectro, target_wavelength_spectro, target_wavelength_photo, ins_photo, resolution_model, wav_cont, res_cont, remove_continuum)
                     self._adapted_grid[self.counter]['spectro']._grid[(..., ) + idx] = result[0]
                     self._adapted_grid[self.counter]['photo']._grid[(..., ) + idx] = result[1]
             except Exception as e:
@@ -321,6 +360,46 @@ class ModelGrid(object):
             raise e  
     
         return model_spectro, model_photo
+    
+    
+    def _determine_grid_target_wavelength_and_resolution(self, wav_obs_spectro: np.ndarray, res_obs_spectro: np.ndarray, target_res_mod: str | float, params: NestedSampling_Params, indobs: int=0) -> tuple[np.ndarray, np.ndarray]:
+        '''
+        Method to set target wavelength and resolutions of the model.
+        This depends on the wavelength and resolution of the current observation we want to adapt the model to.
+    
+        Parameters
+        ----------
+        wav_obs_spectro                  (np.ndarray): Wavelength grid of each of the observation
+        res_obs_spectro                  (np.ndarray): Resolution of each of the observation
+        target_res_mod                  (str | float): Target resolution ('obs', 'mod' or float)
+        parameters            (Nestedsampling_Params): Instance of :class:'~NestedSampling_Params'
+        indobs                                  (int): Index of current observation
+    
+        Returns:
+            - target_wavelength (np.ndarray): Target wavelength of the model 
+            - target_resolution (np.ndaraay): Target resolution of the model
+            
+        Authors: Simon Petrus, Matthieu Ravet and Allan Denis
+        '''
+        
+        # Setup target wavelength and resolution for the observation and the model
+        if target_res_mod == 'mod': # Kepping the model's resolution
+            target_wavelength, target_resolution = self.wavelength, self.resolution
+        if target_res_mod == 'obs': # Using the observation's resolution except where its higher than the model's
+            target_wavelength, target_resolution = wav_obs_spectro, res_obs_spectro
+        else:                                             # Using a custom resolution except where its higher than the model's
+            target_wavelength, target_resolution = self.wavelength, np.full(len(self.wavelength), float(target_res_mod))
+    
+        if len(wav_obs_spectro) > 0:
+            # # Masks to have larger cuts of the spectroscopic grid if needed (if rv is defined)
+            if ('rv' in params.parameters.keys()) or (f'rv_{indobs}' in params.parameters.keys()):
+                mask_mod_obs = (target_wavelength <= 1.01 * wav_obs_spectro[-1]) & (target_wavelength >= 0.99 * wav_obs_spectro[0])   # 1.01 corresponds to a value of 3000 km/s for the RV so we do no risk to lose data on the edges when applying the RV correction
+                target_wavelength, target_resolution = target_wavelength[mask_mod_obs], target_resolution[mask_mod_obs]
+            else:
+                mask_mod_obs = (target_wavelength <= wav_obs_spectro[-1]) & (target_wavelength >= wav_obs_spectro[0]) 
+                target_wavelength, target_resolution = target_wavelength[mask_mod_obs], target_resolution[mask_mod_obs]
+        
+        return target_wavelength, target_resolution    
     
     
     def _check_photometry_filters_exist(self, filters: list[str]) -> list[str]:
@@ -486,7 +565,7 @@ class ModelGrid(object):
                         interpolate_component(component, comp_type)
                         
                         
-    def _interpolate_between_gridpoints(self, theta: list, method: str = "linear", indobs: int = 0, print_logger: bool = False) -> None:
+    def _interpolate_between_gridpoints(self, theta: list, method: str = "linear", indobs: int = 0, print_logger: bool = False) -> list | xr.DataArray:
         '''
         Interpolate between gridpoints in the adapted spectroscopic and photometric grids.
     
@@ -502,7 +581,7 @@ class ModelGrid(object):
         
         Returns
         -------
-        grid_interp  (xarray.DataArray): interpolated grid
+            grid_interp  (xarray.DataArray | list): interpolated grid or list containing interpolated grids for spectroscopic and photometric models
         '''
         
         if print_logger:
@@ -536,7 +615,8 @@ class ModelGrid(object):
         
         # If self is an instance of ModelSubGrid (e.g. ModelGrid[0]['spectro])
         if isinstance(self, ModelSubGrid):
-            interpolate_component(self, self.component_type)
+            grid_interp = interpolate_component(self, self.component_type, interp_kwargs)
+      
         # If self is an instance of ModelGrid (Recommended case)
         else:
             grid_interp = []
@@ -547,7 +627,7 @@ class ModelGrid(object):
                     grid_interp.append(interpolate_component(component, comp_type, interp_kwargs))
                 if component.is_empty:
                     grid_interp.append(np.asarray([]))
-            return grid_interp
+        return grid_interp
     
     
     def _save_grid(self, store_path: str | os.PathLike) -> None:
@@ -708,7 +788,7 @@ class ModelSubGrid(ModelGrid):
         return self._obs_name
     
     @property 
-    def instrument(self):             # Name of instrument for photometry
+    def instrument(self):             # Name of instrument 
         return self._instrument
     
     @property
@@ -728,6 +808,6 @@ class ModelSubGrid(ModelGrid):
         return self._component_type
     
     @property 
-    def is_empty(self):
+    def is_empty(self):               # Whether the grid is empty
         return len(self.wavelength) == 0
     

@@ -8,6 +8,9 @@ from configobj import ConfigObj
 from pathlib import Path
 import colorlog
 
+from ForMoSA.Observation import Observation
+from ForMoSA.ModelGrid import ModelGrid
+
 
 class ForMoSAError(Exception):
     pass
@@ -22,8 +25,9 @@ class ForMoSAPaths(object):
         Path to the configuration file.
     logger : Logger used 
     '''
-    
-    def __init__(self, config_file_path: str | os.PathLike, log_level: str = 'info', logger = None) -> None:
+    _logger_initialized = False  # Classe-level variable to prevent re-initialization
+
+    def __init__(self, config_file_path: str | os.PathLike, log_level: str = 'info') -> None:
         config = ConfigObj(config_file_path, encoding='utf8')
 
         self._config_file_path = Path(config_file_path).expanduser()
@@ -31,22 +35,23 @@ class ForMoSAPaths(object):
         self._adapt_store_path = Path(config['config_path']['adapt_store_path']).expanduser()
         self._result_path = Path(config['config_path']['result_path']).expanduser()
         self._model_path = Path(config['config_path']['model_path']).expanduser()
-        self._path_error = False
-        
-        #Logging
-        if logger == None:
-            
-            logger = logging.getLogger("Observation")
-            logger.handlers.clear()
-            logger.propagate = False
-            logger.setLevel(log_level.upper())
-           
+
+        logger = logging.getLogger("ForMoSA")
+        logger.setLevel(log_level.upper())
+        logger.propagate = False
+
+        # Prevent multiple handler addition
+        if not ForMoSAPaths._logger_initialized:
+            # Clear any existing handlers once
+            while logger.hasHandlers():
+                logger.removeHandler(logger.handlers[0])
+
             # File handler (no color)
             file_handler = logging.FileHandler(self._result_path / 'analysis.log', mode='w', encoding='utf-8')
             file_formatter = logging.Formatter('%(asctime)s\t%(levelname)8s\t%(message)s')
             file_handler.setFormatter(file_formatter)
             logger.addHandler(file_handler)
-           
+
             # Console handler (with color)
             console_handler = colorlog.StreamHandler()
             console_formatter = colorlog.ColoredFormatter(
@@ -61,9 +66,15 @@ class ForMoSAPaths(object):
             )
             console_handler.setFormatter(console_formatter)
             logger.addHandler(console_handler)
+
+            ForMoSAPaths._logger_initialized = True  # Mark as initialized
             
-            self._logger = logger
-        
+        self._logger = logger
+        self._observation = Observation(self.observation_path, self.logger)
+        self._grid = ModelGrid(self.model_path, self.logger)
+
+        self._path_error = False
+
     ##################################################
     # Representation
     ##################################################
@@ -77,6 +88,10 @@ class ForMoSAPaths(object):
     ##################################################
     # Properties
     ##################################################
+    
+    @property 
+    def logger(self):
+        return self._logger
     
     @property  
     def config_file_path(self):
@@ -129,7 +144,16 @@ class ForMoSAPaths(object):
     @property  
     def path_error(self):
         return self._path_error
-
     
+    @property 
+    def observation(self):
+        return self._observation
+    
+    @property 
+    def grid(self):
+        return self._grid
         
+    
+  
+    
     

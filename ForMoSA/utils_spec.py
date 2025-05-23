@@ -170,6 +170,7 @@ def calc_ck(obs_dict_spectro, obs_dict_photo, flx_mod_spectro, flx_mod_photo, r_
         r_picked *= u.Rjup
         d_picked *= u.pc
         ck = alpha * (r_picked.to(u.m).value/d_picked.to(u.m).value)**2
+        ck_spectro, ck_photo = ck, ck
     # Calculation of the dilution factor ck analytically
     else:
         if len(obs_dict_spectro['wav']) != 0:
@@ -185,20 +186,20 @@ def calc_ck(obs_dict_spectro, obs_dict_photo, flx_mod_spectro, flx_mod_photo, r_
             ck_top_phot = 0
             ck_bot_phot = 0
 
-        ck = (ck_top_merge + ck_top_phot) / (ck_bot_merge + ck_bot_phot)
+        ck_spectro = ck_top_merge / ck_bot_merge 
+        ck_photo = ck_top_phot / ck_bot_phot
 
     # Re-normalization of the interpolated synthetic spectra with ck
     if len(obs_dict_spectro['wav']) != 0:
-        flx_mod_spectro_ck = flx_mod_spectro * ck
+        flx_mod_spectro_ck = flx_mod_spectro * ck_spectro
     else:
         flx_mod_spectro_ck = flx_mod_spectro
     if len(obs_dict_photo['wav']) != 0:
-        flx_mod_photo_ck = flx_mod_photo * ck
+        flx_mod_photo_ck = flx_mod_photo * ck_photo
     else:
         flx_mod_photo_ck = flx_mod_photo
 
-    return flx_mod_spectro_ck, flx_mod_photo_ck, ck
-
+    return flx_mod_spectro_ck, flx_mod_photo_ck, ck_spectro, ck_photo
 
 
 # ----------------------------------------------------------------------------------------------------------------------
