@@ -52,9 +52,9 @@ if __name__ == '__main__':
         y_n_par = sys.argv[2]
 
     if y_n_par == 'y':
-        launch_adapt(global_params, justobs='no')
+        launch_adapt(global_params, adapt_model=True)
     else:
-        launch_adapt(global_params, justobs='yes')
+        launch_adapt(global_params, adapt_model=False)
 
     print()
     print('- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -')

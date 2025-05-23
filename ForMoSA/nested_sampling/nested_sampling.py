@@ -98,10 +98,18 @@ def import_obsmod(global_params):
             else:
                 pass
 
-        # Cutting of the grid on the wavelength grid defined by the parameter 'wav_fit' and interpolating model resolution onto the data
+        # Interpolating model resolution onto the data + computing determinants (if necessary)
         if len(obs_dict['wav_spectro']) != 0:
             interp_mod_to_obs = interp1d(mod_dict['wav_spectro'], mod_dict['res_spectro'], fill_value='extrapolate') 
             mod_dict['res_spectro'] = interp_mod_to_obs(obs_dict['wav_spectro'])
+            if len(obs_dict['cov']) != 0:
+                obs_dict['log_det_spectro'] = np.log(np.linalg.det(obs_dict['cov']))
+            else:
+                obs_dict['log_det_spectro'] = np.log(np.dot(obs_dict['err_spectro'],obs_dict['err_spectro']))
+        if len(obs_dict['wav_photo']) != 0:
+            obs_dict['log_det_photo'] = np.log(np.dot(obs_dict['err_photo'],obs_dict['err_photo']))
+
+        # Cutting of the grid on the wavelength grid defined by the parameter 'wav_fit'
         if global_params.emulator[0] == 'NA':
             grid_spectro = grid_spectro.sel(wavelength=grid_spectro['wavelength'][mask_mod_spectro])
             grid_photo = grid_photo.sel(wavelength=grid_photo['wavelength'][mask_photo])
@@ -231,29 +239,40 @@ def loglike(theta, theta_index, global_params, main_file, for_plot='no'):
         obs_dict_modif = modif_spec_LL[0]
         flx_mod_spectro_modif, flx_mod_photo_modif = modif_spec_LL[1], modif_spec_LL[2]
  
+        # If you want to compute the full logL
+        logL_full = global_params.logL_full[indobs % len(global_params.logL_full)]
     
         # Computation of the photometry logL
         if len(obs_dict_modif['wav_photo']) != 0:
-            logL_photo = logL_chi2(obs_dict_modif['flx_photo']-flx_mod_photo_modif, obs_dict_modif['err_photo'])
+            if global_params.logL_type[indobs % len(global_params.logL_type)] == 'chi2':
+                logL_photo = logL_chi2(obs_dict_modif['flx_photo']-flx_mod_photo_modif, obs_dict_modif['err_photo'], obs_dict['log_det_photo'], full=logL_full)
+            elif global_params.logL_type[indobs % len(global_params.logL_type)] == 'chi2_noisescaling':
+                logL_photo = logL_chi2_noisescaling(obs_dict_modif['flx_photo']-flx_mod_photo_modif, obs_dict_modif['err_photo'], obs_dict['log_det_photo'], full=logL_full)
+            else:
+                print()
+                print('WARNING: One or more dataset are not included when performing the inversion.')
+                print('Please adapt your likelihood function choice.')
+                print()
+                exit()
         else:
             logL_photo = 0
 
         # Computation of the spectroscopy logL
         if len(obs_dict_modif['wav_spectro']) != 0:
             if global_params.logL_type[indobs % len(global_params.logL_type)] == 'chi2':
-                logL_spectro = logL_chi2(obs_dict_modif['flx_spectro']-flx_mod_spectro_modif, obs_dict_modif['err_spectro'])
+                logL_spectro = logL_chi2(obs_dict_modif['flx_spectro']-flx_mod_spectro_modif, obs_dict_modif['err_spectro'], obs_dict['log_det_spectro'], full=logL_full)
             elif global_params.logL_type[indobs % len(global_params.logL_type)] == 'chi2_covariance' and len(obs_dict_modif['inv_cov']) != 0:
-                logL_spectro = logL_chi2_covariance(obs_dict_modif['flx_spectro']-flx_mod_spectro_modif, obs_dict_modif['inv_cov'])
+                logL_spectro = logL_chi2_covariance(obs_dict_modif['flx_spectro']-flx_mod_spectro_modif, obs_dict_modif['inv_cov'], obs_dict['log_det_spectro'], full=logL_full)
+            elif global_params.logL_type[indobs % len(global_params.logL_type)] == 'chi2_noisescaling':
+                logL_spectro = logL_chi2_noisescaling(obs_dict_modif['flx_spectro']-flx_mod_spectro_modif, obs_dict_modif['err_spectro'], obs_dict['log_det_spectro'], full=logL_full)
+            elif global_params.logL_type[indobs % len(global_params.logL_type)] == 'chi2_noisescaling_covariance' and len(obs_dict_modif['inv_cov']) != 0:
+                logL_spectro = logL_chi2_noisescaling_covariance(obs_dict_modif['flx_spectro']-flx_mod_spectro_modif, obs_dict_modif['inv_cov'], obs_dict['log_det_spectro'], full=logL_full)
             elif global_params.logL_type[indobs % len(global_params.logL_type)] == 'CCF_Brogi':
                 logL_spectro = logL_CCF_Brogi(obs_dict_modif['flx_spectro'], flx_mod_spectro_modif)
             elif global_params.logL_type[indobs % len(global_params.logL_type)] == 'CCF_Zucker':
                 logL_spectro = logL_CCF_Zucker(obs_dict_modif['flx_spectro'], flx_mod_spectro_modif)
             elif global_params.logL_type[indobs % len(global_params.logL_type)] == 'CCF_custom':
                 logL_spectro = logL_CCF_custom(obs_dict_modif['flx_spectro'], flx_mod_spectro_modif, obs_dict_modif['err_spectro'])
-            elif global_params.logL_type[indobs % len(global_params.logL_type)] == 'chi2_noisescaling':
-                logL_spectro = logL_chi2_noisescaling(obs_dict_modif['flx_spectro']-flx_mod_spectro_modif, obs_dict_modif['err_spectro'])
-            elif global_params.logL_type[indobs % len(global_params.logL_type)] == 'chi2_noisescaling_covariance' and len(obs_dict_modif['inv_cov']) != 0:
-                logL_spectro = logL_chi2_noisescaling_covariance(obs_dict_modif['flx_spectro']-flx_mod_spectro_modif, obs_dict_modif['inv_cov'])
             else:
                 print()
                 print('WARNING: One or more dataset are not included when performing the inversion.')
@@ -894,7 +913,7 @@ def launch_nested_sampling(global_params):
 
 
 if __name__ == '__main__':
-    from ..global_file import GlobFile
+    from ForMoSA.global_file import GlobFile
 
     # USER configuration path
     print()

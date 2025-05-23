@@ -11,13 +11,13 @@ from ForMoSA.adapt.adapt_extraction_functions import adapt_observation
 # ----------------------------------------------------------------------------------------------------------------------
 
 
-def launch_adapt(global_params, justobs='no'):
+def launch_adapt(global_params, adapt_model=True):
     """
     Adapt the synthetic spectra of a grid to make them comparable with the data.
     
     Args:
         global_params  (object): Class containing each parameter
-        justobs    ('yes'/'no'): 'no' by default to also adapt the grid
+        adapt_model      (bool): True by default to also adapt the grid
     Returns:
         None
 
@@ -48,7 +48,7 @@ def launch_adapt(global_params, justobs='no'):
         obs_dict = adapt_observation(global_params, wav_mod_nativ, res_mod_nativ, obs_name, indobs=indobs)
 
         # Check-ups and warnings for negative values in the diagonal of the covariance matrix
-        if len(obs_dict['wav_spectro']) != 0 and any(np.diag(obs_dict['inv_cov']) < 0):
+        if len(obs_dict['wav_spectro']) != 0 and any(np.diag(obs_dict['cov']) < 0):
             print()
             print("WARNING: Negative value(s) is(are) present on the diagonal of the covariance matrix.") 
             print("Operation aborted.")
@@ -63,7 +63,7 @@ def launch_adapt(global_params, justobs='no'):
 
 
         # Adaptation of the model grid
-        if justobs == 'no':
+        if adapt_model == True:
             # Creation of the repertory to store the adapted grid (if needed)
             if os.path.isdir(global_params.adapt_store_path):
                 pass
@@ -113,7 +113,7 @@ def launch_adapt(global_params, justobs='no'):
 
 
 if __name__ == '__main__':
-    from ..global_file import GlobFile
+    from ForMoSA.global_file import GlobFile
 
     # USER configuration path
     print()
@@ -126,4 +126,4 @@ if __name__ == '__main__':
     # CONFIG_FILE reading and defining global parameters
     global_params = GlobFile(config_file_path)  # To access any param.: global_params.parameter_name
 
-    launch_adapt(global_params, 'no')
+    launch_adapt(global_params, True)

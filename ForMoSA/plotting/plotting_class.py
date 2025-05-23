@@ -27,7 +27,7 @@ class ComplexRadar():
     '''
     Class to create Radar plots with asymmetric error bars.
 
-    Author: Paulina Palma-Bifani
+    Author: Paulina Palma-Bifani, Matthieu Ravet, Allan Denis
             Adapted from Damian Cummins: https://github.com/DamianCummins/statsbomb-football-event-visualisations/blob/master/Statsbomb%20Womens%20World%20Cup%202019%20visualisation.ipynb
 
     '''
@@ -177,7 +177,7 @@ class PlottingForMoSA():
         Function to get the posteriors, including luminosity derivation and Bayesian evidence logz.
 
         Args:
-            None
+            burn_in     (int): Burn-in parameter to cut the convergence chain
         Returns:
             None
         '''
@@ -308,6 +308,303 @@ class PlottingForMoSA():
         self.posteriors_names = tot_list_param_title
 
 
+    def _get_outputs(self, theta):
+        '''
+        Function to get the data and best model asociated.
+
+        Args:
+            theta                   (list): best parameter values
+        Returns:
+            - modif_spec_LL  list(n-array): list containing the observational dictionary, model flux and their associated scalings
+                                        for the spectroscopy and photometry
+        '''
+
+        # Create a list for each outputs (obs and mod) for each observation + scaling factors
+        modif_spec_LL = []
+
+        for indobs, obs in enumerate(sorted(glob.glob(self.global_params.main_observation_path))):
+
+            # Recovery of the observational dictionnary
+            self.global_params.observation_path = obs
+            obs_name = os.path.splitext(os.path.basename(self.global_params.observation_path))[0]
+            obs_dict = np.load(os.path.join(self.global_params.result_path, f'spectrum_obs_{obs_name}.npz'), allow_pickle=True)
+
+
+            # Recovery of the spectroscopy and photometry model
+            path_grid_spectro = os.path.join(self.global_params.adapt_store_path, f'adapted_grid_spectro_{self.global_params.grid_name}_{obs_name}_nonan.nc')
+            ds_spectro = xr.open_dataset(path_grid_spectro, decode_cf=False, engine='netcdf4')
+            grid_spectro = ds_spectro['grid']
+            path_grid_photo = os.path.join(self.global_params.adapt_store_path, f'adapted_grid_photo_{self.global_params.grid_name}_{obs_name}_nonan.nc')
+            ds_photo = xr.open_dataset(path_grid_photo, decode_cf=False, engine='netcdf4')
+            grid_photo = ds_photo['grid']
+
+            # Emulator (if necessary)
+            if self.global_params.emulator[0] != 'NA':
+                # PCA or NMF
+                mod_dict = dict(np.load(os.path.join(self.global_params.result_path, f'{self.global_params.emulator[0]}_mod_{obs_name}.npz'), allow_pickle=True))
+            else:
+                # Standard method
+                mod_dict = {'wav_spectro': np.asarray(ds_spectro.coords['wavelength']), 'res_spectro': np.asarray(ds_spectro.attrs['res'])}
+            ds_spectro.close()
+            ds_photo.close()
+
+            # Interpolating the model resolution
+            if len(obs_dict['wav_spectro']) != 0:
+                interp_mod_to_obs = interp1d(mod_dict['wav_spectro'], mod_dict['res_spectro'], fill_value='extrapolate') # Interpolate model resolution onto the data
+                mod_dict['res_spectro'] = interp_mod_to_obs(obs_dict['wav_spectro'])
+
+            if self.global_params.par3[0] == 'NA':
+                if len(obs_dict['wav_spectro']) != 0:
+                    interp_spectro = np.asarray(grid_spectro.interp(par1=theta[0], par2=theta[1],
+                                                            method=self.global_params.method, kwargs={"fill_value": "extrapolate"}))
+                else:
+                    interp_spectro = np.asarray([])
+                if len(obs_dict['wav_photo']) != 0:
+                    interp_photo = np.asarray(grid_photo.interp(par1=theta[0], par2=theta[1],
+                                                            method=self.global_params.method, kwargs={"fill_value": "extrapolate"}))
+                else:
+                    interp_photo = np.asarray([])
+            elif self.global_params.par4[0] == 'NA':
+                if len(obs_dict['wav_spectro']) != 0:
+                    interp_spectro = np.asarray(grid_spectro.interp(par1=theta[0], par2=theta[1], par3=theta[2],
+                                                            method=self.global_params.method, kwargs={"fill_value": "extrapolate"}))
+                else:
+                    interp_spectro = np.asarray([])
+                if len(obs_dict['wav_photo']) != 0:
+                    interp_photo = np.asarray(grid_photo.interp(par1=theta[0], par2=theta[1], par3=theta[2],
+                                                            method=self.global_params.method, kwargs={"fill_value": "extrapolate"}))
+                else:
+                    interp_photo = np.asarray([])
+            elif self.global_params.par5[0] == 'NA':
+                if len(obs_dict['wav_spectro']) != 0:
+                    interp_spectro = np.asarray(grid_spectro.interp(par1=theta[0], par2=theta[1], par3=theta[2], par4=theta[3],
+                                                            method=self.global_params.method, kwargs={"fill_value": "extrapolate"}))
+                else:
+                    interp_spectro = np.asarray([])
+                if len(obs_dict['wav_photo']) != 0:
+                    interp_photo = np.asarray(grid_photo.interp(par1=theta[0], par2=theta[1], par3=theta[2], par4=theta[3],
+                                                            method=self.global_params.method, kwargs={"fill_value": "extrapolate"}))
+                else:
+                    interp_photo = np.asarray([])
+            else:
+                if len(obs_dict['wav_spectro']) != 0:
+                    interp_spectro = np.asarray(grid_spectro.interp(par1=theta[0], par2=theta[1], par3=theta[2], par4=theta[3],
+                                                            par5=theta[4],
+                                                            method=self.global_params.method, kwargs={"fill_value": "extrapolate"}))
+                else:
+                    interp_spectro = np.asarray([])
+                if len(obs_dict['wav_photo']) != 0:
+                    interp_photo = np.asarray(grid_photo.interp(par1=theta[0], par2=theta[1], par3=theta[2], par4=theta[3],
+                                                            par5=theta[4],
+                                                            method=self.global_params.method, kwargs={"fill_value": "extrapolate"}))
+                else:
+                    interp_photo = np.asarray([])
+
+            # Recreate the flux array
+            if self.global_params.emulator[0] != 'NA':
+                if self.global_params.emulator[0] == 'PCA':
+                    if len(mod_dict['vectors_spectro']) != 0:
+                        flx_mod_spectro = (mod_dict['flx_mean_spectro']+mod_dict['flx_std_spectro'] * (interp_spectro[1:] @ mod_dict['vectors_spectro'])) * interp_spectro[0][np.newaxis]
+                    else:
+                        flx_mod_spectro = np.asarray([])
+                    if len(mod_dict['vectors_photo']) != 0:
+                        flx_mod_photo = (mod_dict['flx_mean_photo']+mod_dict['flx_std_photo'] * (interp_photo[1:] @ mod_dict['vectors_photo'])) * interp_photo[0][np.newaxis]
+                    else:
+                        flx_mod_photo = np.asarray([])
+                elif self.global_params.emulator[0] == 'NMF':
+                    if len(mod_dict['vectors_spectro']) != 0:
+                        flx_mod_spectro = interp_spectro[:] @ mod_dict['vectors_spectro']
+                    else:
+                        flx_mod_spectro = np.asarray([])
+                    if len(mod_dict['vectors_photo']) != 0:
+                        flx_mod_photo = interp_photo[:] @ mod_dict['vectors_photo']
+                    else:
+                        flx_mod_photo = np.asarray([])
+            else:
+                flx_mod_spectro = interp_spectro
+                flx_mod_photo = interp_photo
+
+            # Modification of the synthetic spectrum with the extra-grid parameters
+            modif_spec_LL.append(modif_spec(self.global_params, theta, self.theta_index,
+                                      obs_dict, 
+                                      flx_mod_spectro, flx_mod_photo, 
+                                      mod_dict['wav_spectro'], mod_dict['res_spectro'],
+                                      indobs=indobs))
+
+        return modif_spec_LL
+
+
+    def _get_model_spectrum(self, theta, grid_used='original', wav_bounds=[], res=1000, re_interp=False, indobs=0):
+        '''
+        Extract a model spectrum from a grid at a given theta, resolution and wavelength extent.
+
+        Args:
+            theta                       (list): best parameter values
+            grid_used                    (str): (default = 'original') Path to the grid from where to extract the spectrum. If 'original', the current grid will be used.
+            wav_bounds                  (list): (default = []) Desired wavelength range. If [] max and min values of the model wavelength range will be use to create the final wavelength range.
+            res                          (int): (default = 1000) Spectral resolution (at Nyquist).
+            re_interp                (boolean): (default = False). Option to reinterpolate or not the grid.
+            int_method                   (str): (default = "linear") Interpolation method for the grid (if reinterpolated).
+        Returns:
+            - wav_final                (array): Wavelength array of the full model
+            - flx_final                (array): Flux array of the full model
+            - res_final                (float): Resolution array of the full model
+            - scale_spectro            (float): Spectroscopic flux scaling factor
+            - scale_photo              (float): Photometric flux scaling factor
+        '''
+
+        _, _, _, _, scale_spectro, scale_photo = self._get_outputs(theta)[indobs]
+        # WARNING : In case of multiple spectra, it is possible to work with different scaling factors. Here we only take the scaling factor of the first spectrum
+        #in the MOSAIC (used for the plot_fit)
+
+        # Recover the original grid
+        if grid_used == 'original':
+            path_grid = self.global_params.model_path
+        else:
+            path_grid = grid_used
+
+        # Recover the original grid
+        ds = xr.open_dataset(path_grid, decode_cf=False, engine="netcdf4")
+        N_para = len(ds.coords)-1
+        ds.close()
+
+        # Possibility of re-interpolating holes if the grid contains to much of them (WARNING: Very long process)
+        if re_interp == True:
+            print('-> The possible holes in the grid are (re)interpolated: ')
+            for key_ind, key in enumerate(ds.attrs['key']):
+                print(str(key_ind+1) + '/' + str(len(ds.attrs['key'])))
+                ds = ds.interpolate_na(dim=key, method=self.global_params.method, fill_value="extrapolate", limit=None,
+                                            max_gap=None)
+
+        # Get grid
+        grid = ds['grid']
+        wav_mod_nativ = np.asarray(ds['wavelength'])
+        res_mod_nativ = ds.attrs['res']
+        # Interpolate the grid
+        interp_kwargs = {f"par{k+1}": theta[k] for k in range(N_para)}
+        flx_mod_nativ = np.array(grid.interp(**interp_kwargs, method=self.global_params.method, kwargs={"fill_value": "extrapolate"})) # shape: (variables, pressure)
+
+        # Cut the spectrum
+        if len(wav_bounds) == 0:
+            pass
+        else:
+            flx_mod_nativ = flx_mod_nativ[(wav_bounds[0] < wav_mod_nativ) & (wav_mod_nativ < wav_bounds[1])]
+            res_mod_nativ = res_mod_nativ[(wav_bounds[0] < wav_mod_nativ) & (wav_mod_nativ < wav_bounds[1])]
+            wav_mod_nativ = wav_mod_nativ[(wav_bounds[0] < wav_mod_nativ) & (wav_mod_nativ < wav_bounds[1])]
+
+        # Prepare output wavelengths
+        wav_mod = [wav_bounds[0]]  # Start with the minimum wavelength
+        dwav = [0]
+        while wav_mod[-1] < wav_bounds[1]:
+            dwav_unit = wav_mod[-1] / (2 * res)  # Compute spacing (Nyquist sampling)
+            dwav.append(dwav_unit)
+            wav_mod.append(wav_mod[-1] + dwav_unit)
+        wav_mod = np.array(wav_mod)[(wav_mod_nativ[0] < wav_mod) * (wav_mod < wav_mod_nativ[-1])] # Make sure you don't extrapolate
+        res_mod = np.full(len(wav_mod), res) # Create the resolution array
+        
+        # Interpolate the resolution array
+        interp_func = interp1d(wav_mod_nativ, res_mod_nativ, kind='linear', fill_value='extrapolate')
+        res_mod_nativ = interp_func(wav_mod)
+
+        # Decrease the resolution
+        flx_mod = resolution_decreasing(wav_input=wav_mod_nativ,
+                                        flx_input=flx_mod_nativ,
+                                        res_input=res_mod_nativ,
+                                        wav_output=wav_mod,
+                                        res_output=res_mod
+                                        )
+
+        return wav_mod, flx_mod, res_mod, scale_spectro, scale_photo
+    
+
+    def _get_PT_chem(self, theta, path_grid):
+        '''
+        Function to plot the Pressure-Temperature profiles and associated vmr/molecular profiles.
+
+        Args:
+            theta               (list): best parameter values
+            path_grid            (str): path to the PT grid in xarray format
+        Returns:
+            - PT_chem           (dict): Dictionary containing the pressure, temperature and chemical arrays
+            - photosphere       (dict): Dictionary containing the P/T profile of the photosphere
+        '''
+
+        ds = xr.open_dataset(path_grid, decode_cf=False, engine='netcdf4')
+        var_names = list(ds.data_vars.keys())  # Save original keys
+        P = ds.coords['pressure']
+
+        # Prepare storage per variable
+        best_fit_vars = {var: [] for var in var_names}
+
+        for j in tqdm(range(len(self.samples)), desc=f"Interpolating grid", unit="sample"):
+            sample = self.samples[j]
+            interp_kwargs = {f"par{k+1}": sample[k] for k in range(len(ds.coords)-1)}
+            interp = ds.interp(**interp_kwargs, method=self.global_params.method, kwargs={"fill_value": "extrapolate"}).to_array()
+            
+            for v_idx, var in enumerate(var_names):
+                best_fit_vars[var].append(interp[v_idx].values)
+        ds.close()
+
+        # Convert lists to arrays and compute percentiles
+        PT_chem = {}
+        PT_chem["pressure"] = P.values
+
+        for var in var_names:
+            grid = np.array(best_fit_vars[var])
+            PT_chem[var + '_q2'] = np.percentile(grid, 2, axis=0)
+            PT_chem[var + '_q16'] = np.percentile(grid, 16, axis=0)
+            PT_chem[var + '_q50'] = np.percentile(grid, 50, axis=0)
+            PT_chem[var + '_q84'] = np.percentile(grid, 84, axis=0)
+            PT_chem[var + '_q98'] = np.percentile(grid, 98, axis=0)
+
+        # - - - - 
+
+        # Extract spectrum for photosphere estimation
+        ds = xr.open_dataset(self.global_params.model_path, decode_cf=False, engine='netcdf4')
+        grid = ds['grid']
+        wav = grid["wavelength"].values
+        interp_kwargs = {f"par{k+1}": theta[k] for k in range(len(ds.coords)-1)}
+        flx = np.array(grid.interp(**interp_kwargs, method=self.global_params.method, kwargs={"fill_value": "extrapolate"}))
+        ds.close()
+
+        # Photosphere range (in µm) and conversion
+        photosphere_wav = np.asarray([0, 10])
+        mask = (wav > photosphere_wav[0]) & (wav < photosphere_wav[1])
+        wav = wav[mask] * 1e-6  # m
+        flx = flx[mask] * 1e6   # W/m²/m
+
+        # Compute brightness temperatures
+        brightness_temperature = np.zeros_like(wav)
+        for j in range(len(wav)):
+            brightness_temperature[j] = (
+                cst.h.value * cst.c.value / (cst.k_B.value * wav[j]) /
+                np.log(1 + (2 * cst.h.value * cst.c.value ** 2) /
+                        (wav[j] ** 5 * (flx[j] / np.pi)))
+            )
+
+        brightness_temperature = brightness_temperature[np.isfinite(brightness_temperature)]
+        T_min = brightness_temperature.min()
+        T_max = brightness_temperature.max()
+
+        # Match to thermal profile
+        P, T = PT_chem["pressure"], PT_chem["temperature_q50"] # Taking the 'best' profile as reference
+        mask = (T >= T_min) & (T <= T_max)
+
+        # Store photosphere info
+        photosphere = {
+            "pressure": P[mask],
+            "temperature": T[mask],
+            "brightness_temperature_range": [T_min, T_max]
+        }
+
+    
+        return PT_chem, photosphere
+
+
+    # - - - - - - - -
+
+
+
     def plot_corner(self, levels_sig=[0.997, 0.95, 0.68], bins=100, quantiles=(0.16, 0.5, 0.84), figsize=(15,15)):
         '''
         Function to display the corner plot
@@ -427,238 +724,6 @@ class PlottingForMoSA():
         return fig, radar.ax
 
 
-    def _get_spectra(self, theta):
-        '''
-        Function to get the data and best model asociated.
-
-        Args:
-            theta                   (list): best parameter values
-        Returns:
-            - modif_spec_LL  list(n-array): list containing the spectroscopic wavelength, spectroscopic fluxes of the data,
-                                            spectroscopic errors of the data, spectroscopic fluxes of the model,
-                                            photometric wavelength, photometric fluxes of the data, photometric errors of the data,
-                                            spectroscopic fluxes of the model,
-                                            planet transmission, star fluxes, systematics and scaling factors
-        '''
-
-        # Create a list for each spectra (obs and mod) for each observation + scaling factors
-        modif_spec_LL = []
-
-        for indobs, obs in enumerate(sorted(glob.glob(self.global_params.main_observation_path))):
-
-            # Recovery of the observational dictionnary
-            self.global_params.observation_path = obs
-            obs_name = os.path.splitext(os.path.basename(self.global_params.observation_path))[0]
-            obs_dict = np.load(os.path.join(self.global_params.result_path, f'spectrum_obs_{obs_name}.npz'), allow_pickle=True)
-
-
-            # Recovery of the spectroscopy and photometry model
-            path_grid_spectro = os.path.join(self.global_params.adapt_store_path, f'adapted_grid_spectro_{self.global_params.grid_name}_{obs_name}_nonan.nc')
-            ds_spectro = xr.open_dataset(path_grid_spectro, decode_cf=False, engine='netcdf4')
-            grid_spectro = ds_spectro['grid']
-            path_grid_photo = os.path.join(self.global_params.adapt_store_path, f'adapted_grid_photo_{self.global_params.grid_name}_{obs_name}_nonan.nc')
-            ds_photo = xr.open_dataset(path_grid_photo, decode_cf=False, engine='netcdf4')
-            grid_photo = ds_photo['grid']
-
-            # Emulator (if necessary)
-            if self.global_params.emulator[0] != 'NA':
-                # PCA or NMF
-                mod_dict = dict(np.load(os.path.join(self.global_params.result_path, f'{self.global_params.emulator[0]}_mod_{obs_name}.npz'), allow_pickle=True))
-            else:
-                # Standard method
-                mod_dict = {'wav_spectro': np.asarray(ds_spectro.coords['wavelength']), 'res_spectro': np.asarray(ds_spectro.attrs['res'])}
-            ds_spectro.close()
-            ds_photo.close()
-
-            # Interpolating the model resolution
-            if len(obs_dict['wav_spectro']) != 0:
-                interp_mod_to_obs = interp1d(mod_dict['wav_spectro'], mod_dict['res_spectro'], fill_value='extrapolate') # Interpolate model resolution onto the data
-                mod_dict['res_spectro'] = interp_mod_to_obs(obs_dict['wav_spectro'])
-
-            if self.global_params.par3[0] == 'NA':
-                if len(obs_dict['wav_spectro']) != 0:
-                    interp_spectro = np.asarray(grid_spectro.interp(par1=theta[0], par2=theta[1],
-                                                            method=self.global_params.method, kwargs={"fill_value": "extrapolate"}))
-                else:
-                    interp_spectro = np.asarray([])
-                if len(obs_dict['wav_photo']) != 0:
-                    interp_photo = np.asarray(grid_photo.interp(par1=theta[0], par2=theta[1],
-                                                            method=self.global_params.method, kwargs={"fill_value": "extrapolate"}))
-                else:
-                    interp_photo = np.asarray([])
-            elif self.global_params.par4[0] == 'NA':
-                if len(obs_dict['wav_spectro']) != 0:
-                    interp_spectro = np.asarray(grid_spectro.interp(par1=theta[0], par2=theta[1], par3=theta[2],
-                                                            method=self.global_params.method, kwargs={"fill_value": "extrapolate"}))
-                else:
-                    interp_spectro = np.asarray([])
-                if len(obs_dict['wav_photo']) != 0:
-                    interp_photo = np.asarray(grid_photo.interp(par1=theta[0], par2=theta[1], par3=theta[2],
-                                                            method=self.global_params.method, kwargs={"fill_value": "extrapolate"}))
-                else:
-                    interp_photo = np.asarray([])
-            elif self.global_params.par5[0] == 'NA':
-                if len(obs_dict['wav_spectro']) != 0:
-                    interp_spectro = np.asarray(grid_spectro.interp(par1=theta[0], par2=theta[1], par3=theta[2], par4=theta[3],
-                                                            method=self.global_params.method, kwargs={"fill_value": "extrapolate"}))
-                else:
-                    interp_spectro = np.asarray([])
-                if len(obs_dict['wav_photo']) != 0:
-                    interp_photo = np.asarray(grid_photo.interp(par1=theta[0], par2=theta[1], par3=theta[2], par4=theta[3],
-                                                            method=self.global_params.method, kwargs={"fill_value": "extrapolate"}))
-                else:
-                    interp_photo = np.asarray([])
-            else:
-                if len(obs_dict['wav_spectro']) != 0:
-                    interp_spectro = np.asarray(grid_spectro.interp(par1=theta[0], par2=theta[1], par3=theta[2], par4=theta[3],
-                                                            par5=theta[4],
-                                                            method=self.global_params.method, kwargs={"fill_value": "extrapolate"}))
-                else:
-                    interp_spectro = np.asarray([])
-                if len(obs_dict['wav_photo']) != 0:
-                    interp_photo = np.asarray(grid_photo.interp(par1=theta[0], par2=theta[1], par3=theta[2], par4=theta[3],
-                                                            par5=theta[4],
-                                                            method=self.global_params.method, kwargs={"fill_value": "extrapolate"}))
-                else:
-                    interp_photo = np.asarray([])
-
-            # Recreate the flux array
-            if self.global_params.emulator[0] != 'NA':
-                if self.global_params.emulator[0] == 'PCA':
-                    if len(mod_dict['vectors_spectro']) != 0:
-                        flx_mod_spectro = (mod_dict['flx_mean_spectro']+mod_dict['flx_std_spectro'] * (interp_spectro[1:] @ mod_dict['vectors_spectro'])) * interp_spectro[0][np.newaxis]
-                    else:
-                        flx_mod_spectro = np.asarray([])
-                    if len(mod_dict['vectors_photo']) != 0:
-                        flx_mod_photo = (mod_dict['flx_mean_photo']+mod_dict['flx_std_photo'] * (interp_photo[1:] @ mod_dict['vectors_photo'])) * interp_photo[0][np.newaxis]
-                    else:
-                        flx_mod_photo = np.asarray([])
-                elif self.global_params.emulator[0] == 'NMF':
-                    if len(mod_dict['vectors_spectro']) != 0:
-                        flx_mod_spectro = interp_spectro[:] @ mod_dict['vectors_spectro']
-                    else:
-                        flx_mod_spectro = np.asarray([])
-                    if len(mod_dict['vectors_photo']) != 0:
-                        flx_mod_photo = interp_photo[:] @ mod_dict['vectors_photo']
-                    else:
-                        flx_mod_photo = np.asarray([])
-            else:
-                flx_mod_spectro = interp_spectro
-                flx_mod_photo = interp_photo
-
-            # Modification of the synthetic spectrum with the extra-grid parameters
-            modif_spec_LL.append(modif_spec(self.global_params, theta, self.theta_index,
-                                      obs_dict, 
-                                      flx_mod_spectro, flx_mod_photo, 
-                                      mod_dict['wav_spectro'], mod_dict['res_spectro'],
-                                      indobs=indobs))
-
-        return modif_spec_LL
-
-
-    def _get_full_spectra(self, theta, grid_used='original', wav_bounds=[], res=1000, re_interp=False, int_method="linear", indobs=0):
-        '''
-        Extract a model spectrum from a grid at a given theta, resolution and wavelength extent.
-
-        Args:
-            theta                       (list): best parameter values
-            grid_used                    (str): (default = 'original') Path to the grid from where to extract the spectrum. If 'original', the current grid will be used.
-            wav_bounds                  (list): (default = []) Desired wavelength range. If [] max and min values of the model wavelength range will be use to create the final wavelength range.
-            res                          (int): (default = 1000) Spectral resolution (at Nyquist).
-            re_interp                (boolean): (default = False). Option to reinterpolate or not the grid.
-            int_method                   (str): (default = "linear") Interpolation method for the grid (if reinterpolated).
-        Returns:
-            - wav_final                (array): Wavelength array of the full model
-            - flx_final                (array): Flux array of the full model
-            - ck                       (float): Scaling factor of the full model
-        '''
-
-        obs_dict, _, _, _, _, ck = self._get_spectra(theta)[indobs]
-        # WARNING : In case of multiple spectra, it is possible to work with different scaling factors. Here we only take the scaling factor of the first spectrum
-        #in the MOSAIC (used for the plot_fit)
-
-        # Recover the original grid
-        if grid_used == 'original':
-            path_grid = self.global_params.model_path
-        else:
-            path_grid = grid_used
-
-        # Recover the original grid
-        ds = xr.open_dataset(path_grid, decode_cf=False, engine="netcdf4")
-
-        # Possibility of re-interpolating holes if the grid contains to much of them (WARNING: Very long process)
-        if re_interp == True:
-            print('-> The possible holes in the grid are (re)interpolated: ')
-            for key_ind, key in enumerate(ds.attrs['key']):
-                print(str(key_ind+1) + '/' + str(len(ds.attrs['key'])))
-                ds = ds.interpolate_na(dim=key, method=self.global_params.method, fill_value="extrapolate", limit=None,
-                                            max_gap=None)
-
-        wav_mod_nativ = ds["wavelength"].values
-        res_mod_nativ = np.asarray(ds.attrs['res'])
-        grid = ds['grid']
-        # Interpolating grid's resolution
-        interp_mod_to_obs = interp1d(wav_mod_nativ, res_mod_nativ, fill_value='extrapolate') # Interpolate model resolution onto the data
-        res_mod_obs_nativ = interp_mod_to_obs(obs_dict['wav_spectro'])
-        ds.close()
-
-        if self.global_params.par3[0] == 'NA':
-            flx_mod_nativ = grid.interp(par1=theta[0], par2=theta[1],method=int_method, kwargs={"fill_value": "extrapolate"})
-        elif self.global_params.par4[0] == 'NA':
-            flx_mod_nativ = grid.interp(par1=theta[0], par2=theta[1], par3=theta[2],method=int_method, kwargs={"fill_value": "extrapolate"})
-        elif self.global_params.par5[0] == 'NA':
-            flx_mod_nativ = grid.interp(par1=theta[0], par2=theta[1], par3=theta[2], par4=theta[3],method=int_method, kwargs={"fill_value": "extrapolate"})
-        else:
-            flx_mod_nativ = grid.interp(par1=theta[0], par2=theta[1], par3=theta[2], par4=theta[3],par5=theta[4],method=int_method, kwargs={"fill_value": "extrapolate"})
-
-        # Convert everything into array
-        wav_mod_nativ = np.asarray(wav_mod_nativ, dtype=float)
-        flx_mod_nativ = np.asarray(flx_mod_nativ, dtype=float)
-
-        # Apply theta modifications
-        modif_spec_LL = modif_spec(self.global_params, theta, self.theta_index,
-                                      obs_dict, 
-                                      flx_mod_nativ, [], 
-                                      wav_mod_nativ, res_mod_obs_nativ,
-                                      indobs=indobs)
-        
-        # Get back the modified model flux to compute the logL
-        flx_mod_modif = modif_spec_LL[3]
-
-        # Check that the imputed resolution is lower than the grid's, otherwise will use the grid resolution
-        if res > np.min(res_mod_nativ):
-            res = np.min(res_mod_nativ)
-            print(f"WARNING: The requested resolution is too high for this grid (Rgrid = {np.round(np.min(res_mod_nativ), 2)})")
-            print('replacing it...')
-            print()
-
-        # Decrease the resolution (simple smoothing)
-        dwav = np.abs(obs_dict['wav_spectro'] - np.roll(obs_dict['wav_spectro'], 1))
-        dwav[0] = dwav[1]
-        sigma_lsf = 1. / res / (2. * np.sqrt(2. * np.log(2.)))
-        sigma_lsf_gauss_filter = np.mean(sigma_lsf / dwav)
-        flx_mod_modif = gaussian_filter(flx_mod_modif,
-                                    sigma=sigma_lsf_gauss_filter,
-                                    mode='nearest')
-
-        # Resample the final spectrum
-        if len(wav_bounds) == 0:
-            wav_bounds = [min(wav_mod_nativ), max(wav_mod_nativ)]
-        wav_final = [wav_bounds[0]]  # Start with the minimum wavelength
-        dwav = [0]
-        while wav_final[-1] < wav_bounds[1]:
-            dwav_unit = wav_final[-1] / (2 * res)  # Compute spacing (Nyquist sampling)
-            dwav.append(dwav_unit)
-            wav_final.append(wav_final[-1] + dwav_unit)
-        wav_final = np.array(wav_final)[(wav_mod_nativ[0] < wav_final) * (wav_final < wav_mod_nativ[-1])] # Make sure you don't extrapolate
-
-        # Interpolate
-        inter_func = interp1d(wav_mod_nativ, flx_mod_modif, fill_value='extrapolate')
-        flx_final = inter_func(wav_final)
-
-        return wav_final, flx_final, ck
-
-
 
     def plot_fit(self, figsize=(13, 7), uncert='no', trans='no', logx='no', logy='no', norm='no'):
         '''
@@ -695,20 +760,20 @@ class PlottingForMoSA():
         # Iterate on each obs
         for indobs, obs in enumerate(sorted(glob.glob(self.global_params.main_observation_path))):
             # Get back spectra
-            obs_dict, flx_mod_spectro, flx_mod_photo, _, _, ck = self._get_spectra(self.theta_best)[indobs]
+            obs_dict, flx_mod_spectro, flx_mod_photo, _, scale_spectro, scale_photo = self._get_outputs(self.theta_best)[indobs]
 
             # Scale or not in absolute flux
             if norm != 'yes':
-                ck = 1
+                scale_spectro, scale_photo = 1, 1
 
             # Spectroscopic part
             if len(obs_dict['wav_spectro']) != 0:
                 iobs_spectro += 1
                 iobs_photo += 1
                 if uncert=='yes':
-                    ax.errorbar(obs_dict['wav_spectro'], obs_dict['flx_spectro']/ck, yerr=obs_dict['err_spectro']/ck, c='k', alpha=0.2)
-                ax.plot(obs_dict['wav_spectro'], obs_dict['flx_spectro']/ck, c='k')
-                ax.plot(obs_dict['wav_spectro'], flx_mod_spectro/ck, c=self.color_out, alpha=0.8)
+                    ax.errorbar(obs_dict['wav_spectro'], obs_dict['flx_spectro']/scale_spectro, yerr=obs_dict['err_spectro']/scale_spectro, c='k', alpha=0.2)
+                ax.plot(obs_dict['wav_spectro'], obs_dict['flx_spectro']/scale_spectro, c='k')
+                ax.plot(obs_dict['wav_spectro'], flx_mod_spectro/scale_spectro, c=self.color_out, alpha=0.8)
                     
                 # Residuals
                 residuals = obs_dict['flx_spectro'] - flx_mod_spectro
@@ -736,13 +801,13 @@ class PlottingForMoSA():
                         path_list = __file__.split("/")[:-2]
                         separator = '/'
                         filter_pho = np.load(separator.join(path_list) + '/phototeque/' + pho + '.npz')
-                        ax.fill_between(filter_pho['x_filt'], filter_pho['y_filt']*0.8*min(obs_dict['flx_photo']/ck),color=self.color_out, alpha=0.3)
-                        ax.text(np.mean(filter_pho['x_filt']), np.mean(filter_pho['y_filt']*0.4*min(obs_dict['flx_photo']/ck)), pho, horizontalalignment='center', c='gray')
+                        ax.fill_between(filter_pho['x_filt'], filter_pho['y_filt']*0.8*min(obs_dict['flx_photo']/scale_photo),color=self.color_out, alpha=0.3)
+                        ax.text(np.mean(filter_pho['x_filt']), np.mean(filter_pho['y_filt']*0.4*min(obs_dict['flx_photo']/scale_photo)), pho, horizontalalignment='center', c='gray')
 
                 if uncert=='yes':
-                    ax.errorbar(obs_dict['wav_photo'], obs_dict['flx_photo']/ck, yerr=obs_dict['err_photo']/ck, c='k', fmt='o', alpha=0.7)    
-                ax.plot(obs_dict['wav_photo'], obs_dict['flx_photo']/ck, 'ko', alpha=0.7)
-                ax.plot(obs_dict['wav_photo'], flx_mod_photo/ck, 'o', color=self.color_out)
+                    ax.errorbar(obs_dict['wav_photo'], obs_dict['flx_photo']/scale_photo, yerr=obs_dict['err_photo']/scale_photo, c='k', fmt='o', alpha=0.7)    
+                ax.plot(obs_dict['wav_photo'], obs_dict['flx_photo']/scale_photo, 'ko', alpha=0.7)
+                ax.plot(obs_dict['wav_photo'], flx_mod_photo/scale_photo, 'o', color=self.color_out)
 
                 # Residuals
                 residuals_phot = obs_dict['flx_photo'] - flx_mod_photo
@@ -799,7 +864,7 @@ class PlottingForMoSA():
 
 
         # Get back spectra
-        obs_dict, flx_mod_spectro, _, _, _, _ = self._get_spectra(self.theta_best)[indobs]
+        obs_dict, flx_mod_spectro, _, _, _, _ = self._get_outputs(self.theta_best)[indobs]
 
         # Prepare plot
         fig1, ax1 = plt.subplots(1, 1, figsize = figsize)
@@ -932,7 +997,7 @@ class PlottingForMoSA():
         # This saves some time by avoiding the repetition of this set of operations at each v.sini of the v.sini grid in the rv_vsini_map function
         if not(map_rv_vsini):
             # In this case, we extract the obs
-            obs_dict, _, _, _, _, _ = self._get_spectra(self.theta_best)[indobs]
+            obs_dict, _, _, _, _, _ = self._get_outputs(self.theta_best)[indobs]
             wav_obs, flx_obs, star_flx_obs, system_obs, res_obs, transm_obs = obs_dict['wav_spectro'], obs_dict['flx_spectro'], obs_dict['star_flx'], obs_dict['system'], obs_dict['res_spectro'], obs_dict['transm']
 
             # Retrieve data to cross correlate the model with
@@ -961,7 +1026,7 @@ class PlottingForMoSA():
             ds = xr.open_dataset(self.global_params.model_path, decode_cf=False, engine="netcdf4")
             wav_mod_nativ = ds["wavelength"].values
             res_mod_nativ = np.asarray(ds.attrs['res'])
-            _, _, _, flx_mod_nativ, _, _ = self._get_spectra(self.theta_best)[indobs]
+            _, _, _, flx_mod_nativ, _, _ = self._get_outputs(self.theta_best)[indobs]
             
             # This condition arrises if the user does not use the rv_vsini_map function AND does not want to apply a specific vsini to the template
             # in that case, we use the best v.sini infered by the nested sampling
@@ -1088,7 +1153,7 @@ class PlottingForMoSA():
         logL_map = np.empty((len(vsini_grid), int((rv_grid[1] - rv_grid[0]) / rv_step)))
         
         # First step, we retrieve the star and systematics contaminations associated to the best model (if any)
-        obs_dict, _, _, _, _, _ = self._get_spectra(self.theta_best)[indobs]
+        obs_dict, _, _, _, _, _ = self._get_outputs(self.theta_best)[indobs]
         wav_obs, flx_obs, star_flx_obs, system_obs, res_obs, transm_obs = obs_dict['wav_spectro'], obs_dict['flx_spectro'], obs_dict['star_flx'], obs_dict['system'], obs_dict['res_spectro'], obs_dict['transm']
 
         # Retrieve data to cross correlate the model with
@@ -1118,7 +1183,7 @@ class PlottingForMoSA():
             ds = xr.open_dataset(self.global_params.model_path, decode_cf=False, engine="netcdf4")
             wav_mod_nativ = ds["wavelength"].values
             res_mod_nativ = np.asarray(ds.attrs['res'])
-            _, _, _, flx_mod_nativ, _, _ = self._get_spectra(self.theta_best)[indobs]
+            _, _, _, flx_mod_nativ, _, _ = self._get_outputs(self.theta_best)[indobs]
         else:
             pass
         
@@ -1148,384 +1213,59 @@ class PlottingForMoSA():
         cbar.set_label("logL", fontsize=22, labelpad=10)
         
         return logL_map, fig, ax
-            
 
 
-    def plot_PT(self, path_temp_profile, figsize=(6,5), model = 'ExoREM', emission_contribution = False):
+    def plot_PT_chem(self, PT_chem, photosphere={}, par_to_plot=['temperature'], figsize=(10,5)):
         '''
-        Function to plot the Pressure-Temperature profiles.
-        Adpated from Nathan Zimniak.
+        Function to plot the Pressure-Temperature profiles and associated vmr/molecular profiles.
 
         Args:
-            path_temp_profile    (str): Path to the temperature profile grid
-            figsize            (tuple): (default = (6, 5)) Size of the plot
-            model                (str): (default = 'ExoREM') Name of the model grid
+            PT_chem               (dict): Dictionary containing the pressure, temperature and chemical arrays
+            photosphere           (dict): Dictionary containing the P/T profile of the photosphere
+            par_to_plot      (list(str)): Key list of the parameters from the PT_chem you want to plot 
         Returns:
-            - fig  (object) : matplotlib figure object
-            - ax   (object) : matplotlib axes objects
+            - fig               (object): matplotlib figure object
+            - ax                (object): matplotlib axes objects
+            - ax_twin           (object): matplotlib axes objects
         '''
         print('ForMoSA - Pressure-Temperature profile')
 
-        samples = self.posterior_to_plot
-        weights = self.weights
+        # Initialize plot
+        fig, ax = plt.subplots(1,1, figsize=figsize)
+        ax_twin = ax.twiny()
 
-        # put nans where data is not realistic
-        out=[]
-        for i in range(0, len(samples)):
-            if samples[i][0] < 400 or samples[i][0] > 2000:
-                out.append(i)
-            elif samples[i][1] < 3.00 or samples[i][1] > 5.00:
-                out.append(i)
-            elif 10**samples[i][2] < 0.32 or 10**samples[i][2] > 10.00:
-                out.append(i)
-            elif samples[i][3] < 0.10 or samples[i][3] > 0.80:
-                out.append(i)
-        for i in out:
-            samples[i] = np.nan
-        samples = samples[~np.isnan(samples).any(axis=1)]
-        #Crée une liste pour chaque paramètre
-        Teffs, loggs, MHs, COs = [], [], [], []
-        if model == 'ATMO':
-            gammas = []
-        for i in range(0, len(samples)):
-            Teffs.append(samples[i][0])
-            loggs.append(samples[i][1])
-            if model == 'ExoREM':
-                MHs.append(10**(samples[i][2]))
-                COs.append(samples[i][3])
-            if model == 'ATMO':
-                MHs.append(samples[i][2])
-                COs.append(samples[i][4])
-                gammas.append(samples[i][3])
+        # Iterate on each parameter
+        for i_par, par in enumerate(par_to_plot):
 
-        #Charge la grille de profils de température
-        temperature_grid_xa = xr.open_dataarray(path_temp_profile, decode_cf=False, engine='netcdf4')
-        temperature_grid_xa = temperature_grid_xa.where(~np.isnan(temperature_grid_xa))
-        #Crée les profils de température associés aux points de la grille
-        P = temperature_grid_xa.coords['P'].values
-        P *= 1e-5
-        temperature_profiles = np.full((len(samples), len(P)), np.nan)
-        for i in range(0, len(samples)):
-            if model == 'ExoREM':
-                temperature_profiles[i][:] = np.asarray(temperature_grid_xa.interp(Teff=Teffs[i], logg=loggs[i], MH=MHs[i], CO=COs[i], kwargs={'fill_value':'extrapolate'}))#, kwargs={'fill_value':'extrapolate'})
-            elif model == 'ATMO':
-                temperature_profiles[i][:] = temperature_grid_xa.interp(Teff=Teffs[i], logg=loggs[i], MH=MHs[i], CO=COs[i], gamma=gammas[i])#, kwargs={'fill_value':'extrapolate'})
-        if model == 'ATMO':
-            #Calcule le 2eme facteur de robustesse (pour ATMO)
-            nbNans = [0]*len(P)
-            for i in range(0, len(temperature_profiles[0,:])):
-                for j in range(0, len(temperature_profiles[:,0])):
-                    if str(temperature_profiles[j,i]) == "nan":
-                        nbNans[i] = nbNans[i]+1
-            FdR2 = (len(samples)-np.array(nbNans))/len(samples)
-            FdR1 = temperature_grid_xa.attrs['Facteur de robustesse 1']
-            FdR = FdR1*FdR2
-            #Extrapole les températures
-            for i in range(0, len(samples)):
-                newT = xr.DataArray(list(temperature_profiles[i][:]), [('pressure', list(np.array(P)))])
-                newT = newT.interpolate_na(dim = 'pressure', method='linear', fill_value='extrapolate')
-                temperature_profiles[i][:] = list(newT)
-        #Calcule le profil le plus probable
-        Tfit = []
-        for i in range(0, len(P)):
-            Tfit.append(np.nanpercentile(temperature_profiles[:,i], 50))
-        #Calcule les percentiles 68 et 96 du profil le plus probable
-        Tinf68, Tsup68, Tinf95, Tsup95 = [], [], [], []
-        for i in range(0, len(P)):
-            indices = np.argsort(temperature_profiles[:,i])
-            sorted_temperatures_profiles = temperature_profiles[indices,i]
-            sorted_weights = weights[indices]
-            cumweights = np.cumsum(sorted_weights)
-            Tinf68.append(np.interp(16/100, cumweights, sorted_temperatures_profiles))
-            Tsup68.append(np.interp(54/100, cumweights, sorted_temperatures_profiles))
-            Tinf95.append(np.interp(2/100, cumweights, sorted_temperatures_profiles))
-            Tsup95.append(np.interp(98/100, cumweights, sorted_temperatures_profiles))
-        #Plot le profil le plus probable et les percentiles associés
-        
-        if emission_contribution == True:
-            
-            for indobs, obs in enumerate(sorted(glob.glob(self.global_params.main_observation_path))):
-                
-                spectra, ck = self._get_spectra(self.theta_best)
-                wav_obs_spectro, res_obs_spectro, wav_mod_nativ, flx_mod_nativ, res_mod_obs = spectra[indobs][0]*1e-6, spectra[indobs][11], spectra[indobs][13]*1e-6, spectra[indobs][14]*1e6, spectra[indobs][15]
-                flx_mod_spectro = resolution_decreasing(self.global_params, wav_obs_spectro, [], res_obs_spectro, wav_mod_nativ, flx_mod_nativ, res_mod_obs, 'mod', indobs)
-                
-                h = cst.h.value      # Planck constant (J·s)
-                c = cst.c.value      # Speed light (m/s)
-                k_B = cst.k_B.value  # Boltzmann constant (J/K)
-    
-                term1 = (2 * h * (c)**2) / (wav_obs_spectro**5 * flx_mod_spectro)
-                brightness_temperature = (h * c) / (wav_obs_spectro * k_B) * 1 / np.log(term1 + 1)
-            
-                pressure = interp1d(Tfit, P)
-                pressure_level = pressure(brightness_temperature)
-                # for b_T in brightness_temperature:
-                #     idx = np.argmin(np.abs(Tfit - b_T))
-                #     pressure_level.append(P[idx])
-        
-        fig = plt.figure(figsize=figsize)
-        ax = plt.axes()
-        ax.fill_betweenx(P, Tinf95, Tsup95, color=self.color_out, alpha=0.1, label=r'2 $\sigma$')
-        ax.fill_betweenx(P, Tinf68, Tsup68, color=self.color_out, alpha=0.2, label=r'1 $\sigma$')
-        ax.plot(Tfit, P, c=self.color_out, label='Best fit')
-        
-        ax.plot()
-        ax.set_yscale('log')
-        ax.invert_yaxis()
-        ax.set_xlim(left=0)
-        ax.set_ylim([max(P), min(P)])
-        
-        x_fill = [ax.get_xticks()[0], ax.get_xticks()[-1]]
-        ax.fill_between(x_fill, min(pressure_level), max(pressure_level), facecolor='lightblue', alpha=0.7, label='main contribution')
+            # Temperature
+            if par == 'temperature':
+                ax.plot(PT_chem["temperature_q50"], PT_chem["pressure"], color=self.color_out, label='Best-fit')
+                ax.fill_betweenx(PT_chem["pressure"], PT_chem["temperature_q16"], PT_chem["temperature_q84"], color=self.color_out, alpha=0.1, label=r'2 $\sigma$')
+                ax.fill_betweenx(PT_chem["pressure"], PT_chem["temperature_q2"], PT_chem["temperature_q98"], color=self.color_out, alpha=0.2, label=r'1 $\sigma$')
+            else:
+                ax_twin.plot(PT_chem[par + '_q50'], PT_chem["pressure"], label=par)
+
+        # Add photosphere if necessary
+        if len(photosphere) != 0:
+            ax.plot(photosphere["temperature"], photosphere["pressure"], color='red', label='photosphere')
+
+        # Plot the legend
+
+        # First ax
         ax.set_xlabel('Temperature (K)')
-        ax.set_ylabel('Pressure (bars)')
-        ax.legend(frameon=False)
-        
-        return fig, ax
-    
-    
-    def plot_vmr(self, path_vmr, molecule, figsize=(6,5), model = 'ExoREM', fig=None, ax=None):
-        '''
-        Function to plot the vmr profiles of a molecule.
-        Adpated from Nathan Zimniak.
-
-        Args:
-            path_vmr    (str): Path to the temperature profile grid
-            molecule    (str): name of the molecule
-            figsize     (tuple): (default = (6, 5)) Size of the plot
-            model       (str): (default = 'ExoREM') Name of the model grid
-            fig         (object): (default = None) matplotlib figure object   
-            ax          (object): (default = None) matplotlib figure object
-        Returns:
-            - fig  (object) : matplotlib figure object
-            - ax   (object) : matplotlib axes objects
-        '''
-        print('ForMoSA - Volume Mixing Ratio profile -', molecule)
-
-        samples = self.posterior_to_plot
-
-        # put nans where data is not realistic
-        out=[]
-        for i in range(0, len(samples)):
-            if samples[i][0] < 400 or samples[i][0] > 2000:
-                out.append(i)
-            elif samples[i][1] < 3.00 or samples[i][1] > 5.00:
-                out.append(i)
-            elif 10**samples[i][2] < 0.32 or 10**samples[i][2] > 10.00:
-                out.append(i)
-            elif samples[i][3] < 0.10 or samples[i][3] > 0.80:
-                out.append(i)
-        for i in out:
-            samples[i] = np.nan
-        samples = samples[~np.isnan(samples).any(axis=1)]
-        #Crée une liste pour chaque paramètre
-        Teffs, loggs, MHs, COs = [], [], [], []
-        if model == 'ATMO':
-            gammas = []
-        for i in range(0, len(samples)):
-            Teffs.append(samples[i][0])
-            loggs.append(samples[i][1])
-            if model == 'ExoREM':
-                MHs.append(10**(samples[i][2]))
-                COs.append(samples[i][3])
-            if model == 'ATMO':
-                MHs.append(samples[i][2])
-                COs.append(samples[i][4])
-                gammas.append(samples[i][3])
-
-        #Charge la grille de profils de température
-        vmr_grid_xa = xr.open_dataarray(path_vmr)
-        #Crée les profils de température associés aux points de la grille
-        P = vmr_grid_xa.coords['P']
-        vmr_profiles = np.full((len(samples), len(P)), np.nan)
-        for i in range(0, len(samples)):
-            if model == 'ExoREM':
-                vmr_profiles[i][:] = vmr_grid_xa.interp(Teff=Teffs[i], logg=loggs[i], MH=MHs[i], CO=COs[i])#, kwargs={'fill_value':'extrapolate'})
-            elif model == 'ATMO':
-                vmr_profiles[i][:] = vmr_grid_xa.interp(Teff=Teffs[i], logg=loggs[i], MH=MHs[i], CO=COs[i], gamma=gammas[i])#, kwargs={'fill_value':'extrapolate'})
-        if model == 'ATMO':
-            #Calcule le 2eme facteur de robustesse (pour ATMO)
-            nbNans = [0]*len(P)
-            for i in range(0, len(vmr_profiles[0,:])):
-                for j in range(0, len(vmr_profiles[:,0])):
-                    if str(vmr_profiles[j,i]) == "nan":
-                        nbNans[i] = nbNans[i]+1
-            FdR2 = (len(samples)-np.array(nbNans))/len(samples)
-            FdR1 = vmr_grid_xa.attrs['Facteur de robustesse 1']
-            FdR = FdR1*FdR2
-            #Extrapole les températures
-            for i in range(0, len(samples)):
-                newT = xr.DataArray(list(vmr_profiles[i][:]), [('pressure', list(np.array(P)))])
-                newT = newT.interpolate_na(dim = 'pressure', method='linear', fill_value='extrapolate')
-                vmr_profiles[i][:] = list(newT)
-        #Calcule le profil le plus probable
-        vmrfit = []
-        for i in range(0, len(P)):
-            vmrfit.append(np.nanpercentile(vmr_profiles[:,i], 50))
-        #Calcule les percentiles 68 et 96 du profil le plus probable
-        vmrinf68, vmrsup68, vmrinf95, vmrsup95 = [], [], [], []
-        for i in range(0, len(P)):
-            vmrinf68.append(np.nanpercentile(vmr_profiles[:,i], 16))
-            vmrsup68.append(np.nanpercentile(vmr_profiles[:,i], 84))
-            vmrinf95.append(np.nanpercentile(vmr_profiles[:,i], 2))
-            vmrsup95.append(np.nanpercentile(vmr_profiles[:,i], 98))
-        #Plot le profil le plus probable et les percentiles associés
-        
-        if fig == None:
-            fig = plt.figure(figsize=figsize)
-            ax = plt.axes()
-            
-        ax.plot(vmrfit, P, label=molecule)
-        ax.set_yscale('log'), ax.set_xscale('log')
-        ax.invert_yaxis()
-        ax.set_ylim([max(P), min(P)])
-        ax.set_xlabel('Volume mixing ratio')
-        ax.set_ylabel('Pressure (Pa)')
-        ax.legend(frameon=False)
-
-        return fig, ax
-
-
-    def plot_Clouds(self, cloud_prop, path_cloud_profile, figsize=(6,5)):
-        '''
-        Function to plot cloud profiles.
-        Adapted from Nathan Zimniak
-
-        Args:
-            cloud_prop (str) : Choose the cloud species. The options are
-                                ['eddy_diffusion_coefficient',
-                                'vmr_CH4',
-                                'vmr_CO',
-                                'vmr_CO2',
-                                'vmr_FeH',
-                                'vmr_H2O',
-                                'vmr_H2S',
-                                'vmr_HCN',
-                                'vmr_K',
-                                'vmr_Na',
-                                'vmr_NH3',
-                                'vmr_PH3',
-                                'vmr_TiO',
-                                'vmr_VO',
-                                'cloud_opacity_Fe',
-                                'cloud_opacity_Mg2SiO4',
-                                'cloud_particle_radius_Fe',
-                                'cloud_particle_radius_Mg2SiO4',
-                                'cloud_vmr_Fe',
-                                'cloud_vmr_Mg2SiO4']
-        Returns:
-            - fig  (object) : matplotlib figure object
-            - ax   (object) : matplotlib axes objects
-        '''
-        print('ForMoSA - Cloud profile')
-
-        samples = self.posterior_to_plot
-        weights = self.weights
-
-        #Supprime les points hors de la grille
-        out=[]
-        for i in range(0, len(samples)):
-            if samples[i][0] < 400 or samples[i][0] > 2000:
-                out.append(i)
-            elif samples[i][1] < 3.00 or samples[i][1] > 5.00:
-                out.append(i)
-            elif 10**samples[i][2] < 0.32 or 10**samples[i][2] > 10.00:
-                out.append(i)
-            elif samples[i][3] < 0.10 or samples[i][3] > 0.80:
-                out.append(i)
-        for i in out:
-            samples[i] = np.nan
-        samples = samples[~np.isnan(samples).any(axis=1)]
-        #Crée une liste pour chaque paramètre
-        Teffs, loggs, MHs, COs = [], [], [], []
-        for i in range(0, len(samples)):
-            Teffs.append(samples[i][0])
-            loggs.append(samples[i][1])
-            MHs.append(10**(samples[i][2]))
-            COs.append(samples[i][3])
-        #Charge la grille de profils d'une propriété d'un nuage
-        cloud_prop_grid_xa = xr.open_dataarray(path_cloud_profile)
-        #Crée les profils d'une propriété d'un nuage associés aux points de la grille
-        P = cloud_prop_grid_xa.coords['P'] * 1e-5
-        cloud_prop_profiles = np.full((len(samples), len(P)), np.nan)
-        for i in range(0, len(samples)):
-            cloud_prop_profiles[i][:] = cloud_prop_grid_xa.interp(Teff=Teffs[i], logg=loggs[i], MH=MHs[i], CO=COs[i])#, kwargs={'fill_value':'extrapolate'})
-        # Calcule le profil le plus probable
-        propfit = []
-        for i in range(0, len(P)):
-            propfit.append(np.nanpercentile(cloud_prop_profiles[:, i], 50))
-        # Calcule les percentiles 68 et 96 du profil le plus probable
-        propinf68, propsup68, propinf95, propsup95 = [], [], [], []
-        for i in range(0, len(P)):
-            indices = np.argsort(cloud_prop_profiles[:,i])
-            sorted_cloud_prop_profiles = cloud_prop_profiles[indices,i]
-            sorted_weights = weights[indices]
-            cumweights = np.cumsum(sorted_weights)
-            propinf68.append(np.interp(16/100, cumweights, sorted_cloud_prop_profiles))
-            propsup68.append(np.interp(54/100, cumweights, sorted_cloud_prop_profiles))
-            propinf95.append(np.interp(2/100, cumweights, sorted_cloud_prop_profiles))
-            propsup95.append(np.interp(98/100, cumweights, sorted_cloud_prop_profiles))
-
-        # Plot le profil le plus probable et les percentiles associés
-        fig = plt.figure(figsize=figsize)
-        ax = plt.axes()
-
-        ax.fill_betweenx(P, propinf95, propsup95, color=self.color_out, alpha=0.1, label=r'2 $\sigma$')
-        ax.fill_betweenx(P, propinf68, propsup68, color=self.color_out, alpha=0.2, label=r'1 $\sigma$')
-        ax.plot(propfit, P, color=self.color_out, label='Best fit')
-
+        ax.set_ylabel('Pressure (bar)')
         ax.set_yscale('log')
-        ax.invert_yaxis()
-        ax.set_xlim(left=0)
-        ax.set_ylim([max(P), min(P)])
-        ax.minorticks_on()
-        if cloud_prop == 'T':
-            ax.set_xlabel('Temperature (K)')
-        elif cloud_prop == 'eddy_diffusion_coefficient':
-            ax.set_xlabel('Eddy diffusion coefficient ($m^2.s^{-1}$)')
-        elif cloud_prop == 'vmr_CH4':
-            ax.set_xlabel('$CH_4$ volume mixing ratio')
-        elif cloud_prop == 'vmr_CO':
-            ax.set_xlabel('CO volume mixing ratio')
-        elif cloud_prop == 'vmr_CO2':
-            ax.set_xlabel('$CO_2$ volume mixing ratio')
-        elif cloud_prop == 'vmr_FeH':
-            ax.set_xlabel('FeH volume mixing ratio')
-        elif cloud_prop == 'vmr_H2O':
-            ax.set_xlabel('$H_2O$ volume mixing ratio')
-        elif cloud_prop == 'vmr_H2S':
-            ax.set_xlabel('$H_2S$ volume mixing ratio')
-        elif cloud_prop == 'vmr_HCN':
-            ax.set_xlabel('HCN volume mixing ratio')
-        elif cloud_prop == 'vmr_K':
-            ax.set_xlabel('K volume mixing ratio')
-        elif cloud_prop == 'vmr_Na':
-            ax.set_xlabel('Na volume mixing ratio')
-        elif cloud_prop == 'vmr_NH3':
-            ax.set_xlabel('$NH_3$ volume mixing ratio')
-        elif cloud_prop == 'vmr_PH3':
-            ax.set_xlabel('$PH_3$ volume mixing ratio')
-        elif cloud_prop == 'vmr_TiO':
-            ax.set_xlabel('TiO volume mixing ratio')
-        elif cloud_prop == 'vmr_VO':
-            ax.set_xlabel('VO volume mixing ratio')
-        elif cloud_prop == 'cloud_opacity_Fe':
-            ax.set_xlabel('Fe cloud opacity')
-        elif cloud_prop == 'cloud_opacity_Mg2SiO4':
-            ax.set_xlabel('$Mg_2SiO_4$ cloud opacity')
-        elif cloud_prop == 'cloud_particle_radius_Fe':
-            ax.set_xlabel('Fe cloud particle radius (m)')
-        elif cloud_prop == 'cloud_particle_radius_Mg2SiO4':
-            ax.set_xlabel('$Mg_2SiO_4$ cloud particle radius (m)')
-        elif cloud_prop == 'cloud_vmr_Fe':
-            ax.set_xlabel('Fe cloud volume mixing ratio')
-        elif cloud_prop == 'cloud_vmr_Mg2SiO4':
-            ax.set_xlabel('$Mg_2SiO_4$ cloud volume mixing ratio')
-        ax.set_ylabel('Pressure (bars)')
+        ax.tick_params(axis='both', which='both')
 
-        ax.legend(frameon=False)
+        # Second ax
+        ax_twin.set_xlabel('abundance/vmr')
+        ax_twin.set_xscale('log')
 
-        return fig, ax
+        # ask matplotlib for the plotted objects and their labels
+        lines, labels = ax.get_legend_handles_labels()
+        lines2, labels2 = ax_twin.get_legend_handles_labels()
+        ax_twin.legend(lines + lines2, labels + labels2)
+        ax_twin.tick_params(axis='both', which='both')
 
-
+        return fig, ax, ax_twin
 

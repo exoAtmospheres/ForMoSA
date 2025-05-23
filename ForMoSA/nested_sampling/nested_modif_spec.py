@@ -30,7 +30,8 @@ def modif_spec(global_params, theta, theta_index,
         - flx_mod_photo              (array): New flux of the interpolated synthetic spectrum (photometry)
         - flx_mod_spectro_nativ      (array): New flux of the interpolated synthetic spectrum NOT RESAMPLED (spectroscopy)
         - contributions              (array): Contributions from the high-contrast model
-        - ck                         (float): Scaling factor
+        - scale_spectro              (float): Spectroscopic flux scaling factor
+        - scale_photo                (float): Photometric flux scaling factor
  
 
     Author: Simon Petrus, Paulina Palma-Bifani, Allan Denis and Matthieu Ravet
@@ -185,9 +186,9 @@ def modif_spec(global_params, theta, theta_index,
     # High contrast model
     if global_params.hc_type[indobs % len(global_params.hc_type)] != "NA":
         # Least Squares inversion
-        contributions, flx_mod_spectro = hc_model(global_params, obs_dict, flx_mod_spectro)    
+        _, flx_mod_spectro = hc_model(global_params, obs_dict, flx_mod_spectro)    
     else:
-        contributions = np.asarray([])
+        pass
 
 
 
@@ -195,9 +196,15 @@ def modif_spec(global_params, theta, theta_index,
 
 
 
-    # Calculation of the dilution factor Ck and re-normalization of the interpolated synthetic spectrum.
+    # Calculation of the flux scaling factor
 
     if global_params.hc_type[indobs % len(global_params.hc_type)] == "NA": # hc already rescale everything
+
+        # If you need to use the covariance matrix in you estimation of your scaling factor
+        if global_params.logL_type[indobs % len(global_params.logL_type)] == 'chi2_covariance' and len(obs_dict['inv_cov']) != 0:
+            use_cov = True
+        else:
+            use_cov = False
 
         # From the radius and the distance.
         if global_params.r[0] != "NA" and global_params.d[0] != "NA":
@@ -220,12 +227,12 @@ def modif_spec(global_params, theta, theta_index,
                     else:
                         ind_theta_alpha = np.where(theta_index == f'alpha_{indobs}')
                         alpha_picked = theta[ind_theta_alpha[0][0]]
-                    flx_mod_spectro, flx_mod_photo, ck = calc_ck(obs_dict, flx_mod_spectro, flx_mod_photo, r_picked, d_picked, alpha=alpha_picked)
+                    flx_mod_spectro, flx_mod_photo, scale_spectro, scale_photo = calc_flx_scale(obs_dict, flx_mod_spectro, flx_mod_photo, r_picked, d_picked, alpha=alpha_picked, mode='physical', use_cov=use_cov)
                 # - - - - - - 
                 # SPECIAL CASE FOR MOSAIC WHEN YOU DONT FIT R AND D FOR ONE OF THE OBS BUT STILL WANTS TO FIT IT FOR THE OTHERS !!
                 # - - - - - - 
                 else:
-                    flx_mod_spectro, flx_mod_photo, ck = calc_ck(obs_dict, flx_mod_spectro, flx_mod_photo, 0, 0, alpha=0, analytic='yes')
+                    flx_mod_spectro, flx_mod_photo, scale_spectro, scale_photo = calc_flx_scale(obs_dict, flx_mod_spectro, flx_mod_photo, 0, 0, alpha=0, mode='analytic', use_cov=use_cov)
             else: # If you want 1 common alpha for all observations
                 if global_params.alpha[0] != "NA":
                     if global_params.alpha[0] == "constant":
@@ -233,14 +240,14 @@ def modif_spec(global_params, theta, theta_index,
                     else:
                         ind_theta_alpha = np.where(theta_index == 'alpha')
                         alpha_picked = theta[ind_theta_alpha[0][0]]
-                    flx_mod_spectro, flx_mod_photo, ck = calc_ck(obs_dict, flx_mod_spectro, flx_mod_photo, r_picked, d_picked, alpha=alpha_picked)
+                    flx_mod_spectro, flx_mod_photo, scale_spectro, scale_photo = calc_flx_scale(obs_dict, flx_mod_spectro, flx_mod_photo, r_picked, d_picked, alpha=alpha_picked, mode='physical', use_cov=use_cov)
                 else: # Without the extra alpha scaling
-                    flx_mod_spectro, flx_mod_photo, ck = calc_ck(obs_dict, flx_mod_spectro, flx_mod_photo, r_picked, d_picked)
+                    flx_mod_spectro, flx_mod_photo, scale_spectro, scale_photo = calc_flx_scale(obs_dict, flx_mod_spectro, flx_mod_photo, r_picked, d_picked, mode='physical', use_cov=use_cov)
 
         # Analytically
         elif global_params.r[0] == "NA" and global_params.d[0] == "NA":
             # If we compute ck analytically, the resolution decreasing is already included in the function
-            flx_mod_spectro, flx_mod_photo, ck = calc_ck(obs_dict, flx_mod_spectro, flx_mod_photo, 0, 0, alpha=0, analytic='yes')
+            flx_mod_spectro, flx_mod_photo, scale_spectro, scale_photo = calc_flx_scale(obs_dict, flx_mod_spectro, flx_mod_photo, 0, 0, alpha=0, mode='analytic', use_cov=use_cov)
 
 
         else:   # either global_params.r or global_params.d is set to 'NA'
@@ -248,14 +255,13 @@ def modif_spec(global_params, theta, theta_index,
             exit()
             
     else:     
-        ck = 1
-
+        scale_spectro, scale_photo = 1, 1
 
     # ----------------------------------------------------------------------------------------------------------------------
 
 
     # Outputs
-    return obs_dict, flx_mod_spectro, flx_mod_photo, flx_mod_spectro_nativ, contributions, ck
+    return obs_dict, flx_mod_spectro, flx_mod_photo, flx_mod_spectro_nativ, scale_spectro, scale_photo
 
 
 

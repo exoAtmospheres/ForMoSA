@@ -75,6 +75,12 @@ def adapt_observation(global_params, wav_mod_nativ, res_mod_nativ, obs_name, ind
         
         # Since the resolution of the observation might have change, we need to save the new one
         obs_dict['res_spectro'] = target_res_obs
+
+        # Compute the inverse covariance and log-determinant (if necessary)
+        if len(obs_dict['cov']) != 0:
+            obs_dict['inv_cov'] = np.linalg.inv(obs_dict['cov']) # Save the inverse covariance to speed up the inversion
+        else:
+            pass
         
         # If we want to estimate and substract the continuum of the data:
         if global_params.res_cont[indobs % len(global_params.res_cont)] != 'NA':
@@ -192,10 +198,7 @@ def extract_observation(global_params, indobs=0):
         ins = ins[nan_mod_ind]
         err = err[nan_mod_ind]
         if len(cov) != 0:
-            cov = np.transpose(np.transpose(cov[nan_mod_ind])[nan_mod_ind])
-            inv_cov = np.linalg.inv(cov) # Save only the inverse covariance to speed up the inversion
-        else:
-            inv_cov = np.asarray([])
+            cov = cov[np.ix_(nan_mod_ind, nan_mod_ind)]
         if len(transm) != 0 and len(star_flx) != 0:
             transm = transm[nan_mod_ind]
         if len(star_flx) != 0:
@@ -203,20 +206,36 @@ def extract_observation(global_params, indobs=0):
         if len(system) != 0:
             system = np.delete(system, np.where(~nan_mod_ind), axis=0)
 
+
         # - - - - - - - - - 
 
         # Separate photometry from spectroscopy
         mask_photo = (res == 0.0)
+        wav_photo, wav_spectro = wav[mask_photo], wav[~mask_photo]
+        flx_photo, flx_spectro = flx[mask_photo], flx[~mask_photo]
+        ins_photo, res_spectro = ins[mask_photo], res[~mask_photo]
+        err_phot, err_spectro = err[mask_photo], err[~mask_photo]
+        if len(cov) != 0:
+            cov = cov[np.ix_(~mask_photo, ~mask_photo)]
+        if len(transm) != 0 and len(star_flx) != 0:
+            transm = transm[~mask_photo]
+        if len(star_flx) != 0:
+            star_flx = np.delete(star_flx, np.where(mask_photo), axis=0)
+        if len(system) != 0:
+            system = np.delete(system, np.where(mask_photo), axis=0)
+
+        # - - - - - - - - - 
+
         # Observation dictionary
-        obs_dict = {'wav_photo': wav[mask_photo], # Photometry part
-                    'flx_photo': flx[mask_photo],
-                    'err_photo': err[mask_photo],
-                    'ins_photo': ins[mask_photo],
-                    'wav_spectro': wav[~mask_photo], # Spectroscopy part
-                    'flx_spectro': flx[~mask_photo],
-                    'err_spectro': err[~mask_photo],
-                    'res_spectro': res[~mask_photo],
-                    'inv_cov': inv_cov, # Optional part
+        obs_dict = {'wav_photo': wav_photo, # Photometry part
+                    'flx_photo': flx_photo,
+                    'err_photo': err_phot,
+                    'ins_photo': ins_photo,
+                    'wav_spectro': wav_spectro, # Spectroscopy part
+                    'flx_spectro': flx_spectro,
+                    'err_spectro': err_spectro,
+                    'res_spectro': res_spectro,
+                    'cov': cov,
                     'transm': transm,
                     'star_flx': star_flx,
                     'system': system

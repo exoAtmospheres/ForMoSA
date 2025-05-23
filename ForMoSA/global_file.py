@@ -92,6 +92,7 @@ class GlobFile:
 
         # [config_inversion] (4)
         self.logL_type = get_config_value(self.config, 'config_inversion', 'logL_type', 'chi2', N_obs, list)
+        self.logL_full = get_config_value(self.config, 'config_inversion', 'logL_full', False, N_obs, list)
         self.wav_fit = get_config_value(self.config, 'config_inversion', 'wav_fit', '0,100', N_obs, list)
         self.ns_algo = get_config_value(self.config, 'config_inversion', 'ns_algo', 'nestle', 0, None)
         self.npoint = get_config_value(self.config, 'config_inversion', 'npoint', '100', 0, eval)
@@ -219,6 +220,9 @@ class GlobFile:
         config['config_inversion'].comments['logL_type'] = ['# Method to calculate the loglikelihood function used in the nested sampling procedure.', 
                                                             "# Format : 'chi2' or 'chi2_covariance' or 'chi2_noisescaling' or 'chi2_noisescaling_covariance' or 'CCF_Brogi'",
                                                             "# or 'CCF_Zucker' or 'CCF_custom'",
+                                                            "# MOSAIC : Yes"]
+        config['config_inversion'].comments['logL_full'] = ['', '# If you want to use the constant terms in the computation of your loglikelihood.', 
+                                                            "# Format : True or False",
                                                             "# MOSAIC : Yes"]
         config['config_inversion'].comments['wav_fit'] = ['', '# Wavelength range(s) used during the nested sampling procedure.', 
                                                           "# Format : 'window1_min / window1_max, window2_min / ... / windowN_max'",

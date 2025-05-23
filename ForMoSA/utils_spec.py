@@ -151,10 +151,9 @@ def continuum_estimate(wav_input, flx_input, res_input, wav_cont_bounds, res_con
 
 
 
-def calc_ck(obs_dict, flx_mod_spectro, flx_mod_photo, r_picked, d_picked, alpha=1, analytic='no'):
+def calc_flx_scale(obs_dict, flx_mod_spectro, flx_mod_photo, r_picked, d_picked, alpha=1, mode='physical', use_cov=False):
     """
-    Calculation of the dilution factor Ck and re-normalization of the interpolated synthetic spectrum (from the radius
-    and distance or analytically).
+    Calculation of the flux scaling factor (from the radius and distance or analytically).
 
     Args:
         obs_dict                (dict): Dictionay containing all the observationnal entries (photometry, spectroscopy and/or optional)
@@ -163,47 +162,40 @@ def calc_ck(obs_dict, flx_mod_spectro, flx_mod_photo, r_picked, d_picked, alpha=
         r_picked               (float): Radius randomly picked by the nested sampling (in RJup)
         d_picked               (float): Distance randomly picked by the nested sampling (in pc)
         alpha                  (float): Manual scaling factor (set to 1 by default) such that ck = alpha * (r/d)²
-        analytic                 (str): = 'yes' if Ck needs to be calculated analytically by the formula from Cushing et al. (2008)
+        mode                     (str): = 'physical' if the scaling needs to be calulated with r and d
+                                        = 'analytic' if the scaling needs to be calculated analytically by the formula from Cushing et al. (2008)
+        use_cov                 (bool): True or False if you want to use or not the full covariance matrix (formula from De Regt et al. (2025))
     Returns:
-        - flx_mod_spectro_ck   (array): Re-normalysed model spectrum
-        - flx_mod_photo_ck     (array): Re-normalysed model photometry
-        - ck                   (float): Ck calculated
+        - scale_spectro        (float): Flux scaling factor of the spectroscopy
+        - scale_photo          (float): Flus scaling factor of the photometry
 
     Author: Simon Petrus 
     """
-    # Calculation of the dilution factor ck as a function of the radius and distance
-    if analytic == 'no':
+    # Calculation of the dilution factor as a function of the radius and distance
+    if mode == 'physical':
         r_picked *= u.Rjup
         d_picked *= u.pc
-        ck = alpha * (r_picked.to(u.m).value/d_picked.to(u.m).value)**2
-    # Calculation of the dilution factor ck analytically
-    else:
+        scale_spectro  = alpha * (r_picked.to(u.m).value/d_picked.to(u.m).value)**2
+        scale_photo = scale_spectro
+    # Calculation of the dilution factor analytically
+    elif mode == 'analytic':
         if len(obs_dict['wav_spectro']) != 0:
-            ck_top_merge = np.sum((flx_mod_spectro * obs_dict['flx_spectro']) / (obs_dict['err_spectro'] * obs_dict['err_spectro']))
-            ck_bot_merge = np.sum((flx_mod_spectro / obs_dict['err_spectro'])**2)
+            if use_cov == True:
+                inv_cov_m = obs_dict['inv_cov'] @ flx_mod_spectro
+                inv_cov_d = obs_dict['inv_cov'] @ obs_dict['flx_spectro']
+                scale_spectro = (flx_mod_spectro @ inv_cov_d) / (flx_mod_spectro @ inv_cov_m)
+            else:
+                scale_spectro = np.sum((flx_mod_spectro * obs_dict['flx_spectro']) / (obs_dict['err_spectro'] * obs_dict['err_spectro'])) / np.sum((flx_mod_spectro / obs_dict['err_spectro'])**2)
         else:
-            ck_top_merge = 0
-            ck_bot_merge = 0
+            scale_spectro = 1
         if len(obs_dict['wav_photo']) != 0:
-            ck_top_phot = np.sum((flx_mod_photo * obs_dict['flx_photo']) / (obs_dict['err_photo'] * obs_dict['err_photo']))
-            ck_bot_phot = np.sum((flx_mod_photo / obs_dict['err_photo'])**2)
+            scale_photo = np.sum((flx_mod_photo * obs_dict['flx_photo']) / (obs_dict['err_photo'] * obs_dict['err_photo'])) / np.sum((flx_mod_photo / obs_dict['err_photo'])**2)
         else:
-            ck_top_phot = 0
-            ck_bot_phot = 0
-
-        ck = (ck_top_merge + ck_top_phot) / (ck_bot_merge + ck_bot_phot)
-
-    # Re-normalization of the interpolated synthetic spectra with ck
-    if len(obs_dict['wav_spectro']) != 0:
-        flx_mod_spectro_ck = flx_mod_spectro * ck
+            scale_photo = 1
     else:
-        flx_mod_spectro_ck = flx_mod_spectro
-    if len(obs_dict['wav_photo']) != 0:
-        flx_mod_photo_ck = flx_mod_photo * ck
-    else:
-        flx_mod_photo_ck = flx_mod_photo
+        raise Exception(f'Mode {mode} unrecognize. It needs to be either "analytic" or "physical".')
 
-    return flx_mod_spectro_ck, flx_mod_photo_ck, ck
+    return scale_spectro*flx_mod_spectro, scale_photo*flx_mod_photo, scale_spectro, scale_photo
 
 
 
