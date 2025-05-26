@@ -299,7 +299,6 @@ class Analysis(object):
         param_best_values = self.ns.param_best_dict
         modif_data = self.ns.modif_data
         best_model = self.ns.best_model
-        plotting_params = self.config_params['plottings']
         
         self.ns.plotting._plot_corner(results, param_names)
         self.ns.plotting._plot_chains(results, param_names, param_best_values)
