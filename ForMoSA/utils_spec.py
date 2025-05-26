@@ -96,13 +96,13 @@ def continuum_estimate(wav_input, flx_input, res_input, wav_cont_bounds, res_con
     the wavelength grid of the data.
 
     Args:
-        wav_input            (array): Wavelength grid of the spectrum for which you want to estimate the continuum
-        flx_input            (array): Flux of the spectrum for which you want to estimate the continuum
-        res_input            (array): Spectral resolution of the spectrum for which you want to estimate the continuum
-        wav_cont_bounds      (array): Wavelength bounds where you want to estimate the continuum
-        res_cont               (int): Approximate resolution of the continuum
+        wav_input        (np.ndarray): Wavelength grid of the spectrum for which you want to estimate the continuum
+        flx_input        (np.ndarray): Flux of the spectrum for which you want to estimate the continuum
+        res_input        (np.ndarray): Spectral resolution of the spectrum for which you want to estimate the continuum
+        wav_cont_bounds  (np.ndarray): Wavelength bounds where you want to estimate the continuum
+        res_cont                (int): Approximate resolution of the continuum
     Returns:
-        - continuum    (array): Estimated continuum of the spectrum re-sampled on the data wavelength grid
+        - continuum    (np.ndarray): Estimated continuum of the spectrum re-sampled on the data wavelength grid
 
     Author: Simon Petrus, Matthieu Ravet
 
@@ -111,7 +111,7 @@ def continuum_estimate(wav_input, flx_input, res_input, wav_cont_bounds, res_con
     # Initialize
     flx_cont = np.asarray([])
     wav_cont = np.asarray([])
-    # Redifined a spectrum only composed by the wavelength ranges used to estimate the continuum
+    # Redifine a spectrum only composed by the wavelength ranges used to estimate the continuum
     for _, wav_cont_cut in enumerate(wav_cont_bounds.split('/')):
         wav_cont_cut = wav_cont_cut.split(',')
         ind_cont_cut = np.where((float(wav_cont_cut[0]) <= wav_input) & (wav_input <= float(wav_cont_cut[1])))
@@ -176,18 +176,19 @@ def calc_ck(obs_dict_spectro, obs_dict_photo, flx_mod_spectro, flx_mod_photo, r_
         if len(obs_dict_spectro['wav']) != 0:
             ck_top_merge = np.sum((flx_mod_spectro * obs_dict_spectro['flx']) / (obs_dict_spectro['err'] * obs_dict_spectro['err']))
             ck_bot_merge = np.sum((flx_mod_spectro / obs_dict_spectro['err'])**2)
+            ck_spectro = ck_top_merge / ck_bot_merge 
         else:
             ck_top_merge = 0
             ck_bot_merge = 0
+            ck_spectro = 1
         if len(obs_dict_photo['wav']) != 0:
             ck_top_phot = np.sum((flx_mod_photo * obs_dict_photo['flx']) / (obs_dict_photo['err'] * obs_dict_photo['err']))
             ck_bot_phot = np.sum((flx_mod_photo / obs_dict_photo['err'])**2)
+            ck_photo = ck_top_phot / ck_bot_phot
         else:
             ck_top_phot = 0
             ck_bot_phot = 0
-
-        ck_spectro = ck_top_merge / ck_bot_merge 
-        ck_photo = ck_top_phot / ck_bot_phot
+            ck_photo = 1
 
     # Re-normalization of the interpolated synthetic spectra with ck
     if len(obs_dict_spectro['wav']) != 0:

@@ -270,9 +270,9 @@ class NestedSampling_Params(object):
         for key in self.parameters.keys():
             if key.startswith('vsini'):
                 nb_vsini += 1
-            if key.startswith('ls'):
+            if key.startswith('ld'):
                 nb_ld += 1
-            if key.startswith('r'):
+            if key.startswith('r') and not(key.startswith('rv')):
                 nb_r += 1
             if key.startswith('d'):
                 nb_d += 1

@@ -31,7 +31,7 @@ class ForMoSAPaths(object):
         config = ConfigObj(config_file_path, encoding='utf8')
 
         self._config_file_path = Path(config_file_path).expanduser()
-        self._observation_path = Path(config['config_path']['observation_path'].rstrip('*') + '*').expanduser()
+        self._observation_path = Path(config['config_path']['observation_path']).expanduser()
         self._adapt_store_path = Path(config['config_path']['adapt_store_path']).expanduser()
         self._result_path = Path(config['config_path']['result_path']).expanduser()
         self._model_path = Path(config['config_path']['model_path']).expanduser()
@@ -47,7 +47,7 @@ class ForMoSAPaths(object):
                 logger.removeHandler(logger.handlers[0])
 
             # File handler (no color)
-            file_handler = logging.FileHandler(self._result_path / 'analysis.log', mode='w', encoding='utf-8')
+            file_handler = logging.FileHandler(self.result_path / 'analysis.log', mode='w', encoding='utf-8')
             file_formatter = logging.Formatter('%(asctime)s\t%(levelname)8s\t%(message)s')
             file_handler.setFormatter(file_formatter)
             logger.addHandler(file_handler)
@@ -118,7 +118,6 @@ class ForMoSAPaths(object):
     @property 
     def result_path(self):
         if not self._result_path.exists():
-            self._logger.info(f' Creating {self._result_path}')
             os.mkdir(self._result_path)
         return self._result_path
     

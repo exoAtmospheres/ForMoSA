@@ -67,7 +67,6 @@ class Analysis(object):
         self._adapted = adapted  
         self._fitted = fitted
         self._ns = NestedSampling(self.config_params['inversion']['ns_algo'], self.config_params['inversion']['npoints'], logger, self.config_params['ns_algo'])
-        print(self.config_params['plottings'])
         self._ns._plotting = NestedSampling_Plotting(logger, self.config_params['plottings'])
         self._logger = logger
         
@@ -244,7 +243,7 @@ class Analysis(object):
                 
         if not(self.fitted):
             # Run nested sampling
-            self.ns.run(logL_function, self.paths.result_path, self.paths.observation, self.paths.grid, interp_method=interp_method, wav_cont=wav_cont, res_cont=res_cont, bounds_lsq=bounds_lsq, emulator=emulator)
+            self.ns.run(logL_function, self.paths.result_path, self.paths.observation, self.paths.grid, interp_method=interp_method, wav_cont=wav_cont, res_cont=res_cont, bounds_lsq=bounds_lsq, emulator=emulator, hc_type=hc_type)
     
             # Savings
             self.ns._save_results(self.paths.result_path)

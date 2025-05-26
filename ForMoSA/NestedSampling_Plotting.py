@@ -473,6 +473,8 @@ class NestedSampling_Plotting(object):
     
             ck_spectro = mod_spectro.get('ck', 1) if norm == 'yes' else 1
             ck_photo = mod_photo.get('ck', 1) if norm == 'yes' else 1
+            
+            speckles = obs_spectro.get('speckles', 0)
     
             # Get plot style for each observation
             color, edgecolor, marker, size = self._get_plot_style(indobs)
@@ -481,7 +483,7 @@ class NestedSampling_Plotting(object):
             if len(obs_spectro['wav']) > 0:
                 ins = obs_spectro.get('ins', ['unknown'])[0]
                 obs_wav = np.array(obs_spectro['wav'])
-                obs_flx = np.array(obs_spectro['flx']) / ck_spectro / (10**factor)
+                obs_flx = (np.array(obs_spectro['flx']) - speckles) / ck_spectro / (10**factor) 
                 mod_flx = np.array(mod_spectro['flx']) / ck_spectro / (10**factor)
                 err = np.array(obs_spectro.get('err', [])) / ck_spectro / (10**factor) if uncert == 'yes' else None
     

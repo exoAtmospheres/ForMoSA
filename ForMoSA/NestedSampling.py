@@ -333,7 +333,7 @@ class NestedSampling(object):
             modif_data, modif_model = dict(), dict()
             for indobs in range(observation.n_obs): 
                 # Modified spectro
-                modif_data[indobs], modif_model[indobs] = self._compute_model_from_theta(theta, observation.obs_data[indobs]['spectro'], observation.obs_data[indobs]['photo'], modelgrid.adapted_grid[indobs]['spectro'], modelgrid.adapted_grid[indobs]['photo'], interp_method = interp_method, wav_cont = wav_cont[indobs % len(wav_cont)], res_cont = res_cont[indobs % len(res_cont)], bounds_lsq = bounds_lsq[2*indobs % len(bounds_lsq): 2*indobs % len(hc_type) + 2], hc_type = hc_type[indobs % len(hc_type)], indobs = indobs)
+                modif_data[indobs], modif_model[indobs] = self._compute_model_from_theta(theta, observation.obs_data[indobs]['spectro'], observation.obs_data[indobs]['photo'], modelgrid.adapted_grid[indobs]['spectro'], modelgrid.adapted_grid[indobs]['photo'], interp_method = interp_method, wav_cont = wav_cont[indobs % len(wav_cont)], res_cont = float(res_cont[indobs % len(res_cont)]), bounds_lsq = bounds_lsq[indobs % len(bounds_lsq)], hc_type = hc_type[indobs % len(hc_type)], indobs = indobs)
                 # Loglikelihood
                 FINAL_logL += self._compute_loglike_from_model_and_spectra(modif_data[indobs]['spectro'], modif_data[indobs]['photo'], modif_model[indobs]['spectro'], modif_model[indobs]['photo'], indobs = indobs)
         
@@ -429,7 +429,20 @@ class NestedSampling(object):
         
         # High contrast modeling
         if hc_type != "NA":
-            contributions, flx_mod_spectro = high_contrast.hc_model(hc_type[indobs], wav_cont[indobs], res_cont[indobs], bounds_lsq[2*indobs: 2*indobs + 2], obs_dict_spectro, flx_mod_spectro, indobs=indobs)
+            flx_mod_spectro_cont = us.continuum_estimate(target_wavelength, flx_mod_spectro, res_mod_obs_spectro, wav_cont, res_cont)
+            star_flx_master = obs_dict_spectro['star_flx'][:, len(obs_dict_spectro['star_flx'][0]) // 2]
+            err = obs_dict_spectro['err']
+        
+            if self.logL[indobs % len(self.logL)].startswith('CCF'):
+                if hc_type == 'linear':
+                    contributions, flx_mod_spectro, obs_dict_spectro['speckles'] = high_contrast.hc_model_remove_speckles(obs_dict_spectro, flx_mod_spectro, flx_mod_spectro_cont, star_flx_master, 1 / (err**2), bounds_lsq[2 * indobs % len(bounds_lsq): 2 * indobs % len(bounds_lsq) + 2])
+                else:    # Non linear, TODO
+                    pass
+            else:
+                if hc_type == 'linear':
+                    contributions, flx_mod_spectro, obs_dict_spectro['specles'] = high_contrast.hc_model_estimate_speckles(obs_dict_spectro, flx_mod_spectro, flx_mod_spectro_cont, star_flx_master, 1 / (err**2), bounds_lsq[2 * indobs % len(bounds_lsq): 2 % indobs % len(bounds_lsq) + 2])
+                else:   # Non linear, TODO
+                    pass
         else:
             contributions = 1
     
@@ -479,6 +492,8 @@ class NestedSampling(object):
         logL_spectro = 0
         if len(obs_dict_spectro['wav']) > 0:
             residual = obs_dict_spectro['flx'] - mod_dict_spectro['flx']
+            if 'speckles' in obs_dict_spectro.keys():
+                residual -= obs_dict_spectro['speckles']
             ll_type = self.logL[indobs]
             logL_dict = {'chi2': lambda: logL_functions.logL_chi2(residual, obs_dict_spectro['err']),
                          'chi2_covariance': lambda: logL_functions.logL_chi2_covariance(residual, obs_dict_spectro['inv_cov']),

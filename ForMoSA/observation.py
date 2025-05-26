@@ -24,7 +24,10 @@ class Observation(object):
     '''
     
     def __init__(self, observation_path: str | os.PathLike, logger, config_plotting: dict = dict()) -> None:
-        self._observation_path = Path(str(observation_path).rstrip('*') + '*').expanduser()
+        if str(observation_path).endswith('.fits'):
+            self._observation_path = Path(str(observation_path)).expanduser()
+        else:
+            self._observation_path = Path(str(observation_path).rstrip('*') + '*').expanduser()
         self._obs_data = dict()
         self._logger = logger
         self._config_plotting = config_plotting
@@ -384,7 +387,7 @@ class Observation(object):
        
             # Determine continuum types 
             star_continuum, remove_continuum = u.determine_continuum_types(hc_type[indobs % len(hc_type)], res_cont[indobs % len(res_cont)])
-            self._obs_data[indobs]['spectro'] = self._adapt_observation(obs_data, target_res_obs, model_wavelength, model_resolution, res_cont = res_cont[indobs % len(res_cont)], wav_cont = wav_cont[indobs % len(wav_cont)], hc_type = hc_type[indobs % len(hc_type)], remove_continuum = remove_continuum, star_continuum = star_continuum)
+            self._obs_data[indobs]['spectro'] = self._adapt_observation(obs_data, target_res_obs, model_wavelength, model_resolution, res_cont =float(res_cont[indobs % len(res_cont)]), wav_cont = wav_cont[indobs % len(wav_cont)], hc_type = hc_type[indobs % len(hc_type)], remove_continuum = remove_continuum, star_continuum = star_continuum)
             
             
     def _adapt_observation(self, obs_data: dict, target_res_obs: np.ndarray, model_wavelength: np.ndarray, model_resolution: np.ndarray, res_cont: str | float = 'NA', wav_cont: str | np.ndarray = 'NA', hc_type: str = 'NA', remove_continuum: bool = False, star_continuum: str = 'NA'):

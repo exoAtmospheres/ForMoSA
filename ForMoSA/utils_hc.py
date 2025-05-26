@@ -1,80 +1,6 @@
 import numpy as np
 import scipy.optimize as optimize
 
-from ForMoSA.utils_spec import continuum_estimate
-
-
-def hc_model(hc_type, wav_cont, res_cont, bounds, obs_dict_spectro, flx_mod_spectro, indobs: int=0):
-    '''
-    For high-contrast companions, where the star speckles signal contaminate the data
-
-    Args:
-        hc_type               (str): High contrast function
-        wav_cont       (np.ndarray): Wavelength grid used for the continuum estimation
-        res_cont       (np.ndarray): Resolution of the continuum to estimate
-        bounds              (tuple): Bounds of the least squares estimation
-        obs_dict_spectro     (dict): Dictionay containing all the observationnal entries (spectroscopy)              
-        flx_mod_spectro np.ndarray): Model flux of the companion
-        indobs                (int): Index of the current observation loop
-    
-    Returns:
-        - results           (array): Results of the high-constrast model
-        - flx_mod_spectro   (array): Model of the high-constrast model
-
-    Authors: Allan Denis
-    '''
-
-    # Create star master spectrum
-    star_flx_master = obs_dict_spectro['star_flx'][:, len(obs_dict_spectro['star_flx'][0]) // 2]
-
-    if hc_type == 'nofit_rm_spec':   # The user does not want to fit for the contribution of the planet (used for CCF-to-loglikelihood mapping functions)
-        flx_cont_mod = continuum_estimate(obs_dict_spectro['wav'], 
-                                          flx_mod_spectro, 
-                                          obs_dict_spectro['res'], 
-                                          wav_cont, 
-                                          res_cont)
-        flx_mod_spectro -= flx_cont_mod
-        flx_mod_spectro *= obs_dict_spectro['transm']
-        obs_dict_spectro['flx'] -= star_flx_master / obs_dict_spectro['star_flx_cont'] * obs_dict_spectro['flx_spectro_cont'] 
-        obs_dict_spectro['flx'] /= np.sqrt(np.sum(obs_dict_spectro['flx']**2))
-        flx_mod_spectro /= np.sqrt(np.sum(flx_mod_spectro**2))
-        obs_dict_spectro['star_flx'], results = np.asarray([]), np.asarray([])
-        
-    else:   
-        flx_mod_spectro *= obs_dict_spectro['transm']
-        flx_cont_mod = continuum_estimate(obs_dict_spectro['wav'], 
-                                          flx_mod_spectro, 
-                                          obs_dict_spectro['res'], 
-                                          wav_cont, 
-                                          res_cont)
-
-        
-        weights = (1 / obs_dict_spectro['err'])**2  # For now we consider diagonal covariance matrices only
-    
-        # Select model
-        if hc_type == 'nonlinear_fit_spec':
-            results, flx_mod_spectro = hc_model_nonlinear_estimate_speckles(obs_dict_spectro , flx_mod_spectro, flx_cont_mod, weights, bounds)
-
-        elif hc_type == 'fit_spec':
-            results, flx_mod_spectro = hc_model_estimate_speckles(obs_dict_spectro, flx_mod_spectro, flx_cont_mod, star_flx_master, weights, bounds)
-
-        elif hc_type == 'rm_spec':
-            results, flx_mod_spectro = hc_model_remove_speckles(obs_dict_spectro, flx_mod_spectro, flx_cont_mod, star_flx_master, weights, bounds)
-
-        elif hc_type == 'fit_spec_rm_cont':
-            results, flx_mod_spectro = hc_model_estimate_speckles_remove_continuum(obs_dict_spectro, flx_mod_spectro, flx_cont_mod, weights, bounds)
-
-        elif hc_type == 'fit_spec_fit_cont':
-            raise Exception(
-                'Continuum fitting-based high-constrast model no implement yet ! Please use another function')
-            
-    return results, flx_mod_spectro
-
-
-
-# ----------------------------------------------------------------------------------------------------------------------
-
-
 
 def hc_model_nonlinear_estimate_speckles(obs_dict_spectro, flx_mod_spectro, flx_cont_mod, weights, bounds):
     '''
@@ -135,7 +61,7 @@ def hc_model_nonlinear_estimate_speckles(obs_dict_spectro, flx_mod_spectro, flx_
 
 
 
-def hc_model_estimate_speckles(obs_dict_spectro, flx_mod_spectro, flx_cont_mod, star_flx_master, weights, bounds):
+def hc_model_estimate_speckles(obs_dict_spectro, flx_mod_spectro, flx_mod_spectro_cont, star_flx_master, weights, bounds):
     '''
     Linear high-constrast model of planet and star contributions under the assumtion that the star speckles dominate the data  (see Landman et al. 2023)
 
@@ -164,7 +90,7 @@ def hc_model_estimate_speckles(obs_dict_spectro, flx_mod_spectro, flx_cont_mod, 
 
     # Build matrix A
     A = np.zeros([np.size(obs_dict_spectro['flx']), ind_system])
-    A[:, 0] = weights * (flx_mod_spectro - flx_cont_mod *
+    A[:, 0] = weights * obs_dict_spectro['transm'] * (flx_mod_spectro - flx_mod_spectro_cont *
                              star_flx_master / obs_dict_spectro['star_flx_cont'])
 
     for star_i in range(len(obs_dict_spectro['star_flx'][0])):
@@ -180,11 +106,10 @@ def hc_model_estimate_speckles(obs_dict_spectro, flx_mod_spectro, flx_cont_mod, 
 
     # Full model
     flx_mod_spectro = np.dot(A, results.x) / weights
-    obs_dict_spectro['star_flx'] = np.dot(A[:, 1:ind_star], results.x[1:ind_star]) / weights
-    obs_dict_spectro['system'] = np.dot(A[:, ind_star:], results.x[ind_star:])
+    # Speckles
+    speckles = np.dot(A[:, 1:ind_star], results.x[1:ind_star]) / weights
 
-
-    return results.x, flx_mod_spectro
+    return results.x, flx_mod_spectro, speckles
 
 
 
@@ -192,7 +117,7 @@ def hc_model_estimate_speckles(obs_dict_spectro, flx_mod_spectro, flx_cont_mod, 
 
 
 
-def hc_model_remove_speckles(obs_dict_spectro, flx_mod_spectro, flx_cont_mod, star_flx_master, weights, bounds):
+def hc_model_remove_speckles(obs_dict_spectro, flx_mod_spectro, flx_mod_spectro_cont, star_flx_master, weights, bounds):
     '''
     Linear high-constrast model of planet contribution only where the speckles are filtered out from the data (see Landman et al. 2023)
 
@@ -220,7 +145,7 @@ def hc_model_remove_speckles(obs_dict_spectro, flx_mod_spectro, flx_cont_mod, st
     A = np.zeros([np.size(obs_dict_spectro['flx']), ind_system])
 
     # Build matrix A
-    A[:, 0] = weights * (flx_mod_spectro - flx_cont_mod *
+    A[:, 0] = weights * obs_dict_spectro['transm'] * (flx_mod_spectro - flx_mod_spectro_cont *
                              star_flx_master / obs_dict_spectro['star_flx_cont'])
     
     for system_i in range(ind_system-1):
@@ -234,70 +159,10 @@ def hc_model_remove_speckles(obs_dict_spectro, flx_mod_spectro, flx_cont_mod, st
     results = optimize.lsq_linear(A, b, bounds=bounds)
 
     # Full model
-    obs_dict_spectro['star_flx'] = star_flx_master / obs_dict_spectro['star_flx_cont'] * obs_dict_spectro['flx_cont'] 
-    obs_dict_spectro['flx'] = b / weights
+    speckles = obs_dict_spectro['flx'] - b / weights
     flx_mod_spectro = np.dot(A[:,0], results.x[0]) / weights
-    obs_dict_spectro['system'] = np.dot(A[:, 1:], results.x[1:])
 
-    return results.x, flx_mod_spectro
-
-
-
-# ----------------------------------------------------------------------------------------------------------------------
-
-
-
-def hc_model_estimate_speckles_remove_continuum(obs_dict_spectro, flx_mod_spectro, flx_cont_mod, weights, bounds):
-    '''
-    Linear high-constrast model of planet and star contributions where we remove the continuums (see Wang et al. 2021)
-
-    Args:
-        obs_dict_spectro            (dict): Dictionay containing all the observationnal entries (photometry, spectroscopy and/or optional)
-        flx_mod_spectro             (array): Model of the companion
-        flx_cont_mod                (array): Continuum of the model of the companion
-        weights                     (array): Weights to apply to the data
-        bounds                      (tuple): Bounds to be applied to the estimated parameters
-
-    Returns:
-        - results                   (array): Results of the high-constrast model
-        - flx_mod_spectro           (array): Model of the high-constrast model
-
-    Authors: Allan Denis
-    '''
-    
-    ind_star = 1 + len(obs_dict_spectro['star_flx'][0])
-    if len(obs_dict_spectro['system']) > 0:
-        ind_system = ind_star + len(obs_dict_spectro['system'][0])
-    else:
-        ind_system = ind_star
-
-
-    # # # # # # Solve linear Least Squares A.x = b
-
-    # Build matrix A
-    A = np.zeros([np.size(obs_dict_spectro['flx']), ind_system])
-    A[:, 0] = weights * (flx_mod_spectro - flx_cont_mod + np.mean(flx_mod_spectro))
-
-    for star_i in range(len(obs_dict_spectro['star_flx'][0])):
-        A[:, star_i+1] = weights * (obs_dict_spectro['star_flx'][:, star_i] - obs_dict_spectro['star_flx_cont'] + np.mean(obs_dict_spectro['star_flx'][:, star_i]))
-        
-    for system_i in range(ind_system-ind_star):
-        A[:, system_i + ind_star] = weights * obs_dict_spectro['system'][:, system_i]
-
-    # Build vector b
-    b = weights * (obs_dict_spectro['flx'] - obs_dict_spectro['flx_cont']  + np.mean(obs_dict_spectro['flx']))
-
-    # Solve linear Least Squares
-    results = optimize.lsq_linear(A, b, bounds=bounds)
-
-    # Full model
-    flx_mod_spectro = np.dot(A, results.x) / weights
-    obs_dict_spectro['flx'] = b / weights
-    obs_dict_spectro['star_flx'] = np.dot(A[:, 1:ind_star], results.x[1:ind_star])
-    obs_dict_spectro['system'] = np.dot(A[:, ind_star:], results.x[ind_star:])
-
-    return results.x, flx_mod_spectro
-
+    return results.x, flx_mod_spectro, speckles
 
 
 # ----------------------------------------------------------------------------------------------------------------------
