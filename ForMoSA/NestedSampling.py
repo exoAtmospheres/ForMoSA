@@ -17,7 +17,6 @@ import ultranest
 from ultranest import integrator
 from scipy.interpolate import interp1d
 
-
 class ForMoSAError(Exception):
     pass
 
@@ -222,7 +221,6 @@ class NestedSampling(object):
 
         n_free_parameters = self._params.n_free_parameters
 
-
         loglike_gp = lambda theta: self._loglike(theta, observation, modelgrid, res_mod_obs_list, interp_method=interp_method, wav_cont=wav_cont, res_cont=res_cont, bounds_lsq=bounds_lsq, emulator=emulator, hc_type = hc_type)
         prior_transform_gp = lambda theta: self._prior_transform(theta, modelgrid)
 
@@ -247,6 +245,7 @@ class NestedSampling(object):
             res = pymultinest.solve(LogLikelihood=loglike_gp,
                                     Prior=prior_transform_gp,
                                     n_dims=n_free_parameters,
+                                    n_live_points=self.npoints,
                                     outputfiles_basename=str(results_path) + '/pymultinest/' + 'RAW_',
                                     **self.ns_params)
 
@@ -405,19 +404,22 @@ class NestedSampling(object):
 
         theta_grid = [theta[i] for i, key in enumerate(theta_index) if key.startswith('par')]
 
+        # Retrieve usefull parameters
         wav_mod_spectro = grid_spectro.wavelength
         wav_mod_photo = grid_photo.wavelength
         target_wavelength, target_resolution = obs_dict_spectro['wav'], obs_dict_spectro['res']
-
         ins_spectro, ins_photo = grid_spectro.instrument, grid_photo.instrument
 
+        # Interpolate at the values of the grid parameters
         flx_mod_spectro, flx_mod_photo = grid_spectro._interpolate_between_gridpoints(theta_grid, interp_method, indobs), grid_photo._interpolate_between_gridpoints(theta_grid, interp_method, indobs)
+
+        # Definition of a new key (usefull for the high-contrast modeling)
+        obs_dict_spectro['speckles'] = 0
 
         # RV correction
         rv = get_param('rv', indobs)
         if rv is not None:
             wav_mod_spectro, flx_mod_spectro = us.doppler_fct(wav_mod_spectro, flx_mod_spectro, rv)
-
 
         # vsini correction
         vsini = get_param('vsini', indobs)
@@ -425,7 +427,6 @@ class NestedSampling(object):
         if vsini is not None and ld is not None:
             vsini_function = str(self.params.parameters['vsini'].vsini_function)
             flx_mod_spectro, res_mod_obs_spectro = us.vsini_fct(wav_mod_spectro, flx_mod_spectro, res_mod_obs_spectro, ld, vsini, vsini_function)
-
 
         # Reddening
         av = get_param('av', indobs)
@@ -440,7 +441,6 @@ class NestedSampling(object):
         if None not in (bb_T, bb_R, d):
             flx_mod_spectro, flx_mod_photo = us.bb_cpd_fct(wav_mod_spectro, obs_dict_photo['wav'], flx_mod_spectro, flx_mod_photo, d, bb_T, bb_R)
 
-
         # Save native model before resampling
         flx_mod_spectro_nativ = np.copy(flx_mod_spectro)
         if len(wav_mod_spectro) != len(obs_dict_spectro['wav']):
@@ -454,16 +454,23 @@ class NestedSampling(object):
 
             if self.logL[indobs % len(self.logL)].startswith('CCF'):
                 if hc_type == 'linear':
-                    contributions, flx_mod_spectro, obs_dict_spectro['speckles'] = high_contrast.hc_model_remove_speckles(obs_dict_spectro, flx_mod_spectro, flx_mod_spectro_cont, star_flx_master, 1 / (err**2), bounds_lsq[2 * indobs % len(bounds_lsq): 2 * indobs % len(bounds_lsq) + 2])
+                    contributions, flx_mod_spectro, obs_dict_spectro['speckles'] = high_contrast.hc_model_remove_speckles(obs_dict_spectro, flx_mod_spectro, flx_mod_spectro_cont, star_flx_master, 1 / (err**2), bounds_lsq)
                 else:    # Non linear, TODO
                     pass
             else:
                 if hc_type == 'linear':
-                    contributions, flx_mod_spectro, obs_dict_spectro['specles'] = high_contrast.hc_model_estimate_speckles(obs_dict_spectro, flx_mod_spectro, flx_mod_spectro_cont, star_flx_master, 1 / (err**2), bounds_lsq[2 * indobs % len(bounds_lsq): 2 % indobs % len(bounds_lsq) + 2])
+                    contributions, flx_mod_spectro, obs_dict_spectro['speckles'] = high_contrast.hc_model_estimate_speckles(obs_dict_spectro, flx_mod_spectro, flx_mod_spectro_cont, star_flx_master, 1 / (err**2), bounds_lsq)
                 else:   # Non linear, TODO
                     pass
         else:
             contributions = 1
+
+        # import matplotlib.pyplot as plt
+
+        # plt.figure()
+        # plt.plot(obs_dict_spectro['wav'], obs_dict_spectro['flx'])
+        # plt.plot(obs_dict_spectro['wav'], flx_mod_spectro)
+        # plt.show()
 
         # Scaling (ck)
         ck_spectro, ck_photo = 1, 1
@@ -511,13 +518,11 @@ class NestedSampling(object):
         logL_spectro = 0
         if len(obs_dict_spectro['wav']) > 0:
             residual = obs_dict_spectro['flx'] - mod_dict_spectro['flx']
-            if 'speckles' in obs_dict_spectro.keys():
-                residual -= obs_dict_spectro['speckles']
             ll_type = self.logL[indobs]
             logL_dict = {'chi2': lambda: logL_functions.logL_chi2(residual, obs_dict_spectro['err']),
                          'chi2_covariance': lambda: logL_functions.logL_chi2_covariance(residual, obs_dict_spectro['inv_cov']),
-                         'CCF_Brogi': lambda: logL_functions.logL_CCF_Brogi(obs_dict_spectro['flx'], mod_dict_spectro['flx']),
-                         'CCF_Zucker': lambda: logL_functions.logL_CCF_Zucker(obs_dict_spectro['flx'], mod_dict_spectro['flx']),
+                         'CCF_Brogi': lambda: logL_functions.logL_CCF_Brogi(obs_dict_spectro['flx'] - obs_dict_spectro['speckles'], mod_dict_spectro['flx']),
+                         'CCF_Zucker': lambda: logL_functions.logL_CCF_Zucker(obs_dict_spectro['flx'] - obs_dict_spectro['speckles'], mod_dict_spectro['flx']),
                          'CCF_custom': lambda: logL_functions.logL_CCF_custom(obs_dict_spectro['flx'], mod_dict_spectro['flx'], obs_dict_spectro['err']),
                          'chi2_noisescaling': lambda: logL_functions.logL_chi2_noisescaling(residual, obs_dict_spectro['err']),
                          'chi2_noisescaling_covariance': lambda: logL_functions.logL_chi2_noisescaling_covariance(residual, obs_dict_spectro['inv_cov'])}
@@ -557,7 +562,7 @@ class NestedSampling(object):
         '''
 
         prior = []
-        theta_index_free = self.params.free_parameters.keys()
+        theta_index_free = self.params.free_parameters.keys()   # List of free (without constant priors) parameters
 
         for i, param_name in enumerate(theta_index_free):
             param = self.params.parameters[param_name]
@@ -661,7 +666,18 @@ class NestedSampling(object):
         modif_data, best_model = dict(), dict()
 
         for indobs in range(observation.n_obs):
-            modif_data[indobs], best_model[indobs] = self._compute_model_from_theta(best_theta, observation.obs_data[indobs]['spectro'], observation.obs_data[indobs]['photo'], modelgrid.adapted_grid[indobs]['spectro'], modelgrid.adapted_grid[indobs]['photo'], interp_method = interp_method, wav_cont = wav_cont[indobs % len(wav_cont)], res_cont = res_cont[indobs % len(res_cont)], bounds_lsq = bounds_lsq[2*indobs % len(bounds_lsq): 2*indobs % len(bounds_lsq) + 2], hc_type = hc_type[indobs % len(hc_type)], indobs = indobs)
+            obs_data_spectro, mod_data_spectro = observation.obs_data[indobs]['spectro'], modelgrid.adapted_grid[indobs]['spectro']
+            if len(obs_data_spectro['wav']) > 0:
+                res_mod_obs = obs_data_spectro['res']
+                res, target_wavelength = mod_data_spectro.resolution, obs_data_spectro['wav']
+                if (len(res) != len(target_wavelength)):
+                    interp_mod_to_obs = interp1d(mod_data_spectro.wavelength, mod_data_spectro.resolution, fill_value='extrapolate')
+                    res_mod_obs = interp_mod_to_obs(obs_data_spectro['wav'])
+
+            else:
+                res_mod_obs = 0
+
+            modif_data[indobs], best_model[indobs] = self._compute_model_from_theta(best_theta, observation.obs_data[indobs]['spectro'], observation.obs_data[indobs]['photo'], modelgrid.adapted_grid[indobs]['spectro'], modelgrid.adapted_grid[indobs]['photo'], res_mod_obs, interp_method = interp_method, wav_cont = wav_cont[indobs % len(wav_cont)], res_cont = res_cont[indobs % len(res_cont)], bounds_lsq = bounds_lsq[2*indobs % len(bounds_lsq): 2*indobs % len(bounds_lsq) + 2], hc_type = hc_type[indobs % len(hc_type)], indobs = indobs)
 
         self._modif_data = modif_data
         self._best_model = best_model
