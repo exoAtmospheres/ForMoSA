@@ -383,7 +383,7 @@ class ModelGrid(object):
         # Setup target wavelength and resolution for the observation and the model
         if target_res_mod == 'mod': # Kepping the model's resolution
             target_wavelength, target_resolution = self.wavelength, self.resolution
-        if target_res_mod == 'obs': # Using the observation's resolution except where its higher than the model's
+        elif target_res_mod == 'obs': # Using the observation's resolution except where its higher than the model's
             target_wavelength, target_resolution = wav_obs_spectro, res_obs_spectro
         else:                                             # Using a custom resolution except where its higher than the model's
             target_wavelength, target_resolution = self.wavelength, np.full(len(self.wavelength), float(target_res_mod))

@@ -8,7 +8,7 @@ from configobj import ConfigObj
 from pathlib import Path
 import colorlog
 
-from ForMoSA.Observation import Observation
+from ForMoSA.observation import Observation
 from ForMoSA.ModelGrid import ModelGrid
 
 

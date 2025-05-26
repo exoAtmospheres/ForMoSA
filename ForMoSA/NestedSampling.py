@@ -1,6 +1,6 @@
 import astropy.constants as cst
 from ForMoSA.ModelGrid import ModelGrid, ModelSubGrid
-from ForMoSA.Observation import Observation
+from ForMoSA.observation import Observation
 from ForMoSA.NestedSampling_Plotting import NestedSampling_Plotting
 from ForMoSA.NestedSampling_Parameters import NestedSampling_Params, Parameter
 from pathlib import Path

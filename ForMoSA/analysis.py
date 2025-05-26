@@ -5,7 +5,7 @@ import colorlog
 from ForMoSA.global_params import GlobalParams
 from ForMoSA.ModelGrid import ModelGrid
 from ForMoSA.ForMoSAPaths import ForMoSAPaths
-from ForMoSA.Observation import Observation
+from ForMoSA.observation import Observation
 from ForMoSA.NestedSampling import NestedSampling
 from ForMoSA.NestedSampling_Plotting import NestedSampling_Plotting
 
