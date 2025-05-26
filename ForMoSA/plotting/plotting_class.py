@@ -486,7 +486,7 @@ class PlottingForMoSA():
 
         # Cut the spectrum
         if len(wav_bounds) == 0:
-            pass
+            wav_bounds = [wav_mod_nativ.min(), wav_mod_nativ.max()]  # Use the min and max of the model wavelength range
         else:
             flx_mod_nativ = flx_mod_nativ[(wav_bounds[0] < wav_mod_nativ) & (wav_mod_nativ < wav_bounds[1])]
             res_mod_nativ = res_mod_nativ[(wav_bounds[0] < wav_mod_nativ) & (wav_mod_nativ < wav_bounds[1])]
@@ -517,7 +517,7 @@ class PlottingForMoSA():
         return wav_mod, flx_mod, res_mod, scale_spectro, scale_photo
     
 
-    def _get_PT_chem(self, theta, path_grid):
+    def _get_PT_chem(self, theta, path_grid, re_interp_PT_chem=False, re_interp_atm=False):
         '''
         Function to extract the pressure, temperature and chemical profiles from the PT grid.
         This function interpolates the PT grid at the best-fit parameters and computes the brightness temperature of the photosphere.
@@ -527,19 +527,33 @@ class PlottingForMoSA():
         Args:
             theta               (list): best parameter values
             path_grid            (str): path to the PT grid in xarray format
+            re_interp_PT_chem   (bool): (default = False) Option to reinterpolate the PT grid if it contains holes
+            re_interp_atm       (bool): (default = False) Option to reinterpolate the atmospheric grid if it contains holes
         Returns:
             - PT_chem           (dict): Dictionary containing the pressure, temperature and chemical arrays
             - photosphere       (dict): Dictionary containing the P/T profile of the photosphere
         '''
-
+        # P-T / chem grid
         ds = xr.open_dataset(path_grid, decode_cf=False, engine='netcdf4')
+
+        # Possibility of re-interpolating holes if the grid contains to much of them (WARNING: Very long process)
+        if re_interp_PT_chem == True:
+            print('-> The possible holes in the P-T / chem grid are (re)interpolated: ')
+            for key_ind, key in enumerate(ds.attrs['key']):
+                print(str(key_ind+1) + '/' + str(len(ds.attrs['key'])))
+                ds = ds.interpolate_na(dim=key, method=self.global_params.method, fill_value="extrapolate", limit=None,
+                                            max_gap=None)
+        else:
+            pass
+
+        # Extract base parameters    
         var_names = list(ds.data_vars.keys())  # Save original keys
         P = ds.coords['pressure']
 
         # Prepare storage per variable
         best_fit_vars = {var: [] for var in var_names}
 
-        for j in tqdm(range(len(self.samples)), desc=f"Interpolating grid", unit="sample"):
+        for j in tqdm(range(len(self.samples)), desc=f"Interpolating P-T / chem grid at theta", unit="sample"):
             sample = self.samples[j]
             interp_kwargs = {f"par{k+1}": sample[k] for k in range(len(ds.coords)-1)}
             interp = ds.interp(**interp_kwargs, method=self.global_params.method, kwargs={"fill_value": "extrapolate"}).to_array()
@@ -564,6 +578,18 @@ class PlottingForMoSA():
 
         # Extract spectrum for photosphere estimation
         ds = xr.open_dataset(self.global_params.model_path, decode_cf=False, engine='netcdf4')
+
+        # Possibility of re-interpolating holes if the grid contains to much of them (WARNING: Very long process)
+        if re_interp_atm == True:
+            print('-> The possible holes in the atmospheric grid are (re)interpolated: ')
+            for key_ind, key in enumerate(ds.attrs['key']):
+                print(str(key_ind+1) + '/' + str(len(ds.attrs['key'])))
+                ds = ds.interpolate_na(dim=key, method=self.global_params.method, fill_value="extrapolate", limit=None,
+                                            max_gap=None)
+        else:
+            pass    
+    
+        # Get grid
         grid = ds['grid']
         wav = grid["wavelength"].values
         interp_kwargs = {f"par{k+1}": theta[k] for k in range(len(ds.coords)-1)}
