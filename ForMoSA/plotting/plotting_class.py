@@ -466,7 +466,6 @@ class PlottingForMoSA():
         # Recover the original grid
         ds = xr.open_dataset(path_grid, decode_cf=False, engine="netcdf4")
         N_para = len(ds.coords)-1
-        ds.close()
 
         # Possibility of re-interpolating holes if the grid contains to much of them (WARNING: Very long process)
         if re_interp == True:
@@ -475,6 +474,7 @@ class PlottingForMoSA():
                 print(str(key_ind+1) + '/' + str(len(ds.attrs['key'])))
                 ds = ds.interpolate_na(dim=key, method=self.global_params.method, fill_value="extrapolate", limit=None,
                                             max_gap=None)
+        ds.close()
 
         # Get grid
         grid = ds['grid']
@@ -519,7 +519,10 @@ class PlottingForMoSA():
 
     def _get_PT_chem(self, theta, path_grid):
         '''
-        Function to plot the Pressure-Temperature profiles and associated vmr/molecular profiles.
+        Function to extract the pressure, temperature and chemical profiles from the PT grid.
+        This function interpolates the PT grid at the best-fit parameters and computes the brightness temperature of the photosphere.
+        It also extracts the P/T profile of the photosphere based on the brightness temperature.
+        This is useful for plotting the P/T profile and the photosphere in the final figure.
 
         Args:
             theta               (list): best parameter values
@@ -599,6 +602,7 @@ class PlottingForMoSA():
 
     
         return PT_chem, photosphere
+
 
 
     # - - - - - - - -
@@ -1247,7 +1251,7 @@ class PlottingForMoSA():
 
         # Add photosphere if necessary
         if len(photosphere) != 0:
-            ax.plot(photosphere["temperature"], photosphere["pressure"], color='red', label='photosphere')
+            ax.plot(photosphere["temperature"], photosphere["pressure"], color='red', linestyle='--', label='photosphere')
 
         # Plot the legend
 
