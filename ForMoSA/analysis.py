@@ -7,6 +7,7 @@ from ForMoSA.ModelGrid import ModelGrid
 from ForMoSA.ForMoSAPaths import ForMoSAPaths
 from ForMoSA.Observation import Observation
 from ForMoSA.NestedSampling import NestedSampling
+from ForMoSA.NestedSampling_Plotting import NestedSampling_Plotting
 
 # log
 _log = logging.getLogger(__name__)
@@ -66,17 +67,12 @@ class Analysis(object):
         self._adapted = adapted  
         self._fitted = fitted
         self._ns = NestedSampling(self.config_params['inversion']['ns_algo'], self.config_params['inversion']['npoints'], logger, self.config_params['ns_algo'])
+        print(self.config_params['plottings'])
+        self._ns._plotting = NestedSampling_Plotting(logger, self.config_params['plottings'])
         self._logger = logger
         
         # Build and check list of nested sampling parameters
         self._add_NestedSampling_parameters_from_config(self.config_params['parameters'])
-
-        if adapted:
-            # Load adapted observations and grids
-            self.paths.observation._load_adapted_observations_from_files(self.paths.result_path)
-            self.paths.grid._load_grid_from_files(self.paths.adapt_store_path, self.observation.obs_name_list)
-            
-   
     
     ##################################################
     # Representation
@@ -193,12 +189,16 @@ class Analysis(object):
                 
                 # TODO
         
-        # Save the data
-        self.paths.observation._save_all_observations(self.paths.result_path)
-        
-        self.paths.grid._interpolate_missing_values()
-        self.paths.grid._save_grid(self.paths.adapt_store_path)
-        
+            # Save the data
+            self.observation._save_all_observations(self.paths.result_path)
+            
+            self.grid._interpolate_missing_values()
+            self.grid._save_grid(self.paths.adapt_store_path)
+        else:
+            # Load adapted observations and grids
+            self.observation._load_adapted_observations_from_files(self.paths.result_path)
+            self.grid._load_grid_from_files(self.paths.adapt_store_path, self.observation.obs_name_list)
+            
         # grid and data are now adapted
         self._adapted = True
                  
@@ -275,25 +275,22 @@ class Analysis(object):
            
         # Additional step to check for the global consistance of the parameters
         self.ns.params._check_params()
-        
         # Replace 'parX' names by associated physical parameters ('Teff', 'logg', ...)
         for name in self.ns.params.parameters.keys():
             if name.startswith('par'):  # Detect grid parameters
-                self.ns.params.parameters[name]._name = self.paths.grid.titles[self.paths.grid.keys.index(name)]  # Rename parameter with title associated to 'parX'
+                self.ns.params.parameters[name]._name = self.grid.titles[self.paths.grid.keys.index(name)]  # Rename parameter with title associated to 'parX'
                 
                 
-    def _plot(self) -> None:
+    def _plot(self, label_ins: str='no', trans: str='yes', uncert: str='yes') -> None:
         '''
         Method to use all the plotting methods
 
         Parameters
         ----------
-        results       (dict): Dictionary of the results {'samples': samples, 'weights': weights}
-        param_names   (list): Names of the parameters
-        param_best_value    (dict): Dictionary of best results of nested sampling {param_name: best_value}
-        modif_data (dict): Dictionary containing the modified data {indobs: {'spectro': dict, 'photo': dict}}
-        best_model (dict): Dictionary containing the best model {indobs: {'spectro': dict, 'photo': dict}}
-    
+        label_ins (str): Whether to label instruments in best fit plot
+        trans     (str): Whether to plot the transmission filters
+        uncert    (str): Whether to plot the uncertainties
+        
         Authors: Allan Denis
         '''
 
@@ -302,8 +299,10 @@ class Analysis(object):
         param_best_values = self.ns.param_best_dict
         modif_data = self.ns.modif_data
         best_model = self.ns.best_model
+        plotting_params = self.config_params['plottings']
+        
         self.ns.plotting._plot_corner(results, param_names)
         self.ns.plotting._plot_chains(results, param_names, param_best_values)
         self.ns.plotting._plot_radar(results, param_names)
-        self.ns.plotting._plot_fit(modif_data, best_model)
+        self.ns.plotting._plot_fit(modif_data, best_model, label_ins=label_ins, trans=trans, uncert=uncert)
                 

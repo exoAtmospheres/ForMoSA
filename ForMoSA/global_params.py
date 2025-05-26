@@ -356,10 +356,10 @@ class GlobalParams(object):
        
        
         # config plottings 
-        color = self._get_config_value(config, 'config_plottings', 'color', 'blue', self.n_obs, list, self.instrument_files)
-        edgecolor = self._get_config_value(config, 'config_plottings', 'edgecolor', 'darkblue', self.n_obs, list, self.instrument_files)
-        marker = self._get_config_value(config, 'config_plottings', 'marker', 's', self.n_obs, list, self.instrument_files)
-        size = self._get_config_value(config, 'config_plottings', 'size', '100', self.n_obs, list, self.instrument_files)
+        color = self._get_config_value(config, 'config_plottings', 'color', 'NA', self.n_obs, list, self.instrument_files)
+        edgecolor = self._get_config_value(config, 'config_plottings', 'edgecolor', 'NA', self.n_obs, list, self.instrument_files)
+        marker = self._get_config_value(config, 'config_plottings', 'marker', 'NA', self.n_obs, list, self.instrument_files)
+        size = self._get_config_value(config, 'config_plottings', 'size', 'NA', self.n_obs, list, self.instrument_files)
         
         plottings = {'color': color, 'edgecolor': edgecolor, 'marker': marker, 'size': size}
         

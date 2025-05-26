@@ -49,7 +49,7 @@ class NestedSampling(object):
         self._npoints = npoints
         self._logger = logger
         self._params = NestedSampling_Params(logger)
-        self._plotting = NestedSampling_Plotting(logger)
+        self._plotting = None
         self._results = None
         self._modif_data = dict()
         self._best_model = dict()

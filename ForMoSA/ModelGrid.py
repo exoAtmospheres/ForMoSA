@@ -36,8 +36,7 @@ class ModelGrid(object):
         self._model_path = Path(model_path).expanduser()
         self._adapted_grid = dict()
         self._logger = logger
-        self._read_grid()
-        
+          
     ##################################################
     # Representation
     ##################################################
@@ -140,12 +139,10 @@ class ModelGrid(object):
     
         return [min(wavelengths), max(wavelengths)]
     
-    
     ##################################################
     # Methods
     ##################################################
       
-  
     def _read_grid(self):
         '''
         Method to read the model grid and store important information
@@ -158,8 +155,9 @@ class ModelGrid(object):
         self._wavelength = ds['wavelength'].values
         self._resolution = ds.attrs['res']
         self._attrs = ds.attrs
-        self._attrs['res'] = self.resolution
+        ds.attrs['res'] = self.resolution    # self.resolution returns the minimum between self._resolution and the Nyquist sampled resolution
         self._grid = ds['grid']
+        
         
         
     def _load_model_at_specific_index(self, idx: tuple):
@@ -254,7 +252,7 @@ class ModelGrid(object):
         Authors: Simon Petrus, Matthieu Ravet, Paulina Palma-Bifani, Arthur Vigan and Allan Denis
         '''
       
-        self._logger.info(f' Adapt model {self.grid.name} to the observation {obs_name}')  
+        self._logger.info(f' Adapt model {self.name} to the observation {obs_name}')  
       
         if len(target_wavelength_photo) > 0:
             self._check_photometry_filters_exist(ins_photo)
@@ -685,7 +683,6 @@ class ModelGrid(object):
         
         self._logger.info('Load adapted grid from stored adapted grid files.')
         
-        
         store_path = Path(store_path).expanduser()
         grid_files = list(store_path.glob('adapted_grid_*.nc'))
         grid_name = self.name
@@ -757,13 +754,12 @@ class ModelSubGrid(ModelGrid):
         # Attributes specific to this subgrid
         self._wavelength = target_wavelength
         self._resolution = target_resolution
-        self._attrs['res'] = self.resolution
         self._instrument = ins
         self._parent_wavelength = parent_grid.wavelength
         self._parent_resolution = parent_grid.resolution
         self._obs_name = obs_name
         self._component_type = component_type
-    
+        
         if not(isinstance(grid, xr.DataArray)):
             # Initialization of an empty grid 
             base_shape = parent_grid.grid.shape[1:]
@@ -775,9 +771,14 @@ class ModelSubGrid(ModelGrid):
             coords['wavelength'] = target_wavelength
     
             self._grid = xr.DataArray(data=empty_grid, dims=('wavelength',) + parent_grid.grid.dims[1:], coords=coords, name='grid')
-        
+            self._attrs = parent_grid.attrs
+            self._grid.attrs['res'] = parent_grid.attrs['res']
+            self._grid.attrs['ins'] = ins
         else:
             self._grid = grid
+            self._attrs = parent_grid.attrs
+            self._attrs['res'] = self.resolution
+            self._attrs['ins'] = ins
     
     ##################################################
     # Properties
