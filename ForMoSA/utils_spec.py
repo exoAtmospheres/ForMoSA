@@ -16,13 +16,13 @@ def convolve_and_sample(wv_channels, sigmas_wvs, model_wvs, model_fluxes, num_si
 
     Args:
         wv_channels (list(floats)): the wavelengths values desired
-        sigmas_wvs  (list(floats)): the LSF gaussian standard deviation of each wv_channels [IN UNITS OF model_wvs] 
-        model_wvs          (array): the wavelengths of the model 
-        model_fluxes       (array): the fluxes of the model 
+        sigmas_wvs  (list(floats)): the LSF gaussian standard deviation of each wv_channels [IN UNITS OF model_wvs]
+        model_wvs          (array): the wavelengths of the model
+        model_fluxes       (array): the fluxes of the model
         num_sigma          (float): number of +/- sigmas to evaluate the LSF to.
         force_int         (bolean): False by default. If True, will force interpolation onto wv_channels when the kernel is singular
     Returns:
-        - output_model     (array): the fluxes in each of the wavelength channels 
+        - output_model     (array): the fluxes in each of the wavelength channels
 
     Author: Jason Wang
     """
@@ -45,7 +45,7 @@ def convolve_and_sample(wv_channels, sigmas_wvs, model_wvs, model_fluxes, num_si
         output_model = np.nansum(filter_model * lsf, axis=1) / np.sum(lsf, axis=1)
     else:
         if force_int == True:
-            output_model = model_interp(wv_channels)            
+            output_model = model_interp(wv_channels)
         else:
             output_model = model_fluxes
 
@@ -120,18 +120,18 @@ def continuum_estimate(wav_input, flx_input, res_input, wav_cont_bounds, res_con
         # from the median wavelength. We just want an estimate of the continuum here.
         wav_median = np.median(wav_input[ind_cont_cut])
         dwav_median = np.median(np.abs(wav_input[ind_cont_cut] - np.roll(wav_input[ind_cont_cut], 1))) # Estimated the median wavelength separation instead of taking wav_median - (wav_median+1) that could be on a border
-    
+
         fwhm = wav_median / np.median(res_input)
         fwhm_continuum = wav_median / res_cont
-    
+
         fwhm_conv = np.sqrt(fwhm_continuum**2 - fwhm**2)
         sigma = fwhm_conv / (dwav_median * 2.355)
         cont = gaussian_filter(flx_input[ind_cont_cut], sigma)
-        
+
         # Concatenate everything
         wav_cont = np.concatenate((wav_cont, wav_input[ind_cont_cut]))
         flx_cont = np.concatenate((flx_cont, cont))
-        
+
     # Reinterpolate onto the original wavelength grid
     continuum_interp = interp1d(wav_cont, flx_cont, kind='linear', fill_value = 'extrapolate')
     continuum = continuum_interp(wav_input)
@@ -163,7 +163,7 @@ def calc_ck(obs_dict_spectro, obs_dict_photo, flx_mod_spectro, flx_mod_photo, r_
         - flx_mod_photo_ck     (array): Re-normalysed model photometry
         - ck                   (float): Ck calculated
 
-    Author: Simon Petrus 
+    Author: Simon Petrus
     """
     # Calculation of the dilution factor ck as a function of the radius and distance
     if analytic == 'no':
@@ -176,7 +176,7 @@ def calc_ck(obs_dict_spectro, obs_dict_photo, flx_mod_spectro, flx_mod_photo, r_
         if len(obs_dict_spectro['wav']) != 0:
             ck_top_merge = np.sum((flx_mod_spectro * obs_dict_spectro['flx']) / (obs_dict_spectro['err'] * obs_dict_spectro['err']))
             ck_bot_merge = np.sum((flx_mod_spectro / obs_dict_spectro['err'])**2)
-            ck_spectro = ck_top_merge / ck_bot_merge 
+            ck_spectro = ck_top_merge / ck_bot_merge
         else:
             ck_top_merge = 0
             ck_bot_merge = 0
@@ -211,23 +211,23 @@ def doppler_fct(wav_mod_spectro, flx_mod_spectro, rv_picked):
     """
     Application of a Doppler shifting to the interpolated synthetic spectrum using the function pyasl.dopplerShift.
     The side effects of the Doppler shifting are taking into account by using a model interpolated on a larger wavelength grid as the wavelength grid of the data.
-    After the Doppler shifting, the model is then cut to the wavelength of the data.   
+    After the Doppler shifting, the model is then cut to the wavelength of the data.
 
     Args:
-        wav_mod_spectro      (array): Wavelength grid of the model 
+        wav_mod_spectro      (array): Wavelength grid of the model
         flx_mod_spectro      (array): Flux of the interpolated synthetic spectrum
         rv_picked            (float): Radial velocity randomly picked by the nested sampling (in km.s-1)
     Returns:
         - wav_post_doppler   (array): Wavelength grid after Doppler shifting
         - flx_post_doppler   (array): New flux of the interpolated synthetic spectrum
-    
+
     Author: Simon Petrus, Allan Denis and Matthieu Ravet
     """
     if len(flx_mod_spectro) != 0:
         new_wav = wav_mod_spectro * ((rv_picked / const.c.to(u.km/u.s).value) + 1)
         rv_interp = interp1d(new_wav, flx_mod_spectro, bounds_error=False)
         flx_post_doppler = rv_interp(wav_mod_spectro)
-        
+
         # Remove the nans caused by the RV correction
         # Note: this step is not problematic as the wavelength range of the model is slightly larger than the wavelength range of the data
         # so we do not lose any data in the model within the wavelength range of the data
@@ -235,7 +235,7 @@ def doppler_fct(wav_mod_spectro, flx_mod_spectro, rv_picked):
         wav_post_doppler, flx_post_doppler = wav_mod_spectro[nans], flx_post_doppler[nans]
     else:
         wav_post_doppler, flx_post_doppler = wav_mod_spectro, flx_mod_spectro
-   
+
     return wav_post_doppler, flx_post_doppler
 
 
@@ -285,7 +285,7 @@ def vsini_fct(wav_mod_spectro, flx_mod_spectro, res_mod_obs_spectro, ld_picked, 
     Application of a rotational velocity (line broadening) to the interpolated synthetic spectrum
 
     Args:
-        wav_mod_spectro          (array): Wavelength grid of the model 
+        wav_mod_spectro          (array): Wavelength grid of the model
         flx_mod_spectro          (array): Flux of tge interpolated synthetic spectrum (spectroscopy)
         res_mod_obs_spectro      (array): Resolution of the model as a function of the wavelength grid of the data
         ld_picked                (float): Limb darkening randomly picked by the nested sampling
@@ -294,7 +294,7 @@ def vsini_fct(wav_mod_spectro, flx_mod_spectro, res_mod_obs_spectro, ld_picked, 
     Returns:
         - flx_mod_spectro_broad  (array): New flux of the broadened synthetic spectrum (spectroscopy)
         - res_mod_obs_broad      (array): New resolution of the broadened synthetic spectrum (photometry)
-    
+
     Author: Allan Denis
     """
     if len(flx_mod_spectro) != 0:
@@ -309,13 +309,13 @@ def vsini_fct(wav_mod_spectro, flx_mod_spectro, res_mod_obs_spectro, ld_picked, 
                 flx_mod_spectro_broad = vsini_fct_accurate_fast_rot_broad(wav_mod_spectro, flx_mod_spectro, ld_picked, vsini_picked)
             else:
                 raise ValueError(f'Unknow rotational broadening method {vsini_type}')
-                
-        # Because of the v.sini correction, the resolution of the model has been downgraded, so we update it 
+
+        # Because of the v.sini correction, the resolution of the model has been downgraded, so we update it
         if vsini_picked != 0:
             res_mod_obs_spectro_broad = const.c.to('km/s').value / vsini_picked * np.ones(len(res_mod_obs_spectro))
     else:
         flx_mod_spectro_broad, res_mod_obs_spectro_broad = flx_mod_spectro, res_mod_obs_spectro
-        
+
     return flx_mod_spectro_broad, res_mod_obs_spectro_broad
 
 
