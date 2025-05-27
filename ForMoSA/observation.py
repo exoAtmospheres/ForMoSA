@@ -1,4 +1,4 @@
-import numpy as np 
+import numpy as np
 import os
 from pathlib import Path
 import glob
@@ -13,16 +13,16 @@ class ForMoSAError(Exception):
 class Observation(object):
     '''
     ForMoSA observation class, which provides easy access to an observation
-    
+
     Parameters
     ----------
     observation_path (str | os.PathLike): Path to the observation file(s) (multiple observation files can exist)
     logger                      (logger): Logger
     config_plotting               (dict): Dictionary of the plotting configuration {'color': color, 'edgecolors': edgecolor, 'marker': marker, 'size': size}
-    
+
     Authors: Allan Denis
     '''
-    
+
     def __init__(self, observation_path: str | os.PathLike, logger, config_plotting: dict = dict()) -> None:
         if str(observation_path).endswith('.fits'):
             self._observation_path = Path(str(observation_path)).expanduser()
@@ -32,35 +32,35 @@ class Observation(object):
         self._logger = logger
         self._config_plotting = config_plotting
         self._instrument_files = dict()
-        
+
         # extract observation data
         self._extract_observation()
-        
+
     ##################################################
     # Representation
     ##################################################
-    
+
     def __repr__(self) -> str:
         return f'<Observation : {self.obs_name}>'
 
     def __format__(self) -> str:
-        return self.__repr__()    
-    
-    
+        return self.__repr__()
+
+
     ##################################################
     # Properties
     ##################################################
-    
-    
-    @property 
+
+
+    @property
     def observation_path(self):
         return self._observation_path
 
-    @property 
+    @property
     def root(self):
         return Path(str(self._observation_path).rstrip('*'))
-    
-    @property  
+
+    @property
     def obs_files(self):
         files = [f for f in glob.glob(str(self.observation_path)) if f.lower().endswith('.fits')]
         if len(files) == 0:  # No observation
@@ -69,62 +69,62 @@ class Observation(object):
             return ForMoSAError(msg)
         else:
             return {i: file for i, file in enumerate(files)}
-    
-    @property 
+
+    @property
     def obs_files_list(self):
         return [self.obs_files[key] for key in range(self.n_files)]
-    
-    @property 
+
+    @property
     def obs_name(self):
         _obs_name = dict()
         for i, file in enumerate(self.obs_files.values()):
             for instrument in self.instrument_files[i]:
                 _obs_name[len(_obs_name)] = '_'.join(np.unique((file.split('/')[-1].split('.fits')[0] + f'_{instrument}').split('_')))
         return _obs_name
-    
-    @property 
+
+    @property
     def obs_name_list(self):
         return [self.obs_name[key] for key in range(self.n_obs)]
-    
-    @property 
+
+    @property
     def obs_data(self):
         return self._obs_data
-    
-    @property 
+
+    @property
     def n_files(self):
         return len(self.obs_files)
-    
-    @property 
+
+    @property
     def n_obs(self):
         return(len(self.obs_data))
-    
-    @property 
+
+    @property
     def max_resolution(self):
         resolutions = [res for i in range(self.n_obs) for res in self.obs_data[i]['spectro']['res']]
-        
+
         return max(resolutions)
-        
-    @property 
+
+    @property
     def wave_from_max_resolution(self):
         return
-    
+
     @property
     def instruments(self):
-        return {i: ins 
-                for i in self.obs_data.keys() 
+        return {i: ins
+                for i in self.obs_data.keys()
                 for comp_type in ('spectro', 'photo')
                 for ins in self.obs_data[i][comp_type]['ins']}
-    
-    @property 
+
+    @property
     def instrument_files(self):
         if not (self._instrument_files):
             msg = ' You need to extract the data first.'
             self._logger.error(msg)
             raise ForMoSAError(msg)
-            
+
         return self._instrument_files
-    
-    @property 
+
+    @property
     def config_plotting(self):
         _config_plotting = dict()
         for indobs in range(self.n_obs):
@@ -134,7 +134,7 @@ class Observation(object):
                                         'size': float(self._config_plotting['size'][indobs])}
         return _config_plotting
 
-    
+
     ##################################################
     # Methods
     ##################################################
@@ -142,7 +142,7 @@ class Observation(object):
     def _extract_observation(self) -> dict():
         """
         Method to extract the information from the observation files
-        Extracts the wavelengths (um - vacuum), flux (W.m-2.um-1), errors (W.m-2.um-1), covariance (W.m-2.um-1)**2, 
+        Extracts the wavelengths (um - vacuum), flux (W.m-2.um-1), errors (W.m-2.um-1), covariance (W.m-2.um-1)**2,
         spectral resolution, instrument/filter name, transmission (Atmo+inst) and star flux (W.m-2.um-1).
         Sort the data by instrument name and returns a dictionary containing one spectroscopic and one photometric observation for each instrument.
 
@@ -154,14 +154,14 @@ class Observation(object):
 
         obs_dict = dict()
         instrument_files = dict()
-        
+
         indobs = 0
 
         for indfile in range(self.n_files):
             instrument_files[indfile] = []
             with fits.open(self.obs_files[indfile]) as hdul:
                 self._logger.debug(f'> Read file {self.obs_files[indfile]}.')
-    
+
                 missing_keys = []
 
                 # Check that parameters are well defined
@@ -276,7 +276,11 @@ class Observation(object):
 
                 # Initialize obs_dict with instrument keys
                 for inst in unique_ins:
-                    obs_name = '_'.join(np.unique((self.obs_files[indfile].split('/')[-1].split('.fits')[0] + f'_{inst}').split('_')))
+                    elements = (self.obs_files[indfile].split('/')[-1].split('.fits')[0] + f'_{inst}').split('_')
+                    seen = set()
+                    unique_elements = [x for x in elements if not (x in seen or seen.add(x))]
+                    obs_name = '_'.join(unique_elements)
+
                     instrument_files[indfile].append(inst)
                     obs_dict[indobs] = {
                         'spectro': {
@@ -347,18 +351,18 @@ class Observation(object):
                     obs_dict[indobs]['photo']['ins'] = np.unique(ins_inst[mask_photo_inst])
                     if len(wav_inst[mask_photo_inst]) > 0:
                         obs_dict[indobs]['photo']['name'] = obs_name
-                    
+
                     obs_dict[indobs]['transmission'] = dict()
-                    
-                    
+
+
                     obs_dict[indobs]['obs_name'] = obs_name
-                    
+
                     indobs += 1
-                    
+
         self._obs_data = obs_dict
         self._instrument_files = instrument_files
-                        
-            
+
+
     def adapt_all_observations(self, res_obs: list, model_wavelength: np.ndarray, model_resolution: np.ndarray, res_cont: list = ['NA'], wav_cont: list = ['NA'], hc_type: list = ['NA']):
         ''''
         Decrease the spectral resolution of the current observation and remove the continuum if necessary
@@ -370,45 +374,45 @@ class Observation(object):
             res_cont                 (list): Resolution of the continuum of each of the observation ([float | 'NA', ...])
             wav_cont                 (list): Wavelength of the continuum of each of the observation ([np.ndarray | 'NA', ...])
             hc_type                  (list): High-contrast function for each of the observation ([str, ...])
-            
+
         Returns:
             obs_data          (dict): Adapted current observation
 
         Authors: Simon Petrus, Matthieu Ravet and Allan Denis
         '''
-        
+
         for indobs in range(self.n_obs):
             self._logger.info(f" Current observation : {self.obs_data[indobs]['obs_name']}")
             # Decrease the resolution and remove the continuum if necessary
             obs_data = self.obs_data[indobs]['spectro']
-            
+
             # Determine target resolution to reach for the observation
             target_res_obs = self._set_obs_target_resolution(res_obs[indobs % len(res_obs)], obs_data['wav'], obs_data['res'], model_wavelength, model_resolution)
-       
-            # Determine continuum types 
+
+            # Determine continuum types
             star_continuum, remove_continuum = u.determine_continuum_types(hc_type[indobs % len(hc_type)], res_cont[indobs % len(res_cont)])
             self._obs_data[indobs]['spectro'] = self._adapt_observation(obs_data, target_res_obs, model_wavelength, model_resolution, res_cont =float(res_cont[indobs % len(res_cont)]), wav_cont = wav_cont[indobs % len(wav_cont)], hc_type = hc_type[indobs % len(hc_type)], remove_continuum = remove_continuum, star_continuum = star_continuum)
-            
-            
+
+
     def _adapt_observation(self, obs_data: dict, target_res_obs: np.ndarray, model_wavelength: np.ndarray, model_resolution: np.ndarray, res_cont: str | float = 'NA', wav_cont: str | np.ndarray = 'NA', hc_type: str = 'NA', remove_continuum: bool = False, star_continuum: str = 'NA'):
         '''
         Decrease the spectral resolution of the current observation and remove the continuum if necessary
 
         Args:
             obs_data                 (dict): Dictionary of observation data {'wav': wav, 'flx': flx, ...}
-            target_res_obs     (np.ndarray): Target resolution of each of the observation 
+            target_res_obs     (np.ndarray): Target resolution of each of the observation
             model_wavelength   (np.ndarray): Wavelength grid of the grid of models
             model_resolution   (np.ndarray): Resolution of the grid of models
-            res_cont          (str | float): Resolution of the continuum of each of the observation 
-            wav_cont          (str | float): Wavelength of the continuum of each of the observation 
+            res_cont          (str | float): Resolution of the continuum of each of the observation
+            wav_cont          (str | float): Wavelength of the continuum of each of the observation
             star_continuum            (str): Star continuum type ('remove', 'estimate' or 'NA')
-            
+
         Returns:
             obs_data          (dict): Adapted current observation
 
         Authors: Simon Petrus, Matthieu Ravet and Allan Denis
         '''
-        
+
         obs_name = obs_data['name']
 
         # If we want to decrease the resolution of the spectroscopic data:
@@ -419,7 +423,7 @@ class Observation(object):
                                                 obs_data['res'],
                                                 obs_data['wav'],
                                                 target_res_obs)
-        
+
         if len(obs_data['transm']) > 0:
             self._logger.debug('> Decrease the resolution of the transmission if necessary..')
             obs_data['transm'] = resolution_decreasing(obs_data['wav'],
@@ -434,7 +438,7 @@ class Observation(object):
                                                                      obs_data['res'],
                                                                      obs_data['wav'],
                                                                      target_res_obs) for i in range(obs_data['star_flx'].shape[-1])]).T
-        
+
         if len(obs_data['system']) > 0:
             self._logger.debug('> Decrease the resolution of the systematics if necessary.')
             obs_data['system'] = np.asarray([resolution_decreasing(obs_data['wav'],
@@ -442,44 +446,44 @@ class Observation(object):
                                                                    obs_data['res'],
                                                                    obs_data['wav'],
                                                                    target_res_obs) for i in range(obs_data['system'].shape[-1])]).T
-    
-    
+
+
         # Since the resolution of the observation might have change, we need to save the new one
         obs_data['res_spectro'] = target_res_obs
-        
+
         # If we want to estimate and substract the continuum of the data:
         if res_cont != 'NA':
             self._logger.debug('> Substract the continuum to the data')
-            
-            obs_data['flx_cont'] = continuum_estimate(obs_data['wav'], 
-                                                      obs_data['flx'], 
-                                                      obs_data['res'], 
+
+            obs_data['flx_cont'] = continuum_estimate(obs_data['wav'],
+                                                      obs_data['flx'],
+                                                      obs_data['res'],
                                                       wav_cont, res_cont)
-            
+
             # We want to remove the continuum of the star (generally if you do not use high contrast data)
             if star_continuum == 'remove':
                 obs_data['flx'] -= obs_data['flx_cont']
                 self._logger.info(f' {obs_name} will have a R = {res_cont} continuum removed using a {wav_cont} wavelength range')
-    
+
             elif star_continuum == 'estimate': # We just want to estimate the continuum of the star (generally if you use high contrast data)
                 self._logger.debug('> Estimate the continuum to the stellar data')
                 obs_data['star_flx_cont'] = continuum_estimate(obs_data['wav'],
                                                             obs_data['star_flx'][:,len(obs_data['star_flx'][0]) // 2], # Continuum of the star on the central pixel
                                                             obs_data['res'],
                                                             wav_cont, res_cont)
-    
+
         self._logger.info(f' Observation {obs_name} adapted.')
-        
+
         return obs_data
-        
-        
+
+
     def _set_obs_target_resolution(self, target_res_obs : str, wav_obs_spectro: np.ndarray, res_obs_spectro: np.ndarray, grid_wavelength: np.ndarray, grid_resolution: np.ndarray) -> np.ndarray:
         '''
         Method to set the target resolution of the observation
 
         Parameters
         ----------
-        target_res_obs (str | float): Target resolution of the observation ('obs' or float) 
+        target_res_obs (str | float): Target resolution of the observation ('obs' or float)
         res_mod_obs     (np.ndarray): Wavelength grid of the observation
         res_obs_spectro (np.ndarray): Resolution of the observation
 
@@ -488,7 +492,7 @@ class Observation(object):
 
         Authors: Simon Petrus, Matthieu Ravet and Allan Denis
         '''
-        
+
         # Setup target resolution for the observation
         # Interpolate the resolution of the model onto the wavelength of the data to properly decrease the resolution if necessary
         interp_mod_to_obs = interp1d(grid_wavelength, grid_resolution, fill_value='extrapolate')
@@ -499,10 +503,10 @@ class Observation(object):
         else:                                             # Using a custom resolution except where its higher than the model's or the observation's
             res_custom = np.full(len(res_obs_spectro), float(target_res_obs))
             target_res_obs = np.minimum(res_obs_spectro, res_mod_obs, res_custom)
-            
-        return target_res_obs 
-        
-        
+
+        return target_res_obs
+
+
     def _save_observation_file(self, path: str | os.PathLike, indobs: int = 0) -> None:
         '''
         Method to save the observation indobs
@@ -511,20 +515,20 @@ class Observation(object):
         ----------
         path    (str | os.PathLike): Path to save the date to
         indobs                (int): Index of the observation to save
-        
+
         Authors: Allan Denis
         '''
-        
+
         if not(os.path.isdir(path)):
             msg = f' {path} does not exist'
             self._logger.error(msg)
             raise ForMoSAError(msg)
-        
+
         self._logger.info(f' Save observation {self.obs_name[indobs]}')
         self._logger.debug(f'> Save observation file to {path}' + f'/spectrum_obs_{self.obs_name[indobs]}.npz')
         np.savez(os.path.join(path, f'spectrum_obs_{self.obs_name[indobs]}.npz'), **self.obs_data[indobs])
-        
-    
+
+
     def _save_all_observations(self, path) -> None:
         '''
         Method to save all the observation files
@@ -532,14 +536,14 @@ class Observation(object):
         Parameters
         ----------
         path    (str | os.PathLike): Path to save the date to
-        
+
         Authors: Allan Denis
         '''
-        
+
         for indobs in range(self.n_obs):
             self._save_observation_file(path, indobs)
-            
-            
+
+
     def _load_adapted_observations_from_files(self, path: str | os.PathLike) -> None:
         '''
         Method to load adapted observations
@@ -548,26 +552,26 @@ class Observation(object):
         ----------
         path : str | os.PathLike
             DESCRIPTION.
-            
+
         Authors: Simon Petrus, Paulina Palma-Bifani, Matthieu Ravet and Allan Denis
         '''
-        
+
         obs_files = glob.glob(str(path) + '/spectrum_obs_*.npz')
-        
+
         if len(obs_files) == 0:
             msg = f' No observation file in {path}.' + ' Make sure your observation files have the format spectrum_obs_{obs_name}.npz.'
             self._logger.error(msg)
             raise ForMoSAError(msg)
-            
+
         if len(obs_files) != self.n_obs:
             msg = f' The number of files in the folder {path} does not correspond to the number of observations. Using only observations with the right name {obs_files}.'
             self._logger.warning(msg)
-        
+
         missing_files = []
         for indobs in range(self.n_obs):
             obs_file = str(os.path.join(path, f'spectrum_obs_{self.obs_name[indobs]}.npz'))
             self._logger.debug(f'< Load observation file {obs_file}')
-            
+
             if not(Path(obs_file).exists()):
                 missing_files.append(obs_file)
             else:
@@ -578,9 +582,9 @@ class Observation(object):
                     self._obs_data[indobs]['spectro'] = self._obs_data[indobs]['spectro'].item()
                 if 'photo' in self._obs_data[indobs] and isinstance(self._obs_data[indobs]['photo'], np.ndarray) and self._obs_data[indobs]['photo'].dtype == object:
                     self._obs_data[indobs]['photo'] = self._obs_data[indobs]['photo'].item()
-               
 
-        
+
+
         if len(missing_files) > 0:
             msg = f" Observation files cannot be found : {', '.join(missing_files)}."
             self._logger.error(msg)
