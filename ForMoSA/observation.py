@@ -82,7 +82,7 @@ class Observation(object):
                 elements = (file.split('/')[-1].split('.fits')[0] + f'_{instrument}').split('_')
                 seen = set()
                 unique_elements = [x for x in elements if not (x in seen or seen.add(x))]
-                _obs_name = '_'.join(unique_elements)
+                _obs_name[len(_obs_name)] = '_'.join(unique_elements)
         return _obs_name
 
     @property
