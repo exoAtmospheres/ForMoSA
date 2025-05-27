@@ -388,7 +388,6 @@ class NestedSampling(object):
 
         Author: Simon Petrus, Paulina Palma-Bifani, Allan Denis and Matthieu Ravet
         '''
-
         def get_param(name, indobs):
             name = name if name in self.params.parameters else f"{name}_{indobs}" if f"{name}_{indobs}" in self.params.parameters else None   # treat also the multi-observations parameters
             if name is None:
@@ -396,13 +395,16 @@ class NestedSampling(object):
             new_theta = self.params._get_param_value(name, theta)
             return new_theta
 
-        theta_index = self._params.list_params_keys
+        theta_index = self.params.list_params_keys
         if len(theta) != self._params.n_free_parameters:
             msg = f"theta length ({len(theta)}) does not match expected number of free parameters ({self._params.n_free_parameters})"
             self._logger.critical(msg)
             raise ForMoSAError(msg)
 
-        theta_grid = [theta[i] for i, key in enumerate(theta_index) if key.startswith('par')]
+        theta_grid = [theta[i] if key in self.params.list_free_params_keys
+        else self.params.parameters[key].value
+        for i, key in enumerate(theta_index)
+        if key.startswith('par')]
 
         # Retrieve usefull parameters
         wav_mod_spectro = grid_spectro.wavelength
@@ -412,7 +414,6 @@ class NestedSampling(object):
 
         # Interpolate at the values of the grid parameters
         flx_mod_spectro, flx_mod_photo = grid_spectro._interpolate_between_gridpoints(theta_grid, interp_method, indobs), grid_photo._interpolate_between_gridpoints(theta_grid, interp_method, indobs)
-
         # Definition of a new key (usefull for the high-contrast modeling)
         obs_dict_spectro['speckles'] = 0
 
@@ -677,7 +678,7 @@ class NestedSampling(object):
             else:
                 res_mod_obs = 0
 
-            modif_data[indobs], best_model[indobs] = self._compute_model_from_theta(best_theta, observation.obs_data[indobs]['spectro'], observation.obs_data[indobs]['photo'], modelgrid.adapted_grid[indobs]['spectro'], modelgrid.adapted_grid[indobs]['photo'], res_mod_obs, interp_method = interp_method, wav_cont = wav_cont[indobs % len(wav_cont)], res_cont = res_cont[indobs % len(res_cont)], bounds_lsq = bounds_lsq[2*indobs % len(bounds_lsq): 2*indobs % len(bounds_lsq) + 2], hc_type = hc_type[indobs % len(hc_type)], indobs = indobs)
+            modif_data[indobs], best_model[indobs] = self._compute_model_from_theta(best_theta, observation.obs_data[indobs]['spectro'], observation.obs_data[indobs]['photo'], modelgrid.adapted_grid[indobs]['spectro'], modelgrid.adapted_grid[indobs]['photo'], res_mod_obs, interp_method = interp_method, wav_cont = wav_cont[indobs % len(wav_cont)], res_cont = float(res_cont[indobs % len(res_cont)]), bounds_lsq = bounds_lsq[indobs % len(bounds_lsq)], hc_type = hc_type[indobs % len(hc_type)], indobs = indobs)
 
         self._modif_data = modif_data
         self._best_model = best_model
