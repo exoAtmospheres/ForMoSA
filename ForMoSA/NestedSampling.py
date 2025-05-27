@@ -31,19 +31,30 @@ class NestedSampling(object):
     logger          (Logger): Logger
     algorithm          (str): Algorithm used for the nested sampling ('nestle', 'ultranest' or 'pymultinest')
     npoints            (int): Number of living points used for the nested sampling
+    logL_type         (list):
     config_ns_algo    (dict): Dictionary containing the parametes of the different nested sampling algorithm
 
     Authors: Allan Denis
     '''
 
-    def __init__(self, algorithm: str, npoints: int, logger, config_ns_algo: dict):
+    def __init__(self, algorithm: str, npoints: int, logL_type: list, logger, config_ns_algo: dict):
         self._logger = logger
+        self._logL = dict()
 
         valid_algorithms = ['nestle', 'ultranest', 'pymultinest']
         if algorithm not in valid_algorithms:
             msg = f" {algorithm} is not a supported algorithm. Please choose amongst {', '.join(valid_algorithms)}"
             self._logger.error(msg)
             raise ForMoSAError(msg)
+
+        valid_logL_type = ['chi2', 'chi2_covariance', 'CCF_Brogi', 'CCF_Zucker', 'CCF_custom', 'chi2_noisescaling', 'chi2_noisescaling_covariance']
+        for indobs in range(len(logL_type)):
+            if logL_type[indobs] not in valid_logL_type:
+                msg = f' Invalid loglikelihood type. Please choose amongst {valid_logL_type}'
+                self._logger.critical(msg)
+                raise ForMoSAError(msg)
+            else:
+                self._logL[indobs] = logL_type[indobs]
 
         self._algorithm = algorithm
         self._npoints = npoints
@@ -53,7 +64,6 @@ class NestedSampling(object):
         self._results = None
         self._modif_data = dict()
         self._best_model = dict()
-        self._logL = dict()
 
         try:   # Check if the dictionary contains the keys 'nestle', 'ultranest' and 'pymultinest'
             if algorithm == 'nestle':
@@ -168,7 +178,7 @@ class NestedSampling(object):
         return self._plotting
 
 
-    def run(self, logL_type: list, results_path: str | os.PathLike, observation: Observation, modelgrid: ModelGrid, interp_method: str = 'linear', wav_cont: list = ['NA'], res_cont: list = ['NA'], hc_type: list = ['NA'], bounds_lsq: list = ['NA'], emulator: list = ['NA']) -> None:
+    def run(self, results_path: str | os.PathLike, observation: Observation, modelgrid: ModelGrid, interp_method: str = 'linear', wav_cont: list = ['NA'], res_cont: list = ['NA'], hc_type: list = ['NA'], bounds_lsq: list = ['NA'], emulator: list = ['NA']) -> None:
         '''
         Method to run the nested sampling algorithm using the model, observation and nested sampling parameters.
 
@@ -189,23 +199,14 @@ class NestedSampling(object):
 
         self._logger.info(f' Run Nested Sampling algorithm using {self.npoints} living points and {self.algorithm}.')
 
-        valid_logL_type = ['chi2', 'chi2_covariance', 'CCF_Brogi', 'CCF_Zucker', 'CCF_custom', 'chi2_noisescaling', 'chi2_noisescaling_covariance']
         res_mod_obs_list = []
-
         for indobs in range(observation.n_obs):
-            if logL_type[indobs] not in valid_logL_type:
-                msg = f' Invalid loglikelihood type. Please choose amongst {valid_logL_type}'
-                self._logger.critical(msg)
-                raise ForMoSAError(msg)
-            else:
-                self._logL[indobs] = logL_type[indobs]
-
             obs_data_spectro, mod_data_spectro = observation.obs_data[indobs]['spectro'], modelgrid.adapted_grid[indobs]['spectro']
 
-            if len(obs_data_spectro['inv_cov']) > 0 and not(logL_type[indobs].endswith('_covariance')):
-                self._logger.warning(f' observation {observation.obs_name[indobs]} contains a covariance matrix but your loglikelihood function does not account for covariance matrices. Changing the loglikelihood function from {logL_type[indobs]} to {logL_type[indobs] + "_covariance"}.')
+            if len(obs_data_spectro['inv_cov']) > 0 and not(self.logL[indobs].endswith('_covariance')):
+                self._logger.warning(f' observation {observation.obs_name[indobs]} contains a covariance matrix but your loglikelihood function does not account for covariance matrices. Changing the loglikelihood function from {self.logL[indobs]} to {self.logL[indobs] + "_covariance"}.')
 
-                self._logL[indobs] = logL_type[indobs] + '_covariance'
+                self._logL[indobs] = self.logL[indobs] + '_covariance'
 
             if len(obs_data_spectro['wav']) > 0:
                 res_mod_obs = obs_data_spectro['res']
