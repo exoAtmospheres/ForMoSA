@@ -66,7 +66,7 @@ class Analysis(object):
         self._paths = global_params.paths
         self._adapted = adapted
         self._fitted = fitted
-        self._ns = NestedSampling(self.config_params['inversion']['ns_algo'], self.config_params['inversion']['npoints'], logger, self.config_params['ns_algo'])
+        self._ns = NestedSampling(self.config_params['inversion']['ns_algo'], self.config_params['inversion']['npoints'], self.config_params['inversion']['logL_type'], logger, self.config_params['ns_algo'])
         self._ns._plotting = NestedSampling_Plotting(logger, self.config_params['plottings'])
         self._logger = logger
 
@@ -230,12 +230,11 @@ class Analysis(object):
         interp_method = adapt['method']
 
         hc_type        = inversion['hc_type']
-        logL_function  = inversion['logL_type']
         wav_for_fitting = inversion['wav_fit']
         bounds_lsq     = inversion['hc_bounds_lsq']
 
         # Check that inputs are of type 'list'
-        is_not_list = utils.check_format(res_obs, res_mod, res_cont, wav_cont, emulator, hc_type, logL_function, wav_for_fitting, bounds_lsq, type_expected=list)
+        is_not_list = utils.check_format(res_obs, res_mod, res_cont, wav_cont, emulator, hc_type, wav_for_fitting, bounds_lsq, type_expected=list)
         if len(is_not_list) > 0:
                 msg = f" Params in wrong format : {', '.join(is_not_list)}."
                 self._logger.critical(msg)
@@ -243,7 +242,7 @@ class Analysis(object):
 
         if not(self.fitted):
             # Run nested sampling
-            self.ns.run(logL_function, self.paths.result_path, self.paths.observation, self.paths.grid, interp_method=interp_method, wav_cont=wav_cont, res_cont=res_cont, bounds_lsq=bounds_lsq, emulator=emulator, hc_type=hc_type)
+            self.ns.run(self.paths.result_path, self.paths.observation, self.paths.grid, interp_method=interp_method, wav_cont=wav_cont, res_cont=res_cont, bounds_lsq=bounds_lsq, emulator=emulator, hc_type=hc_type)
 
             # Savings
             self.ns._save_results(self.paths.result_path)
