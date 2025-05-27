@@ -199,6 +199,12 @@ class NestedSampling(object):
 
         self._logger.info(f' Run Nested Sampling algorithm using {self.npoints} living points and {self.algorithm}.')
 
+        # Replace 'parX' names by associated physical parameters ('Teff', 'logg', ...)
+        for name in self.params.parameters.keys():
+            if name.startswith('par'):  # Detect grid parameters
+                self.params.parameters[name]._name = modelgrid.titles[modelgrid.keys.index(name)]  # Rename parameter with title associated to 'parX'
+
+
         res_mod_obs_list = []
         for indobs in range(observation.n_obs):
             obs_data_spectro, mod_data_spectro = observation.obs_data[indobs]['spectro'], modelgrid.adapted_grid[indobs]['spectro']

@@ -71,7 +71,7 @@ class Analysis(object):
         self._logger = logger
 
         # Build and check list of nested sampling parameters
-        self._add_NestedSampling_parameters_from_config(self.config_params['parameters'])
+        self.ns.params._add_NestedSampling_parameters_from_config(self.config_params['parameters'])
 
     ##################################################
     # Representation
@@ -256,30 +256,7 @@ class Analysis(object):
         self.ns._compute_best_model(self.observation, self.grid, interp_method = interp_method, wav_cont = wav_cont, res_cont = res_cont, bounds_lsq = bounds_lsq, hc_type = hc_type)
 
 
-    def _add_NestedSampling_parameters_from_config(self, config_dict: dict) -> None:
-        '''
-        Method to create the list of nested sampling parameters from the configuration file dictionary
-
-        Parameters
-        ----------
-        config_dict (dict): Dictionary of the nested sampling config parameters
-
-        Authors: Allan Denis
-        '''
-
-        for param_type in ['grid_parameters', 'physical_parameters']:    # Retrieve 'grid parameters' and 'physical parameters' objects
-            for name, param in config_dict[param_type].items():        # (e.g. 'par1', 'rv_0", 'vsini_1')
-                self.ns.params._add_parameter(param, name)
-
-        # Additional step to check for the global consistance of the parameters
-        self.ns.params._check_params()
-        # Replace 'parX' names by associated physical parameters ('Teff', 'logg', ...)
-        for name in self.ns.params.parameters.keys():
-            if name.startswith('par'):  # Detect grid parameters
-                self.ns.params.parameters[name]._name = self.grid.titles[self.paths.grid.keys.index(name)]  # Rename parameter with title associated to 'parX'
-
-
-    def _plot(self, label_ins: str='no', trans: str='yes', uncert: str='yes') -> None:
+    def _plot(self, label_ins: str='no', trans: str='yes', uncert: str='yes', figsize_corner: tuple=(15,15), figsize_chains: tuple=(12,15), figsize_fit:tuple=(10,7)) -> None:
         '''
         Method to use all the plotting methods
 
@@ -298,7 +275,7 @@ class Analysis(object):
         modif_data = self.ns.modif_data
         best_model = self.ns.best_model
 
-        self.ns.plotting._plot_corner(results, param_names)
-        self.ns.plotting._plot_chains(results, param_names, param_best_values)
+        self.ns.plotting._plot_corner(results, param_names, figsize=figsize_corner)
+        self.ns.plotting._plot_chains(results, param_names, param_best_values, figsize=figsize_chains)
         self.ns.plotting._plot_radar(results, param_names)
-        self.ns.plotting._plot_fit(modif_data, best_model, label_ins=label_ins, trans=trans, uncert=uncert)
+        self.ns.plotting._plot_fit(modif_data, best_model, label_ins=label_ins, trans=trans, uncert=uncert, figsize=figsize_fit)
