@@ -240,6 +240,11 @@ class Analysis(object):
                 self._logger.critical(msg)
                 raise ForMoSAError(msg)
 
+        # Replace 'parX' names by associated physical parameters ('Teff', 'logg', ...)
+        for name in self.ns.params.parameters.keys():
+            if name.startswith('par'):  # Detect grid parameters
+                self.ns.params.parameters[name]._name = self.grid.titles[self.grid.keys.index(name)]  # Rename parameter with title associated to 'parX'
+
         if not(self.fitted):
             # Run nested sampling
             self.ns.run(self.paths.result_path, self.paths.observation, self.paths.grid, interp_method=interp_method, wav_cont=wav_cont, res_cont=res_cont, bounds_lsq=bounds_lsq, emulator=emulator, hc_type=hc_type)
