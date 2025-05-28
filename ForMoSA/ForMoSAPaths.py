@@ -18,12 +18,12 @@ class ForMoSAError(Exception):
 class ForMoSAPaths(object):
     '''
     Analysis path class, handles the paths used in the configuration file.
-    
+
     Parameters
     ----------
     config_file_path : str | os.PathLike
         Path to the configuration file.
-    logger : Logger used 
+    logger : Logger used
     '''
     _logger_initialized = False  # Classe-level variable to prevent re-initialization
 
@@ -68,7 +68,7 @@ class ForMoSAPaths(object):
             logger.addHandler(console_handler)
 
             ForMoSAPaths._logger_initialized = True  # Mark as initialized
-            
+
         self._logger = logger
         self._observation = Observation(self.observation_path, self.logger)
         self._grid = ModelGrid(self.model_path, self.logger)
@@ -86,16 +86,16 @@ class ForMoSAPaths(object):
 
     def __format__(self) -> str:
         return self.__repr__()
-    
+
     ##################################################
     # Properties
     ##################################################
-    
-    @property 
+
+    @property
     def logger(self):
         return self._logger
-    
-    @property  
+
+    @property
     def config_file_path(self):
         if not self._config_file_path.exists():
             self._logger.error(f' No config file. {self._config_file_path} is not a valid configuration path.')
@@ -103,37 +103,49 @@ class ForMoSAPaths(object):
             return ''
         else:
             return self._config_file_path
-    
-    @property 
+
+    @property
     def observation_path(self):
         return self._observation_path
-    
-    @property 
+
+    @observation_path.setter
+    def observation_path(self, path: str | os.PathLike):
+        self._observation_path = Path(path).expanduser()
+        self._observation = Observation(self.observation_path, self.logger)
+
+    @property
     def adapt_store_path(self):
         if not self._adapt_store_path.exists():
             self._logger.info(f' Creating {self._adapt_store_path}')
             os.mkdir(self._adapt_store_path)
         return self._adapt_store_path
-    
-    @property 
+
+    @property
     def result_path(self):
         if not self._result_path.exists():
             os.mkdir(self._result_path)
         return self._result_path
-    
-    @property 
+
+    @property
     def model_root(self):
         return self._model_path.parent
-    
-    @property 
+
+    @property
     def model_path(self):
         if not self._model_path.exists():
             self._logger.error(f' No Model file. {self.model_root} does not contain any grid model file.')
             self._path_error = True
             return ''
         return self._model_path
-    
-    @property  
+
+    @model_path.setter
+    def model_path(self, path: str | os.PathLike):
+        self._model_path = Path(path).expanduser()
+        self._grid = ModelGrid(self.model_path, self.logger)
+        self._grid._read_grid()
+        self.grid.grid.attrs = self.grid.attrs
+
+    @property
     def observation_files(self):
         files = [f for f in glob.glob(str(self.observation_path)) if f.lower().endswith('.fits')]
         if len(files) == 0:  # No observation
@@ -141,20 +153,19 @@ class ForMoSAPaths(object):
             return ForMoSAError()
         else:
             return files
-        
-    @property  
+
+    @property
     def path_error(self):
         return self._path_error
-    
-    @property 
+
+    @property
     def observation(self):
         return self._observation
-    
-    @property 
+
+    @property
     def grid(self):
         return self._grid
-        
-    
-  
-    
-    
+
+
+
+
