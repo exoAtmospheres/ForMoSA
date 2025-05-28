@@ -117,14 +117,22 @@ class ForMoSAPaths(object):
     def adapt_store_path(self):
         if not self._adapt_store_path.exists():
             self._logger.info(f' Creating {self._adapt_store_path}')
-            os.mkdir(self._adapt_store_path)
+            self._adapt_store_path.mkdir(parents=True, exist_ok=True)
         return self._adapt_store_path
+
+    @adapt_store_path.setter
+    def adapt_store_path(self, path: str | os.PathLike):
+        self._adapt_store_path = Path(path).expanduser()
 
     @property
     def result_path(self):
         if not self._result_path.exists():
-            os.mkdir(self._result_path)
+            self._result_path.mkdir(parents=True, exist_ok=True)
         return self._result_path
+
+    @result_path.setter
+    def result_path(self, path: str | os.PathLike):
+        self._result_path = Path(path).expanduser()
 
     @property
     def model_root(self):
