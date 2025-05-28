@@ -464,10 +464,9 @@ class GlobalParams(object):
                                                              "# Format: 'NA' or float",
                                                              "# MOSAIC : Yes"]
 
-        self._save_config_file()
 
 
-    def _save_config_file(self, path: str | os.PathLike = None, name: str = 'NA') -> None:
+    def save_config_file(self, path: str | os.PathLike = None, name: str = 'NA') -> None:
         '''
         Method to save the config file to a specific path
 
