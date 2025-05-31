@@ -712,10 +712,10 @@ class NestedSampling(object):
         weights = np.asarray(self._results['weights'])
 
         print("\n======== Nested Sampling Summary ========")
-        print(f"Algorithm         : {self.algorithm}")
-        print(f"LogZ              : {logz:.3f} ± {logzerr:.3f}")
-        print(f"Number of samples : {len(samples)}")
-        print(f"Number of parameters   : {samples.shape[1] if samples.ndim > 1 else 1}")
+        print(f"Algorithm            : {self.algorithm}")
+        print(f"LogZ                 : {logz:.3f} ± {logzerr:.3f}")
+        print(f"Number of samples    : {len(samples)}")
+        print(f"Number of parameters : {samples.shape[1] if samples.ndim > 1 else 1}")
 
         # Normalize weights
         if len(weights) != len(samples):
@@ -750,7 +750,9 @@ class NestedSampling(object):
             low = weighted_percentile(low_pct)
             high = weighted_percentile(high_pct)
 
-            print(f" {self.params.list_free_params_names[i]}: {mean:.4f} [{low:.4f}, {high:.4f}] ({sigma}σ)")
+            plus  = high - mean
+            minus = low - mean
+            print(f" {self.params.list_free_params_names[i]:10s}: {mean:10.4f} {minus:+10.4f} {plus:+10.4f} [{low:10.4f}, {high:10.4f}] ({sigma}σ)")
 
         print("=========================================\n")
 
