@@ -143,7 +143,7 @@ class NestedSampling_Plotting(object):
         return label
 
 
-    def _plot_corner(self, results: dict, param_names: list, levels_sig: list=[0.997, 0.95, 0.68], bins: int=100, quantiles: tuple=(0.16, 0.5, 0.84), figsize: tuple=(15, 15)) -> matplotlib.figure.Figure:
+    def plot_corner(self, results: dict, param_names: list, levels_sig: list=[0.997, 0.95, 0.68], bins: int=100, quantiles: tuple=(0.16, 0.5, 0.84), figsize: tuple=(15, 15)) -> matplotlib.figure.Figure:
         '''
         Method to corner plot the results samples
 
@@ -202,7 +202,7 @@ class NestedSampling_Plotting(object):
         return fig
 
 
-    def _plot_chains(self, results: dict, param_names: list, param_best_values: dict, figsize:tuple=(12, 15), show_weights: bool=True) -> tuple[matplotlib.figure.Figure, matplotlib.axes._axes.Axes]:
+    def plot_chains(self, results: dict, param_names: list, param_best_values: dict, figsize:tuple=(12, 15), show_weights: bool=True) -> tuple[matplotlib.figure.Figure, matplotlib.axes._axes.Axes]:
         '''
         Method to plot the chains of the samples results.
 
@@ -259,10 +259,11 @@ class NestedSampling_Plotting(object):
             fig.delaxes(axs[idx])
 
         fig.tight_layout()
+
         return fig, axs[:n_params]
 
 
-    def _plot_radar(self, results: dict, param_names: list, quantiles=[0.16, 0.5, 0.84], alpha_fill=0.2) -> tuple[plt.Figure, plt.Axes]:
+    def plot_radar(self, results: dict, param_names: list, quantiles=[0.16, 0.5, 0.84], alpha_fill=0.2) -> tuple[plt.Figure, plt.Axes]:
         '''
         Method to radar plot the samples with normalized scaling based on prior-like ranges, and raw value annotations.
 
@@ -395,7 +396,7 @@ class NestedSampling_Plotting(object):
         return color, edgecolor, marker, size
 
 
-    def _plot_fit(self, modif_data: dict, best_model: dict, figsize=(10, 7), uncert: str='yes', trans: str='yes', logx: str='no', logy: str='no', norm: str='no', label_ins: str='no') -> tuple[matplotlib.figure.Figure, matplotlib.axes.Axes, matplotlib.axes.Axes, matplotlib.axes.Axes]:
+    def plot_fit(self, modif_data: dict, best_model: dict, figsize=(10, 7), uncert: str='yes', trans: str='yes', logx: str='no', logy: str='no', norm: str='no', label_ins: str='no') -> tuple[matplotlib.figure.Figure, matplotlib.axes.Axes, matplotlib.axes.Axes, matplotlib.axes.Axes]:
         '''
         Method to plot the best fit compared with the data, including residuals and filter transmissions.
 
