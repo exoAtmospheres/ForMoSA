@@ -1,5 +1,6 @@
-import matplotlib.pyplot as plt
 import matplotlib
+import matplotlib.pyplot as plt
+import matplotlib.gridspec as gridspec
 import numpy as np
 import corner
 
@@ -178,6 +179,7 @@ class NestedSampling_Plotting(object):
             raise ForMoSAError(msg)
 
         fig = plt.figure(figsize=figsize)
+        fig.clf()
         fig = corner.corner(samples,
                             weights=weights,
                             labels=param_names,
@@ -198,6 +200,8 @@ class NestedSampling_Plotting(object):
                             pcolor_kwargs=dict(color='red'),
                             fig=fig,
                             label_kwargs=dict(fontsize=14))
+
+        fig.subplots_adjust(left=0.09, right=0.98, bottom=0.09, top=0.97)
 
         return fig
 
@@ -258,7 +262,7 @@ class NestedSampling_Plotting(object):
         for idx in range(n_params, len(axs)):
             fig.delaxes(axs[idx])
 
-        fig.tight_layout()
+        fig.subplots_adjust(left=0.1, right=0.98, bottom=0.09, top=0.97)
 
         return fig, axs[:n_params]
 
@@ -343,7 +347,7 @@ class NestedSampling_Plotting(object):
         ax.set_xticks(angles[:-1])
         ax.set_xticklabels(param_names, fontsize=12)
         ax.set_yticklabels([])
-        ax.set_title('Radar plot', size=14, pad=20)
+        # ax.set_title('Radar plot', size=14, pad=20)
         ax.grid(True)
 
         # Display ticks
@@ -431,10 +435,11 @@ class NestedSampling_Plotting(object):
             raise ForMoSAError(msg)
 
         fig = plt.figure(figsize=figsize)
-        fig.tight_layout()
-        ax = plt.subplot2grid((9, 11), (2, 0), rowspan=4, colspan=10)
-        axr = plt.subplot2grid((9, 11), (6, 0), rowspan=1, colspan=10, sharex=ax)
-        axr2 = plt.subplot2grid((9, 11), (6, 10), rowspan=1, colspan=1)
+        fig.clf()
+        gs = gridspec.GridSpec(9, 11)
+        ax = fig.add_subplot(gs[0:7, 0:10])
+        axr = fig.add_subplot(gs[7:9, 0:10], sharex=ax)
+        axr2 = fig.add_subplot(gs[7:9, 10:11], sharey=axr)
 
         # First pass: collect all residuals globally
         global_residuals = []
@@ -535,6 +540,8 @@ class NestedSampling_Plotting(object):
         axr.set_ylabel(r'Residuals ($\sigma$)')
         axr2.axis('off')
         ax.tick_params(bottom=False, labelbottom=False)
+
+        plt.subplots_adjust(left=0.06, right=0.98, bottom=0.11, top=0.97)
 
         return fig, ax, axr, axr2
 
