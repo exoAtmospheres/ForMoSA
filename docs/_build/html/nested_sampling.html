@@ -1,23 +1,26 @@
-
-
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" data-content_root="./">
 <head>
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Nested Sampling &mdash; ForMoSA 1.1.5 documentation</title>
-      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
-      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+  <title>Nested Sampling &mdash; ForMoSA 1.1.6 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=fa44fd50" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="_static/custom.css?v=d0b3e03c" />
 
   
     <link rel="shortcut icon" href="_static/favicon.ico"/>
-      <script src="_static/jquery.js?v=5d32c60e"></script>
-      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="_static/documentation_options.js?v=a48ae3df"></script>
-      <script src="_static/doctools.js?v=9bcbadda"></script>
-      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
-      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="_static/jquery.js?v=5d32c60e"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="_static/documentation_options.js?v=937269b5"></script>
+        <script src="_static/doctools.js?v=9a2dae69"></script>
+        <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -254,7 +257,8 @@ Application of a circumplanetary disk (CPD).</p>
 - flx_mod_photo              (array): New flux of the interpolated synthetic spectrum (photometry)
 - flx_mod_spectro_nativ      (array): New flux of the interpolated synthetic spectrum NOT RESAMPLED (spectroscopy)
 - contributions              (array): Contributions from the high-contrast model
-- ck                         (float): Scaling factor</p>
+- scale_spectro              (float): Spectroscopic flux scaling factor
+- scale_photo                (float): Photometric flux scaling factor</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><ul class="simple">
@@ -422,7 +426,7 @@ under the assumption of gaussian and spectrally constant noise.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="ForMoSA.nested_sampling.nested_logL_functions.logL_chi2">
-<span class="sig-prename descclassname"><span class="pre">ForMoSA.nested_sampling.nested_logL_functions.</span></span><span class="sig-name descname"><span class="pre">logL_chi2</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">delta_flx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">err</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">full</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ForMoSA/nested_sampling/nested_logL_functions.html#logL_chi2"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ForMoSA.nested_sampling.nested_logL_functions.logL_chi2" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">ForMoSA.nested_sampling.nested_logL_functions.</span></span><span class="sig-name descname"><span class="pre">logL_chi2</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">delta_flx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">err</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_det</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">full</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ForMoSA/nested_sampling/nested_logL_functions.html#logL_chi2"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ForMoSA.nested_sampling.nested_logL_functions.logL_chi2" title="Link to this definition"></a></dt>
 <dd><p>Function to compute logL based on the classical chi2
 under the assumption of gaussian and spectrally uncorrelated noise.</p>
 <dl class="field-list simple">
@@ -431,6 +435,7 @@ under the assumption of gaussian and spectrally uncorrelated noise.</p>
 <li><p><strong>delta_flx</strong> (<em>array</em>) – residual data-model as a function of wavelength</p></li>
 <li><p><strong>err</strong> (<em>array</em>) – error (=standard deviation) of the observed spectrum as a function of wavelength</p></li>
 <li><p><strong>full</strong> (<em>bool</em>) – True or False to add the usual constant terms</p></li>
+<li><p><strong>log_det</strong> (<em>float</em>) – Log-determinant of the error bars</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -448,7 +453,7 @@ under the assumption of gaussian and spectrally uncorrelated noise.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="ForMoSA.nested_sampling.nested_logL_functions.logL_chi2_covariance">
-<span class="sig-prename descclassname"><span class="pre">ForMoSA.nested_sampling.nested_logL_functions.</span></span><span class="sig-name descname"><span class="pre">logL_chi2_covariance</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">delta_flx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inv_cov</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">full</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ForMoSA/nested_sampling/nested_logL_functions.html#logL_chi2_covariance"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ForMoSA.nested_sampling.nested_logL_functions.logL_chi2_covariance" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">ForMoSA.nested_sampling.nested_logL_functions.</span></span><span class="sig-name descname"><span class="pre">logL_chi2_covariance</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">delta_flx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inv_cov</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_det</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">full</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ForMoSA/nested_sampling/nested_logL_functions.html#logL_chi2_covariance"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ForMoSA.nested_sampling.nested_logL_functions.logL_chi2_covariance" title="Link to this definition"></a></dt>
 <dd><p>Function to compute logL based on the generalized chi2
 under the assumption of gaussian and spectrally correlated noise.</p>
 <dl class="field-list simple">
@@ -457,6 +462,7 @@ under the assumption of gaussian and spectrally correlated noise.</p>
 <li><p><strong>delta_flx</strong> (<em>array</em>) – residual data-model as a function of wavelength</p></li>
 <li><p><strong>inv_cov</strong> (<em>n-array</em>) – inverse of the covariance matrix of the observed spectrum as a function of wavelength</p></li>
 <li><p><strong>full</strong> (<em>bool</em>) – True or False to add the usual constant terms</p></li>
+<li><p><strong>log_det</strong> (<em>float</em>) – Log-determinant of the covariance matrix</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -474,7 +480,7 @@ under the assumption of gaussian and spectrally correlated noise.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="ForMoSA.nested_sampling.nested_logL_functions.logL_chi2_noisescaling">
-<span class="sig-prename descclassname"><span class="pre">ForMoSA.nested_sampling.nested_logL_functions.</span></span><span class="sig-name descname"><span class="pre">logL_chi2_noisescaling</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">delta_flx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">err</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">full</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ForMoSA/nested_sampling/nested_logL_functions.html#logL_chi2_noisescaling"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ForMoSA.nested_sampling.nested_logL_functions.logL_chi2_noisescaling" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">ForMoSA.nested_sampling.nested_logL_functions.</span></span><span class="sig-name descname"><span class="pre">logL_chi2_noisescaling</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">delta_flx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">err</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_det</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">full</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ForMoSA/nested_sampling/nested_logL_functions.html#logL_chi2_noisescaling"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ForMoSA.nested_sampling.nested_logL_functions.logL_chi2_noisescaling" title="Link to this definition"></a></dt>
 <dd><p>Function to compute logL based on the chi2 with a fitted noise scaling s (marginalized)
 under the assumption of gaussian and spectrally uncorrelated noise.</p>
 <dl class="field-list simple">
@@ -483,6 +489,7 @@ under the assumption of gaussian and spectrally uncorrelated noise.</p>
 <li><p><strong>delta_flx</strong> (<em>array</em>) – residual data-model as a function of wavelength</p></li>
 <li><p><strong>err</strong> (<em>array</em>) – error (=standard deviation) of the observed spectrum as a function of wavelength</p></li>
 <li><p><strong>full</strong> (<em>bool</em>) – True or False to add the usual constant terms</p></li>
+<li><p><strong>log_det</strong> (<em>float</em>) – Log-determinant of the error bars matrix</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -500,7 +507,7 @@ under the assumption of gaussian and spectrally uncorrelated noise.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="ForMoSA.nested_sampling.nested_logL_functions.logL_chi2_noisescaling_covariance">
-<span class="sig-prename descclassname"><span class="pre">ForMoSA.nested_sampling.nested_logL_functions.</span></span><span class="sig-name descname"><span class="pre">logL_chi2_noisescaling_covariance</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">delta_flx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inv_cov</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">full</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ForMoSA/nested_sampling/nested_logL_functions.html#logL_chi2_noisescaling_covariance"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ForMoSA.nested_sampling.nested_logL_functions.logL_chi2_noisescaling_covariance" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">ForMoSA.nested_sampling.nested_logL_functions.</span></span><span class="sig-name descname"><span class="pre">logL_chi2_noisescaling_covariance</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">delta_flx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inv_cov</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_det</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">full</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ForMoSA/nested_sampling/nested_logL_functions.html#logL_chi2_noisescaling_covariance"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ForMoSA.nested_sampling.nested_logL_functions.logL_chi2_noisescaling_covariance" title="Link to this definition"></a></dt>
 <dd><p>Function to compute logL based on the chi2 with a fitted noise scaling s (marginalized)
 under the assumption of gaussian and spectrally correlated noise.</p>
 <dl class="field-list simple">
@@ -509,6 +516,7 @@ under the assumption of gaussian and spectrally correlated noise.</p>
 <li><p><strong>delta_flx</strong> (<em>array</em>) – residual data-model as a function of wavelength</p></li>
 <li><p><strong>inv_cov</strong> (<em>n-array</em>) – inverse of the covariance matrix of the observed spectrum as a function of wavelength</p></li>
 <li><p><strong>full</strong> (<em>bool</em>) – True or False to add the usual constant terms</p></li>
+<li><p><strong>log_det</strong> (<em>float</em>) – Log-determinant of the covariance matrix</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>

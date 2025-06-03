@@ -1,23 +1,26 @@
-
-
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" data-content_root="./">
 <head>
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Plotting Class &mdash; ForMoSA 1.1.5 documentation</title>
-      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
-      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+  <title>Plotting Class &mdash; ForMoSA 1.1.6 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=fa44fd50" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="_static/custom.css?v=d0b3e03c" />
 
   
     <link rel="shortcut icon" href="_static/favicon.ico"/>
-      <script src="_static/jquery.js?v=5d32c60e"></script>
-      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="_static/documentation_options.js?v=a48ae3df"></script>
-      <script src="_static/doctools.js?v=9bcbadda"></script>
-      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
-      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="_static/jquery.js?v=5d32c60e"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="_static/documentation_options.js?v=937269b5"></script>
+        <script src="_static/doctools.js?v=9a2dae69"></script>
+        <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -98,7 +101,7 @@
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ForMoSA.plotting.plotting_class.</span></span><span class="sig-name descname"><span class="pre">ComplexRadar</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fig</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">variables</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ranges</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_ordinate_levels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">6</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ForMoSA/plotting/plotting_class.html#ComplexRadar"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ForMoSA.plotting.plotting_class.ComplexRadar" title="Link to this definition"></a></dt>
 <dd><p>Class to create Radar plots with asymmetric error bars.</p>
 <dl class="simple">
-<dt>Author: Paulina Palma-Bifani</dt><dd><p>Adapted from Damian Cummins: <a class="reference external" href="https://github.com/DamianCummins/statsbomb-football-event-visualisations/blob/master/Statsbomb%20Womens%20World%20Cup%202019%20visualisation.ipynb">https://github.com/DamianCummins/statsbomb-football-event-visualisations/blob/master/Statsbomb%20Womens%20World%20Cup%202019%20visualisation.ipynb</a></p>
+<dt>Author: Paulina Palma-Bifani, Matthieu Ravet, Allan Denis</dt><dd><p>Adapted from Damian Cummins: <a class="reference external" href="https://github.com/DamianCummins/statsbomb-football-event-visualisations/blob/master/Statsbomb%20Womens%20World%20Cup%202019%20visualisation.ipynb">https://github.com/DamianCummins/statsbomb-football-event-visualisations/blob/master/Statsbomb%20Womens%20World%20Cup%202019%20visualisation.ipynb</a></p>
 </dd>
 </dl>
 <p>Initialize class.</p>
@@ -244,48 +247,6 @@
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="ForMoSA.plotting.plotting_class.PlottingForMoSA.plot_Clouds">
-<span class="sig-name descname"><span class="pre">plot_Clouds</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cloud_prop</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path_cloud_profile</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">figsize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(6,</span> <span class="pre">5)</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ForMoSA/plotting/plotting_class.html#PlottingForMoSA.plot_Clouds"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ForMoSA.plotting.plotting_class.PlottingForMoSA.plot_Clouds" title="Link to this definition"></a></dt>
-<dd><p>Function to plot cloud profiles.
-Adapted from Nathan Zimniak</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>cloud_prop</strong> (<em>str</em>) – Choose the cloud species. The options are
-[‘eddy_diffusion_coefficient’,
-‘vmr_CH4’,
-‘vmr_CO’,
-‘vmr_CO2’,
-‘vmr_FeH’,
-‘vmr_H2O’,
-‘vmr_H2S’,
-‘vmr_HCN’,
-‘vmr_K’,
-‘vmr_Na’,
-‘vmr_NH3’,
-‘vmr_PH3’,
-‘vmr_TiO’,
-‘vmr_VO’,
-‘cloud_opacity_Fe’,
-‘cloud_opacity_Mg2SiO4’,
-‘cloud_particle_radius_Fe’,
-‘cloud_particle_radius_Mg2SiO4’,
-‘cloud_vmr_Fe’,
-‘cloud_vmr_Mg2SiO4’]</p>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>matplotlib figure object
-- ax   (object) : matplotlib axes objects</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><ul class="simple">
-<li><p>fig  (object)</p></li>
-</ul>
-</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
 <dt class="sig sig-object py" id="ForMoSA.plotting.plotting_class.PlottingForMoSA.plot_HiRes_comp_model">
 <span class="sig-name descname"><span class="pre">plot_HiRes_comp_model</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">figsize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(10,</span> <span class="pre">5)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">indobs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ForMoSA/plotting/plotting_class.html#PlottingForMoSA.plot_HiRes_comp_model"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ForMoSA.plotting.plotting_class.PlottingForMoSA.plot_HiRes_comp_model" title="Link to this definition"></a></dt>
 <dd><p>Specific function to plot the best fit comparing with the data for high-resolution spectroscopy.</p>
@@ -311,25 +272,25 @@ Adapted from Nathan Zimniak</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="ForMoSA.plotting.plotting_class.PlottingForMoSA.plot_PT">
-<span class="sig-name descname"><span class="pre">plot_PT</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path_temp_profile</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">figsize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(6,</span> <span class="pre">5)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'ExoREM'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">emission_contribution</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ForMoSA/plotting/plotting_class.html#PlottingForMoSA.plot_PT"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ForMoSA.plotting.plotting_class.PlottingForMoSA.plot_PT" title="Link to this definition"></a></dt>
-<dd><p>Function to plot the Pressure-Temperature profiles.
-Adpated from Nathan Zimniak.</p>
+<dt class="sig sig-object py" id="ForMoSA.plotting.plotting_class.PlottingForMoSA.plot_PT_chem">
+<span class="sig-name descname"><span class="pre">plot_PT_chem</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">PT_chem</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">photosphere</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">par_to_plot</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">['temperature']</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">figsize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(10,</span> <span class="pre">5)</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ForMoSA/plotting/plotting_class.html#PlottingForMoSA.plot_PT_chem"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ForMoSA.plotting.plotting_class.PlottingForMoSA.plot_PT_chem" title="Link to this definition"></a></dt>
+<dd><p>Function to plot the Pressure-Temperature profiles and associated vmr/molecular profiles.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>path_temp_profile</strong> (<em>str</em>) – Path to the temperature profile grid</p></li>
-<li><p><strong>figsize</strong> (<em>tuple</em>) – (default = (6, 5)) Size of the plot</p></li>
-<li><p><strong>model</strong> (<em>str</em>) – (default = ‘ExoREM’) Name of the model grid</p></li>
+<li><p><strong>PT_chem</strong> (<em>dict</em>) – Dictionary containing the pressure, temperature and chemical arrays</p></li>
+<li><p><strong>photosphere</strong> (<em>dict</em>) – Dictionary containing the P/T profile of the photosphere</p></li>
+<li><p><strong>par_to_plot</strong> (<em>list</em><em>(</em><em>str</em><em>)</em>) – Key list of the parameters from the PT_chem you want to plot</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>matplotlib figure object
-- ax   (object) : matplotlib axes objects</p>
+- ax                (object): matplotlib axes objects
+- ax_twin           (object): matplotlib axes objects</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><ul class="simple">
-<li><p>fig  (object)</p></li>
+<li><p>fig               (object)</p></li>
 </ul>
 </p>
 </dd>
@@ -503,35 +464,6 @@ Useful to compare different models.</p>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>matplotlib figure object
 - radar.ax   (object) : matplotlib radar class axes object</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><ul class="simple">
-<li><p>fig  (object)</p></li>
-</ul>
-</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="ForMoSA.plotting.plotting_class.PlottingForMoSA.plot_vmr">
-<span class="sig-name descname"><span class="pre">plot_vmr</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path_vmr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">molecule</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">figsize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(6,</span> <span class="pre">5)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'ExoREM'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fig</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ForMoSA/plotting/plotting_class.html#PlottingForMoSA.plot_vmr"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ForMoSA.plotting.plotting_class.PlottingForMoSA.plot_vmr" title="Link to this definition"></a></dt>
-<dd><p>Function to plot the vmr profiles of a molecule.
-Adpated from Nathan Zimniak.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>path_vmr</strong> (<em>str</em>) – Path to the temperature profile grid</p></li>
-<li><p><strong>molecule</strong> (<em>str</em>) – name of the molecule</p></li>
-<li><p><strong>figsize</strong> (<em>tuple</em>) – (default = (6, 5)) Size of the plot</p></li>
-<li><p><strong>model</strong> (<em>str</em>) – (default = ‘ExoREM’) Name of the model grid</p></li>
-<li><p><strong>fig</strong> (<em>object</em>) – (default = None) matplotlib figure object</p></li>
-<li><p><strong>ax</strong> (<em>object</em>) – (default = None) matplotlib figure object</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>matplotlib figure object
-- ax   (object) : matplotlib axes objects</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><ul class="simple">

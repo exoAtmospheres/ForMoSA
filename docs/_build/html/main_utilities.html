@@ -1,23 +1,26 @@
-
-
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" data-content_root="./">
 <head>
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Main Utilities &mdash; ForMoSA 1.1.5 documentation</title>
-      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
-      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+  <title>Main Utilities &mdash; ForMoSA 1.1.6 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=fa44fd50" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="_static/custom.css?v=d0b3e03c" />
 
   
     <link rel="shortcut icon" href="_static/favicon.ico"/>
-      <script src="_static/jquery.js?v=5d32c60e"></script>
-      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="_static/documentation_options.js?v=a48ae3df"></script>
-      <script src="_static/doctools.js?v=9bcbadda"></script>
-      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
-      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="_static/jquery.js?v=5d32c60e"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="_static/documentation_options.js?v=937269b5"></script>
+        <script src="_static/doctools.js?v=9a2dae69"></script>
+        <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -65,7 +68,7 @@
 </li>
 <li class="toctree-l3"><a class="reference internal" href="#module-ForMoSA.utils_spec">Spectra utilities:</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#ForMoSA.utils_spec.bb_cpd_fct"><code class="docutils literal notranslate"><span class="pre">bb_cpd_fct()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#ForMoSA.utils_spec.calc_ck"><code class="docutils literal notranslate"><span class="pre">calc_ck()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#ForMoSA.utils_spec.calc_flx_scale"><code class="docutils literal notranslate"><span class="pre">calc_flx_scale()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#ForMoSA.utils_spec.continuum_estimate"><code class="docutils literal notranslate"><span class="pre">continuum_estimate()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#ForMoSA.utils_spec.convolve_and_sample"><code class="docutils literal notranslate"><span class="pre">convolve_and_sample()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#ForMoSA.utils_spec.doppler_fct"><code class="docutils literal notranslate"><span class="pre">doppler_fct()</span></code></a></li>
@@ -125,7 +128,7 @@
 
 <dl class="py function">
 <dt class="sig sig-object py" id="ForMoSA.global_file.get_config_value">
-<span class="sig-prename descclassname"><span class="pre">ForMoSA.global_file.</span></span><span class="sig-name descname"><span class="pre">get_config_value</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">section</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">key</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">default</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">N_obs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cast</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ForMoSA/global_file.html#get_config_value"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ForMoSA.global_file.get_config_value" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">ForMoSA.global_file.</span></span><span class="sig-name descname"><span class="pre">get_config_value</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">section</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">key</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">default</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cast</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ForMoSA/global_file.html#get_config_value"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ForMoSA.global_file.get_config_value" title="Link to this definition"></a></dt>
 <dd><p>Helper function to get a config value with a fallback default.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -134,7 +137,6 @@
 <li><p><strong>section</strong> (<em>str</em>) – config section name</p></li>
 <li><p><strong>key</strong> (<em>str</em>) – config key name</p></li>
 <li><p><strong>default</strong> – default value if key is missing</p></li>
-<li><p><strong>N_obs</strong> (<em>bool</em>) – Number of obs to invert. If set to 0, the parameter cannot be set with MOSAIC</p></li>
 <li><p><strong>cast</strong> – a function to cast the value (e.g., int, list, eval, etc.)</p></li>
 </ul>
 </dd>
@@ -270,10 +272,9 @@
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="ForMoSA.utils_spec.calc_ck">
-<span class="sig-prename descclassname"><span class="pre">ForMoSA.utils_spec.</span></span><span class="sig-name descname"><span class="pre">calc_ck</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obs_dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flx_mod_spectro</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flx_mod_photo</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">r_picked</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">d_picked</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">analytic</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'no'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ForMoSA/utils_spec.html#calc_ck"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ForMoSA.utils_spec.calc_ck" title="Link to this definition"></a></dt>
-<dd><p>Calculation of the dilution factor Ck and re-normalization of the interpolated synthetic spectrum (from the radius
-and distance or analytically).</p>
+<dt class="sig sig-object py" id="ForMoSA.utils_spec.calc_flx_scale">
+<span class="sig-prename descclassname"><span class="pre">ForMoSA.utils_spec.</span></span><span class="sig-name descname"><span class="pre">calc_flx_scale</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obs_dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flx_mod_spectro</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flx_mod_photo</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">r_picked</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">d_picked</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mode</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'physical'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_cov</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ForMoSA/utils_spec.html#calc_flx_scale"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ForMoSA.utils_spec.calc_flx_scale" title="Link to this definition"></a></dt>
+<dd><p>Calculation of the flux scaling factor (from the radius and distance or analytically).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -283,17 +284,18 @@ and distance or analytically).</p>
 <li><p><strong>r_picked</strong> (<em>float</em>) – Radius randomly picked by the nested sampling (in RJup)</p></li>
 <li><p><strong>d_picked</strong> (<em>float</em>) – Distance randomly picked by the nested sampling (in pc)</p></li>
 <li><p><strong>alpha</strong> (<em>float</em>) – Manual scaling factor (set to 1 by default) such that ck = alpha * (r/d)²</p></li>
-<li><p><strong>analytic</strong> (<em>str</em>) – = ‘yes’ if Ck needs to be calculated analytically by the formula from Cushing et al. (2008)</p></li>
+<li><p><strong>mode</strong> (<em>str</em>) – = ‘physical’ if the scaling needs to be calulated with r and d
+= ‘analytic’ if the scaling needs to be calculated analytically by the formula from Cushing et al. (2008)</p></li>
+<li><p><strong>use_cov</strong> (<em>bool</em>) – True or False if you want to use or not the full covariance matrix (formula from De Regt et al. (2025))</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>Re-normalysed model spectrum
-- flx_mod_photo_ck     (array): Re-normalysed model photometry
-- ck                   (float): Ck calculated</p>
+<dd class="field-even"><p>Flux scaling factor of the spectroscopy
+- scale_photo          (float): Flus scaling factor of the photometry</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><ul class="simple">
-<li><p>flx_mod_spectro_ck   (array)</p></li>
+<li><p>scale_spectro        (float)</p></li>
 </ul>
 </p>
 </dd>
