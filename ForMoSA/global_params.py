@@ -255,11 +255,10 @@ class GlobalParams(object):
         wav_fit = self._get_config_value(config, 'config_inversion', 'wav_fit', '0,100', self.n_obs, list, self.instrument_files)
         ns_algo = self._get_config_value(config, 'config_inversion', 'ns_algo', 'nestle')
         npoints = self._get_config_value(config, 'config_inversion', 'npoint', '100', 1, eval)
-        hc_type = self._get_config_value(config, 'config_inversion', 'hc_type', 'NA', self.n_obs, list, self.instrument_files)
         hc_lower_bounds_lsq = self._get_config_value(config, 'config_inversion', 'hc_lower_bounds_lsq', 'NA', self.n_obs, list, self.instrument_files)
         hc_higher_bounds_lsq = self._get_config_value(config, 'config_inversion', 'hc_higher_bounds_lsq', 'NA', self.n_obs, list, self.instrument_files)
         hc_bounds_lsq = [(low_bound, high_bound) for low_bound, high_bound in zip(hc_lower_bounds_lsq, hc_higher_bounds_lsq)]
-        inversion = {'logL_type': logL_type, 'wav_fit': wav_fit, 'ns_algo': ns_algo, 'npoints': npoints, 'hc_type': hc_type, 'hc_bounds_lsq': hc_bounds_lsq}
+        inversion = {'logL_type': logL_type, 'wav_fit': wav_fit, 'ns_algo': ns_algo, 'npoints': npoints, 'hc_bounds_lsq': hc_bounds_lsq}
 
         # [config_parameters] (1)
         grid_parameters = {}        # Refers to the grid parameters (Teff, logg, ...)

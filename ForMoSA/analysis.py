@@ -137,14 +137,12 @@ class Analysis(object):
         '''
 
         adapt = self.config_params['adapt']
-        inversion = self.config_params['inversion']
 
         res_obs   = adapt['target_res_obs']
         res_mod   = adapt['target_res_mod']
         res_cont  = adapt['res_cont']
         wav_cont  = adapt['wav_cont']
         emulator  = adapt['emulator']
-        hc_type   = inversion['hc_type']
 
         # Parameters we want to check the format
         params = {
@@ -153,7 +151,6 @@ class Analysis(object):
             'res_cont': res_cont,
             'wav_cont': wav_cont,
             'emulator': emulator,
-            'hc_type': hc_type,
         }
 
         n_obs = self.observation.n_obs
@@ -172,11 +169,11 @@ class Analysis(object):
             self._logger.critical(msg)
             raise ForMoSAError(msg)
 
-        self.observation.adapt_all_observations(res_obs, self.grid.wavelength, self.grid.resolution, res_cont = res_cont, wav_cont = wav_cont, hc_type = hc_type)
+        self.observation.adapt_all_observations(res_obs, self.grid.wavelength, self.grid.resolution, res_cont = res_cont, wav_cont = wav_cont)
 
         if not self.adapted:   # If the model is not already adapted to the data, or if the user wants to redo the adaptation
             # Adapt grid using target wavelength and resolution
-            self.grid.adapt_all_grids(self.observation.obs_data, res_mod, self.ns.params, wav_cont = wav_cont, res_cont = res_cont, hc_type = hc_type)
+            self.grid.adapt_all_grids(self.observation.obs_data, res_mod, self.ns.params, wav_cont = wav_cont, res_cont = res_cont)
 
             if emulator == 'PCA':
                 self._logger.info(' Decomposing the grid using PCA')
@@ -229,12 +226,11 @@ class Analysis(object):
         emulator      = adapt['emulator']
         interp_method = adapt['method']
 
-        hc_type        = inversion['hc_type']
         wav_for_fitting = inversion['wav_fit']
         bounds_lsq     = inversion['hc_bounds_lsq']
 
         # Check that inputs are of type 'list'
-        is_not_list = utils.check_format(res_obs, res_mod, res_cont, wav_cont, emulator, hc_type, wav_for_fitting, bounds_lsq, type_expected=list)
+        is_not_list = utils.check_format(res_obs, res_mod, res_cont, wav_cont, emulator, wav_for_fitting, bounds_lsq, type_expected=list)
         if len(is_not_list) > 0:
                 msg = f" Params in wrong format : {', '.join(is_not_list)}."
                 self._logger.critical(msg)
@@ -247,7 +243,7 @@ class Analysis(object):
 
         if not(self.fitted):
             # Run nested sampling
-            self.ns.run(self.paths.result_path, self.paths.observation, self.paths.grid, interp_method=interp_method, wav_cont=wav_cont, res_cont=res_cont, bounds_lsq=bounds_lsq, emulator=emulator, hc_type=hc_type)
+            self.ns.run(self.paths.result_path, self.paths.observation, self.paths.grid, interp_method=interp_method, wav_cont=wav_cont, res_cont=res_cont, bounds_lsq=bounds_lsq, emulator=emulator)
 
             # Savings
             self.ns._save_results(self.paths.result_path)
@@ -258,7 +254,7 @@ class Analysis(object):
         # Summary
         print(self.ns._summary())
 
-        self.ns._compute_best_model(self.observation, self.grid, interp_method = interp_method, wav_cont = wav_cont, res_cont = res_cont, bounds_lsq = bounds_lsq, hc_type = hc_type)
+        self.ns._compute_best_model(self.observation, self.grid, interp_method = interp_method, wav_cont = wav_cont, res_cont = res_cont, bounds_lsq = bounds_lsq)
 
 
     def _plot(self, label_ins: str='no', trans: str='yes', uncert: str='yes', figsize_corner: tuple=(15,15), figsize_chains: tuple=(12,15), figsize_fit:tuple=(10,7)) -> None:

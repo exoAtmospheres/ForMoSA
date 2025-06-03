@@ -295,6 +295,7 @@ class Observation(object):
                             'inv_cov': np.array([]),
                             'transm': np.array([]),
                             'star_flx': np.array([]),
+                            'speckles': np.array([]),
                             'system': np.array([]),
                             'name': ''
                         },
@@ -356,8 +357,6 @@ class Observation(object):
                         obs_dict[indobs]['photo']['name'] = obs_name
 
                     obs_dict[indobs]['transmission'] = dict()
-
-
                     obs_dict[indobs]['obs_name'] = obs_name
 
                     indobs += 1
@@ -366,7 +365,7 @@ class Observation(object):
         self._instrument_files = instrument_files
 
 
-    def adapt_all_observations(self, res_obs: list, model_wavelength: np.ndarray, model_resolution: np.ndarray, res_cont: list = ['NA'], wav_cont: list = ['NA'], hc_type: list = ['NA']):
+    def adapt_all_observations(self, res_obs: list, model_wavelength: np.ndarray, model_resolution: np.ndarray, res_cont: list = ['NA'], wav_cont: list = ['NA']):
         ''''
         Decrease the spectral resolution of the current observation and remove the continuum if necessary
 
@@ -376,7 +375,6 @@ class Observation(object):
             model_resolution   (np.ndarray): Resolution of the grid of models
             res_cont                 (list): Resolution of the continuum of each of the observation ([float | 'NA', ...])
             wav_cont                 (list): Wavelength of the continuum of each of the observation ([np.ndarray | 'NA', ...])
-            hc_type                  (list): High-contrast function for each of the observation ([str, ...])
 
         Returns:
             obs_data          (dict): Adapted current observation
@@ -393,11 +391,10 @@ class Observation(object):
             target_res_obs = self._set_obs_target_resolution(res_obs[indobs % len(res_obs)], obs_data['wav'], obs_data['res'], model_wavelength, model_resolution)
 
             # Determine continuum types
-            star_continuum, remove_continuum = u.determine_continuum_types(hc_type[indobs % len(hc_type)], res_cont[indobs % len(res_cont)])
-            self._obs_data[indobs]['spectro'] = self._adapt_observation(obs_data, target_res_obs, model_wavelength, model_resolution, res_cont = res_cont[indobs % len(res_cont)], wav_cont = wav_cont[indobs % len(wav_cont)], hc_type = hc_type[indobs % len(hc_type)], remove_continuum = remove_continuum, star_continuum = star_continuum)
+            self._obs_data[indobs]['spectro'] = self._adapt_observation(obs_data, target_res_obs, model_wavelength, model_resolution, res_cont = res_cont[indobs % len(res_cont)], wav_cont = wav_cont[indobs % len(wav_cont)])
 
 
-    def _adapt_observation(self, obs_data: dict, target_res_obs: np.ndarray, model_wavelength: np.ndarray, model_resolution: np.ndarray, res_cont: str = 'NA', wav_cont: str | np.ndarray = 'NA', hc_type: str = 'NA', remove_continuum: bool = False, star_continuum: str = 'NA'):
+    def _adapt_observation(self, obs_data: dict, target_res_obs: np.ndarray, model_wavelength: np.ndarray, model_resolution: np.ndarray, res_cont: str = 'NA', wav_cont: str | np.ndarray = 'NA'):
         '''
         Decrease the spectral resolution of the current observation and remove the continuum if necessary
 
@@ -408,7 +405,6 @@ class Observation(object):
             model_resolution   (np.ndarray): Resolution of the grid of models
             res_cont          (str | float): Resolution of the continuum of each of the observation
             wav_cont          (str | float): Wavelength of the continuum of each of the observation
-            star_continuum            (str): Star continuum type ('remove', 'estimate' or 'NA')
 
         Returns:
             obs_data          (dict): Adapted current observation
@@ -464,17 +460,16 @@ class Observation(object):
                                                       obs_data['res'],
                                                       wav_cont, res_cont)
 
-            # We want to remove the continuum of the star (generally if you do not use high contrast data)
-            if star_continuum == 'remove':
-                obs_data['flx'] -= obs_data['flx_cont']
-                self._logger.info(f' {obs_name} will have a R = {res_cont} continuum removed using a {wav_cont} wavelength range')
-
-            elif star_continuum == 'estimate': # We just want to estimate the continuum of the star (generally if you use high contrast data)
+            # High-contrast mode, we do not remove the continuum to the data yet
+            if len(obs_data['star_flx']) > 0:
                 self._logger.debug('> Estimate the continuum to the stellar data')
                 obs_data['star_flx_cont'] = continuum_estimate(obs_data['wav'],
-                                                            obs_data['star_flx'][:,len(obs_data['star_flx'][0]) // 2], # Continuum of the star on the central pixel
-                                                            obs_data['res'],
-                                                            wav_cont, res_cont)
+                                                                obs_data['star_flx'][:,len(obs_data['star_flx'][0]) // 2], # Continuum of the star on the central pixel
+                                                                obs_data['res'],
+                                                                wav_cont, res_cont)
+            # Non high-contrast mode, we remove the continuum to the data
+            else:
+                obs_data['flx'] -= obs_data['flx_cont']
 
         self._logger.info(f' Observation {obs_name} adapted.')
 
