@@ -364,8 +364,10 @@ class NestedSampling(object):
             for indobs in range(observation.n_obs):
                 # Modified spectro
                 modif_data[indobs], modif_model[indobs] = self._compute_model_from_theta(theta, observation.obs_data[indobs]['spectro'], observation.obs_data[indobs]['photo'], modelgrid.adapted_grid[indobs]['spectro'], modelgrid.adapted_grid[indobs]['photo'], res_mod_obs[indobs % len(res_mod_obs)], interp_method = interp_method, wav_cont = wav_cont[indobs % len(wav_cont)], res_cont = res_cont[indobs % len(res_cont)], bounds_lsq = bounds_lsq[indobs % len(bounds_lsq)], indobs = indobs)
-                # Loglikelihood
-                FINAL_logL += self._compute_loglike_from_model_and_spectra(modif_data[indobs]['spectro'], modif_data[indobs]['photo'], modif_model[indobs]['spectro'], modif_model[indobs]['photo'], indobs = indobs)
+                logL = self._compute_loglike_from_model_and_spectra(modif_data[indobs]['spectro'], modif_data[indobs]['photo'], modif_model[indobs]['spectro'], modif_model[indobs]['photo'], indobs = indobs)
+
+                # Increment total Log-likelihood
+                FINAL_logL += logL
 
         except ForMoSAError as e:
             self._logger.error(f"Error computing loglikelihood: {e}")
