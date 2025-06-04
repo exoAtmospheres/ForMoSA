@@ -468,6 +468,8 @@ class NestedSampling(object):
 
         # Scaling (ck)
         alpha = get_param('alpha', indobs)
+        if alpha is None:
+            alpha = 1
         r = get_param('r', indobs)
         if len(obs_dict_spectro['star_flx']) == 0 and r is not None and d is not None:
             flx_mod_spectro, flx_mod_photo, ck_spectro, ck_photo = us.calc_ck(obs_dict_spectro, obs_dict_photo, flx_mod_spectro, flx_mod_photo, r, d, alpha or 0)
