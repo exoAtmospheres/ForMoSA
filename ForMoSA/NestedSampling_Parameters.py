@@ -1,5 +1,6 @@
 import numpy as np
 import ForMoSA.utils_prior_functions as prior_functions
+import pandas as pd
 
 
 class ForMoSAError(Exception):
@@ -275,6 +276,7 @@ class NestedSampling_Params(object):
 
         # Additional step to check for the global consistance of the parameters
         self._check_params()
+        self._logger.info(f'Nested Sampling parameters:\n {self._parameters_summary(as_dataframe=True)}')
 
 
     def _check_params(self) -> None:
@@ -328,6 +330,60 @@ class NestedSampling_Params(object):
             msg = " If tou define a blackbody, you also need to define a distance."
             self._logger.error(msg)
             raise ForMoSAError(msg)
+
+
+    def _parameters_summary(self, as_dataframe=False):
+        '''
+        Smmary of parameters present in NestedSampling_Params class
+
+        Parameters
+        ----------
+        as_dataframe (bool) : If True, returns a DataFrame. Otherwise, retourns a string.
+
+        Returns
+        -------
+        summary (str | pd.DataFrame): Summary of parameters
+
+        Authors: Allan Denis
+        '''
+
+        if not self._parameters:
+            if as_dataframe:
+                return pd.DataFrame(columns=['name', 'prior', 'bounds/mean/std/value', 'vsini_function'])
+            else:
+                return "No parameter has been defined"
+
+        rows = []
+        for param in self._parameters.values():
+            prior = param.prior
+            if prior in ['uniform', 'log-uniform']:
+                value_desc = f"[{param.bounds[0]}, {param.bounds[1]}]"
+            elif prior == 'gaussian':
+                value_desc = f"μ={param.mean}, σ={param.std}"
+            elif prior == 'constant':
+                value_desc = f"{param.value}"
+            elif prior == 'computed':
+                value_desc = "computed"
+            else:
+                value_desc = "?"
+
+            rows.append({
+                'name': param.name,
+                'prior': prior,
+                'bounds/mean/std/value': value_desc,
+                'vsini_function': param.vsini_function
+            })
+
+        if as_dataframe:
+            return pd.DataFrame(rows)
+        else:
+            header = f"{'Name':<20} {'Prior':<15} {'Borns / Values':<35} {'vsini_func':<15}"
+            separator = "-" * len(header)
+            lines = [header, separator]
+            for row in rows:
+                line = f"{row['name']:<20} {row['prior']:<15} {row['bounds/mean/std/value']:<35} {str(row['vsini_function']):<15}"
+                lines.append(line)
+            return "\n".join(lines)
 
 
     def _get_param_value(self, name: str, theta: np.ndarray) -> float:
