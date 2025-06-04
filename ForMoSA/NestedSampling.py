@@ -207,7 +207,7 @@ class NestedSampling(object):
 
         res_mod_obs_list = []
         for indobs in range(observation.n_obs):
-            if bounds_lsq[indobs] == ('NA', 'NA') and not(self.logL[indobs].startswith('CCF')):
+            if (bounds_lsq[indobs] == ('NA', 'NA')) and (not(self.logL[indobs].startswith('CCF'))) and (len(observation[indobs]['spectro']['star_flx']) > 0):
                 msg = f' If you do not chose a CCF mapping loglikelihood function ({self.logL[indobs]}), please chose values for the LSQ bounds'
                 self._logger.error(msg)
                 raise ForMoSAError(msg)
