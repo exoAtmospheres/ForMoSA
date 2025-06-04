@@ -207,7 +207,7 @@ class NestedSampling(object):
 
         res_mod_obs_list = []
         for indobs in range(observation.n_obs):
-            if (bounds_lsq[indobs] == ('NA', 'NA')) and (not(self.logL[indobs].startswith('CCF'))) and (len(observation.obs_data[indobs]['spectro']['star_flx']) > 0):
+            if (bounds_lsq[indobs % len(bounds_lsq)] == ('NA', 'NA')) and (not(self.logL[indobs].startswith('CCF'))) and (len(observation.obs_data[indobs]['spectro']['star_flx']) > 0):
                 msg = f' If you do not chose a CCF mapping loglikelihood function ({self.logL[indobs]}), please chose values for the LSQ bounds'
                 self._logger.error(msg)
                 raise ForMoSAError(msg)
@@ -329,6 +329,8 @@ class NestedSampling(object):
         self._fitted = True
 
         self._logger.info(f' Time spent: {time_spent}')
+
+        self._logger.info(f'Summary of Nested Sampling : \n {self._summary()}')
 
 
     def _loglike(self, theta: list, observation: Observation, modelgrid: ModelGrid, res_mod_obs: list, wav_cont: list = ['NA'], res_cont: list = ['NA'], bounds_lsq: list = ['NA'], interp_method: str = 'linear', emulator: list = ['NA']) -> float | tuple[dict, np.ndarray, np.ndarray]:
@@ -464,7 +466,7 @@ class NestedSampling(object):
         if len(obs_dict_spectro['star_flx']) > 0:
             flx_mod_spectro_cont = us.continuum_estimate(target_wavelength, flx_mod_spectro, res_mod_obs_spectro, wav_cont, res_cont)
             weights = 1 / (obs_dict_spectro['err'] ** 2)
-            contributions, flx_mod_spectro, obs_dict_spectro['speckles'] = high_contrast.hc_model(obs_dict_spectro, flx_mod_spectro, flx_mod_spectro_cont, weights, bounds_lsq, self.logL[indobs])
+            contributions, flx_mod_spectro, obs_dict_spectro['speckles'] = high_contrast.hc_model(obs_dict_spectro, flx_mod_spectro, flx_mod_spectro_cont, weights, bounds_lsq, self.logL[indobs % len(self.logL)])
 
         # Scaling (ck)
         alpha = get_param('alpha', indobs)
@@ -512,7 +514,7 @@ class NestedSampling(object):
         logL_spectro = 0
         if len(obs_dict_spectro['wav']) > 0:
             residual = obs_dict_spectro['flx'] - mod_dict_spectro['flx'] - obs_dict_spectro['speckles']
-            ll_type = self.logL[indobs]
+            ll_type = self.logL[indobs % len(self.logL)]
             logL_dict = {'chi2': lambda: logL_functions.logL_chi2(residual, obs_dict_spectro['err']),
                          'chi2_covariance': lambda: logL_functions.logL_chi2_covariance(residual, obs_dict_spectro['inv_cov']),
                          'CCF_Brogi': lambda: logL_functions.logL_CCF_Brogi(obs_dict_spectro['flx'] - obs_dict_spectro['speckles'], mod_dict_spectro['flx']),
@@ -694,11 +696,11 @@ class NestedSampling(object):
         samples = np.asarray(self._results['samples'])
         weights = np.asarray(self._results['weights'])
 
-        print("\n======== Nested Sampling Summary ========")
-        print(f"Algorithm            : {self.algorithm}")
-        print(f"LogZ                 : {logz:.3f} ± {logzerr:.3f}")
-        print(f"Number of samples    : {len(samples)}")
-        print(f"Number of parameters : {samples.shape[1] if samples.ndim > 1 else 1}")
+        msg = "\n======== Nested Sampling Summary ========\n"
+        msg += f"Algorithm            : {self.algorithm}\n"
+        msg += f"LogZ                 : {logz:.3f} ± {logzerr:.3f}\n"
+        msg += f"Number of samples    : {len(samples)}"
+        msg +=f"Number of parameters : {samples.shape[1] if samples.ndim > 1 else 1}\n"
 
         # Normalize weights
         if len(weights) != len(samples):
@@ -714,7 +716,7 @@ class NestedSampling(object):
         else:
             raise ValueError("sigma must be 1 or 2.")
 
-        print("\nPosterior (weighted):")
+        msg += "\nPosterior (weighted):\n"
         for i in range(samples.shape[1]):
             param_samples = samples[:, i]
 
@@ -735,9 +737,11 @@ class NestedSampling(object):
 
             plus  = high - mean
             minus = low - mean
-            print(f" {self.params.list_free_params_names[i]:10s}: {mean:10.4f} {minus:+10.4f} {plus:+10.4f} [{low:10.4f}, {high:10.4f}] ({sigma}σ)")
+            msg += f" {self.params.list_free_params_names[i]:10s}: {mean:10.4f} {minus:+10.4f} {plus:+10.4f} [{low:10.4f}, {high:10.4f}] ({sigma}σ)\n"
 
-        print("=========================================\n")
+        msg += "=========================================\n"
+
+        return msg
 
 
 

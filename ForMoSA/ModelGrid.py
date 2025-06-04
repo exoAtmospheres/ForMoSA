@@ -223,7 +223,7 @@ class ModelGrid(object):
         for indobs in range(len(obs_data)):
             remove_continuum = False
             # Determine whether to remove the continuum
-            if res_cont[indobs] != 'NA':
+            if res_cont[indobs % len(res_cont)] != 'NA':
                 # High-contrast mode, we do not remove the continuum to the models
                 if len(obs_data[indobs]['spectro']['star_flx'][0]) > 0:
                     remove_continuum = False
