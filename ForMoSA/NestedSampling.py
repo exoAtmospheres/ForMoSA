@@ -259,7 +259,6 @@ class NestedSampling(object):
                                     n_dims=n_free_parameters,
                                     n_live_points=self.npoints,
                                     outputfiles_basename=str(results_path) + '/pymultinest/' + 'RAW_',
-                                    verbose=self.ns_params['verbose'],
                                     **self.ns_params)
 
             # Reformat the result file
