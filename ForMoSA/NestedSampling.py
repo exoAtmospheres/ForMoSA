@@ -332,7 +332,7 @@ class NestedSampling(object):
         self._logger.info(f' Time spent: {time_spent}')
 
 
-    def _loglike(self, theta: list, observation: Observation, modelgrid: ModelGrid, res_mod_obs: list, wav_cont: list = ['NA'], res_cont: list = ['NA'], bounds_lsq: list = ['NA'], interp_method: str = 'linear', emulator: list = ['NA'], hc_type: list = ['NA']) -> float | tuple[dict, np.ndarray, np.ndarray]:
+    def _loglike(self, theta: list, observation: Observation, modelgrid: ModelGrid, res_mod_obs: list, wav_cont: list = ['NA'], res_cont: list = ['NA'], bounds_lsq: list = ['NA'], interp_method: str = 'linear', emulator: list = ['NA']) -> float | tuple[dict, np.ndarray, np.ndarray]:
         '''
         Compute the loglikelihood for given values of the parameters of the nested sampling
 
@@ -346,7 +346,6 @@ class NestedSampling(object):
         res_cont                   (list): List of resolution used for the continuum (used for high contrast)
         bounds_lsq                 (list): List of bounds used for the least squares (used for high contrast)
         emulator                   (list): Emulator of the grid ('PCA', 'NMF')
-        hc_type                    (list): High-contrast function type
 
         Returns:
             - FINAL_logL     (float): Final evaluated loglikelihood for both spectra and photometry.
@@ -363,7 +362,7 @@ class NestedSampling(object):
             modif_data, modif_model = dict(), dict()
             for indobs in range(observation.n_obs):
                 # Modified spectro
-                modif_data[indobs], modif_model[indobs] = self._compute_model_from_theta(theta, observation.obs_data[indobs]['spectro'], observation.obs_data[indobs]['photo'], modelgrid.adapted_grid[indobs]['spectro'], modelgrid.adapted_grid[indobs]['photo'], res_mod_obs[indobs % len(res_mod_obs)], interp_method = interp_method, wav_cont = wav_cont[indobs % len(wav_cont)], res_cont = float(res_cont[indobs % len(res_cont)]), bounds_lsq = bounds_lsq[indobs % len(bounds_lsq)], hc_type = hc_type[indobs % len(hc_type)], indobs = indobs)
+                modif_data[indobs], modif_model[indobs] = self._compute_model_from_theta(theta, observation.obs_data[indobs]['spectro'], observation.obs_data[indobs]['photo'], modelgrid.adapted_grid[indobs]['spectro'], modelgrid.adapted_grid[indobs]['photo'], res_mod_obs[indobs % len(res_mod_obs)], interp_method = interp_method, wav_cont = wav_cont[indobs % len(wav_cont)], res_cont = float(res_cont[indobs % len(res_cont)]), bounds_lsq = bounds_lsq[indobs % len(bounds_lsq)], indobs = indobs)
                 # Loglikelihood
                 FINAL_logL += self._compute_loglike_from_model_and_spectra(modif_data[indobs]['spectro'], modif_data[indobs]['photo'], modif_model[indobs]['spectro'], modif_model[indobs]['photo'], indobs = indobs)
 
@@ -374,7 +373,7 @@ class NestedSampling(object):
         return FINAL_logL
 
 
-    def _compute_model_from_theta(self, theta: list, obs_dict_spectro: dict, obs_dict_photo, grid_spectro: ModelGrid | ModelSubGrid, grid_photo: ModelGrid | ModelSubGrid, res_mod_obs_spectro: np.ndarray, interp_method: str = 'linear', wav_cont: str | np.ndarray = 'NA', res_cont: str | np.ndarray = 'NA', bounds_lsq: list = ['NA', 'NA'], hc_type: str = 'NA', indobs: int = 0) -> tuple[dict, dict]:
+    def _compute_model_from_theta(self, theta: list, obs_dict_spectro: dict, obs_dict_photo, grid_spectro: ModelGrid | ModelSubGrid, grid_photo: ModelGrid | ModelSubGrid, res_mod_obs_spectro: np.ndarray, interp_method: str = 'linear', wav_cont: str | np.ndarray = 'NA', res_cont: str | np.ndarray = 'NA', bounds_lsq: list = ['NA', 'NA'], indobs: int = 0) -> tuple[dict, dict]:
         '''
         Method to modify the interpolated synthetic spectra with the different extra-grid parameters.
         It can perform : Re-calibration on the data, Doppler shifting, Application of a substellar extinction, Application of a rotational velocity,
@@ -392,7 +391,6 @@ class NestedSampling(object):
         wav_cont                 (str | np.ndarray): Wavelength grid for the continuum estimation of the model (used for high contrast)
         res_cont                 (str | np.ndarray): Resolution of the continuum (used for high contrast)
         bounds_lsq                           (list): Bounds of the least squares estumatiion (used for high contrast)
-        hc_type                               (str): High-contrast function
         indobs                                (int): Index of the current observation looping
 
         Returns:
@@ -633,7 +631,7 @@ class NestedSampling(object):
             self.params._add_parameter(lum_param, r'log(L/L$\mathrm{_{\odot}}$)')
 
 
-    def _compute_best_model(self, observation: Observation, modelgrid: ModelGrid, interp_method: str = 'linear', wav_cont: list = ['NA'], res_cont: list = ['NA'], bounds_lsq: list = ['NA', 'NA'], hc_type: list = ['NA']) -> None:
+    def _compute_best_model(self, observation: Observation, modelgrid: ModelGrid, interp_method: str = 'linear', wav_cont: list = ['NA'], res_cont: list = ['NA'], bounds_lsq: list = ['NA', 'NA']) -> None:
         '''
         Method to compute best model from nested sampling output
 
@@ -646,7 +644,6 @@ class NestedSampling(object):
         res_cont                   (list): List of resolution used for the continuum (used for high contrast)
         bounds_lsq                 (list): List of bounds used for the least squares (used for high contrast)
         emulator                   (list): Emulator of the grid ('PCA', 'NMF')
-        hc_type                    (list): High-contrast function type
 
         Authors: Allan Denis
         '''
@@ -667,7 +664,7 @@ class NestedSampling(object):
             else:
                 res_mod_obs = 0
 
-            modif_data[indobs], best_model[indobs] = self._compute_model_from_theta(best_theta, observation.obs_data[indobs]['spectro'], observation.obs_data[indobs]['photo'], modelgrid.adapted_grid[indobs]['spectro'], modelgrid.adapted_grid[indobs]['photo'], res_mod_obs, interp_method = interp_method, wav_cont = wav_cont[indobs % len(wav_cont)], res_cont = float(res_cont[indobs % len(res_cont)]), bounds_lsq = bounds_lsq[indobs % len(bounds_lsq)], hc_type = hc_type[indobs % len(hc_type)], indobs = indobs)
+            modif_data[indobs], best_model[indobs] = self._compute_model_from_theta(best_theta, observation.obs_data[indobs]['spectro'], observation.obs_data[indobs]['photo'], modelgrid.adapted_grid[indobs]['spectro'], modelgrid.adapted_grid[indobs]['photo'], res_mod_obs, interp_method = interp_method, wav_cont = wav_cont[indobs % len(wav_cont)], res_cont = float(res_cont[indobs % len(res_cont)]), bounds_lsq = bounds_lsq[indobs % len(bounds_lsq)], indobs = indobs)
 
         self._modif_data = modif_data
         self._best_model = best_model
