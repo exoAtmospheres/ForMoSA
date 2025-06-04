@@ -464,9 +464,11 @@ class Observation(object):
             if len(obs_data['star_flx']) > 0:
                 self._logger.debug('> Estimate the continuum to the stellar data')
                 obs_data['star_flx_cont'] = continuum_estimate(obs_data['wav'],
-                                                                obs_data['star_flx'][:,len(obs_data['star_flx'][0]) // 2], # Continuum of the star on the central pixel
-                                                                obs_data['res'],
-                                                                wav_cont, res_cont)
+                                                               obs_data['star_flx'][:,len(obs_data['star_flx'][0]) // 2], # Continuum of the star on the central pixel
+                                                               obs_data['res'],
+                                                               wav_cont, res_cont)
+
+
             # Non high-contrast mode, we remove the continuum to the data
             else:
                 obs_data['flx'] -= obs_data['flx_cont']
