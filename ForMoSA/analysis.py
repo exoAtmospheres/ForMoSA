@@ -243,16 +243,13 @@ class Analysis(object):
 
         if not(self.fitted):
             # Run nested sampling
-            self.ns.run(self.paths.result_path, self.paths.observation, self.paths.grid, interp_method=interp_method, wav_cont=wav_cont, res_cont=res_cont, bounds_lsq=bounds_lsq, emulator=emulator)
+            self.ns.run(self.paths.result_path, self.observation, self.grid, interp_method=interp_method, wav_cont=wav_cont, res_cont=res_cont, bounds_lsq=bounds_lsq, emulator=emulator)
 
             # Savings
             self.ns._save_results(self.paths.result_path)
 
         else:
             self.ns._load_results(self.paths.result_path)
-
-        # Summary
-        print(self.ns._summary())
 
         self.ns._compute_best_model(self.observation, self.grid, interp_method = interp_method, wav_cont = wav_cont, res_cont = res_cont, bounds_lsq = bounds_lsq)
 
