@@ -257,7 +257,7 @@ class Analysis(object):
         self.ns._compute_best_model(self.observation, self.grid, interp_method = interp_method, wav_cont = wav_cont, res_cont = res_cont, bounds_lsq = bounds_lsq)
 
 
-    def plot(self, label_ins: str='no', trans: str='yes', uncert: str='yes', figsize_corner: tuple=(15,15), figsize_chains: tuple=(12,15), figsize_fit:tuple=(10,7)) -> None:
+    def plot(self, label_ins: str = 'no', trans: str = 'yes', uncert: str = 'yes', figsize_corner: tuple = (15, 15), figsize_chains: tuple = (12, 15), figsize_fit: tuple = (20, 7), save: bool = True) -> None:
         '''
         Method to use all the plotting methods
 
@@ -266,6 +266,7 @@ class Analysis(object):
         label_ins (str): Whether to label instruments in best fit plot
         trans     (str): Whether to plot the transmission filters
         uncert    (str): Whether to plot the uncertainties
+        save      (bool): Whether to save the plots, by default True
 
         Authors: Allan Denis
         '''
@@ -276,7 +277,19 @@ class Analysis(object):
         modif_data = self.ns.modif_data
         best_model = self.ns.best_model
 
-        self.ns.plotting._plot_corner(results, param_names, figsize=figsize_corner)
-        self.ns.plotting._plot_chains(results, param_names, param_best_values, figsize=figsize_chains)
-        self.ns.plotting._plot_radar(results, param_names)
-        self.ns.plotting._plot_fit(modif_data, best_model, label_ins=label_ins, trans=trans, uncert=uncert, figsize=figsize_fit)
+        fig = self.ns.plotting.plot_corner(results, param_names, figsize=figsize_corner)
+        if save:
+            fig.savefig(self.paths.result_path / 'corner_plot.pdf')
+
+        fig, _ = self.ns.plotting.plot_chains(results, param_names, param_best_values, figsize=figsize_chains)
+        if save:
+            fig.savefig(self.paths.result_path / 'chains_plot.pdf')
+
+        fig, _ = self.ns.plotting.plot_radar(results, param_names)
+        if save:
+            fig.savefig(self.paths.result_path / 'radar_plot.pdf')
+
+        fig, _, _, _ = self.ns.plotting.plot_fit(modif_data, best_model, label_ins=label_ins, trans=trans, uncert=uncert, figsize=figsize_fit)
+        if save:
+            fig.savefig(self.paths.result_path / 'best_fit_plot.pdf')
+
