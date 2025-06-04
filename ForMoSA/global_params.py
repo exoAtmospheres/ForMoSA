@@ -25,7 +25,7 @@ class GlobalParams(object):
 
     def __init__(self, config_file_path: str | os.PathLike, log_level: str = 'info'):
         # Generate the config object
-        config = ConfigObj(config_file_path, encoding='utf8')
+        config = ConfigObj(str(config_file_path), encoding='utf8')
 
         formosa_path = ForMoSAPaths(config_file_path, log_level=log_level)
 

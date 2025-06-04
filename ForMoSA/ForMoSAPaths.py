@@ -28,7 +28,7 @@ class ForMoSAPaths(object):
     _logger_initialized = False  # Classe-level variable to prevent re-initialization
 
     def __init__(self, config_file_path: str | os.PathLike, log_level: str = 'info') -> None:
-        config = ConfigObj(config_file_path, encoding='utf8')
+        config = ConfigObj(str(config_file_path), encoding='utf8')
 
         self._config_file_path = Path(config_file_path).expanduser()
         self._observation_path = Path(config['config_path']['observation_path']).expanduser()
