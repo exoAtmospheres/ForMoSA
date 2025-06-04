@@ -666,7 +666,7 @@ class NestedSampling(object):
             else:
                 res_mod_obs = 0
 
-            modif_data[indobs], best_model[indobs] = self._compute_model_from_theta(best_theta, observation.obs_data[indobs]['spectro'], observation.obs_data[indobs]['photo'], modelgrid.adapted_grid[indobs]['spectro'], modelgrid.adapted_grid[indobs]['photo'], res_mod_obs, interp_method = interp_method, wav_cont = wav_cont[indobs % len(wav_cont)], res_cont = float(res_cont[indobs % len(res_cont)]), bounds_lsq = bounds_lsq[indobs % len(bounds_lsq)], indobs = indobs)
+            modif_data[indobs], best_model[indobs] = self._compute_model_from_theta(best_theta, observation.obs_data[indobs]['spectro'], observation.obs_data[indobs]['photo'], modelgrid.adapted_grid[indobs]['spectro'], modelgrid.adapted_grid[indobs]['photo'], res_mod_obs, interp_method = interp_method, wav_cont = wav_cont[indobs % len(wav_cont)], res_cont = res_cont[indobs % len(res_cont)], bounds_lsq = bounds_lsq[indobs % len(bounds_lsq)], indobs = indobs)
 
         self._modif_data = modif_data
         self._best_model = best_model
