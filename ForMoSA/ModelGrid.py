@@ -10,9 +10,13 @@ from multiprocessing.pool import ThreadPool
 import multiprocessing as mp
 from functools import partial
 from sklearn.decomposition import PCA
-from torchnmf.nmf import NMF
 from ForMoSA.NestedSampling_Parameters import NestedSampling_Params
-import torch
+try:
+    import torch
+    from torchnmf.nmf import NMF
+except ImportError:
+    torch = None
+    NMF = None
 
 
 class ForMoSAError(Exception):
@@ -494,6 +498,10 @@ class ModelGrid(object):
 
         Authors: Matthieu Ravet
         '''
+        if torch is None or NMF is None:
+            msg = "NMF decomposition requires the 'torch' and 'torchnmf' packages. Please install them to use this feature."
+            self._logger.error(msg)
+            raise ForMoSAError(msg)
 
         device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
         torch.manual_seed(0)
