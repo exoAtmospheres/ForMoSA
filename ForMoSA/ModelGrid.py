@@ -316,8 +316,10 @@ class ModelGrid(object):
         Args
         ----------
         model_to_adapt         (array): Model to adapt
-        target_resolution      (float): Target resolution for to reach
-        target_wavelength      (array): Target wavelength grid to reah
+        target_resolution      (float): Target resolution to reach for the spectroscopic adapted grid
+        target_wavelength      (array): Target wavelength grid to reah for the spectroscopic adapted grid
+        wavelength_photo       (array): Target wavelength to reach for the photometric adapted grid
+        ins_photo              (array): List of photometric instrument names
         resolution_model       (array): Resolution of the model interpolated onto the target wavelength grid
         wav_cont               (array): Wavelength of the continuum
         res_cont               (array): Resolution of the continuum
@@ -345,7 +347,6 @@ class ModelGrid(object):
 
                     # Check that all the filters file exist
                     self._check_photometry_filters_exist(ins_photo)
-
                     for pho_ind, pho in enumerate(ins_photo):
                         filter_path = u.find_filter_file(pho)
                         filter_pho = np.load(filter_path)
@@ -357,6 +358,7 @@ class ModelGrid(object):
                         ind = np.where((self.wavelength > min(x_filt)) & (self.wavelength < max(x_filt)))
                         delta_lambda = self.wavelength[ind][1] - self.wavelength[ind][0]
                         num = np.sum(model_to_adapt[ind] * y_filt_interp[ind] * delta_lambda)
+
                         denom = np.sum(y_filt_interp[ind] * delta_lambda)
                         model_photo[pho_ind] = num / denom if denom != 0 else np.nan
 
