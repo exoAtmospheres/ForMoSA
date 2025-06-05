@@ -214,7 +214,7 @@ class NestedSampling(object):
 
             obs_data_spectro, mod_data_spectro = observation.obs_data[indobs]['spectro'], modelgrid.adapted_grid[indobs]['spectro']
 
-            if len(obs_data_spectro['inv_cov']) > 0 and not(self.logL[indobs].endswith('_covariance')):
+            if len(obs_data_spectro['inv_cov']) > 0 and not(self.logL[indobs % len(self.logL)].endswith('_covariance')):
                 self._logger.warning(f' observation {observation.obs_name[indobs]} contains a covariance matrix but your loglikelihood function does not account for covariance matrices. Changing the loglikelihood function from {self.logL[indobs]} to {self.logL[indobs] + "_covariance"}.')
 
                 self._logL[indobs] = self.logL[indobs] + '_covariance'

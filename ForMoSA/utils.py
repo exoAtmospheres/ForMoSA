@@ -188,7 +188,7 @@ def scale_to_one_significant_digit(flux):
     if len(flux) == 0:
         return 0, 0
 
-    factor = int(np.floor(np.log10(abs(np.mean(flux)))))
+    factor = int(np.floor(np.log10((np.sqrt(np.sum(flux**2))))))
     scaled_flux = flux / (10 ** factor)
 
     return scaled_flux, factor

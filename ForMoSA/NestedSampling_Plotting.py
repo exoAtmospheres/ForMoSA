@@ -381,10 +381,10 @@ class NestedSampling_Plotting(object):
         Authors: Allan Denis
         '''
 
-        color = self.color[indobs]
-        edgecolor = self.edgecolor[indobs]
-        marker = self.marker[indobs]
-        size = self.size[indobs]
+        color = self.color[indobs % len(self.color)]
+        edgecolor = self.edgecolor[indobs % len(self.edgecolor)]
+        marker = self.marker[indobs % len(self.marker)]
+        size = self.size[indobs % len(self.size)]
 
         if color == 'NA':
             color = f'C{indobs}'
@@ -449,7 +449,7 @@ class NestedSampling_Plotting(object):
             mod_spectro, mod_photo = mod['spectro'], mod['photo']
 
             if len(obs_spectro['wav']) > 0:
-                obs_flx = np.array(obs_spectro['flx'])
+                obs_flx = np.array(obs_spectro['flx'] - obs_spectro['speckles'])
                 mod_flx = np.array(mod_spectro['flx'])
                 global_residuals.append(obs_flx - mod_flx)
                 global_flux.append(obs_flx)
@@ -485,7 +485,7 @@ class NestedSampling_Plotting(object):
                 color, edgecolor, marker, size = self._get_plot_style(indobs, default_color=default_color, default_edge='darkmagenta')
                 ins = obs_spectro.get('ins', ['unknown'])[0]
                 obs_wav = np.array(obs_spectro['wav'])
-                obs_flx = np.array(obs_spectro['flx']) / (10**factor)
+                obs_flx = np.array(obs_spectro['flx'] - obs_spectro['speckles']) / (10**factor)
                 mod_flx = np.array(mod_spectro['flx']) / (10**factor)
                 err = np.array(obs_spectro.get('err', [])) / (10**factor) if uncert == 'yes' else None
 
