@@ -207,7 +207,7 @@ class NestedSampling(object):
 
         res_mod_obs_list = []
         for indobs in range(observation.n_obs):
-            if (bounds_lsq[indobs % len(bounds_lsq)] == ('NA', 'NA')) and (not(self.logL[indobs].startswith('CCF'))) and (len(observation.obs_data[indobs]['spectro']['star_flx']) > 0):
+            if (bounds_lsq[indobs % len(bounds_lsq)] == ('NA', 'NA')) and (not(self.logL[indobs % len(self.logL)].startswith('CCF'))) and (len(observation.obs_data[indobs]['spectro']['star_flx']) > 0):
                 msg = f' If you do not chose a CCF mapping loglikelihood function ({self.logL[indobs]}), please chose values for the LSQ bounds'
                 self._logger.error(msg)
                 raise ForMoSAError(msg)
@@ -409,6 +409,7 @@ class NestedSampling(object):
             new_theta = self.params._get_param_value(name, theta)
             return new_theta
 
+
         contributions, obs_dict_spectro['speckles'], ck_spectro, ck_photo = 1, 0, 1, 1
 
         theta_index = self.params.list_params_keys
@@ -480,7 +481,6 @@ class NestedSampling(object):
         # Analytical resolution and special case for MOSAIC when you don't fit for R and D for one of the obs but still want to fit it for the others
         elif len(obs_dict_spectro['star_flx']) == 0:
             flx_mod_spectro, flx_mod_photo, ck_spectro, ck_photo = us.calc_ck(obs_dict_spectro, obs_dict_photo, flx_mod_spectro, flx_mod_photo, 0, 0, alpha=0, analytic='yes')
-
 
         mod_dict_spectro = {'wav': wav_mod_spectro, 'flx': flx_mod_spectro, 'nativ_flx': flx_mod_spectro_nativ, 'res': obs_dict_spectro['res'], 'ins': ins_spectro, 'ck': ck_spectro, 'hc_contributions': contributions}
         mod_dict_photo = {'wav': wav_mod_photo, 'flx': flx_mod_photo, 'ins': ins_photo, 'ck': ck_photo}
@@ -583,7 +583,7 @@ class NestedSampling(object):
 
         Parameters
         ----------
-        results_path (str | os.PathLike): Path to save the results to
+        results_path (str | os.PathLike): Path t o save the results to
 
         Authors: Allan Denis
         '''

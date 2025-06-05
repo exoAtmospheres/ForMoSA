@@ -107,7 +107,7 @@ class NestedSampling_Plotting(object):
         if plot_model == 'plot':
             ax.plot(obs_wav, mod_flx, c='black')
         elif plot_model == 'scatter':
-            ax.scatter(obs_wav, mod_flx, marker='o', c='black', s=20)
+            ax.scatter(obs_wav, mod_flx, marker='o', c='black', s=50)
 
         # Add residuals horizontal line at y=0
         axr.axhline(0, color='k', linestyle='--', alpha=0.5)
@@ -387,9 +387,9 @@ class NestedSampling_Plotting(object):
         size = self.size[indobs]
 
         if color == 'NA':
-            color = default_color
+            color = f'C{indobs}'
         if edgecolor == 'NA':
-            edgecolor = default_edge
+            edgecolor = color
         if size == 'NA':
             size = default_size
         else:
@@ -437,7 +437,7 @@ class NestedSampling_Plotting(object):
         fig = plt.figure(figsize=figsize)
         fig.clf()
         gs = gridspec.GridSpec(9, 11)
-        ax = fig.add_subplot(gs[0:7, 0:10])
+        ax = fig.add_subplot(gs[2:7, 0:10])
         axr = fig.add_subplot(gs[7:9, 0:10], sharex=ax)
         axr2 = fig.add_subplot(gs[7:9, 10:11], sharey=axr)
 
@@ -448,23 +448,20 @@ class NestedSampling_Plotting(object):
             obs_spectro, obs_photo = obs['spectro'], obs['photo']
             mod_spectro, mod_photo = mod['spectro'], mod['photo']
 
-            ck_spectro = mod_spectro.get('ck', 1) if norm == 'yes' else 1
-            ck_photo = mod_photo.get('ck', 1) if norm == 'yes' else 1
-
             if len(obs_spectro['wav']) > 0:
-                obs_flx = np.array(obs_spectro['flx']) / ck_spectro
-                mod_flx = np.array(mod_spectro['flx']) / ck_spectro
+                obs_flx = np.array(obs_spectro['flx'])
+                mod_flx = np.array(mod_spectro['flx'])
                 global_residuals.append(obs_flx - mod_flx)
                 global_flux.append(obs_flx)
 
             if len(obs_photo['wav']) > 0:
-                obs_flx = np.array(obs_photo['flx']) / ck_photo
-                mod_flx = np.array(mod_photo['flx']) / ck_photo
+                obs_flx = np.array(obs_photo['flx'])
+                mod_flx = np.array(mod_photo['flx'])
                 global_residuals.append(obs_flx - mod_flx)
                 global_flux.append(obs_flx)
 
         global_flux = np.concatenate(global_flux)
-        global_flux, factor = u.scale_to_one_significant_digit(obs_flx)
+        global_flux, factor = u.scale_to_one_significant_digit(global_flux)
         global_residuals = np.concatenate(global_residuals) / (10 ** factor)
         std_global = np.nanstd(global_residuals)
         if std_global == 0 or np.isnan(std_global):
@@ -477,20 +474,20 @@ class NestedSampling_Plotting(object):
             obs_spectro, obs_photo = obs['spectro'], obs['photo']
             mod_spectro, mod_photo = mod['spectro'], mod['photo']
 
-            ck_spectro = mod_spectro.get('ck', 1) if norm == 'yes' else 1
-            ck_photo = mod_photo.get('ck', 1) if norm == 'yes' else 1
-
-
-            # Get plot style for each observation
-            color, edgecolor, marker, size = self._get_plot_style(indobs)
-
             # --- Spectroscopic data ---
             if len(obs_spectro['wav']) > 0:
+                # Get plot style for each observation
+                if not(label_ins):
+                    default_color = 'magenta'
+                else:
+                    default_color = 'NA'
+
+                color, edgecolor, marker, size = self._get_plot_style(indobs, default_color=default_color, default_edge='darkmagenta')
                 ins = obs_spectro.get('ins', ['unknown'])[0]
                 obs_wav = np.array(obs_spectro['wav'])
-                obs_flx = (np.array(obs_spectro['flx'])) / ck_spectro / (10**factor)
-                mod_flx = np.array(mod_spectro['flx']) / ck_spectro / (10**factor)
-                err = np.array(obs_spectro.get('err', [])) / ck_spectro / (10**factor) if uncert == 'yes' else None
+                obs_flx = np.array(obs_spectro['flx']) / (10**factor)
+                mod_flx = np.array(mod_spectro['flx']) / (10**factor)
+                err = np.array(obs_spectro.get('err', [])) / (10**factor) if uncert == 'yes' else None
 
                 label = self._get_label(ins, label_ins, used_labels, 'Spectroscopic data')
                 self._plot_data_point(ax, axr, obs_wav, obs_flx, mod_flx, std_global, color, edgecolor, marker, size, label, err)
@@ -500,11 +497,17 @@ class NestedSampling_Plotting(object):
 
             # --- Photometric data ---
             if len(obs_photo['wav']) > 0:
+                # Get plot style for each observation
+                if not(label_ins):
+                    default_color = 'magenta'
+                else:
+                    default_color = 'NA'
+                color, edgecolor, marker, size = self._get_plot_style(indobs, default_color='blue', default_edge='darkblue', default_marker='D')
                 ins = obs_photo.get('ins', ['unknown'])[0]
                 obs_wav = np.array(obs_photo['wav'])[0]
-                obs_flx = np.array(obs_photo['flx'])[0] / ck_photo / (10**factor)
-                mod_flx = np.array(mod_photo['flx'])[0] / ck_photo / (10**factor)
-                err = np.array(obs_photo.get('err', [])) / ck_photo / (10**factor) if uncert == 'yes' else None
+                obs_flx = np.array(obs_photo['flx'])[0] / (10**factor)
+                mod_flx = np.array(mod_photo['flx'])[0] / (10**factor)
+                err = np.array(obs_photo.get('err', [])) / (10**factor) if uncert == 'yes' else None
 
                 try:
                     filt = np.load(u.find_filter_file(ins))
@@ -522,7 +525,7 @@ class NestedSampling_Plotting(object):
                 # Create the filter subplot once, outside the loop over instruments
                 if trans == 'yes' and filter_ax == 'no' and files_loaded == True:
                     filter_ax = 'yes'
-                    axfilt = plt.subplot2grid((9, 11), (0, 0), rowspan=2, colspan=10, sharex=ax)
+                    axfilt = fig.add_subplot(gs[0:2, 0:10], sharex=ax)
                     axfilt.set_ylabel('Transmission')
                     axfilt.tick_params(bottom=False, labelbottom=False)
                     axfilt.set_ylim(0, 1.2)
