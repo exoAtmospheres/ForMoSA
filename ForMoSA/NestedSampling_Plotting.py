@@ -476,24 +476,27 @@ class NestedSampling_Plotting(object):
 
             # --- Spectroscopic data ---
             if len(obs_spectro['wav']) > 0:
-                # Get plot style for each observation
+                # Get plot style for each spectroscopic observation
                 if not(label_ins):
                     default_color = 'magenta'
                 else:
                     default_color = 'NA'
-
                 color, edgecolor, marker, size = self._get_plot_style(indobs, default_color=default_color, default_edge='darkmagenta')
-                ins = obs_spectro.get('ins', ['unknown'])[0]
-                obs_wav = np.array(obs_spectro['wav'])
-                obs_flx = np.array(obs_spectro['flx'] - obs_spectro['speckles']) / (10**factor)
-                mod_flx = np.array(mod_spectro['flx']) / (10**factor)
-                err = np.array(obs_spectro.get('err', [])) / (10**factor) if uncert == 'yes' else None
 
+                # Get data for each spectroscopic observation
+                obs_wav = np.array(obs_spectro['wav'])
+                obs_flx = np.array(obs_spectro['flx']) / (10**factor)
+                speckles = np.array(obs_spectro['speckles']) / (10**factor)
+                mod_flx = np.array(mod_spectro['flx']) / (10**factor)
+                err = np.array(obs_spectro.get('err', None)) / (10**factor) if uncert == 'yes' else None
+
+                # Get label for each spectroscopic observation
+                ins = obs_spectro.get('ins', ['unknown'])[0]
                 label = self._get_label(ins, label_ins, used_labels, 'Spectroscopic data')
-                self._plot_data_point(ax, axr, obs_wav, obs_flx, mod_flx, std_global, color, edgecolor, marker, size, label, err)
+                self._plot_data_point(ax, axr, obs_wav, obs_flx, mod_flx + speckles, std_global, color, edgecolor, marker, size, label, err)
 
                 # Residuals histogram
-                axr2.hist((obs_flx - mod_flx) / std_global, bins=100, orientation='horizontal', color='black', alpha=0.8, density=True)
+                axr2.hist((obs_flx - mod_flx - speckles) / std_global, bins=100, orientation='horizontal', color='black', alpha=0.8, density=True)
 
             # --- Photometric data ---
             if len(obs_photo['wav']) > 0:
@@ -503,12 +506,15 @@ class NestedSampling_Plotting(object):
                 else:
                     default_color = 'NA'
                 color, edgecolor, marker, size = self._get_plot_style(indobs, default_color='blue', default_edge='darkblue', default_marker='D')
-                ins = obs_photo.get('ins', ['unknown'])[0]
+
+                # Get data for each photometric observation
                 obs_wav = np.array(obs_photo['wav'])[0]
                 obs_flx = np.array(obs_photo['flx'])[0] / (10**factor)
                 mod_flx = np.array(mod_photo['flx'])[0] / (10**factor)
                 err = np.array(obs_photo.get('err', [])) / (10**factor) if uncert == 'yes' else None
 
+                # Get label for each photometric observation
+                ins = obs_photo.get('ins', ['unknown'])[0]
                 try:
                     filt = np.load(utils.find_filter_file(ins))
                     x = filt['x_filt']
