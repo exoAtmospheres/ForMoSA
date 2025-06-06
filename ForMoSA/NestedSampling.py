@@ -409,7 +409,6 @@ class NestedSampling(object):
             new_theta = self.params._get_param_value(name, theta)
             return new_theta
 
-
         contributions, obs_dict_spectro['speckles'], ck_spectro, ck_photo = 1, 0, 1, 1
 
         theta_index = self.params.list_params_keys

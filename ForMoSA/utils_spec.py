@@ -5,11 +5,13 @@ import extinction
 import astropy.units as u
 import astropy.constants as const
 from PyAstronomy.pyasl import rotBroad, fastRotBroad
+import ForMoSA.utils as utils
+import ForMoSA.utils_hc as utils_hc
 
 # ----------------------------------------------------------------------------------------------------------------------
 
 
-def convolve_and_sample(wv_channels, sigmas_wvs, model_wvs, model_fluxes, num_sigma=3, force_int=True): # num_sigma = 3 is a good compromise between sampling enough the gaussian and fast interpolation
+def convolve_and_sample(wv_channels: list, sigmas_wvs: list, model_wvs: np.ndarray, model_fluxes: np.ndarray, num_sigma: int=3, force_int: bool=True) -> np.ndarray: # num_sigma = 3 is a good compromise between sampling enough the gaussian and fast interpolation
     """
     Simulate the observations of a model. Convolves the model with a variable Gaussian LSF, sampled at each desired
     spectral channel.
@@ -19,7 +21,7 @@ def convolve_and_sample(wv_channels, sigmas_wvs, model_wvs, model_fluxes, num_si
         sigmas_wvs  (list(floats)): the LSF gaussian standard deviation of each wv_channels [IN UNITS OF model_wvs]
         model_wvs          (array): the wavelengths of the model
         model_fluxes       (array): the fluxes of the model
-        num_sigma          (float): number of +/- sigmas to evaluate the LSF to.
+        num_sigma            (int): number of +/- sigmas to evaluate the LSF to.
         force_int         (bolean): False by default. If True, will force interpolation onto wv_channels when the kernel is singular
     Returns:
         - output_model     (array): the fluxes in each of the wavelength channels
@@ -54,7 +56,7 @@ def convolve_and_sample(wv_channels, sigmas_wvs, model_wvs, model_fluxes, num_si
 # ----------------------------------------------------------------------------------------------------------------------
 
 
-def resolution_decreasing(wav_input, flx_input, res_input, wav_output, res_output):
+def resolution_decreasing(wav_input: np.ndarray, flx_input: np.ndarray, res_input: np.ndarray, wav_output: np.ndarray, res_output: np.ndarray) -> np.ndarray:
     """
     Decrease the resolution of a spectrum. The function calculates the FWHM as a function of the
     wavelengths for the input and output fluxes and estimates the highest one
@@ -88,7 +90,7 @@ def resolution_decreasing(wav_input, flx_input, res_input, wav_output, res_outpu
 # ----------------------------------------------------------------------------------------------------------------------
 
 
-def continuum_estimate(wav_input, flx_input, res_input, wav_cont_bounds, res_cont):
+def continuum_estimate(wav_input: np.ndarray, flx_input: np.ndarray, res_input: np.ndarray, wav_cont_bounds: str | np.ndarray, res_cont: float) -> np.ndarray:
     """
     Decrease the resolution of a spectrum (data or model). The function calculates the FWHM as a function of the
     wavelengths of the custom spectral resolution (estimated for the continuum). It then calculates a sigma to decrease
@@ -96,11 +98,11 @@ def continuum_estimate(wav_input, flx_input, res_input, wav_cont_bounds, res_con
     the wavelength grid of the data.
 
     Args:
-        wav_input        (np.ndarray): Wavelength grid of the spectrum for which you want to estimate the continuum
-        flx_input        (np.ndarray): Flux of the spectrum for which you want to estimate the continuum
-        res_input        (np.ndarray): Spectral resolution of the spectrum for which you want to estimate the continuum
-        wav_cont_bounds  (np.ndarray): Wavelength bounds where you want to estimate the continuum
-        res_cont                (int): Approximate resolution of the continuum
+        wav_input              (np.ndarray): Wavelength grid of the spectrum for which you want to estimate the continuum
+        flx_input              (np.ndarray): Flux of the spectrum for which you want to estimate the continuum
+        res_input              (np.ndarray): Spectral resolution of the spectrum for which you want to estimate the continuum
+        wav_cont_bounds  (str | np.ndarray): Wavelength bounds where you want to estimate the continuum
+        res_cont                    (float): Approximate resolution of the continuum
     Returns:
         - continuum    (np.ndarray): Estimated continuum of the spectrum re-sampled on the data wavelength grid
 
@@ -144,7 +146,7 @@ def continuum_estimate(wav_input, flx_input, res_input, wav_cont_bounds, res_con
 
 
 
-def calc_ck(obs_dict_spectro, obs_dict_photo, flx_mod_spectro, flx_mod_photo, r_picked, d_picked, alpha=1, analytic='no'):
+def calc_ck(obs_dict_spectro: dict, obs_dict_photo: dict, flx_mod_spectro: np.ndarray, flx_mod_photo: np.ndarray, r_picked: float, d_picked: float, alpha: float=1, analytic: str='no') -> tuple[np.ndarray, np.ndarray, float, float]:
     """
     Calculation of the dilution factor Ck and re-normalization of the interpolated synthetic spectrum (from the radius
     and distance or analytically).
@@ -207,7 +209,7 @@ def calc_ck(obs_dict_spectro, obs_dict_photo, flx_mod_spectro, flx_mod_photo, r_
 
 
 
-def doppler_fct(wav_mod_spectro, flx_mod_spectro, rv_picked):
+def doppler_fct(wav_mod_spectro: np.ndarray, flx_mod_spectro: np.ndarray, rv_picked: float) -> tuple[np.ndarray, np.ndarray]:
     """
     Application of a Doppler shifting to the interpolated synthetic spectrum using the function pyasl.dopplerShift.
     The side effects of the Doppler shifting are taking into account by using a model interpolated on a larger wavelength grid as the wavelength grid of the data.
@@ -244,7 +246,7 @@ def doppler_fct(wav_mod_spectro, flx_mod_spectro, rv_picked):
 
 
 
-def reddening_fct(wav_mod_spectro, wav_obs_photo, flx_mod_spectro, flx_mod_photo, av_picked):
+def reddening_fct(wav_mod_spectro: np.ndarray, wav_obs_photo: np.ndarray, flx_mod_spectro: np.ndarray, flx_mod_photo: np.ndarray, av_picked: float) -> tuple[np.ndarray, np.ndarray]:
     """
     Application of a sythetic interstellar extinction to the interpolated synthetic spectrum using the function
     extinction.fm07.
@@ -280,7 +282,7 @@ def reddening_fct(wav_mod_spectro, wav_obs_photo, flx_mod_spectro, flx_mod_photo
 
 
 
-def vsini_fct(wav_mod_spectro, flx_mod_spectro, res_mod_obs_spectro, ld_picked, vsini_picked, vsini_type):
+def vsini_fct(wav_mod_spectro: np.ndarray, flx_mod_spectro: np.ndarray, res_mod_obs_spectro: np.ndarray, ld_picked: float, vsini_picked: float, vsini_type: str) -> tuple[np.ndarray, np.ndarray]:
     """
     Application of a rotational velocity (line broadening) to the interpolated synthetic spectrum
 
@@ -324,7 +326,7 @@ def vsini_fct(wav_mod_spectro, flx_mod_spectro, res_mod_obs_spectro, ld_picked, 
 
 
 
-def vsini_fct_rot_broad(wav_mod_spectro, flx_mod_spectro, ld_picked, vsini_picked):
+def vsini_fct_rot_broad(wav_mod_spectro: np.ndarray, flx_mod_spectro: np.ndarray, ld_picked: np.ndarray, vsini_picked: float) -> np.ndarray:
     """
     Application of a rotation velocity (line broadening) to the interpolated synthetic spectrum using the function
     extinction.fm07.
@@ -357,7 +359,7 @@ def vsini_fct_rot_broad(wav_mod_spectro, flx_mod_spectro, ld_picked, vsini_picke
 
 
 
-def vsini_fct_fast_rot_broad(wav_mod_spectro, flx_mod_spectro, ld_picked, vsini_picked):
+def vsini_fct_fast_rot_broad(wav_mod_spectro: np.ndarray, flx_mod_spectro: np.ndarray, ld_picked: np.ndarray, vsini_picked: float) -> np.ndarray:
     """
     Application of a rotation velocity (line broadening) to the interpolated synthetic spectrum using the function
     extinction.fm07.
@@ -390,7 +392,7 @@ def vsini_fct_fast_rot_broad(wav_mod_spectro, flx_mod_spectro, ld_picked, vsini_
 
 
 
-def vsini_fct_accurate(wav_mod_spectro, flx_mod_spectro, ld_picked, vsini_picked, nr=50, ntheta=100, dif=0.0):
+def vsini_fct_accurate(wav_mod_spectro: np.ndarray, flx_mod_spectro: np.ndarray, ld_picked: np.ndarray, vsini_picked: np.ndarray, nr: int=50, ntheta: int=100, dif: float=0.0) -> np.ndarray:
     '''
     A routine to quickly rotationally broaden a spectrum in linear time.
     Adapted from Carvalho & Johns-Krull 2023 https://ui.adsabs.harvard.edu/abs/2023RNAAS...7...91C/abstract
@@ -439,7 +441,7 @@ def vsini_fct_accurate(wav_mod_spectro, flx_mod_spectro, ld_picked, vsini_picked
 
 
 
-def vsini_fct_accurate_fast_rot_broad(wav_mod_spectro, flx_mod_spectro, ld_picked, vsini_picked):
+def vsini_fct_accurate_fast_rot_broad(wav_mod_spectro: np.ndarray, flx_mod_spectro: np.ndarray, ld_picked: float, vsini_picked: float) -> np.ndarray:
     """
     Application of a rotation velocity (line broadening) to the interpolated synthetic spectrum using the Carvalho & Johns-Krull (2023) approach
 
@@ -471,7 +473,7 @@ def vsini_fct_accurate_fast_rot_broad(wav_mod_spectro, flx_mod_spectro, ld_picke
 
 
 
-def bb_cpd_fct(wav_mod_spectro, wav_obs_photo, flx_mod_spectro, flx_mod_photo, distance, bb_t_picked, bb_r_picked):
+def bb_cpd_fct(wav_mod_spectro: np.ndarray, wav_obs_photo: np.ndarray, flx_mod_spectro: np.ndarray, flx_mod_photo: np.ndarray, distance: np.ndarray, bb_t_picked: np.ndarray, bb_r_picked: np.ndarray()) -> tuple[np.ndarray, np.ndarray]:
     '''
     Function to add the effect of a cpd (circum planetary disc) to the models.
 
@@ -481,8 +483,8 @@ def bb_cpd_fct(wav_mod_spectro, wav_obs_photo, flx_mod_spectro, flx_mod_photo, d
         flx_mod_spectro        (array): Flux of the interpolated synthetic spectrum (spectroscopy)
         flx_mod_photo          (array): Flux of the interpolated synthetic spectrum (photometry)
         distance               (array): Distance from the observation in pc units
-        bb_temp                (float): Temperature value randomly picked by the nested sampling in K units
-        bb_rad                 (float): Radius randomly picked by the nested sampling in units of planetary radius
+        bb_t_picked            (float): Temperature value randomly picked by the nested sampling in K units
+        bb_r_picked            (float): Radius randomly picked by the nested sampling in units of planetary radius
     Returns:
         - flx_mod_spectro_bb   (array): New flux of the interpolated synthetic spectrum (spectroscopy)
         - flx_mod_photo_bb     (array): New flux of the interpolated synthetic spectrum (photometry)
@@ -511,3 +513,31 @@ def bb_cpd_fct(wav_mod_spectro, wav_obs_photo, flx_mod_spectro, flx_mod_photo, d
     flx_mod_photo_bb = flx_mod_photo + flux_bb_lambda_f.value
 
     return flx_mod_spectro_bb, flx_mod_photo_bb
+
+
+# ----------------------------------------------------------------------------------------------------------------------
+
+
+def plot_ccf(wav_mod_spectro: np.ndarray, flx_mod_spectro: np.ndarray, wav_obs_spectro: np.ndarray, flx_obs_spectro: np.ndarray, res_mod_obs_spectro: np.ndarray, res_obs_spectro: np.ndarray, star_flx_obs_spectro: np.ndarray = np.array([]), transm_obs_spectro: np.ndarray = np.array([1]), system_obs_spectro: np.ndarray = np.array([])):
+    '''
+    Function to plot the ccf between a template and data
+
+    Args:
+        wav_mod_spectro      (np.ndarray): Wavelength grid of the template
+        flx_mod_spectro       (np.ndarray): Flux of the template
+        wav_obs_spectro      (np.ndarray): Wavelength grid of the data
+        flx_obs_spectro       (np.ndarray): Flux of the data
+        res_mod_obs_spectro   (np.ndarray): Resolution of the template interpolated onto the wavelength grid of the data
+        res_obs_spectro       (np.ndarray): Resolution of the data
+        star_flx_obs_spectro  (np.ndarray): Star flux of the data
+        transm_obs_spectro    (np.ndarray): Transmission
+        system_obs_spectro    (np.ndarray): Systematics
+
+    Returns
+    -------
+    None.
+
+    Authors: Allan Denis
+    '''
+
+    # TODO
