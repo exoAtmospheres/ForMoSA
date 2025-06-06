@@ -470,7 +470,7 @@ def vsini_fct_accurate_fast_rot_broad(wav_mod_spectro: np.ndarray, flx_mod_spect
 
 
 
-def bb_cpd_fct(wav_mod_spectro: np.ndarray, wav_obs_photo: np.ndarray, flx_mod_spectro: np.ndarray, flx_mod_photo: np.ndarray, distance: np.ndarray, bb_t_picked: np.ndarray, bb_r_picked: np.ndarray()) -> tuple[np.ndarray, np.ndarray]:
+def bb_cpd_fct(wav_mod_spectro: np.ndarray, wav_obs_photo: np.ndarray, flx_mod_spectro: np.ndarray, flx_mod_photo: np.ndarray, distance: np.ndarray, bb_t_picked: np.ndarray, bb_r_picked: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
     '''
     Function to add the effect of a cpd (circum planetary disc) to the models.
 
