@@ -1,15 +1,15 @@
-from configobj import ConfigObj
-from pathlib import Path
 import glob
 import logging
 import os
-from ForMoSA.ForMoSAPaths import ForMoSAPaths
-from ForMoSA.NestedSampling_Parameters import Parameter
 import numpy as np
 
+from configobj import ConfigObj
+from pathlib import Path
 
-class ForMoSAError(Exception):
-    pass
+from ForMoSA.ForMoSAPaths import ForMoSAPaths
+from ForMoSA.NestedSampling_Parameters import Parameter
+from ForMoSA import ForMoSAError
+
 
 class GlobalParams(object):
     '''

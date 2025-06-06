@@ -2,9 +2,8 @@ import numpy as np
 import ForMoSA.utils.prior_functions as prior_functions
 import pandas as pd
 
+from ForMoSA import ForMoSAError
 
-class ForMoSAError(Exception):
-    pass
 
 class Parameter(object):
     '''

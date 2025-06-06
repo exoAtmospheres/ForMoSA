@@ -1,16 +1,21 @@
 import numpy as np
-from pathlib import Path
 import os
 import xarray as xr
-from ForMoSA.utils.spec import resolution_decreasing, continuum_estimate
-import ForMoSA.utils.misc as utils
+import multiprocessing as mp
+
+from pathlib import Path
 from scipy.interpolate import interp1d
 from tqdm import tqdm
 from multiprocessing.pool import ThreadPool
-import multiprocessing as mp
 from functools import partial
 from sklearn.decomposition import PCA
+
+import ForMoSA.utils.misc as utils
+
+from ForMoSA.utils.spec import resolution_decreasing, continuum_estimate
 from ForMoSA.NestedSampling_Parameters import NestedSampling_Params
+from ForMoSA import ForMoSAError
+
 try:
     import torch
     from torchnmf.nmf import NMF
@@ -18,9 +23,6 @@ except ImportError:
     torch = None
     NMF = None
 
-
-class ForMoSAError(Exception):
-    pass
 
 class ModelGrid(object):
     '''

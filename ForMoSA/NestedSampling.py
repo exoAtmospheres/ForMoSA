@@ -1,9 +1,3 @@
-import astropy.constants as cst
-from ForMoSA.ModelGrid import ModelGrid, ModelSubGrid
-from ForMoSA.observation import Observation
-from ForMoSA.NestedSampling_Plotting import NestedSampling_Plotting
-from ForMoSA.NestedSampling_Parameters import NestedSampling_Params, Parameter
-from pathlib import Path
 import numpy as np
 import ForMoSA.utils.spec as us
 import ForMoSA.utils.hc as hc
@@ -14,11 +8,17 @@ import nestle
 import pickle
 import pymultinest
 import ultranest
+import astropy.constants as cst
+
+from pathlib import Path
 from ultranest import integrator
 from scipy.interpolate import interp1d
 
-class ForMoSAError(Exception):
-    pass
+from ForMoSA.ModelGrid import ModelGrid, ModelSubGrid
+from ForMoSA.observation import Observation
+from ForMoSA.NestedSampling_Plotting import NestedSampling_Plotting
+from ForMoSA.NestedSampling_Parameters import NestedSampling_Params, Parameter
+from ForMoSA import ForMoSAError
 
 
 class NestedSampling(object):

@@ -8,12 +8,10 @@ from ForMoSA.ForMoSAPaths import ForMoSAPaths
 from ForMoSA.observation import Observation
 from ForMoSA.NestedSampling import NestedSampling
 from ForMoSA.NestedSampling_Plotting import NestedSampling_Plotting
+from ForMoSA import ForMoSAError
 
 # log
 _log = logging.getLogger(__name__)
-
-class ForMoSAError(Exception):
-    pass
 
 class Analysis(object):
     '''
