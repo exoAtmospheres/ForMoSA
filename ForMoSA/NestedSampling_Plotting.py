@@ -6,7 +6,7 @@ import matplotlib.gridspec as gridspec
 
 import ForMoSA.utils.misc as utils
 
-from ForMoSA import ForMoSAError
+from ForMoSA.error import ForMoSAError
 
 
 class NestedSampling_Plotting(object):

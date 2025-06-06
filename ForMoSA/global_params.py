@@ -8,7 +8,7 @@ from pathlib import Path
 
 from ForMoSA.ForMoSAPaths import ForMoSAPaths
 from ForMoSA.NestedSampling_Parameters import Parameter
-from ForMoSA import ForMoSAError
+from ForMoSA.error import ForMoSAError
 
 
 class GlobalParams(object):

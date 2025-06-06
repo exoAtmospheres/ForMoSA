@@ -14,7 +14,7 @@ import ForMoSA.utils.misc as utils
 
 from ForMoSA.utils.spec import resolution_decreasing, continuum_estimate
 from ForMoSA.NestedSampling_Parameters import NestedSampling_Params
-from ForMoSA import ForMoSAError
+from ForMoSA.error import ForMoSAError
 
 try:
     import torch

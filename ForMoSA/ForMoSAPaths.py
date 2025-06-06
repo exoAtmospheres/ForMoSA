@@ -10,7 +10,7 @@ import colorlog
 
 from ForMoSA.observation import Observation
 from ForMoSA.ModelGrid import ModelGrid
-from ForMoSA import ForMoSAError
+from ForMoSA.error import ForMoSAError
 
 
 class ForMoSAPaths(object):

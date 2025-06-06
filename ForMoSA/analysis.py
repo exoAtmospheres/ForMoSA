@@ -9,7 +9,7 @@ from ForMoSA.ForMoSAPaths import ForMoSAPaths
 from ForMoSA.observation import Observation
 from ForMoSA.NestedSampling import NestedSampling
 from ForMoSA.NestedSampling_Plotting import NestedSampling_Plotting
-from ForMoSA import ForMoSAError
+from ForMoSA.error import ForMoSAError
 
 # log
 _log = logging.getLogger(__name__)

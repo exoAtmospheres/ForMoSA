@@ -7,7 +7,7 @@ from scipy.interpolate import interp1d
 from astropy.io import fits
 
 from ForMoSA.utils.spec import resolution_decreasing, continuum_estimate
-from ForMoSA import ForMoSAError
+from ForMoSA.error import ForMoSAError
 
 class Observation(object):
     '''
