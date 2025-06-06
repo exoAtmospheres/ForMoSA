@@ -1,6 +1,7 @@
 import logging
 import ForMoSA.utils.misc as utils
 import colorlog
+import ForMoSA
 
 from ForMoSA.global_params import GlobalParams
 from ForMoSA.ModelGrid import ModelGrid
@@ -27,7 +28,7 @@ class Analysis(object):
     Authors: Allan Denis
     '''
 
-    def __init__(self, global_params: GlobalParams, adapted: bool = False, fitted: bool = False, log_level: str = 'info') -> 'Analysis | None' :
+    def __init__(self, global_params: GlobalParams, adapted: bool = False, fitted: bool = False, log_level: str = 'info') -> ForMoSA.Analysis | None :
 
         logger = logging.getLogger("ForMoSA")
 
