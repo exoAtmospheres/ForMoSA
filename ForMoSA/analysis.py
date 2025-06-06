@@ -104,7 +104,7 @@ class Analysis(object):
         return self._ns
 
     @property
-    def config_params(self) -> dict():
+    def config_params(self) -> dict:
         return self._config_params
 
     @property

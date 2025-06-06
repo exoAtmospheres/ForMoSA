@@ -141,7 +141,7 @@ class Observation(object):
     # Methods
     ##################################################
 
-    def _extract_observation(self) -> dict():
+    def _extract_observation(self) -> dict:
         """
         Method to extract the information from the observation files
         Extracts the wavelengths (um - vacuum), flux (W.m-2.um-1), errors (W.m-2.um-1), covariance (W.m-2.um-1)**2,
