@@ -28,7 +28,7 @@ class Analysis(object):
     Authors: Allan Denis
     '''
 
-    def __init__(self, global_params: GlobalParams, adapted: bool = False, fitted: bool = False, log_level: str = 'info') -> ForMoSA.Analysis | None :
+    def __init__(self, global_params: GlobalParams, adapted: bool = False, fitted: bool = False, log_level: str = 'info'):
 
         logger = logging.getLogger("ForMoSA")
 
