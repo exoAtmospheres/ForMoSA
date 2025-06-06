@@ -5,9 +5,9 @@ from ForMoSA.NestedSampling_Plotting import NestedSampling_Plotting
 from ForMoSA.NestedSampling_Parameters import NestedSampling_Params, Parameter
 from pathlib import Path
 import numpy as np
-import ForMoSA.utils_spec as us
-import ForMoSA.utils_hc as high_contrast
-import ForMoSA.utils_logL_functions as logL_functions
+import ForMoSA.utils.spec as us
+import ForMoSA.utils.hc as high_contrast
+import ForMoSA.utils.logL_functions as logL_functions
 import os
 import time
 import nestle

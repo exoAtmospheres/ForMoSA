@@ -3,9 +3,8 @@ import os
 from pathlib import Path
 import glob
 from astropy.io import fits
-from ForMoSA.utils_spec import resolution_decreasing, continuum_estimate
+from ForMoSA.utils.spec import resolution_decreasing, continuum_estimate
 from scipy.interpolate import interp1d
-import ForMoSA.utils as u
 
 class ForMoSAError(Exception):
     pass

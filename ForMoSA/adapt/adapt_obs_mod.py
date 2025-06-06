@@ -14,7 +14,7 @@ from ForMoSA.adapt.adapt_extraction_functions import adapt_observation
 def launch_adapt(global_params, justobs='no'):
     """
     Adapt the synthetic spectra of a grid to make them comparable with the data.
-    
+
     Args:
         global_params  (object): Class containing each parameter
         justobs    ('yes'/'no'): 'no' by default to also adapt the grid
@@ -41,7 +41,7 @@ def launch_adapt(global_params, justobs='no'):
     main_obs_path = global_params.main_observation_path
 
     for indobs, obs in enumerate(sorted(glob.glob(main_obs_path))):
-        
+
         global_params.observation_path = obs
         obs_name = os.path.splitext(os.path.basename(global_params.observation_path))[0]
 
@@ -50,16 +50,16 @@ def launch_adapt(global_params, justobs='no'):
         # Check-ups and warnings for negative values in the diagonal of the covariance matrix
         if len(obs_dict['wav_spectro']) != 0 and any(np.diag(obs_dict['inv_cov']) < 0):
             print()
-            print("WARNING: Negative value(s) is(are) present on the diagonal of the covariance matrix.") 
+            print("WARNING: Negative value(s) is(are) present on the diagonal of the covariance matrix.")
             print("Operation aborted.")
             print()
             exit()
-            
+
         # Save the data
         np.savez(os.path.join(global_params.result_path, f'spectrum_obs_{obs_name}.npz'), **obs_dict)
-        
 
-        # - - - - - - - - 
+
+        # - - - - - - - -
 
 
         # Adaptation of the model grid
@@ -84,7 +84,7 @@ def launch_adapt(global_params, justobs='no'):
 
             # Masks to have larger cuts of the spectroscopic grid if needed (if rv is defined)
             if global_params.rv[indobs*3 % len(global_params.rv)] == 'NA':
-                mask_mod_obs = (target_wav_mod <= obs_dict['wav_spectro'][-1]) & (target_wav_mod >= obs_dict['wav_spectro'][0]) 
+                mask_mod_obs = (target_wav_mod <= obs_dict['wav_spectro'][-1]) & (target_wav_mod >= obs_dict['wav_spectro'][0])
                 target_wav_mod = target_wav_mod[mask_mod_obs]
                 target_res_mod = target_res_mod[mask_mod_obs]
             else:
@@ -108,7 +108,7 @@ def launch_adapt(global_params, justobs='no'):
             print(f"-> Sarting the adaptation of {obs_name}")
 
             adapt_grid(global_params, obs_dict, res_mod_nativ_interp, target_wav_mod, target_res_mod, obs_name, indobs)
-        
+
 # ----------------------------------------------------------------------------------------------------------------------
 
 

@@ -2,8 +2,8 @@ import numpy as np
 from pathlib import Path
 import os
 import xarray as xr
-from ForMoSA.utils_spec import resolution_decreasing, continuum_estimate
-import ForMoSA.utils as u
+from ForMoSA.utils.spec import resolution_decreasing, continuum_estimate
+import ForMoSA.utils.misc as utils
 from scipy.interpolate import interp1d
 from tqdm import tqdm
 from multiprocessing.pool import ThreadPool
@@ -352,7 +352,7 @@ class ModelGrid(object):
                     # Check that all the filters file exist
                     self._check_photometry_filters_exist(ins_photo)
                     for pho_ind, pho in enumerate(ins_photo):
-                        filter_path = u.find_filter_file(pho)
+                        filter_path = utils.find_filter_file(pho)
                         filter_pho = np.load(filter_path)
                         x_filt = filter_pho['x_filt']
                         y_filt = filter_pho['y_filt']
@@ -426,7 +426,7 @@ class ModelGrid(object):
 
         missing = []
         for filt in filters:
-            if u.find_filter_file(filt) is None:
+            if utils.find_filter_file(filt) is None:
                 file_filt = '/'.join(__file__.split("/")[:-1]) + '/phototeque/' + filt + '.npz'
                 missing.append(file_filt)
 

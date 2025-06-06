@@ -3,7 +3,7 @@ import numpy as np
 from astropy.io import fits
 from scipy.interpolate import interp1d
 
-from ForMoSA.utils_spec import resolution_decreasing, continuum_estimate
+from ForMoSA.utils.spec import resolution_decreasing, continuum_estimate
 
 
 def adapt_observation(global_params, wav_mod_nativ, res_mod_nativ, obs_name, indobs=0):
@@ -51,35 +51,35 @@ def adapt_observation(global_params, wav_mod_nativ, res_mod_nativ, obs_name, ind
                                                 obs_dict['res_spectro'],
                                                 obs_dict['wav_spectro'],
                                                 target_res_obs)
-        
+
         obs_dict['transm'] = resolution_decreasing(obs_dict['wav_spectro'],
                                                 obs_dict['transm'],
                                                 obs_dict['res_spectro'],
                                                 obs_dict['wav_spectro'],
                                                 target_res_obs)
-        
+
         obs_dict['star_flx'] = np.asarray([resolution_decreasing(obs_dict['wav_spectro'],
                                                 obs_dict['star_flx'][:,i],
                                                 obs_dict['res_spectro'],
                                                 obs_dict['wav_spectro'],
                                                 target_res_obs)
                                                 for i in range(obs_dict['star_flx'].shape[-1])]).T
-    
+
         obs_dict['system'] = np.asarray([resolution_decreasing(obs_dict['wav_spectro'],
                                                 obs_dict['system'][:,i],
                                                 obs_dict['res_spectro'],
                                                 obs_dict['wav_spectro'],
                                                 target_res_obs)
                                                 for i in range(obs_dict['system'].shape[-1])]).T
-    
-        
+
+
         # Since the resolution of the observation might have change, we need to save the new one
         obs_dict['res_spectro'] = target_res_obs
-        
+
         # If we want to estimate and substract the continuum of the data:
         if global_params.res_cont[indobs % len(global_params.res_cont)] != 'NA':
             print()
-            print(obs_name + ' will have a R=' + global_params.res_cont[indobs % len(global_params.res_cont)] + ' continuum removed using a ' 
+            print(obs_name + ' will have a R=' + global_params.res_cont[indobs % len(global_params.res_cont)] + ' continuum removed using a '
                   + global_params.wav_cont[indobs % len(global_params.wav_cont)] + ' wavelength range')
             print()
 
@@ -88,7 +88,7 @@ def adapt_observation(global_params, wav_mod_nativ, res_mod_nativ, obs_name, ind
                                                               obs_dict['res_spectro'],
                                                               global_params.wav_cont[indobs % len(global_params.wav_cont)],
                                                               float(global_params.res_cont[indobs % len(global_params.res_cont)]))
-            
+
             # If you don't use hc models, the data continuum is directly removed
             if global_params.hc_type[indobs % len(global_params.hc_type)] == 'NA':
                 obs_dict['flx_spectro'] -= obs_dict['flx_spectro_cont']
@@ -99,9 +99,9 @@ def adapt_observation(global_params, wav_mod_nativ, res_mod_nativ, obs_name, ind
                                                             obs_dict['res_spectro'],
                                                             global_params.wav_cont[indobs % len(global_params.wav_cont)],
                                                             float(global_params.res_cont[indobs % len(global_params.res_cont)]))
-            
-            
-                
+
+
+
     return obs_dict
 
 # ----------------------------------------------------------------------------------------------------------------------
@@ -109,7 +109,7 @@ def adapt_observation(global_params, wav_mod_nativ, res_mod_nativ, obs_name, ind
 
 def extract_observation(global_params, indobs=0):
     """
-    Extract the information from the observation file, including the wavelengths (um - vacuum), flux (W.m-2.um.1), errors (W.m-2.um.1), covariance (W.m-2.um.1)**2, spectral resolution, 
+    Extract the information from the observation file, including the wavelengths (um - vacuum), flux (W.m-2.um.1), errors (W.m-2.um.1), covariance (W.m-2.um.1)**2, spectral resolution,
     instrument/filter name, transmission (Atmo+inst) and star flux (W.m-2.um.1). The wavelength range is define by the parameter "wav_for_adapt".
 
     Args:
@@ -144,7 +144,7 @@ def extract_observation(global_params, indobs=0):
             star_flx = hdul[1].data['STAR_FLX1'][:,np.newaxis]
             is_star = True
         except:
-            star_flx = np.asarray([])   
+            star_flx = np.asarray([])
             is_star = False
         if is_star:
             i = 2
@@ -185,7 +185,7 @@ def extract_observation(global_params, indobs=0):
                 nan_mod_ind = (nan_mod_ind) & (~np.isnan(star_flx.T[i])) & (np.isfinite(star_flx.T[i]))
         if len(system) != 0:
             for i in range(len(system[0])):
-                nan_mod_ind = (nan_mod_ind) & (~np.isnan(system.T[i])) & (np.isfinite(system.T[i])) 
+                nan_mod_ind = (nan_mod_ind) & (~np.isnan(system.T[i])) & (np.isfinite(system.T[i]))
         wav = wav[nan_mod_ind]
         flx = flx[nan_mod_ind]
         res = res[nan_mod_ind]
@@ -203,7 +203,7 @@ def extract_observation(global_params, indobs=0):
         if len(system) != 0:
             system = np.delete(system, np.where(~nan_mod_ind), axis=0)
 
-        # - - - - - - - - - 
+        # - - - - - - - - -
 
         # Separate photometry from spectroscopy
         mask_photo = (res == 0.0)
@@ -221,8 +221,8 @@ def extract_observation(global_params, indobs=0):
                     'star_flx': star_flx,
                     'system': system
                     }
-        
-        return obs_dict   
+
+        return obs_dict
 
 
 # ----------------------------------------------------------------------------------------------------------------------
@@ -257,7 +257,7 @@ def adapt_model(global_params, obs_dict, wav_mod_nativ, flx_mod_nativ, res_mod_n
                                         res_mod_nativ,
                                         target_wav_mod,
                                         target_res_mod)
-    
+
     # If we want to estimate and substract the continuum of the data (except for high contrast where we need to keeo the og spectrum):
     if global_params.res_cont[indobs % len(global_params.res_cont)] != 'NA' and global_params.hc_type[indobs % len(global_params.hc_type)] == 'NA':
         mod_spectro -= continuum_estimate(target_wav_mod,
@@ -268,7 +268,7 @@ def adapt_model(global_params, obs_dict, wav_mod_nativ, flx_mod_nativ, res_mod_n
 
     # Photometry part
     mod_photo = np.empty(len(obs_dict['wav_photo']), dtype=float)
-        
+
     if len(obs_dict['wav_photo']) != 0:
         # Calculate each photometry point (if necessary)
         for pho_ind, pho in enumerate(obs_dict['ins_photo']):

@@ -1,5 +1,5 @@
 import logging
-import ForMoSA.utils as utils
+import ForMoSA.utils.misc as utils
 import colorlog
 
 from ForMoSA.global_params import GlobalParams
