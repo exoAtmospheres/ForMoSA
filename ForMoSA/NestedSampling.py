@@ -6,7 +6,7 @@ from ForMoSA.NestedSampling_Parameters import NestedSampling_Params, Parameter
 from pathlib import Path
 import numpy as np
 import ForMoSA.utils.spec as us
-import ForMoSA.utils.hc as high_contrast
+import ForMoSA.utils.hc as hc
 import ForMoSA.utils.logL_functions as logL_functions
 import os
 import time
@@ -409,7 +409,7 @@ class NestedSampling(object):
             new_theta = self.params._get_param_value(name, theta)
             return new_theta
 
-        contributions, obs_dict_spectro['speckles'], ck_spectro, ck_photo = 1, 0, 1, 1
+        contributions, obs_dict_spectro['speckles'], ck_spectro, ck_photo = 1, np.zeros(len(obs_dict_spectro['wav'])), 1, 1
 
         theta_index = self.params.list_params_keys
         if len(theta) != self._params.n_free_parameters:
@@ -466,9 +466,8 @@ class NestedSampling(object):
 
         # High contrast modeling
         if len(obs_dict_spectro['star_flx']) > 0:
-            flx_mod_spectro_cont = us.continuum_estimate(target_wavelength, flx_mod_spectro, res_mod_obs_spectro, wav_cont, res_cont)
-            weights = 1 / (obs_dict_spectro['err'] ** 2)
-            contributions, flx_mod_spectro, obs_dict_spectro['speckles'] = high_contrast.hc_model(obs_dict_spectro, flx_mod_spectro, flx_mod_spectro_cont, weights, bounds_lsq, self.logL[indobs % len(self.logL)])
+            flx_cont_mod_spectro = us.continuum_estimate(target_wavelength, flx_mod_spectro, res_mod_obs_spectro, wav_cont, res_cont)
+            contributions, flx_mod_spectro, obs_dict_spectro['speckles'] = hc.hc_model(obs_dict_spectro['flx'], obs_dict_spectro['flx_cont'], obs_dict_spectro['transm'], obs_dict_spectro['star_flx'], obs_dict_spectro['star_flx_cont'], flx_mod_spectro, flx_cont_mod_spectro, obs_dict_spectro['err'], bounds_lsq)
 
         # Scaling (ck)
         alpha = get_param('alpha', indobs)
