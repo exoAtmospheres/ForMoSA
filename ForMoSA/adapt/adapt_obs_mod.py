@@ -95,10 +95,11 @@ def launch_adapt(global_params, adapt_model=True):
                 # Interpolate the resolution of the model onto the wavelength of the data to properly decrease the resolution if necessary
                 interp_mod_to_obs = interp1d(wav_mod_nativ, res_mod_nativ, fill_value='extrapolate')
                 res_mod_nativ_interp = interp_mod_to_obs(target_wav_mod)
+                
             else:
-                target_wav_mod = wav_mod_nativ
-                target_res_mod = res_mod_nativ
-                res_mod_nativ_interp = res_mod_nativ
+                target_wav_mod = np.asarray([])
+                target_res_mod = np.asarray([])
+                res_mod_nativ_interp = np.asarray([])
 
             print()
             print('- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -')
