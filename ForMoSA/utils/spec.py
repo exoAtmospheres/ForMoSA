@@ -5,11 +5,8 @@ import extinction
 import astropy.units as u
 import astropy.constants as const
 from PyAstronomy.pyasl import rotBroad, fastRotBroad
-import ForMoSA.utils as utils
-import ForMoSA.utils_hc as utils_hc
 
 # ----------------------------------------------------------------------------------------------------------------------
-
 
 def convolve_and_sample(wv_channels: list, sigmas_wvs: list, model_wvs: np.ndarray, model_fluxes: np.ndarray, num_sigma: int=3, force_int: bool=True) -> np.ndarray: # num_sigma = 3 is a good compromise between sampling enough the gaussian and fast interpolation
     """
