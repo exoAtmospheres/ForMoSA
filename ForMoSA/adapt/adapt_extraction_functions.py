@@ -270,20 +270,21 @@ def adapt_model(global_params, obs_dict, wav_mod_nativ, flx_mod_nativ, res_mod_n
     # Spectroscopy part
     mod_spectro = np.empty(len(target_wav_mod), dtype=float)
 
-    # If we want to decrease the resolution of the model
-    mod_spectro = resolution_decreasing(wav_mod_nativ,
-                                        flx_mod_nativ,
-                                        res_mod_nativ,
-                                        target_wav_mod,
-                                        target_res_mod)
+    # If we want to decrease the resolution of the model (if necessary):
+    if len(obs_dict['wav_spectro']) != 0:
+        mod_spectro = resolution_decreasing(wav_mod_nativ,
+                                            flx_mod_nativ,
+                                            res_mod_nativ,
+                                            target_wav_mod,
+                                            target_res_mod)
     
-    # If we want to estimate and substract the continuum of the data (except for high contrast where we need to keeo the og spectrum):
-    if global_params.res_cont[indobs % len(global_params.res_cont)] != 'NA' and global_params.hc_type[indobs % len(global_params.hc_type)] == 'NA':
-        mod_spectro -= continuum_estimate(target_wav_mod,
-                                          mod_spectro,
-                                          target_res_mod,
-                                          global_params.wav_cont[indobs % len(global_params.wav_cont)],
-                                          float(global_params.res_cont[indobs % len(global_params.res_cont)]))
+        # If we want to estimate and substract the continuum of the data (except for high contrast where we need to keeo the og spectrum):
+        if global_params.res_cont[indobs % len(global_params.res_cont)] != 'NA' and global_params.hc_type[indobs % len(global_params.hc_type)] == 'NA':
+            mod_spectro -= continuum_estimate(target_wav_mod,
+                                            mod_spectro,
+                                            target_res_mod,
+                                            global_params.wav_cont[indobs % len(global_params.wav_cont)],
+                                            float(global_params.res_cont[indobs % len(global_params.res_cont)]))
 
     # Photometry part
     mod_photo = np.empty(len(obs_dict['wav_photo']), dtype=float)
