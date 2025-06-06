@@ -1,5 +1,5 @@
 import numpy as np
-import ForMoSA.utils_prior_functions as prior_functions
+import ForMoSA.utils.prior_functions as prior_functions
 import pandas as pd
 
 

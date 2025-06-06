@@ -2,17 +2,21 @@ import numpy as np
 from pathlib import Path
 import os
 import xarray as xr
-from ForMoSA.utils_spec import resolution_decreasing, continuum_estimate
-import ForMoSA.utils as u
+from ForMoSA.utils.spec import resolution_decreasing, continuum_estimate
+import ForMoSA.utils.misc as utils
 from scipy.interpolate import interp1d
 from tqdm import tqdm
 from multiprocessing.pool import ThreadPool
 import multiprocessing as mp
 from functools import partial
 from sklearn.decomposition import PCA
-from torchnmf.nmf import NMF
 from ForMoSA.NestedSampling_Parameters import NestedSampling_Params
-import torch
+try:
+    import torch
+    from torchnmf.nmf import NMF
+except ImportError:
+    torch = None
+    NMF = None
 
 
 class ForMoSAError(Exception):
@@ -348,7 +352,7 @@ class ModelGrid(object):
                     # Check that all the filters file exist
                     self._check_photometry_filters_exist(ins_photo)
                     for pho_ind, pho in enumerate(ins_photo):
-                        filter_path = u.find_filter_file(pho)
+                        filter_path = utils.find_filter_file(pho)
                         filter_pho = np.load(filter_path)
                         x_filt = filter_pho['x_filt']
                         y_filt = filter_pho['y_filt']
@@ -422,7 +426,7 @@ class ModelGrid(object):
 
         missing = []
         for filt in filters:
-            if u.find_filter_file(filt) is None:
+            if utils.find_filter_file(filt) is None:
                 file_filt = '/'.join(__file__.split("/")[:-1]) + '/phototeque/' + filt + '.npz'
                 missing.append(file_filt)
 
@@ -494,6 +498,10 @@ class ModelGrid(object):
 
         Authors: Matthieu Ravet
         '''
+        if torch is None or NMF is None:
+            msg = "NMF decomposition requires the 'torch' and 'torchnmf' packages. Please install them to use this feature."
+            self._logger.error(msg)
+            raise ForMoSAError(msg)
 
         device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
         torch.manual_seed(0)

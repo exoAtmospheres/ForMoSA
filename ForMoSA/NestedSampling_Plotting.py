@@ -4,7 +4,7 @@ import matplotlib.gridspec as gridspec
 import numpy as np
 import corner
 
-import ForMoSA.utils as u
+import ForMoSA.utils.misc as utils
 
 class ForMoSAError(Exception):
     pass
@@ -301,7 +301,7 @@ class NestedSampling_Plotting(object):
         # Compute quantiles for each parameter
         q_low, q_med, q_high = [], [], []
         for i in range(samples.shape[1]):
-            q = u.weighted_quantile(samples[:, i], quantiles, weights=weights)
+            q = utils.weighted_quantile(samples[:, i], quantiles, weights=weights)
             q_low.append(q[0])
             q_med.append(q[1])
             q_high.append(q[2])
@@ -461,7 +461,7 @@ class NestedSampling_Plotting(object):
                 global_flux.append(obs_flx)
 
         global_flux = np.concatenate(global_flux)
-        global_flux, factor = u.scale_to_one_significant_digit(global_flux)
+        global_flux, factor = utils.scale_to_one_significant_digit(global_flux)
         global_residuals = np.concatenate(global_residuals) / (10 ** factor)
         std_global = np.nanstd(global_residuals)
         if std_global == 0 or np.isnan(std_global):
@@ -510,7 +510,7 @@ class NestedSampling_Plotting(object):
                 err = np.array(obs_photo.get('err', [])) / (10**factor) if uncert == 'yes' else None
 
                 try:
-                    filt = np.load(u.find_filter_file(ins))
+                    filt = np.load(utils.find_filter_file(ins))
                     x = filt['x_filt']
                     y = filt['y_filt']
                     files_loaded = True

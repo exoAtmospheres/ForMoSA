@@ -1,8 +1,15 @@
 from __future__ import print_function, division
 import numpy as np
-import torch
-from torchnmf.nmf import NMF
 from sklearn.decomposition import PCA
+try:
+    import torch
+    from torchnmf.nmf import NMF
+except ImportError:
+    torch = None
+    NMF = None
+
+class ForMoSAError(Exception):
+    pass
 
 # ----------------------------------------------------------------------------------------------------------------------
 
@@ -36,10 +43,10 @@ def get_ws(eigenspectra, flx_grid):
 def emulator_PCA(ds, PCA_comp = 'NA'):
     """
     Emulator of a grid spectra with PCA decomposition
-    
+
     Args:
         ds                      (xarray): Grid used for the PCA
-        PCA_comp          (str or float): Number of PCA component to use. 
+        PCA_comp          (str or float): Number of PCA component to use.
                                           'NA' by default means that the emulator will try to explain at least 99% of the variance of the grid
     Returns:
         flx_grid_mean       (np.ndarray): Mean flux of the normalized grid
@@ -47,7 +54,7 @@ def emulator_PCA(ds, PCA_comp = 'NA'):
         PCA_vectors         (np.ndarray): Eigenspectra of the PCA decomposion
         PCA_weights             (xarray): Grid of normalization factors and weights (format = (PCA_comp, grid_shape))
 
-    Author: Matthieu Ravet, adapted from https://iopscience.iop.org/article/10.1088/0004-637X/812/2/128/pdf  
+    Author: Matthieu Ravet, adapted from https://iopscience.iop.org/article/10.1088/0004-637X/812/2/128/pdf
     """
 
     # Extract grid
@@ -98,7 +105,7 @@ def emulator_PCA(ds, PCA_comp = 'NA'):
 def emulator_NMF(ds, NMF_comp):
     """
     Emulator of a grid spectra with NMF decomposition. Need CUDA to work on GPU
-    
+
     Args:
         ds                      (xarray): Grid used for the NMF
         PCA_comp          (str or float): Number of NMF component to use.
@@ -108,7 +115,11 @@ def emulator_NMF(ds, NMF_comp):
 
     Author: Matthieu Ravet
     """
-    # DEVICE SETUP 
+    if torch is None or NMF is None:
+        msg = "NMF decomposition requires the 'torch' and 'torchnmf' packages. Please install them to use this feature."
+        raise ForMoSAError(msg)
+
+    # DEVICE SETUP
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     torch.manual_seed(0)  # For reproducibility of the NMF decomposition
 

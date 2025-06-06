@@ -3,9 +3,8 @@ import os
 from pathlib import Path
 import glob
 from astropy.io import fits
-from ForMoSA.utils_spec import resolution_decreasing, continuum_estimate
+from ForMoSA.utils.spec import resolution_decreasing, continuum_estimate
 from scipy.interpolate import interp1d
-import ForMoSA.utils as u
 
 class ForMoSAError(Exception):
     pass
@@ -142,7 +141,7 @@ class Observation(object):
     # Methods
     ##################################################
 
-    def _extract_observation(self) -> dict():
+    def _extract_observation(self) -> dict:
         """
         Method to extract the information from the observation files
         Extracts the wavelengths (um - vacuum), flux (W.m-2.um-1), errors (W.m-2.um-1), covariance (W.m-2.um-1)**2,
