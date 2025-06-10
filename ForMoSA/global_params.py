@@ -11,7 +11,7 @@ from ForMoSA.nested_sampling.parameters import Parameter
 from ForMoSA.error import ForMoSAError
 
 
-class GlobalParams(object):
+class GlobalParameters(object):
     '''
     Class that import all the parameters from the config file.
 
@@ -485,3 +485,9 @@ class GlobalParams(object):
 
         config.write()
 
+
+class GlobalParams(GlobalParameters):
+
+    def __init__(self, *args, **kwargs):
+        logging.warning("GlobalParams is deprecated and will be removed in a future version. Use GlobalParameters instead.")
+        super().__init__(*args, **kwargs)
