@@ -4,14 +4,10 @@ import ForMoSA.utils.hc as hc
 import ForMoSA.utils.logL_functions as logL_functions
 import os
 import time
-import nestle
 import pickle
-import pymultinest
-import ultranest
 import astropy.constants as cst
 
 from pathlib import Path
-from ultranest import integrator
 from scipy.interpolate import interp1d
 
 from ForMoSA.model_grid import ModelGrid, ModelSubGrid
@@ -19,6 +15,23 @@ from ForMoSA.observation import Observation
 from .plotting import NestedSamplingPlotting
 from .parameters import NestedSamplingParameters, Parameter
 from ForMoSA.error import ForMoSAError
+
+# optional imports for nested sampling algorithms
+try:
+    import nestle
+except ImportError:
+    nestle = None
+
+try:
+    import pymultinest
+except ImportError:
+    pymultinest = None
+
+try:
+    import ultranest
+    from ultranest import integrator
+except ImportError:
+    ultranest = None
 
 
 class NestedSampling(object):
@@ -241,6 +254,11 @@ class NestedSampling(object):
         time1 = time.time()
 
         if self.algorithm == 'nestle':
+            if nestle is None:
+                msg = 'Nestle is not installed. Please install it to use the nestle algorithm.'
+                self._logger.error(msg)
+                raise ForMoSAError(msg)
+
             res = nestle.sample(loglike_gp, prior_transform_gp, n_free_parameters,
                                 npoints=self.npoints,
                                 **self.ns_params,
@@ -252,8 +270,12 @@ class NestedSampling(object):
             weights = res['weights']
             logvol = res['logvol']
             logl = res['logl']
+        elif self.algorithm == 'pymultinest':
+            if pymultinest is None:
+                msg = 'Pymultinest is not installed. Please install it to use the MultiNest algorithm.'
+                self._logger.error(msg)
+                raise ForMoSAError(msg)
 
-        if self.algorithm == 'pymultinest':
             res = pymultinest.solve(LogLikelihood=loglike_gp,
                                     Prior=prior_transform_gp,
                                     n_dims=n_free_parameters,
@@ -291,8 +313,12 @@ class NestedSampling(object):
             logl = np.asarray(logl)
             logvol = np.asarray(logvol)
             logz = np.asarray(logz)
+        elif self.algorithm == 'ultranest':
+            if ultranest is None:
+                msg = 'Ultranest is not installed. Please install it to use the UltraNest algorithm.'
+                self._logger.error(msg)
+                raise ForMoSAError(msg)
 
-        if self.algorithm == 'ultranest':
             sampler = ultranest.ReactiveNestedSampler(param_names=self.params.list_free_params_keys,
                                     loglike=loglike_gp,
                                     transform=prior_transform_gp,
