@@ -6,7 +6,9 @@ import astropy.units as u
 import astropy.constants as const
 from PyAstronomy.pyasl import rotBroad, fastRotBroad
 import ForMoSA.utils as utils
-import ForMoSA.utils_hc as utils_hc
+import multiprocessing as mp
+from multiprocessing.pool import ThreadPool
+from tqdm import tqdm
 
 # ----------------------------------------------------------------------------------------------------------------------
 
@@ -163,7 +165,8 @@ def calc_ck(obs_dict_spectro: dict, obs_dict_photo: dict, flx_mod_spectro: np.nd
     Returns:
         - flx_mod_spectro_ck   (array): Re-normalysed model spectrum
         - flx_mod_photo_ck     (array): Re-normalysed model photometry
-        - ck                   (float): Ck calculated
+        - ck_spectro           (float): Scaling coefficient for spectroscopy
+        - ck_photo             (float): Scaling coefficient for photometry
 
     Author: Simon Petrus
     """
@@ -473,7 +476,7 @@ def vsini_fct_accurate_fast_rot_broad(wav_mod_spectro: np.ndarray, flx_mod_spect
 
 
 
-def bb_cpd_fct(wav_mod_spectro: np.ndarray, wav_obs_photo: np.ndarray, flx_mod_spectro: np.ndarray, flx_mod_photo: np.ndarray, distance: np.ndarray, bb_t_picked: np.ndarray, bb_r_picked: np.ndarray()) -> tuple[np.ndarray, np.ndarray]:
+def bb_cpd_fct(wav_mod_spectro: np.ndarray, wav_obs_photo: np.ndarray, flx_mod_spectro: np.ndarray, flx_mod_photo: np.ndarray, distance: np.ndarray, bb_t_picked: np.ndarray, bb_r_picked: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
     '''
     Function to add the effect of a cpd (circum planetary disc) to the models.
 
@@ -518,26 +521,110 @@ def bb_cpd_fct(wav_mod_spectro: np.ndarray, wav_obs_photo: np.ndarray, flx_mod_s
 # ----------------------------------------------------------------------------------------------------------------------
 
 
-def plot_ccf(wav_mod_spectro: np.ndarray, flx_mod_spectro: np.ndarray, wav_obs_spectro: np.ndarray, flx_obs_spectro: np.ndarray, res_mod_obs_spectro: np.ndarray, res_obs_spectro: np.ndarray, star_flx_obs_spectro: np.ndarray = np.array([]), transm_obs_spectro: np.ndarray = np.array([1]), system_obs_spectro: np.ndarray = np.array([])):
+def compute_ccf(rv_grid: np.ndarray, wav_mod_spectro: np.ndarray, flx_mod_spectro: np.ndarray, wav_obs_spectro: np.ndarray, flx_obs_spectro: np.ndarray, err_obs_spectro: np.ndarray, res_mod_obs_spectro: np.ndarray, res_obs_spectro: np.ndarray, res_cont: float, wav_cont_cut: str | np.ndarray,  star_flx_obs_spectro: np.ndarray = np.array([]), transm_obs_spectro: float | np.ndarray = 1, system_obs_spectro: np.ndarray = np.array([])):
     '''
-    Function to plot the ccf between a template and data
+    Function to compute the ccf between a template and data
 
     Args:
-        wav_mod_spectro      (np.ndarray): Wavelength grid of the template
-        flx_mod_spectro       (np.ndarray): Flux of the template
-        wav_obs_spectro      (np.ndarray): Wavelength grid of the data
-        flx_obs_spectro       (np.ndarray): Flux of the data
-        res_mod_obs_spectro   (np.ndarray): Resolution of the template interpolated onto the wavelength grid of the data
-        res_obs_spectro       (np.ndarray): Resolution of the data
-        star_flx_obs_spectro  (np.ndarray): Star flux of the data
-        transm_obs_spectro    (np.ndarray): Transmission
-        system_obs_spectro    (np.ndarray): Systematics
+        rv_grid                     (np.ndarray): Grid of RV for the CCF function
+        wav_mod_spectro             (np.ndarray): Wavelength grid of the template
+        flx_mod_spectro             (np.ndarray): Flux of the template
+        wav_obs_spectro             (np.ndarray): Wavelength grid of the data
+        flx_obs_spectro             (np.ndarray): Flux of the data
+        err_obs_spectro             (np.ndarray): Error of the data
+        res_mod_obs_spectro         (np.ndarray): Resolution of the template interpolated onto the wavelength grid of the data
+        res_obs_spectro             (np.ndarray): Resolution of the data
+        res_cont                         (float): Resolution of the continuum
+        wav_cont_cut          (str | np.ndarray): Wavelengths used for the continuum estimation
+        star_flx_obs_spectro        (np.ndarray): Star flux of the data
+        transm_obs_spectro  (float | np.ndarray): Transmission
+        system_obs_spectro          (np.ndarray): Systematics
 
-    Returns
-    -------
-    None.
+    Returns:
+        ccf (np.ndarray):
 
     Authors: Allan Denis
     '''
 
-    # TODO
+    # Continuums estimation
+    flx_cont_obs_spectro = continuum_estimate(wav_obs_spectro, flx_obs_spectro, res_obs_spectro, wav_cont_cut, res_cont)
+    star_flx_cont_obs_spectro = continuum_estimate(wav_obs_spectro, star_flx_obs_spectro, res_obs_spectro, wav_cont_cut, res_cont)
+    # Initialization of ccf_list and acf_list
+    # Todel at rv = 0 for autocorrelation
+    flx_mod_spectro_no_rv = resolution_decreasing(wav_mod_spectro, flx_mod_spectro, res_mod_obs_spectro, wav_obs_spectro, res_obs_spectro)
+    # Continuum of template at rv = 0 for autocorrelation
+    flx_cont_mod_spectro_no_rv = continuum_estimate(wav_obs_spectro, flx_mod_spectro_no_rv, res_obs_spectro, wav_cont_cut, res_cont)
+    flx_mod_spectro_no_rv = transm_obs_spectro * (flx_mod_spectro_no_rv - flx_cont_mod_spectro_no_rv)
+
+    # compute CCF with pool of workers
+    with ThreadPool(processes=mp.cpu_count()) as pool:
+        pbar = tqdm(total=len(rv_grid), leave=False)
+
+        def update(*a):
+            pbar.update()
+
+        tasks = []
+        # Loop in rv
+        for irv in rv_grid:
+            tasks.append(pool.apply_async(compute_ccf_single_rv, args=(irv, wav_mod_spectro, flx_mod_spectro, flx_mod_spectro_no_rv, res_mod_obs_spectro, wav_obs_spectro, flx_obs_spectro, err_obs_spectro, flx_cont_obs_spectro, res_obs_spectro, res_cont, wav_cont_cut, star_flx_obs_spectro, star_flx_cont_obs_spectro, transm_obs_spectro, system_obs_spectro)))
+
+        pool.close()
+        pool.join()
+
+        # extract results
+        ccf = np.zeros(len(rv_grid))
+        acf = np.zeros(len(rv_grid))
+        for irv, task in enumerate(tasks):
+            res = task.get()
+            ccf[irv] = res[0]
+            acf[irv] = res[1]
+
+    return ccf, acf
+
+
+# ----------------------------------------------------------------------------------------------------------------------
+
+
+def compute_ccf_single_rv(rv: float, wav_mod_spectro: np.ndarray, flx_mod_spectro: np.ndarray, flx_mod_spectro_no_rv_hf: np.ndarray, res_mod_obs_spectro: np.ndarray, wav_obs_spectro: np.ndarray, flx_obs_spectro: np.ndarray, err_obs_spectro: np.ndarray, flx_cont_obs_spectro: np.ndarray, res_obs_spectro: np.ndarray, res_cont: np.ndarray,  wav_cont_cut: np.ndarray, star_flx_obs_spectro: np.ndarray, star_flx_cont_obs_spectro: np.ndarray, transm_obs_spectro: np.ndarray, system_obs_spectro: np.ndarray) -> tuple[float, float]:
+    '''
+    Function to compute the correlation between template and data for a specific rv value
+
+
+    Args:
+        rv                               (float): rv value
+        wav_mod_spectro             (np.ndarray): Wavelength grid of the template
+        flx_mod_spectro             (np.ndarray): Flux of the template
+        flx_mod_spectro_no_rv_hf    (np.ndarray): High frequency content of the flux of the model at 0 rv
+        res_mod_obs_spectro         (np.ndarray): Resolution of the template interpolated onto the wavelength grid of the data
+        wav_obs_spectro             (np.ndarray): Wavelength grid of the data
+        flx_obs_spectro             (np.ndarray): Flux of the data
+        err_obs_spectro             (np.ndarray): Error of the data
+        flx_cont_obs_spectro        (np.ndarray): Continuum of the flux of the data
+        res_obs_spectro             (np.ndarray): Resolution of the data
+        res_cont                         (float): Resolution of the continuum
+        wav_cont_cut                (np.ndarray): Wavelengths used for the continuum estimation
+        star_flx_obs_spectro        (np.ndarray): Star flux of the data
+        star_flx_cont_obs_spectro   (np.ndarray): Continuum of the flux of the star
+        transm_obs_spectro          (np.ndarray): Transmission
+        system_obs_spectro          (np.ndarray): Systematics
+
+    Returns:
+        ccf   (float): Correlation between the template and the data
+        acf   (float): Autocorrelation between the template and iself
+
+    Authors: Allan Denis
+    '''
+
+    # Doppler shifting
+    wav_mod_spectro_doppler, flx_mod_spectro_doppler = doppler_fct(wav_mod_spectro, flx_mod_spectro, rv)
+    # Resolution decreasing
+    flx_mod_spectro_doppler = resolution_decreasing(wav_mod_spectro_doppler, flx_mod_spectro_doppler, res_mod_obs_spectro, wav_obs_spectro, res_obs_spectro)
+    # Continuum estimation
+    flx_cont_mod_spectro_doppler = continuum_estimate(wav_obs_spectro, flx_mod_spectro_doppler, res_obs_spectro, wav_cont_cut, res_cont)
+    # CCF estimation
+    ccf, flx_mod_spectro_ccf, speckles = utils.hc.hc_model(flx_obs_spectro, flx_cont_obs_spectro, transm_obs_spectro, star_flx_obs_spectro, star_flx_cont_obs_spectro, flx_mod_spectro_doppler, flx_cont_mod_spectro_doppler, err_obs_spectro, bounds=(0,'inf'))
+    # ACF estimation
+    flx_mod_spectro_rv_hf = transm_obs_spectro * (flx_mod_spectro_doppler - flx_cont_mod_spectro_doppler)
+    acf = np.sum(flx_mod_spectro_rv_hf * flx_mod_spectro_no_rv_hf) / (np.sqrt(np.sum(flx_mod_spectro_rv_hf**2)) * np.sqrt(np.sum(flx_mod_spectro_no_rv_hf**2)))
+
+    return ccf, acf
