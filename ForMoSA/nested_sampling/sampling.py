@@ -14,7 +14,7 @@ from pathlib import Path
 from ultranest import integrator
 from scipy.interpolate import interp1d
 
-from ForMoSA.ModelGrid import ModelGrid, ModelSubGrid
+from ForMoSA.model_grid import ModelGrid, ModelSubGrid
 from ForMoSA.observation import Observation
 from .plotting import NestedSamplingPlotting
 from .parameters import NestedSamplingParameters, Parameter

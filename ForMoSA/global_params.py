@@ -6,7 +6,7 @@ import numpy as np
 from configobj import ConfigObj
 from pathlib import Path
 
-from ForMoSA.ForMoSAPaths import ForMoSAPaths
+from ForMoSA.paths import ForMoSAPaths
 from ForMoSA.nested_sampling.parameters import Parameter
 from ForMoSA.error import ForMoSAError
 
