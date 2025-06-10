@@ -725,8 +725,8 @@ class NestedSampling(object):
         msg = "\n======== Nested Sampling Summary ========\n"
         msg += f"Algorithm            : {self.algorithm}\n"
         msg += f"LogZ                 : {logz:.3f} ± {logzerr:.3f}\n"
-        msg += f"Number of samples    : {len(samples)}"
-        msg +=f"Number of parameters : {samples.shape[1] if samples.ndim > 1 else 1}\n"
+        msg += f"Number of samples    : {len(samples)}\n"
+        msg += f"Number of parameters : {samples.shape[1] if samples.ndim > 1 else 1}\n"
 
         # Normalize weights
         if len(weights) != len(samples):
