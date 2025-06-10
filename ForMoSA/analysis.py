@@ -7,8 +7,8 @@ from ForMoSA.global_params import GlobalParams
 from ForMoSA.ModelGrid import ModelGrid
 from ForMoSA.ForMoSAPaths import ForMoSAPaths
 from ForMoSA.observation import Observation
-from ForMoSA.nested_sampling.NestedSampling import NestedSampling
-from ForMoSA.nested_sampling.NestedSampling_Plotting import NestedSampling_Plotting
+from ForMoSA.nested_sampling.sampling import NestedSampling
+from ForMoSA.nested_sampling.plotting import NestedSamplingPlotting
 from ForMoSA.error import ForMoSAError
 
 # log
@@ -66,7 +66,7 @@ class Analysis(object):
         self._adapted = adapted
         self._fitted = fitted
         self._ns = NestedSampling(self.config_params['inversion']['ns_algo'], self.config_params['inversion']['npoints'], self.config_params['inversion']['logL_type'], logger, self.config_params['ns_algo'])
-        self._ns._plotting = NestedSampling_Plotting(logger, self.config_params['plottings'])
+        self._ns._plotting = NestedSamplingPlotting(logger, self.config_params['plottings'])
         self._logger = logger
 
         # Build and check list of nested sampling parameters

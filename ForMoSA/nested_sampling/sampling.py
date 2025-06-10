@@ -16,8 +16,8 @@ from scipy.interpolate import interp1d
 
 from ForMoSA.ModelGrid import ModelGrid, ModelSubGrid
 from ForMoSA.observation import Observation
-from .NestedSampling_Plotting import NestedSampling_Plotting
-from .NestedSampling_Parameters import NestedSampling_Params
+from .plotting import NestedSamplingPlotting
+from .parameters import NestedSamplingParameters, Parameter
 from ForMoSA.error import ForMoSAError
 
 
@@ -59,7 +59,7 @@ class NestedSampling(object):
         self._algorithm = algorithm
         self._npoints = npoints
         self._logger = logger
-        self._params = NestedSampling_Params(logger)
+        self._params = NestedSamplingParameters(logger)
         self._plotting = None
         self._results = None
         self._modif_data = dict()
@@ -106,7 +106,7 @@ class NestedSampling(object):
         return self.grid.n_obs
 
     @property
-    def params(self) -> NestedSampling_Params:        # Priors parameters
+    def params(self) -> NestedSamplingParameters:     # Priors parameters
         return self._params
 
     @property
@@ -174,7 +174,7 @@ class NestedSampling(object):
         return self._best_model
 
     @property
-    def plotting(self) -> NestedSampling_Plotting:   # NestedSampling_Plotting class
+    def plotting(self) -> NestedSamplingPlotting:    # NestedSamplingPlotting class
         return self._plotting
 
 

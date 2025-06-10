@@ -9,7 +9,7 @@ import ForMoSA.utils.misc as utils
 from ForMoSA.error import ForMoSAError
 
 
-class NestedSampling_Plotting(object):
+class NestedSamplingPlotting(object):
     '''
     Class of visualisation of the results of the nested sampling.
 
