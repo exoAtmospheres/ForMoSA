@@ -377,7 +377,7 @@ class GlobalParams(object):
 
         # [config_adapt] (6)
         config.comments['config_adapt'] = ['']
-        config['config_adapt'].comments['method'] = ['# Adaptation method. /!\ For safety reasons, this will also be the interpolation method',
+        config['config_adapt'].comments['method'] = ['# Adaptation method. /!\\ For safety reasons, this will also be the interpolation method',
                                                      "# Format : 'linear' or 'nearest' or 'zero' or 'slinear' or 'quadratic' or 'cubic' or 'quintic' or 'pchip' or 'barycentric' or 'krogh' or 'akima' or 'makima'",
                                                      "# MOSAIC : No"]
         config['config_adapt'].comments['emulator'] = ['', '# If you want to use an emulator to fit your grid (smooth out the grid).',
