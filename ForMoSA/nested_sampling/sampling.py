@@ -1,24 +1,37 @@
-import astropy.constants as cst
-from ForMoSA.ModelGrid import ModelGrid, ModelSubGrid
-from ForMoSA.observation import Observation
-from ForMoSA.NestedSampling_Plotting import NestedSampling_Plotting
-from ForMoSA.NestedSampling_Parameters import NestedSampling_Params, Parameter
-from pathlib import Path
 import numpy as np
 import ForMoSA.utils.spec as us
 import ForMoSA.utils.hc as hc
 import ForMoSA.utils.logL_functions as logL_functions
 import os
 import time
-import nestle
 import pickle
-import pymultinest
-import ultranest
-from ultranest import integrator
+import astropy.constants as cst
+
+from pathlib import Path
 from scipy.interpolate import interp1d
 
-class ForMoSAError(Exception):
-    pass
+from ForMoSA.model_grid import ModelGrid, ModelSubGrid
+from ForMoSA.observation import Observation
+from .plotting import NestedSamplingPlotting
+from .parameters import NestedSamplingParameters, Parameter
+from ForMoSA.error import ForMoSAError
+
+# optional imports for nested sampling algorithms
+try:
+    import nestle
+except ImportError:
+    nestle = None
+
+try:
+    import pymultinest
+except ImportError:
+    pymultinest = None
+
+try:
+    import ultranest
+    from ultranest import integrator
+except ImportError:
+    ultranest = None
 
 
 class NestedSampling(object):
@@ -59,7 +72,7 @@ class NestedSampling(object):
         self._algorithm = algorithm
         self._npoints = npoints
         self._logger = logger
-        self._params = NestedSampling_Params(logger)
+        self._params = NestedSamplingParameters(logger)
         self._plotting = None
         self._results = None
         self._modif_data = dict()
@@ -106,7 +119,7 @@ class NestedSampling(object):
         return self.grid.n_obs
 
     @property
-    def params(self) -> NestedSampling_Params:        # Priors parameters
+    def params(self) -> NestedSamplingParameters:     # Priors parameters
         return self._params
 
     @property
@@ -174,7 +187,7 @@ class NestedSampling(object):
         return self._best_model
 
     @property
-    def plotting(self) -> NestedSampling_Plotting:   # NestedSampling_Plotting class
+    def plotting(self) -> NestedSamplingPlotting:    # NestedSamplingPlotting class
         return self._plotting
 
 
@@ -241,6 +254,11 @@ class NestedSampling(object):
         time1 = time.time()
 
         if self.algorithm == 'nestle':
+            if nestle is None:
+                msg = 'Nestle is not installed. Please install it to use the nestle algorithm.'
+                self._logger.error(msg)
+                raise ForMoSAError(msg)
+
             res = nestle.sample(loglike_gp, prior_transform_gp, n_free_parameters,
                                 npoints=self.npoints,
                                 **self.ns_params,
@@ -252,8 +270,12 @@ class NestedSampling(object):
             weights = res['weights']
             logvol = res['logvol']
             logl = res['logl']
+        elif self.algorithm == 'pymultinest':
+            if pymultinest is None:
+                msg = 'Pymultinest is not installed. Please install it to use the MultiNest algorithm.'
+                self._logger.error(msg)
+                raise ForMoSAError(msg)
 
-        if self.algorithm == 'pymultinest':
             res = pymultinest.solve(LogLikelihood=loglike_gp,
                                     Prior=prior_transform_gp,
                                     n_dims=n_free_parameters,
@@ -291,8 +313,12 @@ class NestedSampling(object):
             logl = np.asarray(logl)
             logvol = np.asarray(logvol)
             logz = np.asarray(logz)
+        elif self.algorithm == 'ultranest':
+            if ultranest is None:
+                msg = 'Ultranest is not installed. Please install it to use the UltraNest algorithm.'
+                self._logger.error(msg)
+                raise ForMoSAError(msg)
 
-        if self.algorithm == 'ultranest':
             sampler = ultranest.ReactiveNestedSampler(param_names=self.params.list_free_params_keys,
                                     loglike=loglike_gp,
                                     transform=prior_transform_gp,

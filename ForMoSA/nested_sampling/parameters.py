@@ -2,9 +2,8 @@ import numpy as np
 import ForMoSA.utils.prior_functions as prior_functions
 import pandas as pd
 
+from ForMoSA.error import ForMoSAError
 
-class ForMoSAError(Exception):
-    pass
 
 class Parameter(object):
     '''
@@ -147,7 +146,7 @@ class Parameter(object):
         return self.theta
 
 
-class NestedSampling_Params(object):
+class NestedSamplingParameters(object):
     '''
     ForMoSA NestedSampling_Params class. Handles dynamically the parameters of the nested sampling.
 

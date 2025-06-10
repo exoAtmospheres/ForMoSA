@@ -1,15 +1,15 @@
+import numpy as np
+import corner
 import matplotlib
 import matplotlib.pyplot as plt
 import matplotlib.gridspec as gridspec
-import numpy as np
-import corner
 
 import ForMoSA.utils.misc as utils
 
-class ForMoSAError(Exception):
-    pass
+from ForMoSA.error import ForMoSAError
 
-class NestedSampling_Plotting(object):
+
+class NestedSamplingPlotting(object):
     '''
     Class of visualisation of the results of the nested sampling.
 

@@ -9,11 +9,9 @@ from pathlib import Path
 import colorlog
 
 from ForMoSA.observation import Observation
-from ForMoSA.ModelGrid import ModelGrid
+from ForMoSA.model_grid import ModelGrid
+from ForMoSA.error import ForMoSAError
 
-
-class ForMoSAError(Exception):
-    pass
 
 class ForMoSAPaths(object):
     '''

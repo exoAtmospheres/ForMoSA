@@ -1,13 +1,13 @@
 import numpy as np
 import os
-from pathlib import Path
 import glob
-from astropy.io import fits
-from ForMoSA.utils.spec import resolution_decreasing, continuum_estimate
-from scipy.interpolate import interp1d
 
-class ForMoSAError(Exception):
-    pass
+from pathlib import Path
+from scipy.interpolate import interp1d
+from astropy.io import fits
+
+from ForMoSA.utils.spec import resolution_decreasing, continuum_estimate
+from ForMoSA.error import ForMoSAError
 
 class Observation(object):
     '''

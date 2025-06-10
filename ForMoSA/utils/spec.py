@@ -12,7 +12,6 @@ from tqdm import tqdm
 
 # ----------------------------------------------------------------------------------------------------------------------
 
-
 def convolve_and_sample(wv_channels: list, sigmas_wvs: list, model_wvs: np.ndarray, model_fluxes: np.ndarray, num_sigma: int=3, force_int: bool=True) -> np.ndarray: # num_sigma = 3 is a good compromise between sampling enough the gaussian and fast interpolation
     """
     Simulate the observations of a model. Convolves the model with a variable Gaussian LSF, sampled at each desired

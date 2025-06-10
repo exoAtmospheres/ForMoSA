@@ -1,17 +1,17 @@
-from configobj import ConfigObj
-from pathlib import Path
 import glob
 import logging
 import os
-from ForMoSA.ForMoSAPaths import ForMoSAPaths
-from ForMoSA.NestedSampling_Parameters import Parameter
 import numpy as np
 
+from configobj import ConfigObj
+from pathlib import Path
 
-class ForMoSAError(Exception):
-    pass
+from ForMoSA.paths import ForMoSAPaths
+from ForMoSA.nested_sampling.parameters import Parameter
+from ForMoSA.error import ForMoSAError
 
-class GlobalParams(object):
+
+class GlobalParameters(object):
     '''
     Class that import all the parameters from the config file.
 
@@ -377,7 +377,7 @@ class GlobalParams(object):
 
         # [config_adapt] (6)
         config.comments['config_adapt'] = ['']
-        config['config_adapt'].comments['method'] = ['# Adaptation method. /!\ For safety reasons, this will also be the interpolation method',
+        config['config_adapt'].comments['method'] = ['# Adaptation method. /!\\ For safety reasons, this will also be the interpolation method',
                                                      "# Format : 'linear' or 'nearest' or 'zero' or 'slinear' or 'quadratic' or 'cubic' or 'quintic' or 'pchip' or 'barycentric' or 'krogh' or 'akima' or 'makima'",
                                                      "# MOSAIC : No"]
         config['config_adapt'].comments['emulator'] = ['', '# If you want to use an emulator to fit your grid (smooth out the grid).',
@@ -485,3 +485,9 @@ class GlobalParams(object):
 
         config.write()
 
+
+class GlobalParams(GlobalParameters):
+
+    def __init__(self, *args, **kwargs):
+        logging.warning("GlobalParams is deprecated and will be removed in a future version. Use GlobalParameters instead.")
+        super().__init__(*args, **kwargs)

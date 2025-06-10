@@ -1,16 +1,21 @@
 import numpy as np
-from pathlib import Path
 import os
 import xarray as xr
-from ForMoSA.utils.spec import resolution_decreasing, continuum_estimate
-import ForMoSA.utils.misc as utils
+import multiprocessing as mp
+
+from pathlib import Path
 from scipy.interpolate import interp1d
 from tqdm import tqdm
 from multiprocessing.pool import ThreadPool
-import multiprocessing as mp
 from functools import partial
 from sklearn.decomposition import PCA
-from ForMoSA.NestedSampling_Parameters import NestedSampling_Params
+
+import ForMoSA.utils.misc as utils
+
+from ForMoSA.utils.spec import resolution_decreasing, continuum_estimate
+from ForMoSA.nested_sampling.parameters import NestedSamplingParameters
+from ForMoSA.error import ForMoSAError
+
 try:
     import torch
     from torchnmf.nmf import NMF
@@ -18,9 +23,6 @@ except ImportError:
     torch = None
     NMF = None
 
-
-class ForMoSAError(Exception):
-    pass
 
 class ModelGrid(object):
     '''
@@ -209,7 +211,7 @@ class ModelGrid(object):
         self._adapted_grid[indobs] = {'spectro': sub_spectro, 'photo': sub_photo}
 
 
-    def adapt_all_grids(self, obs_data: dict, target_res_mod: list, parameters: NestedSampling_Params, wav_cont: list=['NA'], res_cont: list=['NA']):
+    def adapt_all_grids(self, obs_data: dict, target_res_mod: list, parameters: NestedSamplingParameters, wav_cont: list=['NA'], res_cont: list=['NA']):
         '''
         Method to adapt the grid of models to each observation present in obs_data
 
@@ -372,7 +374,7 @@ class ModelGrid(object):
         return model_spectro, model_photo
 
 
-    def _determine_grid_target_wavelength_and_resolution(self, wav_obs_spectro: np.ndarray, res_obs_spectro: np.ndarray, target_res_mod: str | float, params: NestedSampling_Params, indobs: int=0) -> tuple[np.ndarray, np.ndarray]:
+    def _determine_grid_target_wavelength_and_resolution(self, wav_obs_spectro: np.ndarray, res_obs_spectro: np.ndarray, target_res_mod: str | float, params: NestedSamplingParameters, indobs: int=0) -> tuple[np.ndarray, np.ndarray]:
         '''
         Method to set target wavelength and resolutions of the model.
         This depends on the wavelength and resolution of the current observation we want to adapt the model to.
