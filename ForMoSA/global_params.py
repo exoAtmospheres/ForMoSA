@@ -7,7 +7,7 @@ from configobj import ConfigObj
 from pathlib import Path
 
 from ForMoSA.ForMoSAPaths import ForMoSAPaths
-from ForMoSA.NestedSampling_Parameters import Parameter
+from ForMoSA.nested_sampling.NestedSampling_Parameters import Parameter
 from ForMoSA.error import ForMoSAError
 
 

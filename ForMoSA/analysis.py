@@ -7,8 +7,8 @@ from ForMoSA.global_params import GlobalParams
 from ForMoSA.ModelGrid import ModelGrid
 from ForMoSA.ForMoSAPaths import ForMoSAPaths
 from ForMoSA.observation import Observation
-from ForMoSA.NestedSampling import NestedSampling
-from ForMoSA.NestedSampling_Plotting import NestedSampling_Plotting
+from ForMoSA.nested_sampling.NestedSampling import NestedSampling
+from ForMoSA.nested_sampling.NestedSampling_Plotting import NestedSampling_Plotting
 from ForMoSA.error import ForMoSAError
 
 # log
@@ -28,7 +28,7 @@ class Analysis(object):
     Authors: Allan Denis
     '''
 
-    def __init__(self, global_params: GlobalParams, adapted: bool = False, fitted: bool = False, log_level: str = 'info'):
+    def __init__(self, global_params: GlobalParams, adapted: bool = False, fitted: bool = False, log_level: str = 'info') -> None:
 
         logger = logging.getLogger("ForMoSA")
 

@@ -16,8 +16,8 @@ from scipy.interpolate import interp1d
 
 from ForMoSA.ModelGrid import ModelGrid, ModelSubGrid
 from ForMoSA.observation import Observation
-from ForMoSA.NestedSampling_Plotting import NestedSampling_Plotting
-from ForMoSA.NestedSampling_Parameters import NestedSampling_Params, Parameter
+from .NestedSampling_Plotting import NestedSampling_Plotting
+from .NestedSampling_Parameters import NestedSampling_Params
 from ForMoSA.error import ForMoSAError
 
 

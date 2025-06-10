@@ -13,7 +13,7 @@ from sklearn.decomposition import PCA
 import ForMoSA.utils.misc as utils
 
 from ForMoSA.utils.spec import resolution_decreasing, continuum_estimate
-from ForMoSA.NestedSampling_Parameters import NestedSampling_Params
+from ForMoSA.nested_sampling.NestedSampling_Parameters import NestedSampling_Params
 from ForMoSA.error import ForMoSAError
 
 try:
