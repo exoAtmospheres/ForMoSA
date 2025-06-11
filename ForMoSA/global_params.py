@@ -101,7 +101,7 @@ class GlobalParameters(object):
                                 # If obs contains only one instrument, we don't do anything
                                 # but if obs contains at least 2 instruments, we repeat
                                 for nb_ins in range(nb_instrument_per_obs - 1):
-                                    val.insert(index, val[index])
+                                    val.insert(index, val[index+1])
                                     index += 1
                 elif cast == list:
                     val = [val]
