@@ -61,7 +61,7 @@ class Analysis(object):
         logger.addHandler(console_handler)
 
         # Inits
-        self._config_params = global_params.config_params
+        self._config = global_params.config
         self._paths = global_params.paths
         self._adapted = adapted
         self._fitted = fitted
@@ -104,7 +104,7 @@ class Analysis(object):
 
     @property
     def config_params(self) -> dict:
-        return self._config_params
+        return self._config
 
     @property
     def paths(self) -> ForMoSAPaths:

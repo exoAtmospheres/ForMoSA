@@ -1,4 +1,3 @@
-import glob
 import logging
 import os
 import numpy as np
@@ -30,11 +29,10 @@ class GlobalParameters(object):
         formosa_path = ForMoSAPaths(config_file_path, log_level=log_level)
 
         # Basic inits
-        self.config = config
         self.paths = formosa_path
         self.n_obs = formosa_path.observation.n_obs
         self.instrument_files = self.paths.observation.instrument_files
-        self._read_info()
+        self._read_info(config)
 
     ##################################################
     # Representation
@@ -228,7 +226,7 @@ class GlobalParameters(object):
         return names, parameters
 
 
-    def _read_info(self):
+    def _read_info(self, config):
         '''
         Read config file information. Put default values if no value is assigned for a parameter
 
@@ -238,8 +236,6 @@ class GlobalParameters(object):
 
         Authors; Simon Petrus, Paulina Palma-Bifani, Matthieu Ravet and Allan Denis
         '''
-
-        config = self.config
 
         # [config_adapt] (5)
         method = self._get_config_value(config, 'config_adapt', 'method', 'linear')
@@ -365,7 +361,7 @@ class GlobalParameters(object):
         plottings = {'color': color, 'edgecolor': edgecolor, 'marker': marker, 'size': size}
 
 
-        self.config_params = {'adapt': adapt, 'inversion': inversion, 'parameters': parameters, 'ns_algo': ns_algo, 'plottings': plottings}
+        self.config = {'adapt': adapt, 'inversion': inversion, 'parameters': parameters, 'ns_algo': ns_algo, 'plottings': plottings}
 
         ## Save CONFIG: - - - - - - -
 

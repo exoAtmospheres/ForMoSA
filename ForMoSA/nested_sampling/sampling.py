@@ -493,7 +493,10 @@ class NestedSampling(object):
         # High contrast modeling
         if len(obs_dict_spectro['star_flx']) > 0:
             flx_cont_mod_spectro = us.continuum_estimate(target_wavelength, flx_mod_spectro, res_mod_obs_spectro, wav_cont, res_cont)
-            contributions, flx_mod_spectro, obs_dict_spectro['speckles'] = hc.hc_model(obs_dict_spectro['flx'], obs_dict_spectro['flx_cont'], obs_dict_spectro['transm'], obs_dict_spectro['star_flx'], obs_dict_spectro['star_flx_cont'], flx_mod_spectro, flx_cont_mod_spectro, obs_dict_spectro['err'], bounds_lsq)
+            if self.logL[indobs % len(self.logL)].startswith('chi2'):
+                _, flx_mod_spectro, obs_dict_spectro['speckles'] = hc._hc_model_estimate_speckles(obs_dict_spectro['flx'], obs_dict_spectro['flx_cont'], obs_dict_spectro['transm'], obs_dict_spectro['star_flx'], obs_dict_spectro['star_flx_cont'], flx_mod_spectro, flx_cont_mod_spectro, obs_dict_spectro['err'], bounds_lsq, obs_dict_spectro['system'])
+            else:
+                flx_mod_spectro, obs_dict_spectro['speckles'] = hc._hc_model_remove_speckles(obs_dict_spectro['flx'], obs_dict_spectro['flx_cont'], obs_dict_spectro['transm'], obs_dict_spectro['star_flx'], obs_dict_spectro['star_flx_cont'], flx_mod_spectro, flx_cont_mod_spectro)
 
         # Scaling (ck)
         alpha = get_param('alpha', indobs)
@@ -670,8 +673,8 @@ class NestedSampling(object):
         Parameters
         ----------
         theta                      (list): Parameters values picked by the nested sampling
-        observation         (Observation): Inbstance of :class:`~ForMoSA.Observation`
-        modelgrid           (Observation): Inbstance of :class:`~ForMoSA.ModelGrid`
+        observation         (Observation): Instance of :class:`~ForMoSA.Observation`
+        modelgrid           (Observation): Instance of :class:`~ForMoSA.ModelGrid`
         wav_cont                   (list): List of wavelength grid used for the continuum (used for high contrast)
         res_cont                   (list): List of resolution used for the continuum (used for high contrast)
         bounds_lsq                 (list): List of bounds used for the least squares (used for high contrast)

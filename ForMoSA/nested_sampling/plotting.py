@@ -442,6 +442,7 @@ class NestedSamplingPlotting(object):
         axr2 = fig.add_subplot(gs[7:9, 10:11], sharey=axr)
 
         # First pass: collect all residuals globally
+        # This step is done to rescale the data globally such that there is only one significant digit in the flux
         global_residuals = []
         global_flux = []
         for obs, mod in zip(modif_data.values(), best_model.values()):
@@ -461,6 +462,7 @@ class NestedSamplingPlotting(object):
                 global_flux.append(obs_flx)
 
         global_flux = np.concatenate(global_flux)
+        # Rescale the global data to one significant digit
         global_flux, factor = utils.scale_to_one_significant_digit(global_flux)
         global_residuals = np.concatenate(global_residuals) / (10 ** factor)
         std_global = np.nanstd(global_residuals)
