@@ -62,6 +62,7 @@ class Observation(object):
     @property
     def obs_files(self):
         files = [f for f in glob.glob(str(self.observation_path)) if f.lower().endswith('.fits')]
+        files = sorted(files)
         if len(files) == 0:  # No observation
             msg = f' No observation. {self.observation_path} does not contain any observation.'
             self._logger.error(msg)

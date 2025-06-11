@@ -3,6 +3,8 @@ import xarray as xr
 import os
 import glob
 
+from pathlib import Path
+
 # ----------------------------------------------------------------------------------------------------------------------
 
 
@@ -164,13 +166,13 @@ def find_filter_file(filter_name: str) -> str | None:
     Authors: Allan Denis
     '''
 
-    path_list = __file__.split("/")[:-2]
-    filter_dir = '/'.join(path_list) + '/phototeque/'
+    path_list = Path(__file__)
+    filter_dir = path_list.parent.parent / 'phototeque'
 
-    for file_path in glob.glob(os.path.join(filter_dir, '*.npz')):
-        root = os.path.basename(file_path).split('.')[0]
-        if root.lower() == filter_name.lower():
-            return file_path
+    filters = filter_dir.glob('*.npz')
+    for filter in filters:
+        if filter.stem.lower() == filter_name.lower():
+            return filter
 
     return None
 
