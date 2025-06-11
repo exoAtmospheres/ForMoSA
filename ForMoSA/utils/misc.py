@@ -164,7 +164,7 @@ def find_filter_file(filter_name: str) -> str | None:
     Authors: Allan Denis
     '''
 
-    path_list = __file__.split("/")[:-1]
+    path_list = __file__.split("/")[:-2]
     filter_dir = '/'.join(path_list) + '/phototeque/'
 
     for file_path in glob.glob(os.path.join(filter_dir, '*.npz')):
