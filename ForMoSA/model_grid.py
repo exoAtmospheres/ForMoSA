@@ -165,6 +165,146 @@ class ModelGrid(object):
         self._grid = ds['grid']
 
 
+    def _find_valid_resolution_region(self, wavelength: np.ndarray, resolution: np.ndarray, target_wavelength: np.ndarray, target_resolution: np.ndarray | float) -> np.ndarray:
+        '''
+        Method to identify the best continuous region of resolution > 0 covering a part of the target grid
+
+        Args:
+            wavelength               (array): Grid of wavelength
+            resolution               (array): Associated resolution
+            target_wavelength        (array): Target wavelength grid
+            target_resolution  (array|float): Associated target resolution
+
+        Returns:
+            best_indices (np.ndarray): indices of the best part
+
+        Authors: Allan Denis
+        '''
+
+        valid = resolution > 0
+        edges = np.diff(valid.astype(int))
+        starts = np.where(np.insert(edges == 1, 0, valid[0]))[0]
+        ends = np.where(np.append(edges == -1, valid[-1]))[0] + 1
+
+        candidate_regions = []
+        for start, end in zip(starts, ends):
+            wl_region = wavelength[start:end]
+            if wl_region[-1] < target_wavelength[0] or wl_region[0] > target_wavelength[-1]:
+                continue
+            overlap_mask = (wl_region >= target_wavelength[0]) & (wl_region <= target_wavelength[-1])
+            if not np.any(overlap_mask):
+                continue
+            sub_start = start + np.where(overlap_mask)[0][0]
+            sub_end = start + np.where(overlap_mask)[0][-1] + 1
+            res_metric = (
+                np.min(resolution[sub_start:sub_end])
+                if isinstance(target_resolution, np.ndarray)
+                else np.min(resolution[sub_start:sub_end])
+            )
+            candidate_regions.append((sub_start, sub_end, res_metric))
+
+        max_res = (
+            np.max(target_resolution)
+            if isinstance(target_resolution, np.ndarray)
+            else target_resolution
+        )
+
+        best_diff = np.inf
+        best_indices = None
+        for sub_start, sub_end, res_metric in candidate_regions:
+            if res_metric >= max_res:
+                diff = abs(res_metric - max_res)
+                if diff < best_diff:
+                    best_diff = diff
+                    best_indices = np.arange(sub_start, sub_end)
+
+        if best_indices is None:
+            best_indices = np.arange(len(wavelength))
+
+        return best_indices
+
+
+    def _determine_target_wavelength_and_resolution(self, wav_obs_spectro: np.ndarray, res_obs_spectro: np.ndarray, target_res_mod: str | float, params: NestedSamplingParameters, indobs: int = 0) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+        """
+        Determine target wavleength and resolution and filter model
+
+        Args:
+            wav_obs_spectro                    (array): Wavelength grid of data
+            res_obs_spectro                    (array): Resolution of data
+            target_res_mod               (str | float): Target resolution of model to reach ('obs', 'mod' or float)
+            params          (NestedSamplingParameters): Instance of :class:~NestedSamplingParameters
+            indobs                               (int): Index of observation
+
+        Returns:
+            target_wavelength     (array): Target wavelength to reach for the model
+            target_resolution     (array): Target resolution to reach for the model
+            resolution_interp     (array): Resolution of the model interpolated onto target_wavelength
+
+        Authors: Allan Denis
+        """
+
+        if target_res_mod == 'mod':
+            target_wavelength, target_resolution = self.wavelength, self.resolution
+        elif target_res_mod == 'obs':
+            target_wavelength, target_resolution = wav_obs_spectro, res_obs_spectro
+        else:
+            target_wavelength = self.wavelength
+            target_resolution = np.full(len(self.wavelength), float(target_res_mod))
+
+        if len(wav_obs_spectro) > 0:
+            # Additional step to account for the possible presence of rv priors
+            margin = 0.01 if ('rv' in params.parameters.keys()) or (f'rv_{indobs}' in params.parameters.keys()) else 0.0
+            wmin, wmax = wav_obs_spectro[0], wav_obs_spectro[-1]
+            mask_mod_obs = (target_wavelength >= wmin * (1 - margin)) & (target_wavelength <= wmax * (1 + margin)) & (target_resolution >= max(res_obs_spectro))
+            target_wavelength = target_wavelength[mask_mod_obs]
+            target_resolution = target_resolution[mask_mod_obs]
+            # Find wavelength corresponding to the observation accounting for possible overlaps in the target_wavelength grid
+            best_indices = self._find_valid_resolution_region(target_wavelength, target_resolution, target_wavelength, target_resolution)
+
+            # Removing overlaps in target_wavelength and associated indices in target_resolution
+            target_wavelength = target_wavelength[best_indices]
+            target_resolution = target_resolution[best_indices]
+
+            # Same step  with the raw wavelength and resolution of the grid
+            _, wavelength_grid, resolution_grid = self._select_wavelength_range(self.grid, target_wavelength, target_resolution)
+
+            # Interpolation of the resolution of the model
+            interp = interp1d(wavelength_grid, resolution_grid, fill_value='extrapolate')
+            resolution_interp = interp(target_wavelength)
+        else:
+            resolution_interp = target_resolution
+
+        return target_wavelength, target_resolution, resolution_interp
+
+
+    def _select_wavelength_range(self, model: xr.DataArray, target_wavelength: np.ndarray, target_resolution: np.ndarray) -> tuple[xr.DataArray, np.ndarray, np.ndarray]:
+        '''
+        Filter the model according to the target grid accounting for overlaping wavelengths
+
+        Args:
+            model             (xr.DataArray): Model we want to filter
+            target_wavelength        (array): Target wavelength to reach for the model
+            target_resolution        (array): Target resolution to reach for the model
+
+        Returns:
+            filtered_model        (xr.DataArray)
+            selected_wavelengths  (np.ndarray)
+            selected_resolutions  (np.ndarray)
+
+        Authors: Allan Denis
+        '''
+
+        wavelength = model.coords['wavelength'].values
+        resolution = model.attrs['res']
+
+        best_indices = self._find_valid_resolution_region(wavelength, resolution, target_wavelength, target_resolution)
+
+        filtered_model = model.isel(wavelength=best_indices)
+        filtered_model = filtered_model.assign_coords(wavelength=wavelength[best_indices])
+        filtered_model = filtered_model.assign_attrs(res=resolution[best_indices])
+
+        return filtered_model, wavelength[best_indices], resolution[best_indices]
+
 
     def _load_model_at_specific_index(self, idx: tuple):
         '''
@@ -177,7 +317,7 @@ class ModelGrid(object):
         Authors: Allan Denis
         '''
 
-        model_to_return = self.grid.values[(..., ) + idx]
+        model_to_return = self.grid[(..., ) + idx]
         if np.any(np.isnan(model_to_return)):
             msg = 'Extraction of model failed : '
             for i, (key, title) in enumerate(zip(self.keys, self.titles)):
@@ -205,8 +345,8 @@ class ModelGrid(object):
         Authors: Allan Denis
         '''
 
-        sub_spectro = ModelSubGrid(parent_grid=self, path=self._model_path, logger=self._logger, target_wavelength=wavelength_spectro, target_resolution=resolution_spectro, ins=ins_spectro, obs_name=obs_name, component_type = 'spectro', grid = grid_spectro)
-        sub_photo = ModelSubGrid(parent_grid=self, path=self._model_path, logger=self._logger, target_wavelength=wavelength_photo, target_resolution=np.zeros(len(wavelength_photo)), ins=ins_photo, obs_name=obs_name, component_type = 'photo', grid = grid_photo)
+        sub_spectro = ModelSubGrid(parent_grid=self.grid, path=self._model_path, logger=self._logger, target_wavelength=wavelength_spectro, target_resolution=resolution_spectro, ins=ins_spectro, obs_name=obs_name, component_type = 'spectro', grid = grid_spectro)
+        sub_photo = ModelSubGrid(parent_grid=self.grid, path=self._model_path, logger=self._logger, target_wavelength=wavelength_photo, target_resolution=np.zeros(len(wavelength_photo)), ins=ins_photo, obs_name=obs_name, component_type = 'photo', grid = grid_photo)
 
         self._adapted_grid[indobs] = {'spectro': sub_spectro, 'photo': sub_photo}
 
@@ -237,14 +377,11 @@ class ModelGrid(object):
                 else:
                     remove_continuum = True
 
-            # Determine target wavelength and target resolution to reach
-            target_wavelength, target_resolution = self._determine_grid_target_wavelength_and_resolution(obs_data[indobs]['spectro']['wav'], obs_data[indobs]['spectro']['res'], target_res_mod[indobs % len(target_res_mod)], parameters, indobs)
-
             # Launch adaptation of grid
-            self._adapt_grid(target_resolution, target_wavelength, obs_data[indobs]['photo']['wav'], obs_data[indobs]['spectro']['ins'], obs_data[indobs]['photo']['ins'], wav_cont = wav_cont[indobs % len(wav_cont)], res_cont = res_cont[indobs % len(res_cont)], remove_continuum=remove_continuum, obs_name = obs_data[indobs]['obs_name'])
+            self._adapt_grid(obs_data[indobs]['spectro']['wav'], obs_data[indobs]['spectro']['res'], obs_data[indobs]['photo']['wav'], target_res_mod[indobs % len(target_res_mod)], parameters, obs_data[indobs]['spectro']['ins'], obs_data[indobs]['photo']['ins'], wav_cont = wav_cont[indobs % len(wav_cont)], res_cont = res_cont[indobs % len(res_cont)], remove_continuum=remove_continuum, obs_name = obs_data[indobs]['obs_name'])
 
 
-    def _adapt_grid(self, target_resolution_spectro: np.ndarray, target_wavelength_spectro: np.ndarray, target_wavelength_photo: np.ndarray = np.array([]), ins_spectro: np.ndarray = np.array([]), ins_photo: np.ndarray = np.array([]), wav_cont: np.ndarray | str = 'NA', res_cont: float | str = 'NA', remove_continuum: bool = False, obs_name: str = 'unknown'):
+    def _adapt_grid(self, wav_obs_spectro: np.ndarray, res_obs_spectro: np.ndarray, wav_obs_photo: np.ndarray, target_res_mod: str | float, params: NestedSamplingParameters, ins_spectro: np.ndarray = np.array([]), ins_photo: np.ndarray = np.array([]), wav_cont: np.ndarray | str = 'NA', res_cont: float | str = 'NA', remove_continuum: bool = False, obs_name: str = 'unknown'):
         '''
         Adapt the grid of models to a given resolution and wavelength.
 
@@ -252,8 +389,8 @@ class ModelGrid(object):
         ----------
         target_resolution_spectro      (array): Target resolution to reach for the spectroscopic adapted grid
         target_wavelength_spectro      (array): Target wavelength to reach for the spectroscopic adapted grid
-        remove_continuum                (bool): Whether to remove the continuum
         target_wavelength_photo        (array): Target wavelength to reach for the photometric adapted grid
+        target_res_mod           (str | float): Target resolution to reach for the model ('obs', 'mod', or float)
         ins_spectro                    (array): Spectroscopic instrument
         ins_photo                      (array): Photometric instrument
         wav_cont                 (array | str): Wavelength grid of the continuum estimation
@@ -266,7 +403,9 @@ class ModelGrid(object):
 
         self._logger.info(f' Adapt model {self.name} to the observation {obs_name}')
 
-        if len(target_wavelength_photo) > 0:
+        target_wavelength_spectro, target_resolution_spectro, resolution_model = self._determine_target_wavelength_and_resolution(wav_obs_spectro, res_obs_spectro, target_res_mod, params)
+
+        if len(wav_obs_photo) > 0:
             self._check_photometry_filters_exist(ins_photo)
 
         if remove_continuum == True and res_cont == 'NA':
@@ -277,10 +416,8 @@ class ModelGrid(object):
             self._logger.warning(" You do not want to remove the continuum but 'res_cont' is defined. Ignoring it and chosing not to remove the continuum.")
 
         self._logger.debug(f'< Add a subgrid for the observation {obs_name}.>')
-        self._add_subgrid(target_wavelength_spectro, target_resolution_spectro, target_wavelength_photo, ins_spectro = ins_spectro, ins_photo = ins_photo, indobs = self.counter + 1, obs_name = obs_name)
+        self._add_subgrid(target_wavelength_spectro, target_resolution_spectro, wav_obs_photo, ins_spectro = ins_spectro, ins_photo = ins_photo, indobs = self.counter + 1, obs_name = obs_name)
 
-        interp_mod_to_obs = interp1d(self.wavelength, self.resolution, fill_value='extrapolate')
-        resolution_model = interp_mod_to_obs(target_wavelength_spectro)
 
         shape = self.grid.values.shape[1:]
         pbar = tqdm(total=np.prod(shape), leave=False)
@@ -297,16 +434,16 @@ class ModelGrid(object):
                 for idx in np.ndindex(shape):
                     callback = partial(update_result, idx=idx, model=self)
                     model_to_adapt = self._load_model_at_specific_index(idx)
-                    pool.apply_async(self._adapt_model, args=(model_to_adapt, target_resolution_spectro, target_wavelength_spectro, target_wavelength_photo, ins_photo, resolution_model, wav_cont, res_cont, remove_continuum), callback=callback)
+                    pool.apply_async(self._adapt_model, args=(model_to_adapt, target_resolution_spectro, target_wavelength_spectro, wav_obs_photo, ins_photo, resolution_model, wav_cont, res_cont, remove_continuum), callback=callback)
                 pool.close()
                 pool.join()
 
         except Exception as e:
             self._logger.warning(f'< Parallel adaptation produced the following error: {e}. Trying non parallel implementation.')
             try:
-                for idx in np.ndindex(shape):
+                for idx in tqdm(np.ndindex(shape)):
                     model_to_adapt = self._load_model_at_specific_index(idx)
-                    result = self._adapt_model(model_to_adapt, target_resolution_spectro, target_wavelength_spectro, target_wavelength_photo, ins_photo, resolution_model, wav_cont, res_cont, remove_continuum)
+                    result = self._adapt_model(model_to_adapt, target_resolution_spectro, target_wavelength_spectro, wav_obs_photo, ins_photo, resolution_model, wav_cont, res_cont, remove_continuum)
                     self._adapted_grid[self.counter]['spectro']._grid[(..., ) + idx] = result[0]
                     self._adapted_grid[self.counter]['photo']._grid[(..., ) + idx] = result[1]
             except Exception as e:
@@ -341,8 +478,9 @@ class ModelGrid(object):
             if len(model_to_adapt) > 0:
                 # Spectroscopy
                 if len(resolution_model) > 0 and len(target_wavelength) > 0:
-                    model_spectro = resolution_decreasing(self.wavelength, model_to_adapt, resolution_model,
-                                                          target_wavelength, target_resolution)
+                    model_to_adapt, _, _ = self._select_wavelength_range(model_to_adapt, target_wavelength, target_resolution)
+                    model_spectro = resolution_decreasing(model_to_adapt.coords['wavelength'].values, model_to_adapt.values, resolution_model, target_wavelength, target_resolution)
+
                     if remove_continuum:
                         model_spectro -= continuum_estimate(target_wavelength, model_spectro,
                                                             target_resolution, wav_cont, res_cont)
@@ -372,46 +510,6 @@ class ModelGrid(object):
             raise e
 
         return model_spectro, model_photo
-
-
-    def _determine_grid_target_wavelength_and_resolution(self, wav_obs_spectro: np.ndarray, res_obs_spectro: np.ndarray, target_res_mod: str | float, params: NestedSamplingParameters, indobs: int=0) -> tuple[np.ndarray, np.ndarray]:
-        '''
-        Method to set target wavelength and resolutions of the model.
-        This depends on the wavelength and resolution of the current observation we want to adapt the model to.
-
-        Parameters
-        ----------
-        wav_obs_spectro                       (array): Wavelength grid of each of the observation
-        res_obs_spectro                       (array): Resolution of each of the observation
-        target_res_mod                  (str | float): Target resolution ('obs', 'mod' or float)
-        parameters            (Nestedsampling_Params): Instance of :class:'~NestedSampling_Params'
-        indobs                                  (int): Index of current observation
-
-        Returns:
-            - target_wavelength (np.ndarray): Target wavelength of the model
-            - target_resolution (np.ndaraay): Target resolution of the model
-
-        Authors: Simon Petrus, Matthieu Ravet and Allan Denis
-        '''
-
-        # Setup target wavelength and resolution for the observation and the model
-        if target_res_mod == 'mod': # Kepping the model's resolution
-            target_wavelength, target_resolution = self.wavelength, self.resolution
-        elif target_res_mod == 'obs': # Using the observation's resolution except where its higher than the model's
-            target_wavelength, target_resolution = wav_obs_spectro, res_obs_spectro
-        else:                                             # Using a custom resolution except where its higher than the model's
-            target_wavelength, target_resolution = self.wavelength, np.full(len(self.wavelength), float(target_res_mod))
-
-        if len(wav_obs_spectro) > 0:
-            # # Masks to have larger cuts of the spectroscopic grid if needed (if rv is defined)
-            if ('rv' in params.parameters.keys()) or (f'rv_{indobs}' in params.parameters.keys()):
-                mask_mod_obs = (target_wavelength <= 1.01 * wav_obs_spectro[-1]) & (target_wavelength >= 0.99 * wav_obs_spectro[0])   # 1.01 corresponds to a value of 3000 km/s for the RV so we do no risk to lose data on the edges when applying the RV correction
-                target_wavelength, target_resolution = target_wavelength[mask_mod_obs], target_resolution[mask_mod_obs]
-            else:
-                mask_mod_obs = (target_wavelength <= wav_obs_spectro[-1]) & (target_wavelength >= wav_obs_spectro[0])
-                target_wavelength, target_resolution = target_wavelength[mask_mod_obs], target_resolution[mask_mod_obs]
-
-        return target_wavelength, target_resolution
 
 
     def _check_photometry_filters_exist(self, filters: list[str]) -> list[str]:
@@ -766,29 +864,29 @@ class ModelSubGrid(ModelGrid):
     Authors: Allan Denis
     '''
 
-    def __init__(self, path: str | os.PathLike, parent_grid: ModelGrid, logger, target_wavelength: np.ndarray, target_resolution: np.ndarray, ins: str = 'unknown', obs_name: str = 'unknown', component_type = 'unknown', grid: xr.DataArray = None):
+    def __init__(self, path: str | os.PathLike, parent_grid: xr.DataArray, logger, target_wavelength: np.ndarray, target_resolution: np.ndarray, ins: str = 'unknown', obs_name: str = 'unknown', component_type = 'unknown', grid: xr.DataArray = None):
         super().__init__(path, logger)
 
         # Attributes specific to this subgrid
         self._wavelength = target_wavelength
         self._resolution = target_resolution
         self._instrument = ins
-        self._parent_wavelength = parent_grid.wavelength
-        self._parent_resolution = parent_grid.resolution
+        self._parent_wavelength = parent_grid.coords['wavelength']
+        self._parent_resolution = parent_grid.attrs['res']
         self._obs_name = obs_name
         self._component_type = component_type
 
         if not(isinstance(grid, xr.DataArray)):
             # Initialization of an empty grid
-            base_shape = parent_grid.grid.shape[1:]
+            base_shape = parent_grid.shape[1:]
             grid_shape = (len(target_wavelength),) + base_shape
             empty_grid = np.empty(grid_shape)
             empty_grid[:] = np.nan
 
-            coords = {k: parent_grid.grid.coords[k] for k in parent_grid.grid.dims if k != 'wavelength'}
+            coords = {k: parent_grid.coords[k] for k in parent_grid.dims if k != 'wavelength'}
             coords['wavelength'] = target_wavelength
 
-            self._grid = xr.DataArray(data=empty_grid, dims=('wavelength',) + parent_grid.grid.dims[1:], coords=coords, name='grid')
+            self._grid = xr.DataArray(data=empty_grid, dims=('wavelength',) + parent_grid.dims[1:], coords=coords, name='grid')
             self._attrs = parent_grid.attrs
             self._grid.attrs['res'] = parent_grid.attrs['res']
             self._grid.attrs['ins'] = ins
