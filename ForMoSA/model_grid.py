@@ -73,7 +73,7 @@ class ModelGrid(object):
         return str(self.model_path).split('/')[-1].split('.nc')[0]
 
     @property
-    def logger(self):
+    def logger(self):                   # Logger
         return self._logger
 
     @property
@@ -132,7 +132,7 @@ class ModelGrid(object):
         return {par : [min(self.key_values[par]), max(self.key_values[par])] for par in self.keys}
 
     @property
-    def wavelength_range(self):
+    def wavelength_range(self):         # Minimum and maximum wavelength taking into account the adapted grids for all the observations
         if self.counter == -1:
             msg = 'No adapted grid loaded. Please load or build at least one adapted grid.'
             self._logger.error(msg)

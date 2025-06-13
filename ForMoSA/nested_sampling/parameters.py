@@ -80,39 +80,39 @@ class Parameter(object):
     ##################################################
 
     @property
-    def name(self):          # Name
+    def name(self):             # Name
         return self._name
 
     @property
-    def prior(self):         # Prior type
+    def prior(self):            # Prior type
         return self._prior
 
     @property
-    def bounds(self):        # Bounds (for Uniform and log-Uniform priors)
+    def bounds(self):           # Bounds (for Uniform and log-Uniform priors)
         return self._bounds
 
     @property
-    def mean(self):          # Mean (for Gaussian priors)
+    def mean(self):             # Mean (for Gaussian priors)
         return self._mean
 
     @property
-    def std(self):           # Standard deviation (for Gaussian priors)
+    def std(self):              # Standard deviation (for Gaussian priors)
         return self._std
 
     @property
-    def value(self):         # Value (for Constant prior)
+    def value(self):            # Value (for Constant prior)
         return self._value
 
     @property
-    def vsini_function(self):
+    def vsini_function(self):   # Function for v.sini transformation
         return self._vsini_function
 
     @property
-    def is_fixed(self):      # Whether the parameter is fixed
+    def is_fixed(self):         # Whether the parameter is fixed
         return self.prior == 'constant'
 
     @property
-    def theta(self):         # Current value randomly picked by the nested sampling
+    def theta(self):            # Current value randomly picked by the nested sampling
         return self._theta
 
 

@@ -1,8 +1,7 @@
 import logging
 import ForMoSA.utils.misc as utils
+import ForMoSA.utils.spec as spec
 import colorlog
-import ForMoSA
-
 from ForMoSA.global_params import GlobalParams
 from ForMoSA.model_grid import ModelGrid
 from ForMoSA.paths import ForMoSAPaths
@@ -10,6 +9,9 @@ from ForMoSA.observation import Observation
 from ForMoSA.nested_sampling.sampling import NestedSampling
 from ForMoSA.nested_sampling.plotting import NestedSamplingPlotting
 from ForMoSA.error import ForMoSAError
+from scipy.interpolate import interp1d
+import numpy as np
+import matplotlib.pyplot as plt
 
 # log
 _log = logging.getLogger(__name__)
@@ -264,7 +266,7 @@ class Analysis(object):
         uncert    (str): Whether to plot the uncertainties
         save      (bool): Whether to save the plots, by default True
 
-        Authors: Allan Denis
+        Authors: Allan Denis and Arthur Vigan
         '''
 
         results = self.ns.results
@@ -275,17 +277,112 @@ class Analysis(object):
 
         fig = self.ns.plotting.plot_corner(results, param_names, figsize=figsize_corner)
         if save:
-            fig.savefig(self.paths.result_path / 'corner_plot.pdf')
+            filename = self.paths.result_path / 'corner_plot.pdf'
+            fig.savefig(filename)
+            self._logger.info(f"Corner plot saved to {filename}")
 
         fig, _ = self.ns.plotting.plot_chains(results, param_names, param_best_values, figsize=figsize_chains)
         if save:
-            fig.savefig(self.paths.result_path / 'chains_plot.pdf')
+            filename = self.paths.result_path / 'chains_plot.pdf'
+            fig.savefig(filename)
+            self._logger.info(f"Chains plot saved to {filename}")
 
         fig, _ = self.ns.plotting.plot_radar(results, param_names)
         if save:
-            fig.savefig(self.paths.result_path / 'radar_plot.pdf')
+            filename = self.paths.result_path / 'radar_plot.pdf'
+            fig.savefig(filename)
+            self._logger.info(f'Radar plot saved to {filename}')
 
         fig, _, _, _ = self.ns.plotting.plot_fit(modif_data, best_model, label_ins=label_ins, trans=trans, uncert=uncert, figsize=figsize_fit)
         if save:
-            fig.savefig(self.paths.result_path / 'best_fit_plot.pdf')
+            filename = self.paths.result_path / 'best_fit_plot.pdf'
+            fig.savefig(filename)
+            self._logger.info(f"Best fit plot saved to {filename}")
+
+
+    def plot_ccf(self, rv_grid: np.ndarray, indobs: int = 0, save: bool = True, filename: str = None):
+        '''
+        Compute (and optionally plot) the cross-correlation function (CCF) between the observation and the best model.
+
+        Parameters
+        ----------
+        rv_grid  (array): Grid of radial velocities to evaluate the CCF over
+        indobs     (ind): Index of the observation (default is 0)
+        save      (bool): Whether to save the plot as a file
+        filename   (str): Filename for saving the plot. Required if save=True
+
+        Returns
+        -------
+        ccf (array): Crosscorrelation function
+        acf (array): Autocorrelation function
+
+        Authors: Allan Denis
+        '''
+
+        if not self._fitted:
+            raise ForMoSAError("Nested sampling must be run before computing the CCF.")
+
+        self._logger.info(f'Computing CCF for observation {self.observation.obs_name[indobs]}...')
+
+        adapt = self.config_params['adapt']
+        inversion = self.config_params['inversion']
+
+        res_cont = float(adapt['res_cont'][indobs % len(adapt['res_cont'])])
+        wav_cont = adapt['wav_cont'][indobs % len(adapt['wav_cont'])]
+        bounds_lsq = inversion['hc_bounds_lsq'][indobs % len(inversion['hc_bounds_lsq'])]
+
+        # Best params to compute the best model
+        best_params = self.ns.param_best_dict.copy()
+        best_params['rv'] = 0
+        theta = list(best_params.values())
+
+        grid_spectro, grid_photo = self.grid.adapted_grid[indobs]['spectro'], self.grid.adapted_grid[indobs]['photo']
+        obs_dict_spectro, obs_dict_photo = self.observation.obs_data[indobs]['spectro'], self.observation.obs_data[indobs]['photo']
+
+        wav_mod_spectro = grid_spectro.grid.coords['wavelength'].values
+        res_mod_spectro = grid_spectro.grid.attrs['res']
+
+        wav_obs_spectro = obs_dict_spectro['wav']
+        res_obs_spectro = obs_dict_spectro['res']
+
+        if isinstance(res_mod_spectro, np.ndarray) and len(res_mod_spectro) == len(wav_mod_spectro):
+            interp_mod_to_obs = interp1d(wav_mod_spectro, res_mod_spectro, fill_value='extrapolate')
+            res_mod_obs_spectro = interp_mod_to_obs(wav_obs_spectro)
+        else:
+            res_mod_obs_spectro = res_mod_spectro
+
+        # Best model
+        _, mod_dict_spectro = self.ns._compute_model_from_theta(theta, obs_dict_spectro, obs_dict_photo, grid_spectro, grid_photo, res_mod_obs_spectro, wav_cont=wav_cont, res_cont=res_cont, bounds_lsq=bounds_lsq)
+
+        wav_mod = mod_dict_spectro['spectro']['wav']
+        flx_mod = mod_dict_spectro['spectro']['nativ_flx']   # Using nativ_flx which the flux at the nativ resolution of the model
+
+        wav_obs = obs_dict_spectro['wav']
+        flx_obs = obs_dict_spectro['flx']
+        err_obs = obs_dict_spectro['err']
+        star_flx = obs_dict_spectro['star_flx']
+        transm = obs_dict_spectro['transm']
+        system = obs_dict_spectro['system']
+
+        # CCF
+        ccf, acf, ccf_star, rv_peak = spec.compute_ccf(wav_mod, flx_mod, wav_obs, flx_obs, err_obs, res_mod_obs_spectro, res_obs_spectro, res_cont, wav_cont, star_flx, transm, system, rv_grid=rv_grid)
+        print(rv_grid[np.argmin(ccf_star)])
+        # Plot
+        plt.figure(figsize=(10, 4))
+        plt.plot(rv_grid, ccf, color='C0', label='ccf')
+        plt.plot(rv_grid, ccf_star, color='0.85', zorder=-1000, label='Speckles')
+        plt.plot(rv_grid + rv_peak, acf, 'k', label = 'Auto-correlation')
+        plt.axvline(x=rv_peak, linestyle='--', c='C3')
+        plt.xlabel('Radial Velocity [km/s]')
+        plt.ylabel('Correlation (SNR)')
+        plt.title(f'Cross-Correlation Function - Observation {self.observation.obs_name[indobs]}')
+        plt.legend()
+        plt.grid(True)
+        if save:
+            filename = self.paths.result_path / f'ccf_plot_obs{indobs}.pdf'
+            plt.savefig(filename)
+            self._logger.info(f"CCF plot saved to {filename}")
+        else:
+            plt.show()
+
 

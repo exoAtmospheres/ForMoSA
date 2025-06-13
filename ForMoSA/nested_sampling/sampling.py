@@ -273,6 +273,7 @@ class NestedSampling(object):
             weights = res['weights']
             logvol = res['logvol']
             logl = res['logl']
+
         elif self.algorithm == 'pymultinest':
             if pymultinest is None:
                 msg = 'Pymultinest is not installed. Please install it to use the MultiNest algorithm.'
@@ -316,6 +317,7 @@ class NestedSampling(object):
             logl = np.asarray(logl)
             logvol = np.asarray(logvol)
             logz = np.asarray(logz)
+
         elif self.algorithm == 'ultranest':
             if ultranest is None:
                 msg = 'Ultranest is not installed. Please install it to use the UltraNest algorithm.'
@@ -660,7 +662,7 @@ class NestedSampling(object):
                          "logz": logz}
 
         # Luminosity derivation
-        if 'r' in self.params.list_free_params_keys:
+        if 'r' in self.params.list_free_params_names and 'Teff' in self.params.list_free_params_names:
             r_samples = self.param_samples_dict['r']
             Teff_samples = self.param_samples_dict['Teff']
 

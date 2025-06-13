@@ -3,9 +3,7 @@ import corner
 import matplotlib
 import matplotlib.pyplot as plt
 import matplotlib.gridspec as gridspec
-
 import ForMoSA.utils.misc as utils
-
 from ForMoSA.error import ForMoSAError
 
 
