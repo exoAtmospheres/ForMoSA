@@ -228,9 +228,12 @@ class NestedSampling(object):
             obs_data_spectro, mod_data_spectro = observation.obs_data[indobs]['spectro'], modelgrid.adapted_grid[indobs]['spectro']
 
             if len(obs_data_spectro['inv_cov']) > 0 and not(self.logL[indobs % len(self.logL)].endswith('_covariance')):
-                self._logger.warning(f' observation {observation.obs_name[indobs]} contains a covariance matrix but your loglikelihood function does not account for covariance matrices. Changing the loglikelihood function from {self.logL[indobs]} to {self.logL[indobs] + "_covariance"}.')
+                self._logger.warning(f' observation {observation.obs_name[indobs]} contains a covariance matrix but your loglikelihood function does not account for covariance matrices. You should consider changing the loglikelihood function from {self.logL[indobs]} to {self.logL[indobs] + "_covariance"}.')
 
-                self._logL[indobs] = self.logL[indobs] + '_covariance'
+            if len(obs_data_spectro['inv_cov']) == 0 and self.logL[indobs % len(self.logL)].endswith('_covariance'):
+                msg = f' You chose a loglikelihood accounting for covariance matrices but your observation {observation.obs_name[indobs]} does not contain any covariance matrix. Please adapt your loglikelihood function.'
+                self._logger.error(msg)
+                raise ForMoSAError(msg)
 
             if len(obs_data_spectro['wav']) > 0:
                 res_mod_obs = obs_data_spectro['res']
@@ -469,7 +472,10 @@ class NestedSampling(object):
         vsini = get_param('vsini', indobs)
         ld = get_param('ld', indobs)
         if vsini is not None and ld is not None:
-            vsini_function = str(self.params.parameters['vsini'].vsini_function)
+            try:
+                vsini_function = str(self.params.parameters['vsini'].vsini_function)
+            except KeyError:
+                vsini_function = str(self.params.parameters[f'vsini_{indobs}'].vsini_function)
             flx_mod_spectro, res_mod_obs_spectro = us.vsini_fct(wav_mod_spectro, flx_mod_spectro, res_mod_obs_spectro, ld, vsini, vsini_function)
 
         # Reddening
@@ -494,7 +500,7 @@ class NestedSampling(object):
         if len(obs_dict_spectro['star_flx']) > 0:
             flx_cont_mod_spectro = us.continuum_estimate(target_wavelength, flx_mod_spectro, res_mod_obs_spectro, wav_cont, res_cont)
             if self.logL[indobs % len(self.logL)].startswith('chi2'):
-                _, flx_mod_spectro, obs_dict_spectro['speckles'] = hc._hc_model_estimate_speckles(obs_dict_spectro['flx'], obs_dict_spectro['flx_cont'], obs_dict_spectro['transm'], obs_dict_spectro['star_flx'], obs_dict_spectro['star_flx_cont'], flx_mod_spectro, flx_cont_mod_spectro, obs_dict_spectro['err'], bounds_lsq, obs_dict_spectro['system'])
+                contributions, flx_mod_spectro, obs_dict_spectro['speckles'] = hc._hc_model_estimate_speckles(obs_dict_spectro['flx'], obs_dict_spectro['flx_cont'], obs_dict_spectro['transm'], obs_dict_spectro['star_flx'], obs_dict_spectro['star_flx_cont'], flx_mod_spectro, flx_cont_mod_spectro, obs_dict_spectro['err'], bounds_lsq, obs_dict_spectro['system'])
             else:
                 flx_mod_spectro, obs_dict_spectro['speckles'] = hc._hc_model_remove_speckles(obs_dict_spectro['flx'], obs_dict_spectro['flx_cont'], obs_dict_spectro['transm'], obs_dict_spectro['star_flx'], obs_dict_spectro['star_flx_cont'], flx_mod_spectro, flx_cont_mod_spectro)
 
