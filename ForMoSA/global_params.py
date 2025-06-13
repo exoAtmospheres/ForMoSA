@@ -93,13 +93,13 @@ class GlobalParameters(object):
                             raise ForMoSAError(f" Error in config.{section}[{key}]. This parameter contains {len(val)} elements while it should contain a number of elements amongst {np.unique([len(instrument_files), n_obs])}.")
                         # Special case where the user filled one parameter for each observation file but at least one observation file contains more than one instrument
                         if len(val) == len(instrument_files) and len(val) != n_obs:
-                            index = 0
                             for i in range(len(instrument_files)):
+                                index = i
                                 nb_instrument_per_obs = len(instrument_files[i])
                                 # If obs contains only one instrument, we don't do anything
                                 # but if obs contains at least 2 instruments, we repeat
                                 for nb_ins in range(nb_instrument_per_obs - 1):
-                                    val.insert(index+1, val[index+1])
+                                    val.insert(index, val[index])
                                     index += 1
                 elif cast == list:
                     val = [val]
