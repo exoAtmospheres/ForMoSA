@@ -495,7 +495,6 @@ class NestedSampling(object):
         flx_mod_spectro_nativ = np.copy(flx_mod_spectro)
         # Resolution decreasing and resampling
         if len(wav_mod_spectro) != len(obs_dict_spectro['wav']):
-            print(len(res_mod_spectro), len(wav_mod_spectro))
             flx_mod_spectro = us.resolution_decreasing(wav_mod_spectro, flx_mod_spectro, res_mod_spectro, target_wavelength, target_resolution)
 
         # High contrast modeling
