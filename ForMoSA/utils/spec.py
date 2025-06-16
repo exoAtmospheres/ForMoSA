@@ -5,10 +5,10 @@ import extinction
 import astropy.units as u
 import astropy.constants as const
 from PyAstronomy.pyasl import rotBroad, fastRotBroad
-import ForMoSA.utils as utils
 import multiprocessing as mp
 from multiprocessing.pool import ThreadPool
 from tqdm import tqdm
+from time import time
 
 # ----------------------------------------------------------------------------------------------------------------------
 
@@ -53,39 +53,48 @@ def convolve_and_sample(wv_channels: list, sigmas_wvs: list, model_wvs: np.ndarr
 
     return output_model
 
+
 # ----------------------------------------------------------------------------------------------------------------------
 
 
 def resolution_decreasing(wav_input: np.ndarray, flx_input: np.ndarray, res_input: np.ndarray, wav_output: np.ndarray, res_output: np.ndarray) -> np.ndarray:
     """
-    Decrease the resolution of a spectrum. The function calculates the FWHM as a function of the
-    wavelengths for the input and output fluxes and estimates the highest one
-    for each wavelength (the lowest spectral resolution). It then calculates a sigma to decrease the resolution of the
-    spectrum to this lowest FWHM for each wavelength and resample it on the wavelength grid of the data using the
-    function 'convolve_and_sample'.
+    Decrease the resolution of a spectrum by convolving with a Gaussian kernel.
 
     Args:
-        wav_input        (array): Wavelength grid of the input
-        flx_input        (array): Flux of the input
-        res_input        (array): Spectral resolution of the input as a function of wav_output
-        wav_output       (array): Wavelength grid of the output
-        res_output       (array): Spectral resolution of the output as a function of the wavelength grid of the input
+        wav_input  (array): Wavelength grid of the input
+        flx_input  (array): Flux of the input
+        res_input  (array): Spectral resolution at wav_input
+        wav_output (array): Desired output wavelength grid
+        res_output (array): Spectral resolution at wav_output
+
     Returns:
-        - flx_output     (array): Flux of the spectrum with a decreased spectral resolution, re-sampled on the data wavelength grid
+        array: Flux at lower resolution, resampled to wav_output
 
-    Author: Simon Petrus
+    Authors: Simon Petrus
     """
-    # Little nuggets to speed up in case of missing input
-    if len(flx_input) == 0:
-        flx_output = flx_input
-    else:
 
-        # Estimate of the FWHM of the input as a function of the wavelength
-        fwhm = wav_output / res_input
-        sigma_conv = fwhm / 2.355
-        flx_output = convolve_and_sample(wav_output, sigma_conv, wav_input, flx_input, force_int=True)
+    if len(flx_input) == 0 or len(wav_input) == 0:
+        return np.array([])
 
+    # Interpolation to common resolution
+    res_in_interp = interp1d(wav_input, res_input, kind='linear', bounds_error=False, fill_value="extrapolate")
+    res_out_interp = interp1d(wav_output, res_output, kind='linear', bounds_error=False, fill_value="extrapolate")
+    res_in = res_in_interp(wav_output)
+    res_out = res_out_interp(wav_output)
+
+    # FWHM and convolution width
+    fwhm_in = wav_output / res_in
+    fwhm_out = wav_output / res_out
+
+    fwhm_conv = np.sqrt(np.maximum(fwhm_out**2 - fwhm_in**2, 0.0))  # avoid sqrt of negative
+    sigma_conv = fwhm_conv / 2.355  # convert FWHM to sigma
+
+    # Apply convolution
+    t1 = time()
+    flx_output = convolve_and_sample(wav_output, sigma_conv, wav_input, flx_input, force_int=True)
     return flx_output
+
 
 # ----------------------------------------------------------------------------------------------------------------------
 
@@ -210,7 +219,7 @@ def calc_ck(obs_dict_spectro: dict, obs_dict_photo: dict, flx_mod_spectro: np.nd
 
 
 
-def doppler_fct(wav_mod_spectro: np.ndarray, flx_mod_spectro: np.ndarray, rv_picked: float) -> tuple[np.ndarray, np.ndarray]:
+def doppler_fct(wav_mod_spectro: np.ndarray, flx_mod_spectro: np.ndarray, res_mod_spectro: np.ndarray, rv_picked: float) -> tuple[np.ndarray, np.ndarray]:
     """
     Application of a Doppler shifting to the interpolated synthetic spectrum using the function pyasl.dopplerShift.
     The side effects of the Doppler shifting are taking into account by using a model interpolated on a larger wavelength grid as the wavelength grid of the data.
@@ -219,13 +228,16 @@ def doppler_fct(wav_mod_spectro: np.ndarray, flx_mod_spectro: np.ndarray, rv_pic
     Args:
         wav_mod_spectro      (array): Wavelength grid of the model
         flx_mod_spectro      (array): Flux of the interpolated synthetic spectrum
+        res_mod_spectro      (array): Resolution of the odel
         rv_picked            (float): Radial velocity randomly picked by the nested sampling (in km.s-1)
     Returns:
         - wav_post_doppler   (array): Wavelength grid after Doppler shifting
         - flx_post_doppler   (array): New flux of the interpolated synthetic spectrum
+        - res_post_doppler   (array): New resolution of the interpolated synthetic spectrum
 
     Author: Simon Petrus, Allan Denis and Matthieu Ravet
     """
+
     if len(flx_mod_spectro) != 0:
         new_wav = wav_mod_spectro * ((rv_picked / const.c.to(u.km/u.s).value) + 1)
         rv_interp = interp1d(new_wav, flx_mod_spectro, bounds_error=False)
@@ -236,10 +248,11 @@ def doppler_fct(wav_mod_spectro: np.ndarray, flx_mod_spectro: np.ndarray, rv_pic
         # so we do not lose any data in the model within the wavelength range of the data
         nans = np.where(~np.isnan(flx_post_doppler))[0]
         wav_post_doppler, flx_post_doppler = wav_mod_spectro[nans], flx_post_doppler[nans]
+        res_post_doppler = res_mod_spectro[nans]
     else:
-        wav_post_doppler, flx_post_doppler = wav_mod_spectro, flx_mod_spectro
+        wav_post_doppler, flx_post_doppler, res_post_doppler = wav_mod_spectro, flx_mod_spectro, res_mod_spectro
 
-    return wav_post_doppler, flx_post_doppler
+    return wav_post_doppler, flx_post_doppler, res_post_doppler
 
 
 
@@ -519,7 +532,7 @@ def bb_cpd_fct(wav_mod_spectro: np.ndarray, wav_obs_photo: np.ndarray, flx_mod_s
 # ----------------------------------------------------------------------------------------------------------------------
 
 
-def compute_ccf(wav_mod_spectro: np.ndarray, flx_mod_spectro: np.ndarray, wav_obs_spectro: np.ndarray, flx_obs_spectro: np.ndarray, err_obs_spectro: np.ndarray, res_mod_obs_spectro: np.ndarray, res_obs_spectro: np.ndarray, res_cont: float, wav_cont_cut: str | np.ndarray,  star_flx_obs_spectro: np.ndarray = np.array([]), transm_obs_spectro: float | np.ndarray = 1, system_obs_spectro: np.ndarray = np.array([]), rv_grid: np.ndarray = np.linspace(-300, 300, 600)):
+def compute_ccf(wav_mod_spectro: np.ndarray, flx_mod_spectro: np.ndarray, wav_obs_spectro: np.ndarray, flx_obs_spectro: np.ndarray, err_obs_spectro: np.ndarray, res_mod_spectro: np.ndarray, res_obs_spectro: np.ndarray, res_cont: float, wav_cont_cut: str | np.ndarray,  star_flx_obs_spectro: np.ndarray = np.array([]), transm_obs_spectro: float | np.ndarray = 1, system_obs_spectro: np.ndarray = np.array([]), rv_grid: np.ndarray = np.linspace(-300, 300, 600)):
     '''
     Function to compute the ccf between a template and data
 
@@ -529,7 +542,7 @@ def compute_ccf(wav_mod_spectro: np.ndarray, flx_mod_spectro: np.ndarray, wav_ob
         wav_obs_spectro             (np.ndarray): Wavelength grid of the data
         flx_obs_spectro             (np.ndarray): Flux of the data
         err_obs_spectro             (np.ndarray): Error of the data
-        res_mod_obs_spectro         (np.ndarray): Resolution of the template interpolated onto the wavelength grid of the data
+        res_mod_spectro             (np.ndarray): Resolution of the template
         res_obs_spectro             (np.ndarray): Resolution of the data
         res_cont                         (float): Resolution of the continuum
         wav_cont_cut          (str | np.ndarray): Wavelengths used for the continuum estimation
@@ -560,7 +573,7 @@ def compute_ccf(wav_mod_spectro: np.ndarray, flx_mod_spectro: np.ndarray, wav_ob
         star_flx_cont_obs_spectro = np.array([])
     # Initialization of ccf_list and acf_list
     # Todel at rv = 0 for autocorrelation
-    flx_mod_spectro_no_rv = resolution_decreasing(wav_mod_spectro, flx_mod_spectro, res_mod_obs_spectro, wav_obs_spectro, res_obs_spectro)
+    flx_mod_spectro_no_rv = resolution_decreasing(wav_mod_spectro, flx_mod_spectro, res_mod_spectro, wav_obs_spectro, res_obs_spectro)
     # Continuum of template at rv = 0 for autocorrelation
     flx_cont_mod_spectro_no_rv = continuum_estimate(wav_obs_spectro, flx_mod_spectro_no_rv, res_obs_spectro, wav_cont_cut, res_cont)
     flx_mod_spectro_no_rv_hf = transm_obs_spectro * (flx_mod_spectro_no_rv - flx_cont_mod_spectro_no_rv)
@@ -583,7 +596,7 @@ def compute_ccf(wav_mod_spectro: np.ndarray, flx_mod_spectro: np.ndarray, wav_ob
             tasks = []
             # Loop in rv
             for irv in rv_grid:
-                tasks.append(pool.apply_async(compute_ccf_single_rv, args=(irv, wav_mod_spectro, flx_mod_spectro, flx_mod_spectro_no_rv_hf, res_mod_obs_spectro, wav_obs_spectro, flx_obs_spectro_hf, res_obs_spectro, res_cont, wav_cont_cut, transm_obs_spectro, star_flx_obs_spectro_hf), callback=update))
+                tasks.append(pool.apply_async(compute_ccf_single_rv, args=(irv, wav_mod_spectro, flx_mod_spectro, flx_mod_spectro_no_rv_hf, res_mod_spectro, wav_obs_spectro, flx_obs_spectro_hf, res_obs_spectro, res_cont, wav_cont_cut, transm_obs_spectro, star_flx_obs_spectro_hf), callback=update))
 
             pool.close()
             pool.join()
@@ -602,7 +615,7 @@ def compute_ccf(wav_mod_spectro: np.ndarray, flx_mod_spectro: np.ndarray, wav_ob
 
         ccf, acf, ccf_star = [], [], []
         for irv in tqdm(rv_grid):
-            ccfi, acfi, ccfi_star = compute_ccf_single_rv(irv, wav_mod_spectro, flx_mod_spectro, flx_mod_spectro_no_rv_hf, res_mod_obs_spectro, wav_obs_spectro, flx_obs_spectro_hf, res_obs_spectro, res_cont, wav_cont_cut, transm_obs_spectro, star_flx_obs_spectro_hf)
+            ccfi, acfi, ccfi_star = compute_ccf_single_rv(irv, wav_mod_spectro, flx_mod_spectro, flx_mod_spectro_no_rv_hf, res_mod_spectro, wav_obs_spectro, flx_obs_spectro_hf, res_obs_spectro, res_cont, wav_cont_cut, transm_obs_spectro, star_flx_obs_spectro_hf)
             ccf.append(ccfi)
             acf.append(acfi)
             ccf_star.append(ccfi_star)
@@ -636,7 +649,7 @@ def compute_ccf(wav_mod_spectro: np.ndarray, flx_mod_spectro: np.ndarray, wav_ob
 # ----------------------------------------------------------------------------------------------------------------------
 
 
-def compute_ccf_single_rv(rv: float, wav_mod_spectro: np.ndarray, flx_mod_spectro: np.ndarray, flx_mod_spectro_no_rv_hf: np.ndarray, res_mod_obs_spectro: np.ndarray, wav_obs_spectro: np.ndarray, flx_obs_spectro_hf: np.ndarray, res_obs_spectro: np.ndarray, res_cont: np.ndarray,  wav_cont_cut: np.ndarray, transm_obs_spectro: int | np.ndarray = 1, star_flx_obs_spectro_hf: int | np.ndarray = 1) -> tuple[float, float]:
+def compute_ccf_single_rv(rv: float, wav_mod_spectro: np.ndarray, flx_mod_spectro: np.ndarray, flx_mod_spectro_no_rv_hf: np.ndarray, res_mod_spectro: np.ndarray, wav_obs_spectro: np.ndarray, flx_obs_spectro_hf: np.ndarray, res_obs_spectro: np.ndarray, res_cont: np.ndarray,  wav_cont_cut: np.ndarray, transm_obs_spectro: int | np.ndarray = 1, star_flx_obs_spectro_hf: int | np.ndarray = 1) -> tuple[float, float]:
     '''
     Function to compute the correlation between template and data for a specific rv value
 
@@ -645,7 +658,7 @@ def compute_ccf_single_rv(rv: float, wav_mod_spectro: np.ndarray, flx_mod_spectr
         wav_mod_spectro                 (np.ndarray): Wavelength grid of the template
         flx_mod_spectro                 (np.ndarray): Flux of the template
         flx_mod_spectro_no_rv_hf        (np.ndarray): High frequency content of the flux of the model at 0 rv
-        res_mod_obs_spectro             (np.ndarray): Resolution of the template interpolated onto the wavelength grid of the data
+        res_mod_spectro             (np.ndarray): Resolution of the template interpolated onto the wavelength grid of the data
         wav_obs_spectro                 (np.ndarray): Wavelength grid of the data
         flx_obs_spectro_hf              (np.ndarray): High frequency content of the flux of the data
         res_obs_spectro                 (np.ndarray): Resolution of the data
@@ -663,9 +676,9 @@ def compute_ccf_single_rv(rv: float, wav_mod_spectro: np.ndarray, flx_mod_spectr
     '''
 
     # Doppler shifting
-    wav_mod_spectro_doppler, flx_mod_spectro_doppler = doppler_fct(wav_mod_spectro, flx_mod_spectro, rv)
+    wav_mod_spectro_doppler, flx_mod_spectro_doppler, res_mod_spectro_doppler = doppler_fct(wav_mod_spectro, flx_mod_spectro, rv)
     # Resolution decreasing
-    flx_mod_spectro_doppler = resolution_decreasing(wav_mod_spectro_doppler, flx_mod_spectro_doppler, res_mod_obs_spectro, wav_obs_spectro, res_obs_spectro)
+    flx_mod_spectro_doppler = resolution_decreasing(wav_mod_spectro_doppler, flx_mod_spectro_doppler, res_mod_spectro_doppler, wav_obs_spectro, res_obs_spectro)
     # Continuum estimation
     flx_cont_mod_spectro_doppler = continuum_estimate(wav_obs_spectro, flx_mod_spectro_doppler, res_obs_spectro, wav_cont_cut, res_cont)
     # High frequency content of template

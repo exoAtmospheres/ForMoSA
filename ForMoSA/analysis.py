@@ -255,7 +255,7 @@ class Analysis(object):
         self.ns._compute_best_model(self.observation, self.grid, interp_method = interp_method, wav_cont = wav_cont, res_cont = res_cont, bounds_lsq = bounds_lsq)
 
 
-    def plot(self, label_ins: str = 'no', trans: str = 'yes', uncert: str = 'yes', figsize_corner: tuple = (15, 15), figsize_chains: tuple = (12, 15), figsize_fit: tuple = (20, 7), save: bool = True) -> None:
+    def plot(self, label_ins: str = 'no', trans: str = 'yes', uncert: str = 'yes', figsize_corner: tuple = (15, 15), figsize_chains: tuple = (12, 15), figsize_fit: tuple = (20, 10), save: bool = True) -> None:
         '''
         Method to use all the plotting methods
 
