@@ -668,14 +668,14 @@ def launch_nested_sampling(global_params):
 
     # - - - - - - - - - - - - - - - - - - - - -
 
-    if global_params.av[0] != 'NA' and global_params.av[indobs] != 'constant':
+    if global_params.av[0] != 'NA' and global_params.av[0] != 'constant':
         n_free_parameters += 1
         theta_index.append('av')
     ## adding cpd
-    if global_params.bb_t[0] != 'NA' and global_params.bb_t[indobs] != 'constant':
+    if global_params.bb_t[0] != 'NA' and global_params.bb_t[0] != 'constant':
         n_free_parameters += 1
         theta_index.append('bb_t')
-    if global_params.bb_r[0] != 'NA' and global_params.bb_r[indobs] != 'constant':
+    if global_params.bb_r[0] != 'NA' and global_params.bb_r[0] != 'constant':
         n_free_parameters += 1
         theta_index.append('bb_r')
     theta_index = np.asarray(theta_index)

@@ -123,44 +123,6 @@ def modif_spec(global_params, theta, theta_index,
             ind_theta_av = np.where(theta_index == 'av')
             av_picked = theta[ind_theta_av[0][0]]
         flx_mod_spectro, flx_mod_photo = reddening_fct(wav_mod_spectro, obs_dict['wav_photo'], flx_mod_spectro, flx_mod_photo, av_picked)
-
-
-
-    # ----------------------------------------------------------------------------------------------------------------------         
-
-
-            
-    # Adding a CPD
-    if global_params.bb_t[0] != "NA" and global_params.bb_r[0] != "NA":
-        if global_params.d[0] != "NA":
-            if global_params.bb_t[0] == 'constant':
-                bb_t_picked = float(global_params.bb_t[1])
-            else:
-                ind_theta_bb_t = np.where(theta_index == 'bb_t')
-                bb_t_picked = theta[ind_theta_bb_t[0][0]]
-            if global_params.bb_r[0] == 'constant':
-                bb_r_picked = float(global_params.bb_r[1])
-            else:
-                ind_theta_bb_r = np.where(theta_index == 'bb_r')
-                bb_r_picked = theta[ind_theta_bb_r[0][0]]
-            if global_params.d[0] == "constant":
-                d_picked = float(global_params.d[1])
-            else:
-                ind_theta_d = np.where(theta_index == 'd')
-                d_picked = theta[ind_theta_d[0][0]]
-
-            flx_mod_spectro, flx_mod_photo = bb_cpd_fct(wav_mod_spectro, obs_dict['wav_photo'], flx_mod_spectro, flx_mod_photo, d_picked, bb_t_picked, bb_r_picked)
-        else:
-            print('WARNING: You need to define a distance if you want to fit for the blackbody')
-            exit()            
-
-    elif global_params.bb_t[0] == "NA" and global_params.bb_r[0] == "NA":
-        pass
-
-    else:
-        print('WARNING: You need to define a blackbody radius, temperature and a distance, or set them all "NA"')
-        exit()
-
         
 
 
@@ -186,7 +148,7 @@ def modif_spec(global_params, theta, theta_index,
     # High contrast model
     if global_params.hc_type[indobs % len(global_params.hc_type)] != "NA":
         # Least Squares inversion
-        _, flx_mod_spectro = hc_model(global_params, obs_dict, flx_mod_spectro)    
+        _, flx_mod_spectro = hc_model(global_params, obs_dict, flx_mod_spectro, indobs)    
     else:
         pass
 
@@ -256,6 +218,44 @@ def modif_spec(global_params, theta, theta_index,
             
     else:     
         scale_spectro, scale_photo = 1, 1
+
+
+    # ----------------------------------------------------------------------------------------------------------------------         
+
+
+            
+    # Adding a CPD
+    if global_params.bb_t[0] != "NA" and global_params.bb_r[0] != "NA":
+        if global_params.d[0] != "NA":
+            if global_params.bb_t[0] == 'constant':
+                bb_t_picked = float(global_params.bb_t[1])
+            else:
+                ind_theta_bb_t = np.where(theta_index == 'bb_t')
+                bb_t_picked = theta[ind_theta_bb_t[0][0]]
+            if global_params.bb_r[0] == 'constant':
+                bb_r_picked = float(global_params.bb_r[1])
+            else:
+                ind_theta_bb_r = np.where(theta_index == 'bb_r')
+                bb_r_picked = theta[ind_theta_bb_r[0][0]]
+            if global_params.d[0] == "constant":
+                d_picked = float(global_params.d[1])
+            else:
+                ind_theta_d = np.where(theta_index == 'd')
+                d_picked = theta[ind_theta_d[0][0]]
+
+            flx_mod_spectro, flx_mod_photo = bb_cpd_fct(wav_mod_spectro, obs_dict['wav_photo'], flx_mod_spectro, flx_mod_photo, d_picked, bb_t_picked, bb_r_picked)
+        else:
+            print('WARNING: You need to define a distance if you want to fit for the blackbody')
+            exit()            
+
+    elif global_params.bb_t[0] == "NA" and global_params.bb_r[0] == "NA":
+        pass
+
+    else:
+        print('WARNING: You need to define a blackbody radius, temperature and a distance, or set them all "NA"')
+        exit()
+
+        
 
     # ----------------------------------------------------------------------------------------------------------------------
 

@@ -27,7 +27,7 @@ def hc_model(global_params, obs_dict, flx_mod_spectro, indobs):
     if global_params.hc_type[indobs % len(global_params.hc_type)] == 'nofit_rm_spec':   # The user does not want to fit for the contribution of the planet (used for CCF-to-loglikelihood mapping functions)
         flx_cont_mod = continuum_estimate(obs_dict['wav_spectro'], 
                                           flx_mod_spectro, 
-                                          obs_dict['res_obs'], 
+                                          obs_dict['res_spectro'], 
                                           global_params.wav_cont[indobs % len(global_params.wav_cont)], 
                                           float(global_params.res_cont[indobs % len(global_params.res_cont)]))
         flx_mod_spectro -= flx_cont_mod
@@ -41,13 +41,13 @@ def hc_model(global_params, obs_dict, flx_mod_spectro, indobs):
         flx_mod_spectro *= obs_dict['transm']
         flx_cont_mod = continuum_estimate(obs_dict['wav_spectro'], 
                                           flx_mod_spectro, 
-                                          obs_dict['res_obs'], 
+                                          obs_dict['res_spectro'], 
                                           global_params.wav_cont[indobs % len(global_params.wav_cont)], 
                                           float(global_params.res_cont[indobs % len(global_params.res_cont)]))
 
-        if global_params.bounds_lsq[indobs % len(global_params.bounds_lsq)] != 'NA':
-            bounds = (float(global_params.bounds_lsq[indobs % len(global_params.bounds_lsq)][1:-1].split(',')[0]), 
-                      float(global_params.bounds_lsq[indobs % len(global_params.bounds_lsq)][1:-1].split(',')[1]))
+        if global_params.hc_bounds_lsq[indobs % len(global_params.hc_bounds_lsq)] != 'NA':
+            bounds = (float(global_params.hc_bounds_lsq[indobs % len(global_params.hc_bounds_lsq)].split(',')[0]), 
+                      float(global_params.hc_bounds_lsq[indobs % len(global_params.hc_bounds_lsq)].split(',')[-1]))
         
         weights = (1 / obs_dict['err_spectro'])**2  # For now we consider diagonal covariance matrices only
     
