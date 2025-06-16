@@ -267,14 +267,10 @@ class ModelGrid(object):
 
             # Same step  with the raw wavelength and resolution of the grid
             _, wavelength_grid, resolution_grid = self._select_wavelength_range(self.grid, target_wavelength, target_resolution)
-
-            # Interpolation of the resolution of the model
-            interp = interp1d(wavelength_grid, resolution_grid, fill_value='extrapolate')
-            resolution_interp = interp(target_wavelength)
         else:
-            resolution_interp = target_resolution
+            resolution_grid = self.resolution
 
-        return target_wavelength, target_resolution, resolution_interp
+        return target_wavelength, target_resolution, resolution_grid
 
 
     def _select_wavelength_range(self, model: xr.DataArray, target_wavelength: np.ndarray, target_resolution: np.ndarray) -> tuple[xr.DataArray, np.ndarray, np.ndarray]:
@@ -463,7 +459,7 @@ class ModelGrid(object):
         target_wavelength      (array): Target wavelength grid to reah for the spectroscopic adapted grid
         wavelength_photo       (array): Target wavelength to reach for the photometric adapted grid
         ins_photo              (array): List of photometric instrument names
-        resolution_model       (array): Resolution of the model interpolated onto the target wavelength grid
+        resolution_model       (array): Resolution of the model
         wav_cont               (array): Wavelength of the continuum
         res_cont               (array): Resolution of the continuum
         remove_continuum        (bool): Whether to remove the continuum
