@@ -8,7 +8,6 @@ from PyAstronomy.pyasl import rotBroad, fastRotBroad
 import multiprocessing as mp
 from multiprocessing.pool import ThreadPool
 from tqdm import tqdm
-from time import time
 
 # ----------------------------------------------------------------------------------------------------------------------
 
@@ -91,7 +90,6 @@ def resolution_decreasing(wav_input: np.ndarray, flx_input: np.ndarray, res_inpu
     sigma_conv = fwhm_conv / 2.355  # convert FWHM to sigma
 
     # Apply convolution
-    t1 = time()
     flx_output = convolve_and_sample(wav_output, sigma_conv, wav_input, flx_input, force_int=True)
     return flx_output
 
