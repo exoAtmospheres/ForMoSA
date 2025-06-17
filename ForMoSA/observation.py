@@ -417,11 +417,14 @@ class Observation(object):
         # If we want to decrease the resolution of the spectroscopic data:
         self._logger.info(f' Target resolution for the data: {target_res_obs}.')
         self._logger.debug('> Decrease the resolution of the flux if necessary.')
+
         obs_data['flx'] = resolution_decreasing(obs_data['wav'],
                                                 obs_data['flx'],
                                                 obs_data['res'],
                                                 obs_data['wav'],
                                                 target_res_obs)
+
+        obs_data['res'] = np.minimum(target_res_obs, obs_data['res'])
 
         if len(obs_data['transm']) > 0:
             self._logger.debug('> Decrease the resolution of the transmission if necessary..')
