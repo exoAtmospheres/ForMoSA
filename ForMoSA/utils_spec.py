@@ -180,7 +180,7 @@ def calc_flx_scale(obs_dict, flx_mod_spectro, flx_mod_photo, r_picked, d_picked,
     # Calculation of the dilution factor analytically
     elif mode == 'analytic':
         if len(obs_dict['wav_spectro']) != 0:
-            if use_cov == True:
+            if use_cov:
                 inv_cov_m = obs_dict['inv_cov'] @ flx_mod_spectro
                 inv_cov_d = obs_dict['inv_cov'] @ obs_dict['flx_spectro']
                 scale_spectro = (flx_mod_spectro @ inv_cov_d) / (flx_mod_spectro @ inv_cov_m)

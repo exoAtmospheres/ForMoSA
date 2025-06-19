@@ -163,7 +163,7 @@ def modif_spec(global_params, theta, theta_index,
     if global_params.hc_type[indobs % len(global_params.hc_type)] == "NA": # hc already rescale everything
 
         # If you need to use the covariance matrix in you estimation of your scaling factor
-        if global_params.logL_type[indobs % len(global_params.logL_type)] == 'chi2_covariance' and len(obs_dict['inv_cov']) != 0:
+        if (global_params.logL_type[indobs % len(global_params.logL_type)] == 'chi2_covariance' or global_params.logL_type[indobs % len(global_params.logL_type)] == 'chi2_covariance_noisescaling') and len(obs_dict['inv_cov']) != 0:
             use_cov = True
         else:
             use_cov = False
