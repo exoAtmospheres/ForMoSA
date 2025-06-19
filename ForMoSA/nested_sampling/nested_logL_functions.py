@@ -19,7 +19,7 @@ def logL_chi2(delta_flx, err, log_det, full=False):
     N = len(delta_flx)
     chi2 = np.nansum((delta_flx / err) ** 2)
     logL = - chi2 / 2
-    if full == True:
+    if full:
         logL += - N/2 * np.log(2*np.pi) - 1/2 * log_det
 
     return logL
@@ -44,7 +44,7 @@ def logL_chi2_covariance(delta_flx, inv_cov, log_det, full=False):
     N = len(delta_flx)
     chi2 = np.dot(delta_flx, np.dot(inv_cov, delta_flx))
     logL = - chi2 / 2
-    if full == True:
+    if full:
         logL += -N/2 * np.log(2*np.pi) - 1/2 * log_det
 
     return logL
@@ -69,7 +69,7 @@ def logL_chi2_noisescaling(delta_flx, err, log_det, full=False):
     N = len(delta_flx)
     chi2 = np.nansum((delta_flx / err) ** 2)
     logL = -N/2 * np.log(chi2/N)
-    if full == True:
+    if full:
         logL += -N/2 - N/2 * np.log(2*np.pi) - 1/2 * log_det # X²/s2 = N/2
     
     return logL
@@ -94,7 +94,7 @@ def logL_chi2_noisescaling_covariance(delta_flx, inv_cov, log_det, full=False):
     N = len(delta_flx)
     chi2 = np.dot(delta_flx, np.dot(inv_cov, delta_flx))
     logL = -N/2 * np.log(chi2/N)
-    if full == True:
+    if full:
         logL += -N/2 - N/2 * np.log(2*np.pi) - 1/2 * log_det # det(A) = 1 / det(A-1) and X²/s2 = N/2
     
     return logL
