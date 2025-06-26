@@ -292,6 +292,7 @@ class Observation(object):
                             'err': np.array([], dtype=float),
                             'res': np.array([], dtype=float),
                             'ins': np.array([], dtype=str),
+                            'cov': np.array([]),
                             'inv_cov': np.array([]),
                             'transm': np.array([]),
                             'star_flx': np.array([]),
@@ -338,6 +339,7 @@ class Observation(object):
                     obs_dict[indobs]['spectro']['res'] = res_inst[mask_spectro_inst]
                     obs_dict[indobs]['spectro']['ins'] = np.unique(ins_inst[mask_spectro_inst])
                     if inv_cov_inst.size > 0 and len(wav_inst[mask_spectro_inst]) > 0:
+                        obs_dict[indobs]['spectro']['cov'] = cov_inst
                         obs_dict[indobs]['spectro']['inv_cov'] = inv_cov_inst
                     if transm_inst.size > 0 and len(wav_inst[mask_spectro_inst]) > 0:
                         obs_dict[indobs]['spectro']['transm'] = transm_inst[mask_spectro_inst]
@@ -586,7 +588,6 @@ class Observation(object):
                     self._obs_data[indobs]['spectro'] = self._obs_data[indobs]['spectro'].item()
                 if 'photo' in self._obs_data[indobs] and isinstance(self._obs_data[indobs]['photo'], np.ndarray) and self._obs_data[indobs]['photo'].dtype == object:
                     self._obs_data[indobs]['photo'] = self._obs_data[indobs]['photo'].item()
-
 
 
         if len(missing_files) > 0:
