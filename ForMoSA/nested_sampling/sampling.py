@@ -191,7 +191,7 @@ class NestedSampling(object):
         return self._plotting
 
 
-    def run(self, results_path: str | os.PathLike, observation: Observation, modelgrid: ModelGrid, interp_method: str = 'linear', wav_cont: list = ['NA'], res_cont: list = ['NA'], bounds_lsq: list = [('NA', 'NA')], emulator: list = ['NA']) -> None:
+    def run(self, results_path: str | os.PathLike, observation: Observation, modelgrid: ModelGrid, interp_method: str = 'linear', wav_cont: list = ['NA'], res_cont: list = ['NA'], bounds_lsq: list = [('NA', 'NA')], emulator: list = ['NA'], full_logL: bool = False) -> None:
         '''
         Method to run the nested sampling algorithm using the model, observation and nested sampling parameters.
 
@@ -206,6 +206,7 @@ class NestedSampling(object):
         res_cont                   (list): List of resolution used for the continuum (used for high contrast)
         bounds_lsq                 (list): List of bounds used for the least squares (used for high contrast)
         emulator                   (list): Emulator of the grid ('PCA', 'NMF')
+        full_logL                  (bool): Whether to compute the full loglikelihood function (i.e. with the additional constant noise terms)
 
         Authors: Simon Petrus, Matthieu Ravet and Allan Denis
         '''
@@ -218,7 +219,6 @@ class NestedSampling(object):
                 self.params.parameters[name]._name = modelgrid.titles[modelgrid.keys.index(name)]  # Rename parameter with title associated to 'parX'
 
 
-        res_mod_list = []
         for indobs in range(observation.n_obs):
             if (bounds_lsq[indobs % len(bounds_lsq)] == ('NA', 'NA')) and (not(self.logL[indobs % len(self.logL)].startswith('CCF'))) and (len(observation.obs_data[indobs]['spectro']['star_flx']) > 0):
                 msg = f' If you do not chose a CCF mapping loglikelihood function ({self.logL[indobs]}), please chose values for the LSQ bounds'
@@ -237,7 +237,7 @@ class NestedSampling(object):
 
         n_free_parameters = self._params.n_free_parameters
 
-        loglike_gp = lambda theta: self._loglike(theta, observation, modelgrid, interp_method=interp_method, wav_cont=wav_cont, res_cont=res_cont, bounds_lsq=bounds_lsq, emulator=emulator)
+        loglike_gp = lambda theta: self._loglike(theta, observation, modelgrid, interp_method=interp_method, wav_cont=wav_cont, res_cont=res_cont, bounds_lsq=bounds_lsq, emulator=emulator, full_logL = full_logL)
         prior_transform_gp = lambda theta: self._prior_transform(theta, modelgrid)
 
         os.makedirs(str(results_path) + f'/{self.algorithm}/', exist_ok=True)
@@ -352,7 +352,7 @@ class NestedSampling(object):
         self._logger.info(f'Summary of Nested Sampling : \n {self._summary()}')
 
 
-    def _loglike(self, theta: list, observation: Observation, modelgrid: ModelGrid, wav_cont: list = ['NA'], res_cont: list = ['NA'], bounds_lsq: list = ['NA'], interp_method: str = 'linear', emulator: list = ['NA']) -> float | tuple[dict, np.ndarray, np.ndarray]:
+    def _loglike(self, theta: list, observation: Observation, modelgrid: ModelGrid, wav_cont: list = ['NA'], res_cont: list = ['NA'], bounds_lsq: list = ['NA'], interp_method: str = 'linear', emulator: list = ['NA'], full_logL : bool = False) -> float | tuple[dict, np.ndarray, np.ndarray]:
         '''
         Compute the loglikelihood for given values of the parameters of the nested sampling
 
@@ -365,6 +365,7 @@ class NestedSampling(object):
         res_cont                   (list): List of resolution used for the continuum (used for high contrast)
         bounds_lsq                 (list): List of bounds used for the least squares (used for high contrast)
         emulator                   (list): Emulator of the grid ('PCA', 'NMF')
+        full_logL                  (bool): Whether to compute the full loglikelihood function (i.e. with additional constant noise terms)
 
         Returns:
             - FINAL_logL     (float): Final evaluated loglikelihood for both spectra and photometry.
@@ -382,7 +383,8 @@ class NestedSampling(object):
             for indobs in range(observation.n_obs):
                 # Modified spectro
                 modif_data[indobs], modif_model[indobs] = self._compute_model_from_theta(theta, observation.obs_data[indobs]['spectro'], observation.obs_data[indobs]['photo'], modelgrid.adapted_grid[indobs]['spectro'], modelgrid.adapted_grid[indobs]['photo'], interp_method = interp_method, wav_cont = wav_cont[indobs % len(wav_cont)], res_cont = res_cont[indobs % len(res_cont)], bounds_lsq = bounds_lsq[indobs % len(bounds_lsq)], indobs = indobs)
-                logL = self._compute_loglike_from_model_and_spectra(modif_data[indobs]['spectro'], modif_data[indobs]['photo'], modif_model[indobs]['spectro'], modif_model[indobs]['photo'], indobs = indobs)
+                # loglike
+                logL = self._compute_loglike_from_model_and_spectra(modif_data, observation.obs_data[indobs]['photo'], modif_model[indobs]['spectro'], modif_model[indobs]['photo'], indobs = indobs, full_logL = full_logL)
 
                 # Increment total Log-likelihood
                 FINAL_logL += logL
@@ -392,6 +394,169 @@ class NestedSampling(object):
             raise ForMoSAError(e)
 
         return FINAL_logL
+
+
+
+    def build_theoretical_model_from_theta(self, theta: list, grid_spectro: ModelGrid | ModelSubGrid, grid_photo: ModelGrid | ModelSubGrid, interp_method: str = 'linear', indobs: int = 0) -> dict:
+        '''
+        Method to compute the theoretical synthetic spectra based only on theta and grid physics.
+        It performs interpolation, Doppler shifting, extinction, vsini broadening, CPD addition and scaling.
+        This function excludes any resampling or observational effects.
+
+        Parameters
+        ----------
+        theta                                (list): Parameter values randomly picked by the nested sampling
+        grid_spectro     (ModelGrid | ModelSubGrid): Instance of :class:'~ModelGrid' or :class:'~ModelSubGrid' adapted to spectroscopic data
+        grid_photo       (ModelGrid | ModelSubGrid): Instance of :class:'~ModelGrid' or :class:'~ModelSubGrid' adapted to photometric data
+        interp_method                         (str): Method for the interpolation of the grid
+        indobs                                (int): Index of the current observation looping
+
+        Returns
+        -------
+        mod_dict (dict): Dictionary of the synthetic model {'spectro': dict, 'photo': dict}
+
+        Authors: Simon Petrus, Matthieu Ravet and Allan Denis
+        '''
+
+        def get_param(name, indobs):
+            name = name if name in self.params.parameters else f"{name}_{indobs}" if f"{name}_{indobs}" in self.params.parameters else None
+            return None if name is None else self.params._get_param_value(name, theta)
+
+        # Check input theta length
+        if len(theta) != self._params.n_free_parameters:
+            msg = f"theta length ({len(theta)}) does not match expected number of free parameters ({self._params.n_free_parameters})"
+            self._logger.critical(msg)
+            raise ForMoSAError(msg)
+
+        theta_index = self.params.list_params_keys
+
+        # Interpolation parameters from grid
+        theta_grid = [theta[i] if key in self.params.list_free_params_keys
+                      else self.params.parameters[key].value
+                      for i, key in enumerate(theta_index)
+                      if key.startswith('par')]
+
+        # Retrieve model wavelength and resolution
+        wav_mod_spectro, res_mod_spectro = grid_spectro.wavelength, grid_spectro.resolution
+        wav_mod_photo = grid_photo.wavelength
+        ins_spectro, ins_photo = grid_spectro.instrument, grid_photo.instrument
+
+        # Interpolate at the values of the grid parameters
+        flx_mod_spectro = grid_spectro._interpolate_between_gridpoints(theta_grid, interp_method, indobs)
+        flx_mod_photo = grid_photo._interpolate_between_gridpoints(theta_grid, interp_method, indobs)
+
+        # Save native model before any transformation
+        flx_mod_spectro_nativ = np.copy(flx_mod_spectro)
+
+        # Doppler shifting
+        rv = get_param('rv', indobs)
+        if rv is not None:
+            wav_mod_spectro, flx_mod_spectro, res_mod_spectro = us.doppler_fct(wav_mod_spectro, flx_mod_spectro, res_mod_spectro, rv)
+
+        # vsini correction
+        vsini = get_param('vsini', indobs)
+        ld = get_param('ld', indobs)
+        if vsini is not None and ld is not None:
+            try:
+                vsini_function = str(self.params.parameters['vsini'].vsini_function)
+            except KeyError:
+                vsini_function = str(self.params.parameters[f'vsini_{indobs}'].vsini_function)
+            flx_mod_spectro, res_mod_spectro = us.vsini_fct(wav_mod_spectro, flx_mod_spectro, res_mod_spectro, ld, vsini, vsini_function)
+
+        # Reddening
+        av = get_param('av', indobs)
+        if av is not None:
+            flx_mod_spectro = us.reddening_fct(wav_mod_spectro, flx_mod_spectro, av)
+            flx_mod_photo = us.reddening_fct(wav_mod_photo, flx_mod_photo, av)
+
+        # CPD contribution
+        bb_T = get_param('bb_T', indobs)
+        bb_R = get_param('bb_R', indobs)
+        d = get_param('d', indobs)
+        if None not in (bb_T, bb_R, d):
+            flx_mod_spectro = us.bb_cpd_fct(wav_mod_spectro, flx_mod_spectro, d, bb_T, bb_R)
+            flx_mod_photo = us.bb_cpd_fct(wav_mod_photo, flx_mod_photo, d, bb_T, bb_R)
+
+        # Scaling (ck) via R^2/d^2
+        alpha = get_param('alpha', indobs)
+        if alpha is None:
+            alpha = 1
+        r = get_param('r', indobs)
+        if r is not None and d is not None:
+            flx_mod_spectro, ck_spectro = us.calc_ck(flx_mod_spectro, np.array([]), np.array([]), r, d, alpha)
+            flx_mod_photo, ck_photo = us.calc_ck(flx_mod_photo, np.array([]), np.array([]), r, d, alpha)
+        else:
+            ck_spectro, ck_photo = 1, 1  # Will be set observationally if needed
+
+        return {
+            'spectro': {
+                'wav': wav_mod_spectro,
+                'flx': flx_mod_spectro,
+                'nativ_flx': flx_mod_spectro_nativ,
+                'res': res_mod_spectro,
+                'ins': ins_spectro,
+                'ck': ck_spectro
+            },
+            'photo': {
+                'wav': wav_mod_photo,
+                'flx': flx_mod_photo,
+                'ins': ins_photo,
+                'ck': ck_photo
+            }
+        }
+
+
+
+    def apply_observation_effects_to_model(self, model_dict: dict, obs_dict_spectro: dict, obs_dict_photo: dict, wav_cont='NA', res_cont='NA', bounds_lsq=['NA','NA'], indobs=0) -> tuple[dict, dict]:
+        '''
+        Apply effects specifics to observations: resolution resampling, speckle subtraction, and ck estimation when no physical scaling is defined.
+
+        Parameters
+        ----------
+        model_dict                          (dict): Model spectra and photometry as built from theta
+        obs_dict_spectro                    (dict): Dictionary of spectroscopic observations
+        obs_dict_photo                      (dict): Dictionary of photometric observations
+        wav_cont                  (str | np.ndarray): Wavelength grid for the continuum estimation of the model (used for high contrast)
+        res_cont                  (str | np.ndarray): Resolution of the continuum (used for high contrast)
+        bounds_lsq                          (list): Bounds of the least squares estimation (used for high contrast)
+        indobs                               (int): Index of the current observation looping
+
+        Returns
+        -------
+        obs_dict     (dict): update observations dictionary
+        model_dict   (dict): updated and model dictionary
+
+        Author: Simon Petrus, Matthieu Ravet and Allan Denis
+        '''
+
+        contributions = 1
+
+        # Resolution decreasing and resampling
+        if len(model_dict['spectro']['wav']) != len(obs_dict_spectro['wav']):
+            model_dict['spectro']['flx'] = us.resolution_decreasing(model_dict['spectro']['wav'], model_dict['spectro']['flx'], model_dict['spectro']['res'], obs_dict_spectro['wav'], obs_dict_spectro['res'])
+
+        # High contrast modeling if stellar flux is available
+        if len(obs_dict_spectro['star_flx']) > 0:
+            flx_cont_mod = us.continuum_estimate(obs_dict_spectro['wav'], model_dict['spectro']['flx'], model_dict['spectro']['res'], wav_cont, res_cont)
+            if self.logL[indobs % len(self.logL)].startswith('chi2'):
+                contributions, model_dict['spectro']['flx'], obs_dict_spectro['speckles'] = hc._hc_model_estimate_speckles(obs_dict_spectro['flx'], obs_dict_spectro['flx_cont'], obs_dict_spectro['transm'], obs_dict_spectro['star_flx'], obs_dict_spectro['star_flx_cont'], model_dict['spectro']['flx'], flx_cont_mod, obs_dict_spectro['err'], bounds_lsq, obs_dict_spectro['system'])
+            else:
+                _, model_dict['spectro']['flx'], obs_dict_spectro['speckles'] = hc._hc_model_remove_speckles(obs_dict_spectro['flx'], obs_dict_spectro['flx_cont'], obs_dict_spectro['transm'], obs_dict_spectro['star_flx'], obs_dict_spectro['star_flx_cont'], model_dict['spectro']['flx'], flx_cont_mod, obs_dict_spectro['err'])
+
+        # Optional analytical ck when no r/d available
+        if model_dict['spectro']['ck'] == 1 and len(obs_dict_spectro['star_flx']) == 0:
+            model_dict['spectro']['flx'], ck_spectro = us.calc_ck(model_dict['spectro']['flx'], obs_dict_spectro['flx'], obs_dict_spectro['err'], 0, 0, alpha=0, analytic='yes')
+            model_dict['photo']['flx'], ck_photo = us.calc_ck(model_dict['photo']['flx'], obs_dict_photo['flx'], obs_dict_photo['err'], 0, 0, alpha=0, analytic='yes')
+            model_dict['spectro']['ck'] = ck_spectro
+            model_dict['photo']['ck'] = ck_photo
+
+        # Update info
+        model_dict['spectro'].update({'res': obs_dict_spectro['res'], 'hc_contributions': contributions})
+
+        obs_dict = {'spectro': obs_dict_spectro,
+                    'photo': obs_dict_photo}
+
+        return obs_dict, model_dict
 
 
     def _compute_model_from_theta(self, theta: list, obs_dict_spectro: dict, obs_dict_photo, grid_spectro: ModelGrid | ModelSubGrid, grid_photo: ModelGrid | ModelSubGrid, interp_method: str = 'linear', wav_cont: str | np.ndarray = 'NA', res_cont: str | np.ndarray = 'NA', bounds_lsq: list = ['NA', 'NA'], indobs: int = 0) -> tuple[dict, dict]:
@@ -419,99 +584,17 @@ class NestedSampling(object):
 
         Author: Simon Petrus, Paulina Palma-Bifani, Allan Denis and Matthieu Ravet
         '''
-        def get_param(name, indobs):
-            name = name if name in self.params.parameters else f"{name}_{indobs}" if f"{name}_{indobs}" in self.params.parameters else None   # treat also the multi-observations parameters
-            if name is None:
-                return None
-            new_theta = self.params._get_param_value(name, theta)
-            return new_theta
 
-        contributions, obs_dict_spectro['speckles'], ck_spectro, ck_photo = 1, np.zeros(len(obs_dict_spectro['wav'])), 1, 1
+        # Step 1: Compute the physical model from theta and the grid
+        mod_dict = self.build_theoretical_model_from_theta(theta, grid_spectro, grid_photo, interp_method='linear', indobs=indobs)
 
-        theta_index = self.params.list_params_keys
-        if len(theta) != self._params.n_free_parameters:
-            msg = f"theta length ({len(theta)}) does not match expected number of free parameters ({self._params.n_free_parameters})"
-            self._logger.critical(msg)
-            raise ForMoSAError(msg)
-
-        theta_grid = [theta[i] if key in self.params.list_free_params_keys
-                      else self.params.parameters[key].value
-                      for i, key in enumerate(theta_index)
-                      if key.startswith('par')]
-
-        if res_cont != 'NA':
-            res_cont = float(res_cont)
-
-        # Retrieve usefull parameters
-        wav_mod_spectro, res_mod_spectro = grid_spectro.wavelength, grid_spectro.resolution
-        wav_mod_photo = grid_photo.wavelength
-        target_wavelength, target_resolution = obs_dict_spectro['wav'], obs_dict_spectro['res']
-        ins_spectro, ins_photo = grid_spectro.instrument, grid_photo.instrument
-
-        # Interpolate at the values of the grid parameters
-        flx_mod_spectro, flx_mod_photo = grid_spectro._interpolate_between_gridpoints(theta_grid, interp_method, indobs), grid_photo._interpolate_between_gridpoints(theta_grid, interp_method, indobs)
-
-        # RV correction
-        rv = get_param('rv', indobs)
-        if rv is not None:
-            wav_mod_spectro, flx_mod_spectro, res_mod_spectro = us.doppler_fct(wav_mod_spectro, flx_mod_spectro, res_mod_spectro, rv)
-        # vsini correction
-        vsini = get_param('vsini', indobs)
-        ld = get_param('ld', indobs)
-        if vsini is not None and ld is not None:
-            try:
-                vsini_function = str(self.params.parameters['vsini'].vsini_function)
-            except KeyError:
-                vsini_function = str(self.params.parameters[f'vsini_{indobs}'].vsini_function)
-            flx_mod_spectro, res_mod_spectro = us.vsini_fct(wav_mod_spectro, flx_mod_spectro, res_mod_spectro, ld, vsini, vsini_function)
-
-        # Reddening
-        av = get_param('av', indobs)
-        if av is not None:
-            flx_mod_spectro, flx_mod_photo = us.reddening_fct(wav_mod_spectro, obs_dict_photo['wav'], flx_mod_spectro, flx_mod_photo, av)
-
-        # CPD
-        bb_T = get_param('bb_T', indobs)
-        bb_R = get_param('bb_R', indobs)
-        d = get_param('d', indobs)
-        if None not in (bb_T, bb_R, d):
-            flx_mod_spectro, flx_mod_photo = us.bb_cpd_fct(wav_mod_spectro, obs_dict_photo['wav'], flx_mod_spectro, flx_mod_photo, d, bb_T, bb_R)
-
-        # Save native model before resampling
-        flx_mod_spectro_nativ = np.copy(flx_mod_spectro)
-        # Resolution decreasing and resampling
-        if len(wav_mod_spectro) != len(obs_dict_spectro['wav']):
-            flx_mod_spectro = us.resolution_decreasing(wav_mod_spectro, flx_mod_spectro, res_mod_spectro, target_wavelength, target_resolution)
-
-        # High contrast modeling
-        if len(obs_dict_spectro['star_flx']) > 0:
-            flx_cont_mod_spectro = us.continuum_estimate(target_wavelength, flx_mod_spectro, res_mod_spectro, wav_cont, res_cont)
-            if self.logL[indobs % len(self.logL)].startswith('chi2'):
-                contributions, flx_mod_spectro, obs_dict_spectro['speckles'] = hc._hc_model_estimate_speckles(obs_dict_spectro['flx'], obs_dict_spectro['flx_cont'], obs_dict_spectro['transm'], obs_dict_spectro['star_flx'], obs_dict_spectro['star_flx_cont'], flx_mod_spectro, flx_cont_mod_spectro, obs_dict_spectro['err'], bounds_lsq, obs_dict_spectro['system'])
-            else:
-                flx_mod_spectro, obs_dict_spectro['speckles'] = hc._hc_model_remove_speckles(obs_dict_spectro['flx'], obs_dict_spectro['flx_cont'], obs_dict_spectro['transm'], obs_dict_spectro['star_flx'], obs_dict_spectro['star_flx_cont'], flx_mod_spectro, flx_cont_mod_spectro)
-
-        # Scaling (ck)
-        alpha = get_param('alpha', indobs)
-        if alpha is None:
-            alpha = 1
-        r = get_param('r', indobs)
-        if len(obs_dict_spectro['star_flx']) == 0 and r is not None and d is not None:
-            flx_mod_spectro, flx_mod_photo, ck_spectro, ck_photo = us.calc_ck(obs_dict_spectro, obs_dict_photo, flx_mod_spectro, flx_mod_photo, r, d, alpha or 0)
-        # Analytical resolution and special case for MOSAIC when you don't fit for R and D for one of the obs but still want to fit it for the others
-        elif len(obs_dict_spectro['star_flx']) == 0:
-            flx_mod_spectro, flx_mod_photo, ck_spectro, ck_photo = us.calc_ck(obs_dict_spectro, obs_dict_photo, flx_mod_spectro, flx_mod_photo, 0, 0, alpha=0, analytic='yes')
-
-        mod_dict_spectro = {'wav': wav_mod_spectro, 'flx': flx_mod_spectro, 'nativ_flx': flx_mod_spectro_nativ, 'res': obs_dict_spectro['res'], 'ins': ins_spectro, 'ck': ck_spectro, 'hc_contributions': contributions}
-        mod_dict_photo = {'wav': wav_mod_photo, 'flx': flx_mod_photo, 'ins': ins_photo, 'ck': ck_photo}
-
-        obs_dict = {'spectro': obs_dict_spectro, 'photo': obs_dict_photo}
-        mod_dict = {'spectro': mod_dict_spectro, 'photo': mod_dict_photo}
+        # Step 2: Apply observational effects (resampling, speckles, scaling if needed)
+        obs_dict, mod_dict = self.apply_observation_effects_to_model(mod_dict, obs_dict_spectro, obs_dict_photo, wav_cont=wav_cont, res_cont=res_cont, bounds_lsq=bounds_lsq, indobs=indobs)
 
         return obs_dict, mod_dict
 
 
-    def _compute_loglike_from_model_and_spectra(self, obs_dict_spectro: dict, obs_dict_photo: dict, mod_dict_spectro: dict, mod_dict_photo: dict, indobs: int = 0):
+    def _compute_loglike_from_model_and_spectra(self, obs_dict_spectro: dict, obs_dict_photo: dict, mod_dict_spectro: dict, mod_dict_photo: dict, indobs: int = 0, full_logL: bool = False):
         '''
         Method to compute the loglikelihood from the modified observation and model
 
@@ -522,6 +605,7 @@ class NestedSampling(object):
         mod_dict_spectro    (dict): Dictionary of model spectroscopic data modified by the nested sampling {indobs: {'spectro': dict 'photo': dict}}
         mod_dict_photo      (dict): Dictionary of model photometric data modified by the nested sampling {indobs: {'spectro': dict 'photo': dict}}
         indobs               (int): Index of current observation
+        full_logL           (bool): Whether to compute the full loglikelihood function (i.e. with additional constant noise terms)
 
         Returns:
             - Final_logL (float): Final loglikelihood value
@@ -530,20 +614,23 @@ class NestedSampling(object):
         '''
 
         # LogL Photometry
-        logL_photo = 0 if len(obs_dict_photo['wav']) == 0 else logL_functions.logL_chi2(obs_dict_photo['flx'] - mod_dict_photo['flx'], obs_dict_photo['err'])
+        logL_photo = 0 if len(obs_dict_photo['wav']) == 0 else logL_functions.logL_chi2(obs_dict_photo['flx'] - mod_dict_photo['flx'], obs_dict_photo['err'], full=full_logL)
 
         # LogL Spectroscopy
         logL_spectro = 0
         if len(obs_dict_spectro['wav']) > 0:
-            residual = obs_dict_spectro['flx'] - mod_dict_spectro['flx'] - obs_dict_spectro['speckles']
+            residual = obs_dict_spectro['flx'] - mod_dict_spectro['flx']
+            if len(obs_dict_spectro['speckles']) > 0:
+                residual -= obs_dict_spectro['speckles']
+
             ll_type = self.logL[indobs % len(self.logL)]
             logL_dict = {'chi2': lambda: logL_functions.logL_chi2(residual, obs_dict_spectro['err']),
-                         'chi2_covariance': lambda: logL_functions.logL_chi2_covariance(residual, obs_dict_spectro['inv_cov']),
+                         'chi2_covariance': lambda: logL_functions.logL_chi2_covariance(residual, obs_dict_spectro['cov'], obs_dict_spectro['inv_cov'], full=full_logL),
                          'CCF_Brogi': lambda: logL_functions.logL_CCF_Brogi(obs_dict_spectro['flx'] - obs_dict_spectro['speckles'], mod_dict_spectro['flx']),
                          'CCF_Zucker': lambda: logL_functions.logL_CCF_Zucker(obs_dict_spectro['flx'] - obs_dict_spectro['speckles'], mod_dict_spectro['flx']),
                          'CCF_custom': lambda: logL_functions.logL_CCF_custom(obs_dict_spectro['flx'] - obs_dict_spectro['speckles'], mod_dict_spectro['flx'], obs_dict_spectro['err']),
-                         'chi2_noisescaling': lambda: logL_functions.logL_chi2_noisescaling(residual, obs_dict_spectro['err']),
-                         'chi2_noisescaling_covariance': lambda: logL_functions.logL_chi2_noisescaling_covariance(residual, obs_dict_spectro['inv_cov'])}
+                         'chi2_noisescaling': lambda: logL_functions.logL_chi2_noisescaling(residual, obs_dict_spectro['err'], full=full_logL),
+                         'chi2_noisescaling_covariance': lambda: logL_functions.logL_chi2_noisescaling_covariance(residual, obs_dict_spectro['cov'], obs_dict_spectro['inv_cov'], full=full_logL)}
             logL_spectro = logL_dict.get(ll_type, lambda: 0)()
 
         FINAL_logL = logL_photo + logL_spectro
