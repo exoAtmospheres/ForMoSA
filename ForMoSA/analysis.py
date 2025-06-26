@@ -193,7 +193,13 @@ class Analysis(object):
             self.grid._save_grid(self.paths.adapt_store_path)
         else:
             # Load adapted observations and grids
-            self.observation._load_adapted_observations_from_files(self.paths.result_path)
+            try:
+                self.observation._load_adapted_observations_from_files(self.paths.result_path)
+            except ForMoSAError:
+                self._logger.warning(f' Adapting and saving observations to folder {self.paths.result_path}')
+                self.observation.adapt_all_observations(res_obs, self.grid.wavelength, self.grid.resolution, res_cont = res_cont, wav_cont = wav_cont)
+                self.observation._save_all_observations(self.paths.result_path)
+
             self.grid._load_grid_from_files(self.paths.adapt_store_path, self.observation.obs_name_list)
 
         # grid and data are now adapted
@@ -228,7 +234,8 @@ class Analysis(object):
         interp_method = adapt['method']
 
         wav_for_fitting = inversion['wav_fit']
-        bounds_lsq     = inversion['hc_bounds_lsq']
+        bounds_lsq      = inversion['hc_bounds_lsq']
+        full_logL       = inversion['full_logL']
 
         # Check that inputs are of type 'list'
         is_not_list = utils.check_format(res_obs, res_mod, res_cont, wav_cont, emulator, wav_for_fitting, bounds_lsq, type_expected=list)
@@ -244,7 +251,7 @@ class Analysis(object):
 
         if not(self.fitted):
             # Run nested sampling
-            self.ns.run(self.paths.result_path, self.observation, self.grid, interp_method=interp_method, wav_cont=wav_cont, res_cont=res_cont, bounds_lsq=bounds_lsq, emulator=emulator)
+            self.ns.run(self.paths.result_path, self.observation, self.grid, interp_method=interp_method, wav_cont=wav_cont, res_cont=res_cont, bounds_lsq=bounds_lsq, emulator=emulator, full_logL = full_logL)
 
             # Savings
             self.ns._save_results(self.paths.result_path)
@@ -292,7 +299,6 @@ class Analysis(object):
             filename = self.paths.result_path / 'radar_plot.pdf'
             fig.savefig(filename)
             self._logger.info(f'Radar plot saved to {filename}')
-
         fig, _, _, _ = self.ns.plotting.plot_fit(modif_data, best_model, label_ins=label_ins, trans=trans, uncert=uncert, figsize=figsize_fit)
         if save:
             filename = self.paths.result_path / 'best_fit_plot.pdf'
@@ -366,7 +372,6 @@ class Analysis(object):
 
         # CCF
         ccf, acf, ccf_star, rv_peak = spec.compute_ccf(wav_mod, flx_mod, wav_obs, flx_obs, err_obs, res_mod_obs_spectro, res_obs_spectro, res_cont, wav_cont, star_flx, transm, system, rv_grid=rv_grid)
-        print(rv_grid[np.argmin(ccf_star)])
         # Plot
         plt.figure(figsize=(10, 4))
         plt.plot(rv_grid, ccf, color='C0', label='ccf')
