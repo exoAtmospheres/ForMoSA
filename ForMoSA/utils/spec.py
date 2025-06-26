@@ -131,7 +131,7 @@ def continuum_estimate(wav_input: np.ndarray, flx_input: np.ndarray, res_input: 
         dwav_median = np.median(np.abs(wav_input[ind_cont_cut] - np.roll(wav_input[ind_cont_cut], 1))) # Estimated the median wavelength separation instead of taking wav_median - (wav_median+1) that could be on a border
 
         fwhm = wav_median / np.median(res_input)
-        fwhm_continuum = wav_median / res_cont
+        fwhm_continuum = wav_median / float(res_cont)
 
         fwhm_conv = np.sqrt(fwhm_continuum**2 - fwhm**2)
         sigma = fwhm_conv / (dwav_median * 2.355)
@@ -153,7 +153,7 @@ def continuum_estimate(wav_input: np.ndarray, flx_input: np.ndarray, res_input: 
 
 
 
-def calc_ck(obs_dict_spectro: dict, obs_dict_photo: dict, flx_mod_spectro: np.ndarray, flx_mod_photo: np.ndarray, r_picked: float, d_picked: float, alpha: float=1, analytic: str='no') -> tuple[np.ndarray, np.ndarray, float, float]:
+def calc_ck(flx_mod: np.ndarray, flx_obs: np.ndarray, err_obs: np.ndarray, r_picked: float, d_picked: float, alpha: float=1, analytic: str='no') -> tuple[np.ndarray, np.ndarray, float, float]:
     """
     Calculation of the dilution factor Ck and re-normalization of the interpolated synthetic spectrum (from the radius
     and distance or analytically).
@@ -168,10 +168,8 @@ def calc_ck(obs_dict_spectro: dict, obs_dict_photo: dict, flx_mod_spectro: np.nd
         alpha                  (float): Manual scaling factor (set to 1 by default) such that ck = alpha * (r/d)²
         analytic                 (str): = 'yes' if Ck needs to be calculated analytically by the formula from Cushing et al. (2008)
     Returns:
-        - flx_mod_spectro_ck   (array): Re-normalysed model spectrum
-        - flx_mod_photo_ck     (array): Re-normalysed model photometry
-        - ck_spectro           (float): Scaling coefficient for spectroscopy
-        - ck_photo             (float): Scaling coefficient for photometry
+        - flx_mod_ck   (array): Re-normalysed model
+        - ck          (float): Scaling coefficient
 
     Author: Simon Petrus
     """
@@ -180,37 +178,19 @@ def calc_ck(obs_dict_spectro: dict, obs_dict_photo: dict, flx_mod_spectro: np.nd
         r_picked *= u.Rjup
         d_picked *= u.pc
         ck = alpha * (r_picked.to(u.m).value/d_picked.to(u.m).value)**2
-        ck_spectro, ck_photo = ck, ck
     # Calculation of the dilution factor ck analytically
     else:
-        if len(obs_dict_spectro['wav']) != 0:
-            ck_top_merge = np.sum((flx_mod_spectro * obs_dict_spectro['flx']) / (obs_dict_spectro['err'] * obs_dict_spectro['err']))
-            ck_bot_merge = np.sum((flx_mod_spectro / obs_dict_spectro['err'])**2)
-            ck_spectro = ck_top_merge / ck_bot_merge
+        if len(flx_obs) != 0:
+            ck_top_merge = np.sum((flx_mod * flx_obs) / (err_obs**2))
+            ck_bot_merge = np.sum((flx_mod / err_obs)**2)
+            ck = ck_top_merge / ck_bot_merge
         else:
-            ck_top_merge = 0
-            ck_bot_merge = 0
-            ck_spectro = 1
-        if len(obs_dict_photo['wav']) != 0:
-            ck_top_phot = np.sum((flx_mod_photo * obs_dict_photo['flx']) / (obs_dict_photo['err'] * obs_dict_photo['err']))
-            ck_bot_phot = np.sum((flx_mod_photo / obs_dict_photo['err'])**2)
-            ck_photo = ck_top_phot / ck_bot_phot
-        else:
-            ck_top_phot = 0
-            ck_bot_phot = 0
-            ck_photo = 1
+            ck = 0
 
     # Re-normalization of the interpolated synthetic spectra with ck
-    if len(obs_dict_spectro['wav']) != 0:
-        flx_mod_spectro_ck = flx_mod_spectro * ck_spectro
-    else:
-        flx_mod_spectro_ck = flx_mod_spectro
-    if len(obs_dict_photo['wav']) != 0:
-        flx_mod_photo_ck = flx_mod_photo * ck_photo
-    else:
-        flx_mod_photo_ck = flx_mod_photo
+    flx_mod_ck = flx_mod * ck
 
-    return flx_mod_spectro_ck, flx_mod_photo_ck, ck_spectro, ck_photo
+    return flx_mod_ck, ck
 
 
 # ----------------------------------------------------------------------------------------------------------------------
@@ -258,35 +238,28 @@ def doppler_fct(wav_mod_spectro: np.ndarray, flx_mod_spectro: np.ndarray, res_mo
 
 
 
-def reddening_fct(wav_mod_spectro: np.ndarray, wav_obs_photo: np.ndarray, flx_mod_spectro: np.ndarray, flx_mod_photo: np.ndarray, av_picked: float) -> tuple[np.ndarray, np.ndarray]:
+def reddening_fct(wav: np.ndarray, flx: np.ndarray, av_picked: float) -> tuple[np.ndarray, np.ndarray]:
     """
     Application of a sythetic interstellar extinction to the interpolated synthetic spectrum using the function
     extinction.fm07.
 
     Args:
-        wav_mod_spectro         (array): Wavelength grid of the model (spectroscopy)
-        wav_obs_photo           (array): Wavelength of the data/model (photometry)
-        flx_mod_spectro         (array): Flux of the interpolated synthetic spectrum (spectroscopy)
-        flx_mod_photo           (array): Flux of the interpolated synthetic spectrum (photometry)
-        av_picked               (float): Extinction randomly picked by the nested sampling (in mag)
+        wav         (array): Wavelength grid of the model
+        flx         (array): Flux of the interpolated synthetic spectrum
+        av_picked   (float): Extinction randomly picked by the nested sampling (in mag)
     Returns:
-        - flx_mod_spectro_rd    (array): New flux of the interpolated synthetic spectrum (spectroscopy)
-        - flx_mod_photo_rd      (array): New flux of the interpolated synthetic spectrum (photometry)
+        - flx_rd    (array): New flux of the interpolated synthetic spectrum
 
     Author: Simon Petrus
     """
-    if len(flx_mod_spectro) != 0:
-        dered_merge = extinction.fm07(wav_mod_spectro * 10000, av_picked, unit='aa')
-        flx_mod_spectro_rd = flx_mod_spectro * 10**(-0.4*dered_merge)
-    else:
-        flx_mod_spectro_rd = flx_mod_spectro
-    if len(flx_mod_photo) != 0:
-        dered_phot = extinction.fm07(wav_obs_photo * 10000, av_picked, unit='aa')
-        flx_mod_photo_rd = flx_mod_photo * 10**(-0.4*dered_phot)
-    else:
-        flx_mod_photo_rd = flx_mod_photo
 
-    return flx_mod_spectro_rd, flx_mod_photo_rd
+    if len(flx) != 0:
+        dered_merge = extinction.fm07(wav * 10000, av_picked, unit='aa')
+        flx_rd = flx * 10**(-0.4*dered_merge)
+    else:
+        flx_rd = flx
+
+    return flx_rd
 
 
 
@@ -485,46 +458,38 @@ def vsini_fct_accurate_fast_rot_broad(wav_mod_spectro: np.ndarray, flx_mod_spect
 
 
 
-def bb_cpd_fct(wav_mod_spectro: np.ndarray, wav_obs_photo: np.ndarray, flx_mod_spectro: np.ndarray, flx_mod_photo: np.ndarray, distance: np.ndarray, bb_t_picked: np.ndarray, bb_r_picked: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
+def bb_cpd_fct(wav: np.ndarray, flx: np.ndarray, distance: np.ndarray, bb_t_picked: np.ndarray, bb_r_picked: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
     '''
     Function to add the effect of a cpd (circum planetary disc) to the models.
 
     Args:
-        wav_mod_spectro        (array): Wavelength grid of the model (spectroscopy)
-        wav_obs_photo          (array): Wavelength of the data/model (photometry)
-        flx_mod_spectro        (array): Flux of the interpolated synthetic spectrum (spectroscopy)
-        flx_mod_photo          (array): Flux of the interpolated synthetic spectrum (photometry)
-        distance               (array): Distance from the observation in pc units
-        bb_t_picked            (float): Temperature value randomly picked by the nested sampling in K units
-        bb_r_picked            (float): Radius randomly picked by the nested sampling in units of planetary radius
+        wav           (array): Wavelength grid of the model
+        flx           (array): Flux of the interpolated synthetic spectrum
+        distance      (array): Distance from the observation in pc units
+        bb_t_picked   (float): Temperature value randomly picked by the nested sampling in K units
+        bb_r_picked   float): Radius randomly picked by the nested sampling in units of planetary radius
     Returns:
-        - flx_mod_spectro_bb   (array): New flux of the interpolated synthetic spectrum (spectroscopy)
-        - flx_mod_photo_bb     (array): New flux of the interpolated synthetic spectrum (photometry)
+        - flx_bb  (array): New flux of the interpolated synthetic spectrum
 
     Author: Paulina Palma-Bifani
     '''
 
-    bb_t_picked *= u.K
-    bb_r_picked *= u.Rjup
-    distance *= u.pc
+    if len(flx) > 0:
+        bb_t_picked *= u.K
+        bb_r_picked *= u.Rjup
+        distance *= u.pc
 
-    def planck(wav, T):
-        a = 2.0*const.h*const.c**2
-        b = const.h*const.c/(wav*const.k_B*T)
-        intensity = a/ ( (wav**5) * (np.exp(b) - 1.0) )
-        return intensity
+        a = 2.0 * const.h * const.c**2
+        b = const.h * const.c / (wav * u.um * const.k_B * bb_t_picked)
+        intensity = a / ((wav * u.um)**5 * (np.exp(b) - 1.0))
+        flx_bb = (np.pi * bb_r_picked**2 / distance**2 * intensity).to(u.W / u.m**2 / u.micron)
 
-    bb_intensity    = planck(wav_mod_spectro*u.um, bb_t_picked)
-    bb_intensity_f    = planck(wav_obs_photo*u.um, bb_t_picked)
+        # add to model flux of the atmosphere
+        flx_bb = flx + flx_bb.value
+    else:
+        flx_bb = flx
 
-    flux_bb_lambda   = ( np.pi*bb_r_picked**2/(distance**2) * bb_intensity ).to(u.W/u.m**2/u.micron)
-    flux_bb_lambda_f = ( np.pi*bb_r_picked**2/(distance**2) * bb_intensity_f ).to(u.W/u.m**2/u.micron)
-
-    # add to model flux of the atmosphere
-    flx_mod_spectro_bb = flx_mod_spectro + flux_bb_lambda.value
-    flx_mod_photo_bb = flx_mod_photo + flux_bb_lambda_f.value
-
-    return flx_mod_spectro_bb, flx_mod_photo_bb
+    return flx_bb
 
 
 # ----------------------------------------------------------------------------------------------------------------------
