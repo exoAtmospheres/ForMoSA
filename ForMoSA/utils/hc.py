@@ -2,7 +2,7 @@ import numpy as np
 import scipy.optimize as optimize
 
 
-def _hc_model_remove_speckles(flx_obs_spectro: np.ndarray, flx_cont_obs_spectro: np.ndarray, transm_obs_spectro: np.ndarray, star_flx_obs_spectro: np.ndarray, star_flx_cont_obs_spectro: np.ndarray, flx_mod_spectro: np.ndarray, flx_cont_mod_spectro: np.ndarray):
+def _hc_model_remove_speckles(flx_obs_spectro: np.ndarray, flx_cont_obs_spectro: np.ndarray, transm_obs_spectro: np.ndarray, star_flx_obs_spectro: np.ndarray, star_flx_cont_obs_spectro: np.ndarray, flx_mod_spectro: np.ndarray, flx_cont_mod_spectro: np.ndarray, noise_obs_spectro: np.ndarray):
     '''
     high-constrast
 
@@ -14,6 +14,7 @@ def _hc_model_remove_speckles(flx_obs_spectro: np.ndarray, flx_cont_obs_spectro:
         star_flx_cont_obs_spectro   (array): Continuum of the star data
         flx_mod_spectro             (array): Model of the companion
         flx_cont_mod_spectro        (array): Continuum of the model of the companion
+        noise_obs_spectro           (array): Noise of the data
 
     Returns:
         flx_mod_spectro           (array): High-resolution content of planet model
@@ -23,9 +24,10 @@ def _hc_model_remove_speckles(flx_obs_spectro: np.ndarray, flx_cont_obs_spectro:
     '''
 
     speckles = star_flx_obs_spectro[:, len(star_flx_obs_spectro[0]) // 2] / star_flx_cont_obs_spectro * flx_cont_obs_spectro  # Speckles modulation (Bidot et al. 2023, Landman et al. 2023)
-    flx_mod_spectro = transm_obs_spectro * (flx_mod_spectro - flx_cont_mod_spectro)
+    alpha =  np.sum(((flx_obs_spectro - speckles) * flx_mod_spectro) / noise_obs_spectro**2) / np.sum((flx_mod_spectro**2) / noise_obs_spectro**2)
+    flx_mod_spectro = alpha * transm_obs_spectro * (flx_mod_spectro - flx_cont_mod_spectro)
 
-    return flx_mod_spectro, speckles
+    return alpha, flx_mod_spectro, speckles
 
 
 def _hc_model_estimate_speckles(flx_obs_spectro: np.ndarray, flx_cont_obs_spectro: np.ndarray, transm_obs_spectro: np.ndarray, star_flx_obs_spectro: np.ndarray, star_flx_cont_obs_spectro: np.ndarray, flx_mod_spectro: np.ndarray, flx_cont_mod_spectro: np.ndarray, err: np.ndarray, bounds: tuple, system_obs_spectro: np.ndarray = np.array([])):
