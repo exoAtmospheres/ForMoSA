@@ -257,26 +257,18 @@ class ModelGrid(object):
 
             if target_res_mod != 'obs':
                 wmin, wmax = wav_obs_spectro[0], wav_obs_spectro[-1]
-                mask_mod_obs = (
-                    (target_wavelength >= wmin * (1 - margin)) &
-                    (target_wavelength <= wmax * (1 + margin)) &
-                    (target_resolution >= max(res_obs_spectro))
-                )
+                mask_mod_obs = ((target_wavelength >= wmin * (1 - margin)) & (target_wavelength <= wmax * (1 + margin)) & (target_resolution >= max(res_obs_spectro)))
                 target_wavelength = target_wavelength[mask_mod_obs]
                 target_resolution = target_resolution[mask_mod_obs]
 
                 # Find wavelength corresponding to the observation accounting for possible overlaps in the target_wavelength grid
-                best_indices = self._find_valid_resolution_region(
-                    target_wavelength, target_resolution, target_wavelength, target_resolution
-                )
+                best_indices = self._find_valid_resolution_region(target_wavelength, target_resolution, target_wavelength, target_resolution)
                 # Removing overlaps in target_wavelength and associated indices in target_resolution
                 target_wavelength = target_wavelength[best_indices]
                 target_resolution = target_resolution[best_indices]
 
             # Same step with the raw wavelength and resolution of the grid
-            _, wavelength_grid, resolution_grid = self._select_wavelength_range(
-                self.grid, target_wavelength, target_resolution
-            )
+            _, wavelength_grid, resolution_grid = self._select_wavelength_range(self.grid, target_wavelength, target_resolution)
         else:
             resolution_grid = self.resolution
 
