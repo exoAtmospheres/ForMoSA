@@ -116,7 +116,7 @@ def check_format(*params, type_expected):
         *params            : list of parameters
         type_expeced (type): Expected type (list, str, tuple, ...)
 
-    Author: Allan Denis
+    Authors: Allan Denis
     '''
 
     wrong_format = []
@@ -130,23 +130,75 @@ def check_format(*params, type_expected):
 # ----------------------------------------------------------------------------------------------------------------------
 
 
-def weighted_quantile(values, quantiles, weights = None):
+def get_weighted_percentile(n, data, weights=None):
     '''
-    Compute quantiles for weighted data.
+    Return the weighted nth percentile(s) of the data
+
+    Args:
+        n (float | list | array): Percentile(s) between 0 and 100
+    data                 (array): Data array, shape (N,) or (N, M)
+    weights      (array | None): Weights array of shape (N,). If None, uniform weights are used.
+
+    Returns
+    -------
+        percentiles (array): Weighted percentile values.
+            - shape (len(n),) if data is 1D
+            - shape (len(n), M) if data is 2D
+
+    Authors: Allan Denis
     '''
-    values = np.asarray(values)
-    quantiles = np.atleast_1d(quantiles)
+
+    # Convert n to array
+    n = np.atleast_1d(n).astype(float)
+
 
     if weights is None:
-        sample_weight = np.ones(len(values))
+        weights = np.ones(data.shape[0])
+    else:
+        weights = np.asarray(weights)
 
-    sorter = np.argsort(values)
-    values = values[sorter]
-    weights = weights[sorter]
-    cumulative_weights = np.cumsum(weights)
-    cumulative_weights /= cumulative_weights[-1]
+    # Normalize weights
+    #weights = weights / np.sum(weights)
 
-    return np.interp(quantiles, cumulative_weights, values)
+    if data.ndim == 1:
+        # Sort data and weights
+        sorter = np.argsort(data)
+        sorted_data = data[sorter]
+        sorted_weights = weights[sorter]
+
+        cumweights = np.cumsum(sorted_weights)
+        cumweights /= cumweights[-1]
+        # Interpolate
+        percentiles = np.interp(n/100, cumweights, sorted_data)
+
+        if percentiles.shape[0] == 1:
+            return percentiles[0]  # return scalar if only one percentile
+        else:
+            return percentiles
+
+    elif data.ndim == 2:
+        n_cols = data.shape[1]
+        percentiles = np.zeros((len(n), n_cols))
+
+        for i in range(n_cols):
+            column = data[:, i]
+            sorter = np.argsort(column)
+            sorted_data = column[sorter]
+            sorted_weights = weights[sorter]
+
+            cumweights = np.cumsum(sorted_weights)
+            cumweights /= cumweights[-1]
+            percentiles[:, i] = np.interp(n/100, cumweights, sorted_data)
+
+        if len(n) == 1:
+            return percentiles[0, :]
+        else:
+            return percentiles
+
+    else:
+        raise ValueError("Data must be 1D or 2D.")
+
+
 
 
 # ----------------------------------------------------------------------------------------------------------------------
