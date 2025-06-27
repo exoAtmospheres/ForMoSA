@@ -65,7 +65,7 @@ class NestedSamplingPlotting(object):
 
 
     @staticmethod
-    def _plot_data_point(ax: matplotlib.axes.Axes, axr: matplotlib.axes.Axes, obs_wav: np.ndarray, obs_flx: np.ndarray, mod_flx: np.ndarray, std_global: float, color: str, edgecolor: str, marker: str, size, label: str=None, yerr: np.ndarray=None, xerr: np.ndarray=None, plot_model: str='plot') -> None:
+    def _plot_data_point(ax: matplotlib.axes.Axes, axr: matplotlib.axes.Axes, obs_wav: np.ndarray, obs_flx: np.ndarray, mod_flx: np.ndarray, std_global: float, color: str, edgecolor: str, marker: str, size, label: str=None, yerr: np.ndarray=None, xerr: np.ndarray=None, plot_model: str='plot', plot_nativ_model: bool = False) -> None:
         '''
         Plot a single data point (either spectroscopic or photometric) with optional error bars and model curve.
 
@@ -102,10 +102,11 @@ class NestedSamplingPlotting(object):
             ax.errorbar(obs_wav, obs_flx, xerr=xerr, fmt='None', ecolor=edgecolor, alpha=0.8)
 
         # Optionally plot the model flux
-        if plot_model == 'plot':
-            ax.plot(obs_wav, mod_flx, c='black')
-        elif plot_model == 'scatter':
-            ax.scatter(obs_wav, mod_flx, marker='o', c='black', s=50)
+        if not(plot_nativ_model):
+            if plot_model == 'plot':
+                ax.plot(obs_wav, mod_flx, c='black')
+            elif plot_model == 'scatter':
+                ax.scatter(obs_wav, mod_flx, marker='o', c='black', s=50)
 
         # Add residuals horizontal line at y=0
         axr.axhline(0, color='k', linestyle='--', alpha=0.5)
@@ -265,7 +266,7 @@ class NestedSamplingPlotting(object):
         return fig, axs[:n_params]
 
 
-    def plot_radar(self, results: dict, param_names: list, quantiles=[0.16, 0.5, 0.84], alpha_fill=0.2) -> tuple[plt.Figure, plt.Axes]:
+    def plot_radar(self, results: dict, param_names: list, quantiles=[16, 50, 84], alpha_fill=0.2) -> tuple[plt.Figure, plt.Axes]:
         '''
         Method to radar plot the samples with normalized scaling based on prior-like ranges, and raw value annotations.
 
@@ -299,7 +300,7 @@ class NestedSamplingPlotting(object):
         # Compute quantiles for each parameter
         q_low, q_med, q_high = [], [], []
         for i in range(samples.shape[1]):
-            q = utils.weighted_quantile(samples[:, i], quantiles, weights=weights)
+            q = utils.get_weighted_percentile(quantiles, samples[:, i], weights=weights)
             q_low.append(q[0])
             q_med.append(q[1])
             q_high.append(q[2])
@@ -398,20 +399,25 @@ class NestedSamplingPlotting(object):
         return color, edgecolor, marker, size
 
 
-    def plot_fit(self, modif_data: dict, best_model: dict, figsize=(10, 7), uncert: str='yes', trans: str='yes', logx: str='no', logy: str='no', norm: str='no', label_ins: str='no') -> tuple[matplotlib.figure.Figure, matplotlib.axes.Axes, matplotlib.axes.Axes, matplotlib.axes.Axes]:
+    def plot_fit(self, modif_data: dict, best_model: dict, param_best_values: dict, figsize=(10, 7), uncert: str='yes', trans: str='yes', logx: str='no', logy: str='no', norm: str='no', label_ins: str='no', plot_high_contrast: bool = False, plot_nativ_model: bool = False, nativ_model: dict = {}, label_params: bool = True) -> tuple[matplotlib.figure.Figure, matplotlib.axes.Axes, matplotlib.axes.Axes, matplotlib.axes.Axes]:
         '''
         Method to plot the best fit compared with the data, including residuals and filter transmissions.
 
         Parameters:
-        modif_data (dict): Modified data {indobs: {'spectro': dict, 'photo': dict}}.
-        best_model (dict): Best model {indobs: {'spectro': dict, 'photo': dict}}.
-        figsize   (tuple): Figure size.
-        uncert      (str): Plot uncertainties if 'yes'.
-        trans       (str): Plot transmission filters if 'yes'.
-        logx        (str): Use logarithmic x-axis if 'yes'.
-        logy        (str): Use logarithmic y-axis if 'yes'.
-        norm        (str): Normalize spectra if 'yes'.
-        label_ins   (str): Show instrument labels if 'yes'.
+        modif_data           (dict): Modified data {indobs: {'spectro': dict, 'photo': dict}}
+        best_model           (dict): Best model {indobs: {'spectro': dict, 'photo': dict}}
+        param_best_values   (dict): Dictionary of best results of nested sampling {param_name: best_value}
+        figsize              (tuple): Figure size.
+        uncert               (str): Plot uncertainties if 'yes'.
+        trans                (str): Plot transmission filters if 'yes'.
+        logx                 (str): Use logarithmic x-axis if 'yes'.
+        logy                 (str): Use logarithmic y-axis if 'yes'.
+        norm                 (str): Normalize spectra if 'yes'.
+        label_ins            (str): Show instrument labels if 'yes'.
+        plot_high_contract  (bool): Whether to plot high contrast data
+        plot_nativ_model    (bool): Whether to plot nativ model
+        nativ_model         (dict): Nativ model
+        label_params        (bool): Whether to label best parameters for the model
 
         Returns:
         tuple: (fig, ax, axr, axr2) where:
@@ -424,6 +430,11 @@ class NestedSamplingPlotting(object):
         '''
 
         self._logger.info('ForMoSA - Best fit and residuals plot')
+
+        if plot_nativ_model and not(nativ_model):
+            msg = 'If you want to plot the nativ model, please provide the dictionary of nativ model'
+            self._logger_error(msg)
+            raise ForMoSAError(msg)
 
         filter_ax = 'no'
 
@@ -443,23 +454,36 @@ class NestedSamplingPlotting(object):
         # This step is done to rescale the data globally such that there is only one significant digit in the flux
         global_residuals = []
         global_flux = []
+        global_wavelength = []
         for obs, mod in zip(modif_data.values(), best_model.values()):
             obs_spectro, obs_photo = obs['spectro'], obs['photo']
             mod_spectro, mod_photo = mod['spectro'], mod['photo']
 
             if len(obs_spectro['wav']) > 0:
-                obs_flx = np.array(obs_spectro['flx'] - obs_spectro['speckles'])
+                obs_flx = np.array(obs_spectro['flx'])
+                obs_wav = np.array(obs_spectro['wav'])
+                if len(obs_spectro['speckles']) > 0 and not(plot_high_contrast):
+                    obs_flx -= obs_spectro['speckles']
+                    continue
+
                 mod_flx = np.array(mod_spectro['flx'])
                 global_residuals.append(obs_flx - mod_flx)
                 global_flux.append(obs_flx)
+                global_wavelength.append(obs_wav)
 
             if len(obs_photo['wav']) > 0:
                 obs_flx = np.array(obs_photo['flx'])
+                obs_wav = np.array(obs_photo['wav'])
                 mod_flx = np.array(mod_photo['flx'])
                 global_residuals.append(obs_flx - mod_flx)
                 global_flux.append(obs_flx)
+                global_wavelength.append(obs_wav)
 
         global_flux = np.concatenate(global_flux)
+        global_wavelength = np.concatenate(global_wavelength)
+        isort = np.argsort(global_wavelength)
+        global_flux, global_wavelength = global_flux[isort], global_wavelength[isort]
+
         # Rescale the global data to one significant digit
         global_flux, factor = utils.scale_to_one_significant_digit(global_flux)
         global_residuals = np.concatenate(global_residuals) / (10 ** factor)
@@ -490,13 +514,18 @@ class NestedSamplingPlotting(object):
                 mod_flx = np.array(mod_spectro['flx']) / (10**factor)
                 err = np.array(obs_spectro.get('err', None)) / (10**factor) if uncert == 'yes' else None
 
+                if len(speckles) > 0 and not(plot_high_contrast):
+                    continue
+                elif len(speckles) > 0:
+                    obs_flx -= speckles
+
                 # Get label for each spectroscopic observation
                 ins = obs_spectro.get('ins', ['unknown'])[0]
                 label = self._get_label(ins, label_ins, used_labels, 'Spectroscopic data')
-                self._plot_data_point(ax, axr, obs_wav, obs_flx, mod_flx + speckles, std_global, color, edgecolor, marker, size, label, err)
+                self._plot_data_point(ax, axr, obs_wav, obs_flx, mod_flx, std_global, color, edgecolor, marker, size, label, err, plot_nativ_model = plot_nativ_model)
 
                 # Residuals histogram
-                axr2.hist((obs_flx - mod_flx - speckles) / std_global, bins=100, orientation='horizontal', color='black', alpha=0.8, density=True)
+                axr2.hist((obs_flx - mod_flx) / std_global, bins=100, orientation='horizontal', color='black', alpha=0.8, density=True)
 
             # --- Photometric data ---
             if len(obs_photo['wav']) > 0:
@@ -525,7 +554,7 @@ class NestedSamplingPlotting(object):
                     files_loaded = False
 
                 label = self._get_label(ins, label_ins, used_labels, 'Photometric data')
-                self._plot_data_point(ax, axr, obs_wav, obs_flx, mod_flx, std_global, color, edgecolor, marker, size, label, yerr = err, xerr = np.array([abs(x[0]-obs_wav), abs(x[-1]-obs_wav)])[:,np.newaxis], plot_model='scatter')
+                self._plot_data_point(ax, axr, obs_wav, obs_flx, mod_flx, std_global, color, edgecolor, marker, size, label, yerr = err, xerr = np.array([abs(x[0]-obs_wav), abs(x[-1]-obs_wav)])[:,np.newaxis], plot_model='scatter', plot_nativ_model=plot_nativ_model)
 
                 # Transmission filters
                 # Create the filter subplot once, outside the loop over instruments
@@ -542,6 +571,10 @@ class NestedSamplingPlotting(object):
                 if trans == 'yes' and files_loaded == True:
                     axfilt.plot(x, y, alpha=0.6, c=color)
 
+            if plot_nativ_model:
+                mod_wav, mod_flx = nativ_model['spectro']['wav'], nativ_model['spectro']['flx'] / (10 ** factor)
+                ax.plot(mod_wav, mod_flx, c='black')
+
         ax.legend(frameon=False)
 
         ax.set_ylabel(rf'Flux ($10^{{{factor}}}$ W m$^{-2}$ $\mu$m$^{-1}$)')
@@ -550,8 +583,11 @@ class NestedSamplingPlotting(object):
         axr2.axis('off')
         ax.tick_params(bottom=False, labelbottom=False)
 
+        if label_params:
+            text_str = ', '.join([f"{key} = {param_best_values[key]:.2g}" for key in param_best_values])
+            ax.text(0.05, 0.95, text_str, transform=ax.transAxes, fontsize=12, verticalalignment='top')
+
         plt.subplots_adjust(left=0.06, right=0.98, bottom=0.11, top=0.97)
 
-        return fig, ax, axr, axr2
-
+        return fig, ax, axr, axr2, (1 / 10 ** factor)
 
