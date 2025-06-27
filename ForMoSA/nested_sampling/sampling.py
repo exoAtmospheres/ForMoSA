@@ -395,7 +395,7 @@ class NestedSampling(object):
                 # Modified spectro
                 modif_data[indobs], modif_model[indobs] = self._compute_model_from_theta(theta, observation.obs_data[indobs]['spectro'], observation.obs_data[indobs]['photo'], modelgrid.adapted_grid[indobs]['spectro'], modelgrid.adapted_grid[indobs]['photo'], interp_method = interp_method, wav_cont = wav_cont[indobs % len(wav_cont)], res_cont = res_cont[indobs % len(res_cont)], bounds_lsq = bounds_lsq[indobs % len(bounds_lsq)], indobs = indobs)
                 # loglike
-                logL = self._compute_loglike_from_model_and_spectra(modif_data, observation.obs_data[indobs]['photo'], modif_model[indobs]['spectro'], modif_model[indobs]['photo'], indobs = indobs, full_logL = full_logL)
+                logL = self._compute_loglike_from_model_and_spectra(observation.obs_data[indobs]['spectro'], observation.obs_data[indobs]['photo'], modif_model[indobs]['spectro'], modif_model[indobs]['photo'], indobs = indobs, full_logL = full_logL)
 
                 # Increment total Log-likelihood
                 FINAL_logL += logL
