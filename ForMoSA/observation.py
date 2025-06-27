@@ -108,8 +108,10 @@ class Observation(object):
         return max(resolutions)
 
     @property
-    def wave_from_max_resolution(self):
-        return
+    def min_resolution(self):
+        resolutions = [res for i in range(self.n_obs) for res in self.obs_data[i]['spectro']['res']]
+
+        return min(resolutions)
 
     @property
     def instruments(self):
@@ -136,6 +138,15 @@ class Observation(object):
                                         'marker': self._config_plotting['marker'][indobs],
                                         'size': float(self._config_plotting['size'][indobs])}
         return _config_plotting
+
+    @property
+    def wavelength_range(self):         # Minimum and maximum wavelength
+        wavelengths = [wl
+            for i in range(self.n_obs)
+            for comp_type in ('spectro', 'photo')
+            for wl in self.obs_data[i][comp_type]['wav']]
+
+        return [min(wavelengths), max(wavelengths)]
 
 
     ##################################################
