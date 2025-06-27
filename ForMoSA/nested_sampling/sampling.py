@@ -190,6 +190,13 @@ class NestedSampling(object):
     def plotting(self) -> NestedSamplingPlotting:    # NestedSamplingPlotting class
         return self._plotting
 
+    @property
+    def nativ_model(self) -> np.ndarray:             # naiv model
+        if not hasattr(self, "results") or self.results is None:
+            msg = 'No results found. Please run the sampling algorithm first.'
+            self._logger.error(msg)
+            raise ForMoSAError(msg)
+        return self._nativ_model
 
     def run(self, results_path: str | os.PathLike, observation: Observation, modelgrid: ModelGrid, interp_method: str = 'linear', wav_cont: list = ['NA'], res_cont: list = ['NA'], bounds_lsq: list = [('NA', 'NA')], emulator: list = ['NA'], full_logL: bool = False) -> None:
         '''
@@ -351,6 +358,10 @@ class NestedSampling(object):
 
         self._logger.info(f'Summary of Nested Sampling : \n {self._summary()}')
 
+        self._compute_best_model(observation, modelgrid, interp_method = interp_method, wav_cont = wav_cont, res_cont = res_cont, bounds_lsq = bounds_lsq)
+        self._nativ_model = self._compute_nativ_model_from_theta(self.list_best_params, modelgrid, observation, wavelength_range=modelgrid.wavelength_range, resolution=observation.min_resolution)
+
+
 
     def _loglike(self, theta: list, observation: Observation, modelgrid: ModelGrid, wav_cont: list = ['NA'], res_cont: list = ['NA'], bounds_lsq: list = ['NA'], interp_method: str = 'linear', emulator: list = ['NA'], full_logL : bool = False) -> float | tuple[dict, np.ndarray, np.ndarray]:
         '''
@@ -396,8 +407,42 @@ class NestedSampling(object):
         return FINAL_logL
 
 
+    def _compute_model_from_theta(self, theta: list, obs_dict_spectro: dict, obs_dict_photo, grid_spectro: ModelGrid | ModelSubGrid, grid_photo: ModelGrid | ModelSubGrid, interp_method: str = 'linear', wav_cont: str | np.ndarray = 'NA', res_cont: str | np.ndarray = 'NA', bounds_lsq: list = ['NA', 'NA'], indobs: int = 0) -> tuple[dict, dict]:
+        '''
+        Method to modify the interpolated synthetic spectra with the different extra-grid parameters.
+        It can perform : Re-calibration on the data, Doppler shifting, Application of a substellar extinction, Application of a rotational velocity,
+        Application of a circumplanetary disk (CPD).
 
-    def build_theoretical_model_from_theta(self, theta: list, grid_spectro: ModelGrid | ModelSubGrid, grid_photo: ModelGrid | ModelSubGrid, interp_method: str = 'linear', indobs: int = 0) -> dict:
+        Parameters
+        ----------
+        theta                                (list): Parameter values randomly picked by the nested sampling
+        obs_dict_spectro                     (dict): Dictionary of observation spectroscopic data {'wav': wav, 'flx': flx, ...}
+        obs_dict_photo                       (dict): Dictionary of observation photometric data {'wav': wav, 'flx': flx, ...}
+        grid_spectro     (ModelGrid | ModelSubGrid): Instance of :class:'~ModelGrid' or :class:'~ModelSubGrid' adapted to spectroscopic data
+        grid_photo       (ModelGrid | ModelSubGrid): Instance of :class:'~ModelGrid' or :class:'~ModelSubGrid' adapted to photometric data
+        interp_method                         (str): Method for the interpolation of the grid
+        wav_cont                 (str | np.ndarray): Wavelength grid for the continuum estimation of the model (used for high contrast)
+        res_cont                 (str | np.ndarray): Resolution of the continuum (used for high contrast)
+        bounds_lsq                           (list): Bounds of the least squares estumatiion (used for high contrast)
+        indobs                                (int): Index of the current observation looping
+
+        Returns:
+            - obs_dict   (dict): Dictionary of modified spectra {'spectro': dict, 'photo': dict}
+            - mod_dict   (dict): Dictionary of modified model {'spectro': dict, 'photo: dict'}
+
+        Author: Simon Petrus, Paulina Palma-Bifani, Allan Denis and Matthieu Ravet
+        '''
+
+        # Step 1: Compute the physical model from theta and the grid
+        mod_dict = self._build_theoretical_model_from_theta(theta, grid_spectro, grid_photo, interp_method='linear', indobs=indobs)
+
+        # Step 2: Apply observational effects (resampling, speckles, scaling if needed)
+        obs_dict, mod_dict = self._apply_observation_effects_to_model(mod_dict, obs_dict_spectro, obs_dict_photo, wav_cont=wav_cont, res_cont=res_cont, bounds_lsq=bounds_lsq, indobs=indobs)
+
+        return obs_dict, mod_dict
+
+
+    def _build_theoretical_model_from_theta(self, theta: list, grid_spectro: ModelGrid | ModelSubGrid, grid_photo: ModelGrid | ModelSubGrid, interp_method: str = 'linear', indobs: int = 0) -> dict:
         '''
         Method to compute the theoretical synthetic spectra based only on theta and grid physics.
         It performs interpolation, Doppler shifting, extinction, vsini broadening, CPD addition and scaling.
@@ -417,14 +462,13 @@ class NestedSampling(object):
 
         Authors: Simon Petrus, Matthieu Ravet and Allan Denis
         '''
-
         def get_param(name, indobs):
             name = name if name in self.params.parameters else f"{name}_{indobs}" if f"{name}_{indobs}" in self.params.parameters else None
             return None if name is None else self.params._get_param_value(name, theta)
 
         # Check input theta length
         if len(theta) != self._params.n_free_parameters:
-            msg = f"theta length ({len(theta)}) does not match expected number of free parameters ({self._params.n_free_parameters})"
+            msg = f"theta length ({len(theta)}) does not match expected number of free parameters ({self._params.n_free_parameters}). The free parameters are {self._params.list_free_params_name}"
             self._logger.critical(msg)
             raise ForMoSAError(msg)
 
@@ -437,9 +481,11 @@ class NestedSampling(object):
                       if key.startswith('par')]
 
         # Retrieve model wavelength and resolution
-        wav_mod_spectro, res_mod_spectro = grid_spectro.wavelength, grid_spectro.resolution
-        wav_mod_photo = grid_photo.wavelength
-        ins_spectro, ins_photo = grid_spectro.instrument, grid_photo.instrument
+
+        if grid_spectro is not None:
+            wav_mod_spectro, res_mod_spectro, ins_spectro = grid_spectro.wavelength, grid_spectro.resolution, getattr(grid_spectro, 'instrument', 'unknown')
+        if grid_photo is not None:
+            wav_mod_photo, ins_photo = grid_photo.wavelength, getattr(grid_photo, 'instrument', 'unknown')
 
         # Interpolate at the values of the grid parameters
         flx_mod_spectro = grid_spectro._interpolate_between_gridpoints(theta_grid, interp_method, indobs)
@@ -507,7 +553,7 @@ class NestedSampling(object):
 
 
 
-    def apply_observation_effects_to_model(self, model_dict: dict, obs_dict_spectro: dict, obs_dict_photo: dict, wav_cont='NA', res_cont='NA', bounds_lsq=['NA','NA'], indobs=0) -> tuple[dict, dict]:
+    def _apply_observation_effects_to_model(self, model_dict: dict, obs_dict_spectro: dict, obs_dict_photo: dict, wav_cont='NA', res_cont='NA', bounds_lsq=['NA','NA'], indobs=0) -> tuple[dict, dict]:
         '''
         Apply effects specifics to observations: resolution resampling, speckle subtraction, and ck estimation when no physical scaling is defined.
 
@@ -557,41 +603,6 @@ class NestedSampling(object):
                     'photo': obs_dict_photo}
 
         return obs_dict, model_dict
-
-
-    def _compute_model_from_theta(self, theta: list, obs_dict_spectro: dict, obs_dict_photo, grid_spectro: ModelGrid | ModelSubGrid, grid_photo: ModelGrid | ModelSubGrid, interp_method: str = 'linear', wav_cont: str | np.ndarray = 'NA', res_cont: str | np.ndarray = 'NA', bounds_lsq: list = ['NA', 'NA'], indobs: int = 0) -> tuple[dict, dict]:
-        '''
-        Method to modify the interpolated synthetic spectra with the different extra-grid parameters.
-        It can perform : Re-calibration on the data, Doppler shifting, Application of a substellar extinction, Application of a rotational velocity,
-        Application of a circumplanetary disk (CPD).
-
-        Parameters
-        ----------
-        theta                                (list): Parameter values randomly picked by the nested sampling
-        obs_dict_spectro                     (dict): Dictionary of observation spectroscopic data {'wav': wav, 'flx': flx, ...}
-        obs_dict_photo                       (dict): Dictionary of observation photometric data {'wav': wav, 'flx': flx, ...}
-        grid_spectro     (ModelGrid | ModelSubGrid): Instance of :class:'~ModelGrid' or :class:'~ModelSubGrid' adapted to spectroscopic data
-        grid_photo       (ModelGrid | ModelSubGrid): Instance of :class:'~ModelGrid' or :class:'~ModelSubGrid' adapted to photometric data
-        interp_method                         (str): Method for the interpolation of the grid
-        wav_cont                 (str | np.ndarray): Wavelength grid for the continuum estimation of the model (used for high contrast)
-        res_cont                 (str | np.ndarray): Resolution of the continuum (used for high contrast)
-        bounds_lsq                           (list): Bounds of the least squares estumatiion (used for high contrast)
-        indobs                                (int): Index of the current observation looping
-
-        Returns:
-            - obs_dict   (dict): Dictionary of modified spectra {'spectro': dict, 'photo': dict}
-            - mod_dict   (dict): Dictionary of modified model {'spectro': dict, 'photo: dict'}
-
-        Author: Simon Petrus, Paulina Palma-Bifani, Allan Denis and Matthieu Ravet
-        '''
-
-        # Step 1: Compute the physical model from theta and the grid
-        mod_dict = self.build_theoretical_model_from_theta(theta, grid_spectro, grid_photo, interp_method='linear', indobs=indobs)
-
-        # Step 2: Apply observational effects (resampling, speckles, scaling if needed)
-        obs_dict, mod_dict = self.apply_observation_effects_to_model(mod_dict, obs_dict_spectro, obs_dict_photo, wav_cont=wav_cont, res_cont=res_cont, bounds_lsq=bounds_lsq, indobs=indobs)
-
-        return obs_dict, mod_dict
 
 
     def _compute_loglike_from_model_and_spectra(self, obs_dict_spectro: dict, obs_dict_photo: dict, mod_dict_spectro: dict, mod_dict_photo: dict, indobs: int = 0, full_logL: bool = False):
@@ -658,7 +669,7 @@ class NestedSampling(object):
         theta               (list): Parameter values randomly picked by the nested sampling
         modelGrid      (ModelGrid): Instance of :class:'~ModelGrid'
 
-        Return:
+        Returns:
             - prior   (list): List of parameter values transformed by the prior laws, in the original order
 
         Authors: Simon Petrus, Matthieu Ravet and Allan Denis
@@ -682,6 +693,70 @@ class NestedSampling(object):
         self.params._theta = prior    # Update the current drawn values for the parameters
 
         return prior
+
+
+    def _compute_best_model(self, observation: Observation, modelgrid: ModelGrid, interp_method: str = 'linear', wav_cont: list = ['NA'], res_cont: list = ['NA'], bounds_lsq: list = ['NA', 'NA']) -> None:
+        '''
+        Method to compute best model from nested sampling output
+
+        Parameters
+        ----------
+        theta                      (list): Parameters values picked by the nested sampling
+        observation         (Observation): Instance of :class:`~ForMoSA.Observation`
+        modelgrid           (Observation): Instance of :class:`~ForMoSA.ModelGrid`
+        wav_cont                   (list): List of wavelength grid used for the continuum (used for high contrast)
+        res_cont                   (list): List of resolution used for the continuum (used for high contrast)
+        bounds_lsq                 (list): List of bounds used for the least squares (used for high contrast)
+        emulator                   (list): Emulator of the grid ('PCA', 'NMF')
+
+        Authors: Allan Denis
+        '''
+
+        best_theta = self.list_best_params
+
+        modif_data, best_model = dict(), dict()
+
+        for indobs in range(observation.n_obs):
+            modif_data[indobs], best_model[indobs] = self._compute_model_from_theta(best_theta, observation.obs_data[indobs]['spectro'], observation.obs_data[indobs]['photo'], modelgrid.adapted_grid[indobs]['spectro'], modelgrid.adapted_grid[indobs]['photo'], interp_method = interp_method, wav_cont = wav_cont[indobs % len(wav_cont)], res_cont = res_cont[indobs % len(res_cont)], bounds_lsq = bounds_lsq[indobs % len(bounds_lsq)], indobs = indobs)
+
+        self._modif_data = modif_data
+        self._best_model = best_model
+
+
+    def _compute_nativ_model_from_theta(self, theta: list, nativ_grid: ModelGrid, observation: Observation, wavelength_range: list | str = 'obs', resolution: float | str = 'nativ'):
+        '''
+        Method to compute the nativ grid
+
+        Parameters
+        ----------
+        theta                      (list): List of parameters to compute the theoretical model
+        nativ_grid            (ModelGrid): Instance of :class:~'ModelGrid'
+        observation         (Observation): Instance of :class:~'Observation'
+        wavelength_range     (list | str): Wavelength range to compute the nativ model to
+        resolution          (float | str): Resolution to decrease the nativ model to.
+
+        Returns
+            - nativ_model: Nativ model transformed by the list of parameters
+
+        Authors: Allan Denis
+        '''
+
+        nativ_model = self._build_theoretical_model_from_theta(theta, nativ_grid, ModelSubGrid('', nativ_grid.grid, self._logger, [], [], 'photo'))
+
+        if wavelength_range != 'obs':
+            cut = (nativ_model['spectro']['wav'] <= wavelength_range[1]) & (nativ_model['spectro']['wav'] >= wavelength_range[0])
+
+        if resolution == 'nativ':
+            resolution = nativ_model['spectro']['res']
+        elif resolution == 'obs':
+            resolution = np.full(len(nativ_model['spectro']['res']), observation.max_resolution)
+        else:     # resolution is a float
+            resolution = np.full(len(nativ_model['spectro']['res']), resolution)
+
+        nativ_model_flx = us.resolution_decreasing(nativ_model['spectro']['wav'], nativ_model['spectro']['flx'], nativ_model['spectro']['res'], nativ_model['spectro']['wav'][cut], resolution[cut])
+        nativ_model['spectro'].update({'wav': nativ_model['spectro']['wav'][cut], 'flx': nativ_model_flx, 'res': resolution[cut]})
+
+        return nativ_model
 
 
     def _save_results(self, results_path: str | os.PathLike) -> None:
@@ -744,34 +819,6 @@ class NestedSampling(object):
 
             self._results['samples'] = np.hstack([self._results['samples'], lum[:, None]])
             self.params._add_parameter(lum_param, r'log(L/L$\mathrm{_{\odot}}$)')
-
-
-    def _compute_best_model(self, observation: Observation, modelgrid: ModelGrid, interp_method: str = 'linear', wav_cont: list = ['NA'], res_cont: list = ['NA'], bounds_lsq: list = ['NA', 'NA']) -> None:
-        '''
-        Method to compute best model from nested sampling output
-
-        Parameters
-        ----------
-        theta                      (list): Parameters values picked by the nested sampling
-        observation         (Observation): Instance of :class:`~ForMoSA.Observation`
-        modelgrid           (Observation): Instance of :class:`~ForMoSA.ModelGrid`
-        wav_cont                   (list): List of wavelength grid used for the continuum (used for high contrast)
-        res_cont                   (list): List of resolution used for the continuum (used for high contrast)
-        bounds_lsq                 (list): List of bounds used for the least squares (used for high contrast)
-        emulator                   (list): Emulator of the grid ('PCA', 'NMF')
-
-        Authors: Allan Denis
-        '''
-
-        best_theta = self.list_best_params
-
-        modif_data, best_model = dict(), dict()
-
-        for indobs in range(observation.n_obs):
-            modif_data[indobs], best_model[indobs] = self._compute_model_from_theta(best_theta, observation.obs_data[indobs]['spectro'], observation.obs_data[indobs]['photo'], modelgrid.adapted_grid[indobs]['spectro'], modelgrid.adapted_grid[indobs]['photo'], interp_method = interp_method, wav_cont = wav_cont[indobs % len(wav_cont)], res_cont = res_cont[indobs % len(res_cont)], bounds_lsq = bounds_lsq[indobs % len(bounds_lsq)], indobs = indobs)
-
-        self._modif_data = modif_data
-        self._best_model = best_model
 
 
     def _summary(self, sigma: int = 2) -> None:

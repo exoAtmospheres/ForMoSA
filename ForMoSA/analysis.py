@@ -12,6 +12,7 @@ from ForMoSA.error import ForMoSAError
 from scipy.interpolate import interp1d
 import numpy as np
 import matplotlib.pyplot as plt
+from tqdm import tqdm
 
 # log
 _log = logging.getLogger(__name__)
@@ -259,19 +260,24 @@ class Analysis(object):
         else:
             self.ns._load_results(self.paths.result_path)
 
+        # Best model cut at the wavelengths of the observations
         self.ns._compute_best_model(self.observation, self.grid, interp_method = interp_method, wav_cont = wav_cont, res_cont = res_cont, bounds_lsq = bounds_lsq)
+        # Best nativ model
+        self.ns._nativ_model = self.ns._compute_nativ_model_from_theta(self.ns.list_best_params, self.grid, self.observation, wavelength_range=self.grid.wavelength_range, resolution=self.observation.min_resolution)
 
 
-    def plot(self, label_ins: str = 'no', trans: str = 'yes', uncert: str = 'yes', figsize_corner: tuple = (15, 15), figsize_chains: tuple = (12, 15), figsize_fit: tuple = (20, 10), save: bool = True) -> None:
+    def plot(self, label_ins: str = 'no', trans: str = 'yes', uncert: str = 'yes', figsize_corner: tuple = (15, 15), figsize_chains: tuple = (12, 15), figsize_fit: tuple = (20, 10), save: bool = True, plot_nativ_model: bool = False, quantiles: list = [16, 50, 84], label_params: bool = True) -> None:
         '''
         Method to use all the plotting methods
 
         Parameters
         ----------
-        label_ins (str): Whether to label instruments in best fit plot
-        trans     (str): Whether to plot the transmission filters
-        uncert    (str): Whether to plot the uncertainties
-        save      (bool): Whether to save the plots, by default True
+        label_ins         (str): Whether to label instruments in best fit plot
+        trans             (str): Whether to plot the transmission filters
+        uncert            (str): Whether to plot the uncertainties
+        save              (bool): Whether to save the plots, by default True
+        plot_nativ_model  (bool): Whether to plot the nativ model
+        quantiles         (list): Quantiles to use in the radar plot and the nativ model uncertainties
 
         Authors: Allan Denis and Arthur Vigan
         '''
@@ -281,6 +287,32 @@ class Analysis(object):
         param_best_values = self.ns.param_best_dict
         modif_data = self.ns.modif_data
         best_model = self.ns.best_model
+        nativ_model = self.ns.nativ_model
+
+        all_nativ_models = []
+
+        if plot_nativ_model:
+            self._logger.info('Compute nativ model for each sample')
+
+            samples = results["samples"]
+            weights = results["weights"]
+
+            n_keep = 1000  # Keep maximum 1000 samples
+
+            if len(samples) > n_keep:
+                indices = np.random.choice(len(samples), n_keep, replace=False)
+                samples = samples[indices]
+                weights = weights[indices]
+
+            for theta in tqdm(samples):
+                nativ_model_i = self.ns._compute_nativ_model_from_theta(theta, self.grid, self.observation, wavelength_range=self.grid.wavelength_range, resolution=self.observation.min_resolution,)
+                all_nativ_models.append(nativ_model_i['spectro']['flx'])
+
+            all_nativ_models = np.array(all_nativ_models)   # shape = (n_samples, n_wavelengths)
+
+            lower_1sigma = utils.get_weighted_percentile(quantiles[0], all_nativ_models, weights=weights)
+            upper_1sigma = utils.get_weighted_percentile(quantiles[-1], all_nativ_models, weights=weights)
+
 
         fig = self.ns.plotting.plot_corner(results, param_names, figsize=figsize_corner)
         if save:
@@ -294,12 +326,15 @@ class Analysis(object):
             fig.savefig(filename)
             self._logger.info(f"Chains plot saved to {filename}")
 
-        fig, _ = self.ns.plotting.plot_radar(results, param_names)
+        fig, _ = self.ns.plotting.plot_radar(results, param_names, quantiles=quantiles)
         if save:
             filename = self.paths.result_path / 'radar_plot.pdf'
             fig.savefig(filename)
             self._logger.info(f'Radar plot saved to {filename}')
-        fig, _, _, _ = self.ns.plotting.plot_fit(modif_data, best_model, label_ins=label_ins, trans=trans, uncert=uncert, figsize=figsize_fit)
+
+        fig, ax, _, _, scaling = self.ns.plotting.plot_fit(modif_data, best_model, param_best_values, label_ins=label_ins, trans=trans, uncert=uncert, figsize=figsize_fit, plot_nativ_model = plot_nativ_model, nativ_model = nativ_model, label_params = label_params)
+        if plot_nativ_model:
+            ax.fill_between(nativ_model['spectro']['wav'], scaling * lower_1sigma, scaling * upper_1sigma, color = 'grey', alpha = 0.4)
         if save:
             filename = self.paths.result_path / 'best_fit_plot.pdf'
             fig.savefig(filename)

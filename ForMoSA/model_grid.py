@@ -132,18 +132,41 @@ class ModelGrid(object):
         return {par : [min(self.key_values[par]), max(self.key_values[par])] for par in self.keys}
 
     @property
-    def wavelength_range(self):         # Minimum and maximum wavelength taking into account the adapted grids for all the observations
+    def wavelength_range(self):
+
         if self.counter == -1:
             msg = 'No adapted grid loaded. Please load or build at least one adapted grid.'
             self._logger.error(msg)
             raise ForMoSAError(msg)
 
-        wavelengths = [wl
-            for i in range(self.counter + 1)
-            for comp_type in ('spectro', 'photo')
-            for wl in self.adapted_grid[i][comp_type].wavelength]
+        wavelengths = []
 
-        return [min(wavelengths), max(wavelengths)]
+        for i in range(self.counter + 1):
+
+            # -- Spectroscopy wavelengths
+            wavelengths.extend(self.adapted_grid[i]['spectro'].wavelength)
+
+            # -- Photometry wavelengths
+            wavelengths.extend(self.adapted_grid[i]['photo'].wavelength)
+
+            # -- Check if photometry filters exist
+            ins_photo = np.atleast_1d(self.adapted_grid[i]['photo'].instrument)
+
+            if len(ins_photo) > 0 and not np.all(ins_photo == 'unknown'):
+                self._check_photometry_filters_exist(ins_photo)
+
+                for pho in ins_photo:
+                    filter_path = utils.find_filter_file(pho)
+                    filter_pho = np.load(filter_path)
+                    x_filt = filter_pho['x_filt']
+
+                    # Append min and max of the filter bandpass
+                    wavelengths.extend([np.min(x_filt), np.max(x_filt)])
+
+        # Convert to numpy for convenience
+        wavelengths = np.asarray(wavelengths)
+
+        return (wavelengths.min(), wavelengths.max())
 
     ##################################################
     # Methods
@@ -511,18 +534,19 @@ class ModelGrid(object):
         return model_spectro, model_photo
 
 
-    def _check_photometry_filters_exist(self, filters: list[str]) -> list[str]:
+    def _check_photometry_filters_exist(self, filters: str | list[str]) -> list[str]:
         '''
         Method to check that photometric filters exist
 
         Parameters
         ----------
-        filters (list of str): List of name of filters
+        filters (str | list of str): List of name of filters
 
 
         Authors: Allan Denis
         '''
 
+        filters = np.atleast_1d(filters)
         missing = []
         for filt in filters:
             if utils.find_filter_file(filt) is None:
@@ -730,16 +754,11 @@ class ModelGrid(object):
         if isinstance(self, ModelSubGrid):
             grid_interp = interpolate_component(self, self.component_type, interp_kwargs)
 
-        # If self is an instance of ModelGrid (Recommended case)
+        # If self is an instance of ModelGrid
         else:
-            grid_interp = []
-            for comp_type in ['spectro', 'photo']:
-                component = self.adapted_grid[indobs][comp_type]
-                # Avoid interpolate_component function to produce Empty grid warnings for the grids that do not correspond to the current observation (e.g. 'spectro' grid for photometric observations)
-                if not(component.is_empty):
-                    grid_interp.append(interpolate_component(component, comp_type, interp_kwargs))
-                if component.is_empty:
-                    grid_interp.append(np.asarray([]))
+            comp_type = 'nativ grid'
+            grid_interp = interpolate_component(self, comp_type, interp_kwargs)
+
         return grid_interp
 
 
@@ -863,7 +882,7 @@ class ModelSubGrid(ModelGrid):
     Authors: Allan Denis
     '''
 
-    def __init__(self, path: str | os.PathLike, parent_grid: xr.DataArray, logger, target_wavelength: np.ndarray, target_resolution: np.ndarray, ins: str = 'unknown', obs_name: str = 'unknown', component_type = 'unknown', grid: xr.DataArray = None):
+    def __init__(self, path: str | os.PathLike, parent_grid: xr.DataArray, logger, target_wavelength: np.ndarray, target_resolution: np.ndarray, component_type: str, ins: str = 'unknown', obs_name: str = 'unknown', grid: xr.DataArray = None):
         super().__init__(path, logger)
 
         # Attributes specific to this subgrid
@@ -917,10 +936,6 @@ class ModelSubGrid(ModelGrid):
 
     @property
     def component_type(self):         # Compoent type ('spectro', 'photo')
-        if self._component_type == 'unknown':
-            if len(self.ins_photo) == 0:
-                return 'spectro'
-            return 'photo'
         return self._component_type
 
     @property
