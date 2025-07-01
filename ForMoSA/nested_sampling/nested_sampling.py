@@ -240,7 +240,7 @@ def loglike(theta, theta_index, global_params, main_file, for_plot='no'):
         flx_mod_spectro_modif, flx_mod_photo_modif = modif_spec_LL[1], modif_spec_LL[2]
  
         # If you want to compute the full logL
-        logL_full = global_params.logL_full[indobs % len(global_params.logL_full)]
+        logL_full = global_params.logL_full[indobs % len(global_params.logL_full)] == "True"
     
         # Computation of the photometry logL
         if len(obs_dict_modif['wav_photo']) != 0:
