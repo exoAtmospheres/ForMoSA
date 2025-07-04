@@ -462,7 +462,7 @@ class NestedSamplingPlotting(object):
             if len(obs_spectro['wav']) > 0:
                 obs_flx = np.array(obs_spectro['flx'])
                 obs_wav = np.array(obs_spectro['wav'])
-                if len(obs_spectro['speckles']) > 0 and not(plot_high_contrast):
+                if obs_spectro['speckles'] != 0 and not(plot_high_contrast):
                     obs_flx -= obs_spectro['speckles']
                     continue
 
@@ -515,13 +515,13 @@ class NestedSamplingPlotting(object):
                 mod_flx = np.array(mod_spectro['flx']) / (10**factor)
                 err = np.array(obs_spectro.get('err', None)) / (10**factor) if uncert == 'yes' else None
 
-                if len(speckles) > 0 and not(plot_high_contrast):
+                if speckles != 0 and not(plot_high_contrast):
                     continue
-                elif len(speckles) > 0:
+                elif speckles != 0:
                     mod_flx += speckles
-                if len(system) > 0 and not(plot_high_contrast):
+                if system != 0 and not(plot_high_contrast):
                     continue
-                elif len(system) > 0:
+                elif system != 0:
                     mod_flx += system
 
                 # Get label for each spectroscopic observation
@@ -553,6 +553,8 @@ class NestedSamplingPlotting(object):
                     filt = np.load(utils.find_filter_file(ins))
                     x = filt['x_filt']
                     y = filt['y_filt']
+                    cut = y > 1e-2   # Sometimes the transmission filters are extremely extended so we apply a cut to make the extension more consistent with the shape of the tramsission filter
+                    x, y = x[cut], y[cut]
                     files_loaded = True
                 except Exception as e:
                     self._logger.warning(f"Could not load filter {ins}: {e}")
