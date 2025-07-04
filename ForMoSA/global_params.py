@@ -33,6 +33,7 @@ class GlobalParameters(object):
         self.n_obs = formosa_path.observation.n_obs
         self.instrument_files = self.paths.observation.instrument_files
         self._read_info(config)
+        self.config_raw = config
 
     ##################################################
     # Representation
@@ -400,7 +401,7 @@ class GlobalParameters(object):
                                                             "# Format : 'chi2' or 'chi2_covariance' or 'chi2_noisescaling' or 'chi2_noisescaling_covariance' or 'CCF_Brogi'",
                                                             "# or 'CCF_Zucker' or 'CCF_custom'",
                                                             "# MOSAIC : Yes"]
-        config['config_inversion'].comments['full_logL'] = ['#Whether to compute the full loglikelihood, i.e. with the additional constant noise terms.',
+        config['config_inversion'].comments['full_logL'] = ['', '#Whether to compute the full loglikelihood, i.e. with the additional constant noise terms.',
                                                             "# Format : 'True' or 'False'",
                                                             "# MOSAIC : No"]
         config['config_inversion'].comments['wav_fit'] = ['', '# Wavelength range(s) used during the nested sampling procedure.',
@@ -412,11 +413,7 @@ class GlobalParameters(object):
         config['config_inversion'].comments['npoint'] = ['', '# Number of living points during the nested sampling procedure.',
                                                          "# Format : int",
                                                          "# MOSAIC : No"]
-
-        config['config_inversion'].comments['hc_type'] = ['# Method to compute the high-contrast model.',
-                                                             "# Format : 'NA' or 'nofit_rm_spec' or 'nonlinear_fit_spec' or 'fit_spec' or 'rm_spec' or 'fit_spec_rm_cont' or 'fit_spec_fit_cont'",
-                                                             "# MOSAIC : Yes"]
-        config['config_inversion'].comments['hc_bounds_lsq'] = ['', '# Least-square bounds.',
+        config['config_inversion'].comments['hc_lower_bounds_lsq'] = ['', '# Least-square bounds.',
                                                              "# Format : 'NA' or 'lower, upper'",
                                                              "# MOSAIC : Yes"]
 
@@ -453,13 +450,13 @@ class GlobalParameters(object):
         config['config_plottings'].comments['color'] = ['# Plottings colors',
                                                             "# Format: 'NA' or str",
                                                             "# MOSAIC : Yes"]
-        config['config_plottings'].comments['edgecolor'] = ['# Plotting edgecolors',
+        config['config_plottings'].comments['edgecolor'] = ['', '# Plotting edgecolors',
                                                              "# Format: 'NA' or str",
                                                              "# MOSAIC : Yes"]
-        config['config_plottings'].comments['marker'] = ['# Plotting edgecolors',
+        config['config_plottings'].comments['marker'] = ['', '# Plotting edgecolors',
                                                              "# Format: 'NA' or str",
                                                              "# MOSAIC : Yes"]
-        config['config_plottings'].comments['size'] = ['# Plotting size',
+        config['config_plottings'].comments['size'] = ['', '# Plotting size',
                                                              "# Format: 'NA' or float",
                                                              "# MOSAIC : Yes"]
 
@@ -475,7 +472,7 @@ class GlobalParameters(object):
         Authors: Allan Denis
         '''
 
-        config = self.config
+        config = self.config_raw
         if name == 'NA':
             name = 'config_file_ref.ini'
         if path is None:
