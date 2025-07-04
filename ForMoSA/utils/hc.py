@@ -86,8 +86,10 @@ def _hc_model_estimate_speckles(flx_obs_spectro: np.ndarray, flx_cont_obs_spectr
     flx_mod_spectro = np.dot(A[:, 0], results.x[0]) / weights
     # Speckles
     speckles = np.dot(A[:, 1:ind_star], results.x[1:ind_star]) / weights
+    # Systematics
+    systematics = np.dot(A[:,ind_star:], results.x[ind_star:]) / weights
 
-    return results.x, flx_mod_spectro, speckles
+    return results.x, flx_mod_spectro, speckles, systematics
 
 
 
