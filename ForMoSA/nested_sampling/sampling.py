@@ -638,9 +638,9 @@ class NestedSampling(object):
             ll_type = self.logL[indobs % len(self.logL)]
             logL_dict = {'chi2': lambda: logL_functions.logL_chi2(residual, obs_dict_spectro['err']),
                          'chi2_covariance': lambda: logL_functions.logL_chi2_covariance(residual, obs_dict_spectro['cov'], obs_dict_spectro['inv_cov'], full=full_logL),
-                         'CCF_Brogi': lambda: logL_functions.logL_CCF_Brogi(obs_dict_spectro['flx'] - obs_dict_spectro['speckles'] - obs_dict_spectro['system'], mod_dict_spectro['flx']),
-                         'CCF_Zucker': lambda: logL_functions.logL_CCF_Zucker(obs_dict_spectro['flx'] - obs_dict_spectro['speckles'] - obs_dict_spectro['system'], mod_dict_spectro['flx']),
-                         'CCF_custom': lambda: logL_functions.logL_CCF_custom(obs_dict_spectro['flx'] - obs_dict_spectro['speckles'] - obs_dict_spectro['system'], mod_dict_spectro['flx'], obs_dict_spectro['err']),
+                         'CCF_Brogi': lambda: logL_functions.logL_CCF_Brogi(obs_dict_spectro['flx'] - obs_dict_spectro['speckles'] - obs_dict_spectro['estimated_system'], mod_dict_spectro['flx']),
+                         'CCF_Zucker': lambda: logL_functions.logL_CCF_Zucker(obs_dict_spectro['flx'] - obs_dict_spectro['speckles'] - obs_dict_spectro['estimated_system'], mod_dict_spectro['flx']),
+                         'CCF_custom': lambda: logL_functions.logL_CCF_custom(obs_dict_spectro['flx'] - obs_dict_spectro['speckles'] - obs_dict_spectro['estimated_system'], mod_dict_spectro['flx'], obs_dict_spectro['err']),
                          'chi2_noisescaling': lambda: logL_functions.logL_chi2_noisescaling(residual, obs_dict_spectro['err'], full=full_logL),
                          'chi2_noisescaling_covariance': lambda: logL_functions.logL_chi2_noisescaling_covariance(residual, obs_dict_spectro['cov'], obs_dict_spectro['inv_cov'], full=full_logL)}
             logL_spectro = logL_dict.get(ll_type, lambda: 0)()
