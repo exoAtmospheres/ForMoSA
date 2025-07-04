@@ -511,7 +511,7 @@ class NestedSamplingPlotting(object):
                 obs_wav = np.array(obs_spectro['wav'])
                 obs_flx = np.array(obs_spectro['flx']) / (10**factor)
                 speckles = np.array(obs_spectro['speckles']) / (10**factor)
-                system = np.array(obs_spectro['system']) / (10 ** factor)
+                system = np.array(obs_spectro['estimated_system']) / (10 ** factor)
                 mod_flx = np.array(mod_spectro['flx']) / (10**factor)
                 err = np.array(obs_spectro.get('err', None)) / (10**factor) if uncert == 'yes' else None
 

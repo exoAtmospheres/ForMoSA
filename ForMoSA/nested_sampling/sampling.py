@@ -491,6 +491,7 @@ class NestedSampling(object):
         flx_mod_spectro = grid_spectro._interpolate_between_gridpoints(theta_grid, interp_method, indobs)
         flx_mod_photo = grid_photo._interpolate_between_gridpoints(theta_grid, interp_method, indobs)
 
+
         # Save native model before any transformation
         flx_mod_spectro_nativ = np.copy(flx_mod_spectro)
 
@@ -585,11 +586,11 @@ class NestedSampling(object):
         if len(obs_dict_spectro['star_flx']) > 0:
             flx_cont_mod = us.continuum_estimate(obs_dict_spectro['wav'], model_dict['spectro']['flx'], model_dict['spectro']['res'], wav_cont, res_cont)
             if self.logL[indobs % len(self.logL)].startswith('chi2'):
-                contributions, model_dict['spectro']['flx'], obs_dict_spectro['speckles'], obs_dict_spectro['system'] = hc._hc_model_estimate_speckles(obs_dict_spectro['flx'], obs_dict_spectro['flx_cont'], obs_dict_spectro['transm'], obs_dict_spectro['star_flx'], obs_dict_spectro['star_flx_cont'], model_dict['spectro']['flx'], flx_cont_mod, obs_dict_spectro['err'], bounds_lsq, obs_dict_spectro['system'])
+                contributions, model_dict['spectro']['flx'], obs_dict_spectro['speckles'], obs_dict_spectro['estimated_system'] = hc._hc_model_estimate_speckles(obs_dict_spectro['flx'], obs_dict_spectro['flx_cont'], obs_dict_spectro['transm'], obs_dict_spectro['star_flx'], obs_dict_spectro['star_flx_cont'], model_dict['spectro']['flx'], flx_cont_mod, obs_dict_spectro['err'], bounds_lsq, obs_dict_spectro['system'])
             else:
                 _, model_dict['spectro']['flx'], obs_dict_spectro['speckles'] = hc._hc_model_remove_speckles(obs_dict_spectro['flx'], obs_dict_spectro['flx_cont'], obs_dict_spectro['transm'], obs_dict_spectro['star_flx'], obs_dict_spectro['star_flx_cont'], model_dict['spectro']['flx'], flx_cont_mod, obs_dict_spectro['err'])
         else:
-            obs_dict_spectro['speckles'], obs_dict_spectro['system'] = 0, 0
+            obs_dict_spectro['speckles'], obs_dict_spectro['estimated_system'] = 0, 0
 
         # Optional analytical ck when no r/d available
         if model_dict['spectro']['ck'] == 1 and len(obs_dict_spectro['star_flx']) == 0:
@@ -632,7 +633,7 @@ class NestedSampling(object):
         # LogL Spectroscopy
         logL_spectro = 0
         if len(obs_dict_spectro['wav']) > 0:
-            residual = obs_dict_spectro['flx'] - mod_dict_spectro['flx'] - obs_dict_spectro['system'] - obs_dict_spectro['speckles']
+            residual = obs_dict_spectro['flx'] - mod_dict_spectro['flx'] - obs_dict_spectro['estimated_system'] - obs_dict_spectro['speckles']
 
             ll_type = self.logL[indobs % len(self.logL)]
             logL_dict = {'chi2': lambda: logL_functions.logL_chi2(residual, obs_dict_spectro['err']),
