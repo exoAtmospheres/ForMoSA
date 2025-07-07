@@ -462,9 +462,10 @@ class NestedSamplingPlotting(object):
             if len(obs_spectro['wav']) > 0:
                 obs_flx = np.array(obs_spectro['flx'])
                 obs_wav = np.array(obs_spectro['wav'])
-                if obs_spectro['speckles'] != 0 and not(plot_high_contrast):
-                    obs_flx -= obs_spectro['speckles']
+                if not(plot_high_contrast) and np.unique(obs_spectro['speckles'][0] != 0) and len(modif_data) > 1:
                     continue
+                elif len(modif_data) == 1:
+                    plot_high_contrast = True
 
                 mod_flx = np.array(mod_spectro['flx'])
                 global_residuals.append(obs_flx - mod_flx)
@@ -515,13 +516,13 @@ class NestedSamplingPlotting(object):
                 mod_flx = np.array(mod_spectro['flx']) / (10**factor)
                 err = np.array(obs_spectro.get('err', None)) / (10**factor) if uncert == 'yes' else None
 
-                if speckles != 0 and not(plot_high_contrast):
+                if np.unique(speckles)[0] != 0 and not(plot_high_contrast):
                     continue
-                elif speckles != 0:
+                elif np.unique(speckles)[0] != 0:
                     mod_flx += speckles
-                if system != 0 and not(plot_high_contrast):
+                if np.unique(system)[0] != 0 and not(plot_high_contrast):
                     continue
-                elif system != 0:
+                elif np.unique(system)[0] != 0:
                     mod_flx += system
 
                 # Get label for each spectroscopic observation

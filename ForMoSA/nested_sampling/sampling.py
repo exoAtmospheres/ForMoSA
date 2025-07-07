@@ -553,7 +553,6 @@ class NestedSampling(object):
         }
 
 
-
     def _apply_observation_effects_to_model(self, model_dict: dict, obs_dict_spectro: dict, obs_dict_photo: dict, wav_cont='NA', res_cont='NA', bounds_lsq=['NA','NA'], indobs=0) -> tuple[dict, dict]:
         '''
         Apply effects specifics to observations: resolution resampling, speckle subtraction, and ck estimation when no physical scaling is defined.
@@ -585,12 +584,14 @@ class NestedSampling(object):
         # High contrast modeling if stellar flux is available
         if len(obs_dict_spectro['star_flx']) > 0:
             flx_cont_mod = us.continuum_estimate(obs_dict_spectro['wav'], model_dict['spectro']['flx'], model_dict['spectro']['res'], wav_cont, res_cont)
+            flx_cont_mod_response = us.continuum_estimate(obs_dict_spectro['wav'], model_dict['spectro']['flx'] * obs_dict_spectro['transm'], model_dict['spectro']['res'], wav_cont, res_cont)
             if self.logL[indobs % len(self.logL)].startswith('chi2'):
-                contributions, model_dict['spectro']['flx'], obs_dict_spectro['speckles'], obs_dict_spectro['estimated_system'] = hc._hc_model_estimate_speckles(obs_dict_spectro['flx'], obs_dict_spectro['flx_cont'], obs_dict_spectro['transm'], obs_dict_spectro['star_flx'], obs_dict_spectro['star_flx_cont'], model_dict['spectro']['flx'], flx_cont_mod, obs_dict_spectro['err'], bounds_lsq, obs_dict_spectro['system'])
+                contributions, model_dict['spectro']['flx'], obs_dict_spectro['speckles'], obs_dict_spectro['estimated_system'] = hc._hc_model_estimate_speckles(obs_dict_spectro['flx'], obs_dict_spectro['flx_cont'], obs_dict_spectro['transm'], obs_dict_spectro['star_flx'], obs_dict_spectro['star_flx_cont'], model_dict['spectro']['flx'], flx_cont_mod, flx_cont_mod_response, obs_dict_spectro['err'], bounds_lsq, obs_dict_spectro['system'])
             else:
                 _, model_dict['spectro']['flx'], obs_dict_spectro['speckles'] = hc._hc_model_remove_speckles(obs_dict_spectro['flx'], obs_dict_spectro['flx_cont'], obs_dict_spectro['transm'], obs_dict_spectro['star_flx'], obs_dict_spectro['star_flx_cont'], model_dict['spectro']['flx'], flx_cont_mod, obs_dict_spectro['err'])
+                obs_dict_spectro['estimated_system'] = np.repeat(0, len(obs_dict_spectro['wav']))
         else:
-            obs_dict_spectro['speckles'], obs_dict_spectro['estimated_system'] = 0, 0
+            obs_dict_spectro['speckles'], obs_dict_spectro['estimated_system'] = np.repeat(0, len(obs_dict_spectro['wav'])), np.repeat(0, len(obs_dict_spectro['wav']))
 
         # Optional analytical ck when no r/d available
         if model_dict['spectro']['ck'] == 1 and len(obs_dict_spectro['star_flx']) == 0:
