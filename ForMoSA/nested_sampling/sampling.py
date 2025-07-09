@@ -743,20 +743,28 @@ class NestedSampling(object):
         Authors: Allan Denis
         '''
 
-        nativ_model = self._build_theoretical_model_from_theta(theta, nativ_grid, ModelSubGrid('', nativ_grid.grid, self._logger, [], [], 'photo'))
-
         if wavelength_range != 'obs':
-            cut = (nativ_model['spectro']['wav'] <= wavelength_range[1]) & (nativ_model['spectro']['wav'] >= wavelength_range[0])
+            cut = (nativ_grid.wavelength <= wavelength_range[1]) & (nativ_grid.wavelength >= wavelength_range[0])
+            target_wavelength = nativ_grid.wavelength[cut]
+        else:
+            cut = (nativ_grid.wavelength <= observation.wavelength_range[0]) & (nativ_grid.wavelength >= observation.wavelength_range[1])
+            target_wavelength = nativ_grid.wavelength[cut]
+
+        target_resolution = observation.min_resolution
+
+        indices = nativ_grid._find_valid_resolution_region(nativ_grid.wavelength, nativ_grid.resolution, target_wavelength, target_resolution)
+        nativ_grid.grid = nativ_grid.grid.isel(wavelength=indices)
+        nativ_model = self._build_theoretical_model_from_theta(theta, nativ_grid, ModelSubGrid('', nativ_grid.grid, self._logger, [], [], 'photo'))
 
         if resolution == 'nativ':
             resolution = nativ_model['spectro']['res']
         elif resolution == 'obs':
-            resolution = np.full(len(nativ_model['spectro']['res']), observation.max_resolution)
+            resolution = np.full(len(nativ_model['spectro']['res']), observation.min_resolution)
         else:     # resolution is a float
             resolution = np.full(len(nativ_model['spectro']['res']), resolution)
 
-        nativ_model_flx = us.resolution_decreasing(nativ_model['spectro']['wav'], nativ_model['spectro']['flx'], nativ_model['spectro']['res'], nativ_model['spectro']['wav'][cut], resolution[cut])
-        nativ_model['spectro'].update({'wav': nativ_model['spectro']['wav'][cut], 'flx': nativ_model_flx, 'res': resolution[cut]})
+        nativ_model_flx = us.resolution_decreasing(nativ_model['spectro']['wav'], nativ_model['spectro']['flx'], nativ_model['spectro']['res'], nativ_model['spectro']['wav'], resolution)
+        nativ_model['spectro'].update({'wav': nativ_model['spectro']['wav'], 'flx': nativ_model_flx, 'res': resolution})
 
         return nativ_model
 
