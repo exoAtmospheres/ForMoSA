@@ -100,6 +100,14 @@ class ModelGrid(object):
     def grid(self):                     # Grid
         return self._grid
 
+    @grid.setter
+    def grid(self, grid_array):         # Grid setter
+        self._grid = grid_array
+        self._wavelength = grid_array.coords['wavelength'].values
+        self._resolution = grid_array.attrs['res']
+        self._attrs = grid_array.attrs
+        return grid_array
+
     @property
     def adapted_grid(self):             # Adapted grid
         return self._adapted_grid
