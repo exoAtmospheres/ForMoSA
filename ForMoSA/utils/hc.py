@@ -24,8 +24,9 @@ def _hc_model_remove_speckles(flx_obs_spectro: np.ndarray, flx_cont_obs_spectro:
     '''
 
     speckles = star_flx_obs_spectro[:, len(star_flx_obs_spectro[0]) // 2] / star_flx_cont_obs_spectro * flx_cont_obs_spectro  # Speckles modulation (Bidot et al. 2023, Landman et al. 2023)
+    flx_mod_spectro = transm_obs_spectro * (flx_mod_spectro - flx_cont_mod_spectro)
     alpha =  np.sum(((flx_obs_spectro - speckles) * flx_mod_spectro) / noise_obs_spectro**2) / np.sum((flx_mod_spectro**2) / noise_obs_spectro**2)
-    flx_mod_spectro = alpha * transm_obs_spectro * (flx_mod_spectro - flx_cont_mod_spectro)
+    flx_mod_spectro = alpha * flx_mod_spectro
 
     return alpha, flx_mod_spectro, speckles
 
