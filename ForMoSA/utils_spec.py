@@ -84,9 +84,7 @@ def resolution_decreasing(wav_input, flx_input, res_input, wav_output, res_outpu
         fwhm_output = wav_output / res_output
 
         # Estimate of the sigma for the convolution as a function of the wavelength and decrease the resolution
-        max_fwhm = np.nanmax([fwhm_input, fwhm_output], axis=0)
-        min_fwhm = np.nanmin([fwhm_input, fwhm_output], axis=0)
-        fwhm_conv = np.sqrt(max_fwhm ** 2 - min_fwhm ** 2)
+        fwhm_conv = np.sqrt(np.maximum(fwhm_output**2 - fwhm_input**2, 0.0))
         sigma_conv = fwhm_conv / 2.355
         flx_output = convolve_and_sample(wav_output, sigma_conv, wav_input, flx_input, force_int=True)
 

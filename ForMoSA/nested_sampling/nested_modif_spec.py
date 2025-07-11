@@ -146,9 +146,10 @@ def modif_spec(global_params, theta, theta_index,
 
 
     # High contrast model
-    if global_params.hc_type[indobs % len(global_params.hc_type)] != "NA":
+    if len(obs_dict['star_flx']) != 0:
         # Least Squares inversion
-        _, flx_mod_spectro = hc_model(global_params, obs_dict, flx_mod_spectro, indobs)    
+        obs_dict['contribution'], flx_mod_spectro, obs_dict['speckles'], obs_dict['estimated_system'] = hc_model(global_params, obs_dict, flx_mod_spectro, indobs)
+        flx_mod_spectro += obs_dict['speckles'] + obs_dict['estimated_system']
     else:
         pass
 
