@@ -71,7 +71,6 @@ class ForMoSAPaths(object):
         self._observation = Observation(self.observation_path, self.logger)
         self._grid = ModelGrid(self.model_path, self.logger)
         self._grid._read_grid()
-        self.grid.grid.attrs = self.grid.attrs
 
         self._path_error = False
 

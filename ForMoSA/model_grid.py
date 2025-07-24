@@ -140,7 +140,7 @@ class ModelGrid(object):
         return {par : [min(self.key_values[par]), max(self.key_values[par])] for par in self.keys}
 
     @property
-    def wavelength_range(self):
+    def wavelength_range(self):         # Global wavelength range of observations accounting for photometry and spectroscopy
 
         if self.counter == -1:
             msg = 'No adapted grid loaded. Please load or build at least one adapted grid.'
@@ -176,6 +176,7 @@ class ModelGrid(object):
 
         return (wavelengths.min(), wavelengths.max())
 
+
     ##################################################
     # Methods
     ##################################################
@@ -194,6 +195,7 @@ class ModelGrid(object):
         self._attrs = ds.attrs
         ds.attrs['res'] = self.resolution    # self.resolution returns the minimum between self._resolution and the Nyquist sampled resolution
         self._grid = ds['grid']
+        self.grid.attrs = self.attrs
 
 
     def _find_valid_resolution_region(self, wavelength: np.ndarray, resolution: np.ndarray, target_wavelength: np.ndarray, target_resolution: np.ndarray | float) -> np.ndarray:
@@ -212,10 +214,11 @@ class ModelGrid(object):
         Authors: Allan Denis
         '''
 
-        valid = resolution > 0
-        edges = np.diff(valid.astype(int))
-        starts = np.where(np.insert(edges == 1, 0, valid[0]))[0]
-        ends = np.where(np.append(edges == -1, valid[-1]))[0] + 1
+        increasing = np.insert(np.diff(wavelength) > 0, 0, True)  # True is wavelength[i+1] > wavelength[i]
+
+        edges = np.diff(increasing.astype(int))
+        starts = np.where(np.insert(edges == 1, 0, increasing[0]))[0]
+        ends = np.where(np.append(edges == -1, increasing[-1]))[0] + 1
 
         candidate_regions = []
         for start, end in zip(starts, ends):
@@ -227,18 +230,10 @@ class ModelGrid(object):
                 continue
             sub_start = start + np.where(overlap_mask)[0][0]
             sub_end = start + np.where(overlap_mask)[0][-1] + 1
-            res_metric = (
-                np.min(resolution[sub_start:sub_end])
-                if isinstance(target_resolution, np.ndarray)
-                else np.min(resolution[sub_start:sub_end])
-            )
+            res_metric = np.min(resolution[sub_start:sub_end])
             candidate_regions.append((sub_start, sub_end, res_metric))
 
-        max_res = (
-            np.max(target_resolution)
-            if isinstance(target_resolution, np.ndarray)
-            else target_resolution
-        )
+        max_res = (np.max(target_resolution) if isinstance(target_resolution, np.ndarray) else target_resolution)
 
         best_diff = np.inf
         best_indices = None
@@ -324,8 +319,8 @@ class ModelGrid(object):
         Authors: Allan Denis
         '''
 
-        wavelength = model.coords['wavelength'].values
-        resolution = model.attrs['res']
+        wavelength = self.wavelength
+        resolution = self.resolution
 
         best_indices = self._find_valid_resolution_region(wavelength, resolution, target_wavelength, target_resolution)
 
@@ -434,7 +429,6 @@ class ModelGrid(object):
         self._logger.info(f' Adapt model {self.name} to the observation {obs_name}')
 
         target_wavelength_spectro, target_resolution_spectro, resolution_model = self._determine_target_wavelength_and_resolution(wav_obs_spectro, res_obs_spectro, target_res_mod, params)
-
         if len(wav_obs_photo) > 0:
             self._check_photometry_filters_exist(ins_photo)
 
@@ -518,23 +512,36 @@ class ModelGrid(object):
                 # Photometry
                 if len(wavelength_photo) > 0 and len(ins_photo) > 0:
                     model_photo = np.zeros(len(ins_photo))
-
-                    # Check that all the filters file exist
                     self._check_photometry_filters_exist(ins_photo)
+
                     for pho_ind, pho in enumerate(ins_photo):
                         filter_path = utils.find_filter_file(pho)
                         filter_pho = np.load(filter_path)
                         x_filt = filter_pho['x_filt']
                         y_filt = filter_pho['y_filt']
-                        filter_interp = interp1d(x_filt, y_filt, fill_value="extrapolate")
-                        y_filt_interp = filter_interp(self.wavelength)
+                        cut = y_filt > 1e-2
+                        x_filt, y_filt = x_filt[cut], y_filt[cut]
 
-                        ind = np.where((self.wavelength > min(x_filt)) & (self.wavelength < max(x_filt)))
-                        delta_lambda = self.wavelength[ind][1] - self.wavelength[ind][0]
-                        num = np.sum(model_to_adapt[ind] * y_filt_interp[ind] * delta_lambda)
+                        # Sekect useful part of the spectrum
+                        model_sub, _, _ = self._select_wavelength_range(model_to_adapt, x_filt, np.zeros(len(x_filt)))
 
-                        denom = np.sum(y_filt_interp[ind] * delta_lambda)
+                        wl_sub = model_sub.coords["wavelength"].values
+                        flux_sub = model_sub.values
+
+                        # Interpolate filter on current spectral grid
+                        filter_interp = interp1d(x_filt, y_filt, kind="linear", bounds_error=False, fill_value=0)
+                        y_filt_interp = filter_interp(wl_sub)
+
+                        # Spectral width
+                        delta_lambda = np.diff(wl_sub)
+                        delta_lambda = np.append(delta_lambda, delta_lambda[-1])  # Last point must have a weights
+
+                        # Integrate model on filter bandwidth
+                        num = np.sum(flux_sub * y_filt_interp * delta_lambda)
+                        denom = np.sum(y_filt_interp * delta_lambda)
+
                         model_photo[pho_ind] = num / denom if denom != 0 else np.nan
+
 
         except ForMoSAError as e:   # This line is necessary when we are in a Threapool to stop the execution of the code
             raise e
@@ -949,4 +956,8 @@ class ModelSubGrid(ModelGrid):
     @property
     def is_empty(self):               # Whether the grid is empty
         return len(self.wavelength) == 0
+
+    @property
+    def grid(self):
+        return self._grid
 
