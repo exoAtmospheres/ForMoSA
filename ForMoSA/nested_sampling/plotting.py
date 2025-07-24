@@ -15,15 +15,17 @@ class NestedSamplingPlotting(object):
     ----------
     logger               (Logger): Logger used
     plotting_config_dict   (dict): Dictionary of plotting configurations {'color': colors, 'edgecolor': edgecolors, 'marker': markers, 'size': sizes}
+    burn_in                 (int): Burn-in to apply to the chains
 
     Authors: Paulina Palma-Bifani, Matthieu Ravet and Allan Denis
     '''
 
-    def __init__(self, logger, plotting_config_dict: dict):
+    def __init__(self, logger, plotting_config_dict: dict, burn_in: int = 0):
 
         self._logger = logger
         self._color_out = 'magenta'
         self._plotting_config = plotting_config_dict
+        self._burn_in = burn_in
 
 
     ##################################################
@@ -57,6 +59,16 @@ class NestedSamplingPlotting(object):
     @property
     def size(self):                    # Size used for the best fit plotting
         return self.plotting_config['size']
+
+    @property
+    def burn_in(self):                 # Burn-in to apply to the chains
+        return self._burn_in
+
+    @burn_in.setter                    # Burn-in setter
+    def burn_in(self, burn_in):
+        self._burn_in = burn_in
+        return burn_in
+
 
 
     ##################################################
@@ -179,8 +191,8 @@ class NestedSamplingPlotting(object):
 
         fig = plt.figure(figsize=figsize)
         fig.clf()
-        fig = corner.corner(samples,
-                            weights=weights,
+        fig = corner.corner(samples[self.burn_in:],
+                            weights=weights[self.burn_in:],
                             labels=param_names,
                             range=rangee,
                             levels=levels_sig,
@@ -248,12 +260,14 @@ class NestedSamplingPlotting(object):
             param_name = param_names[param_idx]
             ax.plot(samples[:, param_idx], color=self.color_out, alpha=0.8)
             ax.set_ylabel(param_name)
+            ax.axvline(self.burn_in, linestyle='--', color='red')
+            ax.text(x = 0.8, y = 0.8, s='burn in', color='red', transform=ax.transAxes, fontsize=14)
 
             if show_weights:
                 ax_w = ax.twinx()
                 ax_w.plot(weights, color='black', alpha=0.4)
                 ax_w.set_yticks([])
-                ax_w.text(x=0, y=0.00005, s='weights', fontsize=8)
+                ax_w.text(x=0.8, y=0.75, s='weights', color='grey', transform=ax_w.transAxes, fontsize=14)
 
             if param_name != 'log(L/L$\\mathrm{_{\\odot}}$)':
                 ax.axhline(param_best_values[param_name], color='k', linestyle='--')
@@ -290,7 +304,7 @@ class NestedSamplingPlotting(object):
             self._logger.error(msg)
             raise ForMoSAError(msg)
 
-        samples, weights = results['samples'], results['weights']
+        samples, weights = results['samples'][self.burn_in:], results['weights'][self.burn_in:]
 
         if len(param_names) != samples.shape[1]:
             msg = f' param_names has a len ({len(param_names)}) different than the sampling shape ({samples.shape[1]}).'
@@ -399,25 +413,25 @@ class NestedSamplingPlotting(object):
         return color, edgecolor, marker, size
 
 
-    def plot_fit(self, modif_data: dict, best_model: dict, param_best_values: dict, figsize=(10, 7), uncert: str='yes', trans: str='yes', logx: str='no', logy: str='no', norm: str='no', label_ins: str='no', plot_high_contrast: bool = False, plot_nativ_model: bool = False, nativ_model: dict = {}, label_params: bool = True) -> tuple[matplotlib.figure.Figure, matplotlib.axes.Axes, matplotlib.axes.Axes, matplotlib.axes.Axes]:
+    def plot_fit(self, modif_data: dict, best_model: dict, param_best_values: dict, figsize=(10, 7), uncert: str='yes', trans: str='yes', logx: str='no', logy: str='no', norm: str='no', label_ins: str='no', plot_high_contrast: bool = False, plot_nativ_model: bool = False, nativ_model: dict = {}, label_params: bool = False) -> tuple[matplotlib.figure.Figure, matplotlib.axes.Axes, matplotlib.axes.Axes, matplotlib.axes.Axes]:
         '''
         Method to plot the best fit compared with the data, including residuals and filter transmissions.
 
         Parameters:
         modif_data           (dict): Modified data {indobs: {'spectro': dict, 'photo': dict}}
         best_model           (dict): Best model {indobs: {'spectro': dict, 'photo': dict}}
-        param_best_values   (dict): Dictionary of best results of nested sampling {param_name: best_value}
-        figsize              (tuple): Figure size.
-        uncert               (str): Plot uncertainties if 'yes'.
-        trans                (str): Plot transmission filters if 'yes'.
-        logx                 (str): Use logarithmic x-axis if 'yes'.
-        logy                 (str): Use logarithmic y-axis if 'yes'.
-        norm                 (str): Normalize spectra if 'yes'.
-        label_ins            (str): Show instrument labels if 'yes'.
-        plot_high_contract  (bool): Whether to plot high contrast data
-        plot_nativ_model    (bool): Whether to plot nativ model
-        nativ_model         (dict): Nativ model
-        label_params        (bool): Whether to label best parameters for the model
+        param_best_values    (dict): Dictionary of best results of nested sampling {param_name: best_value}
+        figsize             (tuple): Figure size.
+        uncert                (str): Plot uncertainties if 'yes'.
+        trans                 (str): Plot transmission filters if 'yes'.
+        logx                  (str): Use logarithmic x-axis if 'yes'.
+        logy                  (str): Use logarithmic y-axis if 'yes'.
+        norm                  (str): Normalize spectra if 'yes'.
+        label_ins             (str): Show instrument labels if 'yes'.
+        plot_high_contract   (bool): Whether to plot high contrast data
+        plot_nativ_model     (bool): Whether to plot nativ model
+        nativ_model          (dict): Nativ model
+        label_params         (bool): Whether to label best parameters for the model
 
         Returns:
         tuple: (fig, ax, axr, axr2) where:
