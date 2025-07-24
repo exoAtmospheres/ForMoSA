@@ -91,20 +91,48 @@ class Parameter(object):
     def bounds(self):           # Bounds (for Uniform and log-Uniform priors)
         return self._bounds
 
+    @bounds.setter               # Setter for bounds
+    def bounds(self, bounds_value):
+        if not (isinstance(bounds_value, list) and len(bounds_value) == 2):
+            msg = " Bounds have to be a list [min, max] with uniform or log uniform priors."
+            raise ForMoSAError(msg)
+        self._bounds = bounds_value
+        return self._bounds
+
     @property
     def mean(self):             # Mean (for Gaussian priors)
+        return self._mean
+
+    @mean.setter                # Setter for mean
+    def mean(self, mean_value):
+        self._mean = mean_value
         return self._mean
 
     @property
     def std(self):              # Standard deviation (for Gaussian priors)
         return self._std
 
+    @std.setter                 # Setter for std
+    def std(self, std_value):
+        self._std = std_value
+        return self._std
+
     @property
     def value(self):            # Value (for Constant prior)
         return self._value
 
+    @value.setter
+    def value(self, val):      # Setter for value
+        self._value = val
+        return self._value
+
     @property
     def vsini_function(self):   # Function for v.sini transformation
+        return self._vsini_function
+
+    @vsini_function.setter     # Setter for v.sini function
+    def vsini_function(self, vsini_function_value):
+        self._vsini_function = vsini_function_value
         return self._vsini_function
 
     @property
@@ -114,6 +142,9 @@ class Parameter(object):
     @property
     def theta(self):            # Current value randomly picked by the nested sampling
         return self._theta
+
+
+
 
 
     ##################################################
