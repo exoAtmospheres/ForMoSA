@@ -467,11 +467,12 @@ class GlobalParameters(object):
 
         Parameters
         ----------
-        updated : dict
-            Le dictionnaire contenant les valeurs à synchroniser (par défaut self.config).
-        raw : ConfigObj
-            Le ConfigObj cible à mettre à jour (par défaut self.config_raw).
+        updated_config (dict) : Update config dictionnary
+        raw_config (ConfigObj): The ConfigObj object to update
+
+        Authors: Allan Denis
         """
+
         if updated_config is None:
             updated_config = self.config
         if raw_config is None:
