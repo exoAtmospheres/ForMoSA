@@ -358,10 +358,6 @@ class NestedSampling(object):
 
         self._logger.info(f'Summary of Nested Sampling : \n {self._summary()}')
 
-        self._compute_best_model(observation, modelgrid, interp_method = interp_method, wav_cont = wav_cont, res_cont = res_cont, bounds_lsq = bounds_lsq)
-        self._nativ_model = self._compute_nativ_model_from_theta(self.list_best_params, modelgrid, observation, wavelength_range=modelgrid.wavelength_range, resolution=observation.min_resolution)
-
-
 
     def _loglike(self, theta: list, observation: Observation, modelgrid: ModelGrid, wav_cont: list = ['NA'], res_cont: list = ['NA'], bounds_lsq: list = ['NA'], interp_method: str = 'linear', emulator: list = ['NA'], full_logL : bool = False) -> float | tuple[dict, np.ndarray, np.ndarray]:
         '''
@@ -434,7 +430,12 @@ class NestedSampling(object):
         '''
 
         # Step 1: Compute the physical model from theta and the grid
-        mod_dict = self._build_theoretical_model_from_theta(theta, grid_spectro, grid_photo, interp_method='linear', indobs=indobs)
+        if len(obs_dict_spectro['star_flx']) > 0:
+            hc_mode = True
+        else:
+            hc_mode = False
+
+        mod_dict = self._build_theoretical_model_from_theta(theta, grid_spectro, grid_photo, interp_method='linear', indobs=indobs, hc_mode = hc_mode)
 
         # Step 2: Apply observational effects (resampling, speckles, scaling if needed)
         obs_dict, mod_dict = self._apply_observation_effects_to_model(mod_dict, obs_dict_spectro, obs_dict_photo, wav_cont=wav_cont, res_cont=res_cont, bounds_lsq=bounds_lsq, indobs=indobs)
@@ -442,7 +443,7 @@ class NestedSampling(object):
         return obs_dict, mod_dict
 
 
-    def _build_theoretical_model_from_theta(self, theta: list, grid_spectro: ModelGrid | ModelSubGrid, grid_photo: ModelGrid | ModelSubGrid, interp_method: str = 'linear', indobs: int = 0) -> dict:
+    def _build_theoretical_model_from_theta(self, theta: list, grid_spectro: ModelGrid | ModelSubGrid, grid_photo: ModelGrid | ModelSubGrid, interp_method: str = 'linear', indobs: int = 0, hc_mode: bool = False) -> dict:
         '''
         Method to compute the theoretical synthetic spectra based only on theta and grid physics.
         It performs interpolation, Doppler shifting, extinction, vsini broadening, CPD addition and scaling.
@@ -455,6 +456,7 @@ class NestedSampling(object):
         grid_photo       (ModelGrid | ModelSubGrid): Instance of :class:'~ModelGrid' or :class:'~ModelSubGrid' adapted to photometric data
         interp_method                         (str): Method for the interpolation of the grid
         indobs                                (int): Index of the current observation looping
+        hc_mode                              (bool): Whether we are in high-contrast mode
 
         Returns
         -------
@@ -490,7 +492,6 @@ class NestedSampling(object):
         # Interpolate at the values of the grid parameters
         flx_mod_spectro = grid_spectro._interpolate_between_gridpoints(theta_grid, interp_method, indobs)
         flx_mod_photo = grid_photo._interpolate_between_gridpoints(theta_grid, interp_method, indobs)
-
 
         # Save native model before any transformation
         flx_mod_spectro_nativ = np.copy(flx_mod_spectro)
@@ -529,7 +530,7 @@ class NestedSampling(object):
         if alpha is None:
             alpha = 1
         r = get_param('r', indobs)
-        if r is not None and d is not None:
+        if r is not None and d is not None and not(hc_mode):
             flx_mod_spectro, ck_spectro = us.calc_ck(flx_mod_spectro, np.array([]), np.array([]), r, d, alpha)
             flx_mod_photo, ck_photo = us.calc_ck(flx_mod_photo, np.array([]), np.array([]), r, d, alpha)
         else:
@@ -751,9 +752,10 @@ class NestedSampling(object):
             target_wavelength = nativ_grid.wavelength[cut]
 
         target_resolution = observation.min_resolution
-
         indices = nativ_grid._find_valid_resolution_region(nativ_grid.wavelength, nativ_grid.resolution, target_wavelength, target_resolution)
         nativ_grid.grid = nativ_grid.grid.isel(wavelength=indices)
+        nativ_grid.grid.attrs['res'] = nativ_grid.grid.attrs['res'][indices]
+        nativ_grid._resolution = nativ_grid._resolution[indices]
         nativ_model = self._build_theoretical_model_from_theta(theta, nativ_grid, ModelSubGrid('', nativ_grid.grid, self._logger, [], [], 'photo'))
 
         if resolution == 'nativ':
