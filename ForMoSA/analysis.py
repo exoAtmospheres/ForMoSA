@@ -262,6 +262,7 @@ class Analysis(object):
 
         # Best model cut at the wavelengths of the observations
         self.ns._compute_best_model(self.observation, self.grid, interp_method = interp_method, wav_cont = wav_cont, res_cont = res_cont, bounds_lsq = bounds_lsq)
+        self.grid._read_grid()
         # Best nativ model
         self.ns._nativ_model = self.ns._compute_nativ_model_from_theta(self.ns.list_best_params, self.grid, self.observation, wavelength_range=self.grid.wavelength_range, resolution=self.observation.min_resolution)
 
@@ -305,7 +306,7 @@ class Analysis(object):
                 weights = weights[indices]
 
             for theta in tqdm(samples):
-                nativ_model_i = self.ns._compute_nativ_model_from_theta(theta, self.grid, self.observation, wavelength_range=self.grid.wavelength_range, resolution=self.observation.min_resolution,)
+                nativ_model_i = self.ns._compute_nativ_model_from_theta(theta, self.grid, self.observation, wavelength_range=self.grid.wavelength_range, resolution=self.observation.min_resolution)
                 all_nativ_models.append(nativ_model_i['spectro']['flx'])
 
             all_nativ_models = np.array(all_nativ_models)   # shape = (n_samples, n_wavelengths)
