@@ -69,6 +69,13 @@ def _hc_model_estimate_speckles(flx_obs_spectro: np.ndarray, flx_cont_obs_spectr
 
     # # # # # # Solve linear Least Squares A.x = b
 
+    if ind_system == 2:
+        flx_obs_spectro_modif = flx_obs_spectro - speckles[:,0] * flx_cont_obs_spectro
+        flx_mod_spectro_modif = transm_obs_spectro * (flx_mod_spectro - flx_cont_mod_spectro)
+        num, denom = np.sum((flx_obs_spectro_modif * flx_mod_spectro_modif * weights)), np.sum(flx_mod_spectro_modif**2 * weights)
+        flx_mod_spectro = num / denom * flx_mod_spectro_modif
+        return num / denom, flx_mod_spectro, speckles[:,0] * flx_cont_obs_spectro, 0
+
     # Build matrix A
     A = np.zeros([np.size(flx_obs_spectro), ind_system])
     A[:, 0] = weights * (transm_obs_spectro * flx_mod_spectro - flx_cont_mod_spectro_resp * speckles[:, len(speckles[0]) // 2])
