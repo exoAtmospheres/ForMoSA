@@ -460,6 +460,34 @@ class GlobalParameters(object):
                                                              "# Format: 'NA' or float",
                                                              "# MOSAIC : Yes"]
 
+
+    def _sync_config_to_raw(self, updated_config: dict = None, raw_config: ConfigObj = None) -> None:
+        """
+        Method to recursively synchronize self.config (dict) to self.config_raw (ConfigObj).
+
+        Parameters
+        ----------
+        updated : dict
+            Le dictionnaire contenant les valeurs à synchroniser (par défaut self.config).
+        raw : ConfigObj
+            Le ConfigObj cible à mettre à jour (par défaut self.config_raw).
+        """
+        if updated_config is None:
+            updated_config = self.config
+        if raw_config is None:
+            raw_config = self.config_raw
+
+        for key, value in updated_config.items():
+            if isinstance(value, dict):
+                # Generate section if it does not exist
+                if key not in raw_config:
+                    raw_config[key] = {}
+                # Recursive call
+                self._sync_config_to_raw(value, raw_config[key])
+            else:
+                raw_config[key] = str(value)
+
+
     def save_config_file(self, path: str | os.PathLike = None, name: str = 'NA') -> None:
         '''
         Method to save the config file to a specific path
@@ -471,6 +499,9 @@ class GlobalParameters(object):
 
         Authors: Allan Denis
         '''
+
+        # Recursive synchronization
+        self._sync_config_to_raw()
 
         config = self.config_raw
         if name == 'NA':
