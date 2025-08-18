@@ -20,12 +20,14 @@ class NestedSamplingPlotting(object):
     Authors: Paulina Palma-Bifani, Matthieu Ravet and Allan Denis
     '''
 
-    def __init__(self, logger, plotting_config_dict: dict, burn_in: int = 0):
+    def __init__(self, logger, plotting_config_dict: dict, burn_in: int = 0, ns_results: dict = dict(), list_params: list = []):
 
         self._logger = logger
         self._color_out = 'magenta'
         self._plotting_config = plotting_config_dict
         self._burn_in = burn_in
+        self._ns_results = ns_results
+        self._list_params = list_params
 
 
     ##################################################
@@ -69,6 +71,29 @@ class NestedSamplingPlotting(object):
         self._burn_in = burn_in
         return burn_in
 
+    @property
+    def ns_results(self):              # Results of Nested Sampling
+        if len(self._ns_results) == 0:
+            msg = 'Please run the Nested Sampling algorithm or load results of a Nested Sampling run'
+            self._logger.critical(msg)
+            raise ForMoSAError(msg)
+        return self._ns_results
+
+    @property
+    def samples(self):                 # Samples
+        return self.ns_results['samples']
+
+    @property
+    def weights(self):                 # Weights
+        return self.ns_results['weights']
+
+    @property
+    def list_params(self):             # List of parameters
+        return self._list_params
+
+    @property
+    def dict_params_idx(self):          # Index of parameters
+        return {param: k for k, param in enumerate(self.list_params)}
 
 
     ##################################################
@@ -155,77 +180,51 @@ class NestedSamplingPlotting(object):
         return label
 
 
-    def plot_corner(self, results: dict, param_names: list, levels_sig: list=[0.997, 0.95, 0.68], bins: int=100, quantiles: tuple=(0.16, 0.5, 0.84), figsize: tuple=(15, 15)) -> matplotlib.figure.Figure:
+    def plot_corner(self, param_names: list = [], figsize: tuple=(15, 15), **corner_kwargs) -> matplotlib.figure.Figure:
         '''
         Method to corner plot the results samples
 
         Parameters
         ----------
-        results       (dict): Dictionary of the results {'samples': samples, 'weights': weights}
         param_names   (list): Names of the parameters
-        levels_sig    (list): 1, 2 and 3 sigma contour levels of the corner plot
-        bins           (int): Number of bins for the posteriors
-        quantiles    (tuple): Mean +- sigma to report the posterior values
         figsize      (tuple): Size of the figure to plot
+        **corner_kwargs     : Remaining keeword args (see https://corner.readthedocs.io/)
 
         Returns:
             - fig (matplotlib.figure.Figure): Matplotlib Figure object
 
+        Authors: Paulina Palma-Bifani, Matthieu Ravet and Allan Denis
         '''
 
         self._logger.info('ForMoSA - Corner plot')
+        if len(param_names) == 0:
+            param_names = list(self.dict_params_idx.keys())
 
-        if not results:
-            msg = ' Results are empty. Please first run the nested sampling algorithm'
-            self._logger.error(msg)
-            raise ForMoSAError(msg)
+        corner_kwargs['labels'] = param_names
+        samples, weights = self.samples[self.burn_in:], self.weights[self.burn_in:]
+        corner_kwargs['weights'] = weights
 
-        samples, weights = results['samples'], results['weights']
-        rangee = [(np.min(results['samples'][:, i]), np.max(results['samples'][:, i])) for i in range(results['samples'].shape[1])]
+        idx = []
+        for param in param_names:
+            idx.append(self.dict_params_idx[param])
 
-
-        if len(param_names) != samples.shape[1]:
-            msg = f' Param_names has a len ({len(param_names)}) different than the sampling shape ({samples.shape[1]}).'
-            self._logger.error(msg)
-            raise ForMoSAError(msg)
+        samples = samples[:, idx]
 
         fig = plt.figure(figsize=figsize)
         fig.clf()
-        fig = corner.corner(samples[self.burn_in:],
-                            weights=weights[self.burn_in:],
-                            labels=param_names,
-                            range=rangee,
-                            levels=levels_sig,
-                            bins=bins,
-                            smooth=1,
-                            quantiles=quantiles,
-                            top_ticks=False,
-                            plot_datapoints=False,
-                            plot_density=True,
-                            plot_contours=True,
-                            fill_contours=True,
-                            show_titles=True,
-                            title_fmt='.2f',
-                            title_kwargs=dict(fontsize=14),
-                            contour_kwargs=dict(colors=self.color_out, linewidths=0.7),
-                            pcolor_kwargs=dict(color='red'),
-                            fig=fig,
-                            label_kwargs=dict(fontsize=14))
-
+        fig = corner.corner(samples, **corner_kwargs)
         fig.subplots_adjust(left=0.09, right=0.98, bottom=0.09, top=0.97)
 
         return fig
 
 
-    def plot_chains(self, results: dict, param_names: list, param_best_values: dict, figsize:tuple=(12, 15), show_weights: bool=True) -> tuple[matplotlib.figure.Figure, matplotlib.axes._axes.Axes]:
+    def plot_chains(self, param_names: list = [], figsize:tuple=(12, 15), show_weights: bool=True) -> tuple[matplotlib.figure.Figure, matplotlib.axes._axes.Axes]:
         '''
         Method to plot the chains of the samples results.
 
         Parameters
         ----------
-        results             (dict): Dictionary of results {'samples': samples, 'results': results}
         param_names         (list): List of parameter names
-        param_best_values   (dict): Dictionary of best results of nested sampling {param_name: best_value}
         figsize            (tuple): Size of the figure to plot
         show_weights        (bool): Whether to overplot the weights
 
@@ -237,18 +236,17 @@ class NestedSamplingPlotting(object):
         '''
 
         self._logger.info(' Plotting posterior chains for each parameter.')
+        if len(param_names) == 0:
+            param_names = list(self.dict_params_idx.keys())
 
-        if not results:
-            msg = ' Results are empty. Please first run the nested sampling algorithm'
-            self._logger.error(msg)
-            raise ForMoSAError(msg)
+        samples, weights = self.samples, self.weights
 
-        samples, weights = results['samples'], results['weights']
+        idx = []
+        for param in param_names:
+            idx.append(self.dict_params_idx[param])
 
-        if len(param_names) != samples.shape[1]:
-            msg = f' Param_names has a len ({len(param_names)}) different than the sampling shape ({samples.shape[1]}).'
-            self._logger.error(msg)
-            raise ForMoSAError(msg)
+        samples = samples[:, idx]
+        param_best_values = np.average(samples[self.burn_in:], axis=0, weights=weights[self.burn_in:])
 
         n_params = samples.shape[1]
         n_rows = (n_params + 1) // 2
@@ -267,10 +265,10 @@ class NestedSamplingPlotting(object):
                 ax_w = ax.twinx()
                 ax_w.plot(weights, color='black', alpha=0.4)
                 ax_w.set_yticks([])
-                ax_w.text(x=0.8, y=0.75, s='weights', color='grey', transform=ax_w.transAxes, fontsize=14)
+                ax_w.text(x=0.8, y=0.70, s='weights', color='grey', transform=ax_w.transAxes, fontsize=14)
 
             if param_name != 'log(L/L$\\mathrm{_{\\odot}}$)':
-                ax.axhline(param_best_values[param_name], color='k', linestyle='--')
+                ax.axhline(param_best_values[param_idx], color='k', linestyle='--')
 
         for idx in range(n_params, len(axs)):
             fig.delaxes(axs[idx])
@@ -280,13 +278,12 @@ class NestedSamplingPlotting(object):
         return fig, axs[:n_params]
 
 
-    def plot_radar(self, results: dict, param_names: list, quantiles=[16, 50, 84], alpha_fill=0.2) -> tuple[plt.Figure, plt.Axes]:
+    def plot_radar(self, param_names: list = [], quantiles=[16, 50, 84], alpha_fill=0.2) -> tuple[plt.Figure, plt.Axes]:
         '''
         Method to radar plot the samples with normalized scaling based on prior-like ranges, and raw value annotations.
 
         Parameters
         ----------
-        results       (dict): Dictionary of results {'samples': samples, 'weights': weights}
         param_names   (list): List of parameter names
         quantiles    (tuple): Mean +- sigma to report the posterior values
         alpha_fill   (float): Filling factor for the uncertainty
@@ -298,18 +295,16 @@ class NestedSamplingPlotting(object):
         '''
 
         self._logger.info(' Radar plot of the chains.')
+        if len(param_names) == 0:
+            param_names = list(self.dict_params_idx.keys())
 
-        if not results:
-            msg = ' Results are empty. Please first run the nested sampling algorithm.'
-            self._logger.error(msg)
-            raise ForMoSAError(msg)
+        samples, weights = self.samples[self.burn_in:], self.weights[self.burn_in:]
 
-        samples, weights = results['samples'][self.burn_in:], results['weights'][self.burn_in:]
+        idx = []
+        for param in param_names:
+            idx.append(self.dict_params_idx[param])
 
-        if len(param_names) != samples.shape[1]:
-            msg = f' param_names has a len ({len(param_names)}) different than the sampling shape ({samples.shape[1]}).'
-            self._logger.error(msg)
-            raise ForMoSAError(msg)
+        samples = samples[:, idx]
 
         # Compute quantiles for each parameter
         q_low, q_med, q_high = [], [], []
@@ -413,14 +408,13 @@ class NestedSamplingPlotting(object):
         return color, edgecolor, marker, size
 
 
-    def plot_fit(self, modif_data: dict, best_model: dict, param_best_values: dict, figsize=(10, 7), uncert: str='yes', trans: str='yes', logx: str='no', logy: str='no', norm: str='no', label_ins: str='no', plot_high_contrast: bool = False, plot_nativ_model: bool = False, nativ_model: dict = {}, label_params: bool = False) -> tuple[matplotlib.figure.Figure, matplotlib.axes.Axes, matplotlib.axes.Axes, matplotlib.axes.Axes]:
+    def plot_fit(self, modif_data: dict, best_model: dict, figsize=(10, 7), uncert: str='yes', trans: str='yes', logx: str='no', logy: str='no', norm: str='no', label_ins: str='no', plot_high_contrast: bool = False, plot_nativ_model: bool = False, nativ_model: dict = {}, label_params: bool = False) -> tuple[matplotlib.figure.Figure, matplotlib.axes.Axes, matplotlib.axes.Axes, matplotlib.axes.Axes]:
         '''
         Method to plot the best fit compared with the data, including residuals and filter transmissions.
 
         Parameters:
         modif_data           (dict): Modified data {indobs: {'spectro': dict, 'photo': dict}}
         best_model           (dict): Best model {indobs: {'spectro': dict, 'photo': dict}}
-        param_best_values    (dict): Dictionary of best results of nested sampling {param_name: best_value}
         figsize             (tuple): Figure size.
         uncert                (str): Plot uncertainties if 'yes'.
         trans                 (str): Plot transmission filters if 'yes'.
@@ -456,6 +450,9 @@ class NestedSamplingPlotting(object):
             msg = 'Results are empty. Please run the sampling or compute the best model first.'
             self._logger.error(msg)
             raise ForMoSAError(msg)
+
+        samples, weights = self.samples[self.burn_in:], self.weights[self.burn_in:]
+        param_best_values = np.average(samples, axis=0, weights=weights)
 
         fig = plt.figure(figsize=figsize)
         fig.clf()
@@ -606,7 +603,7 @@ class NestedSamplingPlotting(object):
         ax.tick_params(bottom=False, labelbottom=False)
 
         if label_params:
-            text_str = ', '.join([f"{key} = {param_best_values[key]:.2g}" for key in param_best_values])
+            text_str = ', '.join([f"{key} = {param_best_values[i]:.2g}" for key, i in self.dict_params_idx.items()])
             ax.text(0.05, 0.95, text_str, transform=ax.transAxes, fontsize=12, verticalalignment='top')
 
         plt.subplots_adjust(left=0.06, right=0.98, bottom=0.11, top=0.97)
