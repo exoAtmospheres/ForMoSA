@@ -143,7 +143,7 @@ class NestedSampling(object):
 
         return {
             name: self.results['samples'][:, i]
-            for i, name in enumerate(self.params.list_free_params_names)
+            for i, name in enumerate(self.params.dict_computed_params_names.values())
         }
 
     @property
@@ -155,7 +155,7 @@ class NestedSampling(object):
 
         return {
             name: np.average(self.results['samples'][:, i], weights=self.results['weights'])
-            for i, name in enumerate(self.params.list_free_params_names)
+            for i, name in enumerate(self.params.dict_computed_params_names.values())
         }
 
     @property
@@ -224,7 +224,6 @@ class NestedSampling(object):
         for name in self.params.parameters.keys():
             if name.startswith('par'):  # Detect grid parameters
                 self.params.parameters[name]._name = modelgrid.titles[modelgrid.keys.index(name)]  # Rename parameter with title associated to 'parX'
-
 
         for indobs in range(observation.n_obs):
             if (bounds_lsq[indobs % len(bounds_lsq)] == ('NA', 'NA')) and (not(self.logL[indobs % len(self.logL)].startswith('CCF'))) and (len(observation.obs_data[indobs]['spectro']['star_flx']) > 0):
@@ -319,7 +318,7 @@ class NestedSampling(object):
                 self._logger.error(msg)
                 raise ForMoSAError(msg)
 
-            sampler = ultranest.ReactiveNestedSampler(param_names=self.params.list_free_params_keys,
+            sampler = ultranest.ReactiveNestedSampler(param_names=self.params.dict_free_params_keys.values(),
                                     loglike=loglike_gp,
                                     transform=prior_transform_gp,
                                     log_dir=str(results_path) + '/ultranest/',
@@ -337,12 +336,32 @@ class NestedSampling(object):
             logvol = res[0]['logvol']  # Not always used in UltraNest
             logl = res[0]['logl']
 
-
         self._results = {"samples": samples,
                          "weights": weights,
                          "logl": logl,
                          "logvol": logvol,
                          "logz": logz}
+
+        # Luminosity derivation
+        if r'log(L/L$\mathrm{_{\odot}}$)' in self.params.dict_params_names.values():
+            r_samples = self.param_samples_dict['r']
+            Teff_samples = self.param_samples_dict['Teff']
+
+            # Stefan-Boltzmann law
+            lum_samples = np.log10(4 * np.pi * (r_samples * cst.R_jup.value) ** 2 * Teff_samples ** 4 * cst.sigma_sb.value / cst.L_sun.value)
+            self._results['samples'] = np.hstack([self._results['samples'], lum_samples[:, None]])
+
+        # Mass derivation
+        if 'M' in self.params.dict_params_names.values():
+            r_samples = self.param_samples_dict['r']
+            logg_samples = self.param_samples_dict['log(g)']
+
+            # Newton law
+            M_samples = (r_samples * cst.R_jup.value)**2  / cst.G.value * 10**(logg_samples) / 100 / cst.M_jup.value  # g is in cm/s**2 so we need to convert it in m/s hence the division by 100
+            self._results['samples'] = np.hstack([self._results['samples'], M_samples[:, None]])
+
+        self.plotting._ns_results = self.results
+        self.plotting._list_params = list(self.param_best_dict.keys())
 
         time_elapsed = time.time() - time1
         if time_elapsed < 60:
@@ -419,7 +438,7 @@ class NestedSampling(object):
         interp_method                         (str): Method for the interpolation of the grid
         wav_cont                 (str | np.ndarray): Wavelength grid for the continuum estimation of the model (used for high contrast)
         res_cont                 (str | np.ndarray): Resolution of the continuum (used for high contrast)
-        bounds_lsq                           (list): Bounds of the least squares estumatiion (used for high contrast)
+        bounds_lsq                           (list): Bounds of the least squares estimation (used for high contrast)
         indobs                                (int): Index of the current observation looping
 
         Returns:
@@ -470,14 +489,14 @@ class NestedSampling(object):
 
         # Check input theta length
         if len(theta) != self._params.n_free_parameters:
-            msg = f"theta length ({len(theta)}) does not match expected number of free parameters ({self._params.n_free_parameters}). The free parameters are {self._params.list_free_params_name}"
+            msg = f"theta length ({len(theta)}) does not match expected number of free parameters ({self._params.n_free_parameters}). The free parameters are {self._params.dict_free_params_names}"
             self._logger.critical(msg)
             raise ForMoSAError(msg)
 
-        theta_index = self.params.list_params_keys
+        theta_index = self.params.dict_params_keys.values()
 
         # Interpolation parameters from grid
-        theta_grid = [theta[i] if key in self.params.list_free_params_keys
+        theta_grid = [theta[i] if key in self.params.dict_free_params_keys.values()
                       else self.params.parameters[key].value
                       for i, key in enumerate(theta_index)
                       if key.startswith('par')]
@@ -584,10 +603,9 @@ class NestedSampling(object):
 
         # High contrast modeling if stellar flux is available
         if len(obs_dict_spectro['star_flx']) > 0:
-            flx_cont_mod = us.continuum_estimate(obs_dict_spectro['wav'], model_dict['spectro']['flx'], model_dict['spectro']['res'], wav_cont, res_cont)
-            flx_cont_mod_response = us.continuum_estimate(obs_dict_spectro['wav'], model_dict['spectro']['flx'] * obs_dict_spectro['transm'], model_dict['spectro']['res'], wav_cont, res_cont)
+            flx_cont_mod = us.continuum_estimate(obs_dict_spectro['wav'], model_dict['spectro']['flx'] * obs_dict_spectro['transm'], model_dict['spectro']['res'], wav_cont, res_cont)
             if self.logL[indobs % len(self.logL)].startswith('chi2'):
-                contributions, model_dict['spectro']['flx'], obs_dict_spectro['speckles'], obs_dict_spectro['estimated_system'] = hc._hc_model_estimate_speckles(obs_dict_spectro['flx'], obs_dict_spectro['flx_cont'], obs_dict_spectro['transm'], obs_dict_spectro['star_flx'], obs_dict_spectro['star_flx_cont'], model_dict['spectro']['flx'], flx_cont_mod, flx_cont_mod_response, obs_dict_spectro['err'], bounds_lsq, obs_dict_spectro['system'])
+                contributions, model_dict['spectro']['flx'], obs_dict_spectro['speckles'], obs_dict_spectro['estimated_system'] = hc._hc_model_estimate_speckles(obs_dict_spectro['flx'], obs_dict_spectro['flx_cont'], obs_dict_spectro['transm'], obs_dict_spectro['star_flx'], obs_dict_spectro['star_flx_cont'], model_dict['spectro']['flx'], flx_cont_mod, obs_dict_spectro['err'], bounds_lsq, obs_dict_spectro['system'])
             else:
                 _, model_dict['spectro']['flx'], obs_dict_spectro['speckles'] = hc._hc_model_remove_speckles(obs_dict_spectro['flx'], obs_dict_spectro['flx_cont'], obs_dict_spectro['transm'], obs_dict_spectro['star_flx'], obs_dict_spectro['star_flx_cont'], model_dict['spectro']['flx'], flx_cont_mod, obs_dict_spectro['err'])
                 obs_dict_spectro['estimated_system'] = np.repeat(0, len(obs_dict_spectro['wav']))
@@ -715,7 +733,7 @@ class NestedSampling(object):
         Authors: Allan Denis
         '''
 
-        best_theta = self.list_best_params
+        best_theta = self.list_best_params[:self.params.n_free_parameters]
 
         modif_data, best_model = dict(), dict()
 
@@ -820,17 +838,8 @@ class NestedSampling(object):
                          "logvol": logvol,
                          "logz": logz}
 
-        # Luminosity derivation
-        if 'r' in self.params.list_free_params_names and 'Teff' in self.params.list_free_params_names:
-            r_samples = self.param_samples_dict['r']
-            Teff_samples = self.param_samples_dict['Teff']
-
-            # Stefan-Boltzmann law
-            lum = np.log10(4 * np.pi * (r_samples * cst.R_jup.value) ** 2 * Teff_samples ** 4 * cst.sigma_sb.value / cst.L_sun.value)
-            lum_param = Parameter(r'log(L/L$\mathrm{_{\odot}}$)', 'computed')
-
-            self._results['samples'] = np.hstack([self._results['samples'], lum[:, None]])
-            self.params._add_parameter(lum_param, r'log(L/L$\mathrm{_{\odot}}$)')
+        self.plotting._ns_results = self.results
+        self.plotting._list_params = list(self.param_best_dict.keys())
 
 
     def _summary(self, sigma: int = 2) -> None:
@@ -894,7 +903,7 @@ class NestedSampling(object):
 
             plus  = high - mean
             minus = low - mean
-            msg += f" {self.params.list_free_params_names[i]:10s}: {mean:10.4f} {minus:+10.4f} {plus:+10.4f} [{low:10.4f}, {high:10.4f}] ({sigma}σ)\n"
+            msg += f" {list(self.params.dict_computed_params_names.values())[i]:10s}: {mean:10.4f} {minus:+10.4f} {plus:+10.4f} [{low:10.4f}, {high:10.4f}] ({sigma}σ)\n"
 
         msg += "=========================================\n"
 
