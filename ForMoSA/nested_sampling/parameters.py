@@ -137,14 +137,11 @@ class Parameter(object):
 
     @property
     def is_fixed(self):         # Whether the parameter is fixed
-        return self.prior == 'constant'
+        return (self.prior == 'constant') or (self.prior == 'computed')
 
     @property
     def theta(self):            # Current value randomly picked by the nested sampling
         return self._theta
-
-
-
 
 
     ##################################################
@@ -201,7 +198,6 @@ class NestedSamplingParameters(object):
         return f'<NestedSampling_Params(\n{self._parameters})>'
 
 
-
     ##################################################
     # Properties
     ##################################################
@@ -219,24 +215,32 @@ class NestedSamplingParameters(object):
         return self._get_parameters('fixed')
 
     @property
-    def list_params_keys(self) -> list:
-        return list(self.parameters)
+    def computed_parameters(self) -> dict:
+        return self._get_parameters('computed')
 
     @property
-    def list_free_params_keys(self) -> list:
-        return list(self.free_parameters)
+    def dict_params_keys(self) -> list:
+        return {k: p for k,p in enumerate(list(self.parameters))}
 
     @property
-    def list_params_names(self) -> list:
-        return [p.name for p in self.parameters.values()]
+    def dict_free_params_keys(self) -> list:
+        return {k: p for k,p in enumerate(list(self.free_parameters))}
 
     @property
-    def list_free_params_names(self) -> list:
-        return [p.name for p in self.free_parameters.values()]
+    def dict_params_names(self) -> list:
+        return {k: p.name for k,p in enumerate(self.parameters.values())}
 
     @property
-    def list_fixed_params_names(self) -> list:
-        return [p.name for p in self.fixed_parameters.values()]
+    def dict_free_params_names(self) -> list:
+        return {k: p.name for k, p in enumerate(self.free_parameters.values())}
+
+    @property
+    def dict_fixed_params_names(self) -> list:
+        return {k: p.name for k, p in enumerate(self.fixed_parameters.values())}
+
+    @property
+    def dict_computed_params_names(self) -> list:
+        return {k: p.name for k, p in enumerate(self.computed_parameters.values())}
 
     @property
     def n_parameters(self) -> int:
@@ -249,6 +253,10 @@ class NestedSamplingParameters(object):
     @property
     def n_fixed_parameters(self) -> int:
         return len(self.fixed_parameters)
+
+    @property
+    def n_computed_parameters(self) -> int:
+        return len(self.computed_parameters)
 
     @property
     def free_param_priors(self):
@@ -431,19 +439,18 @@ class NestedSamplingParameters(object):
         Authors: Allan Denis
         '''
 
-
         if not isinstance(theta, (list, np.ndarray)) or len(theta) == 0:
             raise ForMoSAError(f"theta must be a non-empty array, got: {theta}")
 
         theta = np.asarray(theta)
 
         # Determine parameter key
-        if name in self.list_params_keys:
+        if name in self.dict_params_keys.values():
             param_key = name
-            theta_index = self.list_free_params_keys
-        elif name in self.list_params_names:
-            param_key = self.list_params_keys[self.list_params_names.index(name)]
-            theta_index = self.list_free_params_names
+            theta_index = list(self.dict_free_params_keys.values())
+        elif name in self.dict_params_names.values():
+            param_key = self.dict_params_keys.values()[self.dict_params_names.values().index(name)]
+            theta_index = self.dict_free_params_names.values()
         else:
             msg = f"Invalid parameter name: {name}. Choose from {self.list_params_keys} or {self.list_params_names}"
             self._logger.error(msg)
@@ -487,13 +494,15 @@ class NestedSamplingParameters(object):
         Authors: Allan Denis
         '''
 
-        if param_type not in ['all', 'free', 'fixed']:
-            raise ForMoSAError("param_type must be 'all', 'free', or 'fixed'")
+        if param_type not in ['all', 'free', 'fixed', 'computed']:
+            raise ForMoSAError("param_type must be 'all', 'free', 'fixed' or 'computed'")
 
         if param_type == 'free':
             return {k: p for k, p in self._parameters.items() if not p.is_fixed}
         elif param_type == 'fixed':
             return {k: p for k, p in self._parameters.items() if p.is_fixed}
+        if param_type == 'computed':
+            return {k: p for k, p in self._parameters.items() if p.prior != 'constant'}
 
         return self._parameters
 
