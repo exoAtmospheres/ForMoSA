@@ -13,7 +13,7 @@ def _hc_model_remove_speckles(flx_obs_spectro: np.ndarray, flx_cont_obs_spectro:
         star_flx_obs_spectro        (array): Flux of the star data
         star_flx_cont_obs_spectro   (array): Continuum of the star data
         flx_mod_spectro             (array): Model of the companion
-        flx_cont_mod_spectro        (array): Continuum of the model of the companion
+        flx_cont_mod_spectro        (array): Continuum of the model of the companion * transmission
         noise_obs_spectro           (array): Noise of the data
 
     Returns:
@@ -31,7 +31,7 @@ def _hc_model_remove_speckles(flx_obs_spectro: np.ndarray, flx_cont_obs_spectro:
     return alpha, flx_mod_spectro, speckles
 
 
-def _hc_model_estimate_speckles(flx_obs_spectro: np.ndarray, flx_cont_obs_spectro: np.ndarray, transm_obs_spectro: np.ndarray, star_flx_obs_spectro: np.ndarray, star_flx_cont_obs_spectro: np.ndarray, flx_mod_spectro: np.ndarray, flx_cont_mod_spectro: np.ndarray, flx_cont_mod_spectro_resp: np.ndarray, err: np.ndarray, bounds: tuple, system_obs_spectro: np.ndarray = np.array([])):
+def _hc_model_estimate_speckles(flx_obs_spectro: np.ndarray, flx_cont_obs_spectro: np.ndarray, transm_obs_spectro: np.ndarray, star_flx_obs_spectro: np.ndarray, star_flx_cont_obs_spectro: np.ndarray, flx_mod_spectro: np.ndarray, flx_cont_mod_spectro: np.ndarray, err: np.ndarray, bounds: tuple = (0, np.inf), system_obs_spectro: np.ndarray = np.array([]), compute_ccf: bool = False):
     '''
     high-constrast model of planet and star contributions
 
@@ -42,11 +42,11 @@ def _hc_model_estimate_speckles(flx_obs_spectro: np.ndarray, flx_cont_obs_spectr
         star_flx_obs_spectro        (array): Flux of the star data
         star_flx_cont_obs_spectro   (array): Continuum of the star data
         flx_mod_spectro             (array): Model of the companion
-        flx_cont_mod_spectro        (array): Continuum of the model of the companion
-        flx_cont_mod_spectro_resp   (array): Continuum of the model of the companion * transmission
+        flx_cont_mod_spectro        (array): Continuum of the model of the companion * transmission
         weights                     (array): Weights to apply to the data
         bounds                      (tuple): Bounds to be applied to the estimated parameters
         system_obs_spectro          (array): Systematics
+        compute_ccf                  (bool): Whether to use this function to compute the CCF
 
     Returns:
         results.x                 (array): Results of the high-constrast model
@@ -70,15 +70,21 @@ def _hc_model_estimate_speckles(flx_obs_spectro: np.ndarray, flx_cont_obs_spectr
     # # # # # # Solve linear Least Squares A.x = b
 
     if ind_system == 2:
+        bounds = (float(bounds[0]), float(bounds[1]))
         flx_obs_spectro_modif = flx_obs_spectro - speckles[:,0] * flx_cont_obs_spectro
-        flx_mod_spectro_modif = transm_obs_spectro * (flx_mod_spectro - flx_cont_mod_spectro)
-        num, denom = np.sum((flx_obs_spectro_modif * flx_mod_spectro_modif * weights)), np.sum(flx_mod_spectro_modif**2 * weights)
-        flx_mod_spectro = num / denom * flx_mod_spectro_modif
-        return num / denom, flx_mod_spectro, speckles[:,0] * flx_cont_obs_spectro, 0
+        flx_mod_spectro_modif = transm_obs_spectro * flx_mod_spectro - flx_cont_mod_spectro * speckles[:,0]
+        alpha = np.sum((flx_obs_spectro_modif * flx_mod_spectro_modif * weights)) / np.sum(flx_mod_spectro_modif**2 * weights)
+        if not(compute_ccf):
+            if alpha < bounds[0]:
+                alpha = bounds[0]
+            if alpha > bounds[1]:
+                alpha = bounds[1]
+        flx_mod_spectro = alpha * flx_mod_spectro_modif
+        return alpha, flx_mod_spectro, speckles[:,0] * flx_cont_obs_spectro, 0
 
     # Build matrix A
     A = np.zeros([np.size(flx_obs_spectro), ind_system])
-    A[:, 0] = weights * (transm_obs_spectro * flx_mod_spectro - flx_cont_mod_spectro_resp * speckles[:, len(speckles[0]) // 2])
+    A[:, 0] = weights * (transm_obs_spectro * flx_mod_spectro - flx_cont_mod_spectro * speckles[:, len(speckles[0]) // 2])
 
     for star_i in range(len(speckles[0])):
         A[:, star_i + 1] = weights * (speckles[:,star_i] * flx_cont_obs_spectro)
