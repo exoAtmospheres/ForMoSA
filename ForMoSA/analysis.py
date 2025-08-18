@@ -8,6 +8,7 @@ from ForMoSA.paths import ForMoSAPaths
 from ForMoSA.observation import Observation
 from ForMoSA.nested_sampling.sampling import NestedSampling
 from ForMoSA.nested_sampling.plotting import NestedSamplingPlotting
+from ForMoSA.nested_sampling.parameters import Parameter
 from ForMoSA.error import ForMoSAError
 from scipy.interpolate import interp1d
 import numpy as np
@@ -250,6 +251,16 @@ class Analysis(object):
             if name.startswith('par'):  # Detect grid parameters
                 self.ns.params.parameters[name]._name = self.grid.titles[self.grid.keys.index(name)]  # Rename parameter with title associated to 'parX'
 
+        # Luminosity
+        if ('Teff' in self.ns.params.dict_free_params_keys.values()) and ('r' in self.ns.params.dict_free_params_names.values()):
+            lum_param = Parameter(r'log(L/L$\mathrm{_{\odot}}$)', 'computed')
+            self.ns.params._add_parameter(lum_param, lum_param.name)
+
+        # Mass
+        if ('log(g)' in self.ns.params.dict_free_params_names.values()) and ('r' in self.ns.params.dict_free_params_names.values()):
+            Mass_param = Parameter('M', 'computed')
+            self.ns.params._add_parameter(Mass_param, Mass_param.name)
+
         if not(self.fitted):
             # Run nested sampling
             self.ns.run(self.paths.result_path, self.observation, self.grid, interp_method=interp_method, wav_cont=wav_cont, res_cont=res_cont, bounds_lsq=bounds_lsq, emulator=emulator, full_logL = full_logL)
@@ -264,7 +275,7 @@ class Analysis(object):
         self.ns._compute_best_model(self.observation, self.grid, interp_method = interp_method, wav_cont = wav_cont, res_cont = res_cont, bounds_lsq = bounds_lsq)
         self.grid._read_grid()
         # Best nativ model
-        self.ns._nativ_model = self.ns._compute_nativ_model_from_theta(self.ns.list_best_params, self.grid, self.observation, wavelength_range=self.grid.wavelength_range, resolution=self.observation.min_resolution)
+        self.ns._nativ_model = self.ns._compute_nativ_model_from_theta(self.ns.list_best_params[:self.ns.params.n_free_parameters], self.grid, self.observation, wavelength_range=self.grid.wavelength_range, resolution=self.observation.min_resolution)
 
 
     def plot(self, label_ins: str = 'no', trans: str = 'yes', uncert: str = 'yes', figsize_corner: tuple = (15, 15), figsize_chains: tuple = (12, 15), figsize_fit: tuple = (20, 10), save: bool = True, plot_nativ_model: bool = False, quantiles: list = [16, 50, 84], label_params: bool = True) -> None:
@@ -284,8 +295,6 @@ class Analysis(object):
         '''
 
         results = self.ns.results
-        param_names = self.ns.params.list_free_params_names
-        param_best_values = self.ns.param_best_dict
         modif_data = self.ns.modif_data
         best_model = self.ns.best_model
         nativ_model = self.ns.nativ_model
@@ -295,7 +304,7 @@ class Analysis(object):
         if plot_nativ_model:
             self._logger.info('Compute nativ model for each sample')
 
-            samples = results["samples"]
+            samples = results["samples"][:,:self.ns.params.n_free_parameters]
             weights = results["weights"]
 
             n_keep = 1000  # Keep maximum 1000 samples
@@ -314,26 +323,25 @@ class Analysis(object):
             lower_1sigma = utils.get_weighted_percentile(quantiles[0], all_nativ_models, weights=weights)
             upper_1sigma = utils.get_weighted_percentile(quantiles[-1], all_nativ_models, weights=weights)
 
-
-        fig = self.ns.plotting.plot_corner(results, param_names, figsize=figsize_corner)
+        fig = self.ns.plotting.plot_corner(figsize=figsize_corner, show_titles = True, show_contours = True, plot_density = True, quantiles = [0.16, 0.5, 0.84])
         if save:
             filename = self.paths.result_path / 'corner_plot.pdf'
             fig.savefig(filename)
             self._logger.info(f"Corner plot saved to {filename}")
 
-        fig, _ = self.ns.plotting.plot_chains(results, param_names, param_best_values, figsize=figsize_chains)
+        fig, _ = self.ns.plotting.plot_chains(figsize=figsize_chains)
         if save:
             filename = self.paths.result_path / 'chains_plot.pdf'
             fig.savefig(filename)
             self._logger.info(f"Chains plot saved to {filename}")
 
-        fig, _ = self.ns.plotting.plot_radar(results, param_names, quantiles=quantiles)
+        fig, _ = self.ns.plotting.plot_radar()
         if save:
             filename = self.paths.result_path / 'radar_plot.pdf'
             fig.savefig(filename)
             self._logger.info(f'Radar plot saved to {filename}')
 
-        fig, ax, _, _, scaling = self.ns.plotting.plot_fit(modif_data, best_model, param_best_values, label_ins=label_ins, trans=trans, uncert=uncert, figsize=figsize_fit, plot_nativ_model = plot_nativ_model, nativ_model = nativ_model, label_params = label_params)
+        fig, ax, _, _, scaling = self.ns.plotting.plot_fit(modif_data, best_model, label_ins=label_ins, trans=trans, uncert=uncert, figsize=figsize_fit, plot_nativ_model = plot_nativ_model, nativ_model = nativ_model, label_params = label_params)
         if plot_nativ_model:
             ax.fill_between(nativ_model['spectro']['wav'], scaling * lower_1sigma, scaling * upper_1sigma, color = 'grey', alpha = 0.4)
         if save:
@@ -342,16 +350,17 @@ class Analysis(object):
             self._logger.info(f"Best fit plot saved to {filename}")
 
 
-    def plot_ccf(self, rv_grid: np.ndarray, indobs: int = 0, save: bool = True, filename: str = None):
+    def plot_ccf(self, rv_grid: np.ndarray, indobs: int = 0, save: bool = True, plot: bool = True, theta: dict = dict()) -> None:
         '''
-        Compute (and optionally plot) the cross-correlation function (CCF) between the observation and the best model.
+        Method to compute (and optionally plot) the cross-correlation function (CCF) between the observation and the best model.
 
         Parameters
         ----------
-        rv_grid  (array): Grid of radial velocities to evaluate the CCF over
-        indobs     (ind): Index of the observation (default is 0)
-        save      (bool): Whether to save the plot as a file
-        filename   (str): Filename for saving the plot. Required if save=True
+        rv_grid       (array): Grid of radial velocities to evaluate the CCF over
+        indobs          (ind): Index of the observation (default is 0)
+        save           (bool): Whether to save the plot as a file
+        plot           (bool): Whether to display the plot
+        theta   (dictionnary): Dictionnary of the parameters to use for the model
 
         Returns
         -------
@@ -361,8 +370,16 @@ class Analysis(object):
         Authors: Allan Denis
         '''
 
-        if not self._fitted:
-            raise ForMoSAError("Nested sampling must be run before computing the CCF.")
+        if len(theta) == 0:
+            self._logger.info('No value provided for the list of parameters of the model. Using best vale from the Nested Sampling')
+            if not self._fitted:
+                raise ForMoSAError("Nested sampling must be run before computing the CCF.")# Best params to compute the best model
+            best_params = self.ns.param_best_dict.copy()
+            best_params['rv'] = 0
+            theta = list(best_params.values())
+        else:
+            theta['rv'] = 0
+            theta = list(theta.values())
 
         self._logger.info(f'Computing CCF for observation {self.observation.obs_name[indobs]}...')
 
@@ -373,28 +390,14 @@ class Analysis(object):
         wav_cont = adapt['wav_cont'][indobs % len(adapt['wav_cont'])]
         bounds_lsq = inversion['hc_bounds_lsq'][indobs % len(inversion['hc_bounds_lsq'])]
 
-        # Best params to compute the best model
-        best_params = self.ns.param_best_dict.copy()
-        best_params['rv'] = 0
-        theta = list(best_params.values())
-
         grid_spectro, grid_photo = self.grid.adapted_grid[indobs]['spectro'], self.grid.adapted_grid[indobs]['photo']
         obs_dict_spectro, obs_dict_photo = self.observation.obs_data[indobs]['spectro'], self.observation.obs_data[indobs]['photo']
 
-        wav_mod_spectro = grid_spectro.grid.coords['wavelength'].values
         res_mod_spectro = grid_spectro.grid.attrs['res']
-
-        wav_obs_spectro = obs_dict_spectro['wav']
         res_obs_spectro = obs_dict_spectro['res']
 
-        if isinstance(res_mod_spectro, np.ndarray) and len(res_mod_spectro) == len(wav_mod_spectro):
-            interp_mod_to_obs = interp1d(wav_mod_spectro, res_mod_spectro, fill_value='extrapolate')
-            res_mod_obs_spectro = interp_mod_to_obs(wav_obs_spectro)
-        else:
-            res_mod_obs_spectro = res_mod_spectro
-
         # Best model
-        _, mod_dict_spectro = self.ns._compute_model_from_theta(theta, obs_dict_spectro, obs_dict_photo, grid_spectro, grid_photo, res_mod_obs_spectro, wav_cont=wav_cont, res_cont=res_cont, bounds_lsq=bounds_lsq)
+        _, mod_dict_spectro = self.ns._compute_model_from_theta(theta, obs_dict_spectro, obs_dict_photo, grid_spectro, grid_photo, res_mod_spectro, wav_cont=wav_cont, res_cont=res_cont, bounds_lsq=bounds_lsq)
 
         wav_mod = mod_dict_spectro['spectro']['wav']
         flx_mod = mod_dict_spectro['spectro']['nativ_flx']   # Using nativ_flx which the flux at the nativ resolution of the model
@@ -407,23 +410,118 @@ class Analysis(object):
         system = obs_dict_spectro['system']
 
         # CCF
-        ccf, acf, ccf_star, rv_peak = spec.compute_ccf(wav_mod, flx_mod, wav_obs, flx_obs, err_obs, res_mod_obs_spectro, res_obs_spectro, res_cont, wav_cont, star_flx, transm, system, rv_grid=rv_grid)
+        ccf, acf, ccf_star, rv_peak, _ = spec.compute_ccf(wav_mod, flx_mod, wav_obs, flx_obs, err_obs, res_mod_spectro, res_obs_spectro, res_cont, wav_cont, star_flx, transm, system, rv_grid=rv_grid)
+
         # Plot
-        plt.figure(figsize=(10, 4))
-        plt.plot(rv_grid, ccf, color='C0', label='ccf')
-        plt.plot(rv_grid, ccf_star, color='0.85', zorder=-1000, label='Speckles')
-        plt.plot(rv_grid + rv_peak, acf, 'k', label = 'Auto-correlation')
-        plt.axvline(x=rv_peak, linestyle='--', c='C3')
-        plt.xlabel('Radial Velocity [km/s]')
-        plt.ylabel('Correlation (SNR)')
-        plt.title(f'Cross-Correlation Function - Observation {self.observation.obs_name[indobs]}')
-        plt.legend()
-        plt.grid(True)
+        fig = plt.figure('CCF', figsize=(10,8))
+        plt.clf()
+        ax = fig.add_subplot()
+        ax.plot(rv_grid, ccf, color='C0', label='ccf')
+        ax.plot(rv_grid, ccf_star, color='0.85', zorder=-1000, label='Speckles')
+        ax.plot(rv_grid + rv_peak, acf, 'k', label = 'Auto-correlation')
+        ax.axvline(x=rv_peak, linestyle='--', c='C3')
+        ax.set_xlabel('Radial Velocity [km/s]')
+        ax.set_ylabel('Correlation (SNR)')
+        ax.set_title(f'Cross-Correlation Function - Observation {self.observation.obs_name[indobs]}')
+        ax.legend()
+        ax.grid(True)
         if save:
             filename = self.paths.result_path / f'ccf_plot_obs{indobs}.pdf'
             plt.savefig(filename)
             self._logger.info(f"CCF plot saved to {filename}")
-        else:
+        if plot:
             plt.show()
+
+        return fig, ax
+
+
+    def plot_rv_vsini_map(self, rv_grid: np.ndarray, vsini_grid: np.ndarray, indobs: int = 0, save: bool = True, plot: bool = True, theta: dict = dict()) -> None:
+        '''
+        Method to compute (and optionally plot) the rv / vsini map between the observation and the best model.
+
+        Parameters
+        ----------
+        rv_grid       (array): Grid of radial velocities to evaluate the CCF over
+        indobs          (ind): Index of the observation (default is 0)
+        save           (bool): Whether to save the plot as a file
+        plot           (bool): Whether to display the plot
+        theta   (dictionnary): Dictionnary of the parameters to use for the model
+
+        Returns
+        -------
+        ccf (array): Crosscorrelation function
+        acf (array): Autocorrelation function
+
+        Authors: Allan Denis
+        '''
+
+        if len(theta) == 0:
+            self._logger.info('No value provided for the list of parameters of the model. Using best vale from the Nested Sampling')
+            if not self._fitted:
+                raise ForMoSAError("Nested sampling must be run before computing the CCF.")# Best params to compute the best model
+            theta = self.ns.param_best_dict.copy()
+            theta['rv'] = 0
+        else:
+            theta['rv'] = 0
+
+        self._logger.info(f'Computing rv / vsini map for observation {self.observation.obs_name[indobs]}...')
+
+        adapt = self.config_params['adapt']
+        inversion = self.config_params['inversion']
+
+        res_cont = float(adapt['res_cont'][indobs % len(adapt['res_cont'])])
+        wav_cont = adapt['wav_cont'][indobs % len(adapt['wav_cont'])]
+        bounds_lsq = inversion['hc_bounds_lsq'][indobs % len(inversion['hc_bounds_lsq'])]
+
+        grid_spectro, grid_photo = self.grid.adapted_grid[indobs]['spectro'], self.grid.adapted_grid[indobs]['photo']
+        obs_dict_spectro, obs_dict_photo = self.observation.obs_data[indobs]['spectro'], self.observation.obs_data[indobs]['photo']
+
+        res_mod_spectro = grid_spectro.grid.attrs['res']
+        res_obs_spectro = obs_dict_spectro['res']
+
+        wav_obs = obs_dict_spectro['wav']
+        flx_obs = obs_dict_spectro['flx']
+        err_obs = obs_dict_spectro['err']
+        star_flx = obs_dict_spectro['star_flx']
+        transm = obs_dict_spectro['transm']
+        system = obs_dict_spectro['system']
+
+        logL_map = np.zeros((len(vsini_grid), len(rv_grid)))
+
+        # Best nativ model
+        theta['vsini'] = 0
+        _, mod_dict_spectro = self.ns._compute_model_from_theta(list(theta.values()), obs_dict_spectro, obs_dict_photo, grid_spectro, grid_photo, res_mod_spectro, wav_cont=wav_cont, res_cont=res_cont, bounds_lsq=bounds_lsq)
+        vsini_fct = self.ns.params.parameters['vsini'].vsini_function
+        wav_mod_spectro = mod_dict_spectro['spectro']['wav']
+        flx_mod_spectro = mod_dict_spectro['spectro']['nativ_flx']   # Using nativ_flx which the flux at the nativ resolution of the model
+
+        for i, vsini_i in enumerate(tqdm(vsini_grid, leave=False)):
+            flx_mod_spectro_vsini, res_mod_spectro_vsini = spec.vsini_fct(wav_mod_spectro, flx_mod_spectro, res_mod_spectro, 0.6, vsini_i, vsini_fct)
+
+            # CCF
+            logL_map[i] = spec.compute_ccf(wav_mod_spectro, flx_mod_spectro_vsini, wav_obs, flx_obs, err_obs, res_mod_spectro_vsini, res_obs_spectro, res_cont, wav_cont, star_flx, transm, system, rv_grid=rv_grid, rv_sini_map=True)
+
+        logL_map -= np.min(logL_map)
+        max_indices = np.unravel_index(np.argmax(logL_map), logL_map.shape)  # Indices de la valeur max
+        rv_peak, vsini_peak = rv_grid[max_indices[1]], vsini_grid[max_indices[0]]
+
+        # plot
+        fig = plt.figure('rv-vsin(i) map', figsize=(8,5))
+        plt.clf()
+        ax = fig.add_subplot()
+
+        im = ax.pcolormesh(rv_grid, vsini_grid, logL_map, cmap=plt.cm.inferno, rasterized=True)
+
+        ax.set_xlabel('RV [km/s]')
+        ax.set_ylabel('$v\\,\\sin i$ [km/s]')
+
+        ax.axhline(y=vsini_peak, linestyle='--', c='C3')
+        ax.axvline(x=rv_peak, linestyle='--', c='C3')
+
+        cbar = fig.colorbar(im)
+        cbar.set_label('$\\log \\mathcal{L}$', fontsize=22, labelpad=10)
+
+        ax.set_title(f'RV / V.sini map - Observation {self.observation.obs_name[indobs]}, rv={rv_peak:.1f}, vsini={vsini_peak:.1f}')
+
 
 
