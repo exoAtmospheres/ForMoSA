@@ -80,7 +80,7 @@ def _hc_model_estimate_speckles(flx_obs_spectro: np.ndarray, flx_cont_obs_spectr
             if alpha > bounds[1]:
                 alpha = bounds[1]
         flx_mod_spectro = alpha * flx_mod_spectro_modif
-        return alpha, flx_mod_spectro, speckles[:,0] * flx_cont_obs_spectro, 0
+        return alpha, flx_mod_spectro, speckles[:,0] * flx_cont_obs_spectro, np.ones(len(flx_obs_spectro))
 
     # Build matrix A
     A = np.zeros([np.size(flx_obs_spectro), ind_system])

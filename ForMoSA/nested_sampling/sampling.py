@@ -198,7 +198,7 @@ class NestedSampling(object):
             raise ForMoSAError(msg)
         return self._nativ_model
 
-    def run(self, results_path: str | os.PathLike, observation: Observation, modelgrid: ModelGrid, interp_method: str = 'linear', wav_cont: list = ['NA'], res_cont: list = ['NA'], bounds_lsq: list = [('NA', 'NA')], emulator: list = ['NA'], full_logL: bool = False) -> None:
+    def run(self, results_path: str | os.PathLike, observation: Observation, modelgrid: ModelGrid, interp_method: str = 'linear', wav_fit: list = ['NA'], res_cont: list = ['NA'], bounds_lsq: list = [('NA', 'NA')], emulator: list = ['NA'], full_logL: bool = False) -> None:
         '''
         Method to run the nested sampling algorithm using the model, observation and nested sampling parameters.
 
@@ -209,7 +209,7 @@ class NestedSampling(object):
         observation         (Observation): Inbstance of :class:`~ForMoSA.Observation`
         modelGrid           (Observation): Inbstance of :class:`~ForMoSA.ModelGrid`
         interp_method               (str): Interpolation method ('linear', 'cubic', 'spline', ...)
-        wav_cont                   (list): List of wavelength grid used for the continuum (used for high contrast)
+        wav_fit                    (list): List of wavelength grid used for fitting
         res_cont                   (list): List of resolution used for the continuum (used for high contrast)
         bounds_lsq                 (list): List of bounds used for the least squares (used for high contrast)
         emulator                   (list): Emulator of the grid ('PCA', 'NMF')
@@ -243,7 +243,7 @@ class NestedSampling(object):
 
         n_free_parameters = self._params.n_free_parameters
 
-        loglike_gp = lambda theta: self._loglike(theta, observation, modelgrid, interp_method=interp_method, wav_cont=wav_cont, res_cont=res_cont, bounds_lsq=bounds_lsq, emulator=emulator, full_logL = full_logL)
+        loglike_gp = lambda theta: self._loglike(theta, observation, modelgrid, interp_method=interp_method, wav_fit=wav_fit, res_cont=res_cont, bounds_lsq=bounds_lsq, emulator=emulator, full_logL = full_logL)
         prior_transform_gp = lambda theta: self._prior_transform(theta, modelgrid)
 
         os.makedirs(str(results_path) + f'/{self.algorithm}/', exist_ok=True)
@@ -378,7 +378,7 @@ class NestedSampling(object):
         self._logger.info(f'Summary of Nested Sampling : \n {self._summary()}')
 
 
-    def _loglike(self, theta: list, observation: Observation, modelgrid: ModelGrid, wav_cont: list = ['NA'], res_cont: list = ['NA'], bounds_lsq: list = ['NA'], interp_method: str = 'linear', emulator: list = ['NA'], full_logL : bool = False) -> float | tuple[dict, np.ndarray, np.ndarray]:
+    def _loglike(self, theta: list, observation: Observation, modelgrid: ModelGrid, wav_fit: list = ['NA'], res_cont: list = ['NA'], bounds_lsq: list = ['NA'], interp_method: str = 'linear', emulator: list = ['NA'], full_logL : bool = False) -> float | tuple[dict, np.ndarray, np.ndarray]:
         '''
         Compute the loglikelihood for given values of the parameters of the nested sampling
 
@@ -387,7 +387,7 @@ class NestedSampling(object):
         theta                      (list): Parameters values picked by the nested sampling
         observation         (Observation): Inbstance of :class:`~ForMoSA.Observation`
         modelGrid           (Observation): Inbstance of :class:`~ForMoSA.ModelGrid`
-        wav_cont                   (list): List of wavelength grid used for the continuum (used for high contrast)
+        wav_fit                    (list): List of wavelength grid used for fitting
         res_cont                   (list): List of resolution used for the continuum (used for high contrast)
         bounds_lsq                 (list): List of bounds used for the least squares (used for high contrast)
         emulator                   (list): Emulator of the grid ('PCA', 'NMF')
@@ -408,9 +408,9 @@ class NestedSampling(object):
             modif_data, modif_model = dict(), dict()
             for indobs in range(observation.n_obs):
                 # Modified spectro
-                modif_data[indobs], modif_model[indobs] = self._compute_model_from_theta(theta, observation.obs_data[indobs]['spectro'], observation.obs_data[indobs]['photo'], modelgrid.adapted_grid[indobs]['spectro'], modelgrid.adapted_grid[indobs]['photo'], interp_method = interp_method, wav_cont = wav_cont[indobs % len(wav_cont)], res_cont = res_cont[indobs % len(res_cont)], bounds_lsq = bounds_lsq[indobs % len(bounds_lsq)], indobs = indobs)
+                modif_data[indobs], modif_model[indobs] = self._compute_model_from_theta(theta, observation.obs_data[indobs]['spectro'], observation.obs_data[indobs]['photo'], modelgrid.adapted_grid[indobs]['spectro'], modelgrid.adapted_grid[indobs]['photo'], interp_method = interp_method, wav_fit = wav_fit[indobs % len(wav_fit)], res_cont = res_cont[indobs % len(res_cont)], bounds_lsq = bounds_lsq[indobs % len(bounds_lsq)], indobs = indobs)
                 # loglike
-                logL = self._compute_loglike_from_model_and_spectra(observation.obs_data[indobs]['spectro'], observation.obs_data[indobs]['photo'], modif_model[indobs]['spectro'], modif_model[indobs]['photo'], indobs = indobs, full_logL = full_logL)
+                logL = self._compute_loglike_from_model_and_spectra(observation.obs_data[indobs]['spectro'], observation.obs_data[indobs]['photo'], modif_model[indobs]['spectro'], modif_model[indobs]['photo'], indobs = indobs, full_logL = full_logL, wav_fit = wav_fit[indobs])
 
                 # Increment total Log-likelihood
                 FINAL_logL += logL
@@ -422,7 +422,7 @@ class NestedSampling(object):
         return FINAL_logL
 
 
-    def _compute_model_from_theta(self, theta: list, obs_dict_spectro: dict, obs_dict_photo, grid_spectro: ModelGrid | ModelSubGrid, grid_photo: ModelGrid | ModelSubGrid, interp_method: str = 'linear', wav_cont: str | np.ndarray = 'NA', res_cont: str | np.ndarray = 'NA', bounds_lsq: list = ['NA', 'NA'], indobs: int = 0) -> tuple[dict, dict]:
+    def _compute_model_from_theta(self, theta: list, obs_dict_spectro: dict, obs_dict_photo, grid_spectro: ModelGrid | ModelSubGrid, grid_photo: ModelGrid | ModelSubGrid, interp_method: str = 'linear', wav_fit: str | np.ndarray = 'NA', res_cont: str | np.ndarray = 'NA', bounds_lsq: list = ['NA', 'NA'], indobs: int = 0) -> tuple[dict, dict]:
         '''
         Method to modify the interpolated synthetic spectra with the different extra-grid parameters.
         It can perform : Re-calibration on the data, Doppler shifting, Application of a substellar extinction, Application of a rotational velocity,
@@ -436,7 +436,7 @@ class NestedSampling(object):
         grid_spectro     (ModelGrid | ModelSubGrid): Instance of :class:'~ModelGrid' or :class:'~ModelSubGrid' adapted to spectroscopic data
         grid_photo       (ModelGrid | ModelSubGrid): Instance of :class:'~ModelGrid' or :class:'~ModelSubGrid' adapted to photometric data
         interp_method                         (str): Method for the interpolation of the grid
-        wav_cont                 (str | np.ndarray): Wavelength grid for the continuum estimation of the model (used for high contrast)
+        wav_fit                  (str | np.ndarray): Wavelength grid for the continuum estimation of the model (used for high contrast)
         res_cont                 (str | np.ndarray): Resolution of the continuum (used for high contrast)
         bounds_lsq                           (list): Bounds of the least squares estimation (used for high contrast)
         indobs                                (int): Index of the current observation looping
@@ -457,7 +457,7 @@ class NestedSampling(object):
         mod_dict = self._build_theoretical_model_from_theta(theta, grid_spectro, grid_photo, interp_method='linear', indobs=indobs, hc_mode = hc_mode)
 
         # Step 2: Apply observational effects (resampling, speckles, scaling if needed)
-        obs_dict, mod_dict = self._apply_observation_effects_to_model(mod_dict, obs_dict_spectro, obs_dict_photo, wav_cont=wav_cont, res_cont=res_cont, bounds_lsq=bounds_lsq, indobs=indobs)
+        obs_dict, mod_dict = self._apply_observation_effects_to_model(mod_dict, obs_dict_spectro, obs_dict_photo, wav_fit=wav_fit, res_cont=res_cont, bounds_lsq=bounds_lsq, indobs=indobs)
 
         return obs_dict, mod_dict
 
@@ -573,7 +573,7 @@ class NestedSampling(object):
         }
 
 
-    def _apply_observation_effects_to_model(self, model_dict: dict, obs_dict_spectro: dict, obs_dict_photo: dict, wav_cont='NA', res_cont='NA', bounds_lsq=['NA','NA'], indobs=0) -> tuple[dict, dict]:
+    def _apply_observation_effects_to_model(self, model_dict: dict, obs_dict_spectro: dict, obs_dict_photo: dict, wav_fit='NA', res_cont='NA', bounds_lsq=['NA','NA'], indobs=0) -> tuple[dict, dict]:
         '''
         Apply effects specifics to observations: resolution resampling, speckle subtraction, and ck estimation when no physical scaling is defined.
 
@@ -582,7 +582,7 @@ class NestedSampling(object):
         model_dict                          (dict): Model spectra and photometry as built from theta
         obs_dict_spectro                    (dict): Dictionary of spectroscopic observations
         obs_dict_photo                      (dict): Dictionary of photometric observations
-        wav_cont                  (str | np.ndarray): Wavelength grid for the continuum estimation of the model (used for high contrast)
+        wav_fit                   (str | np.ndarray): Wavelength grid for the continuum estimation of the model (used for high contrast)
         res_cont                  (str | np.ndarray): Resolution of the continuum (used for high contrast)
         bounds_lsq                          (list): Bounds of the least squares estimation (used for high contrast)
         indobs                               (int): Index of the current observation looping
@@ -603,7 +603,7 @@ class NestedSampling(object):
 
         # High contrast modeling if stellar flux is available
         if len(obs_dict_spectro['star_flx']) > 0:
-            flx_cont_mod = us.continuum_estimate(obs_dict_spectro['wav'], model_dict['spectro']['flx'] * obs_dict_spectro['transm'], model_dict['spectro']['res'], wav_cont, res_cont)
+            flx_cont_mod = us.continuum_estimate(obs_dict_spectro['wav'], model_dict['spectro']['flx'] * obs_dict_spectro['transm'], model_dict['spectro']['res'], wav_fit, res_cont)
             if self.logL[indobs % len(self.logL)].startswith('chi2'):
                 contributions, model_dict['spectro']['flx'], obs_dict_spectro['speckles'], obs_dict_spectro['estimated_system'] = hc._hc_model_estimate_speckles(obs_dict_spectro['flx'], obs_dict_spectro['flx_cont'], obs_dict_spectro['transm'], obs_dict_spectro['star_flx'], obs_dict_spectro['star_flx_cont'], model_dict['spectro']['flx'], flx_cont_mod, obs_dict_spectro['err'], bounds_lsq, obs_dict_spectro['system'])
             else:
@@ -628,7 +628,7 @@ class NestedSampling(object):
         return obs_dict, model_dict
 
 
-    def _compute_loglike_from_model_and_spectra(self, obs_dict_spectro: dict, obs_dict_photo: dict, mod_dict_spectro: dict, mod_dict_photo: dict, indobs: int = 0, full_logL: bool = False):
+    def _compute_loglike_from_model_and_spectra(self, obs_dict_spectro: dict, obs_dict_photo: dict, mod_dict_spectro: dict, mod_dict_photo: dict, indobs: int = 0, full_logL: bool = False, wav_fit: np.ndarray | float = 'NA'):
         '''
         Method to compute the loglikelihood from the modified observation and model
 
@@ -640,6 +640,7 @@ class NestedSampling(object):
         mod_dict_photo      (dict): Dictionary of model photometric data modified by the nested sampling {indobs: {'spectro': dict 'photo': dict}}
         indobs               (int): Index of current observation
         full_logL           (bool): Whether to compute the full loglikelihood function (i.e. with additional constant noise terms)
+        wav_fit (str | np.ndarray): Wavelengths used for fitting
 
         Returns:
             - Final_logL (float): Final loglikelihood value
@@ -648,24 +649,62 @@ class NestedSampling(object):
         '''
 
         # LogL Photometry
-        logL_photo = 0 if len(obs_dict_photo['wav']) == 0 else logL_functions.logL_chi2(obs_dict_photo['flx'] - mod_dict_photo['flx'], obs_dict_photo['err'], full=full_logL)
+        if len(obs_dict_photo['wav']) == 0:
+            logL_photo = 0
+        else:
+            residual_photo = obs_dict_photo['flx'] - mod_dict_photo['flx']
+            logL_photo = logL_functions.logL_chi2(residual_photo, obs_dict_photo['err'], full=full_logL)
 
         # LogL Spectroscopy
         logL_spectro = 0
-        if len(obs_dict_spectro['wav']) > 0:
-            residual = obs_dict_spectro['flx'] - mod_dict_spectro['flx'] - obs_dict_spectro['estimated_system'] - obs_dict_spectro['speckles']
 
+        if len(obs_dict_spectro['wav']) > 0:
+            # Bounds for fitting
+            if wav_fit != 'NA':
+                ind_for_fitting = np.array([], dtype=int)
+                for wav_fit_cut in wav_fit.split('/'):
+                    wmin, wmax = map(float, wav_fit_cut.split(','))
+                    indices = np.where((obs_dict_spectro['wav'] >= wmin) & (obs_dict_spectro['wav'] <= wmax))[0]
+                    ind_for_fitting = np.concatenate((ind_for_fitting, indices))
+                ind_for_fitting = np.sort(ind_for_fitting)
+            else:
+                ind_for_fitting = np.arange(len(obs_dict_spectro['wav']))
+
+            # Selection of final products for the loglikelihood computation
+            obs_flx = obs_dict_spectro['flx'][ind_for_fitting]
+            mod_flx = mod_dict_spectro['flx'][ind_for_fitting]
+            speckles = obs_dict_spectro['speckles'][ind_for_fitting]
+            system = obs_dict_spectro['estimated_system'][ind_for_fitting]
+            err = obs_dict_spectro['err'][ind_for_fitting]
+
+            residual = obs_flx - mod_flx - speckles - system
+
+            # Specific case for covariance matrix
+            if len(obs_dict_spectro['cov'] > 0):
+                cov = obs_dict_spectro['cov'][np.ix_(ind_for_fitting, ind_for_fitting)]
+
+            # Same with inverse of covariance matrix
+            if len(obs_dict_spectro['inv_cov']) > 0:
+                inv_cov = obs_dict_spectro['inv_cov'][np.ix_(ind_for_fitting, ind_for_fitting)]
+
+            # Loglikelihood type
             ll_type = self.logL[indobs % len(self.logL)]
-            logL_dict = {'chi2': lambda: logL_functions.logL_chi2(residual, obs_dict_spectro['err']),
-                         'chi2_covariance': lambda: logL_functions.logL_chi2_covariance(residual, obs_dict_spectro['cov'], obs_dict_spectro['inv_cov'], full=full_logL),
-                         'CCF_Brogi': lambda: logL_functions.logL_CCF_Brogi(obs_dict_spectro['flx'] - obs_dict_spectro['speckles'] - obs_dict_spectro['estimated_system'], mod_dict_spectro['flx']),
-                         'CCF_Zucker': lambda: logL_functions.logL_CCF_Zucker(obs_dict_spectro['flx'] - obs_dict_spectro['speckles'] - obs_dict_spectro['estimated_system'], mod_dict_spectro['flx']),
-                         'CCF_custom': lambda: logL_functions.logL_CCF_custom(obs_dict_spectro['flx'] - obs_dict_spectro['speckles'] - obs_dict_spectro['estimated_system'], mod_dict_spectro['flx'], obs_dict_spectro['err']),
-                         'chi2_noisescaling': lambda: logL_functions.logL_chi2_noisescaling(residual, obs_dict_spectro['err'], full=full_logL),
-                         'chi2_noisescaling_covariance': lambda: logL_functions.logL_chi2_noisescaling_covariance(residual, obs_dict_spectro['cov'], obs_dict_spectro['inv_cov'], full=full_logL)}
+
+            logL_dict = {
+                'chi2': lambda: logL_functions.logL_chi2(residual, err),
+                'chi2_covariance': lambda: logL_functions.logL_chi2_covariance(residual, cov, inv_cov, full=full_logL),
+                'CCF_Brogi': lambda: logL_functions.logL_CCF_Brogi(obs_flx - speckles - system, mod_flx),
+                'CCF_Zucker': lambda: logL_functions.logL_CCF_Zucker(obs_flx - speckles - system, mod_flx),
+                'CCF_custom': lambda: logL_functions.logL_CCF_custom(obs_flx - speckles - system, mod_flx, err),
+                'chi2_noisescaling': lambda: logL_functions.logL_chi2_noisescaling(residual, err, full=full_logL),
+                'chi2_noisescaling_covariance': lambda: logL_functions.logL_chi2_noisescaling_covariance(residual, cov, inv_cov, full=full_logL)
+            }
+
             logL_spectro = logL_dict.get(ll_type, lambda: 0)()
 
+        # LogL final
         FINAL_logL = logL_photo + logL_spectro
+
 
         if FINAL_logL < -1e6:
             self._logger.warning(f"[loglike WARNING] Unusually low loglike: {FINAL_logL}")

@@ -140,20 +140,21 @@ class Analysis(object):
         '''
 
         adapt = self.config_params['adapt']
+        inversion = self.config_params['inversion']
 
         res_obs   = adapt['target_res_obs']
         res_mod   = adapt['target_res_mod']
         res_cont  = adapt['res_cont']
-        wav_cont  = adapt['wav_cont']
         emulator  = adapt['emulator']
+        wav_fit   = inversion['wav_fit']
 
         # Parameters we want to check the format
         params = {
             'res_obs': res_obs,
             'res_mod': res_mod,
             'res_cont': res_cont,
-            'wav_cont': wav_cont,
             'emulator': emulator,
+            'wav_fit': wav_fit
         }
 
         n_obs = self.observation.n_obs
@@ -172,11 +173,11 @@ class Analysis(object):
             self._logger.critical(msg)
             raise ForMoSAError(msg)
 
-        self.observation.adapt_all_observations(res_obs, self.grid.wavelength, self.grid.resolution, res_cont = res_cont, wav_cont = wav_cont)
+        self.observation.adapt_all_observations(res_obs, self.grid.wavelength, self.grid.resolution, res_cont = res_cont, wav_cont = wav_fit)
 
         if not self.adapted:   # If the model is not already adapted to the data, or if the user wants to redo the adaptation
             # Adapt grid using target wavelength and resolution
-            self.grid.adapt_all_grids(self.observation.obs_data, res_mod, self.ns.params, wav_cont = wav_cont, res_cont = res_cont)
+            self.grid.adapt_all_grids(self.observation.obs_data, res_mod, self.ns.params, wav_cont = wav_fit, res_cont = res_cont)
 
             if emulator == 'PCA':
                 self._logger.info(' Decomposing the grid using PCA')
@@ -199,7 +200,7 @@ class Analysis(object):
                 self.observation._load_adapted_observations_from_files(self.paths.result_path)
             except ForMoSAError:
                 self._logger.warning(f' Adapting and saving observations to folder {self.paths.result_path}')
-                self.observation.adapt_all_observations(res_obs, self.grid.wavelength, self.grid.resolution, res_cont = res_cont, wav_cont = wav_cont)
+                self.observation.adapt_all_observations(res_obs, self.grid.wavelength, self.grid.resolution, res_cont = res_cont, wav_cont = wav_fit)
                 self.observation._save_all_observations(self.paths.result_path)
 
             self.grid._load_grid_from_files(self.paths.adapt_store_path, self.observation.obs_name_list)
@@ -231,20 +232,39 @@ class Analysis(object):
         res_obs       = adapt['target_res_obs']
         res_mod       = adapt['target_res_mod']
         res_cont      = adapt['res_cont']
-        wav_cont      = adapt['wav_cont']
         emulator      = adapt['emulator']
         interp_method = adapt['method']
 
-        wav_for_fitting = inversion['wav_fit']
-        bounds_lsq      = inversion['hc_bounds_lsq']
-        full_logL       = inversion['full_logL']
+        wav_fit       = inversion['wav_fit']
+        bounds_lsq    = inversion['hc_bounds_lsq']
+        full_logL     = inversion['full_logL']
 
-        # Check that inputs are of type 'list'
-        is_not_list = utils.check_format(res_obs, res_mod, res_cont, wav_cont, emulator, wav_for_fitting, bounds_lsq, type_expected=list)
-        if len(is_not_list) > 0:
-                msg = f" Params in wrong format : {', '.join(is_not_list)}."
-                self._logger.critical(msg)
-                raise ForMoSAError(msg)
+        # Parameters we want to check the format
+        params = {
+            'res_obs': res_obs,
+            'res_mod': res_mod,
+            'res_cont': res_cont,
+            'emulator': emulator,
+            'wav_fit': wav_fit,
+            'bounds_lsq': bounds_lsq
+        }
+
+
+        n_obs = self.observation.n_obs
+
+        wrong_type = [name for name, val in params.items() if not isinstance(val, list)]
+        wrong_length = [name for name, val in params.items() if not (len(val) == 1 or len(val) == n_obs)]
+
+        # Errors
+        if wrong_type:
+            msg = f"Params not list: {', '.join(wrong_type)}."
+            self._logger.critical(msg)
+            raise ForMoSAError(msg)
+
+        if wrong_length:
+            msg = f"Params with wrong length (must be 1 or {n_obs}): {', '.join(wrong_length)}."
+            self._logger.critical(msg)
+            raise ForMoSAError(msg)
 
         # Replace 'parX' names by associated physical parameters ('Teff', 'logg', ...)
         for name in self.ns.params.parameters.keys():
@@ -263,7 +283,7 @@ class Analysis(object):
 
         if not(self.fitted):
             # Run nested sampling
-            self.ns.run(self.paths.result_path, self.observation, self.grid, interp_method=interp_method, wav_cont=wav_cont, res_cont=res_cont, bounds_lsq=bounds_lsq, emulator=emulator, full_logL = full_logL)
+            self.ns.run(self.paths.result_path, self.observation, self.grid, interp_method=interp_method, res_cont=res_cont, bounds_lsq=bounds_lsq, emulator=emulator, full_logL = full_logL, wav_fit = wav_fit)
 
             # Savings
             self.ns._save_results(self.paths.result_path)
@@ -272,7 +292,7 @@ class Analysis(object):
             self.ns._load_results(self.paths.result_path)
 
         # Best model cut at the wavelengths of the observations
-        self.ns._compute_best_model(self.observation, self.grid, interp_method = interp_method, wav_cont = wav_cont, res_cont = res_cont, bounds_lsq = bounds_lsq)
+        self.ns._compute_best_model(self.observation, self.grid, interp_method = interp_method, wav_cont = wav_fit, res_cont = res_cont, bounds_lsq = bounds_lsq)
         self.grid._read_grid()
         # Best nativ model
         self.ns._nativ_model = self.ns._compute_nativ_model_from_theta(self.ns.list_best_params[:self.ns.params.n_free_parameters], self.grid, self.observation, wavelength_range=self.grid.wavelength_range, resolution=self.observation.min_resolution)
@@ -375,9 +395,11 @@ class Analysis(object):
             if not self._fitted:
                 raise ForMoSAError("Nested sampling must be run before computing the CCF.")# Best params to compute the best model
             best_params = self.ns.param_best_dict.copy()
+            vsini_index = list(best_params.keys()).index('vsini')
             best_params['rv'] = 0
             theta = list(best_params.values())
         else:
+            vsini_index = list(theta.keys()).index('vsini')
             theta['rv'] = 0
             theta = list(theta.values())
 
@@ -398,6 +420,7 @@ class Analysis(object):
 
         # Best model
         _, mod_dict_spectro = self.ns._compute_model_from_theta(theta, obs_dict_spectro, obs_dict_photo, grid_spectro, grid_photo, res_mod_spectro, wav_cont=wav_cont, res_cont=res_cont, bounds_lsq=bounds_lsq)
+        vsini_fct = self.ns.params.parameters['vsini'].vsini_function
 
         wav_mod = mod_dict_spectro['spectro']['wav']
         flx_mod = mod_dict_spectro['spectro']['nativ_flx']   # Using nativ_flx which the flux at the nativ resolution of the model
@@ -409,8 +432,11 @@ class Analysis(object):
         transm = obs_dict_spectro['transm']
         system = obs_dict_spectro['system']
 
+        flx_mod_vsini, res_mod_vsini = spec.vsini_fct(wav_mod, flx_mod, res_mod_spectro, 0.6, theta[vsini_index], vsini_fct)
+
+
         # CCF
-        ccf, acf, ccf_star, rv_peak, _ = spec.compute_ccf(wav_mod, flx_mod, wav_obs, flx_obs, err_obs, res_mod_spectro, res_obs_spectro, res_cont, wav_cont, star_flx, transm, system, rv_grid=rv_grid)
+        ccf, acf, ccf_star, rv_peak, _ = spec.compute_ccf(wav_mod, flx_mod_vsini, wav_obs, flx_obs, err_obs, res_mod_vsini, res_obs_spectro, res_cont, wav_cont, star_flx, transm, system, rv_grid=rv_grid)
 
         # Plot
         fig = plt.figure('CCF', figsize=(10,8))

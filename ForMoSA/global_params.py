@@ -244,8 +244,7 @@ class GlobalParameters(object):
         target_res_obs = self._get_config_value(config, 'config_adapt', 'target_res_obs', 'obs', self.n_obs, list, self.instrument_files)
         target_res_mod = self._get_config_value(config, 'config_adapt', 'target_res_mod', 'obs', self.n_obs, list, self.instrument_files)
         res_cont = self._get_config_value(config, 'config_adapt', 'res_cont', 'NA', self.n_obs, list, self.instrument_files)
-        wav_cont = self._get_config_value(config, 'config_adapt', 'wav_cont', 'NA', self.n_obs, list, self.instrument_files)
-        adapt = {'method': method, 'emulator': emulator, 'target_res_obs': target_res_obs, 'target_res_mod': target_res_mod, 'res_cont': res_cont, 'wav_cont': wav_cont}
+        adapt = {'method': method, 'emulator': emulator, 'target_res_obs': target_res_obs, 'target_res_mod': target_res_mod, 'res_cont': res_cont}
 
         # [config_inversion] (4)
         logL_type = self._get_config_value(config, 'config_inversion', 'logL_type', 'chi2', self.n_obs, list, self.instrument_files)
