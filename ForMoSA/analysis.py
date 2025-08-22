@@ -292,7 +292,7 @@ class Analysis(object):
             self.ns._load_results(self.paths.result_path)
 
         # Best model cut at the wavelengths of the observations
-        self.ns._compute_best_model(self.observation, self.grid, interp_method = interp_method, wav_cont = wav_fit, res_cont = res_cont, bounds_lsq = bounds_lsq)
+        self.ns._compute_best_model(self.observation, self.grid, interp_method = interp_method, wav_fit = wav_fit, res_cont = res_cont, bounds_lsq = bounds_lsq)
         self.grid._read_grid()
         # Best nativ model
         self.ns._nativ_model = self.ns._compute_nativ_model_from_theta(self.ns.list_best_params[:self.ns.params.n_free_parameters], self.grid, self.observation, wavelength_range=self.grid.wavelength_range, resolution=self.observation.min_resolution)
@@ -409,7 +409,7 @@ class Analysis(object):
         inversion = self.config_params['inversion']
 
         res_cont = float(adapt['res_cont'][indobs % len(adapt['res_cont'])])
-        wav_cont = adapt['wav_cont'][indobs % len(adapt['wav_cont'])]
+        wav_fit = inversion['wav_fit'][indobs % len(inversion['wav_fit'])]
         bounds_lsq = inversion['hc_bounds_lsq'][indobs % len(inversion['hc_bounds_lsq'])]
 
         grid_spectro, grid_photo = self.grid.adapted_grid[indobs]['spectro'], self.grid.adapted_grid[indobs]['photo']
@@ -419,7 +419,7 @@ class Analysis(object):
         res_obs_spectro = obs_dict_spectro['res']
 
         # Best model
-        _, mod_dict_spectro = self.ns._compute_model_from_theta(theta, obs_dict_spectro, obs_dict_photo, grid_spectro, grid_photo, res_mod_spectro, wav_cont=wav_cont, res_cont=res_cont, bounds_lsq=bounds_lsq)
+        _, mod_dict_spectro = self.ns._compute_model_from_theta(theta, obs_dict_spectro, obs_dict_photo, grid_spectro, grid_photo, res_mod_spectro, wav_fit=wav_fit, res_cont=res_cont, bounds_lsq=bounds_lsq)
         vsini_fct = self.ns.params.parameters['vsini'].vsini_function
 
         wav_mod = mod_dict_spectro['spectro']['wav']
@@ -436,7 +436,7 @@ class Analysis(object):
 
 
         # CCF
-        ccf, acf, ccf_star, rv_peak, _ = spec.compute_ccf(wav_mod, flx_mod_vsini, wav_obs, flx_obs, err_obs, res_mod_vsini, res_obs_spectro, res_cont, wav_cont, star_flx, transm, system, rv_grid=rv_grid)
+        ccf, acf, ccf_star, rv_peak, _ = spec.compute_ccf(wav_mod, flx_mod_vsini, wav_obs, flx_obs, err_obs, res_mod_vsini, res_obs_spectro, res_cont, wav_fit, star_flx, transm, system, rv_grid=rv_grid)
 
         # Plot
         fig = plt.figure('CCF', figsize=(10,8))

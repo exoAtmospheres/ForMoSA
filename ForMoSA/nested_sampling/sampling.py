@@ -755,7 +755,7 @@ class NestedSampling(object):
         return prior
 
 
-    def _compute_best_model(self, observation: Observation, modelgrid: ModelGrid, interp_method: str = 'linear', wav_cont: list = ['NA'], res_cont: list = ['NA'], bounds_lsq: list = ['NA', 'NA']) -> None:
+    def _compute_best_model(self, observation: Observation, modelgrid: ModelGrid, interp_method: str = 'linear', wav_fit: list = ['NA'], res_cont: list = ['NA'], bounds_lsq: list = ['NA', 'NA']) -> None:
         '''
         Method to compute best model from nested sampling output
 
@@ -777,7 +777,7 @@ class NestedSampling(object):
         modif_data, best_model = dict(), dict()
 
         for indobs in range(observation.n_obs):
-            modif_data[indobs], best_model[indobs] = self._compute_model_from_theta(best_theta, observation.obs_data[indobs]['spectro'], observation.obs_data[indobs]['photo'], modelgrid.adapted_grid[indobs]['spectro'], modelgrid.adapted_grid[indobs]['photo'], interp_method = interp_method, wav_cont = wav_cont[indobs % len(wav_cont)], res_cont = res_cont[indobs % len(res_cont)], bounds_lsq = bounds_lsq[indobs % len(bounds_lsq)], indobs = indobs)
+            modif_data[indobs], best_model[indobs] = self._compute_model_from_theta(best_theta, observation.obs_data[indobs]['spectro'], observation.obs_data[indobs]['photo'], modelgrid.adapted_grid[indobs]['spectro'], modelgrid.adapted_grid[indobs]['photo'], interp_method = interp_method, wav_fit = wav_fit[indobs % len(wav_fit)], res_cont = res_cont[indobs % len(res_cont)], bounds_lsq = bounds_lsq[indobs % len(bounds_lsq)], indobs = indobs)
 
         self._modif_data = modif_data
         self._best_model = best_model
