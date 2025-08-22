@@ -434,7 +434,6 @@ class Analysis(object):
 
         flx_mod_vsini, res_mod_vsini = spec.vsini_fct(wav_mod, flx_mod, res_mod_spectro, 0.6, theta[vsini_index], vsini_fct)
 
-
         # CCF
         ccf, acf, ccf_star, rv_peak, _ = spec.compute_ccf(wav_mod, flx_mod_vsini, wav_obs, flx_obs, err_obs, res_mod_vsini, res_obs_spectro, res_cont, wav_fit, star_flx, transm, system, rv_grid=rv_grid)
 

@@ -499,7 +499,7 @@ def bb_cpd_fct(wav: np.ndarray, flx: np.ndarray, distance: np.ndarray, bb_t_pick
 # ----------------------------------------------------------------------------------------------------------------------
 
 
-def compute_ccf(wav_mod_spectro: np.ndarray, flx_mod_spectro: np.ndarray, wav_obs_spectro: np.ndarray, flx_obs_spectro: np.ndarray, err_obs_spectro: np.ndarray, res_mod_spectro: np.ndarray, res_obs_spectro: np.ndarray, res_cont: float, wav_cont_cut: str | np.ndarray,  star_flx_obs_spectro: np.ndarray = np.array([]), transm_obs_spectro: float | np.ndarray = 1, system_obs_spectro: np.ndarray = np.array([]), rv_grid: np.ndarray = np.linspace(-300, 300, 600), rv_sini_map: bool = False):
+def compute_ccf(wav_mod_spectro: np.ndarray, flx_mod_spectro: np.ndarray, wav_obs_spectro: np.ndarray, flx_obs_spectro: np.ndarray, err_obs_spectro: np.ndarray, res_mod_spectro: np.ndarray, res_obs_spectro: np.ndarray, res_cont: float, wav_fit: str | np.ndarray,  star_flx_obs_spectro: np.ndarray = np.array([]), transm_obs_spectro: float | np.ndarray = 1, system_obs_spectro: np.ndarray = np.array([]), rv_grid: np.ndarray = np.linspace(-300, 300, 600), rv_sini_map: bool = False):
     '''
     Function to compute the ccf between a template and data
 
@@ -512,7 +512,7 @@ def compute_ccf(wav_mod_spectro: np.ndarray, flx_mod_spectro: np.ndarray, wav_ob
         res_mod_spectro             (np.ndarray): Resolution of the template
         res_obs_spectro             (np.ndarray): Resolution of the data
         res_cont                         (float): Resolution of the continuum
-        wav_cont_cut          (str | np.ndarray): Wavelengths used for the continuum estimation
+        wav_fit               (str | np.ndarray): Wavelengths used for fitting
         star_flx_obs_spectro        (np.ndarray): Star flux of the data
         transm_obs_spectro  (float | np.ndarray): Transmission
         system_obs_spectro          (np.ndarray): Systematics
@@ -532,20 +532,34 @@ def compute_ccf(wav_mod_spectro: np.ndarray, flx_mod_spectro: np.ndarray, wav_ob
         print(f'Your grid is {rv_grid}. \nPlease, choose an RV grid going beyond [-100, 100]')
         return None, None, None, None, None
 
+    ind_for_fitting = np.array([], dtype=int)
+    for wav_fit_cut in wav_fit.split('/'):
+        wmin, wmax = map(float, wav_fit_cut.split(','))
+        indices = np.where((wav_obs_spectro >= wmin) & (wav_obs_spectro <= wmax))[0]
+        ind_for_fitting = np.concatenate((ind_for_fitting, indices))
+    ind_for_fitting = np.sort(ind_for_fitting)
+
+    wav_obs_spectro, flx_obs_spectro, err_obs_spectro, res_obs_spectro = wav_obs_spectro[ind_for_fitting], flx_obs_spectro[ind_for_fitting], err_obs_spectro[ind_for_fitting], res_obs_spectro[ind_for_fitting]
+
     # Estimate continuum of observed flux
-    flx_cont_obs_spectro = continuum_estimate(wav_obs_spectro, flx_obs_spectro, res_obs_spectro, wav_cont_cut, res_cont)
+    flx_cont_obs_spectro = continuum_estimate(wav_obs_spectro, flx_obs_spectro, res_obs_spectro, wav_fit_cut, res_cont)
 
     speckles = 1
     star_flx_cont_obs_spectro = np.array([])
     if star_flx_obs_spectro.size > 0:
+        star_flx_obs_spectro = star_flx_obs_spectro[ind_for_fitting]
         mid_idx = star_flx_obs_spectro.shape[1] // 2
         star_flx_mid = star_flx_obs_spectro[:, mid_idx]
-        star_flx_cont_obs_spectro = continuum_estimate(wav_obs_spectro, star_flx_mid, res_obs_spectro, wav_cont_cut, res_cont)
+        star_flx_cont_obs_spectro = continuum_estimate(wav_obs_spectro, star_flx_mid, res_obs_spectro, wav_fit, res_cont)
         speckles = star_flx_obs_spectro / star_flx_cont_obs_spectro[:, None]
+    if len(transm_obs_spectro) > 0:
+        transm_obs_spectro = transm_obs_spectro[ind_for_fitting]
+    if len(system_obs_spectro) > 0:
+        system_obs_spectro = system_obs_spectro[ind_for_fitting]
 
     # Preprocess model template at RV = 0
     flx_mod_spectro_no_rv = resolution_decreasing(wav_mod_spectro, flx_mod_spectro, res_mod_spectro, wav_obs_spectro, res_obs_spectro)
-    flx_cont_mod_spectro_no_rv = continuum_estimate(wav_obs_spectro, flx_mod_spectro_no_rv * transm_obs_spectro, res_obs_spectro, wav_cont_cut, res_cont)
+    flx_cont_mod_spectro_no_rv = continuum_estimate(wav_obs_spectro, flx_mod_spectro_no_rv * transm_obs_spectro, res_obs_spectro, wav_fit, res_cont)
 
     mid_speckles = speckles[:, speckles.shape[1] // 2] if isinstance(speckles, np.ndarray) else speckles
     flx_mod_spectro_no_rv_hf = transm_obs_spectro * flx_mod_spectro_no_rv - flx_cont_mod_spectro_no_rv * mid_speckles
@@ -566,7 +580,7 @@ def compute_ccf(wav_mod_spectro: np.ndarray, flx_mod_spectro: np.ndarray, wav_ob
             def update(*_): pbar.update()
 
             for irv in rv_grid:
-                task = pool.apply_async(compute_ccf_single_rv, args=(irv, wav_mod_spectro, flx_mod_spectro, flx_mod_spectro_no_rv_hf, res_mod_spectro, wav_obs_spectro, flx_obs_spectro, flx_cont_obs_spectro, flx_obs_spectro_hf, res_obs_spectro, res_cont, wav_cont_cut, err_obs_spectro, transm_obs_spectro, star_flx_obs_spectro, star_flx_cont_obs_spectro, star_flx_obs_spectro_hf, system_obs_spectro, speckles), callback=update)
+                task = pool.apply_async(compute_ccf_single_rv, args=(irv, wav_mod_spectro, flx_mod_spectro, flx_mod_spectro_no_rv_hf, res_mod_spectro, wav_obs_spectro, flx_obs_spectro, flx_cont_obs_spectro, flx_obs_spectro_hf, res_obs_spectro, wav_fit, res_cont, err_obs_spectro, transm_obs_spectro, star_flx_obs_spectro, star_flx_cont_obs_spectro, star_flx_obs_spectro_hf, system_obs_spectro, speckles), callback=update)
                 results.append(task)
 
             pool.close()
@@ -579,7 +593,7 @@ def compute_ccf(wav_mod_spectro: np.ndarray, flx_mod_spectro: np.ndarray, wav_ob
         print(f'Parallel computation of CCF produced the following error: {e}. Trying serial computation.')
         ccf, acf, ccf_star, logL = [], [], [], []
         for irv in tqdm(rv_grid):
-            res = compute_ccf_single_rv(irv, wav_mod_spectro, flx_mod_spectro, flx_mod_spectro_no_rv_hf, res_mod_spectro, wav_obs_spectro, flx_obs_spectro, flx_cont_obs_spectro, flx_obs_spectro_hf, res_obs_spectro, res_cont, wav_cont_cut, err_obs_spectro, transm_obs_spectro, star_flx_obs_spectro, star_flx_cont_obs_spectro, star_flx_obs_spectro_hf, system_obs_spectro, speckles)
+            res = compute_ccf_single_rv(irv, wav_mod_spectro, flx_mod_spectro, flx_mod_spectro_no_rv_hf, res_mod_spectro, wav_obs_spectro, flx_obs_spectro, flx_cont_obs_spectro, flx_obs_spectro_hf, res_obs_spectro, wav_fit, res_cont, err_obs_spectro, transm_obs_spectro, star_flx_obs_spectro, star_flx_cont_obs_spectro, star_flx_obs_spectro_hf, system_obs_spectro, speckles)
             ccf.append(res[0])
             acf.append(res[1])
             ccf_star.append(res[2])
@@ -617,7 +631,7 @@ def compute_ccf(wav_mod_spectro: np.ndarray, flx_mod_spectro: np.ndarray, wav_ob
 # ----------------------------------------------------------------------------------------------------------------------
 
 
-def compute_ccf_single_rv(rv: float, wav_mod_spectro: np.ndarray, flx_mod_spectro: np.ndarray, flx_mod_spectro_no_rv_hf: np.ndarray, res_mod_spectro: np.ndarray, wav_obs_spectro: np.ndarray, flx_obs_spectro: np.ndarray, flx_cont_obs_spectro: np.ndarray, flx_obs_spectro_hf: np.ndarray, res_obs_spectro: np.ndarray, res_cont: np.ndarray,  wav_cont_cut: np.ndarray, err_obs_spectro: np.ndarray, transm_obs_spectro: int | np.ndarray = 1, star_flx_obs_spectro: np.ndarray = np.array([]), star_flx_cont_obs_spectro: (int | np.ndarray) = 1, star_flx_obs_spectro_hf: np.ndarray = np.array([]), system_obs_spectro: np.ndarray = np.array([]), speckles: (int | np.ndarray) = 1, ld: float = 0.6) -> tuple[float, float, float]:
+def compute_ccf_single_rv(rv: float, wav_mod_spectro: np.ndarray, flx_mod_spectro: np.ndarray, flx_mod_spectro_no_rv_hf: np.ndarray, res_mod_spectro: np.ndarray, wav_obs_spectro: np.ndarray, flx_obs_spectro: np.ndarray, flx_cont_obs_spectro: np.ndarray, flx_obs_spectro_hf: np.ndarray, res_obs_spectro: np.ndarray, wav_cont: str, res_cont: np.ndarray, err_obs_spectro: np.ndarray, transm_obs_spectro: int | np.ndarray = 1, star_flx_obs_spectro: np.ndarray = np.array([]), star_flx_cont_obs_spectro: (int | np.ndarray) = 1, star_flx_obs_spectro_hf: np.ndarray = np.array([]), system_obs_spectro: np.ndarray = np.array([]), speckles: (int | np.ndarray) = 1, ld: float = 0.6) -> tuple[float, float, float]:
     '''
     Function to compute the correlation between template and data for a specific rv value
 
@@ -632,8 +646,8 @@ def compute_ccf_single_rv(rv: float, wav_mod_spectro: np.ndarray, flx_mod_spectr
         flx_obs_spectro                 (np.ndarray): Fhe flux of the data
         flx_cont_obs_spectro            (np.ndarray): Continuum of the flux of the data
         res_obs_spectro                 (np.ndarray): Resolution of the data
+        wav_cont                               (str): Wavelength used for the continuum
         res_cont                             (float): Resolution of the continuum
-        wav_cont_cut                    (np.ndarray): Wavelengths used for the continuum estimation
         err_obs_spectro                 (np.ndarray): Error of the flux
         transm_obs_spectro        (int | np.ndarray): Transmission
         star_flx_obs_spectro            (np.ndarray): Flux of the star
@@ -654,7 +668,7 @@ def compute_ccf_single_rv(rv: float, wav_mod_spectro: np.ndarray, flx_mod_spectr
     flx_shifted = resolution_decreasing(wav_shifted, flx_shifted, res_shifted, wav_obs_spectro, res_obs_spectro)
 
     # Continuum estimation
-    flx_cont = continuum_estimate(wav_obs_spectro, flx_shifted * transm_obs_spectro, res_obs_spectro, wav_cont_cut, res_cont)
+    flx_cont = continuum_estimate(wav_obs_spectro, flx_shifted * transm_obs_spectro, res_obs_spectro, wav_cont, res_cont)
 
     mid_idx = speckles.shape[1] // 2 if isinstance(speckles, np.ndarray) else 0
     speckles_mid = speckles[:, mid_idx] if isinstance(speckles, np.ndarray) else speckles
