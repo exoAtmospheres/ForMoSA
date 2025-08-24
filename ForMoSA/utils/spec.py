@@ -499,7 +499,7 @@ def bb_cpd_fct(wav: np.ndarray, flx: np.ndarray, distance: np.ndarray, bb_t_pick
 # ----------------------------------------------------------------------------------------------------------------------
 
 
-def compute_ccf(wav_mod_spectro: np.ndarray, flx_mod_spectro: np.ndarray, wav_obs_spectro: np.ndarray, flx_obs_spectro: np.ndarray, err_obs_spectro: np.ndarray, res_mod_spectro: np.ndarray, res_obs_spectro: np.ndarray, res_cont: float, wav_fit: str | np.ndarray,  star_flx_obs_spectro: np.ndarray = np.array([]), transm_obs_spectro: float | np.ndarray = 1, system_obs_spectro: np.ndarray = np.array([]), rv_grid: np.ndarray = np.linspace(-300, 300, 600), rv_sini_map: bool = False):
+def compute_ccf(wav_mod_spectro: np.ndarray, flx_mod_spectro: np.ndarray, wav_obs_spectro: np.ndarray, flx_obs_spectro: np.ndarray, err_obs_spectro: np.ndarray, res_mod_spectro: np.ndarray, res_obs_spectro: np.ndarray, res_cont: float, wav_fit: str | np.ndarray,  star_flx_obs_spectro: np.ndarray = np.array([]), transm_obs_spectro: np.ndarray = np.array([]), system_obs_spectro: np.ndarray = np.array([]), rv_grid: np.ndarray = np.linspace(-300, 300, 600), rv_sini_map: bool = False):
     '''
     Function to compute the ccf between a template and data
 
@@ -554,6 +554,8 @@ def compute_ccf(wav_mod_spectro: np.ndarray, flx_mod_spectro: np.ndarray, wav_ob
         speckles = star_flx_obs_spectro / star_flx_cont_obs_spectro[:, None]
     if len(transm_obs_spectro) > 0:
         transm_obs_spectro = transm_obs_spectro[ind_for_fitting]
+    else:
+        transm_obs_spectro = 1
     if len(system_obs_spectro) > 0:
         system_obs_spectro = system_obs_spectro[ind_for_fitting]
 
