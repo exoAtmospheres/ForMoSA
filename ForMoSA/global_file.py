@@ -92,7 +92,7 @@ class GlobFile:
         self.wav_fit = get_config_value(self.config, 'config_inversion', 'wav_fit', '0,100', list)
         self.ns_algo = get_config_value(self.config, 'config_inversion', 'ns_algo', 'nestle', None)
         self.npoint = get_config_value(self.config, 'config_inversion', 'npoint', '100', eval)
-        self.hc_bounds_lsq = get_config_value(self.config, 'config_inversion', 'hc_bounds_lsq', 'NA', list)
+        self.hc_bounds_lsq = get_config_value(self.config, 'config_highcont_models', 'hc_bounds_lsq', 'NA', list)
     
         # [config_parameters] (11)
         self.par1 = get_config_value(self.config, 'config_parameters', 'par1', 'NA', list)
