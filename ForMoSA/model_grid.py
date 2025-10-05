@@ -744,6 +744,27 @@ class ModelGrid(object):
             self._logger.critical(msg)
             raise ForMoSAError(msg)
 
+        out_of_bounds_params = []
+
+        for i, thetai in enumerate(theta):
+            param_name = self.keys[i]
+            param_limits = list(self.lims_params_grid.values())[i]
+            min_val, max_val = param_limits
+
+            if thetai < min_val or thetai > max_val:
+                out_of_bounds_params.append({
+                    "param": param_name,
+                    "value": thetai,
+                    "min": min_val,
+                    "max": max_val
+                })
+
+        if out_of_bounds_params:
+            msg = f"The following parameters are outside the allowed ranges: {out_of_bounds_params}"
+            self._logger.critical(msg)
+            raise ForMoSAError(msg)
+
+
         # Building dictionary of interpolation parameters
         interp_kwargs = {}
         for i, name in enumerate(self.keys):
