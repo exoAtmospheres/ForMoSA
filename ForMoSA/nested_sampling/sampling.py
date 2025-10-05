@@ -75,6 +75,7 @@ class NestedSampling(object):
         self._params = NestedSamplingParameters(logger)
         self._plotting = None
         self._results = None
+        self._burn_in = 0
         self._modif_data = dict()
         self._best_model = dict()
 
@@ -135,6 +136,15 @@ class NestedSampling(object):
         return self._results
 
     @property
+    def burn_in(self):                 # Burn-in to apply to the chains
+        return self._burn_in
+
+    @burn_in.setter                    # Burn-in setter
+    def burn_in(self, burn_in):
+        self._burn_in = burn_in
+        return burn_in
+
+    @property
     def param_samples_dict(self) -> dict:             # Samples of each parameter
         if not hasattr(self, "results") or self.results is None:
             msg = 'No results found. Please run the sampling algorithm first.'
@@ -142,7 +152,7 @@ class NestedSampling(object):
             raise ForMoSAError(msg)
 
         return {
-            name: self.results['samples'][:, i]
+            name: self.results['samples'][self.burn_in:, i]
             for i, name in enumerate(self.params.dict_computed_params_names.values())
         }
 
@@ -154,7 +164,7 @@ class NestedSampling(object):
             raise ForMoSAError(msg)
 
         return {
-            name: np.average(self.results['samples'][:, i], weights=self.results['weights'])
+            name: np.average(self.results['samples'][self.burn_in:, i], weights=self.results['weights'][self.burn_in:])
             for i, name in enumerate(self.params.dict_computed_params_names.values())
         }
 
@@ -168,7 +178,7 @@ class NestedSampling(object):
             msg = 'No results found. Please run the sampling algorithm first.'
             self._logger.error(msg)
             raise ForMoSAError(msg)
-        return np.average(self.results['logl'], weights = self.results['weights'])
+        return np.average(self.results['logl'][self.burn_in:], weights = self.results['weights'][self.burn_in:])
 
     @property
     def modif_data(self) -> dict:                    # Modified data
@@ -198,6 +208,7 @@ class NestedSampling(object):
             raise ForMoSAError(msg)
         return self._nativ_model
 
+
     def run(self, results_path: str | os.PathLike, observation: Observation, modelgrid: ModelGrid, interp_method: str = 'linear', wav_fit: list = ['NA'], res_cont: list = ['NA'], bounds_lsq: list = [('NA', 'NA')], emulator: list = ['NA'], full_logL: bool = False) -> None:
         '''
         Method to run the nested sampling algorithm using the model, observation and nested sampling parameters.
@@ -217,7 +228,6 @@ class NestedSampling(object):
 
         Authors: Simon Petrus, Matthieu Ravet and Allan Denis
         '''
-
         self._logger.info(f' Run Nested Sampling algorithm using {self.npoints} living points and {self.algorithm}.')
 
         # Replace 'parX' names by associated physical parameters ('Teff', 'logg', ...)
@@ -483,6 +493,7 @@ class NestedSampling(object):
 
         Authors: Simon Petrus, Matthieu Ravet and Allan Denis
         '''
+
         def get_param(name, indobs):
             name = name if name in self.params.parameters else f"{name}_{indobs}" if f"{name}_{indobs}" in self.params.parameters else None
             return None if name is None else self.params._get_param_value(name, theta)
@@ -514,6 +525,7 @@ class NestedSampling(object):
 
         # Save native model before any transformation
         flx_mod_spectro_nativ = np.copy(flx_mod_spectro)
+        wav_mod_spectro_nativ = np.copy(wav_mod_spectro)
 
         # Doppler shifting
         rv = get_param('rv', indobs)
@@ -560,6 +572,7 @@ class NestedSampling(object):
                 'wav': wav_mod_spectro,
                 'flx': flx_mod_spectro,
                 'nativ_flx': flx_mod_spectro_nativ,
+                'nativ_wav': wav_mod_spectro_nativ,
                 'res': res_mod_spectro,
                 'ins': ins_spectro,
                 'ck': ck_spectro
@@ -603,7 +616,9 @@ class NestedSampling(object):
 
         # High contrast modeling if stellar flux is available
         if len(obs_dict_spectro['star_flx']) > 0:
+
             flx_cont_mod = us.continuum_estimate(obs_dict_spectro['wav'], model_dict['spectro']['flx'] * obs_dict_spectro['transm'], model_dict['spectro']['res'], wav_fit, res_cont)
+
             if self.logL[indobs % len(self.logL)].startswith('chi2'):
                 contributions, model_dict['spectro']['flx'], obs_dict_spectro['speckles'], obs_dict_spectro['estimated_system'] = hc._hc_model_estimate_speckles(obs_dict_spectro['flx'], obs_dict_spectro['flx_cont'], obs_dict_spectro['transm'], obs_dict_spectro['star_flx'], obs_dict_spectro['star_flx_cont'], model_dict['spectro']['flx'], flx_cont_mod, obs_dict_spectro['err'], bounds_lsq, obs_dict_spectro['system'])
             else:
@@ -620,7 +635,7 @@ class NestedSampling(object):
             model_dict['photo']['ck'] = ck_photo
 
         # Update info
-        model_dict['spectro'].update({'res': obs_dict_spectro['res'], 'hc_contributions': contributions})
+        model_dict['spectro'].update({'wav': obs_dict_spectro['wav'], 'res': obs_dict_spectro['res'], 'hc_contributions': contributions})
 
         obs_dict = {'spectro': obs_dict_spectro,
                     'photo': obs_dict_photo}
