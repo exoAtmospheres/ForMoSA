@@ -26,12 +26,12 @@ def _hc_model_remove_speckles(flx_obs_spectro: np.ndarray, flx_cont_obs_spectro:
     speckles = star_flx_obs_spectro[:, len(star_flx_obs_spectro[0]) // 2] / star_flx_cont_obs_spectro * flx_cont_obs_spectro  # Speckles modulation (Bidot et al. 2023, Landman et al. 2023)
     flx_mod_spectro = transm_obs_spectro * (flx_mod_spectro - flx_cont_mod_spectro)
     alpha =  np.sum(((flx_obs_spectro - speckles) * flx_mod_spectro) / noise_obs_spectro**2) / np.sum((flx_mod_spectro**2) / noise_obs_spectro**2)
-    flx_mod_spectro = alpha * flx_mod_spectro
+    flx_mod_spectro_modif = alpha * flx_mod_spectro
 
-    return alpha, flx_mod_spectro, speckles
+    return alpha, flx_mod_spectro_modif, speckles
 
 
-def _hc_model_estimate_speckles(flx_obs_spectro: np.ndarray, flx_cont_obs_spectro: np.ndarray, transm_obs_spectro: np.ndarray, star_flx_obs_spectro: np.ndarray, star_flx_cont_obs_spectro: np.ndarray, flx_mod_spectro: np.ndarray, flx_cont_mod_spectro: np.ndarray, err: np.ndarray, bounds: tuple = (0, np.inf), system_obs_spectro: np.ndarray = np.array([]), compute_ccf: bool = False):
+def _hc_model_estimate_speckles(flx_obs_spectro: np.ndarray, flx_cont_obs_spectro: np.ndarray, transm_obs_spectro: np.ndarray, star_flx_obs_spectro: np.ndarray, star_flx_cont_obs_spectro: np.ndarray, flx_mod_spectro: np.ndarray, flx_cont_mod_spectro: np.ndarray, err: np.ndarray, bounds: tuple = (0, np.inf), system_obs_spectro: np.ndarray = np.array([])):
     '''
     high-constrast model of planet and star contributions
 
@@ -46,7 +46,6 @@ def _hc_model_estimate_speckles(flx_obs_spectro: np.ndarray, flx_cont_obs_spectr
         weights                     (array): Weights to apply to the data
         bounds                      (tuple): Bounds to be applied to the estimated parameters
         system_obs_spectro          (array): Systematics
-        compute_ccf                  (bool): Whether to use this function to compute the CCF
 
     Returns:
         results.x                 (array): Results of the high-constrast model
@@ -74,13 +73,11 @@ def _hc_model_estimate_speckles(flx_obs_spectro: np.ndarray, flx_cont_obs_spectr
         flx_obs_spectro_modif = flx_obs_spectro - speckles[:,0] * flx_cont_obs_spectro
         flx_mod_spectro_modif = transm_obs_spectro * flx_mod_spectro - flx_cont_mod_spectro * speckles[:,0]
         alpha = np.sum((flx_obs_spectro_modif * flx_mod_spectro_modif * weights)) / np.sum(flx_mod_spectro_modif**2 * weights)
-        if not(compute_ccf):
-            if alpha < bounds[0]:
-                alpha = bounds[0]
-            if alpha > bounds[1]:
-                alpha = bounds[1]
-        flx_mod_spectro = alpha * flx_mod_spectro_modif
-        return alpha, flx_mod_spectro, speckles[:,0] * flx_cont_obs_spectro, np.ones(len(flx_obs_spectro))
+        if alpha < bounds[0]:
+            alpha = bounds[0]
+        if alpha > bounds[1]:
+            alpha = bounds[1]
+        return alpha, flx_mod_spectro_modif * alpha, speckles[:,0] * flx_cont_obs_spectro, np.ones(len(flx_obs_spectro))
 
     # Build matrix A
     A = np.zeros([np.size(flx_obs_spectro), ind_system])
@@ -98,13 +95,13 @@ def _hc_model_estimate_speckles(flx_obs_spectro: np.ndarray, flx_cont_obs_spectr
     results = optimize.lsq_linear(A, b, bounds=bounds)
 
     # Model
-    flx_mod_spectro = np.dot(A[:, 0], results.x[0]) / weights
+    flx_mod_spectro_modif = np.dot(A[:, 0], results.x[0]) / weights
     # Speckles
     speckles = np.dot(A[:, 1:ind_star], results.x[1:ind_star]) / weights
     # Systematics
     systematics = np.dot(A[:,ind_star:], results.x[ind_star:]) / weights
 
-    return results.x, flx_mod_spectro, speckles, systematics
+    return results.x, flx_mod_spectro_modif, speckles, systematics
 
 
 
