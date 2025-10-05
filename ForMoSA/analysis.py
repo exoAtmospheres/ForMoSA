@@ -389,7 +389,6 @@ class Analysis(object):
 
         Authors: Allan Denis
         '''
-
         if len(theta) == 0:
             self._logger.info('No value provided for the list of parameters of the model. Using best vale from the Nested Sampling')
             if not self._fitted:
@@ -422,8 +421,9 @@ class Analysis(object):
         _, mod_dict_spectro = self.ns._compute_model_from_theta(theta, obs_dict_spectro, obs_dict_photo, grid_spectro, grid_photo, res_mod_spectro, wav_fit=wav_fit, res_cont=res_cont, bounds_lsq=bounds_lsq)
         vsini_fct = self.ns.params.parameters['vsini'].vsini_function
 
-        wav_mod = mod_dict_spectro['spectro']['wav']
-        flx_mod = mod_dict_spectro['spectro']['nativ_flx']   # Using nativ_flx which the flux at the nativ resolution of the model
+        # Using nativ_flx which the flux at the nativ resolution of the model
+        wav_mod = mod_dict_spectro['spectro']['nativ_wav']
+        flx_mod = mod_dict_spectro['spectro']['nativ_flx']
 
         wav_obs = obs_dict_spectro['wav']
         flx_obs = obs_dict_spectro['flx']
@@ -435,7 +435,7 @@ class Analysis(object):
         flx_mod_vsini, res_mod_vsini = spec.vsini_fct(wav_mod, flx_mod, res_mod_spectro, 0.6, theta[vsini_index], vsini_fct)
 
         # CCF
-        ccf, acf, ccf_star, rv_peak, _ = spec.compute_ccf(wav_mod, flx_mod_vsini, wav_obs, flx_obs, err_obs, res_mod_vsini, res_obs_spectro, res_cont, wav_fit, star_flx, transm, system, rv_grid=rv_grid)
+        ccf, acf, ccf_star, rv_peak, _, _ = spec.compute_ccf(wav_mod, flx_mod_vsini, wav_obs, flx_obs, err_obs, res_mod_vsini, res_obs_spectro, res_cont, wav_fit, star_flx, transm, system, rv_grid=rv_grid)
 
         # Plot
         fig = plt.figure('CCF', figsize=(10,8))
@@ -460,7 +460,7 @@ class Analysis(object):
         return fig, ax
 
 
-    def plot_rv_vsini_map(self, rv_grid: np.ndarray, vsini_grid: np.ndarray, indobs: int = 0, save: bool = True, plot: bool = True, theta: dict = dict()) -> None:
+    def plot_rv_vsini_map(self, rv_grid: np.ndarray, vsini_grid: np.ndarray, indobs: int = 0, save: bool = True, plot: bool = True, theta: dict = dict(), bounds: tuple = (-np.inf, np.inf)) -> None:
         '''
         Method to compute (and optionally plot) the rv / vsini map between the observation and the best model.
 
@@ -471,6 +471,7 @@ class Analysis(object):
         save           (bool): Whether to save the plot as a file
         plot           (bool): Whether to display the plot
         theta   (dictionnary): Dictionnary of the parameters to use for the model
+        bounds        (tuple): Bounds to use for the Least Squares
 
         Returns
         -------
@@ -482,8 +483,8 @@ class Analysis(object):
 
         if len(theta) == 0:
             self._logger.info('No value provided for the list of parameters of the model. Using best vale from the Nested Sampling')
-            if not self._fitted:
-                raise ForMoSAError("Nested sampling must be run before computing the CCF.")# Best params to compute the best model
+            if not self.fitted:
+                raise ForMoSAError("Either run the Nested sampling before computing the CCF or provide a value for the parameters of the model.")# Best params to compute the best model
             theta = self.ns.param_best_dict.copy()
             theta['rv'] = 0
         else:
@@ -495,7 +496,7 @@ class Analysis(object):
         inversion = self.config_params['inversion']
 
         res_cont = float(adapt['res_cont'][indobs % len(adapt['res_cont'])])
-        wav_cont = adapt['wav_cont'][indobs % len(adapt['wav_cont'])]
+        wav_fit = inversion['wav_fit'][indobs % len(inversion['wav_fit'])]
         bounds_lsq = inversion['hc_bounds_lsq'][indobs % len(inversion['hc_bounds_lsq'])]
 
         grid_spectro, grid_photo = self.grid.adapted_grid[indobs]['spectro'], self.grid.adapted_grid[indobs]['photo']
@@ -515,16 +516,17 @@ class Analysis(object):
 
         # Best nativ model
         theta['vsini'] = 0
-        _, mod_dict_spectro = self.ns._compute_model_from_theta(list(theta.values()), obs_dict_spectro, obs_dict_photo, grid_spectro, grid_photo, res_mod_spectro, wav_cont=wav_cont, res_cont=res_cont, bounds_lsq=bounds_lsq)
+        _, mod_dict_spectro = self.ns._compute_model_from_theta(list(theta.values()), obs_dict_spectro, obs_dict_photo, grid_spectro, grid_photo, res_mod_spectro, wav_fit=wav_fit, res_cont=res_cont, bounds_lsq=bounds_lsq)
         vsini_fct = self.ns.params.parameters['vsini'].vsini_function
         wav_mod_spectro = mod_dict_spectro['spectro']['wav']
         flx_mod_spectro = mod_dict_spectro['spectro']['nativ_flx']   # Using nativ_flx which the flux at the nativ resolution of the model
+
 
         for i, vsini_i in enumerate(tqdm(vsini_grid, leave=False)):
             flx_mod_spectro_vsini, res_mod_spectro_vsini = spec.vsini_fct(wav_mod_spectro, flx_mod_spectro, res_mod_spectro, 0.6, vsini_i, vsini_fct)
 
             # CCF
-            logL_map[i] = spec.compute_ccf(wav_mod_spectro, flx_mod_spectro_vsini, wav_obs, flx_obs, err_obs, res_mod_spectro_vsini, res_obs_spectro, res_cont, wav_cont, star_flx, transm, system, rv_grid=rv_grid, rv_sini_map=True)
+            logL_map[i] = spec.compute_ccf(wav_mod_spectro, flx_mod_spectro_vsini, wav_obs, flx_obs, err_obs, res_mod_spectro_vsini, res_obs_spectro, res_cont, wav_fit, star_flx, transm, system, rv_grid=rv_grid, rv_sini_map=True, bounds=bounds)
 
         logL_map -= np.min(logL_map)
         max_indices = np.unravel_index(np.argmax(logL_map), logL_map.shape)  # Indices de la valeur max
