@@ -102,6 +102,10 @@ class Analysis(object):
     def adapted(self) -> bool:
         return self._adapted
 
+    @adapted.setter
+    def adapted(self, adapted_status: bool) -> bool:
+        self._adapted = adapted_status
+
     @property
     def ns(self) -> NestedSampling:
         return self._ns
@@ -125,6 +129,10 @@ class Analysis(object):
     @property
     def fitted(self) -> bool:
         return self._fitted
+
+    @fitted.setter
+    def fitted(self, fitted_status: bool) -> bool:
+        self._fitted = fitted_status
 
 
     ##################################################
