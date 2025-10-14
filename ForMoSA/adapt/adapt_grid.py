@@ -214,10 +214,12 @@ def adapt_grid(global_params, obs_dict, res_mod_nativ, target_wav_mod, target_re
     
     for idx, (key, title) in enumerate(zip(attr['key'], attr['title'])):
         print(f'{idx+1}/{nkey} - {title}')
-        if ds_spectro_new.isnull().any(dim=key):  # Check is there is any nan in the grid
-            ds_spectro_new = ds_spectro_new.interpolate_na(dim=key, **interp_kwargs)
-        if ds_photo_new.isnull().any(dim=key):
-            ds_photo_new = ds_photo_new.interpolate_na(dim=key, **interp_kwargs)
+        if len(obs_dict['wav_spectro']) != 0: # Do not interpolate if empty grid
+            if ds_spectro_new.isnull().any(dim=key):  # Check is there is any nan in the grid
+                ds_spectro_new = ds_spectro_new.interpolate_na(dim=key, **interp_kwargs)
+        if len(obs_dict['wav_photo']) != 0: # Do not interpolate if empty grid
+            if ds_photo_new.isnull().any(dim=key):
+                ds_photo_new = ds_photo_new.interpolate_na(dim=key, **interp_kwargs)
 
 
     # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 

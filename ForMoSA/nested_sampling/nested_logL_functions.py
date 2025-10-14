@@ -2,26 +2,40 @@ import numpy as np
 
 def logL_chi2(delta_flx, err, log_det, full=False):
     """
-    Function to compute logL based on the classical chi2
+    Function to compute logL based on the upper limits chi2
     under the assumption of gaussian and spectrally uncorrelated noise.
     
     Args:
         delta_flx   (array): residual data-model as a function of wavelength
         err         (array): error (=standard deviation) of the observed spectrum as a function of wavelength
+        log_det     (float): Log-determinant of the error bars
         full         (bool): True or False to add the usual constant terms
-        log_det      (float): Log-determinant of the error bars
     Returns:
         - logL (float)     : the loglikelihood value
         
-    Author: Matthieu Ravet
+    Author: Matthieu Ravet & Alice Radcliffe
     """
 
     N = len(delta_flx)
-    chi2 = np.nansum((delta_flx / err) ** 2)
-    logL = - chi2 / 2
-    if full:
-        logL += - N/2 * np.log(2*np.pi) - 1/2 * log_det
+    
+    # Mask for upper limits
+    mask = (err == 0)
 
+    # Upper limits chi2
+    delta_flux_ul = delta_flx[mask]
+    chi2_ul = np.zeros(len(delta_flux_ul))
+    chi2_ul[np.where(delta_flux_ul < 0)] = 1e30
+    chi2_ul = np.nansum(chi2_ul)
+
+    # Classic chi2
+    delta_flx_classic = delta_flx[~mask]
+    chi2_classic = np.nansum((delta_flx_classic / err[~mask]) ** 2)
+
+    # Merge both
+    chi2 = chi2_ul + chi2_classic
+    logL = - chi2 / 2
+    if full == True:
+        logL += - N/2 * np.log(2*np.pi) - 1/2 * log_det
     return logL
 
 

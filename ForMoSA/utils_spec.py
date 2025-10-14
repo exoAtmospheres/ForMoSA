@@ -187,7 +187,10 @@ def calc_flx_scale(obs_dict, flx_mod_spectro, flx_mod_photo, r_picked, d_picked,
         else:
             scale_spectro = 1
         if len(obs_dict['wav_photo']) != 0:
-            scale_photo = np.sum((flx_mod_photo * obs_dict['flx_photo']) / (obs_dict['err_photo'] * obs_dict['err_photo'])) / np.sum((flx_mod_photo / obs_dict['err_photo'])**2)
+            if all(obs_dict['err_photo'] <= 0):
+                raise Exception(f'All the photometric errors are negative or equal to zero. Impossible to compute the scaling factor analytically with upper limits.')
+            else:
+                scale_photo = np.sum((flx_mod_photo[obs_dict['err_photo'] > 0] * obs_dict['flx_photo'][obs_dict['err_photo'] > 0]) / (obs_dict['err_photo'][obs_dict['err_photo'] > 0] * obs_dict['err_photo'][obs_dict['err_photo'] > 0])) / np.sum((flx_mod_photo[obs_dict['err_photo'] > 0] / obs_dict['err_photo'][obs_dict['err_photo'] > 0])**2)  # Upper limits, only consider the positive errors
         else:
             scale_photo = 1
     else:

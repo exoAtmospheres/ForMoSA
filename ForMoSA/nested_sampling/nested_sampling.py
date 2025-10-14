@@ -106,8 +106,10 @@ def import_obsmod(global_params):
                 obs_dict['log_det_spectro'] = np.log(np.linalg.det(obs_dict['cov']))
             else:
                 obs_dict['log_det_spectro'] = 2 * np.sum(np.log(obs_dict['err_spectro']))
-        if len(obs_dict['wav_photo']) != 0:
+        if len(obs_dict['wav_photo']) != 0 and all(obs_dict['err_photo'] > 0):
             obs_dict['log_det_photo'] = 2 * np.sum(np.log(obs_dict['err_photo']))
+        elif len(obs_dict['wav_photo']) != 0 and any(obs_dict['err_photo'] <= 0):
+            obs_dict['log_det_photo'] = 2 * np.sum(np.log(obs_dict['err_photo'][obs_dict['err_photo'] > 0]))  # Upper limits, only consider the positive errors
 
         # Cutting of the grid on the wavelength grid defined by the parameter 'wav_fit'
         if global_params.emulator[0] == 'NA':

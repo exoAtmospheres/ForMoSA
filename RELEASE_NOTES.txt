@@ -587,3 +587,20 @@ Tests that have been done to checkup the changes:
 
 
 ==> Test for High-contrast options needs to be performed !
+
+- - - 
+
+23/04/2025
+
+Matthieu Ravet
+
+Comments:
+    - Correction separated photometry issues
+    - Updating the chi2 classic to take upper limits into account
+
+
+Tests that have been done to checkup the changes:
+    - Run with photometry + spectroscopy separated using mock TWA7b data
+
+
+==> Test for High-contrast options needs to be performed !
