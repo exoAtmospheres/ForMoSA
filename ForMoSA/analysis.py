@@ -76,6 +76,55 @@ class Analysis(object):
         # Build and check list of nested sampling parameters
         self.ns.params._add_NestedSampling_parameters_from_config(self.config_params['parameters'])
 
+        adapt = self.config_params['adapt']
+        inversion = self.config_params['inversion']
+
+        res_obs   = adapt['target_res_obs']
+        res_mod   = adapt['target_res_mod']
+        res_cont  = adapt['res_cont']
+        emulator  = adapt['emulator']
+        wav_fit   = inversion['wav_fit']
+
+        # Parameters we want to check the format
+        params = {
+            'res_obs': res_obs,
+            'res_mod': res_mod,
+            'res_cont': res_cont,
+            'emulator': emulator,
+            'wav_fit': wav_fit
+        }
+
+        n_obs = self.observation.n_obs
+
+        wrong_type = [name for name, val in params.items() if not isinstance(val, list)]
+        wrong_length = [name for name, val in params.items() if not (len(val) == 1 or len(val) == n_obs)]
+
+        # Errors
+        if wrong_type:
+            msg = f"Params not list: {', '.join(wrong_type)}."
+            self._logger.critical(msg)
+            raise ForMoSAError(msg)
+
+        if wrong_length:
+            msg = f"Params with wrong length (must be 1 or {n_obs}): {', '.join(wrong_length)}."
+            self._logger.critical(msg)
+            raise ForMoSAError(msg)
+
+        if self.adapted:
+            # Load adapted observations and grids
+            try:
+                self.observation._load_adapted_observations_from_files(self.paths.result_path)
+            except ForMoSAError:
+                self._logger.warning(f' Adapting and saving observations to folder {self.paths.result_path}')
+                self.observation.adapt_all_observations(res_obs, self.grid.wavelength, self.grid.resolution, res_cont = res_cont, wav_cont = wav_fit)
+                self.observation._save_all_observations(self.paths.result_path)
+
+            self.grid._load_grid_from_files(self.paths.adapt_store_path, self.observation.obs_name_list)
+        if self.fitted:
+            # Load results
+            self.ns._load_results(self.paths.result_path)
+
+
     ##################################################
     # Representation
     ##################################################
@@ -155,6 +204,8 @@ class Analysis(object):
         res_cont  = adapt['res_cont']
         emulator  = adapt['emulator']
         wav_fit   = inversion['wav_fit']
+        bounds_lsq    = inversion['hc_bounds_lsq']
+        full_logL     = inversion['full_logL']
 
         # Parameters we want to check the format
         params = {
@@ -162,13 +213,15 @@ class Analysis(object):
             'res_mod': res_mod,
             'res_cont': res_cont,
             'emulator': emulator,
-            'wav_fit': wav_fit
+            'wav_fit': wav_fit,
+            'bounds_lsq': bounds_lsq,
+            'full_logL': full_logL
         }
 
         n_obs = self.observation.n_obs
 
-        wrong_type = [name for name, val in params.items() if not isinstance(val, list)]
-        wrong_length = [name for name, val in params.items() if not (len(val) == 1 or len(val) == n_obs)]
+        wrong_type = [name for name, val in params.items() if name != 'full_logL' and not isinstance(val, list)]
+        wrong_length = [name for name, val in params.items() if name != 'full_logL' and not (len(val) == 1 or len(val) == n_obs)]
 
         # Errors
         if wrong_type:
@@ -202,19 +255,9 @@ class Analysis(object):
 
             self.grid._interpolate_missing_values()
             self.grid._save_grid(self.paths.adapt_store_path)
-        else:
-            # Load adapted observations and grids
-            try:
-                self.observation._load_adapted_observations_from_files(self.paths.result_path)
-            except ForMoSAError:
-                self._logger.warning(f' Adapting and saving observations to folder {self.paths.result_path}')
-                self.observation.adapt_all_observations(res_obs, self.grid.wavelength, self.grid.resolution, res_cont = res_cont, wav_cont = wav_fit)
-                self.observation._save_all_observations(self.paths.result_path)
 
-            self.grid._load_grid_from_files(self.paths.adapt_store_path, self.observation.obs_name_list)
-
-        # grid and data are now adapted
-        self._adapted = True
+            # grid and data are now adapted
+            self._adapted = True
 
 
     def nested_sampling(self):
@@ -237,8 +280,6 @@ class Analysis(object):
         adapt = self.config_params['adapt']
         inversion = self.config_params['inversion']
 
-        res_obs       = adapt['target_res_obs']
-        res_mod       = adapt['target_res_mod']
         res_cont      = adapt['res_cont']
         emulator      = adapt['emulator']
         interp_method = adapt['method']
@@ -247,32 +288,6 @@ class Analysis(object):
         bounds_lsq    = inversion['hc_bounds_lsq']
         full_logL     = inversion['full_logL']
 
-        # Parameters we want to check the format
-        params = {
-            'res_obs': res_obs,
-            'res_mod': res_mod,
-            'res_cont': res_cont,
-            'emulator': emulator,
-            'wav_fit': wav_fit,
-            'bounds_lsq': bounds_lsq
-        }
-
-
-        n_obs = self.observation.n_obs
-
-        wrong_type = [name for name, val in params.items() if not isinstance(val, list)]
-        wrong_length = [name for name, val in params.items() if not (len(val) == 1 or len(val) == n_obs)]
-
-        # Errors
-        if wrong_type:
-            msg = f"Params not list: {', '.join(wrong_type)}."
-            self._logger.critical(msg)
-            raise ForMoSAError(msg)
-
-        if wrong_length:
-            msg = f"Params with wrong length (must be 1 or {n_obs}): {', '.join(wrong_length)}."
-            self._logger.critical(msg)
-            raise ForMoSAError(msg)
 
         # Replace 'parX' names by associated physical parameters ('Teff', 'logg', ...)
         for name in self.ns.params.parameters.keys():
@@ -295,9 +310,7 @@ class Analysis(object):
 
             # Savings
             self.ns._save_results(self.paths.result_path)
-
-        else:
-            self.ns._load_results(self.paths.result_path)
+            self._fitted = True
 
         # Best model cut at the wavelengths of the observations
         self.ns._compute_best_model(self.observation, self.grid, interp_method = interp_method, wav_fit = wav_fit, res_cont = res_cont, bounds_lsq = bounds_lsq)
@@ -526,7 +539,7 @@ class Analysis(object):
         theta['vsini'] = 0
         _, mod_dict_spectro = self.ns._compute_model_from_theta(list(theta.values()), obs_dict_spectro, obs_dict_photo, grid_spectro, grid_photo, res_mod_spectro, wav_fit=wav_fit, res_cont=res_cont, bounds_lsq=bounds_lsq)
         vsini_fct = self.ns.params.parameters['vsini'].vsini_function
-        wav_mod_spectro = mod_dict_spectro['spectro']['wav']
+        wav_mod_spectro = mod_dict_spectro['spectro']['nativ_wav']
         flx_mod_spectro = mod_dict_spectro['spectro']['nativ_flx']   # Using nativ_flx which the flux at the nativ resolution of the model
 
 
