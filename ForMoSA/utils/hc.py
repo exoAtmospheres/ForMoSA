@@ -72,12 +72,14 @@ def _hc_model_estimate_speckles(flx_obs_spectro: np.ndarray, flx_cont_obs_spectr
         bounds = (float(bounds[0]), float(bounds[1]))
         flx_obs_spectro_modif = flx_obs_spectro - speckles[:,0] * flx_cont_obs_spectro
         flx_mod_spectro_modif = transm_obs_spectro * flx_mod_spectro - flx_cont_mod_spectro * speckles[:,0]
+        flx_mod_spectro_modif, flx_obs_spectro_modif = flx_mod_spectro_modif - np.mean(flx_mod_spectro_modif), flx_obs_spectro_modif - np.mean(flx_obs_spectro_modif)
         alpha = np.sum((flx_obs_spectro_modif * flx_mod_spectro_modif * weights)) / np.sum(flx_mod_spectro_modif**2 * weights)
+        ccf = np.sum(flx_obs_spectro_modif * flx_mod_spectro_modif) / (np.sqrt(np.sum(flx_obs_spectro_modif**2)) * np.sqrt(np.sum(flx_mod_spectro_modif**2)))
         if alpha < bounds[0]:
             alpha = bounds[0]
         if alpha > bounds[1]:
             alpha = bounds[1]
-        return alpha, flx_mod_spectro_modif * alpha, speckles[:,0] * flx_cont_obs_spectro, np.ones(len(flx_obs_spectro))
+        return ccf, flx_mod_spectro_modif * alpha, speckles[:,0] * flx_cont_obs_spectro, np.ones(len(flx_obs_spectro))
 
     # Build matrix A
     A = np.zeros([np.size(flx_obs_spectro), ind_system])

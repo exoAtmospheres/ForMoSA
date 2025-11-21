@@ -499,7 +499,7 @@ def bb_cpd_fct(wav: np.ndarray, flx: np.ndarray, distance: np.ndarray, bb_t_pick
 # ----------------------------------------------------------------------------------------------------------------------
 
 
-def compute_ccf(wav_mod_spectro: np.ndarray, flx_mod_spectro: np.ndarray, wav_obs_spectro: np.ndarray, flx_obs_spectro: np.ndarray, err_obs_spectro: np.ndarray, res_mod_spectro: np.ndarray, res_obs_spectro: np.ndarray, res_cont: float, wav_fit: str | np.ndarray,  star_flx_obs_spectro: np.ndarray = np.array([]), transm_obs_spectro: np.ndarray = np.array([]), system_obs_spectro: np.ndarray = np.array([]), rv_grid: np.ndarray = np.linspace(-300, 300, 600), rv_sini_map: bool = False, bounds: tuple = (-np.inf, np.inf)):
+def compute_ccf(wav_mod_spectro: np.ndarray, flx_mod_spectro: np.ndarray, wav_obs_spectro: np.ndarray, flx_obs_spectro: np.ndarray, err_obs_spectro: np.ndarray, res_mod_spectro: np.ndarray, res_obs_spectro: np.ndarray, res_cont: float, wav_fit: str | np.ndarray,  star_flx_obs_spectro: np.ndarray = np.array([]), transm_obs_spectro: np.ndarray = np.array([]), system_obs_spectro: np.ndarray = np.array([]), rv_grid: np.ndarray = np.linspace(-300, 300, 600), rv_sini_map: bool = False, bounds: tuple = (-np.inf, np.inf), normalize: bool = True):
     '''
     Function to compute the ccf between a template and data
 
@@ -519,6 +519,7 @@ def compute_ccf(wav_mod_spectro: np.ndarray, flx_mod_spectro: np.ndarray, wav_ob
         rv_grid                     (np.ndarray): Grid of RV for the CCF function
         rv_vsini_map                      (bool): Whether to use this function to compute a rv / vsini map
         bounds                           (tuple): Bound to use for the Least Squares
+        normalize                         (bool): Whether to normalize ccf
 
     Returns:
         ccf_norm         (np.ndarray): CCF function normalized by the SNR
@@ -612,21 +613,23 @@ def compute_ccf(wav_mod_spectro: np.ndarray, flx_mod_spectro: np.ndarray, wav_ob
         imax = np.argmax(ccf)
         rv_peak = rv_grid[imax]
 
-        for arr in [ccf, acf, ccf_star]:
-            arr -= np.mean(arr[mask_far])
+        if normalize:
 
-        # SNR normalization
-        acf_scale = np.max(ccf[mask_valid]) / np.max(acf)
-        sigma = np.sqrt(np.abs(np.nanvar(ccf[np.abs(rv_grid - rv_peak) > 100]) - np.nanvar(acf[mask_far] * acf_scale)))
-        max_peak = ccf[imax] / sigma
+            for arr in [ccf, acf, ccf_star]:
+                arr -= np.mean(arr[mask_far])
 
-        ccf_norm = ccf / sigma
-        ccf_star_norm = ccf_star / np.std(ccf_star)
-        acf_norm = acf * (max_peak / np.max(acf))
+            # SNR normalization
+            acf_scale = np.max(ccf[mask_valid]) / np.max(acf)
+            sigma = np.sqrt(np.abs(np.nanvar(ccf[np.abs(rv_grid - rv_peak) > 100]) - np.nanvar(acf[mask_far] * acf_scale)))
+            max_peak = ccf[imax] / sigma
 
-        print(f'Maximum peak for rv = {rv_peak:.1f} km/s (SNR = {max_peak:.1f})')
+            ccf = ccf / sigma
+            ccf_star = ccf_star / np.std(ccf_star)
+            acf = acf * (max_peak / np.max(acf))
 
-        return ccf_norm, acf_norm, ccf_star_norm, rv_peak, logL, ccf
+            print(f'Maximum peak for rv = {rv_peak:.1f} km/s (SNR = {max_peak:.1f})')
+
+        return ccf, acf, ccf_star, rv_peak, logL, ccf
 
     return logL
 
@@ -681,7 +684,6 @@ def compute_ccf_single_rv(rv: float, wav_mod_spectro: np.ndarray, flx_mod_spectr
 
     # Estimate model signal
     ccf, best_model_hf, _, _ = _hc_model_estimate_speckles(flx_obs_spectro, flx_cont_obs_spectro, transm_obs_spectro, star_flx_obs_spectro, star_flx_cont_obs_spectro, flx_shifted, flx_cont, err_obs_spectro, system_obs_spectro=system_obs_spectro, bounds=bounds)
-
     # ACF
     acf = np.sum(flx_rv_hf * flx_mod_spectro_no_rv_hf) / (np.sqrt(np.sum(flx_rv_hf ** 2)) * np.sqrt(np.sum(flx_mod_spectro_no_rv_hf ** 2)))
 
