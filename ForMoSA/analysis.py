@@ -478,7 +478,7 @@ class Analysis(object):
         if plot:
             plt.show()
 
-        return fig, ax
+        return fig, ax, rv_peak, ccf, acf
 
 
     def plot_rv_vsini_map(self, rv_grid: np.ndarray, vsini_grid: np.ndarray, indobs: int = 0, save: bool = True, plot: bool = True, theta: dict = dict(), bounds: tuple = (-np.inf, np.inf)) -> None:
@@ -571,5 +571,5 @@ class Analysis(object):
 
         ax.set_title(f'RV / V.sini map - Observation {self.observation.obs_name[indobs]}, rv={rv_peak:.1f}, vsini={vsini_peak:.1f}')
 
-
+        return fig, ax, logL_map, rv_peak, vsini_peak
 
