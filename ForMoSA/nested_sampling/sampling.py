@@ -504,12 +504,9 @@ class NestedSampling(object):
             self._logger.critical(msg)
             raise ForMoSAError(msg)
 
-        theta_index = self.params.dict_params_keys.values()
-
         # Interpolation parameters from grid
-        theta_grid = [theta[i] if key in self.params.dict_free_params_keys.values()
-                      else self.params.parameters[key].value
-                      for i, key in enumerate(theta_index)
+        theta_grid = [get_param(key, indobs)
+                      for key in self.params.dict_params_keys.values()
                       if key.startswith('par')]
 
         # Retrieve model wavelength and resolution
@@ -750,8 +747,9 @@ class NestedSampling(object):
         Authors: Simon Petrus, Matthieu Ravet and Allan Denis
         '''
 
-        prior = []
+        prior = dict()
         theta_index_free = self.params.free_parameters.keys()   # List of free (without constant priors) parameters
+        theta_index_fixed = self.params.fixed_parameters.keys()
 
         for i, param_name in enumerate(theta_index_free):
             param = self.params.parameters[param_name]
@@ -763,11 +761,19 @@ class NestedSampling(object):
                 prior_value = max(min(prior_value, modelGrid.lims_params_grid[param_name][1]), modelGrid.lims_params_grid[param_name][0])
                 param._theta = prior_value
 
-            prior.append(prior_value)
+            prior[param_name] = prior_value
+
+        prior_free = list(prior.values())
+
+        for param_name in theta_index_fixed:
+            param = self.params.parameters[param_name]
+            value = param.value
+
+            prior[param_name] = value
 
         self.params._theta = prior    # Update the current drawn values for the parameters
 
-        return prior
+        return prior_free
 
 
     def _compute_best_model(self, observation: Observation, modelgrid: ModelGrid, interp_method: str = 'linear', wav_fit: list = ['NA'], res_cont: list = ['NA'], bounds_lsq: list = ['NA', 'NA']) -> None:
