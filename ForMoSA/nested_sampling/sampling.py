@@ -371,7 +371,6 @@ class NestedSampling(object):
             self._results['samples'] = np.hstack([self._results['samples'], M_samples[:, None]])
 
         self.plotting._ns_results = self.results
-        self.plotting._list_params = list(self.param_best_dict.keys())
 
         time_elapsed = time.time() - time1
         if time_elapsed < 60:

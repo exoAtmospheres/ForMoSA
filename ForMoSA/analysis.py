@@ -70,11 +70,27 @@ class Analysis(object):
         self._adapted = adapted
         self._fitted = fitted
         self._ns = NestedSampling(self.config_params['inversion']['ns_algo'], self.config_params['inversion']['npoints'], self.config_params['inversion']['logL_type'], logger, self.config_params['ns_algo'])
-        self._ns._plotting = NestedSamplingPlotting(logger, self.config_params['plottings'])
         self._logger = logger
 
         # Build and check list of nested sampling parameters
         self.ns.params._add_NestedSampling_parameters_from_config(self.config_params['parameters'])
+
+        # Replace 'parX' names by associated physical parameters ('Teff', 'logg', ...)
+        for name in self.ns.params.parameters.keys():
+            if name.startswith('par'):  # Detect grid parameters
+                self.ns.params.parameters[name]._name = self.grid.titles[self.grid.keys.index(name)]  # Rename parameter with title associated to 'parX'
+
+        # Luminosity
+        if ('Teff' in self.ns.params.dict_free_params_keys.values()) and ('r' in self.ns.params.dict_free_params_names.values()):
+            lum_param = Parameter(r'log(L/L$\mathrm{_{\odot}}$)', 'computed')
+            self.ns.params._add_parameter(lum_param, lum_param.name)
+
+        # Mass
+        if ('log(g)' in self.ns.params.dict_free_params_names.values()) and ('r' in self.ns.params.dict_free_params_names.values()):
+            Mass_param = Parameter('M', 'computed')
+            self.ns.params._add_parameter(Mass_param, Mass_param.name)
+
+        self._ns._plotting = NestedSamplingPlotting(logger, self.config_params['plottings'], list_params=list(self.ns.params.dict_computed_params_names.values()))
 
         adapt = self.config_params['adapt']
         inversion = self.config_params['inversion']
@@ -287,22 +303,6 @@ class Analysis(object):
         wav_fit       = inversion['wav_fit']
         bounds_lsq    = inversion['hc_bounds_lsq']
         full_logL     = inversion['full_logL']
-
-
-        # Replace 'parX' names by associated physical parameters ('Teff', 'logg', ...)
-        for name in self.ns.params.parameters.keys():
-            if name.startswith('par'):  # Detect grid parameters
-                self.ns.params.parameters[name]._name = self.grid.titles[self.grid.keys.index(name)]  # Rename parameter with title associated to 'parX'
-
-        # Luminosity
-        if ('Teff' in self.ns.params.dict_free_params_keys.values()) and ('r' in self.ns.params.dict_free_params_names.values()):
-            lum_param = Parameter(r'log(L/L$\mathrm{_{\odot}}$)', 'computed')
-            self.ns.params._add_parameter(lum_param, lum_param.name)
-
-        # Mass
-        if ('log(g)' in self.ns.params.dict_free_params_names.values()) and ('r' in self.ns.params.dict_free_params_names.values()):
-            Mass_param = Parameter('M', 'computed')
-            self.ns.params._add_parameter(Mass_param, Mass_param.name)
 
         if not(self.fitted):
             # Run nested sampling
