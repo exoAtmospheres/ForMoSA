@@ -110,7 +110,6 @@ class GlobalParameters(object):
             except ForMoSAError as e:
                 raise(f' Error {e}')
 
-
         return val
 
 
@@ -134,16 +133,19 @@ class GlobalParameters(object):
         # Ensure section exists
         if section not in config:
             config[section] = {}
-        try:
-            param_values = config[section][param_name]
 
-        # Add key to section
-        except:
-            param_values = ['NA']
-            config[section][param_name] = param_values
+        param_values = config[section][param_name]
+        # try:
+        #     param_values = config[section][param_name]
+
+        # # Add key to section
+        # except:
+        #     param_values = ['NA']
+        #     config[section][param_name] = param_values
 
         if not(isinstance(param_values, list)):
             param_values = [param_values]
+
 
         parameters = []
         names = []
@@ -251,17 +253,21 @@ class GlobalParameters(object):
         full_logL = self._get_config_value(config, 'config_inversion', 'full_logL', 'False', 1, eval)
         wav_fit = self._get_config_value(config, 'config_inversion', 'wav_fit', '0,100', self.n_obs, list, self.instrument_files)
         ns_algo = self._get_config_value(config, 'config_inversion', 'ns_algo', 'nestle')
-        npoints = self._get_config_value(config, 'config_inversion', 'npoint', '100', 1, eval)
+        npoints = self._get_config_value(config, 'config_inversion', 'npoints', '100', 1, eval)
         hc_lower_bounds_lsq = self._get_config_value(config, 'config_inversion', 'hc_lower_bounds_lsq', 'NA', self.n_obs, list, self.instrument_files)
         hc_higher_bounds_lsq = self._get_config_value(config, 'config_inversion', 'hc_higher_bounds_lsq', 'NA', self.n_obs, list, self.instrument_files)
         hc_bounds_lsq = [(low_bound, high_bound) for low_bound, high_bound in zip(hc_lower_bounds_lsq, hc_higher_bounds_lsq)]
-        inversion = {'logL_type': logL_type, 'full_logL': full_logL, 'wav_fit': wav_fit, 'ns_algo': ns_algo, 'npoints': npoints, 'hc_bounds_lsq': hc_bounds_lsq}
+        inversion = {'logL_type': logL_type, 'full_logL': full_logL, 'wav_fit': wav_fit, 'ns_algo': ns_algo, 'npoints': npoints, 'hc_lower_bounds_lsq': hc_lower_bounds_lsq, 'hc_higher_bounds_lsq': hc_higher_bounds_lsq}
 
         # [config_parameters] (1)
         grid_parameters = {}        # Refers to the grid parameters (Teff, logg, ...)
         physical_parameters = {}    # Refers to the other parameters (rv, vsini, ...)
+        all_parameters = {}
 
+        if 'config_parameters' not in config:
+            config['config_parameters'] = {}
         for name in config['config_parameters']:
+            config['config_parameters'][name] = list(config['config_parameters'][name])
             name_list, param_list = self._process_multi_obs_parameter(config, 'config_parameters', name, self.n_obs, self.instrument_files)
 
             # Separation by name
@@ -273,6 +279,10 @@ class GlobalParameters(object):
                 if param_list != []:
                     for param_i, name_i in zip(param_list, name_list):
                         physical_parameters[name_i] = param_i
+
+            param = list(config['config_parameters'][name])
+            all_parameters[name] = param
+
 
         parameters = {'grid_parameters': grid_parameters, 'physical_parameters': physical_parameters}
 
@@ -361,19 +371,99 @@ class GlobalParameters(object):
 
         plottings = {'color': color, 'edgecolor': edgecolor, 'marker': marker, 'size': size}
 
+        paths = {'observation_path': self.paths.observation_path, 'model_path': self.paths.model_path, 'adapt_store_path': self.paths.adapt_store_path, 'result_path': self.paths.result_path}
 
-        self.config = {'adapt': adapt, 'inversion': inversion, 'parameters': parameters, 'ns_algo': ns_algo, 'plottings': plottings}
+        self.config = {'paths': paths, 'adapt': adapt, 'inversion': inversion, 'parameters': parameters, 'config_parameters': all_parameters, 'ns_algo': ns_algo, 'plottings': plottings}
 
-        ## Save CONFIG: - - - - - - -
+
+    def _sync_config_to_raw(self, updated_config=None, raw_config=None, section_map=None):
+        '''
+        Recursively synchronize self.config (dict) to self.config_raw (ConfigObj)
+        using section_map to keep original section names in the .ini file.
+        Special handling for 'ns_algo' to split its sub-dictionaries into separate sections.
+        '''
+
+        if updated_config is None:
+            updated_config = self.config
+        if raw_config is None:
+            raw_config = self.config_raw
+        if section_map is None:
+            section_map = {}
+
+        for key, value in updated_config.items():
+            # Normal mapping
+            file_section = section_map.get(key, key)
+
+            # Special handling for 'ns_algo'
+            if key == 'ns_algo' and isinstance(value, dict):
+                for algo_key, algo_value in value.items():
+                    algo_section = section_map.get(algo_key, algo_key)
+                    self._sync_config_to_raw(algo_value, raw_config[algo_section], section_map)
+                continue  # skip the rest for ns_algo
+
+            # Special handling for parameters
+            if key == 'parameters':
+                continue  # skip the rest for parameters
+
+            # Normal dictionary
+            if isinstance(value, dict):
+                self._sync_config_to_raw(value, raw_config[file_section], section_map)
+            else:
+                if not isinstance(value, (list, tuple)):
+                    value = str(value)
+
+                raw_config[file_section] = value
+
+
+    def save_config_file(self, path: str | os.PathLike = None, name: str = 'NA') -> None:
+        '''
+        Save the config file to a specific path, keeping original section names.
+
+        Parameters
+        ----------
+        path (str | os.PathLike): Path to save the config file
+        name (str): Name of the new config file
+        '''
+
+        # Map internal names to .ini section names
+        section_name_map = {
+            'paths': 'config_path',
+            'adapt': 'config_adapt',
+            'inversion': 'config_inversion',
+            'plottings': 'config_plottings',
+            'nestle': 'config_nestle',
+            'ultranest': 'config_ultranest',
+            'pymultinest': 'config_pymultinest'
+        }
+
+        # Synchronize values while keeping original section names
+        self._sync_config_to_raw(section_map=section_name_map)
+
+        # Define file name and path
+        config = self.config_raw
+
+        if name == 'NA':
+            name = 'config_file_ref.ini'
+        if path is None:
+            config.filename = Path(self.paths.result_path) / name
+        else:
+            config.filename = Path(path).expanduser() / name
+
+        # Write the file
 
         # [config_path] (4)
+
         config['config_path'].comments['observation_path'] = ['# Path to the observed spectrum file']
-        config['config_path'].comments['model_path'] = ['', '# Path to the model']
+
         config['config_path'].comments['adapt_store_path'] = ['', '# Path to store your interpolated grid']
+
         config['config_path'].comments['result_path'] = ['', '# Path to store your results']
+
+        config['config_path'].comments['model_path'] = ['', '# Path to the model']
 
         # [config_adapt] (6)
         config.comments['config_adapt'] = ['']
+
         config['config_adapt'].comments['method'] = ['# Adaptation method. /!\\ For safety reasons, this will also be the interpolation method',
                                                      "# Format : 'linear' or 'nearest' or 'zero' or 'slinear' or 'quadratic' or 'cubic' or 'quintic' or 'pchip' or 'barycentric' or 'krogh' or 'akima' or 'makima'",
                                                      "# MOSAIC : No"]
@@ -409,7 +499,7 @@ class GlobalParameters(object):
         config['config_inversion'].comments['ns_algo'] = ['', '# Nested sampling algorithm used.',
                                                           "# Format : 'nestle' or 'pymultinest' or 'ultranest'",
                                                           "# MOSAIC : No"]
-        config['config_inversion'].comments['npoint'] = ['', '# Number of living points during the nested sampling procedure.',
+        config['config_inversion'].comments['npoints'] = ['', '# Number of living points during the nested sampling procedure.',
                                                          "# Format : int",
                                                          "# MOSAIC : No"]
         config['config_inversion'].comments['hc_lower_bounds_lsq'] = ['', '# Least-square bounds.',
@@ -422,9 +512,13 @@ class GlobalParameters(object):
                                                         '# the parameter space explore by each grid. Check prior functions for more infos',
                                                         "# Format : 'function', function_param1, function_param2",
                                                         "# MOSAIC : No"]
-        config['config_parameters'].comments['r'] = ['', '# Definition of the prior function of each extra-grid parameter. Check prior functions for more infos',
+
+        for key in config['config_parameters'].keys():
+            if not(key.startswith('par')):
+                config['config_parameters'].comments[key] = ['', '# Definition of the prior function of each extra-grid parameter. Check prior functions for more infos',
                                                         "# Format : 'function', function_param1, function_param2",
                                                         "# MOSAIC : Yes and No, check the doc !"]
+                break
 
         # [config_nestle] (8, n_ prefix for params)
         config.comments['config_nestle'] = ['']
@@ -459,59 +553,11 @@ class GlobalParameters(object):
                                                              "# Format: 'NA' or float",
                                                              "# MOSAIC : Yes"]
 
-
-    def _sync_config_to_raw(self, updated_config: dict = None, raw_config: ConfigObj = None) -> None:
-        """
-        Method to recursively synchronize self.config (dict) to self.config_raw (ConfigObj).
-
-        Parameters
-        ----------
-        updated_config (dict) : Update config dictionnary
-        raw_config (ConfigObj): The ConfigObj object to update
-
-        Authors: Allan Denis
-        """
-
-        if updated_config is None:
-            updated_config = self.config
-        if raw_config is None:
-            raw_config = self.config_raw
-
-        for key, value in updated_config.items():
-            if isinstance(value, dict):
-                # Generate section if it does not exist
-                if key not in raw_config:
-                    raw_config[key] = {}
-                # Recursive call
-                self._sync_config_to_raw(value, raw_config[key])
-            else:
-                raw_config[key] = str(value)
-
-
-    def save_config_file(self, path: str | os.PathLike = None, name: str = 'NA') -> None:
-        '''
-        Method to save the config file to a specific path
-
-        Parameters
-        ----------
-        path (str | os.PathLike): Path to save the config file to
-        name               (str): Name to give to the new saved config file
-
-        Authors: Allan Denis
-        '''
-
-        # Recursive synchronization
-        self._sync_config_to_raw()
-
-        config = self.config_raw
-        if name == 'NA':
-            name = 'config_file_ref.ini'
-        if path is None:
-            config.filename = Path(self.paths.result_path) / name
-        else:
-            config.filename = Path(path).expanduser() / name
-
+        # Writting of file
+        self._read_info(config)
         config.write()
+
+
 
 
 class GlobalParams(GlobalParameters):

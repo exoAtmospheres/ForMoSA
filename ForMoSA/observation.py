@@ -572,7 +572,6 @@ class Observation(object):
 
         Authors: Simon Petrus, Paulina Palma-Bifani, Matthieu Ravet and Allan Denis
         '''
-
         obs_files = glob.glob(str(path) + '/spectrum_obs_*.npz')
 
         if len(obs_files) == 0:
@@ -592,7 +591,7 @@ class Observation(object):
             if not(Path(obs_file).exists()):
                 missing_files.append(obs_file)
             else:
-                self._obs_data[indobs] = dict(np.load(os.path.join(path, obs_file), allow_pickle=True))
+                self._obs_data[indobs] = dict(np.load((obs_file), allow_pickle=True))
                 # For some reasons, after loading the data with this method, the dictionary self._obs_data[indobs][component_type] is transformed into an array containing a dictionary,
                 # so we use the following lines to transform it back into a dictionary
                 if 'spectro' in self._obs_data[indobs] and isinstance(self._obs_data[indobs]['spectro'], np.ndarray) and self._obs_data[indobs]['spectro'].dtype == object:

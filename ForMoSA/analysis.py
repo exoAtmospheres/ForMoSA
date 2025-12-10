@@ -71,7 +71,6 @@ class Analysis(object):
         self._fitted = fitted
         self._ns = NestedSampling(self.config_params['inversion']['ns_algo'], self.config_params['inversion']['npoints'], self.config_params['inversion']['logL_type'], logger, self.config_params['ns_algo'])
         self._logger = logger
-
         # Build and check list of nested sampling parameters
         self.ns.params._add_NestedSampling_parameters_from_config(self.config_params['parameters'])
 
@@ -100,6 +99,7 @@ class Analysis(object):
         res_cont  = adapt['res_cont']
         emulator  = adapt['emulator']
         wav_fit   = inversion['wav_fit']
+        logL_type = inversion['logL_type']
 
         # Parameters we want to check the format
         params = {
@@ -107,7 +107,8 @@ class Analysis(object):
             'res_mod': res_mod,
             'res_cont': res_cont,
             'emulator': emulator,
-            'wav_fit': wav_fit
+            'wav_fit': wav_fit,
+            'logL_type': logL_type
         }
 
         n_obs = self.observation.n_obs
@@ -215,12 +216,15 @@ class Analysis(object):
         adapt = self.config_params['adapt']
         inversion = self.config_params['inversion']
 
+        lower_bounds_lsq = inversion['hc_lower_bounds_lsq']
+        higher_bounds_lsq = inversion['hc_higher_bounds_lsq']
+        bounds_lsq = [(low_bound, high_bound) for low_bound, high_bound in zip(lower_bounds_lsq, higher_bounds_lsq)]
+
         res_obs   = adapt['target_res_obs']
         res_mod   = adapt['target_res_mod']
         res_cont  = adapt['res_cont']
         emulator  = adapt['emulator']
         wav_fit   = inversion['wav_fit']
-        bounds_lsq    = inversion['hc_bounds_lsq']
         full_logL     = inversion['full_logL']
 
         # Parameters we want to check the format
@@ -301,8 +305,11 @@ class Analysis(object):
         interp_method = adapt['method']
 
         wav_fit       = inversion['wav_fit']
-        bounds_lsq    = inversion['hc_bounds_lsq']
         full_logL     = inversion['full_logL']
+
+        lower_bounds_lsq = inversion['hc_lower_bounds_lsq']
+        higher_bounds_lsq = inversion['hc_higher_bounds_lsq']
+        bounds_lsq = [(low_bound, high_bound) for low_bound, high_bound in zip(lower_bounds_lsq, higher_bounds_lsq)]
 
         if not(self.fitted):
             # Run nested sampling
