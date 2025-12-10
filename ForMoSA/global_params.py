@@ -445,7 +445,7 @@ class GlobalParameters(object):
         if name == 'NA':
             name = 'config_file_ref.ini'
         if path is None:
-            config.filename = Path(self.paths.result_path) / name
+            config.filename = name
         else:
             config.filename = Path(path).expanduser() / name
 
