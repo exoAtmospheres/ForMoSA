@@ -415,7 +415,7 @@ class GlobalParameters(object):
                 raw_config[file_section] = value
 
 
-    def save_config_file(self, path: str | os.PathLike = None, name: str = 'NA') -> None:
+    def save_config_file(self, path: str | os.PathLike = None) -> None:
         '''
         Save the config file to a specific path, keeping original section names.
 
@@ -442,12 +442,7 @@ class GlobalParameters(object):
         # Define file name and path
         config = self.config_raw
 
-        if name == 'NA':
-            name = 'config_file_ref.ini'
-        if path is None:
-            config.filename = name
-        else:
-            config.filename = Path(path).expanduser() / name
+        config.filename = Path(path).expanduser()
 
         # Write the file
 
