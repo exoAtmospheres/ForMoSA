@@ -67,7 +67,6 @@ def _hc_model_estimate_speckles(flx_obs_spectro: np.ndarray, flx_cont_obs_spectr
         ind_system = ind_star
 
     # # # # # # Solve linear Least Squares A.x = b
-
     if ind_system == 2:
         bounds = (float(bounds[0]), float(bounds[1]))
         flx_obs_spectro_modif = flx_obs_spectro - speckles[:,0] * flx_cont_obs_spectro

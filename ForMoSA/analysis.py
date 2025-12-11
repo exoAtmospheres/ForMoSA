@@ -440,7 +440,7 @@ class Analysis(object):
 
         lower_bounds_lsq = inversion['hc_lower_bounds_lsq']
         higher_bounds_lsq = inversion['hc_higher_bounds_lsq']
-        bounds_lsq = [(low_bound, high_bound) for low_bound, high_bound in zip(lower_bounds_lsq, higher_bounds_lsq)]
+        bounds_lsq = (lower_bounds_lsq[indobs], higher_bounds_lsq[indobs])
 
         grid_spectro, grid_photo = self.grid.adapted_grid[indobs]['spectro'], self.grid.adapted_grid[indobs]['photo']
         obs_dict_spectro, obs_dict_photo = self.observation.obs_data[indobs]['spectro'], self.observation.obs_data[indobs]['photo']
@@ -531,7 +531,7 @@ class Analysis(object):
 
         lower_bounds_lsq = inversion['hc_lower_bounds_lsq']
         higher_bounds_lsq = inversion['hc_higher_bounds_lsq']
-        bounds_lsq = [(low_bound, high_bound) for low_bound, high_bound in zip(lower_bounds_lsq, higher_bounds_lsq)]
+        bounds_lsq = (lower_bounds_lsq[indobs], higher_bounds_lsq[indobs])
 
 
         grid_spectro, grid_photo = self.grid.adapted_grid[indobs]['spectro'], self.grid.adapted_grid[indobs]['photo']
