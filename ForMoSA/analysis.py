@@ -437,7 +437,10 @@ class Analysis(object):
 
         res_cont = float(adapt['res_cont'][indobs % len(adapt['res_cont'])])
         wav_fit = inversion['wav_fit'][indobs % len(inversion['wav_fit'])]
-        bounds_lsq = inversion['hc_bounds_lsq'][indobs % len(inversion['hc_bounds_lsq'])]
+
+        lower_bounds_lsq = inversion['hc_lower_bounds_lsq']
+        higher_bounds_lsq = inversion['hc_higher_bounds_lsq']
+        bounds_lsq = [(low_bound, high_bound) for low_bound, high_bound in zip(lower_bounds_lsq, higher_bounds_lsq)]
 
         grid_spectro, grid_photo = self.grid.adapted_grid[indobs]['spectro'], self.grid.adapted_grid[indobs]['photo']
         obs_dict_spectro, obs_dict_photo = self.observation.obs_data[indobs]['spectro'], self.observation.obs_data[indobs]['photo']
@@ -525,7 +528,11 @@ class Analysis(object):
 
         res_cont = float(adapt['res_cont'][indobs % len(adapt['res_cont'])])
         wav_fit = inversion['wav_fit'][indobs % len(inversion['wav_fit'])]
-        bounds_lsq = inversion['hc_bounds_lsq'][indobs % len(inversion['hc_bounds_lsq'])]
+
+        lower_bounds_lsq = inversion['hc_lower_bounds_lsq']
+        higher_bounds_lsq = inversion['hc_higher_bounds_lsq']
+        bounds_lsq = [(low_bound, high_bound) for low_bound, high_bound in zip(lower_bounds_lsq, higher_bounds_lsq)]
+
 
         grid_spectro, grid_photo = self.grid.adapted_grid[indobs]['spectro'], self.grid.adapted_grid[indobs]['photo']
         obs_dict_spectro, obs_dict_photo = self.observation.obs_data[indobs]['spectro'], self.observation.obs_data[indobs]['photo']

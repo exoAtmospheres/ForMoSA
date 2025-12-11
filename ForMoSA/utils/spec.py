@@ -29,6 +29,7 @@ def convolve_and_sample(wv_channels: list, sigmas_wvs: list, model_wvs: np.ndarr
 
     Author: Jason Wang
     """
+
     model_in_range = np.where((model_wvs >= np.min(wv_channels)) & (model_wvs < np.max(wv_channels)))
     dwv_model = np.abs(model_wvs[model_in_range] - np.roll(model_wvs[model_in_range], 1))
     dwv_model[0] = dwv_model[1]
