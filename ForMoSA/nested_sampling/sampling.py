@@ -720,7 +720,7 @@ class NestedSampling(object):
         if FINAL_logL < -1e6:
             self._logger.warning(f"[loglike WARNING] Unusually low loglike: {FINAL_logL}")
             for name in self.params.parameters:
-                value = self.params._get_param_value(name, self.params.theta)
+                value = self.params._get_param_value(name, list(self.params.theta.values()))
                 self._logger.warning(f"[low loglike] {name} = {value}")
 
             self._logger.info(f"LogL_spectro for obs {indobs}: {logL_spectro}")
