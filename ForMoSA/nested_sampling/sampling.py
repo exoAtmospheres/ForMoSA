@@ -151,6 +151,7 @@ class NestedSampling(object):
             self._logger.error(msg)
             raise ForMoSAError(msg)
 
+
         return {
             name: self.results['samples'][self.burn_in:, i]
             for i, name in enumerate(self.params.dict_computed_params_names.values())
@@ -354,21 +355,24 @@ class NestedSampling(object):
 
         # Luminosity derivation
         if r'log(L/L$\mathrm{_{\odot}}$)' in self.params.dict_params_names.values():
+            self._results['samples']  = np.column_stack([self._results['samples'], np.zeros(len(self._results['samples']))])
             r_samples = self.param_samples_dict['r']
             Teff_samples = self.param_samples_dict['Teff']
 
             # Stefan-Boltzmann law
             lum_samples = np.log10(4 * np.pi * (r_samples * cst.R_jup.value) ** 2 * Teff_samples ** 4 * cst.sigma_sb.value / cst.L_sun.value)
-            self._results['samples'] = np.hstack([self._results['samples'], lum_samples[:, None]])
+            self._results['samples'][:,-1] = lum_samples
 
         # Mass derivation
         if 'M' in self.params.dict_params_names.values():
+            self._results['samples']  = np.column_stack([self._results['samples'], np.zeros(len(self._results['samples']))])
+
             r_samples = self.param_samples_dict['r']
             logg_samples = self.param_samples_dict['log(g)']
 
             # Newton law
             M_samples = (r_samples * cst.R_jup.value)**2  / cst.G.value * 10**(logg_samples) / 100 / cst.M_jup.value  # g is in cm/s**2 so we need to convert it in m/s hence the division by 100
-            self._results['samples'] = np.hstack([self._results['samples'], M_samples[:, None]])
+            self._results['samples'][:,-1] = M_samples
 
         self.plotting._ns_results = self.results
 
@@ -719,7 +723,7 @@ class NestedSampling(object):
 
         if FINAL_logL < -1e6:
             self._logger.warning(f"[loglike WARNING] Unusually low loglike: {FINAL_logL}")
-            for name in self.params.parameters:
+            for name in self.params.free_parameters:
                 value = self.params._get_param_value(name, list(self.params.theta.values()))
                 self._logger.warning(f"[low loglike] {name} = {value}")
 
@@ -896,6 +900,7 @@ class NestedSampling(object):
                          "logl": logl,
                          "logvol": logvol,
                          "logz": logz}
+
 
         self.plotting._ns_results = self.results
         self.plotting._list_params = list(self.param_best_dict.keys())
