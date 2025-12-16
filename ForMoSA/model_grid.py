@@ -225,11 +225,11 @@ class ModelGrid(object):
             wl_region = wavelength[start:end]
             if wl_region[-1] < target_wavelength[0] or wl_region[0] > target_wavelength[-1]:
                 continue
-            overlap_mask = (wl_region >= target_wavelength[0]) & (wl_region <= target_wavelength[-1])
+            overlap_mask = (target_wavelength[0] <= wl_region) & (wl_region <= target_wavelength[-1])
             if not np.any(overlap_mask):
                 continue
-            sub_start = start + np.where(overlap_mask)[0][0]
-            sub_end = start + np.where(overlap_mask)[0][-1] + 1
+            sub_start = start + np.where(overlap_mask)[0][0] - 1
+            sub_end = start + np.where(overlap_mask)[0][-1] + 2
             res_metric = np.min(resolution[sub_start:sub_end])
             candidate_regions.append((sub_start, sub_end, res_metric))
 
