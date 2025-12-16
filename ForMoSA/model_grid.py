@@ -230,6 +230,7 @@ class ModelGrid(object):
                 continue
             sub_start = start + np.where(overlap_mask)[0][0] - 1
             sub_end = start + np.where(overlap_mask)[0][-1] + 2
+            sub_start, sub_end = max(0, sub_start), min(len(target_wavelength), sub_end)
             res_metric = np.min(resolution[sub_start:sub_end])
             candidate_regions.append((sub_start, sub_end, res_metric))
 
