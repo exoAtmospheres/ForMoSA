@@ -388,7 +388,7 @@ class NestedSampling(object):
 
         self._logger.info(f' Time spent: {time_spent}')
 
-        self._logger.info(f'Summary of Nested Sampling : \n {self._summary()}')
+        self._logger.info(f'Summary of Nested Sampling : \n {self.summary()}')
 
 
     def _loglike(self, theta: list, observation: Observation, modelgrid: ModelGrid, wav_fit: list = ['NA'], res_cont: list = ['NA'], bounds_lsq: list = ['NA'], interp_method: str = 'linear', emulator: list = ['NA'], full_logL : bool = False) -> float | tuple[dict, np.ndarray, np.ndarray]:
@@ -906,7 +906,7 @@ class NestedSampling(object):
         self.plotting._list_params = list(self.param_best_dict.keys())
 
 
-    def _summary(self, sigma: int = 2) -> None:
+    def summary(self, sigma: int = 2) -> None:
         '''
         Method to print a summary of the nested sampling results including weighted statistics.
 
