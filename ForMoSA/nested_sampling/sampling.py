@@ -990,7 +990,7 @@ class NestedSampling(object):
 
                 plus  = high - mean
                 minus = low - mean
-                msg += f" {list(self.params.dict_computed_params_names.values())[i]:10s}: ${mean:.4f}_{{{minus:.4f}}}^{{{plus:.4f}}}$\n"
+                msg += f" {list(self.params.dict_computed_params_names.values())[i]:10s}: ${mean:.4f}_{{{minus:+.4f}}}^{{{plus:+.4f}}}$\n"
 
             msg += "=========================================\n"
 
