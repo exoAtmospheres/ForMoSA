@@ -906,13 +906,14 @@ class NestedSampling(object):
         self.plotting._list_params = list(self.param_best_dict.keys())
 
 
-    def summary(self, sigma: int = 2) -> None:
+    def summary(self, sigma: int = 2, LaTeX: bool = False) -> None:
         '''
         Method to print a summary of the nested sampling results including weighted statistics.
 
         Parameters
         ----------
         sigma     (int): Confidence interval (1 or 2 sigma), default is 1.
+        LaTeX    (bool): Whether to format the output for LaTeX.
 
         Authors: Allan Denis
         '''
@@ -946,6 +947,9 @@ class NestedSampling(object):
         else:
             raise ValueError("sigma must be 1 or 2.")
 
+        def weighted_percentile(p):
+            return np.interp(p / 100, cumsum_weights, sorted_samples)
+
         msg += "\nPosterior (weighted):\n"
         for i in range(samples.shape[1]):
             param_samples = samples[:, i]
@@ -959,9 +963,6 @@ class NestedSampling(object):
             sorted_weights = weights[sorted_indices]
             cumsum_weights = np.cumsum(sorted_weights)
 
-            def weighted_percentile(p):
-                return np.interp(p / 100, cumsum_weights, sorted_samples)
-
             low = weighted_percentile(low_pct)
             high = weighted_percentile(high_pct)
 
@@ -970,6 +971,28 @@ class NestedSampling(object):
             msg += f" {list(self.params.dict_computed_params_names.values())[i]:10s}: {mean:10.4f} {minus:+10.4f} {plus:+10.4f} [{low:10.4f}, {high:10.4f}] ({sigma}σ)\n"
 
         msg += "=========================================\n"
+
+        if LaTeX:
+            for i in range(samples.shape[1]):
+                param_samples = samples[:, i]
+
+                # Weighted mean
+                mean = np.average(param_samples, weights=weights)
+
+                # Weighted percentiles
+                sorted_indices = np.argsort(param_samples)
+                sorted_samples = param_samples[sorted_indices]
+                sorted_weights = weights[sorted_indices]
+                cumsum_weights = np.cumsum(sorted_weights)
+
+                low = weighted_percentile(low_pct)
+                high = weighted_percentile(high_pct)
+
+                plus  = high - mean
+                minus = low - mean
+                msg += f" {list(self.params.dict_computed_params_names.values())[i]:10s}: ${mean:.4f}_{{{minus:.4f}}}^{{{plus:.4f}}}$\n"
+
+            msg += "=========================================\n"
 
         return msg
 
