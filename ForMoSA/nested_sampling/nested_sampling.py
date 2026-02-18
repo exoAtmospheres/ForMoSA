@@ -1,909 +1,629 @@
 import os
 import time
-import xarray as xr
-import pickle
-from scipy.interpolate import interp1d
+import json
+import logging
+import numpy as np
+from tqdm import tqdm
+from pathlib import Path
+from ForMoSA.utils.misc import get_weighted_percentile
 
-from ForMoSA.nested_sampling.nested_modif_spec import modif_spec
-from ForMoSA.nested_sampling.nested_prior_functions import uniform_prior, loguniform_prior, gaussian_prior
-from ForMoSA.nested_sampling.nested_logL_functions import *
+from ForMoSA.core.errors import ForMoSAError
+from ForMoSA.grid.subgrid_set import SubGridSet
+from ForMoSA.core.loggings import setup_logging
+from ForMoSA.config.global_config import Config_NS
+from ForMoSA.nested_sampling.results import NSResults
+from ForMoSA.parameter.parameter_set import ParameterSet
+from ForMoSA.observation.observation_set import ObservationSet
+from ForMoSA.core.enums import NestedAlgorithm, LogLikelihoodType
+from ForMoSA.transform.observed import ObservedParameters, ObservedModel
 
+# optional imports for nested sampling algorithms
+try:
+    import nestle
+except ImportError:
+    nestle = None
 
+try:
+    import pymultinest
+except ImportError:
+    pymultinest = None
 
-def import_obsmod(global_params):
-    """
-    Function to import spectra (model and data) before the inversion
+try:
+    import ultranest
+except ImportError:
+    ultranest = None
 
-    Args:
-        global_params    (object): Class containing every input from the .ini file.
+class NestedSampling(object):
+    '''
+    ForMoSA Nested_Sampling class, which provides easy access to the parameters of the nested sampling algorithm
 
-    Returns:
-        - main_file (list(array)): Return a list of lists with the wavelengths, flux, errors, covariance matrix,
-                                transmission, star flux, systematics, grid indices and the grids for both spectroscopic and photometric data.
+    Parameters
+    ----------
 
-    Authors: Simon Petrus, Matthieu Ravet and Allan Denis
-    """
-    main_obs_path = global_params.main_observation_path
+    logger                         (Logger): Logger
+    algorithm                         (str): Algorithm used for the nested sampling ('nestle', 'ultranest' or 'pymultinest')
+    npoints                           (int): Number of living points used for the nested sampling
+    logL_type     (list[LogLikelihoodType]): List of loglikelihood types used in the nested sampling
+    config_NS                   (Config_NS): Instance of class Config_NS containing parameters of ns algorithms for each of the algorithm
+    interp_method                     (str): Interpolation method ('linear', 'cubic', 'spline', ...)
+    wave_fit                    (list[str]): List of wavelength grid used for fitting
+    bounds_lsq                (list[float]): List of bounds used for the least squares (used for high contrast)
+    logger                 (logging.Logger): Logger
+    log_level                         (str): Level of the Logger
 
-    main_file = []
+    Authors: Allan Denis
+    '''
 
-    for indobs, obs in enumerate(sorted(glob.glob(main_obs_path))):
+    def __init__(self, algorithm: NestedAlgorithm, npoints: int, logL_type: list[LogLikelihoodType], config_NS: Config_NS, observations: ObservationSet, subgrids: SubGridSet, parameters: ParameterSet, wave_fit: list[str] | None = None, interp_method: str = 'linear', bounds_lsq: list[tuple[float, float]] | None = None, logger: logging.Logger | None=None, log_level: str='INFO'):
+        self._logger = logger or setup_logging(log_level, name='NestedSampling')
+        self._logL_type = logL_type
 
-        # Recovery of the observational dictionnary
-        global_params.observation_path = obs
-        obs_name = os.path.splitext(os.path.basename(global_params.observation_path))[0]
-        obs_dict = dict(np.load(os.path.join(global_params.result_path, f'spectrum_obs_{obs_name}.npz'), allow_pickle=True))
+        self._algorithm = algorithm.algo
+        self._npoints = npoints
+        self._parameters = parameters
+        self._observations = observations
+        self._subgrids = subgrids
+        self._config_NS = config_NS
+        self._interp_method = interp_method
+        self._wave_fit = wave_fit
+        self._bounds_lsq = bounds_lsq
+        self._results = None
 
-        # Recovery of the spectroscopy and photometry model
-        path_grid_spectro = os.path.join(global_params.adapt_store_path, f'adapted_grid_spectro_{global_params.grid_name}_{obs_name}_nonan.nc')
-        ds_spectro = xr.open_dataset(path_grid_spectro, decode_cf=False, engine='netcdf4')
-        grid_spectro = ds_spectro['grid']
-        path_grid_photo = os.path.join(global_params.adapt_store_path, f'adapted_grid_photo_{global_params.grid_name}_{obs_name}_nonan.nc')
-        ds_photo = xr.open_dataset(path_grid_photo, decode_cf=False, engine='netcdf4')
-        grid_photo = ds_photo['grid']
+        self._validate()
 
-        # Emulator (if necessary)
-        if global_params.emulator[0] != 'NA':
-            # PCA or NMF
-            mod_dict = dict(np.load(os.path.join(global_params.result_path, f'{global_params.emulator[0]}_mod_{obs_name}.npz'), allow_pickle=True))
+    # =================
+    # Representation
+    # =================
+
+    def __repr__(self):
+        return f'NestedSampling(algorithm = {self.algorithm}, npoints = {self.npoints}, status = {"fitted" if not self.results is None else "Not fitted"})'
+
+    # =================
+    # Properties
+    # =================
+
+    @property
+    def algorithm(self) -> str:                       # Algorithm
+        return self._algorithm
+
+    @property
+    def logL_type(self) -> list:                      # logL functions
+        return self._logL_type
+
+    @property
+    def observations(self) -> ObservationSet:         # Set of observations
+        return self._observations
+
+    @property
+    def subgrids(self) -> SubGridSet:                 # Set of subgrids
+        return self._subgrids
+
+    @property
+    def parameters(self) -> ParameterSet:             # Priors parameters
+        return self._parameters
+
+    @property
+    def config_NS(self) -> Config_NS:                 # Config_NS
+        return self._config_NS
+
+    @property
+    def interp_method(self) -> str:                   # Interpolation method
+        return self._interp_method
+
+    @property
+    def wave_fit(self) -> str:                        # Wavelengths for fitting
+        return self._wave_fit
+
+    @property
+    def bounds_lsq(self) -> list[float]:              # Bounds for the Least Squares estimation
+        return self._bounds_lsq
+
+    @property
+    def ns_params(self) -> dict:                      # Dictionary of NS algo
+        return getattr(self.config_NS, self.algorithm.lower()).to_dict
+
+    @property
+    def npoints(self) -> int:                         # Nested sampling number of living points
+        return self._npoints
+
+    @property
+    def results(self) -> "NSResults":                 # Results
+        return self._results
+
+    @property
+    def logger(self) -> logging.Logger:               # Logger
+        return self._logger
+
+    @property
+    def to_dict(self) -> dict:                        # Dictionary representation of NestedSampling
+        return {
+            'algorithm': self.algorithm,
+            'npoints': self.npoints,
+            'logLtype': [logL.loglike for logL in self.logL_type],
+            'config_NS': self.config_NS.to_dict,
+            'parameters': self.parameters.to_dict,
+            'wave_fit': self.wave_fit,
+            'interp_method': self.interp_method,
+            'bounds_lsq': [(str(lower), str(upper)) for lower, upper in self.bounds_lsq]
+            }
+
+    @property
+    def best_fit(self) -> list[ObservedModel]:        # Best fit
+        if self.results is None:
+            raise ForMoSAError('Please first run the Nested Sampling before computing the best fit', self.logger)
+
+        best_params = list(self.results.median_parameters.values())
+        return self.build_models_from_theta(best_params)
+
+    @property
+    def native_best_fit(self) -> ObservedModel:       # Best fit parameters applied to the native model
+        if self.results is None:
+            raise ForMoSAError('Please first run the Nested Sampling before computing the best fit', self.logger)
+
+        median, _ = self.best_fit_interval(perc=0)
+        return median
+
+    # =================
+    # Class method
+    # =================
+
+    @classmethod
+    def from_dict(cls, data: dict, observations: ObservationSet, subgrids: SubGridSet, logger: logging.Logger | None=None, log_level: str='INFO') -> 'NestedSampling':
+        '''
+        Reconstruct an instance of NestedSampling from a dictionary of NestedSampling.
+
+        Parameters
+        ----------
+        data                   (dict): Dictionary representation NestedSampling parameters
+        observations (ObservationSet): Instance of ObservationSet
+        subgrids         (SubGridSet): Instance of SubGridSet
+        logger       (logging.Logger): Logger
+        log_level               (str): Level of the Logger
+
+        Returns
+        -------
+        'NestedSampling': An instance of class NestedSampling
+
+        Authors: Allan Denis
+        '''
+
+        logger = logger or setup_logging(level=log_level, name='NestedSampling')
+        logger.debug('Building an instance of NestedSampling from dictionary')
+
+        if not isinstance(data, dict):
+            raise ForMoSAError(f'Wrong type for data: {type(data)}. Expected a dictionary', logger)
+
+        algorithm, npoints, logL_type, config_NS, parameters, wave_fit, interp_method, bounds_lsq = data['algorithm'], data['npoints'], data['logLtype'], data['config_NS'], data['parameters'], data['wave_fit'], data['interp_method'], data['bounds_lsq']
+
+        logger.info(f'    Found NestedSampling with {algorithm} algorithm, {npoints} living points and {len(parameters)} parameters')
+
+        algorithm = NestedAlgorithm[algorithm.upper()]
+        logL_type = [LogLikelihoodType[logL_type.upper()] for logL_type in data['logLtype']]
+        config_NS = Config_NS.from_dict(config_NS)
+        parameters = ParameterSet.from_dict(parameters)
+        bounds_lsq = [(float(lower), float(upper)) for lower, upper in bounds_lsq]
+
+        return cls(
+            algorithm=algorithm,
+            npoints=npoints,
+            logL_type=logL_type,
+            config_NS=config_NS,
+            parameters=parameters,
+            wave_fit=wave_fit,
+            interp_method=interp_method,
+            bounds_lsq=bounds_lsq,
+            observations=observations,
+            subgrids=subgrids,
+            logger=logger)
+
+    @classmethod
+    def from_json(cls, path: str | os.PathLike, observations: ObservationSet, subgrids: SubGridSet, logger: logging.Logger | None=None, log_level: str='INFO') -> 'NestedSampling':
+        '''
+        Reconstruct an instance of NestedSampling from the folder containing the NestedSampling parameters.
+
+        Parameters
+        ----------
+        path      (str | os.PathLike): Dictionary representation NestedSampling parameters
+        observations (ObservationSet): Instance of ObservationSet
+        subgrids         (SubGridSet): Instance of SubGridSet
+        logger       (logging.Logger): Logger
+        log_level               (str): Level of the Logger
+
+        Returns
+        -------
+        'NestedSampling': An instance of class NestedSampling
+
+        Authors: Allan Denis
+        '''
+
+        logger = logger or setup_logging(level=log_level, name='NestedSampling')
+
+        logger.debug(f'Building instance of NestedSampling from the path {path}')
+
+        # Initial checking
+        if not isinstance(path, (str, os.PathLike)):
+            raise ForMoSAError(f' Wrong type for path: {type(path)}. Expected a str or os.PathLike', logger)
+
+        NS_params_file = Path(path)  / 'NS_params' / 'NS_params.json'
+
+        if not NS_params_file.exists():
+            raise ForMoSAError(f'{NS_params_file} does not exist', logger)
+
+        with open(NS_params_file, "r") as f:
+            data = json.load(f)
+
+        ns = cls.from_dict(data, observations = observations, subgrids = subgrids, logger = logger)
+
+        results_file = Path(path)  / 'NS_results' / f'results_{ns.algorithm}.json'
+
+        if not results_file.exists():
+            ns.logger.warning(f'{results_file} does not exist. Cannot load the results of the Nested Sampling', ns.logger)
         else:
-            # Standard method
-            mod_dict = {'wav_spectro': np.asarray(ds_spectro.coords['wavelength']), 'res_spectro': np.asarray(ds_spectro.attrs['res'])}
-        ds_spectro.close()
-        ds_photo.close()
+            ns.load_results(path)
 
-        # Initiate indices tables for each sub-spectrum
-        mask_mod_spectro = np.zeros(len(mod_dict['wav_spectro']), dtype=bool)
-        mask_obs_spectro = np.zeros(len(obs_dict['wav_spectro']), dtype=bool)
-        mask_photo = np.zeros(len(obs_dict['wav_photo']), dtype=bool)
-        for ns_u_ind, ns_u in enumerate(global_params.wav_fit[indobs % len(global_params.wav_fit)].split('/')):
-            min_ns_u = float(ns_u.split(',')[0])
-            max_ns_u = float(ns_u.split(',')[1])
-            # Indices of each model and data. Masks to have larger cuts of the spectroscopic grid if needed (if rv is defined)
-            if global_params.rv[indobs*3 % len(global_params.rv)] == 'NA':
-                mask_mod_spectro += (mod_dict['wav_spectro'] >= min_ns_u) & (mod_dict['wav_spectro'] <= max_ns_u)
-            else:
-                mask_mod_spectro += (mod_dict['wav_spectro'] >= 0.99 * min_ns_u) & (mod_dict['wav_spectro'] <= 1.01 * max_ns_u)
-            mask_obs_spectro += (obs_dict['wav_spectro'] >= min_ns_u) & (obs_dict['wav_spectro'] <= max_ns_u)
-            mask_photo += (obs_dict['wav_photo'] >= min_ns_u) & (obs_dict['wav_photo'] <= max_ns_u)
+        return ns
 
-        # Cutting the data to a wavelength grid defined by the parameter 'wav_fit'
-        for key in obs_dict:
-            if obs_dict[key].size != 0:
-                if key[-5:] == 'photo':
-                    obs_dict[key] = obs_dict[key][mask_photo]
-                elif key != 'inv_cov':
-                    obs_dict[key] = obs_dict[key][mask_obs_spectro]
-                else:
-                    obs_dict[key] = obs_dict[key][np.ix_(mask_obs_spectro, mask_obs_spectro)]
-            else:
-                pass
+    # =================
+    # Method
+    # =================
 
-        # Cutting the model to a wavelength grid defined by the parameter 'wav_fit'
-        for key in mod_dict:
-            if mod_dict[key].size != 0:
-                if key[-5:] == 'photo':
-                    if key[:7] == 'vectors':
-                        mod_dict[key] = mod_dict[key][:,mask_photo]
-                    else:
-                        mod_dict[key] = mod_dict[key][mask_photo]
-                else:
-                    if key[:7] == 'vectors':
-                        mod_dict[key] = mod_dict[key][:,mask_mod_spectro]
-                    else:
-                        mod_dict[key] = mod_dict[key][mask_mod_spectro]
-            else:
-                pass
+    def _validate(self) -> None:
+        '''
+        Validation
 
-        # Cutting of the grid on the wavelength grid defined by the parameter 'wav_fit' and interpolating model resolution onto the data
-        interp_mod_to_obs = interp1d(mod_dict['wav_spectro'], mod_dict['res_spectro'], fill_value='extrapolate') 
-        mod_dict['res_spectro'] = interp_mod_to_obs(obs_dict['wav_spectro'])
-        if global_params.emulator[0] == 'NA':
-            grid_spectro = grid_spectro.sel(wavelength=grid_spectro['wavelength'][mask_mod_spectro])
-            grid_photo = grid_photo.sel(wavelength=grid_photo['wavelength'][mask_photo])
+        Authors: Allan Denis
+        '''
 
-        main_file.append([obs_dict,
-                          mod_dict,
-                          grid_spectro,
-                          grid_photo])
+        for name, instance in zip(['logL_type', 'observations', 'subgrids', 'parameters', 'config_NS', 'wave_fit', 'interp_method', 'bounds_lsq'], [list, ObservationSet, SubGridSet, ParameterSet, Config_NS, list, str, list]):
+            if not isinstance(getattr(self, name), instance):
+                raise ForMoSAError(f'Wrong type for {name}: {type(getattr(self, name))}. Expected {instance}', self.logger)
 
-    return main_file
+        for name, value in zip(['logL_type', 'wave_fit', 'subgrids'], [self.logL_type, self.wave_fit, self.subgrids.subgrids]):
+            if len(value) != self.observations.n_observations:
+                raise ForMoSAError(f'Invalid length for {name}. Expected {self.observations.n_observations}', self.logger)
 
+        for bound in self.bounds_lsq:
+            if not isinstance(bound, tuple):
+                raise ForMoSAError(f'bounds_lsq must only contain tuples. Found a {type(bound)}', self.logger)
+            if len(bound) != 2:
+                raise ForMoSAError(f'bounds_lsq must only contain tuples of length 2. Found a tuple of length {len(bound)}', self.logger)
+            for b in bound:
+                if not isinstance(b, float):
+                    raise ForMoSAError(f'Wrong type detected in {bound}: {type(b)}. Expected a float', self.logger)
 
-def loglike(theta, theta_index, global_params, main_file, for_plot='no'):
-    """
-    Function that calculates the logarithm of the likelihood.
-    The evaluation depends on the choice of likelihood.
-    (If this function is used on the plotting module, it returns the outputs of the modif_spec function)
+        valid_algorithms = [algo.value for algo in NestedAlgorithm]
+        if self.algorithm not in valid_algorithms:
+            raise ForMoSAError(f'{self.algorithm} is not supported. Choose from {valid_algorithms}', self.logger)
 
-    Args:
-        theta                 (list): Parameter values randomly picked by the nested sampling
-        theta_index           (list): Index for the parameter values randomly picked
-        global_params       (object): Class containing every input from the .ini file.
-        main_file       (list(list)): List containing the wavelengths, flux, errors, covariance, and grid information
-        for_plot               (str): Default is 'no'. When this function is called from the plotting functions module, we use 'yes'
+        if self.algorithm == NestedAlgorithm.NESTLE and nestle is None:
+            raise ForMoSAError('nestle is not installed', self.logger)
 
-    Returns:
-        - FINAL_logL     (float): Final evaluated loglikelihood for both spectra and photometry.
+        if self.algorithm == NestedAlgorithm.ULTRANEST and ultranest is None:
+            raise ForMoSAError('ultranest is not installed', self.logger)
 
-    Authors: Simon Petrus, Matthieu Ravet and Allan Denis
-    """
+        if self.algorithm == NestedAlgorithm.PYMULTINEST and pymultinest is None:
+            raise ForMoSAError('pymultinest is not installed', self.logger)
 
-    # Recovery of each observation spectroscopy and photometry data
-    main_obs_path = global_params.main_observation_path
-    FINAL_logL = 0
+        valid_logL_type = [logL for logL in LogLikelihoodType]
 
+        for i, ll in enumerate(self.logL_type):
+            if ll not in valid_logL_type:
+                raise ForMoSAError('Invalid logL_type ({ll}). Choose from {valid_logL_type}', self.logger)
 
-    for indobs, obs in enumerate(sorted(glob.glob(main_obs_path))):
+    def run(self, results_path: str | os.PathLike) -> None:
+        '''
+        Method to run the nested sampling algorithm using the model, observation and nested sampling parameters.
 
-        # Recovery of spectroscopy and photometry data and model (fixed)
-        obs_dict = main_file[indobs][0]
-        mod_dict = main_file[indobs][1]
+        Parameters
+        ----------
+        results_path   (str | os.PathLike): Path of the output
 
-        # Recovery of the spectroscopy and photometry grids
-        grid_spectro = main_file[indobs][2]
-        grid_photo = main_file[indobs][3]
+        Authors: Simon Petrus, Matthieu Ravet and Allan Denis
+        '''
 
-        # Interpolation of the grid at the theta parameters set
-        if global_params.par3[0] == 'NA':
-            if len(obs_dict['wav_spectro']) != 0:
-                interp_spectro = np.asarray(grid_spectro.interp(par1=theta[0], par2=theta[1],
-                                                        method=global_params.method, kwargs={"fill_value": "extrapolate"}))
-            else:
-                interp_spectro = np.asarray([])
-            if len(obs_dict['wav_photo']) != 0:
-                interp_photo = np.asarray(grid_photo.interp(par1=theta[0], par2=theta[1],
-                                                        method=global_params.method, kwargs={"fill_value": "extrapolate"}))
-            else:
-                interp_photo = np.asarray([])
-        elif global_params.par4[0] == 'NA':
-            if len(obs_dict['wav_spectro']) != 0:
-                interp_spectro = np.asarray(grid_spectro.interp(par1=theta[0], par2=theta[1], par3=theta[2],
-                                                        method=global_params.method, kwargs={"fill_value": "extrapolate"}))
-            else:
-                interp_spectro = np.asarray([])
-            if len(obs_dict['wav_photo']) != 0:
-                interp_photo = np.asarray(grid_photo.interp(par1=theta[0], par2=theta[1], par3=theta[2],
-                                                        method=global_params.method, kwargs={"fill_value": "extrapolate"}))
-            else:
-                interp_photo = np.asarray([])
-        elif global_params.par5[0] == 'NA':
-            if len(obs_dict['wav_spectro']) != 0:
-                interp_spectro = np.asarray(grid_spectro.interp(par1=theta[0], par2=theta[1], par3=theta[2], par4=theta[3],
-                                                        method=global_params.method, kwargs={"fill_value": "extrapolate"}))
-            else:
-                interp_spectro = np.asarray([])
-            if len(obs_dict['wav_photo']) != 0:
-                interp_photo = np.asarray(grid_photo.interp(par1=theta[0], par2=theta[1], par3=theta[2], par4=theta[3],
-                                                        method=global_params.method, kwargs={"fill_value": "extrapolate"}))
-            else:
-                interp_photo = np.asarray([])
+        if not isinstance(results_path, (str, os.PathLike)):
+            raise ForMoSAError(f'Wrong type for results_path: {type(results_path)}. Expected a string or os.PathLike', self.logger)
+
+        n_free_parameters = self.parameters.n_free_parameters
+
+        loglike_gp = lambda theta: self.loglike(theta)
+        prior_transform_gp = lambda theta: self.prior_transform(theta)
+
+        time_before_ns = time.time()
+
+        self.logger.debug('Running Nested Sampling')
+
+        self.logger.info(f'    Algorithm for the Nested Sampling: {self.algorithm}')
+
+        path = Path(results_path)
+        self.logger.info(f'    Creating directory {path}')
+
+        path.mkdir(exist_ok=True, parents=True)
+
+        self.logger.info(f'    Summary for the Nested Sampling parameters: \n {self.parameters.summary(as_dataframe=True)}')
+
+        # Algorithms
+        if self.algorithm == NestedAlgorithm.NESTLE.algo:
+            if nestle is None:
+                msg = 'Nestle is not installed. Please install it to use the nestle algorithm.'
+                self._logger.error(msg)
+                raise ForMoSAError(msg)
+
+            res = nestle.sample(loglike_gp, prior_transform_gp, n_free_parameters,
+                                npoints=self.npoints,
+                                **self.ns_params,
+                                callback=nestle.print_progress)
+
+            self._results = NSResults.from_nestle(res, self.parameters.free_titles)
+
+        elif self.algorithm == NestedAlgorithm.PYMULTINEST.algo:
+            if pymultinest is None:
+                msg = 'Pymultinest is not installed. Please install it to use the MultiNest algorithm.'
+                self._logger.error(msg)
+                raise ForMoSAError(msg)
+
+            res = pymultinest.solve(LogLikelihood=loglike_gp,
+                                    Prior=prior_transform_gp,
+                                    n_dims=n_free_parameters,
+                                    n_live_points=self.npoints,
+                                    outputfiles_basename=str(results_path) + '/pymultinest/' + 'RAW_',
+                                    **self.ns_params)
+
+            output_path = f"{results_path}/pymultinest/"
+            self._results = NSResults.from_pymultinest(output_path, self.parameters.free_titles)
+
+        elif self.algorithm == NestedAlgorithm.ULTRANEST.algo:
+            if ultranest is None:
+                msg = 'Ultranest is not installed. Please install it to use the UltraNest algorithm.'
+                self._logger.error(msg)
+                raise ForMoSAError(msg)
+
+            sampler = ultranest.ReactiveNestedSampler(param_names=[p.title for p in self.parameters.free_parameters],
+                                    loglike=loglike_gp,
+                                    transform=prior_transform_gp,
+                                    log_dir=str(results_path) + '/ultranest/',
+                                    **self.ns_params['ReactiveNS'])
+
+            res = sampler.run(min_num_live_points=self.npoints, **self.ns_params['runNS'])
+
+            self._results = NSResults.from_ultranest(res, self.parameters.free_titles)
+
         else:
-            if len(obs_dict['wav_spectro']) != 0:
-                interp_spectro = np.asarray(grid_spectro.interp(par1=theta[0], par2=theta[1], par3=theta[2], par4=theta[3],
-                                                        par5=theta[4],
-                                                        method=global_params.method, kwargs={"fill_value": "extrapolate"}))
-            else:
-                interp_spectro = np.asarray([])
-            if len(obs_dict['wav_photo']) != 0:
-                interp_photo = np.asarray(grid_photo.interp(par1=theta[0], par2=theta[1], par3=theta[2], par4=theta[3],
-                                                        par5=theta[4],
-                                                        method=global_params.method, kwargs={"fill_value": "extrapolate"}))
-            else:
-                interp_photo = np.asarray([])
+            raise ForMoSAError(f'Unknown algorithm: {self.algorithm}. Chose amongst {[algo.value for algo in NestedAlgorithm]}')
 
-        # Recreate the flux array
-        if global_params.emulator[0] != 'NA':
-            if global_params.emulator[0] == 'PCA':
-                if len(mod_dict['vectors_spectro']) != 0:
-                    flx_mod_spectro = (mod_dict['flx_mean_spectro']+mod_dict['flx_std_spectro'] * (interp_spectro[1:] @ mod_dict['vectors_spectro'])) * interp_spectro[0][np.newaxis]
-                else:
-                    flx_mod_spectro = np.asarray([])
-                if len(mod_dict['vectors_photo']) != 0:
-                    flx_mod_photo = (mod_dict['flx_mean_photo']+mod_dict['flx_std_photo'] * (interp_photo[1:] @ mod_dict['vectors_photo'])) * interp_photo[0][np.newaxis]
-                else:
-                    flx_mod_photo = np.asarray([])
-            elif global_params.emulator[0] == 'NMF':
-                if len(mod_dict['vectors_spectro']) != 0:
-                    flx_mod_spectro = interp_spectro[:] @ mod_dict['vectors_spectro']
-                else:
-                    flx_mod_spectro = np.asarray([])
-                if len(mod_dict['vectors_photo']) != 0:
-                    flx_mod_photo = interp_photo[:] @ mod_dict['vectors_photo']
-                else:
-                    flx_mod_photo = np.asarray([])
-        else:
-            flx_mod_spectro = interp_spectro
-            flx_mod_photo = interp_photo
-        
-        # Modification of the synthetic spectrum with the extra-grid parameters
-        modif_spec_LL = modif_spec(global_params, theta, theta_index,
-                                      obs_dict, 
-                                      flx_mod_spectro, flx_mod_photo, 
-                                      mod_dict['wav_spectro'], mod_dict['res_spectro'],
-                                      indobs=indobs)
+        self._logger.info(f'    Time spent: {time.time() - time_before_ns}')
 
-        # Get back the modified arrays to compute the logL
-        obs_dict_modif = modif_spec_LL[0]
-        flx_mod_spectro_modif, flx_mod_photo_modif = modif_spec_LL[1], modif_spec_LL[2]
- 
-    
-        # Computation of the photometry logL
-        if len(obs_dict_modif['wav_photo']) != 0:
-            logL_photo = logL_chi2(obs_dict_modif['flx_photo']-flx_mod_photo_modif, obs_dict_modif['err_photo'])
-        else:
-            logL_photo = 0
+        self._logger.info(f'    Summary of Nested Sampling: \n {self.results.summary()}')
 
-        # Computation of the spectroscopy logL
-        if len(obs_dict_modif['wav_spectro']) != 0:
-            if global_params.logL_type[indobs % len(global_params.logL_type)] == 'chi2':
-                logL_spectro = logL_chi2(obs_dict_modif['flx_spectro']-flx_mod_spectro_modif, obs_dict_modif['err_spectro'])
-            elif global_params.logL_type[indobs % len(global_params.logL_type)] == 'chi2_covariance' and len(obs_dict_modif['inv_cov']) != 0:
-                logL_spectro = logL_chi2_covariance(obs_dict_modif['flx_spectro']-flx_mod_spectro_modif, obs_dict_modif['inv_cov'])
-            elif global_params.logL_type[indobs % len(global_params.logL_type)] == 'CCF_Brogi':
-                logL_spectro = logL_CCF_Brogi(obs_dict_modif['flx_spectro'], flx_mod_spectro_modif)
-            elif global_params.logL_type[indobs % len(global_params.logL_type)] == 'CCF_Zucker':
-                logL_spectro = logL_CCF_Zucker(obs_dict_modif['flx_spectro'], flx_mod_spectro_modif)
-            elif global_params.logL_type[indobs % len(global_params.logL_type)] == 'CCF_custom':
-                logL_spectro = logL_CCF_custom(obs_dict_modif['flx_spectro'], flx_mod_spectro_modif, obs_dict_modif['err_spectro'])
-            elif global_params.logL_type[indobs % len(global_params.logL_type)] == 'chi2_noisescaling':
-                logL_spectro = logL_chi2_noisescaling(obs_dict_modif['flx_spectro']-flx_mod_spectro_modif, obs_dict_modif['err_spectro'])
-            elif global_params.logL_type[indobs % len(global_params.logL_type)] == 'chi2_noisescaling_covariance' and len(obs_dict_modif['inv_cov']) != 0:
-                logL_spectro = logL_chi2_noisescaling_covariance(obs_dict_modif['flx_spectro']-flx_mod_spectro_modif, obs_dict_modif['inv_cov'])
-            else:
-                print()
-                print('WARNING: One or more dataset are not included when performing the inversion.')
-                print('Please adapt your likelihood function choice.')
-                print()
-                exit()
-        else:
-            logL_spectro = 0
+    def loglike(self, theta: np.ndarray[float]) -> float:
+        '''
+        Compute the loglikelihood for given parameters of the nested sampling.
 
-        # Compute the final logL (sum of all likelihood under the hypothesis of independent instruments)
-        FINAL_logL = logL_photo + logL_spectro + FINAL_logL
+        Parameters
+        ----------
+        theta           (np.ndarray[float]): Values randomly drawn by the Nested Sampling
 
-    if for_plot == 'no':
-        return FINAL_logL
-    else:
-        return modif_spec_LL
+        Returns
+        -------
+        logL (float): Final loglikelihood
 
+        '''
 
-def prior_transform(theta, theta_index, lim_param_grid, global_params):
-    """
-    Function that define the priors to be used for the inversion.
-    We check that the boundaries are consistent with the grid extension.
+        observed_models = self.build_models_from_theta(theta)
+        return self._compute_loglikelihood(observed_models)
 
-    Args:
-        theta           (list): Parameter values randomly picked by the nested sampling
-        theta_index     (list): Index for the parameter values randomly picked
-        lim_param_grid  (list): Boundaries for the parameters explored
-        global_params (object): Class containing every input from the .ini file.
+    def prior_transform(self, theta: np.ndarray[float]) -> np.ndarray[float]:
+        '''
+        ransform theta in [0,1]^N into physical values for free parameters.
 
-    Returns:
-        - prior           (list): List containing all the prior information
+        Parameters
+        ----------
+        theta (np.ndarray[float]): List of the parameters drawn by the nested sampling algorithm
 
-    Author: Simon Petrus, Matthieu Ravet, Allan Denis
-    """
-    prior = []
-    prior_law_par1 = global_params.par1[0]
-    if prior_law_par1 != 'NA' and prior_law_par1 != 'constant':
-        if prior_law_par1 == 'uniform':
-            prior_par1 = uniform_prior([float(global_params.par1[1]), float(global_params.par1[2])], theta[0])
-        if prior_law_par1 == 'loguniform':
-            prior_par1 = loguniform_prior([float(global_params.par1[1]), float(global_params.par1[2])], theta[0])
-        if prior_law_par1 == 'gaussian':
-            prior_par1 = gaussian_prior([float(global_params.par1[1]), float(global_params.par1[2])], theta[0])
-        if prior_par1 < lim_param_grid[0][0]:
-            prior_par1 = lim_param_grid[0][0]
-        elif prior_par1 > lim_param_grid[0][1]:
-            prior_par1 = lim_param_grid[0][1]
-        prior.append(prior_par1)
-    prior_law_par2 = global_params.par2[0]
-    if prior_law_par2 != 'NA' and prior_law_par2 != 'constant':
-        if prior_law_par2 == 'uniform':
-            prior_par2 = uniform_prior([float(global_params.par2[1]), float(global_params.par2[2])], theta[1])
-        if prior_law_par2 == 'loguniform':
-            prior_par2 = loguniform_prior([float(global_params.par2[1]), float(global_params.par2[2])], theta[1])
-        if prior_law_par2 == 'gaussian':
-            prior_par2 = gaussian_prior([float(global_params.par2[1]), float(global_params.par2[2])], theta[1])
-        if prior_par2 < lim_param_grid[1][0]:
-            prior_par2 = lim_param_grid[1][0]
-        elif prior_par2 > lim_param_grid[1][1]:
-            prior_par2 = lim_param_grid[1][1]
-        prior.append(prior_par2)
-    prior_law_par3 = global_params.par3[0]
-    if prior_law_par3 != 'NA' and prior_law_par3 != 'constant':
-        if prior_law_par3 == 'uniform':
-            prior_par3 = uniform_prior([float(global_params.par3[1]), float(global_params.par3[2])], theta[2])
-        if prior_law_par3 == 'loguniform':
-            prior_par3 = loguniform_prior([float(global_params.par3[1]), float(global_params.par3[2])], theta[2])
-        if prior_law_par3 == 'gaussian':
-            prior_par3 = gaussian_prior([float(global_params.par3[1]), float(global_params.par3[2])], theta[2])
-        if prior_par3 < lim_param_grid[2][0]:
-            prior_par3 = lim_param_grid[2][0]
-        elif prior_par3 > lim_param_grid[2][1]:
-            prior_par3 = lim_param_grid[2][1]
-        prior.append(prior_par3)
-    prior_law_par4 = global_params.par4[0]
-    if prior_law_par4 != 'NA' and prior_law_par4 != 'constant':
-        if prior_law_par4 == 'uniform':
-            prior_par4 = uniform_prior([float(global_params.par4[1]), float(global_params.par4[2])], theta[3])
-        if prior_law_par4 == 'loguniform':
-            prior_par4 = loguniform_prior([float(global_params.par4[1]), float(global_params.par4[2])], theta[3])
-        if prior_law_par4 == 'gaussian':
-            prior_par4 = gaussian_prior([float(global_params.par4[1]), float(global_params.par4[2])], theta[3])
-        if prior_par4 < lim_param_grid[3][0]:
-            prior_par4 = lim_param_grid[3][0]
-        elif prior_par4 > lim_param_grid[3][1]:
-            prior_par4 = lim_param_grid[3][1]
-        prior.append(prior_par4)
-    prior_law_par5 = global_params.par5[0]
-    if prior_law_par5 != 'NA' and prior_law_par5 != 'constant':
-        if prior_law_par5 == 'uniform':
-            prior_par5 = uniform_prior([float(global_params.par5[1]), float(global_params.par5[2])], theta[4])
-        if prior_law_par5 == 'loguniform':
-            prior_par5 = loguniform_prior([float(global_params.par5[1]), float(global_params.par5[2])], theta[4])
-        if prior_law_par5 == 'gaussian':
-            prior_par5 = gaussian_prior([float(global_params.par5[1]), float(global_params.par5[2])], theta[4])
-        if prior_par5 < lim_param_grid[4][0]:
-            prior_par5 = lim_param_grid[4][0]
-        elif prior_par5 > lim_param_grid[4][1]:
-            prior_par5 = lim_param_grid[4][1]
-        prior.append(prior_par5)
+        Returns
+        -------
+        np.ndarray[float]: Transformed values
 
-    # Extra-grid parameters
-    prior_law_r = global_params.r[0]
-    if prior_law_r != 'NA' and prior_law_r != 'constant':
-        ind_theta_r = np.where(theta_index == 'r')
-        if prior_law_r == 'uniform':
-            prior_r = uniform_prior([float(global_params.r[1]), float(global_params.r[2])], theta[ind_theta_r[0][0]])
-        if prior_law_r == 'loguniform':
-            prior_r = loguniform_prior([float(global_params.r[1]), float(global_params.r[2])], theta[ind_theta_r[0][0]])
-        if prior_law_r == 'gaussian':
-            prior_r = gaussian_prior([float(global_params.r[1]), float(global_params.r[2])], theta[ind_theta_r[0][0]])
-        prior.append(prior_r)
-    prior_law_d = global_params.d[0]
-    if prior_law_d != 'NA' and prior_law_d != 'constant':
-        ind_theta_d = np.where(theta_index == 'd')
-        if prior_law_d == 'uniform':
-            prior_d = uniform_prior([float(global_params.d[1]), float(global_params.d[2])], theta[ind_theta_d[0][0]])
-        if prior_law_d == 'loguniform':
-            prior_d = loguniform_prior([float(global_params.d[1]), float(global_params.d[2])], theta[ind_theta_d[0][0]])
-        if prior_law_d == 'gaussian':
-            prior_d = gaussian_prior([float(global_params.d[1]), float(global_params.d[2])], theta[ind_theta_d[0][0]])
-        prior.append(prior_d)
+        Authors: Allan Denis
+        '''
 
-    # - - - - - - - - - - - - - - - - - - - - -
+        try:
+            return self.parameters.prior_transform(theta)
+        except Exception as e:
+            raise ForMoSAError(e, self.logger)
 
-    # Individual parameters / observation
-    main_obs_path = global_params.main_observation_path
+    def build_models_from_theta(self, theta: np.ndarray[float]) -> list[ObservedModel]:
+        '''
+        Build the models from the values of the free parameters drawn by the Nested Sampling
 
-    if len(global_params.alpha) > 3: # If you want separate alpha for each observations
-        for indobs, obs in enumerate(sorted(glob.glob(main_obs_path))):
-            prior_law_alpha = global_params.alpha[indobs*3] # Prior laws should be separeted by 2 values (need to be upgraded)
-            if prior_law_alpha != 'NA' and prior_law_alpha != 'constant':
-                ind_theta_alpha = np.where(theta_index == f'alpha_{indobs}')
-                if prior_law_alpha == 'uniform':
-                    prior_alpha = uniform_prior([float(global_params.alpha[indobs*3+1]), float(global_params.alpha[indobs*3+2])], theta[ind_theta_alpha[0][0]])
-                if prior_law_alpha == 'loguniform':
-                    prior_alpha = loguniform_prior([float(global_params.alpha[indobs*3+1]), float(global_params.alpha[indobs*3+2])], theta[ind_theta_alpha[0][0]])
-                if prior_law_alpha == 'gaussian':
-                    prior_alpha = gaussian_prior([float(global_params.alpha[indobs*3+1]), float(global_params.alpha[indobs*3+2])], theta[ind_theta_alpha[0][0]])
-                prior.append(prior_alpha)
-    else: # If you want 1 common alpha for all observations
-        prior_law_alpha = global_params.alpha[0] 
-        if prior_law_alpha != 'NA' and prior_law_alpha != 'constant':
-            ind_theta_alpha = np.where(theta_index == 'alpha')
-            if prior_law_alpha == 'uniform':
-                prior_alpha = uniform_prior([float(global_params.alpha[1]), float(global_params.alpha[2])], theta[ind_theta_alpha[0][0]])
-            if prior_law_alpha == 'loguniform':
-                prior_alpha = loguniform_prior([float(global_params.alpha[1]), float(global_params.alpha[2])], theta[ind_theta_alpha[0][0]])
-            if prior_law_alpha == 'gaussian':
-                prior_alpha = gaussian_prior([float(global_params.alpha[1]), float(global_params.alpha[2])], theta[ind_theta_alpha[0][0]])
-            prior.append(prior_alpha)
-    if len(global_params.rv) > 3: # If you want separate rv for each observations
-        for indobs, obs in enumerate(sorted(glob.glob(main_obs_path))):
-            prior_law_rv = global_params.rv[indobs*3] # Prior laws should be separeted by 2 values (need to be upgraded)
-            if prior_law_rv != 'NA' and prior_law_rv != 'constant':
-                ind_theta_rv = np.where(theta_index == f'rv_{indobs}')
-                if prior_law_rv == 'uniform':
-                    prior_rv = uniform_prior([float(global_params.rv[indobs*3+1]), float(global_params.rv[indobs*3+2])], theta[ind_theta_rv[0][0]])
-                if prior_law_rv == 'loguniform':
-                    prior_rv = loguniform_prior([float(global_params.rv[indobs*3+1]), float(global_params.rv[indobs*3+2])], theta[ind_theta_rv[0][0]])
-                if prior_law_rv == 'gaussian':
-                    prior_rv = gaussian_prior([float(global_params.rv[indobs*3+1]), float(global_params.rv[indobs*3+2])], theta[ind_theta_rv[0][0]])
-                prior.append(prior_rv)
-    else: # If you want 1 common rv for all observations
-        prior_law_rv = global_params.rv[0] 
-        if prior_law_rv != 'NA' and prior_law_rv != 'constant':
-            ind_theta_rv = np.where(theta_index == 'rv')
-            if prior_law_rv == 'uniform':
-                prior_rv = uniform_prior([float(global_params.rv[1]), float(global_params.rv[2])], theta[ind_theta_rv[0][0]])
-            if prior_law_rv == 'loguniform':
-                prior_rv = loguniform_prior([float(global_params.rv[1]), float(global_params.rv[2])], theta[ind_theta_rv[0][0]])
-            if prior_law_rv == 'gaussian':
-                prior_rv = gaussian_prior([float(global_params.rv[1]), float(global_params.rv[2])], theta[ind_theta_rv[0][0]])
-            prior.append(prior_rv)
-    if len(global_params.vsini) > 4: # If you want separate vsini for each observations
-        for indobs, obs in enumerate(sorted(glob.glob(main_obs_path))):
-            prior_law_vsini = global_params.vsini[4*indobs] # Prior laws should be separeted by 2 values (need to be upgraded)
-            if prior_law_vsini != 'NA' and prior_law_vsini != 'constant':
-                ind_theta_vsini = np.where(theta_index == f'vsini_{indobs}')
-                if prior_law_vsini == 'uniform':
-                    prior_vsini = uniform_prior([float(global_params.vsini[indobs*4+1]), float(global_params.vsini[indobs*4+2])], theta[ind_theta_vsini[0][0]])
-                if prior_law_vsini == 'loguniform':
-                    prior_vsini = loguniform_prior([float(global_params.vsini[indobs*4+1]), float(global_params.vsini[indobs*4+2])], theta[ind_theta_vsini[0][0]])
-                if prior_law_vsini == 'gaussian':
-                    prior_vsini = gaussian_prior([float(global_params.vsini[indobs*4+1]), float(global_params.vsini[indobs*4+2])], theta[ind_theta_vsini[0][0]])
-                prior.append(prior_vsini)
-    else: # If you want 1 common vsini for all observations
-        prior_law_vsini = global_params.vsini[0]
-        if prior_law_vsini != 'NA' and prior_law_vsini != 'constant':
-            ind_theta_vsini = np.where(theta_index == 'vsini')
-            if prior_law_vsini == 'uniform':
-                prior_vsini = uniform_prior([float(global_params.vsini[1]), float(global_params.vsini[2])], theta[ind_theta_vsini[0][0]])
-            if prior_law_vsini == 'loguniform':
-                prior_vsini = loguniform_prior([float(global_params.vsini[1]), float(global_params.vsini[2])], theta[ind_theta_vsini[0][0]])
-            if prior_law_vsini == 'gaussian':
-                prior_vsini = gaussian_prior([float(global_params.vsini[1]), float(global_params.vsini[2])], theta[ind_theta_vsini[0][0]])
-            prior.append(prior_vsini)
-    if len(global_params.ld) > 3: # If you want separate ld for each observations
-        for indobs, obs in enumerate(sorted(glob.glob(main_obs_path))):
-            prior_law_ld = global_params.ld[3*indobs] # Prior laws should be separeted by 2 values (need to be upgraded)
-            if prior_law_ld != 'NA' and prior_law_ld != 'constant':
-                ind_theta_ld = np.where(theta_index == f'ld_{indobs}')
-                if prior_law_ld == 'uniform':
-                    prior_ld = uniform_prior([float(global_params.ld[indobs*3+1]), float(global_params.ld[indobs*3+2])], theta[ind_theta_ld[0][0]])
-                if prior_law_ld == 'loguniform':
-                    prior_ld = loguniform_prior([float(global_params.ld[indobs*3+1]), float(global_params.ld[indobs*3+2])], theta[ind_theta_ld[0][0]])
-                if prior_law_ld == 'gaussian':
-                    prior_ld = gaussian_prior([float(global_params.ld[indobs*3+1]), float(global_params.ld[indobs*3+2])], theta[ind_theta_ld[0][0]])
-                prior.append(prior_ld)
-    else: # If you want 1 common ld for all observations
-        prior_law_ld = global_params.ld[0] # Prior laws should be separeted by 2 values (need to be upgraded)
-        if prior_law_ld != 'NA' and prior_law_ld != 'constant':
-            ind_theta_ld = np.where(theta_index == 'ld')
-            if prior_law_ld == 'uniform':
-                prior_ld = uniform_prior([float(global_params.ld[1]), float(global_params.ld[2])], theta[ind_theta_ld[0][0]])
-            if prior_law_ld == 'loguniform':
-                 prior_ld = loguniform_prior([float(global_params.ld[1]), float(global_params.ld[2])], theta[ind_theta_ld[0][0]])
-            if prior_law_ld == 'gaussian':
-                prior_ld = gaussian_prior([float(global_params.ld[1]), float(global_params.ld[2])], theta[ind_theta_ld[0][0]])
-            prior.append(prior_ld)
+        Parameters
+        ----------
+        theta (np.ndarray[float]): List of values picked by the Nested Sampling for the free parameters
 
-    # - - - - - - - - - - - - - - - - - - - - -
+        Returns
+        -------
+        list[ObservedModel]: List of instances of class ObservedModel
 
-    prior_law_av = global_params.av[0]
-    if prior_law_av != 'NA' and prior_law_av != 'constant':
-        ind_theta_av = np.where(theta_index == 'av')
-        if prior_law_av == 'uniform':
-            prior_av = uniform_prior([float(global_params.av[1]), float(global_params.av[2])], theta[ind_theta_av[0][0]])
-        if prior_law_av == 'loguniform':
-            prior_av = loguniform_prior([float(global_params.av[1]), float(global_params.av[2])], theta[ind_theta_av[0][0]])
-        if prior_law_av == 'gaussian':
-            prior_av = gaussian_prior([float(global_params.av[1]), float(global_params.av[2])], theta[ind_theta_av[0][0]])
-        prior.append(prior_av)
-    prior_law_bb_t = global_params.bb_t[0] 
-    if prior_law_bb_t != 'NA' and prior_law_bb_t != 'constant':
-        ind_theta_bb_t = np.where(theta_index == 'bb_t')
-        if prior_law_bb_t == 'uniform':
-            prior_bb_t = uniform_prior([float(global_params.bb_t[1]), float(global_params.bb_t[2])], theta[ind_theta_bb_t[0][0]])
-        if prior_law_bb_t == 'loguniform':
-            prior_bb_t = loguniform_prior([float(global_params.bb_t[1]), float(global_params.bb_t[2])], theta[ind_theta_bb_t[0][0]])
-        if prior_law_bb_t == 'gaussian':
-            prior_bb_t = gaussian_prior([float(global_params.bb_t[1]), float(global_params.bb_t[2])], theta[ind_theta_bb_t[0][0]])
-        prior.append(prior_bb_t)
-    prior_law_bb_r = global_params.bb_r[0] 
-    if prior_law_bb_r != 'NA' and prior_law_bb_r != 'constant':
-        ind_theta_bb_r = np.where(theta_index == 'bb_r')
-        if prior_law_bb_r == 'uniform':
-            prior_bb_r = uniform_prior([float(global_params.bb_r[1]), float(global_params.bb_r[2])], theta[ind_theta_bb_r[0][0]])
-        if prior_law_bb_r == 'loguniform':
-            prior_bb_r = loguniform_prior([float(global_params.bb_r[1]), float(global_params.bb_r[2])], theta[ind_theta_bb_r[0][0]])
-        if prior_law_bb_r == 'gaussian':
-            prior_bb_r = gaussian_prior([float(global_params.bb_r[1]), float(global_params.bb_r[2])], theta[ind_theta_bb_r[0][0]])
-        prior.append(prior_bb_r)
-    return prior
+        Authors: Allan Denis
+        '''
+
+        observed_models = []
+        for index in range(self.observations.n_observations):
+            # Get parameters associated to the observation
+            observed_params = self._build_params_for_obs(theta, index)
+
+            # Restrict grid and observation to wave_fit
+            subgrid = self.subgrids.subgrids[index]._restricted_grid(self.wave_fit[index], print_logger=False)
+            observation = self.observations.observations[index]._restricted_observation(self.wave_fit[index], print_logger=False)
+
+            observed_models.append(subgrid._build_model_from_params(observed_params, observation, interp_method = self.interp_method, bounds_lsq = self.bounds_lsq[index]))
+
+        return observed_models
+
+    def _compute_loglikelihood(self, observed_models: list[ObservedModel]) -> float:
+        '''
+        Compute loglikelihood.
+
+        Parameters
+        ----------
+        observed_models (list[ObservedModel]): List of instances of class ObservedModel
+
+        Returns
+        -------
+        float: loglikelihood value
+
+        Authors: Allan Denis
+        '''
+
+        logL = 0
+        for index in range(self.observations.n_observations):
+            subgrid = self.subgrids.subgrids[index]._restricted_grid(self.wave_fit[index], print_logger=False)
+            observation = self.observations.observations[index]._restricted_observation(self.wave_fit[index], print_logger=False)
+
+            # Compute model from the parameters
+            logL += subgrid._compute_loglike_for_obs(observed_models[index], observation, self.logL_type[index], interp_method = self.interp_method, bounds_lsq = self.bounds_lsq[index])
+
+        return logL
+
+    def _build_params_for_obs(self, free_values: np.ndarray[float], obs_index: int) -> ObservedParameters:
+        '''
+        Build a list of free + fixed parameters relevant to a given observation.
+
+        Parameters
+        ----------
+        free_values (np.ndarray[float]): List of transformed values for the free parameters
+        obs_index                 (int): Index of the observation from which we want the parameter values
+
+        Return
+        ------
+        ObservedParameters: Intance of class ObservedParameters containing dictionary of parameters values (free + fixed) associated to the observation index
+
+        Authors: Allan Denis
+        '''
+
+        if len(free_values) != self.parameters.n_free_parameters:
+            raise ForMoSAError("Invalid free_values length", self.logger)
+
+        params = {}
+        free_iter = iter(free_values)
+
+        subgrid = self.subgrids.subgrids[obs_index]
+
+        for p in self.parameters.parameters:
+
+            # Check if this parameter applies to the observation type
+            if p.kind not in subgrid.relevant_parameter_kinds:  # We ignore this parameter if it does not apply to the observation
+                continue
+
+            # Global parameters are always included
+            if not p.is_local:
+                params[p] = p.prior.value if p.is_fixed else next(free_iter)
+
+            # Local parameters are included only if obs_index matches
+            elif p.is_local and obs_index in p.obs_index:
+                params[p] = p.prior.value if p.is_fixed else next(free_iter)
+
+        return ObservedParameters(params)
+
+    def save_results(self, results_path: str | os.PathLike, **kwargs) -> None:
+        '''
+        Method to save the results to the path results_path
+
+        Parameters
+        ----------
+        results_path (str | os.PathLike): Path to save the results to
+        **kwargs                        = Additional parameters (wav_fit, interp_method, bounds_lsq)
+
+        Authors: Allan Denis
+        '''
+
+        self._logger.info('    Saving results')
+
+        results_file = Path(results_path)  / 'NS_results' / f'results_{self.algorithm}.json'
+        NS_params_file = Path(results_path)  / 'NS_params' / 'NS_params.json'
+
+        # NS results
+        self.logger.debug(f'Saving results to path {results_file}>')
+        results_file.parent.mkdir(exist_ok=True, parents=True)
+        with open(results_file, 'w') as f:
+            json.dump(self.results.to_dict, f, indent=4)
+
+        # NS params
+        self.logger.debug(f'Saving NS paramrs to path {NS_params_file}')
+        NS_params_file.parent.mkdir(exist_ok=True, parents=True)
+        with open(str(NS_params_file), 'w') as f:
+            json.dump(self.to_dict, f, indent=4)
+
+    def load_results(self, results_path: str | os.PathLike) -> None:
+        '''
+        Method to load the results from the path results_paths
+
+        Parameters
+        ----------
+        results_path (str | os.PathLike): Path to save the results to
+
+        Authors: Allan Denis
+        '''
+
+        results_path = Path(results_path)  / 'NS_results'
+
+        self.logger.debug(f'Loading results from path {results_path}')
+
+        results_file = results_path / f'results_{self.algorithm}.json'
+
+        if not(results_file.exists()):
+            raise ForMoSAError(f'<{results_file} does not exist. Please make sure to use an existing result file>', self.logger)
+
+        self._logger.debug(f'< load {results_file}')
+        with open(results_file, 'r') as f:
+            results = json.load(f)
+
+        self._results = NSResults.from_dict(results)
+
+    def best_fit_interval(self, perc: float = 0.68) -> tuple[ObservedModel, ObservedModel]:
+        '''
+        Confidence interval of the native best fit.
+
+        Parameters
+        ----------
+        perc (float): Percentile value between 0 and 1 (0.68 for 1 sigma, 0.95 for 2 sigmas)
 
 
-def launch_nested_sampling(global_params):
-    """
-    Function to launch the nested sampling.
-    We first perform LogL function check-ups.
-    Then the free parameters are counted and the data imported.
-    Finally, depending on the nested sampling methode chosen in the config file, we perform the inversion.
-    (Methods succesfully implemented are Nestle and PyMultinest)
+        Returns
+        -------
+        tuple[ObservedModel, ObservedModel]: lower and higher values of the flux for the confidence interval
 
-    Args:
-        global_params (object): Class containing every input from the .ini file.
+        Authors: Allan Denis
+        '''
 
-    Returns:
-        None
+        perc = float(perc)
 
-    Author: Simon Petrus and Matthieu Ravet
-    """
+        # Initial checks
+        if self.results is None:
+            raise ForMoSAError('Please first run the Nested Sampling before computing the best fit', self.logger)
 
-    # LogL functions check-ups
-    print('- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -')
-    print('-> Likelihood functions check-ups')
-    print()
+        if perc < 0 or perc > 1:
+            raise ForMoSAError(f'perc must be a float between 0 and 1. Got {perc} with type {type(perc)}', self.logger)
 
-    main_obs_path = global_params.main_observation_path
-    for indobs, obs in enumerate(sorted(glob.glob(main_obs_path))):
-        global_params.observation_path = obs
-        obs_name = os.path.splitext(os.path.basename(global_params.observation_path))[0]
+        lower = (1 - perc) / 2
+        upper = (1 + perc) / 2
 
-        # Check the choice of likelihood (only for MOSAIC)
-        print(obs_name + ' will be computed with ' + global_params.logL_type[indobs % len(global_params.logL_type)])
-        
-        if global_params.logL_type[indobs % len(global_params.logL_type)] == 'CCF_Brogi' and global_params.res_cont[indobs % len(global_params.res_cont)] == 'NA' and global_params.hc_type[indobs % len(global_params.hc_type)] != 'nofit_rm_spec':
-            print('WARNING. You cannot use CCF mappings without substracting the continuum')
-            print()
-            exit()
-        elif global_params.logL_type[indobs % len(global_params.logL_type)] == 'CCF_Zucker' and global_params.res_cont[indobs % len(global_params.res_cont)] == 'NA' and global_params.hc_type[indobs % len(global_params.hc_type)] != 'nofit_rm_spec':
-            print('WARNING. You cannot use CCF mappings without substracting the continuum')
-            print()
-            exit()
-        elif global_params.logL_type[indobs % len(global_params.logL_type)] == 'CCF_custom' and global_params.res_cont[indobs % len(global_params.res_cont)] == 'NA' and global_params.hc_type[indobs % len(global_params.hc_type)] != 'nofit_rm_spec':
-            print('WARNING. You cannot use CCF mappings without substracting the continuum')
-            print()
-            exit()
+        wrange = (self.observations.wavelength_range[0]*0.95, self.observations.wavelength_range[1]*1.05)
+        grid = self.subgrids.parent_grid._restricted_grid(f'{wrange[0]},{wrange[1]}', print_logger=True)
 
-        print()
-    print('Done !')
-    print()
+        models_flux = []
 
-    theta_index = []
-    lim_param_grid = []
-    n_free_parameters = 0
-    ds = xr.open_dataset(global_params.model_path, decode_cf=False, engine='netcdf4')
-    # Count the number of free parameters and identify the parameter position in theta
-    if global_params.par1[0] != 'NA':
-        if global_params.par1[0] != 'constant':    
-            lim_param_grid.append([min(ds['par1'].values), max(ds['par1'].values)])
-            theta_index.append('par1')
-            n_free_parameters += 1
-        else:
-            lim_param_grid.append([float(global_params.par1[1]), float(global_params.par1[1])])
-    if global_params.par2[0] != 'NA':
-        if global_params.par2[0] != 'constant':
-            lim_param_grid.append([min(ds['par2'].values), max(ds['par2'].values)])
-            theta_index.append('par2')
-            n_free_parameters += 1
-        else:
-            lim_param_grid.append([float(global_params.par2[1]), float(global_params.par2[1])])
-    if global_params.par3[0] != 'NA':
-        if global_params.par3[0] != 'constant':
-            lim_param_grid.append([min(ds['par3'].values), max(ds['par3'].values)])
-            theta_index.append('par3')
-            n_free_parameters += 1
-        else:
-            lim_param_grid.append([float(global_params.par3[1]), float(global_params.par3[1])])
-    if global_params.par4[0] != 'NA':
-        if global_params.par4[0]!= 'constant':
-            lim_param_grid.append([min(ds['par4'].values), max(ds['par4'].values)])
-            theta_index.append('par4')
-            n_free_parameters += 1
-        else:
-            lim_param_grid.append([float(global_params.par4[1]), float(global_params.par4[1])])
-    if global_params.par5[0] != 'NA':
-        if global_params.par5[0] != 'constant':
-            lim_param_grid.append([min(ds['par5'].values), max(ds['par5'].values)])
-            theta_index.append('par5')
-            n_free_parameters += 1
-        else:
-            lim_param_grid.append([float(global_params.par5[1]), float(global_params.par5[1])])
-            
-    if global_params.r[0] != 'NA' and global_params.r[0] != 'constant':
-        n_free_parameters += 1
-        theta_index.append('r')
-    if global_params.d[0] != 'NA' and global_params.d[0] != 'constant':
-        n_free_parameters += 1
-        theta_index.append('d')
+        self.logger.info(f'    Computing confidence interval with percentiles [{np.round(lower,2)} - {np.round(upper,2)}]')
+        for sample in tqdm(self.results.samples):
+            observed_params = self._build_params_for_obs(sample, 0).global_params
 
-    # - - - - - - - - - - - - - - - - - - - - -
+            observed_model = ObservedModel.from_grid_and_params(grid, observed_params)
 
-    # Individual parameters / observation
-    main_obs_path = global_params.main_observation_path
+            models_flux.append(observed_model.flux)
 
-    if len(global_params.alpha) > 3:
-        for indobs, obs in enumerate(sorted(glob.glob(main_obs_path))):
-            if global_params.alpha[indobs*3] != 'NA' and global_params.alpha[indobs*3] != 'constant': # Check if the idobs is different from constant
-                n_free_parameters += 1
-                theta_index.append(f'alpha_{indobs}')
-    else:
-        if global_params.alpha[0] != 'NA' and global_params.alpha[0] != 'constant':
-            n_free_parameters += 1
-            theta_index.append(f'alpha')
-    if len(global_params.rv) > 3:
-        for indobs, obs in enumerate(sorted(glob.glob(main_obs_path))):
-            if global_params.rv[indobs*3] != 'NA' and global_params.rv[indobs*3] != 'constant': # Check if the idobs is different from constant
-                n_free_parameters += 1
-                theta_index.append(f'rv_{indobs}')
-    else:
-        if global_params.rv[0] != 'NA' and global_params.rv[0] != 'constant':
-            n_free_parameters += 1
-            theta_index.append(f'rv')
-    if len(global_params.vsini) > 4:
-        for indobs, obs in enumerate(sorted(glob.glob(main_obs_path))):
-            if global_params.vsini[indobs*4] != 'NA' and global_params.vsini[indobs*4] != 'constant': # Check if the idobs is different from constant
-                n_free_parameters += 1
-                theta_index.append(f'vsini_{indobs}')
-    else:
-        if global_params.vsini[0] != 'NA' and global_params.vsini[0] != 'constant':
-            n_free_parameters += 1
-            theta_index.append('vsini')
-    if len(global_params.ld) > 3:
-        for indobs, obs in enumerate(sorted(glob.glob(main_obs_path))):
-            if global_params.ld[indobs*3] != 'NA' and global_params.ld[indobs*3] != 'constant': # Check if the idobs is different from constant
-                n_free_parameters += 1
-                theta_index.append(f'ld_{indobs}')
-    else:
-        if global_params.ld[0] != 'NA' and global_params.ld[0] != 'constant':
-            n_free_parameters += 1
-            theta_index.append('ld')
+        models_flux = np.array(models_flux)
 
-    # - - - - - - - - - - - - - - - - - - - - -
+        perc_1sigma_lower = get_weighted_percentile(lower, models_flux, weights=self.results.weights)
+        perc_1sigma_higher = get_weighted_percentile(upper, models_flux, weights=self.results.weights)
 
-    if global_params.av[0] != 'NA' and global_params.av[indobs] != 'constant':
-        n_free_parameters += 1
-        theta_index.append('av')
-    ## adding cpd
-    if global_params.bb_t[0] != 'NA' and global_params.bb_t[indobs] != 'constant':
-        n_free_parameters += 1
-        theta_index.append('bb_t')
-    if global_params.bb_r[0] != 'NA' and global_params.bb_r[indobs] != 'constant':
-        n_free_parameters += 1
-        theta_index.append('bb_r')
-    theta_index = np.asarray(theta_index)
-    
-
-    # Import all the data (only done once)
-    main_file = import_obsmod(global_params)
-
-    if global_params.ns_algo == 'nestle':
-        os.makedirs(global_params.result_path + '/nestle/', exist_ok=True)
-        tmpstot1 = time.time()
-        loglike_gp = lambda theta: loglike(theta, theta_index, global_params, main_file=main_file)
-        prior_transform_gp = lambda theta: prior_transform(theta, theta_index, lim_param_grid, global_params)
-        result = nestle.sample(
-                               loglike_gp, prior_transform_gp, n_free_parameters,
-                               npoints=global_params.npoint,
-                               method=global_params.n_method,
-                               update_interval=global_params.n_update_interval,
-                               npdim=global_params.n_npdim,
-                               maxiter=global_params.n_maxiter,
-                               maxcall=global_params.n_maxcall,
-                               dlogz=global_params.n_dlogz,
-                               decline_factor=global_params.n_decline_factor,
-                               rstate=global_params.n_rstate,
-                               callback=nestle.print_progress
-                               )
-        # Reformat the result file
-        with open(global_params.result_path + '/nestle/RAW.pic', 'wb') as f1:
-            pickle.dump(result, f1)
-        logz = [result['logz'], result['logzerr']]
-        samples = result['samples']
-        weights = result['weights']
-        logvol = result['logvol']
-        logl = result['logl']
-        tmpstot2 = time.time()-tmpstot1
-        if tmpstot2 < 60:
-            time_spent = f'{tmpstot2:.1f} sec'
-        elif tmpstot2 < 3600:
-            time_spent = f'{tmpstot2/60:.1f} min'
-        else:
-            time_spent = f'{tmpstot2/3600:.1f} hours'
-
-        print(' ')
-        print('- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -')
-        print('-> Nestle  ')
-        print(' ')
-        print(f'The code spent {time_spent} to run.')
-        print(result.summary())
-        print('\n')
-
-    if global_params.ns_algo == 'pymultinest':
-        os.makedirs(global_params.result_path + '/pymultinest/', exist_ok=True)
-        import pymultinest
-        tmpstot1 = time.time()
-        loglike_gp = lambda theta: loglike(theta, theta_index, global_params, main_file=main_file)
-        prior_transform_gp = lambda theta: prior_transform(theta, theta_index, lim_param_grid, global_params)
-        result = pymultinest.solve(
-                        LogLikelihood=loglike_gp,
-                        Prior=prior_transform_gp,
-                        n_dims=n_free_parameters,
-                        n_clustering_params=global_params.pm_n_clustering_params,
-                        wrapped_params=global_params.pm_wrapped_params,
-                        importance_nested_sampling=global_params.pm_importance_nested_sampling,
-                        multimodal=global_params.pm_multimodal,
-                        const_efficiency_mode=global_params.pm_const_efficiency_mode,
-                        n_live_points=global_params.npoint,
-                        evidence_tolerance=global_params.pm_evidence_tolerance,
-                        sampling_efficiency=global_params.pm_sampling_efficiency,
-                        n_iter_before_update=global_params.pm_n_iter_before_update,
-                        null_log_evidence=global_params.pm_null_log_evidence,
-                        max_modes=global_params.pm_max_modes,
-                        mode_tolerance=global_params.pm_mode_tolerance,
-                        outputfiles_basename=global_params.result_path + '/pymultinest/' + 'RAW_',
-                        seed=global_params.pm_seed,
-                        verbose=global_params.pm_verbose,
-                        resume=global_params.pm_resume,
-                        context=global_params.pm_context,
-                        log_zero=global_params.pm_log_zero,
-                        max_iter=global_params.pm_max_iter,
-                        init_MPI=global_params.pm_init_MPI,
-                        dump_callback=global_params.pm_dump_callback,
-                        use_MPI=global_params.pm_use_MPI
-                        )
-        # Reformat the result file
-        with open(global_params.result_path + '/pymultinest/' + 'RAW_stats.dat',
-                  'rb') as open_dat:
-            for l, line in enumerate(open_dat):
-                if l == 0:
-                    line = line.strip().split()
-                    logz_multi = float(line[5])
-                    logzerr_multi = float(line[7])
-        sample_multi = []
-        logl_multi = []
-        logvol_multi = []
-        with open(global_params.result_path + '/pymultinest/' + 'RAW_ev.dat',
-                  'rb') as open_dat:
-            for l, line in enumerate(open_dat):
-                line = line.strip().split()
-                points = []
-                for p in line[:-3]:
-                    points.append(float(p))
-                sample_multi.append(points)
-                logl_multi.append(float(line[-3]))
-                logvol_multi.append(float(line[-2]))
-        sample_multi = np.asarray(sample_multi)
-        logl_multi = np.asarray(logl_multi)
-        logvol_multi = np.asarray(logvol_multi)
-        iter_multi = []
-        weights_multi = []
-        final_logl_multi = []
-        final_logvol_multi = []
-        with open(global_params.result_path + '/pymultinest/' + 'RAW_.txt',
-                  'rb') as open_dat:
-            for l, line in enumerate(open_dat):
-                line = line.strip().split()
-                points = []
-                for p in line[2:]:
-                    points.append(float(p))
-                if points in sample_multi:
-                    ind = np.where(sample_multi == points)
-                    iter_multi.append(points)
-                    weights_multi.append(float(line[0]))
-                    final_logl_multi.append(logl_multi[ind[0][0]])
-                    final_logvol_multi.append(logvol_multi[ind[0][0]])
-        logz = [logz_multi, logzerr_multi]
-        samples = np.asarray(iter_multi)
-        weights = np.asarray(weights_multi)
-        logvol = np.asarray(final_logvol_multi)
-        logl = np.asarray(final_logl_multi)
-
-        tmpstot2 = time.time()-tmpstot1
-        if tmpstot2 < 60:
-            time_spent = f'{tmpstot2:.1f} sec'
-        elif tmpstot2 < 3600:
-            time_spent = f'{tmpstot2/60:.1f} min'
-        else:
-            time_spent = f'{tmpstot2/3600:.1f} hours'
-
-        print(' ')
-        print('- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -')
-        print('-> PyMultinest  ')
-        print(' ')
-        print(f'The code spent {time_spent} to run.')
-        print('The evidence is: %(logZ).1f +- %(logZerr).1f' % result)
-        print('The parameter values are:')
-        for name, col in zip(theta_index, result['samples'].transpose()):
-            print('%15s : %.3f +- %.3f' % (name, col.mean(), col.std()))
-        print('\n')
-
-    if global_params.ns_algo == 'ultranest':
-        os.makedirs(global_params.result_path + '/ultranest/', exist_ok=True)
-        import ultranest
-        from ultranest import integrator
-        tmpstot1 = time.time()
-        loglike_gp = lambda theta: loglike(theta, theta_index, global_params, main_file=main_file)
-        prior_transform_gp = lambda cube: prior_transform(cube, theta_index, lim_param_grid, global_params)
-        sampler = ultranest.ReactiveNestedSampler(
-                                param_names=list(theta_index),
-                                loglike=loglike_gp,
-                                transform=prior_transform_gp,
-                                log_dir=global_params.result_path + '/ultranest/',
-                                resume=global_params.u_resume,
-                                wrapped_params=global_params.u_wrapped_params,
-                                run_num=global_params.u_run_num,
-                                num_test_samples=global_params.u_num_test_samples,
-                                draw_multiple=global_params.u_draw_multiple,
-                                num_bootstraps=global_params.u_num_bootstraps,
-                                vectorized=global_params.u_vectorized,
-                                ndraw_min=global_params.u_ndraw_min,
-                                ndraw_max=global_params.u_ndraw_max,
-                                storage_backend=global_params.u_storage_backend,
-                                warmstart_max_tau=global_params.u_warmstart_max_tau
-                                )
-        _ = sampler.run(
-                min_num_live_points=global_params.npoint,
-                update_interval_volume_fraction=global_params.u_update_interval_volume_fraction,
-                update_interval_ncall=global_params.u_update_interval_ncall,
-                log_interval=global_params.u_log_interval,
-                show_status=global_params.u_show_status,
-                viz_callback=global_params.u_viz_callback,
-                dlogz=global_params.u_dlogz,
-                dKL=global_params.u_dKL,
-                frac_remain=global_params.u_frac_remain,
-                Lepsilon=global_params.u_Lepsilon,
-                max_iters=global_params.u_max_iters,
-                max_ncalls=global_params.u_max_ncalls,
-                max_num_improvement_loops=global_params.u_max_num_improvement_loops,
-                cluster_num_live_points=global_params.u_cluster_num_live_points,
-                insertion_test_zscore_threshold=global_params.u_insertion_test_zscore_threshold,
-                insertion_test_window=global_params.u_insertion_test_window,
-                widen_before_initial_plateau_num_warn=global_params.u_widen_before_initial_plateau_num_warn,
-                widen_before_initial_plateau_num_max=global_params.u_widen_before_initial_plateau_num_max
-                )
-        result = integrator.read_file(
-                                global_params.result_path + '/ultranest/',
-                                x_dim=len(theta_index),
-                                num_bootstraps=global_params.u_num_bootstraps
-                                )
-        # Reformat the result file
-        with open(global_params.result_path + '/ultranest/RAW.pic', 'wb') as f1:
-            pickle.dump(result, f1)
-        logz = [result[-1]['logz'], result[-1]['logzerr']]
-        samples = result[-1]['samples']
-        weights = result[-1]['weighted_samples']['weights']
-        logvol = result[0]['logvol']  # Not always used in UltraNest
-        logl = result[0]['logl']
-        tmpstot2 = time.time() - tmpstot1
-        if tmpstot2 < 60:
-            time_spent = f'{tmpstot2:.1f} sec'
-        elif tmpstot2 < 3600:
-            time_spent = f'{tmpstot2/60:.1f} min'
-        else:
-            time_spent = f'{tmpstot2/3600:.1f} hours'
-
-        print(' ')
-        print('- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -')
-        print('-> UltraNest')
-        print(' ')
-        print(f'The code spent {time_spent} to run.')
-        print(f"Final logZ = {logz[0]:.3f} ± {logz[1]:.3f}")
-        print('\n')
-
-    result_reformat = {"samples": samples,
-                       "weights": weights,
-                       "logl": logl,
-                       "logvol": logvol,
-                       "logz": logz,}
-
-    with open(global_params.result_path + '/result_' + global_params.ns_algo + '.pic', "wb") as tf:
-        pickle.dump(result_reformat, tf)
-
-    return
-
-# ----------------------------------------------------------------------------------------------------------------------
-
-
-if __name__ == '__main__':
-    from ..global_file import GlobFile
-
-    # USER configuration path
-    print()
-    print('- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -')
-    print('-> Configuration of environment')
-    print('Where is your configuration file?')
-    config_file_path = input()
-    print()
-
-    # CONFIG_FILE reading and defining global parameters
-    global_params = GlobFile(config_file_path)  # To access any param.: global_params.parameter_name
-    print()
-    print('- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -')
-    print('-> Nested sampling')
-    print()
-    launch_nested_sampling(global_params)
+        return ObservedModel(observed_model.wave, perc_1sigma_lower, observed_model.res), ObservedModel(observed_model.wave, perc_1sigma_higher, observed_model.res)
