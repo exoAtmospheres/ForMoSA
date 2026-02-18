@@ -15,7 +15,7 @@ sys.path.insert(0, base_dir)
 project = 'ForMoSA'
 copyright = '2024, Simon Petrus, Paulina Palma-Bifani, Matthieu Ravet, Allan Denis, Mickaël Bonnefoy and Gaël Chauvin'
 author = 'Simon Petrus, Paulina Palma-Bifani, Matthieu Ravet, Allan Denis, Mickaël Bonnefoy and Gaël Chauvin'
-release = '1.1.5'
+release = '1.1.6'
 root_doc = 'index'
 
 language = 'en'
@@ -62,6 +62,7 @@ import sphinx_rtd_theme
 import sphinx_rtd_theme
 
 html_static_path = ['_static']
+html_css_files = ['custom.css']
 
 #html_theme = 'bizstyle'
 html_theme = 'sphinx_rtd_theme'

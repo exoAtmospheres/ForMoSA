@@ -1,26 +1,29 @@
-
-
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" data-content_root="../">
 <head>
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>MOSAIC : β Pic b &mdash; ForMoSA 1.1.5 documentation</title>
-      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
-      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+  <title>MOSAIC : β Pic b &mdash; ForMoSA 1.1.6 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=19f00094" />
       <link rel="stylesheet" type="text/css" href="../_static/nbsphinx-code-cells.css?v=2aa19091" />
+      <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=d0b3e03c" />
 
   
     <link rel="shortcut icon" href="../_static/favicon.ico"/>
-      <script src="../_static/jquery.js?v=5d32c60e"></script>
-      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=a48ae3df"></script>
-      <script src="../_static/doctools.js?v=9bcbadda"></script>
-      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
-      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
-      <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
-      <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../_static/documentation_options.js?v=937269b5"></script>
+        <script src="../_static/doctools.js?v=9a2dae69"></script>
+        <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+        <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+        <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
@@ -108,15 +111,15 @@
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Generic packages</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
 
 <span class="c1"># ForMoSA modules</span>
 <span class="c1"># For the interpolation &amp; sampling</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">ForMoSA.global_file</span><span class="w"> </span><span class="kn">import</span> <span class="n">GlobFile</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">ForMoSA.adapt.adapt_obs_mod</span><span class="w"> </span><span class="kn">import</span> <span class="n">launch_adapt</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">ForMoSA.nested_sampling.nested_sampling</span><span class="w"> </span><span class="kn">import</span> <span class="n">launch_nested_sampling</span>
+<span class="kn">from</span> <span class="nn">ForMoSA.global_file</span> <span class="kn">import</span> <span class="n">GlobFile</span>
+<span class="kn">from</span> <span class="nn">ForMoSA.adapt.adapt_obs_mod</span> <span class="kn">import</span> <span class="n">launch_adapt</span>
+<span class="kn">from</span> <span class="nn">ForMoSA.nested_sampling.nested_sampling</span> <span class="kn">import</span> <span class="n">launch_nested_sampling</span>
 <span class="c1"># For the plots</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">ForMoSA.plotting.plotting_class</span><span class="w"> </span><span class="kn">import</span> <span class="n">PlottingForMoSA</span>
+<span class="kn">from</span> <span class="nn">ForMoSA.plotting.plotting_class</span> <span class="kn">import</span> <span class="n">PlottingForMoSA</span>
 </pre></div>
 </div>
 </div>
@@ -162,14 +165,14 @@
 <p>The grid of models is interpolated for this, but you don’t need to repeat this step once you’ve adapted the grid for a specific dataset.</p>
 <p>(Answer ‘no’ only the first time)</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Have you already interpolated the grids for this data?</span>
-<span class="n">y_n_par</span> <span class="o">=</span> <span class="s1">&#39;yes&#39;</span>
-<span class="c1">#y_n_par = &#39;no&#39; # Only answer no the first time, then comment to save time</span>
+<span class="n">t_f_par</span> <span class="o">=</span> <span class="kc">False</span>
+<span class="c1">#t_f_par = True # Only answer True the first time, then comment to save time</span>
 
-<span class="n">launch_adapt</span><span class="p">(</span><span class="n">global_params</span><span class="p">,</span> <span class="n">justobs</span><span class="o">=</span><span class="n">y_n_par</span><span class="p">)</span>
+<span class="n">launch_adapt</span><span class="p">(</span><span class="n">global_params</span><span class="p">,</span> <span class="n">adapt_grid</span><span class="o">=</span><span class="n">t_f_par</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>

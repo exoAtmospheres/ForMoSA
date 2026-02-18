@@ -1,6 +1,6 @@
 import numpy as np
 
-def logL_chi2(delta_flx, err, full=False):
+def logL_chi2(delta_flx, err, log_det, full=False):
     """
     Function to compute logL based on the classical chi2
     under the assumption of gaussian and spectrally uncorrelated noise.
@@ -9,6 +9,7 @@ def logL_chi2(delta_flx, err, full=False):
         delta_flx   (array): residual data-model as a function of wavelength
         err         (array): error (=standard deviation) of the observed spectrum as a function of wavelength
         full         (bool): True or False to add the usual constant terms
+        log_det      (float): Log-determinant of the error bars
     Returns:
         - logL (float)     : the loglikelihood value
 
@@ -18,8 +19,8 @@ def logL_chi2(delta_flx, err, full=False):
     N = len(delta_flx)
     chi2 = np.nansum((delta_flx / err) ** 2)
     logL = - chi2 / 2
-    if full == True:
-        logL += - N/2 * np.log(2*np.pi) - 1/2 * np.log(np.dot(err,err))
+    if full:
+        logL += - N/2 * np.log(2*np.pi) - 1/2 * log_det
 
     return logL
 
@@ -49,7 +50,7 @@ def logL_chi2_covariance(delta_flx, cov, inv_cov, full=False):
     return logL
 
 
-def logL_chi2_noisescaling(delta_flx, err, full=False):
+def logL_chi2_noisescaling(delta_flx, err, log_det, full=False):
     """
     Function to compute logL based on the chi2 with a fitted noise scaling s (marginalized)
     under the assumption of gaussian and spectrally uncorrelated noise.
@@ -58,6 +59,7 @@ def logL_chi2_noisescaling(delta_flx, err, full=False):
         delta_flx   (array): residual data-model as a function of wavelength
         err         (array): error (=standard deviation) of the observed spectrum as a function of wavelength
         full         (bool): True or False to add the usual constant terms
+        log_det      (float): Log-determinant of the error bars matrix
     Returns:
         - logL (float)     : the loglikelihood value
 
