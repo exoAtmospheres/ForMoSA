@@ -1,30 +1,10 @@
 import numpy as np
 import xarray as xr
-import os
-import glob
+from astropy.io import fits
+from collections.abc import Mapping
 
-from pathlib import Path
-
-# ----------------------------------------------------------------------------------------------------------------------
-
-
-def yesno(text):
-    '''
-    Function to interact with the terminal and decide for different options when running ForMoSA (Loop to repeat question if answer is different to 'y' or 'n).
-
-    Args:
-        text    (str): (y/n) answer in the terminall in interactive mode
-    Returns:
-        asw     (str): answer y or n
-
-    Author: Simon Petrus
-    '''
-    print(text)
-    asw = input()
-    if asw in ['y', 'n']:
-        return asw
-    else:
-        return yesno()
+from ForMoSA.core.errors import ForMoSAError
+from ForMoSA.core.enums import ObservationKeys
 
 # ----------------------------------------------------------------------------------------------------------------------
 
@@ -105,27 +85,6 @@ def format_grid(grid, attr, free_comp, weights):
 
     return ds_weights
 
-# ----------------------------------------------------------------------------------------------------------------------
-
-
-def check_format(*params, type_expected):
-    '''
-    Check that all the components defined in params are in the expected formats
-
-    Args
-        *params            : list of parameters
-        type_expeced (type): Expected type (list, str, tuple, ...)
-
-    Authors: Allan Denis
-    '''
-
-    wrong_format = []
-    for param in params:
-        if not(isinstance(param, type_expected)):
-            wrong_format.append(param)
-
-    return wrong_format
-
 
 # ----------------------------------------------------------------------------------------------------------------------
 
@@ -199,36 +158,6 @@ def get_weighted_percentile(n, data, weights=None):
         raise ValueError("Data must be 1D or 2D.")
 
 
-
-
-# ----------------------------------------------------------------------------------------------------------------------
-
-
-def find_filter_file(filter_name: str) -> str | None:
-    '''
-    Find a filter file .npz given a filter name, ignoring lowercase and uppercase letters.
-
-    Parameters
-    ----------
-    filter_name (str): Name of the filter ('Keck_NIRC2_H', 'NACO_Lp', 'MIRI_F1065', ...)
-
-    Returns:
-        file_path (str | None): Path of the file if it exists, None otherwise
-
-    Authors: Allan Denis
-    '''
-
-    path_list = Path(__file__)
-    filter_dir = path_list.parent.parent / 'phototeque'
-
-    filters = filter_dir.glob('*.npz')
-    for filter in filters:
-        if filter.stem.lower() == filter_name.lower():
-            return filter
-
-    return None
-
-
 # ----------------------------------------------------------------------------------------------------------------------
 
 
@@ -248,3 +177,123 @@ def scale_to_one_significant_digit(flux):
     return scaled_flux, factor
 
 
+# ----------------------------------------------------------------------------------------------------------------------
+
+
+def from_recarray_to_dic(data: fits.fitsrec.FITS_rec):
+    '''
+    Transform a recarray (from a fits file) into a dictionary
+
+    Parameters
+    ----------
+    data (fits.fitsred.FITS_rec): Data from a fits file
+
+    Returns
+    -------
+    data_dict (dic): Dictionary representation of the data
+
+    Authors: Allan Denis
+    '''
+
+    return {name: np.asarray(data[name]) for name in data.names}
+
+
+# -----------------------------------------------------------------------------------------------------------------------
+
+def _extract_vector_series(data: Mapping[str, np.ndarray], key: ObservationKeys) -> None | np.ndarray:
+    '''
+    Extract columns like PREFIX1, PREFIX2, ... and stack them.
+
+    Example usage: systematics_array = ObservationFactory._extract_vector_series(data, ObservationKeys.SYSTEMATICS)
+    -> np.ndarray([systematics1, systematics2, systematics3, ...])
+
+    Parameters
+    ----------
+    data   (Mapping[str, np.ndarray]): Data
+    key             (ObservationKeys): Observation ley defining canonical name and aliases
+
+    Returns
+    -------
+    None | np.ndarray: Stacked columns
+
+    Authors: Allan Denis
+    '''
+
+    aliases = tuple(alias.upper() for alias in key.aliases)
+
+    matched_keys = sorted(k for k in data.keys() if k.upper().startswith(aliases))
+
+    if not matched_keys:
+        return None
+
+    vectors = [np.atleast_2d(data[k]).reshape(len(data[k]), -1) for k in matched_keys]
+    return np.concatenate(vectors, axis=1)
+
+
+# -----------------------------------------------------------------------------------------------------------------------
+
+
+def normalize_list(value, name: str, converter=None):
+    '''
+    Normalize value to a list and apply optional conversion.
+
+    Parameters
+    ----------
+    value          (Any): Value to normalize
+    name           (str): Parameter name (for error messages)
+    converter (callable): Function applied to each element if provided
+
+    Returns
+    -------
+    list: Normalized list
+
+    Authors: Allan Denis
+    '''
+
+    # Ensure list
+    if isinstance(value, list):
+        values = value
+    elif isinstance(value, (str, int, float)):
+        values = [value]
+    else:
+        raise ForMoSAError(f" {name} must be str, int, float or list, got {type(value)}")
+
+    # Apply converter if provided
+    if converter is not None:
+        out = []
+        for v in values:
+            try:
+                out.append(converter(v))
+            except Exception:
+                raise ForMoSAError(f" Invalid value for {name}: {v} ({type(v)})")
+        return out
+
+    return values
+
+
+# -----------------------------------------------------------------------------------------------------------------------
+
+
+def to_float_if_possible(v):
+    '''
+    Convert value to float if possible.
+
+    Parameters
+    ----------
+    v (Any): Value to convert
+
+    Returns
+    -------
+    float: Float if conversion succeeds, otherwise original value
+
+    Authors: Allan Denis
+    '''
+
+    if isinstance(v, (int, float)):
+        return float(v)
+    if isinstance(v, str):
+        try:
+            return float(v)
+        except ValueError:
+            return v
+    raise ForMoSAError(f" Invalid value type: {type(v)}")

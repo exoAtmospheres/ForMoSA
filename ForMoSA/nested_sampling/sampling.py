@@ -8,12 +8,11 @@ import pickle
 import astropy.constants as cst
 
 from pathlib import Path
-from scipy.interpolate import interp1d
 
 from ForMoSA.model_grid import ModelGrid, ModelSubGrid
 from ForMoSA.observation import Observation
 from .plotting import NestedSamplingPlotting
-from .parameters import NestedSamplingParameters, Parameter
+from .parameters import NestedSamplingParameters
 from ForMoSA.error import ForMoSAError
 
 # optional imports for nested sampling algorithms

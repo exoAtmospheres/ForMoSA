@@ -1,525 +1,94 @@
-import numpy as np
-import ForMoSA.utils.prior_functions as prior_functions
-import pandas as pd
+import logging
 
-from ForMoSA.error import ForMoSAError
+from ForMoSA.nested_sampling.Prior import Prior
+from ForMoSA.core.errors import ForMoSAError
+from ForMoSA.core.enums import VsiniFunction
+from ForMoSA.core.loggings import setup_logging
 
 
 class Parameter(object):
     '''
-    ForMoSA Parameter class. Handles a single parameter for the nested sampling algorithm
+    ForMoSA Parameter class. Handles a single parameter for the nested sampling algorithm.
 
     Parameters
     ----------
-    name              (str): Name of the parameter ('par1', 'par2', 'rv', 'd', ...)
-    prior             (str): Prior function of the parameter ('uniform', 'gaussian', 'constant', 'log-uniform', 'computed')
-    bounds           (list): Bounds of the prior (for the 'uniform' and 'log-uniform' priors)
-    mean            (float): Mean of the prior (for the 'gaussian' prior)
-    std             (float): Standard deviation of the prior (for the 'gaussian' prior)
-    value           (float): Value of the prior (for the 'constant' prior)
-    vsini_function    (str): vsini function used for the prior (only is name starts with vsini)
+    name                       (str): Name of the parameter ('par1', 'par2', 'rv', 'd', ...)
+    prior                    (Prior): Prior object associated with the parameter (UniformPrior, GaussianPrior, ConstantPrior, LogUniformPrior)
+    vsini_function   (VsiniFunction): Vsini function used for the prior (required if name starts with 'vsini').
 
     Authors: Allan Denis
     '''
 
-    def __init__(self, name: str, prior: str, bounds: list = None, mean: float = None, std: float = None, value: float = None, vsini_function: str = None):
-        valid_priors = {'uniform', 'gaussian', 'log-uniform', 'constant', 'computed'}
-        if prior not in valid_priors:
-            msg = f" Prior '{prior}' not valid for the parameter '{name}'. Choose amongst : {', '.join(valid_priors)}."
-            raise ForMoSAError(msg)
+    def __init__(self, name: str, prior: Prior, vsini_function: VsiniFunction | None = None, logger: logging.Logger | None = None, log_level: str='INFO'):
+        if not isinstance(prior, Prior):
+            raise ForMoSAError(f"<Parameter '{name}' must be initialized with a Prior object>")
 
-        if prior in {'uniform', 'log-uniform'}:
-            if bounds is None:
-                msg = f" Prior '{prior}' needs bounds [min, max]."
-                raise ForMoSAError(msg)
-            if not (isinstance(bounds, list) and len(bounds) == 2):
-                msg = " Bounds have to be a list [min, max] with uniform or log uniform priors."
-                raise ForMoSAError(msg)
-            if (prior == 'log-uniform') and (bounds[0] <= 0 or bounds[1] <= 0):
-                msg = " You cannot use negative bounds with log-uniform priors."
-                raise ForMoSAError(msg)
-
-        if prior == 'gaussian':
-            if mean is None or std is None:
-                msg = " Gaussian prior needs argument 'mean' and 'std'."
-                raise ForMoSAError(msg)
-            if std <= 0:
-                msg = " You cannot use negative standard deviations with Gaussian priors."
-                raise ForMoSAError(msg)
-
-        if prior == 'constant':
-            if value is None:
-                msg = " Constant prior needs argument 'value'."
-                raise ForMoSAError(msg)
-
-        if name.startswith('vsini') and vsini_function == None:
-            msg = " 'vsini' parameter needs a vsini function."
-            raise ForMoSAError(msg)
+        if name.startswith('vsini') and vsini_function is None:
+            raise ForMoSAError("<Vsini parameter needs a vsini_function>")
 
         self._name = name
         self._prior = prior
-        self._bounds = bounds
-        self._mean = mean
-        self._std = std
-        self._value = value
         self._vsini_function = vsini_function
         self._theta = None
+        self._logger = logger or setup_logging(log_level, name='Parameter')
 
-
-    ##################################################
+    # ==================================================
     # Representation
-    ##################################################
+    # ==================================================
 
     def __repr__(self):
-        return f"Parameter(name={self.name}, prior={self.prior}, bounds={self.bounds}, " \
-               f"mean={self.mean}, std={self.std}, value={self.value}, vsini_function={self.vsini_function} \n"
+        return f"Parameter(name={self.name}, prior={self.prior}, vsini_function={self.vsini_function})"
 
-
-    ##################################################
+    # ==================================================
     # Properties
-    ##################################################
+    # ==================================================
 
     @property
-    def name(self):             # Name
+    def logger(self) -> logging.Logger:                # Logger
+        return self._logger
+
+    @property
+    def name(self) -> str:                             # Name of the parameter
         return self._name
 
     @property
-    def prior(self):            # Prior type
+    def prior(self) -> Prior:                          # Prior object associated with the parameter
         return self._prior
 
     @property
-    def bounds(self):           # Bounds (for Uniform and log-Uniform priors)
-        return self._bounds
-
-    @bounds.setter               # Setter for bounds
-    def bounds(self, bounds_value):
-        if not (isinstance(bounds_value, list) and len(bounds_value) == 2):
-            msg = " Bounds have to be a list [min, max] with uniform or log uniform priors."
-            raise ForMoSAError(msg)
-        self._bounds = bounds_value
-        return self._bounds
-
-    @property
-    def mean(self):             # Mean (for Gaussian priors)
-        return self._mean
-
-    @mean.setter                # Setter for mean
-    def mean(self, mean_value):
-        self._mean = mean_value
-        return self._mean
-
-    @property
-    def std(self):              # Standard deviation (for Gaussian priors)
-        return self._std
-
-    @std.setter                 # Setter for std
-    def std(self, std_value):
-        self._std = std_value
-        return self._std
-
-    @property
-    def value(self):            # Value (for Constant prior)
-        return self._value
-
-    @value.setter
-    def value(self, val):      # Setter for value
-        self._value = val
-        return self._value
-
-    @property
-    def vsini_function(self):   # Function for v.sini transformation
+    def vsini_function(self) -> str:                   # Vsini function used for the prior
         return self._vsini_function
 
-    @vsini_function.setter     # Setter for v.sini function
-    def vsini_function(self, vsini_function_value):
-        self._vsini_function = vsini_function_value
-        return self._vsini_function
+    @vsini_function.setter
+    def vsini_function(self, value: str):              # Setter for vsini_function
+        self._vsini_function = value
 
     @property
-    def is_fixed(self):         # Whether the parameter is fixed
-        return (self.prior == 'constant') or (self.prior == 'computed')
+    def is_fixed(self) -> bool:                        # Whether the parameter is fixed (constant prior) or free
+        return self._prior._is_fixed
 
     @property
-    def theta(self):            # Current value randomly picked by the nested sampling
+    def theta(self) -> float:                          # Current value of the parameter
         return self._theta
 
-
-    ##################################################
+    # ==================================================
     # Methods
-    ##################################################
+    # ==================================================
 
-    def _apply_prior(self, theta: float) -> float:
+    def apply_prior(self, theta: float) -> float:
         '''
-        Method to apply prior to a parameter given a random value theta picked uniformely between [0, 1]
+        Apply the prior to a parameter given a random value theta uniformly drawn from [0, 1].
 
         Parameters
         ----------
-        theta (float): Parameter value randomly picked by the nested sampling
-
-        Returns:
-            - float: Transformed prior value
-
-        Authors: Allan Denis
-        '''
-
-        if self.prior == 'uniform':
-            self._theta = prior_functions.uniform_prior(self.bounds, theta)
-
-        if self.prior == 'gaussian':
-            self._theta = prior_functions.gaussian_prior(self.mean, self.std, theta)
-
-        if self.prior == 'log-uniform':
-            self._theta = prior_functions.loguniform_prior(self.bounds, theta)
-
-        return self.theta
-
-
-class NestedSamplingParameters(object):
-    '''
-    ForMoSA NestedSampling_Params class. Handles dynamically the parameters of the nested sampling.
-
-    Parameters
-    ----------
-    logger : logger
-
-    Authors: Allan Denis
-    '''
-
-    def __init__(self, logger):
-        self._parameters = {}
-        self._logger = logger
-
-
-    ##################################################
-    # Representation
-    ##################################################
-
-    def __repr__(self):
-        return f'<NestedSampling_Params(\n{self._parameters})>'
-
-
-    ##################################################
-    # Properties
-    ##################################################
-
-    @property
-    def parameters(self) -> dict:
-        return self._get_parameters('all')
-
-    @property
-    def free_parameters(self) -> dict:
-        return self._get_parameters('free')
-
-    @property
-    def fixed_parameters(self) -> dict:
-        return self._get_parameters('fixed')
-
-    @property
-    def computed_parameters(self) -> dict:
-        return self._get_parameters('computed')
-
-    @property
-    def dict_params_keys(self) -> list:
-        return {k: p for k,p in enumerate(list(self.parameters))}
-
-    @property
-    def dict_free_params_keys(self) -> list:
-        return {k: p for k,p in enumerate(list(self.free_parameters))}
-
-    @property
-    def dict_params_names(self) -> list:
-        return {k: p.name for k,p in enumerate(self.parameters.values())}
-
-    @property
-    def dict_free_params_names(self) -> list:
-        return {k: p.name for k, p in enumerate(self.free_parameters.values())}
-
-    @property
-    def dict_fixed_params_names(self) -> list:
-        return {k: p.name for k, p in enumerate(self.fixed_parameters.values())}
-
-    @property
-    def dict_computed_params_names(self) -> list:
-        return {k: p.name for k, p in enumerate(self.computed_parameters.values())}
-
-    @property
-    def n_parameters(self) -> int:
-        return len(self.parameters)
-
-    @property
-    def n_free_parameters(self) -> int:
-        return len(self.free_parameters)
-
-    @property
-    def n_fixed_parameters(self) -> int:
-        return len(self.fixed_parameters)
-
-    @property
-    def n_computed_parameters(self) -> int:
-        return len(self.computed_parameters)
-
-    @property
-    def free_param_priors(self):
-        return self._get_param_attr('prior', 'free')
-
-    @property
-    def free_param_bounds(self):
-        return self._get_param_attr('bounds', 'free')
-
-    @property
-    def theta(self):
-        return self._theta
-
-
-
-    ##################################################
-    # Methods
-    ##################################################
-
-
-    def _add_parameter(self, param: Parameter, name) -> None:
-        '''
-        Method to add a parameter used in the nested sampling algorithm
-
-        Parameters
-        ----------
-        param : Instance of :class:`~ForMoSA.Parameter`
-        name  : Name of the parameter
-
-        Authors: Allan Denis
-        '''
-
-        if name in self._parameters:
-            msg = f" Parameter '{name}' already exists."
-            self._logger.error(msg)
-            raise ForMoSAError(msg)
-
-        self._parameters[name] = Parameter(name, param.prior, param.bounds, param.mean, param.std, param.value, param.vsini_function)
-
-
-    def _add_NestedSampling_parameters_from_config(self, config_dict: dict) -> None:
-        '''
-        Method to create the list of nested sampling parameters from the configuration file dictionary
-
-        Parameters
-        ----------
-        config_dict (dict): Dictionary of the nested sampling config parameters
-
-        Authors: Allan Denis
-        '''
-
-        for param_type in ['grid_parameters', 'physical_parameters']:    # Retrieve 'grid parameters' and 'physical parameters' objects
-            for name, param in config_dict[param_type].items():        # (e.g. 'par1', 'rv_0", 'vsini_1')
-                self._add_parameter(param, name)
-
-        # Additional step to check for the global consistance of the parameters
-        self._check_params()
-        self._logger.info(f'Nested Sampling parameters:\n {self._parameters_summary(as_dataframe=True)}')
-
-
-    def _check_params(self) -> None:
-        '''
-        Method to check that there is no issue in the nested sampling parameters
-
-        Authors: Allan Denis
-        '''
-
-        nb_vsini, nb_ld, nb_r, nb_d, nb_av, nb_bb_t, nb_bb_r = 0, 0, 0, 0, 0, 0, 0
-
-        for key in self.parameters.keys():
-            if key.startswith('vsini'):
-                nb_vsini += 1
-            if key.startswith('ld'):
-                nb_ld += 1
-            if key.startswith('r') and not(key.startswith('rv')):
-                nb_r += 1
-            if key.startswith('d'):
-                nb_d += 1
-            if key.startswith('av'):
-                nb_av += 1
-            if key.startswith('bb_R'):
-                nb_bb_r += 1
-            if key.startswith('bb_T'):
-                nb_bb_t += 1
-
-        if (nb_vsini != nb_ld):
-            msg = " You need to define both vsini and limb darkening priors of set them both to 'NA'."
-            self._logger.error(msg)
-            raise ForMoSAError(msg)
-        if (nb_r != nb_d):
-            msg = " You need to define both radius and distance priors or set them both to 'NA'."
-            self._logger.error(msg)
-            raise ForMoSAError(msg)
-        if nb_vsini > 1:
-            self._logger.warning(' Multiples vsini priors are defined for different observations, which is very unlikely.')
-        if nb_r > 1:
-            msg = ' Multiples radius and distance priors are defined for different observations. Please use at most 1 prior for these parameters.'
-            self._logger.error(msg)
-            raise ForMoSAError(msg)
-        if nb_av > 1:
-            msg = ' Multiples interstellar extinction priors are defined for different observations. Please use at most 1 prior for this parameter.'
-            self._logger.error(msg)
-            raise ForMoSAError(msg)
-        if nb_bb_t != nb_bb_r:
-            msg = " You need to define both black body temperature and black body radius or set them both to 'NA'."
-            self._logger.error(msg)
-            raise ForMoSAError(msg)
-        if nb_bb_t != nb_d and nb_bb_t != 0:
-            msg = " If tou define a blackbody, you also need to define a distance."
-            self._logger.error(msg)
-            raise ForMoSAError(msg)
-
-
-    def _parameters_summary(self, as_dataframe=False):
-        '''
-        Smmary of parameters present in NestedSampling_Params class
-
-        Parameters
-        ----------
-        as_dataframe (bool) : If True, returns a DataFrame. Otherwise, retourns a string.
+        theta (float): Value randomly drawn between 0 and 1.
 
         Returns
         -------
-        summary (str | pd.DataFrame): Summary of parameters
+        float: Transformed parameter value according to the prior.
 
         Authors: Allan Denis
         '''
 
-        if not self._parameters:
-            if as_dataframe:
-                return pd.DataFrame(columns=['name', 'prior', 'bounds/mean/std/value', 'vsini_function'])
-            else:
-                return "No parameter has been defined"
-
-        rows = []
-        for param in self._parameters.values():
-            prior = param.prior
-            if prior in ['uniform', 'log-uniform']:
-                value_desc = f"[{param.bounds[0]}, {param.bounds[1]}]"
-            elif prior == 'gaussian':
-                value_desc = f"μ={param.mean}, σ={param.std}"
-            elif prior == 'constant':
-                value_desc = f"{param.value}"
-            elif prior == 'computed':
-                value_desc = "computed"
-            else:
-                value_desc = "?"
-
-            rows.append({
-                'name': param.name,
-                'prior': prior,
-                'bounds/mean/std/value': value_desc,
-                'vsini_function': param.vsini_function
-            })
-
-        if as_dataframe:
-            return pd.DataFrame(rows)
-        else:
-            header = f"{'Name':<20} {'Prior':<15} {'Borns / Values':<35} {'vsini_func':<15}"
-            separator = "-" * len(header)
-            lines = [header, separator]
-            for row in rows:
-                line = f"{row['name']:<20} {row['prior']:<15} {row['bounds/mean/std/value']:<35} {str(row['vsini_function']):<15}"
-                lines.append(line)
-            return "\n".join(lines)
-
-
-    def _get_param_value(self, name: str, theta: np.ndarray) -> float:
-        '''
-        Method to get the value of a parameter given its name.
-
-        Parameters
-        ----------
-        name         (str): Name of the parameter (either a key like 'par1', 'rv', 'vsini_0' or a physical name like 'Teff', 'logg')
-        theta (np.ndarray): List of parameter values corresponding to list_params_keys
-
-        Returns:
-            float: Current value of the parameter, either from theta or the constant prior value
-
-        Authors: Allan Denis
-        '''
-
-        if not isinstance(theta, (list, np.ndarray)) or len(theta) == 0:
-            raise ForMoSAError(f"theta must be a non-empty array, got: {theta}")
-
-        theta = np.asarray(theta)
-
-        # Determine parameter key
-        if name in self.dict_params_keys.values():
-            param_key = name
-            theta_index = list(self.dict_free_params_keys.values())
-        elif name in self.dict_params_names.values():
-            param_key = self.dict_params_keys.values()[self.dict_params_names.values().index(name)]
-            theta_index = self.dict_free_params_names.values()
-        else:
-            msg = f"Invalid parameter name: {name}. Choose from {self.list_params_keys} or {self.list_params_names}"
-            self._logger.error(msg)
-            raise ForMoSAError(msg)
-
-        # Get parameter
-        p = self.parameters[param_key]
-
-        # Handle constant prior
-        if p.prior == 'constant':
-            if not isinstance(p.value, (int, float)) or p.value is None:
-                msg = f"Parameter {name} has invalid constant value: {p.value}"
-                self._logger.error(msg)
-                raise ForMoSAError(msg)
-            value = float(p.value)
-        else:
-            try:
-                idx = theta_index.index(name)
-                value = theta[idx]
-            except ValueError:
-                msg = f"Parameter {name} not found in theta_index {theta_index}"
-                self._logger.error(msg)
-                raise ForMoSAError(msg)
-
-        # Update parameter state
-        p._theta = value
-        return value
-
-
-    def _get_parameters(self, param_type: str = 'all') -> dict:
-        '''
-        Returns all the parameters according to their type : 'all', 'free', 'fixed'.
-
-        Parameters
-        ----------
-        param_type (str): Type of parameter to return ('all', 'fixed', 'free')
-
-        Returns:
-            - dict: Dictionary of parameters filtered.
-
-        Authors: Allan Denis
-        '''
-
-        if param_type not in ['all', 'free', 'fixed', 'computed']:
-            raise ForMoSAError("param_type must be 'all', 'free', 'fixed' or 'computed'")
-
-        if param_type == 'free':
-            return {k: p for k, p in self._parameters.items() if not p.is_fixed}
-        elif param_type == 'fixed':
-            return {k: p for k, p in self._parameters.items() if p.is_fixed}
-        if param_type == 'computed':
-            return {k: p for k, p in self._parameters.items() if p.prior != 'constant'}
-
-        return self._parameters
-
-
-    def _get_param_attr(self, attr: str, param_type: str = 'all') -> dict:
-        '''
-        Extract a given attribute for each parameter of a given type
-
-        Parameters
-        ----------
-        attr        (str): Name of the attribute to extract
-        param_type  (str): Type of parameter ('all', 'fixed', 'free')
-
-        Returns:
-            - dict: {param_name: attribute_value}
-
-        Authors: Allan Denis
-        '''
-
-        return {k: getattr(p, attr) for k, p in self._get_parameters(param_type).items()}
+        self._theta = self._prior.sample(theta)
+        return self._theta
