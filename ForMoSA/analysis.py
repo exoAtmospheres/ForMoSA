@@ -15,6 +15,16 @@ import numpy as np
 import matplotlib.pyplot as plt
 from tqdm import tqdm
 
+from matplotlib import font_manager
+font_path = '/Users/rajpoot/Library/Fonts/JuliaMono-Regular.ttf'  # Your font path goes here
+font_manager.fontManager.addfont(font_path)
+prop = font_manager.FontProperties(fname=font_path)
+
+# set font size to 18
+plt.rcParams['font.size'] = 14
+plt.rcParams['font.family'] = 'sans-serif'
+plt.rcParams['font.sans-serif'] = prop.get_name()
+
 # log
 _log = logging.getLogger(__name__)
 
@@ -374,19 +384,19 @@ class Analysis(object):
         fig = self.ns.plotting.plot_corner(figsize=figsize_corner, show_titles = True, show_contours = True, plot_density = True, quantiles = [0.16, 0.5, 0.84])
         if save:
             filename = self.paths.result_path / 'corner_plot.pdf'
-            fig.savefig(filename)
+            fig.savefig(filename, dpi=300, bbox_inches='tight')
             self._logger.info(f"Corner plot saved to {filename}")
 
         fig, _ = self.ns.plotting.plot_chains(figsize=figsize_chains)
         if save:
             filename = self.paths.result_path / 'chains_plot.pdf'
-            fig.savefig(filename)
+            fig.savefig(filename, dpi=300, bbox_inches='tight')
             self._logger.info(f"Chains plot saved to {filename}")
 
         fig, _ = self.ns.plotting.plot_radar()
         if save:
             filename = self.paths.result_path / 'radar_plot.pdf'
-            fig.savefig(filename)
+            fig.savefig(filename, dpi=300, bbox_inches='tight')
             self._logger.info(f'Radar plot saved to {filename}')
 
         fig, ax, _, _, scaling = self.ns.plotting.plot_fit(modif_data, best_model, label_ins=label_ins, trans=trans, uncert=uncert, figsize=figsize_fit, plot_nativ_model = plot_nativ_model, nativ_model = nativ_model, label_params = label_params)
@@ -394,11 +404,11 @@ class Analysis(object):
             ax.fill_between(nativ_model['spectro']['wav'], scaling * lower_1sigma, scaling * upper_1sigma, color = 'grey', alpha = 0.4)
         if save:
             filename = self.paths.result_path / 'best_fit_plot.pdf'
-            fig.savefig(filename)
+            fig.savefig(filename, dpi=300, bbox_inches='tight')
             self._logger.info(f"Best fit plot saved to {filename}")
 
 
-    def plot_ccf(self, rv_grid: np.ndarray, indobs: int = 0, save: bool = True, plot: bool = True, theta: dict = dict()) -> None:
+    def plot_ccf(self, rv_grid: np.ndarray, indobs: int = 0, save: bool = True, plot: bool = True, theta: dict = dict(), zoom: bool = True) -> None:
         '''
         Method to compute (and optionally plot) the cross-correlation function (CCF) between the observation and the best model.
 
@@ -409,6 +419,7 @@ class Analysis(object):
         save           (bool): Whether to save the plot as a file
         plot           (bool): Whether to display the plot
         theta   (dictionnary): Dictionnary of the parameters to use for the model
+        zoom          (bool): Whether to zoom in on the CCF plot around the peak
 
         Returns
         -------
@@ -469,24 +480,38 @@ class Analysis(object):
         ccf, acf, ccf_star, rv_peak, _, _ = spec.compute_ccf(wav_mod, flx_mod_vsini, wav_obs, flx_obs, err_obs, res_mod_vsini, res_obs_spectro, res_cont, wav_fit, star_flx, transm, system, rv_grid=rv_grid)
 
         # Plot
-        fig = plt.figure('CCF', figsize=(10,8))
+        fig = plt.figure('CCF', figsize=(12,6), dpi=300)
         plt.clf()
         ax = fig.add_subplot()
-        ax.plot(rv_grid, ccf, color='C0', label='ccf')
+        ax.plot(rv_grid, ccf, color='C0', label='CCF')
         ax.plot(rv_grid, ccf_star, color='0.85', zorder=-1000, label='Speckles')
         ax.plot(rv_grid + rv_peak, acf, 'k', label = 'Auto-correlation')
         ax.axvline(x=rv_peak, linestyle='--', c='C3')
         ax.set_xlabel('Radial Velocity [km/s]')
         ax.set_ylabel('Correlation (SNR)')
-        ax.set_title(f'Cross-Correlation Function - Observation {self.observation.obs_name[indobs]}')
-        ax.legend()
+        # ax.set_title(f'Cross-Correlation Function - Observation {self.observation.obs_name[indobs]}')
+
+        # enable legend
+        ax.legend(fontsize=12)
+
+        #let's write a more informative title with 
+        param_str = ', '.join([f"{name}={value:.2f}" for name, value in zip(self.ns.params.dict_free_params_names.values(), theta)])
+        ax.set_title(f'CCF - Obs: {self.observation.obs_name[indobs]}\nTeff={theta[0]:.1f} K,log(g)={theta[1]:.1f}, RV={rv_peak:.1f} km/s, vsini={theta[vsini_index]:.1f} km/s')
+
         ax.grid(True)
         if save:
             filename = self.paths.result_path / f'ccf_plot_obs{indobs}.pdf'
-            plt.savefig(filename)
+            plt.savefig(filename, dpi=300, bbox_inches='tight')
             self._logger.info(f"CCF plot saved to {filename}")
         if plot:
             plt.show()
+        if zoom:
+            rv_min = rv_peak - 500
+            rv_max = rv_peak + 500
+            ax.set_xlim(rv_min, rv_max)
+            plt.savefig(self.paths.result_path / f'ccf_plot_obs{indobs}_zoom.pdf', dpi=300, bbox_inches='tight')
+            self._logger.info(f"Zoomed CCF plot saved to {self.paths.result_path / f'ccf_plot_obs{indobs}_zoom.pdf'}")
+
 
         return fig, ax, rv_peak, ccf, acf
 
@@ -568,7 +593,7 @@ class Analysis(object):
         rv_peak, vsini_peak = rv_grid[max_indices[1]], vsini_grid[max_indices[0]]
 
         # plot
-        fig = plt.figure('rv-vsin(i) map', figsize=(8,5))
+        fig = plt.figure('rv-vsin(i) map', figsize=(10,6))
         plt.clf()
         ax = fig.add_subplot()
 
@@ -580,10 +605,18 @@ class Analysis(object):
         ax.axhline(y=vsini_peak, linestyle='--', c='C3')
         ax.axvline(x=rv_peak, linestyle='--', c='C3')
 
-        cbar = fig.colorbar(im)
+        cbar = fig.colorbar(im, fraction=0.046, pad=0.04)
         cbar.set_label('$\\log \\mathcal{L}$', fontsize=22, labelpad=10)
 
-        ax.set_title(f'RV / V.sini map - Observation {self.observation.obs_name[indobs]}, rv={rv_peak:.1f}, vsini={vsini_peak:.1f}')
+        # add model parameters in the title
+        ax.set_title(f'RV / V.sini map\nObs: {self.observation.obs_name[indobs]}\nRV={rv_peak:.1f} km/s, vsini={vsini_peak:.1f} km/s')
+
+        if save:
+            filename = self.paths.result_path / f'rv_vsini_map_obs{indobs}.pdf'
+            plt.savefig(filename, bbox_inches='tight', dpi=300)
+            self._logger.info(f"RV / V.sini map plot saved to {filename}")
+        if plot:
+            plt.show()
 
         return fig, ax, logL_map, rv_peak, vsini_peak
 

@@ -7,6 +7,20 @@ import ForMoSA.utils.misc as utils
 from ForMoSA.error import ForMoSAError
 
 
+from matplotlib.patches import Circle
+import matplotlib.patheffects as path_effects
+
+from matplotlib import font_manager
+font_path = '/Users/rajpoot/Library/Fonts/JuliaMono-Regular.ttf'  # Your font path goes here
+font_manager.fontManager.addfont(font_path)
+prop = font_manager.FontProperties(fname=font_path)
+
+# set font size to 18
+plt.rcParams['font.size'] = 14
+plt.rcParams['font.family'] = 'sans-serif'
+plt.rcParams['font.sans-serif'] = prop.get_name()
+
+
 class NestedSamplingPlotting(object):
     '''
     Class of visualisation of the results of the nested sampling.
@@ -203,6 +217,9 @@ class NestedSamplingPlotting(object):
         corner_kwargs['labels'] = param_names
         samples, weights = self.samples[self.burn_in:], self.weights[self.burn_in:]
         corner_kwargs['weights'] = weights
+        corner_kwargs['range'] = [0.99 for i in range(len(param_names))]
+        corner_kwargs['fill_contours'] = True
+        corner_kwargs['plot_contours'] = True
 
         idx = []
         for param in param_names:
@@ -278,34 +295,126 @@ class NestedSamplingPlotting(object):
         return fig, axs[:n_params]
 
 
-    def plot_radar(self, param_names: list = [], quantiles=[16, 50, 84], alpha_fill=0.2) -> tuple[plt.Figure, plt.Axes]:
-        '''
-        Method to radar plot the samples with normalized scaling based on prior-like ranges, and raw value annotations.
+    # def plot_radar(self, param_names: list = [], quantiles=[16, 50, 84], alpha_fill=0.2) -> tuple[plt.Figure, plt.Axes]:
+    #     '''
+    #     Method to radar plot the samples with normalized scaling based on prior-like ranges, and raw value annotations.
 
+    #     Parameters
+    #     ----------
+    #     param_names   (list): List of parameter names
+    #     quantiles    (tuple): Mean +- sigma to report the posterior values
+    #     alpha_fill   (float): Filling factor for the uncertainty
+
+    #     Returns
+    #     -------
+    #     fig    (matplotlib.figure.Figure): Matplotlib Figure object
+    #     ax   (matplotlib.axes._axes.Axes): Matplotlib Axes object
+    #     '''
+
+    #     self._logger.info(' Radar plot of the chains.')
+    #     if len(param_names) == 0:
+    #         param_names = list(self.dict_params_idx.keys())
+
+    #     samples, weights = self.samples[self.burn_in:], self.weights[self.burn_in:]
+
+    #     idx = []
+    #     for param in param_names:
+    #         idx.append(self.dict_params_idx[param])
+
+    #     samples = samples[:, idx]
+
+    #     # Compute quantiles for each parameter
+    #     q_low, q_med, q_high = [], [], []
+    #     for i in range(samples.shape[1]):
+    #         q = utils.get_weighted_percentile(quantiles, samples[:, i], weights=weights)
+    #         q_low.append(q[0])
+    #         q_med.append(q[1])
+    #         q_high.append(q[2])
+
+    #     q_low = np.array(q_low)
+    #     q_med = np.array(q_med)
+    #     q_high = np.array(q_high)
+
+    #     # Use min/max of samples to simulate prior bounds
+    #     prior_mins = np.min(samples, axis=0)
+    #     prior_maxs = np.max(samples, axis=0)
+
+    #     # Normalize based on "prior-like" range
+    #     q_low_norm, q_med_norm, q_high_norm = [], [], []
+    #     for i in range(len(q_low)):
+    #         min_val = prior_mins[i]
+    #         max_val = prior_maxs[i]
+    #         range_val = max_val - min_val if max_val != min_val else 1.0
+    #         q_low_norm.append((q_low[i] - min_val) / range_val)
+    #         q_med_norm.append((q_med[i] - min_val) / range_val)
+    #         q_high_norm.append((q_high[i] - min_val) / range_val)
+
+    #     # Close the circle
+    #     q_low_norm.append(q_low_norm[0])
+    #     q_med_norm.append(q_med_norm[0])
+    #     q_high_norm.append(q_high_norm[0])
+    #     q_med = np.append(q_med, q_med[0])
+    #     q_low = np.append(q_low, q_low[0])
+    #     q_high = np.append(q_high, q_high[0])
+    #     prior_mins = np.append(prior_mins, prior_mins[0])
+    #     prior_maxs = np.append(prior_maxs, prior_maxs[0])
+
+    #     # Angles for the radar plot
+    #     angles = np.linspace(0, 2 * np.pi, len(param_names), endpoint=False).tolist()
+    #     angles.append(angles[0])
+
+    #     fig, ax = plt.subplots(figsize=(6, 6), subplot_kw=dict(polar=True))
+
+    #     ax.fill_between(angles, q_low_norm, q_high_norm, color=self.color_out, alpha=alpha_fill)
+    #     ax.plot(angles, q_med_norm, color=self.color_out, linewidth=2)
+    #     ax.scatter(angles[:-1], q_med_norm[:-1], color='black', s=20, zorder=3)
+
+    #     ax.set_xticks(angles[:-1])
+    #     ax.set_xticklabels(param_names, fontsize=12)
+    #     ax.set_yticklabels([])
+    #     # ax.set_title('Radar plot', size=14, pad=20)
+    #     ax.grid(True)
+
+    #     # Display ticks
+    #     for i, angle in enumerate(angles[:-1]):
+    #         min_val = prior_mins[i]
+    #         max_val = prior_maxs[i]
+    #         ticks = np.linspace(min_val, max_val, num=5)
+    #         range_val = max_val - min_val if max_val != min_val else 1.0
+    #         for i in range(len(ticks)-2):
+    #             radius = (ticks[i+1] - min_val) / range_val
+    #             ax.text(angle, radius, f'{ticks[i+1]:.2f}', ha='center', va='center', fontsize=8, color='black')
+
+    #     return fig, ax
+
+    def plot_radar(self, param_names: list = [], quantiles=[16, 50, 84], alpha_fill=0.15) -> tuple[plt.Figure, plt.Axes]:
+        '''
+        Improved method to radar plot the samples with enhanced visual design.
+        
         Parameters
         ----------
         param_names   (list): List of parameter names
         quantiles    (tuple): Mean +- sigma to report the posterior values
         alpha_fill   (float): Filling factor for the uncertainty
-
+        
         Returns
         -------
         fig    (matplotlib.figure.Figure): Matplotlib Figure object
         ax   (matplotlib.axes._axes.Axes): Matplotlib Axes object
         '''
-
+        
         self._logger.info(' Radar plot of the chains.')
         if len(param_names) == 0:
             param_names = list(self.dict_params_idx.keys())
-
+        
         samples, weights = self.samples[self.burn_in:], self.weights[self.burn_in:]
-
+        
         idx = []
         for param in param_names:
             idx.append(self.dict_params_idx[param])
-
+        
         samples = samples[:, idx]
-
+        
         # Compute quantiles for each parameter
         q_low, q_med, q_high = [], [], []
         for i in range(samples.shape[1]):
@@ -313,15 +422,15 @@ class NestedSamplingPlotting(object):
             q_low.append(q[0])
             q_med.append(q[1])
             q_high.append(q[2])
-
+        
         q_low = np.array(q_low)
         q_med = np.array(q_med)
         q_high = np.array(q_high)
-
+        
         # Use min/max of samples to simulate prior bounds
         prior_mins = np.min(samples, axis=0)
         prior_maxs = np.max(samples, axis=0)
-
+        
         # Normalize based on "prior-like" range
         q_low_norm, q_med_norm, q_high_norm = [], [], []
         for i in range(len(q_low)):
@@ -331,7 +440,7 @@ class NestedSamplingPlotting(object):
             q_low_norm.append((q_low[i] - min_val) / range_val)
             q_med_norm.append((q_med[i] - min_val) / range_val)
             q_high_norm.append((q_high[i] - min_val) / range_val)
-
+        
         # Close the circle
         q_low_norm.append(q_low_norm[0])
         q_med_norm.append(q_med_norm[0])
@@ -341,35 +450,122 @@ class NestedSamplingPlotting(object):
         q_high = np.append(q_high, q_high[0])
         prior_mins = np.append(prior_mins, prior_mins[0])
         prior_maxs = np.append(prior_maxs, prior_maxs[0])
-
+        
         # Angles for the radar plot
         angles = np.linspace(0, 2 * np.pi, len(param_names), endpoint=False).tolist()
         angles.append(angles[0])
-
-        fig, ax = plt.subplots(figsize=(6, 6), subplot_kw=dict(polar=True))
-
-        ax.fill_between(angles, q_low_norm, q_high_norm, color=self.color_out, alpha=alpha_fill)
-        ax.plot(angles, q_med_norm, color=self.color_out, linewidth=2)
-        ax.scatter(angles[:-1], q_med_norm[:-1], color='black', s=20, zorder=3)
-
+        
+        # Create figure with custom styling
+        fig = plt.figure(figsize=(6, 6), dpi=300)
+        ax = fig.add_subplot(111, polar=True)
+        
+        # Set background color for modern look
+        fig.patch.set_facecolor('#FAFBFC')
+        ax.set_facecolor('#FFFFFF')
+        
+        # Improved color scheme - using a sophisticated blue-purple gradient
+        main_color = '#4A5FD9'  # Deep blue
+        fill_color = '#6B7FE8'  # Lighter blue
+        uncertainty_color = '#A8B3F5'  # Very light blue
+        
+        # Plot uncertainty band with gradient effect
+        ax.fill_between(angles, q_low_norm, q_high_norm, 
+                        color=uncertainty_color, alpha=0.35, linewidth=0, zorder=2)
+        
+        # Add a second, more opaque layer for the inner region
+        # mid_low = [(q_low_norm[i] + q_med_norm[i]) / 2 for i in range(len(q_low_norm))]
+        # mid_high = [(q_high_norm[i] + q_med_norm[i]) / 2 for i in range(len(q_high_norm))]
+        # ax.fill_between(angles, mid_low, mid_high, 
+        #                 color=fill_color, alpha=0.25, linewidth=0, zorder=2)
+        
+        # Plot main line with enhanced styling
+        ax.plot(angles, q_med_norm, color=main_color, linewidth=2.5, zorder=3, 
+                solid_capstyle='round')
+        
+        # Add larger, styled markers at each point
+        for i in range(len(angles[:-1])):
+            # Outer white ring for contrast
+            ax.scatter(angles[i], q_med_norm[i], color='white', s=120, zorder=4, 
+                    edgecolors='none')
+            # Main point
+            ax.scatter(angles[i], q_med_norm[i], color=main_color, s=80, zorder=5, 
+                    edgecolors='white', linewidths=2)
+        
+        # Customize gridlines for cleaner look
+        ax.grid(True, color='gray', linewidth=1.2, alpha=0.5, linestyle='--', zorder=1)
+        
+        # Style the radial gridlines
+        ax.spines['polar'].set_color("#808183")
+        ax.spines['polar'].set_linewidth(1.5)
+        
+        # Set parameter labels with improved styling - positioned further out
         ax.set_xticks(angles[:-1])
-        ax.set_xticklabels(param_names, fontsize=12)
+        ax.set_xticklabels(param_names, fontsize=12, fontweight='600', 
+                        color='#24292E')
+        
+        # Remove default radial labels
         ax.set_yticklabels([])
-        # ax.set_title('Radar plot', size=14, pad=20)
-        ax.grid(True)
+        ax.set_ylim(0, 1)
 
         # Display ticks
+        # for i, angle in enumerate(angles[:-1]):
+        #     min_val = prior_mins[i]
+        #     max_val = prior_maxs[i]
+        #     ticks = np.linspace(min_val, max_val, num=5)
+        #     range_val = max_val - min_val if max_val != min_val else 1.0
+        #     for i in range(len(ticks)-2):
+        #         radius = (ticks[i+1] - min_val) / range_val
+        #         ax.text(angle, radius, f'{ticks[i+1]:.2f}',
+        #                 ha='center', va='center', fontsize=8, 
+        #                 color='#586069', family='sans-serif', zorder=10)
+
+        
+        # Add value annotations with improved positioning and styling
+        # Only show values at the median points, positioned outside the plot
         for i, angle in enumerate(angles[:-1]):
-            min_val = prior_mins[i]
-            max_val = prior_maxs[i]
-            ticks = np.linspace(min_val, max_val, num=5)
-            range_val = max_val - min_val if max_val != min_val else 1.0
-            for i in range(len(ticks)-2):
-                radius = (ticks[i+1] - min_val) / range_val
-                ax.text(angle, radius, f'{ticks[i+1]:.2f}', ha='center', va='center', fontsize=8, color='black')
-
+            # Position the value label slightly offset from the data point
+            # We'll offset it radially outward from the median point
+            data_radius = q_med_norm[i]
+            
+            # Calculate offset: place label slightly outside the data point
+            label_radius = data_radius + 0.14  # Offset by a small amount
+            
+            # If the point is too close to center, push label further out
+            if data_radius < 0.15:
+                label_radius = 0.45
+             
+            # Get the median value for annotation
+            value = q_med[i]
+            
+            # Format the value nicely
+            if abs(value) >= 1000:
+                value_str = f'{value:.0f}'
+            elif abs(value) >= 10:
+                value_str = f'{value:.1f}'
+            else:
+                value_str = f'{value:.2f}'
+            
+            # Create text with shadow effect for better readability
+            text = ax.text(angle+0.15, label_radius, value_str, 
+                        ha='center', va='center', 
+                        fontsize=12, fontweight='600',
+                        color='#24292E',
+                        zorder=10,
+                        bbox=dict(boxstyle='round,pad=0.4', 
+                                facecolor='white', 
+                                edgecolor='none',
+                                alpha=0.85))
+            
+            # Add subtle shadow effect
+            text.set_path_effects([
+                path_effects.Stroke(linewidth=2, foreground='#E1E4E8', alpha=0.5),
+                path_effects.Normal()
+            ])
+        
+        # Adjust layout to prevent label cutoff
+        plt.tight_layout()
+        
         return fig, ax
-
 
     def _get_plot_style(self, indobs: int, default_color: str='magenta', default_edge: str='darkmagenta', default_size: float=50, default_marker: str='NA') -> tuple[str, str, str, float]:
         '''
