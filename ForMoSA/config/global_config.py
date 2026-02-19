@@ -47,7 +47,7 @@ class ConfigPath:
             raise ForMoSAError(f"Wront type for observation_path: {type(self.observation_path)}. Expected a list")
 
         if not all(isinstance(obs_path, (str | os.PathLike)) for obs_path in self.observation_path):
-            raise ForMoSAError(f"observation_path must be a list of str or os.PathLike")
+            raise ForMoSAError("observation_path must be a list of str or os.PathLike")
 
 @dataclass
 class ConfigAdapt:

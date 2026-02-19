@@ -151,7 +151,7 @@ class Analysis(object):
 
         # config_adapt type and config_inversion types
         if not isinstance(config_adapt, ConfigAdapt):
-            raise ForMoSAError(' Wrong type for config_adapt: {type(config_adapt)}. Expected a ConfigAdapt', self.logger)
+            raise ForMoSAError(f'Wrong type for config_adapt: {type(config_adapt)}. Expected a ConfigAdapt', self.logger)
 
         # Check that lengths of MOSAIC parameters of config_adapt and config_inversion are consistent with number of observations
         try:
