@@ -1,5 +1,6 @@
 import logging
-from ForMoSA.core.config import PlotsConfig
+
+from ForMoSA.core.config import PLOTS_CONFIG
 from ForMoSA.core.errors import ForMoSAError
 from ForMoSA.config.paths import ForMoSAPaths
 from ForMoSA.grid.model_grid import ModelGrid
@@ -272,14 +273,13 @@ class Analysis(object):
             # Set fitted to True
             self._fitted = True
 
-    def plot(self, results: NSResults, plots_config: PlotsConfig = PlotsConfig(), save: bool = True, plot_native_model: bool = False) -> None:
+    def plot(self, results: NSResults, save: bool = True, plot_native_model: bool = False) -> None:
         '''
         Plot the results.
 
         Parameters
         ----------
         results (NSResults): An instance of NSResults
-        plots_config (PlotsConfig): An instance of PlotConfig
         save                (bool): Whether to save the results
         plot_native_model   (bool): Whether to plot the native model
 
@@ -290,25 +290,21 @@ class Analysis(object):
         if not isinstance(results, NSResults):
             raise ForMoSAError(f'Wrong type for results: {type(results)}. Expected NSResults')
 
-        if not isinstance(plots_config, PlotsConfig):
-            raise ForMoSAError(f'Wrong type for plots_config: {type(plots_config)}. Expected PlotsConfig')
-
-
         self.plots = Plotting(results, self.logger)
 
-        fig_corner = self.plots.plot_corner(plots_config.CornerPlot)
+        fig_corner = self.plots.plot_corner()
 
         if save:
             path = self.paths.result_path / 'corner.pdf'
             fig_corner.savefig(path)
 
-        fig_chains, axs = self.plots.plot_chains(plots_config.ChainsPlot)
+        fig_chains, axs = self.plots.plot_chains()
 
         if save:
             path = self.paths.result_path / 'chains.pdf'
             fig_chains.savefig(path)
 
-        fig_radar, ax = self.plots.plot_radars(plots_config.RadarPlot)
+        fig_radar, ax = self.plots.plot_radars()
 
         if save:
             path = self.paths.result_path / 'radar.pdf'
@@ -319,8 +315,8 @@ class Analysis(object):
             lower_1_sigma, higher_1_sigma = self.ns.best_fit_interval(perc=0.68)
             lower_2_sigma, higher_2_sigma = self.ns.best_fit_interval(perc=0.95)
 
-            ax.fill_between(lower_1_sigma.wave, lower_1_sigma.flux, higher_1_sigma.flux, color='grey', alpha=0.5)
-            ax.fill_between(lower_2_sigma.wave, lower_2_sigma.flux, higher_2_sigma.flux, color = 'grey', alpha = 0.2)
+            ax.fill_between(lower_1_sigma.wave, lower_1_sigma.flux, higher_1_sigma.flux, color='grey', alpha=0.5, zorder=PLOTS_CONFIG.BestFitPlot.zorder)
+            ax.fill_between(lower_2_sigma.wave, lower_2_sigma.flux, higher_2_sigma.flux, color='grey', alpha=0.2, zorder=PLOTS_CONFIG.BestFitPlot.zorder)
 
 
         if save:

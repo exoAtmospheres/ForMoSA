@@ -267,7 +267,6 @@ class Observation(ABC):
         except ForMoSAError as e:
             raise ForMoSAError(f' Error for observation with attributes {kwargs}: {e}', logger)
 
-
     # ==================================================
     # Methods
     # ==================================================
@@ -280,25 +279,25 @@ class Observation(ABC):
         '''
 
         if not (len(self._wave) == len(self._flux) == len(self._err)):
-            raise ForMoSAError(' wave, flux and err must have same length', self.logger)
+            raise ForMoSAError('wave, flux and err must have same length', self.logger)
 
         if not isinstance(self._native_unit, WavelengthUnit):
-            raise ForMoSAError(f' Wrong type for native_unit: {type(self._native_unit)}. Expected a WavelengthUnit', self.logger)
+            raise ForMoSAError(f'Wrong type for native_unit: {type(self._native_unit)}. Expected a WavelengthUnit', self.logger)
 
         if not isinstance(self._display_unit, WavelengthUnit):
-            raise ForMoSAError(f' Wrong type for display_unit: {type(self._display_unit)}. Expected a WavelengthUnit', self.logger)
+            raise ForMoSAError(f'Wrong type for display_unit: {type(self._display_unit)}. Expected a WavelengthUnit', self.logger)
 
         valid_units = [unit.unit for unit in WavelengthUnit]
         for unit in [self.native_unit, self.unit]:
             if unit not in valid_units:
-                raise ForMoSAError(f' Wrong unit: {unit}. Chose amongst {valid_units}', self.logger)
+                raise ForMoSAError(f'Wrong unit: {unit}. Chose amongst {valid_units}', self.logger)
 
         for param_str, param_type in [self.facility, self.instrument], ['facility', 'instrument']:
             if not isinstance(param_str, str):
-                raise ForMoSAError(f' Wrong type for {param_type}: {type(param_str)}. Require a string', self.logger)
+                raise ForMoSAError(f'Wrong type for {param_type}: {type(param_str)}. Require a string', self.logger)
 
         if np.any(self.err <= 0):
-            raise ForMoSAError(' Error must be strictly positive', self.logger)
+            raise ForMoSAError('Error must be strictly positive', self.logger)
 
     def _set_unit(self, unit: WavelengthUnit) -> None:
         '''
@@ -312,7 +311,7 @@ class Observation(ABC):
         '''
 
         if not(isinstance(unit, WavelengthUnit)):
-            raise ForMoSAError(f' unit must be an instance of WavelengthUnit enum. Instead got {type(unit)}', self.logger)
+            raise ForMoSAError(f'unit must be an instance of WavelengthUnit enum. Instead got {type(unit)}', self.logger)
         self._display_unit = unit
 
     def save_observation(self, store_path: str | os.PathLike) -> None:
@@ -341,26 +340,3 @@ class Observation(ABC):
 
         # Save dictionnary of observation to path
         np.savez(path / filename, **self.to_dict)
-
-    # def load_observation(self, store_path: str | os.PathLike, name: str) -> dict:
-    #     '''
-    #     Load the observation from the .npz file.
-
-    #     Returns
-    #     -------
-    #     dict: Dictionary representation of the observation data
-
-    #     Authors: Allan Denis
-    #     '''
-
-    #     # Get the saving path and automatically create it if it does not exist
-    #     if not isinstance(store_path, str | os.PathLike):
-    #         raise ForMoSAError(f' Wrong type for store_path: {type(store_path)}. Expected a string or os.PathLike', self.logger)
-
-    #     path = Path(store_path).expanduser()
-    #     filename = f"Observation_{name}.npz"
-    #     self._logger.info(f'    Loading observation from file {path/ filename}')
-
-    #     data = dict(np.load(path / filename, allow_pickle=True))
-
-    #     return data

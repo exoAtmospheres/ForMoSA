@@ -69,19 +69,19 @@ class SubGridSet(object):
 
     @property
     def has_spectroscopy(self) -> bool:                                        # Whether the subgrid set contains spectroscopic subgrids
-        return any(sg.GridType == ObservationType.SPECTROSCOPIC.obstype for sg in self._subgrids)
+        return any(sg.is_spectroscopic for sg in self._subgrids)
 
     @property
     def has_photometry(self) -> bool:                                          # Whether the subgrid set contains photometric subgrids
-        return any(sg.GridType == ObservationType.PHOTOMETRIC.obstype for sg in self._subgrids)
+        return any(sg.is_photometric for sg in self._subgrids)
 
     @property
     def spectroscopic_subgrids(self) -> list[SubGridSpectroscopy]:             # List of spectroscopic subgrids
-        return [sg for sg in self._subgrids if sg.GridType == ObservationType.SPECTROSCOPIC.obstype]
+        return [sg for sg in self._subgrids if sg.is_spectroscopic]
 
     @property
     def photometric_subgrids(self) -> list[SubGridPhotometry]:                 # List of photometric subgrids
-        return [sg for sg in self._subgrids if sg.GridType == ObservationType.PHOTOMETRIC.obstype]
+        return [sg for sg in self._subgrids if sg.is_photometric]
 
     @property
     def wavelength_range(self) -> tuple:                                       # Global wavelength range

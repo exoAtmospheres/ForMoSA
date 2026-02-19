@@ -37,6 +37,7 @@ class ConfigPath:
         for name, value in self.__dict__.items():
             if not isinstance(value, (str, os.PathLike)):
                 raise ForMoSAError(f" {name} must be str or os.PathLike, got {type(value)}")
+
 @dataclass
 class ConfigAdapt:
     method: str = "linear"
@@ -389,6 +390,7 @@ class ConfigParameters:
         -------
         tuple[str, str, list | None]: (name, scope, obs_index) of the parameter
 
+        Authors: Allan Denis
         '''
 
         if name not in self.to_dict.keys():
@@ -1154,7 +1156,8 @@ class ConfigLoader:
             if section in self.config_ini:
                 data = {}
                 for key, val in self.config_ini[section].items():
-                    data[key] = val
+                    if val in section:
+                        data[key] = val
                 if section == "config_parameters":
                     params = ConfigParameters()
                     for key, val in self.config_ini[section].items():

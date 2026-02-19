@@ -220,6 +220,11 @@ CORNER_PLOT = CornerPlotConfig()
 
 @dataclass
 class ChainsPlotConfig:
+    '''
+    Dataclass ot handle configurations for chains plot.
+
+    Authors: Allan Denis
+    '''
 
     figsize: tuple[float, float] = (15.0, 15.0)
 
@@ -277,6 +282,11 @@ CHAINS_PLOT = ChainsPlotConfig()
 
 @dataclass
 class RadarPlotConfig:
+    '''
+    Dataclass to handle configurations for radar plot.
+
+    Authors: Allan DenisÒ
+    '''
 
     figsize: tuple[float, float] = (6.0, 6.0)
 
@@ -303,7 +313,7 @@ class RadarPlotConfig:
 
         return {k: v for k, v in self.__dict__.items() if v is not None}
 
-    def set_chains_plot_config(self, **kwargs) -> None:
+    def set_radar_plot_config(self, **kwargs) -> None:
         '''
         Update global default plotting parameters for radar plot.
 
@@ -321,16 +331,65 @@ class RadarPlotConfig:
 
 RADAR_PLOT = RadarPlotConfig()
 
+# ==================================================
+# Best fit plotting configuration
+# ==================================================
+
+@dataclass
+class BestFitPlotConfig:
+    '''
+    Dataclass to handle configurations for best fit plot.
+
+    Authors: Allan Denis
+    '''
+
+    color: str = 'black'
+    linewidth: float = 2.0
+    zorder: int = 100
+
+    @property
+    def to_dict(self) -> dict:
+        '''
+        Return configuration options as a dictionary.
+
+        Authors: Allan Denis
+        '''
+
+        return {k: v for k, v in self.__dict__.items() if v is not None}
+
+    def set_best_fit_plot_config(self, **kwargs) -> None:
+        '''
+        Update global default plotting parameters for best fit plot.
+
+        Parameters
+        ----------
+        **kwargs : dict, Keyword arguments to override attributes of the config
+
+        Authors: Allan Denis
+        '''
+
+        for key, value in kwargs.items():
+            if not hasattr(self, key):
+                raise ForMoSAError(f'<Unknown best fit plot config key: {key}>')
+            setattr(self, key, value)
+
+BEST_FIT_PLOT = BestFitPlotConfig()
+
 @dataclass
 class PlotsConfig:
-    CornerPlot: CornerPlotConfig = field(default_factory = lambda: CornerPlotConfig())
-    ChainsPlot: ChainsPlotConfig = field(default_factory=lambda: ChainsPlotConfig())
-    RadarPlot: RadarPlotConfig = field(default_factory=lambda: RadarPlotConfig())
-    SpectralPlot: SpectralPlotConfig = field(default_factory=lambda: SpectralPlotConfig())
-    PhotometricPlot: PhotometricPlotConfig = field(default_factory=lambda: PhotometricPlotConfig())
+    '''
+    Dataclass to handle configurations for plots.
+
+    Authors: Allan Denis
+    '''
+
+    CornerPlot: CornerPlotConfig = field(default_factory = lambda: CORNER_PLOT)
+    ChainsPlot: ChainsPlotConfig = field(default_factory = lambda: CHAINS_PLOT)
+    RadarPlot: RadarPlotConfig = field(default_factory = lambda: RADAR_PLOT)
+    BestFitPlot: BestFitPlotConfig = field(default_factory = lambda: BEST_FIT_PLOT)
 
     def __post_init__(self):
-        for name, instance in zip(['CornerPlot', 'ChainsPlot', 'RadarPlot', 'SpectralPlot', 'PhotometricPlot'], [CornerPlotConfig, ChainsPlotConfig, RadarPlotConfig, SpectralPlotConfig, PhotometricPlotConfig]):
+        for name, instance in zip(['CornerPlot', 'ChainsPlot', 'RadarPlot', 'BestFitPlot'], [CornerPlotConfig, ChainsPlotConfig, RadarPlotConfig, BestFitPlotConfig]):
             value = getattr(self, name)
             if not isinstance(value, instance):
                 raise ForMoSAError(f'Wrong type for {name}. Expected {instance}')
@@ -344,3 +403,5 @@ class PlotsConfig:
             data[name] = value
 
         return data
+
+PLOTS_CONFIG = PlotsConfig()

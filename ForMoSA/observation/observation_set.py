@@ -12,7 +12,7 @@ from ForMoSA.core.errors import ForMoSAError
 from ForMoSA.core.enums import ObservationType
 from ForMoSA.core.loggings import setup_logging
 from ForMoSA.observation.observation_base import Observation
-from ForMoSA.core.config import SpectralPlotConfig, PhotometricPlotConfig
+from ForMoSA.core.config import SPECTRAL_PLOT, PHOTOMETRIC_PLOT
 from ForMoSA.observation.observation_spectroscopy import SpectralObservation
 from ForMoSA.observation.observation_photometry import PhotometryObservation
 
@@ -82,28 +82,28 @@ class ObservationSet(object):
 
     @property
     def has_spectroscopy(self) -> bool:                                        # Whether the observations set has spectroscopy
-        for obs in self._observations:
-            if obs.ObsType == ObservationType.SPECTROSCOPIC.obstype:
+        for obs in self.observations:
+            if obs.is_spectroscopic:
                 return True
         return False
 
     @property
     def has_photometry(self) -> bool:                                          # Whether the observations set has photometry
-        for obs in self._observations:
-            if obs.ObsType == ObservationType.PHOTOMETRIC.obstype:
+        for obs in self.observations:
+            if obs.is_photometric:
                 return True
         return False
 
     @property
     def spectral_observations(self) -> list[SpectralObservation]:              # List of spectroscopic observations
-        return [obs for obs in self._observations if obs.ObsType == ObservationType.SPECTROSCOPIC]
+        return [obs for obs in self.observations if obs.is_spectroscopic]
 
     @property
     def photometry_observations(self) -> list[PhotometryObservation]:          # List of photometric observations
-        return [obs for obs in self._observations if obs.ObsType == ObservationType.PHOTOMETRIC]
+        return [obs for obs in self.observations if obs.is_photometric]
 
-    @property                                                                  # Maximum resolution (None if no spectroscopic observation)
-    def max_resolution(self) -> float | None:
+    @property
+    def max_resolution(self) -> float | None:                                  # Maximum resolution (None if no spectroscopic observation)
         specs = self.spectral_observations
         if not specs:
             return None
@@ -487,10 +487,12 @@ class ObservationSet(object):
         # Plot each observation
         for i, obs in enumerate(self.observations):
             if obs.ObsType == ObservationType.SPECTROSCOPIC.obstype:
-                plot_config = SpectralPlotConfig(color=f'C{i}')
+                plot_config = SPECTRAL_PLOT
+                plot_config.color = f'C{i}'
 
             elif obs.ObsType == ObservationType.PHOTOMETRIC.obstype:
-                plot_config = PhotometricPlotConfig(color=f'C{i}')
+                plot_config = PHOTOMETRIC_PLOT
+                plot_config.color = f'C{i}'
 
             else:
                 raise ForMoSAError(f' Unknown observation type: {obs.ObsType}. Expected {[type.obstype for type in ObservationType]}')

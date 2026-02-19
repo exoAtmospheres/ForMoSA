@@ -7,6 +7,7 @@ class WavelengthUnit(Enum):
 
     Authors: Allan Denis
     '''
+
     ANGSTROM = u.AA
     NANOMETER = u.nm
     MICROMETER = u.um
@@ -36,6 +37,7 @@ class FluxUnit(Enum):
 
     Authors: Allan Denis
     '''
+
     FLAM = u.erg / (u.s * u.cm**2 * u.AA)
     FNU = u.erg / (u.s * u.cm**2 * u.Hz)
     JY = u.Jy
@@ -50,6 +52,7 @@ class DataUnit(Enum):
 
     Authors: Allan Denis
     '''
+
     COUNTS = 'counts'
     ELECTRONS = 'electrons'
     ADU = 'adu'
@@ -64,6 +67,7 @@ class ObservationType(Enum):
 
     Authors: Allan Denis
     '''
+
     SPECTROSCOPIC = 'Spectroscopic'
     PHOTOMETRIC = 'Photometric'
 
@@ -237,6 +241,7 @@ class VsiniFunction(Enum):
 
     Authors: Allan Denis
     '''
+
     RotBroad = 'RotBroad'
     FastRotBroad = 'FastRotBroad'
     Accurate = 'Accurate'

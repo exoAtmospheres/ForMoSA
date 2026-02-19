@@ -7,13 +7,12 @@ from matplotlib.figure import Figure
 import matplotlib.gridspec as gridspec
 from matplotlib.axes._axes import Axes
 
+from ForMoSA.core.config import PLOTS_CONFIG
 from ForMoSA.core.errors import ForMoSAError
 from ForMoSA.core.loggings import setup_logging
 from ForMoSA.transform.observed import ObservedModel
 from ForMoSA.nested_sampling.results import NSResults
 from ForMoSA.observation.observation_set import ObservationSet
-from ForMoSA.core.config import CORNER_PLOT, CHAINS_PLOT, RADAR_PLOT
-from ForMoSA.core.config import CornerPlotConfig, ChainsPlotConfig, RadarPlotConfig
 
 
 class Plotting(object):
@@ -60,7 +59,7 @@ class Plotting(object):
     # Methods
     # =================
 
-    def plot_corner(self, config: CornerPlotConfig = CORNER_PLOT) -> Figure:
+    def plot_corner(self) -> Figure:
         '''
         Corner plot the posterior samples from the nested sampling results.
 
@@ -79,6 +78,9 @@ class Plotting(object):
 
         samples, weights = self.ns_results.samples[self.ns_results.burn_in:], self.ns_results.weights[self.ns_results.burn_in:]
 
+        # Get config for Corner plot
+        config = PLOTS_CONFIG.CornerPlot
+
         # Get corner arguments from the config
         corner_kwargs = config.to_dict
         corner_kwargs['labels'] = self.ns_results.free_parameters
@@ -90,7 +92,7 @@ class Plotting(object):
 
         return fig
 
-    def plot_chains(self, config: ChainsPlotConfig = CHAINS_PLOT) -> tuple[Figure, Axes]:
+    def plot_chains(self) -> tuple[Figure, Axes]:
         '''
         Plot the chains of the samples results.
 
@@ -113,6 +115,10 @@ class Plotting(object):
 
         n_params = samples.shape[1]
         n_rows = (n_params + 1) // 2
+
+        # Get config for chains plot
+        config = PLOTS_CONFIG.ChainsPlot
+
         fig, axs = plt.subplots(n_rows, 2, figsize=config.figsize)
         axs = axs.flatten()
 
@@ -138,7 +144,7 @@ class Plotting(object):
 
         return fig, axs[:n_params]
 
-    def plot_radars(self, config: RadarPlotConfig = RADAR_PLOT) -> tuple[Figure, Axes]:
+    def plot_radars(self) -> tuple[Figure, Axes]:
         '''
         Radar plot the samples.
 
@@ -159,6 +165,9 @@ class Plotting(object):
         samples, weights = self.ns_results.samples[self.ns_results.burn_in:], self.ns_results.weights[self.ns_results.burn_in:]
 
         samples = self.ns_results.samples
+
+        # Get config for radar plot
+        config = PLOTS_CONFIG.RadarPlot
 
         # Compute quantiles for each parameter
         q_low, q_med, q_high = [], [], []
@@ -254,6 +263,9 @@ class Plotting(object):
             if not isinstance(native_model, ObservedModel):
                 raise ForMoSAError(f'If you want to plot the native model, native_model must be an instance of ObservedModel. Got {type(native_model)}')
 
+        # Get config for best fit plot
+        config = PLOTS_CONFIG.BestFitPlot
+
         fig = plt.figure(figsize=figsize)
         fig.clf()
         gs = gridspec.GridSpec(9, 11)
@@ -272,26 +284,36 @@ class Plotting(object):
 
         # Plot native model if required
         if plot_native_model:
-            ax.plot(native_model.wave, native_model.flux, color='black', linewidth=2)
+            ax.plot(native_model.wave, native_model.flux, color=config.color, linewidth=config.linewidth, zorder=config.zorder)
 
         # Plot all observations and filters
         observations.plot_all(fig=fig, ax=ax, ax_filt=ax_filt)
 
+        # concatenate all residuals first
+        all_residuals = []
+
+        for i, obs in enumerate(observations.observations):
+            res = best_fit[i].residuals(obs.flux)
+            all_residuals.append(res)
+
+        all_residuals = np.concatenate(all_residuals)
+        global_std = np.std(all_residuals)
+
         # Plot best-fit and residuals
         for i, obs in enumerate(observations.observations):
-            res, std = best_fit[i].residuals(obs.flux), best_fit[i].std_residuals(obs.flux)
+            res = best_fit[i].residuals(obs.flux)
 
             if obs.is_photometric:
                 if not plot_native_model:
-                    ax.scatter(best_fit[i].wave,  best_fit[i].flux, marker='o')
-                axr.scatter(obs.wave, res / std, c = 'black', marker='o')
+                    ax.scatter(best_fit[i].wave,  best_fit[i].flux, marker='o', c = config.color, zorder=config.zorder)
+                axr.scatter(obs.wave, res / global_std, c = config.color, marker='o')
 
             else:
                 if not plot_native_model:
-                    ax.plot(best_fit[i].wave, best_fit[i].flux, color='black', linewidth=2)  # Best-fit
-                axr.plot(obs.wave, res / std, c='black')               # Residuals
+                    ax.plot(best_fit[i].wave, best_fit[i].flux, color=config.color, linewidth=config.linewidth, zorder=config.zorder)  # Best-fit
+                axr.plot(obs.wave, res / global_std, c=config.color)               # Residuals
 
-            axr2.hist(res/std, orientation='horizontal', bins=100, color='black', alpha=0.8, density=True)
+            axr2.hist(res/global_std, orientation='horizontal', bins=100, color='black', alpha=0.8, density=True)
 
         axr.set_xlabel(r'Wavelength ($\mu$m)')
         axr.set_ylabel(r'Residuals ($\sigma$)')

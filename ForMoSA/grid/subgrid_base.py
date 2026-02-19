@@ -194,6 +194,14 @@ class SubGrid(ModelGrid, ABC):
     def unit(self) -> u.core.PrefixUnit:                          # Unit of the wavelength to display
         return self._display_unit.unit
 
+    @property
+    def is_spectroscopic(self) -> bool:                           # Whether subgrid is spectroscopic
+        return self.GridType == ObservationType.SPECTROSCOPIC.obstype
+
+    @property
+    def is_photometric(self) -> bool:                             # Whether subgrid is photometric
+        return self.GridType == ObservationType.PHOTOMETRIC.obstype
+
     # ==========================
     # Class methods
     # ==========================

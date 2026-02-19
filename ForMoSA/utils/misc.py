@@ -200,38 +200,6 @@ def from_recarray_to_dic(data: fits.fitsrec.FITS_rec):
 
 # -----------------------------------------------------------------------------------------------------------------------
 
-def _extract_vector_series(data: Mapping[str, np.ndarray], key: ObservationKeys) -> None | np.ndarray:
-    '''
-    Extract columns like PREFIX1, PREFIX2, ... and stack them.
-
-    Example usage: systematics_array = ObservationFactory._extract_vector_series(data, ObservationKeys.SYSTEMATICS)
-    -> np.ndarray([systematics1, systematics2, systematics3, ...])
-
-    Parameters
-    ----------
-    data   (Mapping[str, np.ndarray]): Data
-    key             (ObservationKeys): Observation ley defining canonical name and aliases
-
-    Returns
-    -------
-    None | np.ndarray: Stacked columns
-
-    Authors: Allan Denis
-    '''
-
-    aliases = tuple(alias.upper() for alias in key.aliases)
-
-    matched_keys = sorted(k for k in data.keys() if k.upper().startswith(aliases))
-
-    if not matched_keys:
-        return None
-
-    vectors = [np.atleast_2d(data[k]).reshape(len(data[k]), -1) for k in matched_keys]
-    return np.concatenate(vectors, axis=1)
-
-
-# -----------------------------------------------------------------------------------------------------------------------
-
 
 def normalize_list(value, name: str, converter=None):
     '''
