@@ -49,11 +49,14 @@ class Analysis(object):
         self._grid = ModelGrid.from_file(self._path.model_path)
 
         # Adapted Observations and SubGrids
-        if self.adapted:
+        if self._adapted:
             # Observations
-            self._observations = ObservationSet.from_npz(self.paths.result_path, logger=self.logger)
+            try:
+                self._observations = ObservationSet.from_npz(self._paths.result_path, logger=self._logger)
+            except ForMoSAError as e:
+                raise ForMoSAError(f'Recovering adapted observations produced the following error: {e}. You probably want to first adapt your data (set adapted to False)', self._logger)
             # SubGrids
-            self._subgrids = SubGridSet.from_path(self.paths.adapt_store_path, self.grid, logger=self.logger)
+            self._subgrids = SubGridSet.from_path(self.paths.adapt_store_path, self.grid, logger=self._logger)
         # Non adapted Observations and SubGrids
         else:
             # Observations
@@ -61,9 +64,12 @@ class Analysis(object):
             # SubGrids
             self._subgrids = SubGridSet(parent_grid=self._grid, logger=self._logger)
 
-        if self.fitted:
-            self._ns = NestedSampling.from_json(self.paths.result_path, observations=self.observations, subgrids=self.subgrids, logger=self.logger)
-            self._parameters = self._ns.parameters
+        if self._fitted:
+            try:
+                self._ns = NestedSampling.from_json(self._paths.result_path, observations=self._observations, subgrids=self._subgrids, logger=self._logger)
+                self._parameters = self._ns.parameters
+            except ForMoSAError as e:
+                raise ForMoSAError(f'Recovering NestedSampling produced the following error: {e}. You probably want to fit your data first (set fitted to False)', self._logger)
 
     # =======================
     # Properties
