@@ -1156,8 +1156,9 @@ class ConfigLoader:
             if section in self.config_ini:
                 data = {}
                 for key, val in self.config_ini[section].items():
-                    if val in section:
-                        data[key] = val
+                    if key not in self.defaults[section].__dict__.keys():
+                        continue
+                    data[key] = val
                 if section == "config_parameters":
                     params = ConfigParameters()
                     for key, val in self.config_ini[section].items():
@@ -1186,4 +1187,5 @@ class ConfigLoader:
 
             for key, value in default_dict.items():
                 if key not in self.config_ini[section]:
+                    print(key)
                     self.config_ini[section][key] = value
