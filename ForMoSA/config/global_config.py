@@ -1198,5 +1198,4 @@ class ConfigLoader:
 
             for key, value in default_dict.items():
                 if key not in self.config_ini[section]:
-                    print(key)
                     self.config_ini[section][key] = value
