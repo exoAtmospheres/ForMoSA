@@ -43,10 +43,10 @@ class Analysis(object):
         self._parameters = None
 
         # Paths
-        self._path = ForMoSAPaths(config_path)
+        self._paths = ForMoSAPaths(config_path)
 
         # ModelGrid
-        self._grid = ModelGrid.from_file(self._path.model_path)
+        self._grid = ModelGrid.from_file(self._paths.model_path)
 
         # Adapted Observations and SubGrids
         if self._adapted:
@@ -60,7 +60,7 @@ class Analysis(object):
         # Non adapted Observations and SubGrids
         else:
             # Observations
-            self._observations = ObservationSet.from_fits(self._path.observation_path, logger=self._logger)
+            self._observations = ObservationSet.from_fits(self._paths.observation_path, logger=self._logger)
             # SubGrids
             self._subgrids = SubGridSet(parent_grid=self._grid, logger=self._logger)
 
@@ -113,7 +113,7 @@ class Analysis(object):
 
     @property
     def paths(self) -> ForMoSAPaths:                                # ForMoSAPaths
-        return self._path
+        return self._paths
 
     @property
     def subgrids(self) -> SubGridSet:                               # Set of subgrids

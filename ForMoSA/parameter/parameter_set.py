@@ -109,7 +109,7 @@ class ParameterSet(object):
         logger = logger or setup_logging(level=log_level, name='ParameterSet')
 
         if not isinstance(config_params, ConfigParameters):
-            raise ForMoSAError(f'Wrong type for config_params: {type(config_params)}. Expected a ConfigParameters>', logger)
+            raise ForMoSAError(f'Wrong type for config_params: {type(config_params)}. Expected a ConfigParameters', logger)
 
         logger.debug('Generating set of parameters from configuration file')
 
