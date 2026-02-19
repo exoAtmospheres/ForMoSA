@@ -23,7 +23,7 @@ from ForMoSA.core.enums import PriorType, VsiniFunction, ParameterKind, Observat
 
 @dataclass
 class ConfigPath:
-    observation_path: str | os.PathLike = field(default_factory=str)
+    observation_path: list[str | os.PathLike] = field(default_factory=list[str])
     adapt_store_path: str | os.PathLike = field(default_factory=str)
     result_path: str | os.PathLike = field(default_factory=str)
     model_path: str | os.PathLike = field(default_factory=str)
@@ -34,9 +34,20 @@ class ConfigPath:
 
         Authors: Allan Denis
         '''
-        for name, value in self.__dict__.items():
+
+        for name in ['adapt_store_path', 'result_path', 'model_path']:
+            value = getattr(self, name)
             if not isinstance(value, (str, os.PathLike)):
-                raise ForMoSAError(f" {name} must be str or os.PathLike, got {type(value)}")
+                raise ForMoSAError(f"{name} must be str or os.PathLike, got {type(value)}")
+
+        if isinstance(self.observation_path, (str, os.PathLike)):
+            setattr(self, 'observation_path', [self.observation_path])
+
+        if not isinstance(self.observation_path, list):
+            raise ForMoSAError(f"Wront type for observation_path: {type(self.observation_path)}. Expected a list")
+
+        if not all(isinstance(obs_path, (str | os.PathLike)) for obs_path in self.observation_path):
+            raise ForMoSAError(f"observation_path must be a list of str or os.PathLike")
 
 @dataclass
 class ConfigAdapt:

@@ -15,7 +15,7 @@ class ForMoSAPaths(object):
 
     Parameters
     ----------
-    config_file_path (ConfigPath): Instance of class ConfigPath
+    config_path (     ConfigPath): Instance of class ConfigPath
     logger       (logging.Logger): Logger
     log_level               (str): Level of the Logger
 
@@ -29,7 +29,7 @@ class ForMoSAPaths(object):
 
         self._logger = logger or setup_logging(level=log_level)
 
-        self._observation_path = Path(config_path.observation_path).expanduser()
+        self._observation_path = [Path(obs_path).expanduser() for obs_path in config_path.observation_path]
         self._adapt_store_path = Path(config_path.adapt_store_path).expanduser()
         self._result_path = Path(config_path.result_path).expanduser()
         self._model_path = Path(config_path.model_path).expanduser()
@@ -124,16 +124,12 @@ class ForMoSAPaths(object):
         Authors: Allan Denis
         '''
 
-        self.logger.debug('Check paths')
-        for path in [self._observation_path, self._adapt_store_path, self._model_path, self._result_path]:
-            if not isinstance(path, (str, os.PathLike)):
-                    raise ForMoSAError(f'Wrong type for path: {type(path)}. Expected a str or os.PathLike', self.logger)
-
         if not self._model_path.exists():
             raise ForMoSAError(f'No Model file. {self._model_path} does not contain any grid model file', self.logger)
 
-        if not self._observation_path.exists():
-            raise ForMoSAError(f'No Model file. {self._observation_path} does not contain any observation file', self.logger)
+        not_exist = [obs for obs in self._observation_path if not obs.exists()]
+        if not_exist:
+            raise ForMoSAError(f'Observations paths {not_exist} do not exist', self.logger)
 
         if not self._result_path.exists():
             self._logger.info(f'    Creating {self._result_path}')

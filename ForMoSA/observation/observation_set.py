@@ -192,15 +192,15 @@ class ObservationSet(object):
         return obs_set
 
     @classmethod
-    def from_fits(cls, path: str | os.PathLike, logger: logging.Logger | None = None, log_level: str = 'INFO') -> "ObservationSet":
+    def from_fits(cls, path: list[str | os.PathLike], logger: logging.Logger | None = None, log_level: str = 'INFO') -> "ObservationSet":
         '''
         Create an instance of ObservationSet from a path containing observation fits files.
 
         Parameters
         ----------
-        path (str | os.PathLike): Path containing all the observations
-        logger  (logging.Logger): Logger
-        log_level          (str): Level of the Logger
+        path  (list[str | os.PathLike): Paths to the observations
+        logger        (logging.Logger): Logger
+        log_level                (str): Level of the Logger
 
         Returns
         -------
@@ -214,23 +214,47 @@ class ObservationSet(object):
         logger.debug(f'Generating a set of observations from path {path}')
 
         # Initial checking
-        if not isinstance(path, (str, os.PathLike)):
-            raise ForMoSAError(f' Wrong type for path: {type(path)}. Expected a str or os.PathLike', logger)
+        if not isinstance(path, list):
+            raise ForMoSAError(f'Wrong type for path: {type(path)}. Expected a list', logger)
+
+        if not all(isinstance(obs_path, (str | os.PathLike)) for obs_path in path):
+            raise ForMoSAError('path must be a list of str or os.PathLike')
 
         obs_set = cls(logger=logger)
-        obs_path = Path(path).expanduser()
+        obs_files: list[Path] = []
 
-        # Initial checks
-        if not obs_path.exists():
-            raise ForMoSAError(f'{obs_path} does not exist', logger)
+        # Iterate over provided paths
+        for p in path:
 
-        obs_files = [obs_file for obs_file in os.listdir(obs_path) if obs_file.endswith('.fits')]
+            p = Path(p).expanduser()
+
+            if not p.exists():
+                raise ForMoSAError(f'{p} does not exist', logger)
+
+            # Case 1: it's a file
+            if p.is_file():
+
+                if p.suffix.lower() != '.fits':
+                    raise ForMoSAError(f'{p} is not a .fits file', logger)
+
+                obs_files.append(p)
+
+            # Case 2: it's a directory
+            elif p.is_dir():
+
+                fits_in_dir = list(p.glob('*.fits'))
+
+                if len(fits_in_dir) == 0:
+                    logger.warning(f'No .fits files found in {p}')
+
+                obs_files.extend(fits_in_dir)
 
         if len(obs_files) == 0:
-            raise ForMoSAError(f'Wrong path extension for files: {obs_files}. Require a .fits')
+            raise ForMoSAError('No .fits files found in provided paths', logger)
 
-        for obs_file in obs_files:
-            file_path = obs_path / obs_file
+        # Load observations
+        for file_path in obs_files:
+
             obs = Observation.from_file(file_path, logger=logger)
             obs_set.add_observation(obs)
 
