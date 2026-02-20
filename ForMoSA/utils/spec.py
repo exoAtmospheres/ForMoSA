@@ -43,12 +43,11 @@ def calc_ck(flx_mod: np.ndarray, flx_obs: np.ndarray, err_obs: np.ndarray, r_pic
         flx_mod_ck = flx_mod * ck
     else:
         # Fit mode using fit_linear_model
-        weights = 1 / (err_obs**2)
-        A = flx_mod[:, np.newaxis]
+        A = [flx_mod]
         b = flx_obs
 
         # Solve via fit_linear_model
-        result = fit_linear_model(components=A, flx_obs=b, err_obs=weights, bounds=bounds)
+        result = fit_linear_model(components=A, flx_obs=b, err_obs=err_obs, bounds=bounds)
 
         flx_mod_ck = result['model']
         ck = result['coeffs'][0]
@@ -581,11 +580,11 @@ def fit_linear_model(components: list[np.ndarray], flx_obs: np.ndarray, err_obs:
     # ======================
     # Reconstruction
     # ======================
-    reconstructed = [coeffs[i] * components[i] for i in range(n)]
+    reconstructed = np.array([coeffs[i] * components[i] for i in range(n)])
+
     model = np.sum(reconstructed, axis=0)
 
     return {"coeffs": coeffs, "reconstructed": reconstructed, "model": model}
-
 
 # ----------------------------------------------------------------------------------------------------------------------
 
@@ -661,6 +660,8 @@ def build_linear_components(flx_mod: np.ndarray | None = None, transm: np.ndarra
 
     return components, fixed_coeffs, bounds, labels
 
+
+# ----------------------------------------------------------------------------------------------------------------------
 
 
 def compute_ccf(wav_mod_spectro: np.ndarray, flx_mod_spectro: np.ndarray, wav_obs_spectro: np.ndarray, flx_obs_spectro: np.ndarray, err_obs_spectro: np.ndarray, res_mod_spectro: np.ndarray, res_obs_spectro: np.ndarray, res_cont: float, wav_fit: str | np.ndarray,  star_flx_obs_spectro: np.ndarray = np.array([]), transm_obs_spectro: np.ndarray = np.array([]), system_obs_spectro: np.ndarray = np.array([]), rv_grid: np.ndarray = np.linspace(-300, 300, 600), rv_sini_map: bool = False, bounds: tuple = (-np.inf, np.inf), normalize: bool = True):

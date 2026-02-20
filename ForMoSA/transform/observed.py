@@ -200,7 +200,6 @@ class ObservedModel:
     def __post_init__(self):
         self.wave = np.asarray(self.wave, dtype=float)
         self.flux = np.asarray(self.flux, dtype=float)
-
         if self.component is None:
             self.component = np.zeros_like(self.flux)
         else:
