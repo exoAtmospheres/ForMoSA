@@ -48,7 +48,6 @@ class SubGrid(ModelGrid, ABC):
 
         self.logger.info(f'    Setting wavelength unit of subgrid {self.name} to {self.unit}>')
 
-
     # =========================================
     # Abstract methods
     # (Subclasses must implement these methods)
@@ -393,6 +392,14 @@ class SubGrid(ModelGrid, ABC):
 
         Authors: Allan Denis
         '''
+
+        # Initial check
+        if not isinstance(observed_model, ObservedModel):
+            raise ForMoSAError(f'Wrong type for observed_model: {type(observed_model)}. Expected an ObservedModel')
+
+        if np.any(np.isnan(observed_model.flux)):
+            # NaN are produced by out-of-grid parameters. The loglike must be -inf in this case
+            return -float('inf')
 
         # Compute loglikelihood
         loglike = self._compute_loglike(observed_model, observation, logL_type = logL_type)
