@@ -218,7 +218,7 @@ class ApplyObservationEffects:
         components, fixed_coeffs, bounds, labels = us.build_linear_components(
             observed_model.flux,
             transm=obs.transm,
-            flx_cont_obs=observed_model.flux_cont,
+            flx_cont_obs=obs.flux_cont,
             star_flx_obs=obs.star_flux,
             star_flx_cont_obs=obs.star_flux_cont,
             system_obs=obs.system,
@@ -237,7 +237,7 @@ class ApplyObservationEffects:
             fixed_coeffs=fixed_coeffs
         )
 
-        observed_model.flux, observed_model.components = result['reconstructed'][0], np.sum(result['reconstructed'][1: len(components)], axis= 0)
+        observed_model.flux, observed_model.component = result['reconstructed'][0], np.sum(result['reconstructed'][1: len(components)], axis= 0)
 
         return observed_model
 
