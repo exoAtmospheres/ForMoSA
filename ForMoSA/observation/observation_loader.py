@@ -346,7 +346,8 @@ class ObservationLoader:
         aliases = tuple(alias.upper() for alias in key.aliases)
 
         # Get the keys matching the input ObservationKey in chronological order
-        matched_keys = sorted(k for k in data.keys() if k.upper().startswith(aliases))
+        # Careful with STAR_FLUX_CONT keywords
+        matched_keys = sorted(k for k in data.keys() if k.upper().startswith(aliases) and not k.upper().endswith('_CONT'))
 
         if not matched_keys:
             return None
