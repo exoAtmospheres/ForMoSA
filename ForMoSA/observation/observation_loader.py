@@ -261,8 +261,8 @@ class ObservationLoader:
             star_flux_cont = (data[normalized['STAR_FLUX_CONT']] if ObservationKeys.STAR_FLUX_CONT.canonical in normalized else None)
 
             # Wavelength and resolution for the continuum
-            wave_cont = (data[normalized['WAVE_CONT']] if ObservationKeys.WAVE_CONT.canonical in normalized else kwargs.get('wave_cont', None))
-            res_cont = (data[normalized['RES_CONT']] if ObservationKeys.RES_CONT.canonical in normalized else kwargs.get('res_cont', None))
+            wave_cont = (str(data[normalized['WAVE_CONT']]) if ObservationKeys.WAVE_CONT.canonical in normalized else kwargs.get('wave_cont', None))
+            res_cont = (float(data[normalized['RES_CONT']]) if ObservationKeys.RES_CONT.canonical in normalized else kwargs.get('res_cont', None))
 
             obs = SpectralObservation(
                 wave=wave,
