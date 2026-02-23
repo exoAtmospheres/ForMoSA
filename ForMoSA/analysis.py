@@ -316,7 +316,11 @@ class Analysis(object):
             path = self.paths.result_path / 'radar.pdf'
             fig_radar.savefig(path)
 
-        fig_best_fit, ax, ax_filt, axr, axr2 = self.plots.plot_fit(self.observations, self.ns.best_fit, plot_native_model=plot_native_model, native_model=self.ns.native_best_fit)
+        native_best_fit = None
+        if plot_native_model:
+            native_best_fit = self.ns.native_best_fit
+
+        fig_best_fit, ax, ax_filt, axr, axr2 = self.plots.plot_fit(self.observations, self.ns.best_fit, plot_native_model=plot_native_model, native_model=native_best_fit)
         if plot_native_model:
             lower_1_sigma, higher_1_sigma = self.ns.best_fit_interval(perc=0.68)
             lower_2_sigma, higher_2_sigma = self.ns.best_fit_interval(perc=0.95)
