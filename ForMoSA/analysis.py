@@ -48,19 +48,14 @@ class Analysis(object):
         # ModelGrid
         self._grid = ModelGrid.from_file(self._paths.model_path)
 
-        # Adapted Observations and SubGrids
+        # Adapt Observations
+        self._observations = ObservationSet.from_fits(self._paths.observation_path, logger=self._logger)
+
+        # Adapted SubGrids
         if self._adapted:
-            # Observations
-            try:
-                self._observations = ObservationSet.from_npz(self._paths.result_path, logger=self._logger)
-            except ForMoSAError as e:
-                raise ForMoSAError(f'Recovering adapted observations produced the following error: {e}. You probably want to first adapt your data (set adapted to False)', self._logger)
-            # SubGrids
             self._subgrids = SubGridSet.from_path(self.paths.adapt_store_path, self.grid, logger=self._logger)
-        # Non adapted Observations and SubGrids
+        # Non adapted SubGrids
         else:
-            # Observations
-            self._observations = ObservationSet.from_fits(self._paths.observation_path, logger=self._logger)
             # SubGrids
             self._subgrids = SubGridSet(parent_grid=self._grid, logger=self._logger)
 
