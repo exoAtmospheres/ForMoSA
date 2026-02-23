@@ -736,7 +736,8 @@ class ConfigUltraNest:
             "warmstart_max_tau",
             "max_iters",
             "max_ncalls",
-            "min_ess"
+            "min_ess",
+            "cluster_num_live_points"
         )
         for name in int_fields:
             value = getattr(self, name)
