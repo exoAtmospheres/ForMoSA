@@ -103,7 +103,7 @@ class Parameter(object):
             'scope': self.scope,
             'obs_index': self.obs_index,
             'title': self.title,
-            'vsini_function': self.vsini_function
+            'vsini_function': self.vsini_function.value if isinstance(self.vsini_function, VsiniFunction) else None
             }
 
     # ======================
@@ -132,7 +132,8 @@ class Parameter(object):
         logger = logger or setup_logging(level=log_level, name='Parameter')
         logger.debug('Extract Parameter from dictionary')
 
-        name, prior, kind, scope, title, obs_index, vsini_function = data['name'], data['prior'], data['kind'], data['scope'], data['title'], data['obs_index'], data['vsini_function']
+        name, prior, kind, scope, title, obs_index = data['name'], data['prior'], data['kind'], data['scope'], data['title'], data['obs_index']
+        vsini_function = VsiniFunction[data['vsini_function']] if data['vsini_function'] in [func.value for func in VsiniFunction] else None
         logger.info(f'    {kind} parameter detected with name {name}')
 
         return cls(name=name, prior=Prior.from_dict(prior), kind=ParameterKind[kind], scope=scope, title=title, obs_index=obs_index, vsini_function=vsini_function, logger=logger)
