@@ -749,7 +749,7 @@ class ConfigUltraNest:
                         setattr(self, name, int(value))
                         continue
                     except ValueError:
-                        raise ForMoSAError(f" {name} must be int or string convertible to int, got '{value}'")
+                        raise ForMoSAError(f"{name} must be int or string convertible to int, got '{value}'")
 
             elif not isinstance(value, int) and value is not None:
                 raise ForMoSAError(f" {name} must be int, got {type(value)}")
@@ -778,6 +778,23 @@ class ConfigUltraNest:
 
         if self.wrapped_params == 'None':
             self.wrapped_params = None
+
+        float_fields = ("dlogz", "Lepsilon", "frac_remain")
+        for name in float_fields:
+            value = getattr(self, name)
+            if isinstance(value, str):
+                if value == 'None':
+                    setattr(self, name, None)
+
+                else:
+                    try:
+                        setattr(self, name, float(value))
+                        continue
+                    except ValueError:
+                        raise ForMoSAError(f"{name} must be a float or string convertible to float, got '{value}'")
+
+            elif not isinstance(value, float) and value is not None:
+                raise ForMoSAError(f"{name} must be float, got {type(value)}")
 
     # =======================
     # Properties
