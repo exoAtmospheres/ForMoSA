@@ -103,7 +103,7 @@ class Parameter(object):
             'scope': self.scope,
             'obs_index': self.obs_index,
             'title': self.title,
-            'vsini_function': self.vsini_function.value if isinstance(self.vsini_function, VsiniFunction) else None
+            'vsini_function': self.vsini_function.value if isinstance(self.vsini_function, VsiniFunction) else self.vsini_function
             }
 
     # ======================
@@ -136,6 +136,7 @@ class Parameter(object):
         vsini_function = VsiniFunction[data['vsini_function']] if data['vsini_function'] in [func.value for func in VsiniFunction] else None
         logger.info(f'    {kind} parameter detected with name {name}')
 
+        vsini_function = VsiniFunction(vsini_function) if vsini_function is not None else None
         return cls(name=name, prior=Prior.from_dict(prior), kind=ParameterKind[kind], scope=scope, title=title, obs_index=obs_index, vsini_function=vsini_function, logger=logger)
 
     # ======================

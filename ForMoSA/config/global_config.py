@@ -647,9 +647,12 @@ class ConfigPyMultiNest:
                 try:
                     setattr(self, name, float(value))
                 except ValueError:
-                    raise ForMoSAError(f" {name} must be float or string convertible to float, got '{value}'")
+                    if value == 'None':
+                        setattr(self, name, None)
+                    else:
+                        raise ForMoSAError(f" {name} must be float or string convertible to float, got '{value}'")
 
-            elif not isinstance(value, (float, int)):
+            elif not isinstance(value, (float, int)) and value is not None:
                 raise ForMoSAError(f" {name} must be float, got {type(value)}")
 
         # Integer fields
@@ -730,6 +733,25 @@ class ConfigUltraNest:
         Authors: Allan Denis
         '''
 
+        # Float fields
+        float_fields = (
+            "dlogz",
+            "frac_remain",
+            "Lepsilon",
+        )
+        for name in float_fields:
+            value = getattr(self, name)
+            if isinstance(value, str):
+                try:
+                    setattr(self, name, float(value))
+                except ValueError:
+                    if value == 'None':
+                        setattr(self, name, None)
+                    else:
+                        raise ForMoSAError(f" {name} must be float or string convertible to float, got '{value}'")
+            elif not isinstance(value, (int, float)) and value is not None:
+                raise ForMoSAError(f" {name} must be float, got {type(value)}")
+
         # Integer fields
         int_fields = (
             "num_bootstraps",
@@ -737,7 +759,7 @@ class ConfigUltraNest:
             "max_iters",
             "max_ncalls",
             "min_ess",
-            "cluster_num_live_points"
+            "cluster_num_live_points",
         )
         for name in int_fields:
             value = getattr(self, name)
