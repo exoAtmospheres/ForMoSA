@@ -155,18 +155,17 @@ class Analysis(object):
         except ForMoSAError as e:
             raise ForMoSAError(e, self.logger)
 
+        # Compute target resolution to reach for the observations
+        target_resolution = config_adapt._compute_obs_target_resolution(self.observations, self.grid)
+        # Adapt observations
+        self.observations.adapt_all(target_resolution = target_resolution, wave_cont = config_inversion.wav_fit, res_cont = config_adapt.res_cont)
+
+        # Save observations
+        self.observations.save_all(self.paths.result_path, to_json=to_json)
+
         if not self.adapted:
 
-            # ==================
-            # Adapt observations
-            # ==================
-
             try:
-                # Compute target resolution to reach for the observations
-                target_resolution = config_adapt._compute_obs_target_resolution(self.observations, self.grid)
-                # Adapt observations
-                self.observations.adapt_all(target_resolution = target_resolution, wave_cont = config_inversion.wav_fit, res_cont = config_adapt.res_cont)
-
                 # Compute target wavelength and resolutions to reach for the subgrids
                 target_wave, target_res = target_wave, target_res = config_adapt._compute_model_target_wavelength_and_resolution(self.observations, self.grid)
                 # Compute whether to remove continuum for the subgrids
@@ -199,9 +198,6 @@ class Analysis(object):
 
             self._logger.info(f'    Set of subgrids generated: {subgrid_set.subgrid_names}')
             self._subgrids = subgrid_set
-
-            # Save observations
-            self.observations.save_all(self.paths.result_path, to_json=to_json)
 
             # Interpolate mmissing values in the subgrids
             self.subgrids.interpolate_all(config_adapt.method)
