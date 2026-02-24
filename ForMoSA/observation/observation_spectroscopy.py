@@ -325,6 +325,7 @@ class SpectralObservation(Observation):
         # ========================
         # Continuum handling
         # ========================
+        
         if (res_cont is not None and res_cont != 'NA'):
             if (wave_cont is None or wave_cont == 'NA'):
                 self.logger.warning('Wave_cont is not defined for continuum estimation. Using the observation wavelength')
@@ -340,7 +341,7 @@ class SpectralObservation(Observation):
             if not self.hc_mode:
                 adapted_obs._flux -= adapted_obs._flux_cont
             else:
-                adapted_obs._star_flux_cont = continuum_estimate(self.wave, self.star_flux[:, self.star_flux.shape[1] // 2], adapted_obs.wave, wave_cont, res_cont)
+                adapted_obs._star_flux_cont = continuum_estimate(self.wave, self.star_flux[:, self.star_flux.shape[1] // 2], adapted_obs.res, wave_cont, res_cont)
 
             adapted_obs._res_cont = res_cont
             adapted_obs._wave_cont = wave_cont

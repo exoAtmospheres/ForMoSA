@@ -219,6 +219,7 @@ class ApplyObservationEffects:
             observed_model.flux,
             transm=obs.transm,
             flx_cont_obs=obs.flux_cont,
+            flx_cont_mod=observed_model.flux_cont,
             star_flx_obs=obs.star_flux,
             star_flx_cont_obs=obs.star_flux_cont,
             system_obs=obs.system,
