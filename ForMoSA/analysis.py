@@ -1,4 +1,5 @@
 import logging
+import numpy as np
 
 from ForMoSA.core.config import PLOTS_CONFIG
 from ForMoSA.core.errors import ForMoSAError
@@ -323,3 +324,60 @@ class Analysis(object):
         if save:
             path = self.paths.result_path / 'best_fit.pdf'
             fig_best_fit.savefig(path)
+
+    
+    # =========================================
+    # CCF Plotting Functions
+    # =========================================
+    def plot_ccf(self, rv_grid: np.ndarray, plot: bool = True, save: bool = True) -> dict:
+        '''
+        Compute and optionally plot the Cross-Correlation Function (CCF).
+
+        Parameters
+        ----------
+        rv_grid  (np.ndarray): Grid of radial velocity values (in km/s)
+        plot          (bool): Whether to display the plot
+        save          (bool): Whether to save the results and figure
+
+        Returns
+        -------
+        dict: Dictionary of CCF results keyed by observation name
+
+        Authors: Bhavesh Rajpoot (adapted from Allan Denis)
+        '''
+
+        if self.ns is None or self.ns.results is None:
+            raise ForMoSAError('Please first run the Nested Sampling before computing the CCF', self.logger)
+
+        if not hasattr(self, 'plots') or self.plots is None:
+            self.plots = Plotting(self.ns.results, self.logger)
+
+        save_path = self.paths.result_path if save else None
+        return self.plots.plot_ccf(self.observations, self.grid, self.subgrids, self.ns, rv_grid, plot=plot, save_path=save_path)
+
+    def plot_rv_vsini_map(self, rv_grid: np.ndarray, vsini_grid: np.ndarray, plot: bool = True, save: bool = True) -> dict:
+        '''
+        Compute and optionally plot the RV vs v.sin(i) loglikelihood map.
+
+        Parameters
+        ----------
+        rv_grid    (np.ndarray): Grid of radial velocity values (in km/s)
+        vsini_grid (np.ndarray): Grid of v.sin(i) values (in km/s)
+        plot            (bool): Whether to display the plot
+        save            (bool): Whether to save the results and figure
+
+        Returns
+        -------
+        dict: Dictionary of RV-vsini map results keyed by observation name
+
+        Authors: Bhavesh Rajpoot (adapted from Allan Denis)
+        '''
+
+        if self.ns is None or self.ns.results is None:
+            raise ForMoSAError('Please first run the Nested Sampling before computing the RV-vsini map', self.logger)
+
+        if not hasattr(self, 'plots') or self.plots is None:
+            self.plots = Plotting(self.ns.results, self.logger)
+
+        save_path = self.paths.result_path if save else None
+        return self.plots.plot_rv_vsini_map(self.observations, self.grid, self.subgrids, self.ns, rv_grid, vsini_grid, plot=plot, save_path=save_path)

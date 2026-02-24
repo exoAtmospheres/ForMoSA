@@ -1,8 +1,11 @@
+import os
 import corner
 import logging
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.ticker as ticker
+from tqdm import tqdm
+from pathlib import Path
 from matplotlib.figure import Figure
 import matplotlib.gridspec as gridspec
 from matplotlib.axes._axes import Axes
@@ -10,9 +13,13 @@ from matplotlib.axes._axes import Axes
 from ForMoSA.core.config import PLOTS_CONFIG
 from ForMoSA.core.errors import ForMoSAError
 from ForMoSA.core.loggings import setup_logging
+from ForMoSA.core.enums import ParameterKind
 from ForMoSA.transform.observed import ObservedModel
 from ForMoSA.nested_sampling.results import NSResults
+from ForMoSA.grid.model_grid import ModelGrid
+from ForMoSA.grid.subgrid_set import SubGridSet
 from ForMoSA.observation.observation_set import ObservationSet
+from ForMoSA.utils.spec import compute_ccf, vsini_fct
 
 
 class Plotting(object):
@@ -328,4 +335,253 @@ class Plotting(object):
         ax.set_ylabel(rf'Flux ($10^{{{exponent}}}$  W.m$^{{-2}}$.$\mu$m$^{{-1}}$)')
 
         return fig, ax, ax_filt, axr, axr2
+
+    # ==========================
+    # CCF methods
+    # ==========================
+
+    def _get_native_model_template(self, grid: ModelGrid, ns: 'NestedSampling', observations: ObservationSet, rv_grid: np.ndarray) -> tuple[np.ndarray, np.ndarray, np.ndarray, 'ObservedParameters']:
+        '''
+        Get the native model template interpolated at best-fit grid parameters.
+
+        Parameters
+        ----------
+        grid          (ModelGrid): Parent model grid
+        ns      (NestedSampling): NestedSampling instance
+        observations (ObservationSet): Set of observations
+        rv_grid       (np.ndarray): RV grid (used to compute wavelength margin)
+
+        Returns
+        -------
+        tuple: (wav, flx, res, observed_params)
+
+        Authors: Bhavesh Rajpoot (adapted from Allan Denis)
+        '''
+
+        best_params = list(self.ns_results.median_parameters.values())
+        observed_params = ns._build_params_for_obs(best_params, 0)
+        grid_params = observed_params.grid.values_by_name
+
+        # Restrict parent grid to observation wavelength range with Doppler margin
+        wrange = observations.wavelength_range
+        c_km_s = 299792.458
+        margin = max(np.abs(rv_grid)) / c_km_s + 0.05
+        restricted = grid._restricted_grid(
+            f'{wrange[0] * (1 - margin)},{wrange[1] * (1 + margin)}',
+            print_logger=False
+        )
+
+        model = restricted._interpolate_between_gridpoints(grid_params, method=ns.interp_method)
+        wav = model.coords['wavelength'].values
+        flx = model['grid'].values
+        res = model.attrs['res']
+
+        if np.isscalar(res) or (isinstance(res, np.ndarray) and res.ndim == 0):
+            res = np.full_like(wav, float(res))
+
+        return wav, flx, res, observed_params
+
+    def plot_ccf(self, observations: ObservationSet, grid: ModelGrid, subgrids: SubGridSet, ns: 'NestedSampling', rv_grid: np.ndarray, plot: bool = True, save_path: str | os.PathLike | None = None) -> dict:
+        '''
+        Compute and optionally plot the Cross-Correlation Function (CCF).
+
+        Parameters
+        ----------
+        observations (ObservationSet): Set of observations
+        grid              (ModelGrid): Parent model grid
+        subgrids         (SubGridSet): Set of subgrids
+        ns          (NestedSampling): NestedSampling instance
+        rv_grid           (np.ndarray): Grid of radial velocity values (in km/s)
+        plot                    (bool): Whether to display the plot
+        save_path (str | os.PathLike | None): Path to save results (None to skip saving)
+
+        Returns
+        -------
+        dict: Dictionary of CCF results keyed by observation name
+
+        Authors: Bhavesh Rajpoot (adapted from Allan Denis)
+        '''
+
+        self._logger.info('    Computing CCF')
+
+        wav_mod, flx_mod, res_mod, observed_params = self._get_native_model_template(grid, ns, observations, rv_grid)
+
+        results = {}
+
+        for index in range(observations.n_observations):
+            obs = observations.observations[index]
+            subgrid = subgrids.subgrids[index]
+
+            if not obs.is_spectroscopic:
+                continue
+
+            wav_fit = ns.wave_fit[index]
+            bounds = ns.bounds_lsq[index]
+
+            star_flx = obs.star_flux if obs.star_flux is not None else np.array([])
+            transm = obs.transm if obs.transm is not None else np.array([])
+            system = obs.system if obs.system is not None else np.array([])
+
+            ccf, acf, ccf_star, rv_peak, logL, ccf_raw = compute_ccf(
+                wav_mod, flx_mod,
+                obs.wave, obs.flux, obs.err,
+                res_mod, obs.res,
+                subgrid.res_cont, wav_fit,
+                star_flx_obs_spectro=star_flx,
+                transm_obs_spectro=transm,
+                system_obs_spectro=system,
+                rv_grid=rv_grid,
+                rv_sini_map=False,
+                bounds=bounds,
+                normalize=True
+            )
+
+            file_tag = f'{obs.name}_{index}'
+
+            results[file_tag] = {
+                'rv_grid': rv_grid,
+                'ccf': ccf,
+                'acf': acf,
+                'ccf_star': ccf_star,
+                'rv_peak': rv_peak,
+                'logL': logL
+            }
+
+            if save_path is not None:
+                path = Path(save_path) / f'ccf_{file_tag}.npz'
+                np.savez(path, **results[file_tag])
+                self._logger.info(f'    CCF data saved to {path}')
+
+            if plot:
+                fig, ax = plt.subplots(figsize=(10, 5))
+                ax.plot(rv_grid, ccf, label='CCF', color='blue')
+                ax.plot(rv_grid, acf, label='ACF', color='orange', linestyle='--')
+                if ccf_star is not None and np.any(ccf_star != 0):
+                    ax.plot(rv_grid, ccf_star, label='Star CCF', color='red', alpha=0.5)
+                ax.axvline(rv_peak, color='grey', linestyle=':', label=f'RV = {rv_peak:.1f} km/s')
+                ax.set_xlabel('RV (km/s)')
+                ax.set_ylabel('CCF (SNR)')
+                ax.set_title(f'CCF - {file_tag}')
+                ax.legend()
+
+                if save_path is not None:
+                    fig_path = Path(save_path) / f'ccf_{file_tag}.pdf'
+                    fig.savefig(fig_path)
+                    self._logger.info(f'    CCF plot saved to {fig_path}')
+
+        return results
+
+    def plot_rv_vsini_map(self, observations: ObservationSet, grid: ModelGrid, subgrids: SubGridSet, ns: 'NestedSampling', rv_grid: np.ndarray, vsini_grid: np.ndarray, plot: bool = True, save_path: str | os.PathLike | None = None) -> dict:
+        '''
+        Compute and optionally plot the RV vs v.sin(i) loglikelihood map.
+
+        Parameters
+        ----------
+        observations (ObservationSet): Set of observations
+        grid              (ModelGrid): Parent model grid
+        subgrids         (SubGridSet): Set of subgrids
+        ns          (NestedSampling): NestedSampling instance
+        rv_grid           (np.ndarray): Grid of radial velocity values (in km/s)
+        vsini_grid        (np.ndarray): Grid of v.sin(i) values (in km/s)
+        plot                    (bool): Whether to display the plot
+        save_path (str | os.PathLike | None): Path to save results (None to skip saving)
+
+        Returns
+        -------
+        dict: Dictionary of RV-vsini map results keyed by observation name
+
+        Authors: Bhavesh Rajpoot (adapted from Allan Denis)
+        '''
+
+        self._logger.info('    Computing RV-vsini map')
+
+        wav_mod, flx_mod, res_mod, observed_params = self._get_native_model_template(grid, ns, observations, rv_grid)
+
+        # Get ld value and vsini function type from parameters
+        if observed_params.has_kind(ParameterKind.LD):
+            ld_value = observed_params.get_kind(ParameterKind.LD)
+        else:
+            ld_value = 0.6
+
+        vsini_params = [p for p in ns.parameters.parameters if p.kind == ParameterKind.VSINI]
+        vsini_type = vsini_params[0].vsini_function.value if vsini_params else 'AccurateFast'
+
+        results = {}
+
+        for index in range(observations.n_observations):
+            obs = observations.observations[index]
+            subgrid = subgrids.subgrids[index]
+
+            if not obs.is_spectroscopic:
+                continue
+
+            wav_fit = ns.wave_fit[index]
+            bounds = ns.bounds_lsq[index]
+
+            star_flx = obs.star_flux if obs.star_flux is not None else np.array([])
+            transm = obs.transm if obs.transm is not None else np.array([])
+            system = obs.system if obs.system is not None else np.array([])
+
+            file_tag = f'{obs.name}_{index}'
+
+            logL_map = np.zeros((len(vsini_grid), len(rv_grid)))
+
+            for j, vsini_val in enumerate(tqdm(vsini_grid, desc=f'RV-vsini map ({file_tag})', leave=False)):
+                flx_broadened, res_broadened = vsini_fct(
+                    wav_mod, flx_mod, res_mod, ld_value, vsini_val, vsini_type
+                )
+
+                logL = compute_ccf(
+                    wav_mod, flx_broadened,
+                    obs.wave, obs.flux, obs.err,
+                    res_broadened, obs.res,
+                    subgrid.res_cont, wav_fit,
+                    star_flx_obs_spectro=star_flx,
+                    transm_obs_spectro=transm,
+                    system_obs_spectro=system,
+                    rv_grid=rv_grid,
+                    rv_sini_map=True,
+                    bounds=bounds,
+                    normalize=False
+                )
+
+                logL_map[j] = logL
+
+            # Find best RV and vsini
+            best_idx = np.unravel_index(np.argmax(logL_map), logL_map.shape)
+            best_vsini = vsini_grid[best_idx[0]]
+            best_rv = rv_grid[best_idx[1]]
+
+            self._logger.info(f'    Best RV = {best_rv:.1f} km/s, best vsini = {best_vsini:.1f} km/s')
+
+            results[file_tag] = {
+                'rv_grid': rv_grid,
+                'vsini_grid': vsini_grid,
+                'logL_map': logL_map,
+                'best_rv': best_rv,
+                'best_vsini': best_vsini
+            }
+
+            if save_path is not None:
+                path = Path(save_path) / f'rv_vsini_map_{file_tag}.npz'
+                np.savez(path, **results[file_tag])
+                self._logger.info(f'    RV-vsini map saved to {path}')
+
+            if plot:
+                fig, ax = plt.subplots(figsize=(8, 6))
+                extent = [rv_grid[0], rv_grid[-1], vsini_grid[0], vsini_grid[-1]]
+                im = ax.imshow(logL_map, aspect='auto', origin='lower', extent=extent, cmap='viridis')
+                ax.scatter(best_rv, best_vsini, marker='x', color='red', s=100, label=f'Best: RV={best_rv:.1f}, vsini={best_vsini:.1f}')
+                ax.set_xlabel('RV (km/s)')
+                ax.set_ylabel(r'v.sin(i) (km/s)')
+                ax.set_title(f'RV - v.sin(i) map - {file_tag}')
+                ax.legend()
+                fig.colorbar(im, ax=ax, label='log L')
+
+                if save_path is not None:
+                    fig_path = Path(save_path) / f'rv_vsini_map_{file_tag}.pdf'
+                    fig.savefig(fig_path)
+                    self._logger.info(f'    RV-vsini map plot saved to {fig_path}')
+
+        return results
 
