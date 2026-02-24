@@ -51,20 +51,8 @@ class Analysis(object):
         # Adapt Observations
         self._observations = ObservationSet.from_fits(self._paths.observation_path, logger=self._logger)
 
-        # Adapted SubGrids
-        if self._adapted:
-            self._subgrids = SubGridSet.from_path(self.paths.adapt_store_path, self.grid, logger=self._logger)
-        # Non adapted SubGrids
-        else:
-            # SubGrids
-            self._subgrids = SubGridSet(parent_grid=self._grid, logger=self._logger)
-
-        if self._fitted:
-            try:
-                self._ns = NestedSampling.from_json(self._paths.result_path, observations=self._observations, subgrids=self._subgrids, logger=self._logger)
-                self._parameters = self._ns.parameters
-            except ForMoSAError as e:
-                raise ForMoSAError(f'Recovering NestedSampling produced the following error: {e}. You probably want to fit your data first (set fitted to False)', self._logger)
+        # SubGrids
+        self._subgrids = SubGridSet(parent_grid=self._grid, logger=self._logger)
 
     # =======================
     # Properties
@@ -163,8 +151,14 @@ class Analysis(object):
         # Save observations
         self.observations.save_all(self.paths.result_path, to_json=to_json)
 
-        if not self.adapted:
+        # Adapted SubGrids
+        if self._adapted:
+            try:
+                self._subgrids = SubGridSet.from_path(self.paths.adapt_store_path, self.grid, logger=self._logger)
+            except ForMoSAError as e:
+                raise ForMoSAError(f'Recovering SubGridSet from path {self.paths.adapt_store_path} produced the following error: {e}', self.logger)
 
+        else:
             try:
                 # Compute target wavelength and resolutions to reach for the subgrids
                 target_wave, target_res = target_wave, target_res = config_adapt._compute_model_target_wavelength_and_resolution(self.observations, self.grid)
@@ -228,7 +222,14 @@ class Analysis(object):
         config_adapt._check_with_n_obs(self.observations.n_observations)
         config_inversion._check_with_n_obs(self.observations.n_observations)
 
-        if not self.fitted:
+        if self.fitted:
+            try:
+                self._ns = NestedSampling.from_json(self.paths.result_path, observations=self._observations, subgrids=self._subgrids, logger=self._logger)
+                self._parameters = self._ns.parameters
+            except ForMoSAError as e:
+                raise ForMoSAError(f'Recovering NestedSampling from path {self.paths.result_path} produced the following error: {e}. You probably want to fit your data first (set fitted to False)', self._logger)
+
+        else:
 
             # ==================
             # Checks
@@ -310,7 +311,7 @@ class Analysis(object):
         if plot_native_model:
             native_best_fit = self.ns.native_best_fit
 
-        fig_best_fit, ax, ax_filt, axr, axr2 = self.plots.plot_fit(self.observations, self.ns.best_fit, plot_native_model=plot_native_model, native_model=native_best_fit)
+        fig_best_fit, ax, ax_filt, axr, axr2 = self.plots.plot_fit(self.ns.restricted_observations, self.ns.best_fit, plot_native_model=plot_native_model, native_model=native_best_fit)
         if plot_native_model:
             lower_1_sigma, higher_1_sigma = self.ns.best_fit_interval(perc=0.68)
             lower_2_sigma, higher_2_sigma = self.ns.best_fit_interval(perc=0.95)

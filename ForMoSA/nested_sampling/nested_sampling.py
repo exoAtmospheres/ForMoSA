@@ -70,7 +70,6 @@ class NestedSampling(object):
         self._restricted_subgrids = SubGridSet(self._subgrids.parent_grid, logger=self._logger)
         self._restricted_observations = ObservationSet(logger=self._logger)
         self._results = None
-
         self._validate()
         self._restricted_models_and_data()
 
