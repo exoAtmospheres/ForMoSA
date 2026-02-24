@@ -74,7 +74,7 @@ class Plotting(object):
         Authors: Paulina Palma-Bifani, Matthieu Ravet and Allan Denis
         '''
 
-        self._logger.info('ForMoSA - Corner plot')
+        self._logger.info('    Plotting Corner plot')
 
         samples, weights = self.ns_results.samples[self.ns_results.burn_in:], self.ns_results.weights[self.ns_results.burn_in:]
 
@@ -106,7 +106,7 @@ class Plotting(object):
         Authors: Paulina Palma-Bifani, Matthieu Ravet and Allan Denis
         '''
 
-        self._logger.info(' Plotting posterior chains for each parameter.')
+        self._logger.info('    Plotting posterior chains for each parameter.')
 
         samples, weights = self.ns_results.samples, self.ns_results.weights
 
@@ -160,7 +160,7 @@ class Plotting(object):
         Authors: Paulina Palma-Bifani, Matthieu Ravet and Allan Denis
         '''
 
-        self._logger.info('    Radar plot of the chains')
+        self._logger.info('    Plotting radar plot of the chains')
 
         samples, weights = self.ns_results.samples[self.ns_results.burn_in:], self.ns_results.weights[self.ns_results.burn_in:]
 
@@ -252,7 +252,7 @@ class Plotting(object):
         Authors: Paulina Palma-Bifani, Matthieu Ravet and Allan Denis
         '''
 
-        self._logger.info('ForMoSA - Best fit and residuals plot')
+        self._logger.info('    Plotting best fit and residuals')
 
         # Initial checks
 
