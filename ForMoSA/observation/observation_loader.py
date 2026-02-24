@@ -95,7 +95,7 @@ class ObservationLoader:
 
         with fits.open(path) as hdul:
             if len(hdul) < 2:
-                raise ForMoSAError(f' {path} does not contain a data extension')
+                raise ForMoSAError(f'{path} does not contain a data extension')
 
             logger.info(f'    Loading Observation from FITS file: {path}')
             data = misc.from_recarray_to_dic(hdul[1].data)
@@ -175,28 +175,28 @@ class ObservationLoader:
         if not isinstance(data, Mapping):
             raise ForMoSAError('data must be a mapping (dict-like)', logger)
 
-        # -----------------------------
+        # --------------------------------
         # Retrieve and normalize keys
-        # -----------------------------
+        # --------------------------------
         keys = data.keys()
         normalized = ObservationLoader._normalize_keys(keys)
 
-        # -----------------------------
+        # --------------------------------
         # Check required common keys
-        # -----------------------------
+        # --------------------------------
         missing = [key.canonical for key in ObservationKeys.required_common() if key.canonical not in normalized]
         if missing:
             raise ForMoSAError(f" Missing required observation keys: {', '.join(missing)}", logger)
 
-        # -----------------------------
+        # --------------------------------
         # Extract common data
-        # -----------------------------
+        # --------------------------------
         wave = data[normalized["WAVELENGTH"]]
         flux = data[normalized["FLUX"]]
 
-        # -----------------------------
+        # --------------------------------
         # Specific case for units
-        # -----------------------------
+        # --------------------------------
         if ObservationKeys.WAVELENGTH_UNIT.canonical not in normalized:
             native_unit = WavelengthUnit.MICROMETER
             logger.warning(f'Wavelength unit not specified for observation. Assuming {native_unit.unit}')
@@ -204,9 +204,9 @@ class ObservationLoader:
             unit_value = data[normalized["WAVELENGTH_UNIT"]]
             native_unit = WavelengthUnit[str(unit_value)]
 
-        # -----------------------------
+        # --------------------------------
         # Detect spectroscopic observation
-        # -----------------------------
+        # --------------------------------
         is_spectro = (ObservationKeys.RESOLUTION.canonical in normalized and np.any(np.array(data[normalized["RESOLUTION"]]) > 0))
 
         # =============================
@@ -237,9 +237,10 @@ class ObservationLoader:
             # Resolution
             res = data[normalized["RESOLUTION"]]
 
-            # -------------------------
+            # ----------------------------
             # Optional inputs
-            # -------------------------
+            # ----------------------------
+
             # Error / Covariance
             err = (data[normalized["ERROR"]] if ObservationKeys.ERROR.canonical in normalized else None)
             cov = (data[normalized["COVARIANCE"]] if ObservationKeys.COVARIANCE.canonical in normalized else None)

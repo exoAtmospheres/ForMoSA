@@ -67,9 +67,12 @@ class NestedSampling(object):
         self._interp_method = interp_method
         self._wave_fit = wave_fit
         self._bounds_lsq = bounds_lsq
+        self._restricted_subgrids = SubGridSet(self._subgrids.parent_grid, logger=self._logger)
+        self._restricted_observations = ObservationSet(logger=self._logger)
         self._results = None
 
         self._validate()
+        self._restricted_models_and_data()
 
     # =================
     # Representation
@@ -83,59 +86,67 @@ class NestedSampling(object):
     # =================
 
     @property
-    def algorithm(self) -> str:                       # Algorithm
+    def algorithm(self) -> str:                             # Algorithm
         return self._algorithm
 
     @property
-    def logL_type(self) -> list:                      # logL functions
+    def logL_type(self) -> list:                            # logL functions
         return self._logL_type
 
     @property
-    def observations(self) -> ObservationSet:         # Set of observations
+    def observations(self) -> ObservationSet:               # Set of observations
         return self._observations
 
     @property
-    def subgrids(self) -> SubGridSet:                 # Set of subgrids
+    def subgrids(self) -> SubGridSet:                       # Set of subgrids
         return self._subgrids
 
     @property
-    def parameters(self) -> ParameterSet:             # Priors parameters
+    def parameters(self) -> ParameterSet:                   # Priors parameters
         return self._parameters
 
     @property
-    def config_NS(self) -> Config_NS:                 # Config_NS
+    def config_NS(self) -> Config_NS:                       # Config_NS
         return self._config_NS
 
     @property
-    def interp_method(self) -> str:                   # Interpolation method
+    def interp_method(self) -> str:                         # Interpolation method
         return self._interp_method
 
     @property
-    def wave_fit(self) -> str:                        # Wavelengths for fitting
+    def wave_fit(self) -> str:                              # Wavelengths for fitting
         return self._wave_fit
 
     @property
-    def bounds_lsq(self) -> list[float]:              # Bounds for the Least Squares estimation
+    def bounds_lsq(self) -> list[float]:                    # Bounds for the Least Squares estimation
         return self._bounds_lsq
 
     @property
-    def ns_params(self) -> dict:                      # Dictionary of NS algo
+    def ns_params(self) -> dict:                            # Dictionary of NS algo
         return getattr(self.config_NS, self.algorithm.lower()).to_dict
 
     @property
-    def npoints(self) -> int:                         # Nested sampling number of living points
+    def npoints(self) -> int:                               # Nested sampling number of living points
         return self._npoints
 
     @property
-    def results(self) -> "NSResults":                 # Results
+    def restricted_observations(self) -> ObservationSet:    # Set of restricted observations according to wave_fit
+        return self._restricted_observations
+
+    @property
+    def restricted_subgrids(self) -> SubGridSet:            # Set of restricted subgrids according to wave_fit
+        return self._restricted_subgrids
+
+    @property
+    def results(self) -> "NSResults":                       # Results
         return self._results
 
     @property
-    def logger(self) -> logging.Logger:               # Logger
+    def logger(self) -> logging.Logger:                     # Logger
         return self._logger
 
     @property
-    def to_dict(self) -> dict:                        # Dictionary representation of NestedSampling
+    def to_dict(self) -> dict:                              # Dictionary representation of NestedSampling
         return {
             'algorithm': self.algorithm,
             'npoints': self.npoints,
@@ -310,6 +321,26 @@ class NestedSampling(object):
             if ll not in valid_logL_type:
                 raise ForMoSAError('Invalid logL_type ({ll}). Choose from {valid_logL_type}', self.logger)
 
+    def _restricted_models_and_data(self) -> None:
+        '''
+        Create restricted versions of subgrids and observations according to wave_fit.
+        These restricted instances are stored internally and reused during the nested sampling.
+
+        Authors: Allan Denis
+        '''
+
+        self.logger.info(f'    Restrict subgris and observations to windows {self.wave_fit}')
+
+        for index in range(self.observations.n_observations):
+
+            # Restrict grid and observation to wave_fit
+            subgrid = self.subgrids.subgrids[index]._restricted_grid(self.wave_fit[index], print_logger=False)
+            observation = self.observations.observations[index]._restricted_observation(self.wave_fit[index], print_logger=False)
+
+            # Add subgrid and observation to restricted sets
+            self._restricted_subgrids.add_subgrid(subgrid)
+            self._restricted_observations.add_observation(observation)
+
     def run(self, results_path: str | os.PathLike) -> None:
         '''
         Method to run the nested sampling algorithm using the model, observation and nested sampling parameters.
@@ -362,6 +393,10 @@ class NestedSampling(object):
                 self._logger.error(msg)
                 raise ForMoSAError(msg)
 
+            output_path = f"{results_path}/pymultinest/"
+            if not Path(output_path).exists():
+                Path(output_path).mkdir(exist_ok=True, parents=True)
+
             res = pymultinest.solve(LogLikelihood=loglike_gp,
                                     Prior=prior_transform_gp,
                                     n_dims=n_free_parameters,
@@ -369,7 +404,6 @@ class NestedSampling(object):
                                     outputfiles_basename=str(results_path) + '/pymultinest/' + 'RAW_',
                                     **self.ns_params)
 
-            output_path = f"{results_path}/pymultinest/"
             self._results = NSResults.from_pymultinest(output_path, self.parameters.free_titles)
 
         elif self.algorithm == NestedAlgorithm.ULTRANEST.algo:
@@ -453,8 +487,8 @@ class NestedSampling(object):
             observed_params = self._build_params_for_obs(theta, index)
 
             # Restrict grid and observation to wave_fit
-            subgrid = self.subgrids.subgrids[index]._restricted_grid(self.wave_fit[index], print_logger=False)
-            observation = self.observations.observations[index]._restricted_observation(self.wave_fit[index], print_logger=False)
+            subgrid = self.restricted_subgrids.subgrids[index]
+            observation = self.restricted_observations.observations[index]
 
             observed_models.append(subgrid._build_model_from_params(observed_params, observation, interp_method = self.interp_method, bounds_lsq = self.bounds_lsq[index]))
 
@@ -507,7 +541,7 @@ class NestedSampling(object):
         params = {}
         free_iter = iter(free_values)
 
-        subgrid = self.subgrids.subgrids[obs_index]
+        subgrid = self.restricted_subgrids.subgrids[obs_index]
 
         for p in self.parameters.parameters:
 
@@ -608,8 +642,8 @@ class NestedSampling(object):
         lower = (1 - perc) / 2
         upper = (1 + perc) / 2
 
-        wrange = (self.observations.wavelength_range[0]*0.95, self.observations.wavelength_range[1]*1.05)
-        grid = self.subgrids.parent_grid._restricted_grid(f'{wrange[0]},{wrange[1]}', print_logger=True)
+        wrange = (self.restricted_observations.wavelength_range[0]*0.95, self.restricted_observations.wavelength_range[1]*1.05)
+        grid = self.restricted_subgrids.parent_grid._restricted_grid(f'{wrange[0]},{wrange[1]}', print_logger=True)
 
         models_flux = []
 

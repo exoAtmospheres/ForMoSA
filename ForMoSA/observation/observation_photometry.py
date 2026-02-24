@@ -85,7 +85,7 @@ class PhotometryObservation(Observation):
     @Filter.setter
     def Filter(self, new_filter: PhotometryFilter) -> None:        # Setter for photometric filter
         if not isinstance(new_filter, PhotometryFilter):
-            raise ForMoSAError(f' Wrong type for Filter: {type(new_filter)}. Expected an instance of PhotometryFilter', self.logger)
+            raise ForMoSAError(f'Wrong type for Filter: {type(new_filter)}. Expected an instance of PhotometryFilter', self.logger)
         self._Filter = new_filter
         self._validate_photometry()
         self._Filter._set_unit(self.display_unit)
@@ -102,7 +102,6 @@ class PhotometryObservation(Observation):
     def wavelength_range(self) -> tuple:                          # Wavelength range of the observation
         return self.Filter.wavelength_range
 
-
     # ==================================================
     # Methods
     # ==================================================
@@ -115,10 +114,10 @@ class PhotometryObservation(Observation):
         '''
 
         if not isinstance(self.Filter, PhotometryFilter):
-            raise ForMoSAError(f' Wrong type for Filter: {type(self.Filter)}. Expected an instance of PhotometryFilter', self.logger)
+            raise ForMoSAError(f'Wrong type for Filter: {type(self.Filter)}. Expected an instance of PhotometryFilter', self.logger)
 
         if (self.wave[0] < self.Filter.wavelength_min) or (self.wave[0] > self.Filter.wavelength_max):
-            raise ForMoSAError(f' Wrong value for wave: {self.wave}. Expected a value between {list(self.Filter.wavelength_range)}', self.logger)
+            raise ForMoSAError(f'Wrong value for wave: {self.wave}. Expected a value between {list(self.Filter.wavelength_range)}', self.logger)
 
     def _adapt_to_resolution(self, target_resolution: float | None = None, wave_cont: str | None = None, res_cont: float | None = None) -> "PhotometryObservation":
         '''
@@ -203,7 +202,7 @@ class PhotometryObservation(Observation):
             windows = f'{self.wave[0]}, {self.wave[-1]}'
 
         if print_logger:
-            self.logger.debug(f'Restrict observation {self.name} onto wavelengths windows {windows}')
+            self.logger.debug(f'Restricting observation {self.name} onto wavelengths windows {windows}')
 
         ind = np.array([], dtype=int)
         for window in windows.split("/"):
@@ -220,4 +219,3 @@ class PhotometryObservation(Observation):
             self.logger.info(f'Length of former Observation: {len(self.wave)}. Lengths of restricted obervation: {len(restricted.wave)}')
 
         return restricted
-

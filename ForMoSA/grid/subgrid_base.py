@@ -295,7 +295,7 @@ class SubGrid(ModelGrid, ABC):
         Authors: Allan Denis
         '''
 
-        self._logger.debug(f' Build empty grid from the native grid {self.parent_grid.grid_name}')
+        self._logger.debug(f'Building empty grid from the native grid {self.parent_grid.grid_name}')
 
         target_wavelength = np.atleast_1d(target_wavelength).astype(float)
         target_resolution = np.atleast_1d(target_resolution).astype(float)
@@ -309,7 +309,7 @@ class SubGrid(ModelGrid, ABC):
         wl_max_target = np.nanmax(target_wavelength)
 
         if (wl_min_target < wl_min_parent) or (wl_max_target > wl_max_parent):
-            raise ForMoSAError(f" target_wavelength={target_wavelength[0]} is outside the parent grid [{wl_min_parent}, {wl_max_parent}]>", self.logger)
+            raise ForMoSAError(f"target_wavelength={target_wavelength[0]} is outside the parent grid [{wl_min_parent}, {wl_max_parent}]>", self.logger)
 
         # Shape of the native grid
         data_shape = len(target_wavelength), *tuple(len(self.parent_grid.grid[key]) for key in self.parent_grid.keys)
@@ -345,7 +345,7 @@ class SubGrid(ModelGrid, ABC):
         shape = self.grid.grid.values.shape[1:]
         pbar = tqdm(total=np.prod(shape), leave=False)
 
-        self._logger.debug(f'Adapt grid {self.grid_name}')
+        self._logger.debug(f'Adapting grid {self.grid_name}')
         self._logger.info("    Parallel adaptation")
 
         def update_result(result, idx):

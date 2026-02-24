@@ -393,6 +393,9 @@ class ObservationSet(object):
         path = Path(path).expanduser() / 'Observations'
 
         self.logger.info(f'    Saving all the observations {self.observation_names} to path {path}')
+        if not path.exists():
+            self.logger.warning(f'path {path} does not exist. Creating it')
+            path.mkdir(exist_ok=True, parents=True)
 
         if to_json is True:
             self.to_json(path)

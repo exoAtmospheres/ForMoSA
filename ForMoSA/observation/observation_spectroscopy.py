@@ -186,39 +186,39 @@ class SpectralObservation(Observation):
 
         # Resolution
         if len(self._res) != self.n_points:
-            raise ForMoSAError(' res must have same length as wave' , self.logger)
+            raise ForMoSAError('res must have same length as wave', self.logger)
 
         if np.any(self.res <= 0):
-            raise ForMoSAError(' Spectral resolution must be strictly positive' , self.logger)
+            raise ForMoSAError('Spectral resolution must be strictly positive', self.logger)
 
         # Covariance
         if self._cov is not None:
             n = self.n_points
             if self._cov.shape != (n, n):
-                raise ForMoSAError(f' cov must have shape {n, n}' , self.logger)
+                raise ForMoSAError(f'cov must have shape {n, n}', self.logger)
             if np.any(np.diag(self.cov) <= 0):
-                raise ForMoSAError(' Covariance must be strictly positive' , self.logger)
+                raise ForMoSAError('Covariance must be strictly positive', self.logger)
             self._inv_cov = np.linalg.inv(self._cov)
 
         # Star flux
         if self.star_flux is not None:
             if len(self.star_flux) != self.n_points:
-                raise ForMoSAError(' star flux must have same length as wave' , self.logger)
+                raise ForMoSAError('star flux must have same length as wave', self.logger)
 
             # Covariance is not implemented yet with high-contrast observations
             if self.cov is not None:
-                self.logger.warning(' Covariance is not implemented yet with high-contrast observations. Not using it')
+                self.logger.warning('Covariance is not implemented yet with high-contrast observations. Not using it')
                 self.cov = None
 
         # Transmission
         if self.transm is not None:
             if len(self.transm) != self.n_points:
-                raise ForMoSAError(' Transmission must have same length as wave' , self.logger)
+                raise ForMoSAError('Transmission must have same length as wave', self.logger)
 
         # Systematics
         if self.system is not None:
             if self(self.system) != self.n_points:
-                raise ForMoSAError(' Systematics must have same length as wave' , self.logger)
+                raise ForMoSAError('Systematics must have same length as wave', self.logger)
 
     def _clean_nans(self) -> None:
         '''
@@ -334,7 +334,7 @@ class SpectralObservation(Observation):
             # Continuum
             # ========================
 
-            self._logger.debug('Subtract continuum from spectrum')
+            self._logger.debug('Subtracting continuum from spectrum')
             adapted_obs._flux_cont = continuum_estimate(self.wave, adapted_obs.flux, adapted_obs.res, wave_cont, res_cont)
 
             if not self.hc_mode:

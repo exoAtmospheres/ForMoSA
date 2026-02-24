@@ -242,7 +242,6 @@ class Analysis(object):
                 if name.startswith('par'):  # Detect grid parameters
                     self.parameters.parameters[i]._title = self.grid.titles[self.grid.keys.index(name)]  # Rename parameter with title associated to 'parX'
 
-
             algorithm, npoints, logL_type_list = config_inversion.ns_algo, config_inversion.npoints, config_inversion.logL_type
             algorithm = NestedAlgorithm[algorithm.upper()]
             logL_type = [LogLikelihoodType[logL.upper()] for logL in logL_type_list]

@@ -221,6 +221,9 @@ class SubGridSet(object):
         '''
 
         path = Path(path).expanduser() / 'Subgrids'
+        if not path.exists():
+            self.logger.warning(f'path {path} does not exist. Creating it')
+            path.mkdir(exist_ok=True, parents=True)
 
         self.logger.info(f'    Saving all the subgrids {self.subgrid_names} to path {path}')
         for subgrid in self.subgrids:

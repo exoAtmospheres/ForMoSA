@@ -9,7 +9,7 @@ from matplotlib.axes._axes import Axes
 
 from ForMoSA.core.loggings import setup_logging
 from ForMoSA.core.errors import ForMoSAError
-from ForMoSA.core.enums import WavelengthUnit, ObservationType, ObservationKeys
+from ForMoSA.core.enums import WavelengthUnit, ObservationType
 
 
 class Observation(ABC):
@@ -325,7 +325,7 @@ class Observation(ABC):
         Authors: Allan Denis
         '''
 
-        self.logger.debug(f' Save observation {self.name} to path {store_path}')
+        self.logger.debug(f'Save observation {self.name} to path {store_path}')
         # Get the saving path and automatically create it if it does not exist
         if not isinstance(store_path, str | os.PathLike):
             raise ForMoSAError(f' Wrong type for store_path: {type(store_path)}. Expected a string or os.PathLike', self.logger)

@@ -189,7 +189,7 @@ class SubGridSpectroscopy(SubGrid):
         '''
 
         if (self.remove_continuum) and (self.wave_cont is None or self.res_cont is None):
-            raise ForMoSAError(' If you want to remove the continuum, set values for wave_cont and res_cont' , self.logger)
+            raise ForMoSAError('If you want to remove the continuum, set values for wave_cont and res_cont', self.logger)
 
     def adapt(self) -> None:
         '''
@@ -270,7 +270,7 @@ class SubGridSpectroscopy(SubGrid):
         invalid = [p.kind for p in params.values.keys() if p.kind not in allowed_kinds]
 
         if invalid:
-            raise ForMoSAError(f" Parameters {invalid} are not relevant for spectroscopic subgrid")
+            raise ForMoSAError(f"Parameters {invalid} are not relevant for spectroscopic subgrid", self.logger)
 
         return SpectralEffects._apply_physics(observed_model, params)
 
