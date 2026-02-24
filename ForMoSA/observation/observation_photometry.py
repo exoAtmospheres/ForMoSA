@@ -150,7 +150,7 @@ class PhotometryObservation(Observation):
         Authors: Allan Denis
         '''
 
-        self.logger.info(f'    Plotting data for observation {self.name}')
+        self.logger.info(f'      Plotting data for observation {self.name}')
 
         # Create figure and axes if not provided
         if ax is None or ax_filt is None:

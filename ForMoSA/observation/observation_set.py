@@ -495,7 +495,7 @@ class ObservationSet(object):
         Authors: Allan Denis
         '''
 
-        self.logger.info(f'Plot all the observations {self.observation_names}')
+        self.logger.info(f'    Plotting all the observations {self.observation_names}')
 
         # Create figure if not provided
         if fig is None:
