@@ -383,14 +383,12 @@ class SpectralObservation(Observation):
             label = None
 
         # Plot data: either as line or scatter depending on marker
-        if plot_config.marker == ' None' :
+        if plot_config.marker == 'None' :
             ax.plot(self.wave, self.flux, color=plot_config.color, linewidth=plot_config.linewidth, zorder=plot_config.zorder_data, label = label)
         else:
             ax.scatter( self.wave, self.flux, color=plot_config.color, edgecolors=plot_config.edgecolor, marker=plot_config.marker, s=plot_config.markersize, linewidths=plot_config.linewidth, zorder=plot_config.zorder_data, label = label)
-
-
-        # Plot error bars
-        ax.errorbar(self.wave, self.flux, yerr=self.err, fmt=plot_config.errorbar_fmt, ecolor=plot_config.color, alpha=plot_config.errorbar_alpha, capsize=plot_config.errorbar_capsize, zorder=plot_config.zorder_error)
+            # Plot error bars
+            ax.errorbar(self.wave, self.flux, yerr=self.err, fmt=plot_config.errorbar_fmt, ecolor=plot_config.color, alpha=plot_config.errorbar_alpha, capsize=plot_config.errorbar_capsize, zorder=plot_config.zorder_error)
 
         # Legend
         if plot_config.label:
