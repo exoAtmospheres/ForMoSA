@@ -6,9 +6,9 @@ import ForMoSA.utils.spec as us
 from ForMoSA.core.enums import ParameterKind
 from ForMoSA.core.errors import ForMoSAError
 from ForMoSA.core.loggings import setup_logging
+from ForMoSA.transform.observed import ObservedModel
 from ForMoSA.utils.misc import get_weighted_percentile
 from ForMoSA.nested_sampling.nested_sampling import NestedSampling
-from ForMoSA.transform.observed import ObservedParameters, ObservedModel
 
 class NSAnalysis(object):
     '''

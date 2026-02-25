@@ -65,9 +65,10 @@ class Analysis(object):
         else:
             self._subgrids = SubGridSet(parent_grid=self._grid, logger=self._logger)
 
-        # ns, parameters and ns_analysis
+        # observations, ns, parameters and ns_analysis
         if self.fitted:
             try:
+                self._observations = ObservationSet.from_npz(self._paths.result_path, logger=self._logger)
                 self._ns = NestedSampling.from_json(self.paths.result_path, observations=self._observations, subgrids=self._subgrids, logger=self._logger)
                 self._parameters = self._ns.parameters
                 self._ns_analysis = NSAnalysis(self.ns, logger=self.logger)
@@ -413,6 +414,6 @@ class Analysis(object):
 
             if save_results:
                 results_path = self.paths.result_path / f'rv_vsini_map_results_{file_tag}.npz'
-                
+
                 # save the rv_vsini_map to a .npz file
                 np.savez(results_path, **rv_vsini_map[file_tag])
