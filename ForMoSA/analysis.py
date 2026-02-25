@@ -46,7 +46,7 @@ class Analysis(object):
         self._ns_analysis = None
 
         # Paths
-        self._paths = ForMoSAPaths(config_path)
+        self._paths = Paths(config_path)
 
         # ModelGrid
         self._grid = ModelGrid.from_file(self._paths.model_path)
@@ -116,7 +116,7 @@ class Analysis(object):
         return self._parameters
 
     @property
-    def paths(self) -> ForMoSAPaths:                                # ForMoSAPaths
+    def paths(self) -> Paths:                                       # ForMoSAPaths
         return self._paths
 
     @property
