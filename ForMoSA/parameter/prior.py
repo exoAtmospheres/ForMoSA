@@ -87,7 +87,7 @@ class Prior(ABC):
 
     @property
     @abstractmethod
-    def is_fixed(self) -> bool:                                               # Whether the prior is fixed
+    def is_fixed(self) -> bool:                                                # Whether the prior is fixed
         pass
 
     @property

@@ -7,9 +7,9 @@ from pathlib import Path
 import astropy.units as u
 
 from ForMoSA.core.errors import ForMoSAError
+from ForMoSA.core.enums import WavelengthUnit
 from ForMoSA.core.loggings import setup_logging
 from ForMoSA.grid.grid_loader import GridLoader
-from ForMoSA.core.enums import WavelengthUnit, ObservationType
 
 class ModelGrid:
     '''
@@ -496,7 +496,3 @@ class ModelGrid:
             self.logger.info(f'    Generated restricted Grid. Former grid length: {len(self.wave)}. New grid length: {len(restricted_grid.wave)}')
 
         return restricted_grid
-
-
-
-
