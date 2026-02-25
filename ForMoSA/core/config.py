@@ -6,7 +6,7 @@ from matplotlib import colors as mcolors
 from ForMoSA.core.errors import ForMoSAError
 
 # Default filter path (can be overridden by user)
-FILTER_PATH = Path.home() / 'ForMoSA' / 'filters'
+FILTER_PATH = Path.home() / 'filters'
 
 def set_filter_path(path: str | os.PathLike) -> None:
     '''

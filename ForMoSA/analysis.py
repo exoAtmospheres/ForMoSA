@@ -29,7 +29,7 @@ class Analysis(object):
     config                (ConfigLoader): Instance of class ConfigLoader representing the configuration parameters.
     adapted                       (bool): Whether the model is adapted to the data, by default False. Can be set to True if the model has already been adapted to the data
     fitted                        (bool): Whether the data have already been fitted for
-    log_level (str): og level of the handler, by default ``'info'`` for all important informations.
+    log_level                      (str): Log level of the handler, by default ``'info'`` for all important informations.
 
     Authors: Allan Denis
     '''
