@@ -442,6 +442,9 @@ class SpectralObservation(Observation):
             restricted._cov = self.cov[np.ix_(ind, ind)]
             restricted._inv_cov = self.inv_cov[np.ix_(ind, ind)]
 
+        restricted._wave_cont = self.wave_cont
+        restricted._res_cont = self.res_cont
+
         if print_logger:
             self.logger.info(f'Length of former Observation: {len(self.wave)}. Lengths of restricted obervation: {len(restricted.wave)}')
 
