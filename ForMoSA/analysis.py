@@ -1,9 +1,9 @@
 import logging
 import numpy as np
 
+from ForMoSA.config.paths import Paths
 from ForMoSA.core.config import PLOTS_CONFIG
 from ForMoSA.core.errors import ForMoSAError
-from ForMoSA.config.paths import ForMoSAPaths
 from ForMoSA.grid.model_grid import ModelGrid
 from ForMoSA.core.loggings import setup_logging
 from ForMoSA.grid.subgrid_set import SubGridSet

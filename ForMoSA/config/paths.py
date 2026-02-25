@@ -7,7 +7,7 @@ from ForMoSA.core.loggings import setup_logging
 from ForMoSA.config.global_config import ConfigPath
 
 
-class ForMoSAPaths(object):
+class Paths(object):
     '''
     Analysis path class, handles the paths used in the configuration file.
 
