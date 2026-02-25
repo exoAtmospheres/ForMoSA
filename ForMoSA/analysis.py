@@ -340,14 +340,15 @@ class Analysis(object):
     # =========================================
     # CCF Plotting Functions
     # =========================================
-    def plot_ccf(self, rv_grid: np.ndarray, save: bool = True) -> None:
+    def plot_ccf(self, rv_grid: np.ndarray, save_fig: bool = True, save_results: bool = False) -> None:
         '''
         Compute and optionally plot the Cross-Correlation Function (CCF).
 
         Parameters
         ----------
         rv_grid  (np.ndarray): Grid of radial velocity values (in km/s)
-        save          (bool): Whether to save the results and figure
+        save_fig       (bool): Whether to save the figure
+        save_results   (bool): Whether to save the results of the CCF computation
 
         Authors: Bhavesh Rajpoot (adapted from Allan Denis)
         '''
@@ -358,7 +359,8 @@ class Analysis(object):
         if not hasattr(self, 'plots') or self.plots is None:
             self.plots = Plotting(self.ns.results, self.logger)
 
-        save_path = self.paths.result_path if save else None
+        # initialize save_path based on save_results or save_fig
+        save_path = self.paths.result_path if (save_results or save_fig) else None
 
         for index in range(self.observations.n_observations):
             ccf_dict = self.ns_analysis.compute_ccf(rv_grid, index=index)
@@ -370,7 +372,14 @@ class Analysis(object):
                 path = self.paths.result_path / f'ccf_{file_tag}.pdf'
                 fig.savefig(path)
 
-    def plot_rv_vsini_map(self, rv_grid: np.ndarray, vsini_grid: np.ndarray, save: bool = True) -> None:
+            if save_results:
+                results_path = self.paths.result_path / f'ccf_results_{file_tag}.npz'
+
+                # save the ccf_dict to a .npz file
+                np.savez(results_path, **ccf_dict[file_tag])
+
+
+    def plot_rv_vsini_map(self, rv_grid: np.ndarray, vsini_grid: np.ndarray, save_fig: bool = True, save_results: bool = False) -> None:
         '''
         Compute and optionally plot the RV vs v.sin(i) loglikelihood map.
 
@@ -378,7 +387,8 @@ class Analysis(object):
         ----------
         rv_grid    (np.ndarray): Grid of radial velocity values (in km/s)
         vsini_grid (np.ndarray): Grid of v.sin(i) values (in km/s)
-        save            (bool): Whether to save the results and figure
+        save_fig       (bool): Whether to save the figure
+        save_results   (bool): Whether to save the results of the RV-vsini map computation
 
         Authors: Bhavesh Rajpoot (adapted from Allan Denis)
         '''
@@ -389,7 +399,7 @@ class Analysis(object):
         if not hasattr(self, 'plots') or self.plots is None:
             self.plots = Plotting(self.ns.results, self.logger)
 
-        save_path = self.paths.result_path if save else None
+        save_path = self.paths.result_path if (save_fig or save_results) else None
 
         for index in range(self.observations.n_observations):
             rv_vsini_map = self.ns_analysis.compute_rv_vsini_map(rv_grid, vsini_grid, index=index)
@@ -400,3 +410,9 @@ class Analysis(object):
             if save_path:
                 path = self.paths.result_path / f'rv_vsini_map_{file_tag}.pdf'
                 fig.savefig(path)
+
+            if save_results:
+                results_path = self.paths.result_path / f'rv_vsini_map_results_{file_tag}.npz'
+                
+                # save the rv_vsini_map to a .npz file
+                np.savez(results_path, **rv_vsini_map[file_tag])
