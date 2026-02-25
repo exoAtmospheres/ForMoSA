@@ -320,12 +320,12 @@ class Analysis(object):
 
         native_best_fit = None
         if plot_native_model:
-            native_best_fit = self.ns.native_best_fit
+            native_best_fit = self.ns_analysis.native_best_fit
 
         fig_best_fit, ax, ax_filt, axr, axr2 = self.plots.plot_fit(self.ns.restricted_observations, self.ns_analysis.best_fit, plot_native_model=plot_native_model, native_model=native_best_fit)
         if plot_native_model:
-            lower_1_sigma, higher_1_sigma = self.ns.best_fit_interval(perc=0.68)
-            lower_2_sigma, higher_2_sigma = self.ns.best_fit_interval(perc=0.95)
+            lower_1_sigma, higher_1_sigma = self.ns_analysis.best_fit_interval(perc=0.68)
+            lower_2_sigma, higher_2_sigma = self.ns_analysis.best_fit_interval(perc=0.95)
 
             ax.fill_between(lower_1_sigma.wave, lower_1_sigma.flux, higher_1_sigma.flux, color='grey', alpha=0.5, zorder=PLOTS_CONFIG.BestFitPlot.zorder)
             ax.fill_between(lower_2_sigma.wave, lower_2_sigma.flux, higher_2_sigma.flux, color='grey', alpha=0.2, zorder=PLOTS_CONFIG.BestFitPlot.zorder)
