@@ -3,9 +3,7 @@ import time
 import json
 import logging
 import numpy as np
-from tqdm import tqdm
 from pathlib import Path
-from ForMoSA.utils.misc import get_weighted_percentile
 
 from ForMoSA.core.errors import ForMoSAError
 from ForMoSA.grid.subgrid_set import SubGridSet
@@ -157,22 +155,6 @@ class NestedSampling(object):
             'bounds_lsq': [(str(lower), str(upper)) for lower, upper in self.bounds_lsq]
             }
 
-    @property
-    def best_fit(self) -> list[ObservedModel]:        # Best fit
-        if self.results is None:
-            raise ForMoSAError('Please first run the Nested Sampling before computing the best fit', self.logger)
-
-        best_params = list(self.results.median_parameters.values())
-        return self.build_models_from_theta(best_params)
-
-    @property
-    def native_best_fit(self) -> ObservedModel:       # Best fit parameters applied to the native model
-        if self.results is None:
-            raise ForMoSAError('Please first run the Nested Sampling before computing the best fit', self.logger)
-
-        median, _ = self.best_fit_interval(perc=0)
-        return median
-
     # =================
     # Class method
     # =================
@@ -279,7 +261,7 @@ class NestedSampling(object):
 
     def _validate(self) -> None:
         '''
-        Validation
+        Validation for NestedSamplin.
 
         Authors: Allan Denis
         '''
@@ -333,8 +315,14 @@ class NestedSampling(object):
         for index in range(self.observations.n_observations):
 
             # Restrict grid and observation to wave_fit
-            subgrid = self.subgrids.subgrids[index]._restricted_grid(self.wave_fit[index], print_logger=False)
             observation = self.observations.observations[index]._restricted_observation(self.wave_fit[index], print_logger=False)
+
+            if len(self.subgrids.subgrids[index].wave) != len(self.observations.observations[index].wave):
+                extension = 0.05
+            else:
+                extension = 0.0
+
+            subgrid = self.subgrids.subgrids[index]._restricted_grid(self.wave_fit[index], print_logger=False, extension=extension)
 
             # Add subgrid and observation to restricted sets
             self._restricted_subgrids.add_subgrid(subgrid)
@@ -426,7 +414,7 @@ class NestedSampling(object):
 
         self._logger.info(f'    Time spent: {time.time() - time_before_ns}')
 
-        self._logger.info(f'    Summary of Nested Sampling: \n {self.results.summary()}')
+        self.results.summary()
 
     def loglike(self, theta: np.ndarray[float]) -> float:
         '''
@@ -612,51 +600,3 @@ class NestedSampling(object):
             results = json.load(f)
 
         self._results = NSResults.from_dict(results)
-
-    def best_fit_interval(self, perc: float = 0.68) -> tuple[ObservedModel, ObservedModel]:
-        '''
-        Confidence interval of the native best fit.
-
-        Parameters
-        ----------
-        perc (float): Percentile value between 0 and 1 (0.68 for 1 sigma, 0.95 for 2 sigmas)
-
-
-        Returns
-        -------
-        tuple[ObservedModel, ObservedModel]: lower and higher values of the flux for the confidence interval
-
-        Authors: Allan Denis
-        '''
-
-        perc = float(perc)
-
-        # Initial checks
-        if self.results is None:
-            raise ForMoSAError('Please first run the Nested Sampling before computing the best fit', self.logger)
-
-        if perc < 0 or perc > 1:
-            raise ForMoSAError(f'perc must be a float between 0 and 1. Got {perc} with type {type(perc)}', self.logger)
-
-        lower = (1 - perc) / 2
-        upper = (1 + perc) / 2
-
-        wrange = (self.restricted_observations.wavelength_range[0]*0.95, self.restricted_observations.wavelength_range[1]*1.05)
-        grid = self.restricted_subgrids.parent_grid._restricted_grid(f'{wrange[0]},{wrange[1]}', print_logger=True)
-
-        models_flux = []
-
-        self.logger.info(f'    Computing confidence interval with percentiles [{np.round(lower,2)} - {np.round(upper,2)}]')
-        for sample in tqdm(self.results.samples):
-            observed_params = self._build_params_for_obs(sample, 0).global_params
-
-            observed_model = ObservedModel.from_grid_and_params(grid, observed_params)
-
-            models_flux.append(observed_model.flux)
-
-        models_flux = np.array(models_flux)
-
-        perc_1sigma_lower = get_weighted_percentile(lower, models_flux, weights=self.results.weights)
-        perc_1sigma_higher = get_weighted_percentile(upper, models_flux, weights=self.results.weights)
-
-        return ObservedModel(observed_model.wave, perc_1sigma_lower, observed_model.res), ObservedModel(observed_model.wave, perc_1sigma_higher, observed_model.res)

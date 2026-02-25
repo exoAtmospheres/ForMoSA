@@ -284,7 +284,7 @@ class ModelGrid:
         Authors: Simon Petrus, Paulina Palma-Bifani, Matthieu Ravet and Allan Denis
         '''
 
-        self._logger.info('Interpolate between holes of the grid')
+        self._logger.info(f'    Interpolating between holes of the grid {self.grid_name}')
 
         interp_kwargs = {"method": method, "fill_value": fill_value}
 
@@ -317,9 +317,8 @@ class ModelGrid:
 
         grid_1d = self._grid.interp(**interp_kwargs)
 
-        # On remplace toutes les valeurs par NaN
+        # Replace values by nans
         return grid_1d * np.nan
-
 
     def _interpolate_between_gridpoints(self, grid_params: dict[str, float], method: str = "linear", print_logger: bool = False):
         '''
@@ -449,7 +448,7 @@ class ModelGrid:
 
         return grid
 
-    def _restricted_grid(self, windows: str | None = None, print_logger: bool=True) -> "ModelGrid":
+    def _restricted_grid(self, windows: str | None = None, print_logger: bool=True, extension: float = 0.0) -> "ModelGrid":
         '''
         Returns a version of the grid restricted to the given wavelength range
 
@@ -457,6 +456,7 @@ class ModelGrid:
         ----------
         windows        (str): Windows in the format 'wmin1,wmax1 / wmin2,wmax2 / ...'
         print_logger  (bool): Whether to print the Logger
+        extension    (float): Extension factor of the windows
 
         Returns
         -------
@@ -477,7 +477,7 @@ class ModelGrid:
         ind = np.array([], dtype=int)
         for window in windows.split("/"):
             wmin, wmax = map(float, window.split(","))
-            indices = np.where((self.wave >= wmin) & (self.wave <= wmax))[0]
+            indices = np.where((self.wave >= wmin * (1 - extension)) & (self.wave <= wmax * (1 + extension)))[0]
             ind = np.concatenate((ind, indices))
         ind = np.unique(ind)
 

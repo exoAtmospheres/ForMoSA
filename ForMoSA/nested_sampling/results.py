@@ -66,15 +66,15 @@ class NSResults:
         }
 
     @property
-    def param_samples_dict(self) -> dict[str, float]:             # Samples of each parameter
-        return {name: self.samples[self.burn_in:, i] for i, name in enumerate(self.free_parameters)}
-
-    @property
-    def median_parameters(self) -> dict[str, float]:              # Weighted posterior median for each parameter
+    def median_parameters(self) -> dict[str, float]:     # Weighted posterior median for each parameter
         return {
             name: self._weighted_quantile(self.samples[:, i], self.weights, 0.5)
             for i, name in enumerate(self.free_parameters)
         }
+
+    @property
+    def param_samples_dict(self) -> dict[str, float]:             # Samples of each parameter
+        return {name: self.samples[self.burn_in:, i] for i, name in enumerate(self.free_parameters)}
 
     @property
     def best_logL(self) -> float:                                 # Averaged value of logL
@@ -330,6 +330,11 @@ class NSResults:
 
         Authors: Allan Denis
         '''
+
+        if self.ns.results is None:
+            raise ForMoSAError('Please first run the Nested Sampling before printing the summary', self.logger)
+
+        self.logger.info(f'    Summary of Nested Sampling: \n {self.results.summary()}')
 
         lines = []
         lines.append("======== Nested Sampling Summary ====================")

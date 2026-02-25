@@ -11,6 +11,7 @@ from ForMoSA.filter.filter import PhotometryFilter
 from ForMoSA.nested_sampling.results import NSResults
 from ForMoSA.nested_sampling.plotting import Plotting
 from ForMoSA.parameter.parameter_set import ParameterSet
+from ForMoSA.nested_sampling.ns_analysis import NSAnalysis
 from ForMoSA.grid.subgrid_photometry import SubGridPhotometry
 from ForMoSA.observation.observation_set import ObservationSet
 from ForMoSA.grid.subgrid_spectroscopy import SubGridSpectroscopy
@@ -42,6 +43,7 @@ class Analysis(object):
         self._fitted = fitted
         self._ns = None
         self._parameters = None
+        self._ns_analysis = None
 
         # Paths
         self._paths = ForMoSAPaths(config_path)
@@ -106,6 +108,10 @@ class Analysis(object):
     @property
     def ns(self) -> NestedSampling:                                 # Nested Sampling
         return self._ns
+
+    @property
+    def ns_analysis(self) -> NSAnalysis:                            # NSAnalysis
+        return self._ns_analysis
 
     # =======================
     # Representation
@@ -227,6 +233,7 @@ class Analysis(object):
             try:
                 self._ns = NestedSampling.from_json(self.paths.result_path, observations=self._observations, subgrids=self._subgrids, logger=self._logger)
                 self._parameters = self._ns.parameters
+                self._ns_analysis = NSAnalysis(self.ns, logger=self.logger)
             except ForMoSAError as e:
                 raise ForMoSAError(f'Recovering NestedSampling from path {self.paths.result_path} produced the following error: {e}. You probably want to fit your data first (set fitted to False)', self._logger)
 
@@ -264,6 +271,9 @@ class Analysis(object):
 
             # Launch NestedSampling
             self._ns.run(results_path=self.paths.result_path)
+
+            # Create instance of NSAnalysis
+            self._ns_analysis = NSAnalysis(self._ns, logger=self.logger)
 
             # Save results
             self._ns.save_results(self.paths.result_path)
@@ -312,7 +322,7 @@ class Analysis(object):
         if plot_native_model:
             native_best_fit = self.ns.native_best_fit
 
-        fig_best_fit, ax, ax_filt, axr, axr2 = self.plots.plot_fit(self.ns.restricted_observations, self.ns.best_fit, plot_native_model=plot_native_model, native_model=native_best_fit)
+        fig_best_fit, ax, ax_filt, axr, axr2 = self.plots.plot_fit(self.ns.restricted_observations, self.ns_analysis.best_fit, plot_native_model=plot_native_model, native_model=native_best_fit)
         if plot_native_model:
             lower_1_sigma, higher_1_sigma = self.ns.best_fit_interval(perc=0.68)
             lower_2_sigma, higher_2_sigma = self.ns.best_fit_interval(perc=0.95)
@@ -320,28 +330,21 @@ class Analysis(object):
             ax.fill_between(lower_1_sigma.wave, lower_1_sigma.flux, higher_1_sigma.flux, color='grey', alpha=0.5, zorder=PLOTS_CONFIG.BestFitPlot.zorder)
             ax.fill_between(lower_2_sigma.wave, lower_2_sigma.flux, higher_2_sigma.flux, color='grey', alpha=0.2, zorder=PLOTS_CONFIG.BestFitPlot.zorder)
 
-
         if save:
             path = self.paths.result_path / 'best_fit.pdf'
             fig_best_fit.savefig(path)
 
-    
     # =========================================
     # CCF Plotting Functions
     # =========================================
-    def plot_ccf(self, rv_grid: np.ndarray, plot: bool = True, save: bool = True) -> dict:
+    def plot_ccf(self, rv_grid: np.ndarray, save: bool = True) -> None:
         '''
         Compute and optionally plot the Cross-Correlation Function (CCF).
 
         Parameters
         ----------
         rv_grid  (np.ndarray): Grid of radial velocity values (in km/s)
-        plot          (bool): Whether to display the plot
         save          (bool): Whether to save the results and figure
-
-        Returns
-        -------
-        dict: Dictionary of CCF results keyed by observation name
 
         Authors: Bhavesh Rajpoot (adapted from Allan Denis)
         '''
@@ -353,9 +356,18 @@ class Analysis(object):
             self.plots = Plotting(self.ns.results, self.logger)
 
         save_path = self.paths.result_path if save else None
-        return self.plots.plot_ccf(self.observations, self.grid, self.subgrids, self.ns, rv_grid, plot=plot, save_path=save_path)
 
-    def plot_rv_vsini_map(self, rv_grid: np.ndarray, vsini_grid: np.ndarray, plot: bool = True, save: bool = True) -> dict:
+        for index in range(self.observations.n_observations):
+            ccf_dict = self.ns_analysis.compute_ccf(rv_grid, index=index)
+            file_tag = list(ccf_dict.keys())[0]
+            rv_grid, ccf, acf, ccf_star, _, _ = list(ccf_dict[file_tag].values())
+            fig, ax = self.plots.plot_ccf(rv_grid, ccf, acf, ccf_star=ccf_star, title=file_tag)
+
+            if save_path:
+                path = self.paths.result_path / f'ccf_{file_tag}.pdf'
+                fig.savefig(path)
+
+    def plot_rv_vsini_map(self, rv_grid: np.ndarray, vsini_grid: np.ndarray, save: bool = True) -> None:
         '''
         Compute and optionally plot the RV vs v.sin(i) loglikelihood map.
 
@@ -363,12 +375,7 @@ class Analysis(object):
         ----------
         rv_grid    (np.ndarray): Grid of radial velocity values (in km/s)
         vsini_grid (np.ndarray): Grid of v.sin(i) values (in km/s)
-        plot            (bool): Whether to display the plot
         save            (bool): Whether to save the results and figure
-
-        Returns
-        -------
-        dict: Dictionary of RV-vsini map results keyed by observation name
 
         Authors: Bhavesh Rajpoot (adapted from Allan Denis)
         '''
@@ -380,4 +387,13 @@ class Analysis(object):
             self.plots = Plotting(self.ns.results, self.logger)
 
         save_path = self.paths.result_path if save else None
-        return self.plots.plot_rv_vsini_map(self.observations, self.grid, self.subgrids, self.ns, rv_grid, vsini_grid, plot=plot, save_path=save_path)
+
+        for index in range(self.observations.n_observations):
+            rv_vsini_map = self.ns_analysis.compute_rv_vsini_map(rv_grid, vsini_grid, index=index)
+            file_tag = list(rv_vsini_map.keys())[0]
+            rv_grid, vsini_grid, logL_map, _, _ = tuple(rv_vsini_map[file_tag].values())
+            fig, ax = self.plots.plot_rv_vsini_map(rv_grid, vsini_grid, logL_map, title=file_tag)
+
+            if save_path:
+                path = self.paths.result_path / f'rv_vsini_map_{file_tag}.pdf'
+                fig.savefig(path)

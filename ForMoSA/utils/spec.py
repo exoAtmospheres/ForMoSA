@@ -664,7 +664,7 @@ def build_linear_components(flx_mod: np.ndarray | None = None, transm: np.ndarra
 # ----------------------------------------------------------------------------------------------------------------------
 
 
-def compute_ccf(wav_mod_spectro: np.ndarray, flx_mod_spectro: np.ndarray, wav_obs_spectro: np.ndarray, flx_obs_spectro: np.ndarray, err_obs_spectro: np.ndarray, res_mod_spectro: np.ndarray, res_obs_spectro: np.ndarray, res_cont: float, wav_fit: str | np.ndarray,  star_flx_obs_spectro: np.ndarray = np.array([]), transm_obs_spectro: np.ndarray = np.array([]), system_obs_spectro: np.ndarray = np.array([]), rv_grid: np.ndarray = np.linspace(-300, 300, 600), rv_sini_map: bool = False, bounds: tuple = (-np.inf, np.inf), normalize: bool = True):
+def compute_ccf(wav_mod_spectro: np.ndarray, flx_mod_spectro: np.ndarray, wav_obs_spectro: np.ndarray, flx_obs_spectro: np.ndarray, err_obs_spectro: np.ndarray, res_mod_spectro: np.ndarray, res_obs_spectro: np.ndarray, res_cont: float, wav_fit: str | np.ndarray,  star_flx_obs_spectro: np.ndarray = np.array([]), transm_obs_spectro: np.ndarray = np.array([]), system_obs_spectro: np.ndarray = np.array([]), rv_grid: np.ndarray = np.linspace(-300, 300, 600), rv_sini_map: bool = False, normalize: bool = True):
     '''
     Function to compute the ccf between a template and data
 
@@ -683,7 +683,6 @@ def compute_ccf(wav_mod_spectro: np.ndarray, flx_mod_spectro: np.ndarray, wav_ob
         system_obs_spectro          (np.ndarray): Systematics
         rv_grid                     (np.ndarray): Grid of RV for the CCF function
         rv_vsini_map                      (bool): Whether to use this function to compute a rv / vsini map
-        bounds                           (tuple): Bound to use for the Least Squares
         normalize                         (bool): Whether to normalize ccf
 
     Returns:
@@ -750,7 +749,7 @@ def compute_ccf(wav_mod_spectro: np.ndarray, flx_mod_spectro: np.ndarray, wav_ob
                 pbar.update()
 
             for irv in rv_grid:
-                task = pool.apply_async(compute_ccf_single_rv, args=(irv, wav_mod_spectro, flx_mod_spectro, flx_mod_spectro_no_rv_hf, res_mod_spectro, wav_obs_spectro, flx_obs_spectro, flx_cont_obs_spectro, flx_obs_spectro_hf, res_obs_spectro, wav_fit, res_cont, err_obs_spectro, transm_obs_spectro, star_flx_obs_spectro, star_flx_cont_obs_spectro, star_flx_obs_spectro_hf, system_obs_spectro, speckles, 0.6, bounds), callback=update)
+                task = pool.apply_async(compute_ccf_single_rv, args=(irv, wav_mod_spectro, flx_mod_spectro, flx_mod_spectro_no_rv_hf, res_mod_spectro, wav_obs_spectro, flx_obs_spectro, flx_cont_obs_spectro, flx_obs_spectro_hf, res_obs_spectro, wav_fit, res_cont, err_obs_spectro, transm_obs_spectro, star_flx_obs_spectro, star_flx_cont_obs_spectro, star_flx_obs_spectro_hf, system_obs_spectro, speckles, 0.6), callback=update)
                 results.append(task)
 
             pool.close()
@@ -763,7 +762,7 @@ def compute_ccf(wav_mod_spectro: np.ndarray, flx_mod_spectro: np.ndarray, wav_ob
         print(f'Parallel computation of CCF produced the following error: {e}. Trying serial computation.')
         ccf, acf, ccf_star, logL = [], [], [], []
         for irv in tqdm(rv_grid):
-            res = compute_ccf_single_rv(irv, wav_mod_spectro, flx_mod_spectro, flx_mod_spectro_no_rv_hf, res_mod_spectro, wav_obs_spectro, flx_obs_spectro, flx_cont_obs_spectro, flx_obs_spectro_hf, res_obs_spectro, wav_fit, res_cont, err_obs_spectro, transm_obs_spectro, star_flx_obs_spectro, star_flx_cont_obs_spectro, star_flx_obs_spectro_hf, system_obs_spectro, speckles, 0.6, bounds)
+            res = compute_ccf_single_rv(irv, wav_mod_spectro, flx_mod_spectro, flx_mod_spectro_no_rv_hf, res_mod_spectro, wav_obs_spectro, flx_obs_spectro, flx_cont_obs_spectro, flx_obs_spectro_hf, res_obs_spectro, wav_fit, res_cont, err_obs_spectro, transm_obs_spectro, star_flx_obs_spectro, star_flx_cont_obs_spectro, star_flx_obs_spectro_hf, system_obs_spectro, speckles, 0.6)
             ccf.append(res[0])
             acf.append(res[1])
             ccf_star.append(res[2])
@@ -803,7 +802,7 @@ def compute_ccf(wav_mod_spectro: np.ndarray, flx_mod_spectro: np.ndarray, wav_ob
 # ----------------------------------------------------------------------------------------------------------------------
 
 
-def compute_ccf_single_rv(rv: float, wav_mod_spectro: np.ndarray, flx_mod_spectro: np.ndarray, flx_mod_spectro_no_rv_hf: np.ndarray, res_mod_spectro: np.ndarray, wav_obs_spectro: np.ndarray, flx_obs_spectro: np.ndarray, flx_cont_obs_spectro: np.ndarray, flx_obs_spectro_hf: np.ndarray, res_obs_spectro: np.ndarray, wav_cont: str, res_cont: np.ndarray, err_obs_spectro: np.ndarray, transm_obs_spectro: int | np.ndarray = 1, star_flx_obs_spectro: np.ndarray = np.array([]), star_flx_cont_obs_spectro: (int | np.ndarray) = 1, star_flx_obs_spectro_hf: np.ndarray = np.array([]), system_obs_spectro: np.ndarray = np.array([]), speckles: (int | np.ndarray) = 1, ld: float = 0.6, bounds: tuple = (-np.inf, np.inf)) -> tuple[float, float, float]:
+def compute_ccf_single_rv(rv: float, wav_mod_spectro: np.ndarray, flx_mod_spectro: np.ndarray, flx_mod_spectro_no_rv_hf: np.ndarray, res_mod_spectro: np.ndarray, wav_obs_spectro: np.ndarray, flx_obs_spectro: np.ndarray, flx_cont_obs_spectro: np.ndarray, flx_obs_spectro_hf: np.ndarray, res_obs_spectro: np.ndarray, wav_cont: str, res_cont: np.ndarray, err_obs_spectro: np.ndarray, transm_obs_spectro: int | np.ndarray = 1, star_flx_obs_spectro: np.ndarray = np.array([]), star_flx_cont_obs_spectro: (int | np.ndarray) = 1, star_flx_obs_spectro_hf: np.ndarray = np.array([]), system_obs_spectro: np.ndarray = np.array([]), speckles: (int | np.ndarray) = 1, ld: float = 0.6) -> tuple[float, float, float]:
     '''
     Function to compute the correlation between template and data for a specific rv value
 
@@ -826,7 +825,6 @@ def compute_ccf_single_rv(rv: float, wav_mod_spectro: np.ndarray, flx_mod_spectr
         star_flx_cont_obs_spectro (int | np.ndarray): Continuum of the flux of the star
         system_obs_spectro              (np.ndarray): Systematics
         speckles                  (int | np.ndarray): Speckles
-        bounds                               (tuple): Bound to use for the Least Squares
 
     Returns:
         ccf        (float): Correlation between the template and the data
@@ -856,8 +854,7 @@ def compute_ccf_single_rv(rv: float, wav_mod_spectro: np.ndarray, flx_mod_spectr
                                             flx_cont_obs_spectro,
                                             star_flx_cont_obs_spectro,
                                             system_obs_spectro,
-                                            analytic='yes',
-                                            bounds=bounds
+                                            analytic='yes'
                                             )
 
     result = fit_linear_model(

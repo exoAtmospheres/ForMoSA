@@ -325,7 +325,7 @@ class SpectralObservation(Observation):
         # ========================
         # Continuum handling
         # ========================
-        
+
         if (res_cont is not None and res_cont != 'NA'):
             if (wave_cont is None or wave_cont == 'NA'):
                 self.logger.warning('Wave_cont is not defined for continuum estimation. Using the observation wavelength')
@@ -401,7 +401,7 @@ class SpectralObservation(Observation):
 
         return fig, ax, ax_filt
 
-    def _restricted_observation(self, windows: str | None = None, print_logger: bool = True) -> "SpectralObservation":
+    def _restricted_observation(self, windows: str | None = None, print_logger: bool = True, extension: float = 0.0) -> "SpectralObservation":
         '''
         Restrict the observation to wavelength windows.
 
@@ -409,6 +409,7 @@ class SpectralObservation(Observation):
         ----------
         windows        (str): Windows in the format 'wmin1,wmax1 / wmin2,wmax2 / ...'
         print_logger  (bool): Whether to print logger
+        extension    (float): Extension factor of the windows
 
         Returns
         -------
@@ -429,7 +430,7 @@ class SpectralObservation(Observation):
         ind = np.array([], dtype=int)
         for window in windows.split("/"):
             wmin, wmax = map(float, window.split(","))
-            indices = np.where((self.wave >= wmin) & (self.wave <= wmax))[0]
+            indices = np.where((self.wave >= wmin * (1 - extension)) & (self.wave <= wmax * (1 + extension)))[0]
             ind = np.concatenate((ind, indices))
         ind = np.unique(ind)
 
