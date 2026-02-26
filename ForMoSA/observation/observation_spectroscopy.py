@@ -78,35 +78,35 @@ class SpectralObservation(Observation):
         return ObservationType.SPECTROSCOPIC.value
 
     @property
-    def res(self) -> np.ndarray:                                # Resolution
+    def res(self) -> np.ndarray[float]:                         # Resolution
         return self._res
 
     @property
-    def cov(self) -> np.ndarray | None:                         # Covariance
+    def cov(self) -> np.ndarray[float] | None:                  # Covariance
         return self._cov
 
     @property
-    def inv_cov(self) -> np.ndarray | None:                     # Inverse of covariance
+    def inv_cov(self) -> np.ndarray[float] | None:              # Inverse of covariance
         return self._inv_cov
 
     @property
-    def transm(self) -> np.ndarray | None:                      # Transmission
+    def transm(self) -> np.ndarray[float] | None:               # Transmission
         return self._transm
 
     @property
-    def star_flux(self) -> np.ndarray | None:                    # Stellar flux
+    def star_flux(self) -> np.ndarray[float] | None:            # Stellar flux
         return self._star_flux
 
     @property
-    def system(self) -> np.ndarray | None:                      # Systematics
+    def system(self) -> np.ndarray[float] | None:               # Systematics
         return self._system
 
     @property
-    def flux_cont(self) -> np.ndarray | None:                   # Continuum of the flux
+    def flux_cont(self) -> np.ndarray[float] | None:            # Continuum of the flux
         return self._flux_cont
 
     @property
-    def star_flux_cont(self) -> np.ndarray | None:              # Continuum of the star flux
+    def star_flux_cont(self) -> np.ndarray[float] | None:       # Continuum of the star flux
         return self._star_flux_cont
 
     @property
@@ -188,8 +188,8 @@ class SpectralObservation(Observation):
         if len(self._res) != self.n_points:
             raise ForMoSAError('res must have same length as wave', self.logger)
 
-        if np.any(self.res <= 0):
-            raise ForMoSAError('Spectral resolution must be strictly positive', self.logger)
+        if np.any(self.res < 0):
+            raise ForMoSAError('Spectral resolution must be positive', self.logger)
 
         # Covariance
         if self._cov is not None:

@@ -379,3 +379,14 @@ class ObservedModel:
         Authors: Allan Denis
         """
         return replace(self, **updates)
+
+    def _sort(self) -> None:
+        '''
+        Sort by increasing wavelength
+
+        Authors: Allan Denis
+        '''
+
+        # Sort wave, flux, res and component
+        isort = np.argsort(self.wave)
+        self.wave, self.flux, self.res, self.component = self.wave[isort], self.flux[isort], self.res[isort], self.component[isort]

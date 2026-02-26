@@ -63,11 +63,15 @@ class PhotometryObservation(Observation):
         return ObservationType.PHOTOMETRIC.obstype
 
     @property
-    def res(self) -> float:                                       # Resolution
+    def res(self) -> np.ndarray[float]:                           # Resolution
         return np.array([0.0])
 
     @property
-    def to_dict(self) -> dict[str, np.ndarray]:                    # Dictionary representation of photometric observations
+    def hc_mode(self) -> bool:                                    # Whether observation is in high-contrast mode
+        return False
+
+    @property
+    def to_dict(self) -> dict[str, np.ndarray]:                   # Dictionary representation of photometric observations
         return {
             ObservationKeys.WAVELENGTH.canonical: self.wave.tolist(),
             ObservationKeys.FLUX.canonical: self.flux.tolist(),
@@ -83,7 +87,7 @@ class PhotometryObservation(Observation):
         return self._Filter
 
     @Filter.setter
-    def Filter(self, new_filter: PhotometryFilter) -> None:        # Setter for photometric filter
+    def Filter(self, new_filter: PhotometryFilter) -> None:       # Setter for photometric filter
         if not isinstance(new_filter, PhotometryFilter):
             raise ForMoSAError(f'Wrong type for Filter: {type(new_filter)}. Expected an instance of PhotometryFilter', self.logger)
         self._Filter = new_filter

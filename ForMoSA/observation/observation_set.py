@@ -9,10 +9,10 @@ import matplotlib.gridspec as gridspec
 from matplotlib.axes._axes import Axes
 
 from ForMoSA.core.errors import ForMoSAError
-from ForMoSA.core.enums import ObservationType
 from ForMoSA.core.loggings import setup_logging
 from ForMoSA.observation.observation_base import Observation
 from ForMoSA.core.config import SPECTRAL_PLOT, PHOTOMETRIC_PLOT
+from ForMoSA.core.enums import ObservationType, ObservationKeys
 from ForMoSA.observation.observation_spectroscopy import SpectralObservation
 from ForMoSA.observation.observation_photometry import PhotometryObservation
 
@@ -526,3 +526,61 @@ class ObservationSet(object):
 
             # Plot on the appropriate axes
             obs.plot_data(fig=fig, ax=ax, ax_filt=ax_filt, plot_config=plot_config)
+
+    def stack(self, ind_obs: list[int] | None = None, print_logger: bool = False) -> dict:
+        '''
+        Stack all observations using the dictionary representation.
+
+        Parameters
+        ----------
+        ind_obs (list[int]): List of index of observations to stack. If None, stack all observations
+
+        Returns
+        -------
+        dict: Stacked observations sorted by wavelength
+
+        Authors: Allan Denis
+        '''
+
+        if print_logger:
+            self.logger.info("    Stacking observations")
+
+        wavelength_all = []
+        flux_all = []
+        error_all = []
+        res_all = []
+
+        if ind_obs is None:
+            ind_obs = np.arange(self.n_observations)
+
+        for iobs in ind_obs:
+
+            obs_data = self.observations[iobs]
+
+            wave = np.atleast_1d(obs_data.wave)
+            flux = np.atleast_1d(obs_data.flux)
+            err = np.atleast_1d(obs_data.err)
+            res = np.atleast_1d(obs_data.res)
+
+            wavelength_all.append(wave)
+            flux_all.append(flux)
+            error_all.append(err)
+            res_all.append(res)
+
+        # concatenate
+        wavelength_all = np.concatenate(wavelength_all)
+        flux_all = np.concatenate(flux_all)
+        error_all = np.concatenate(error_all)
+        res_all = np.concatenate(res_all)
+
+        # sort by wavelength
+        idx = np.argsort(wavelength_all)
+
+        stacked = {
+            ObservationKeys.WAVELENGTH.canonical : wavelength_all[idx],
+            ObservationKeys.FLUX.canonical: flux_all[idx],
+            ObservationKeys.ERROR.canonical: error_all[idx],
+            ObservationKeys.RESOLUTION.canonical: res_all[idx],
+        }
+
+        return stacked

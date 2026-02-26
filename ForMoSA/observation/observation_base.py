@@ -69,7 +69,17 @@ class Observation(ABC):
     @property
     @abstractmethod
     def wavelength_range(self) -> tuple[float, float]:           # Wavelength range
-        return float(self.wave.min()), float(self.wave.max())
+        pass
+
+    @property
+    @abstractmethod
+    def res(self) -> np.ndarray[float]:                          # Resolution
+        pass
+
+    @property
+    @abstractmethod
+    def hc_mode(self) -> bool:                                   # Whether observation is in high-contrast mode
+        pass
 
     @abstractmethod
     def _adapt_to_resolution(self, target_resolution: np.ndarray, wave_cont: str | None = None, res_cont: float | None = None) -> "Observation":
@@ -138,11 +148,11 @@ class Observation(ABC):
         return ((self._wave * self.native_unit).to(self.unit)).value
 
     @property
-    def flux(self) -> np.ndarray:                                 # Flux array
+    def flux(self) -> np.ndarray[float]:                          # Flux array
         return self._flux
 
     @property
-    def err(self) -> np.ndarray:                                  # Error array
+    def err(self) -> np.ndarray[float]:                           # Error array
         return self._err
 
     @property

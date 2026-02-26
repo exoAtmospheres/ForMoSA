@@ -68,7 +68,7 @@ class NSResults:
     @property
     def median_parameters(self) -> dict[str, float]:     # Weighted posterior median for each parameter
         return {
-            name: self._weighted_quantile(self.samples[:, i], self.weights, 0.5)
+            name: self._weighted_quantile(self.samples[self.burn_in:, i], self.weights[self.burn_in:], 0.5)
             for i, name in enumerate(self.free_parameters)
         }
 
