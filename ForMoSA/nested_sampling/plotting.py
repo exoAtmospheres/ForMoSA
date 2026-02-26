@@ -1,3 +1,4 @@
+import copy
 import corner
 import logging
 import numpy as np
@@ -85,7 +86,7 @@ class Plotting(object):
         corner_kwargs = config.to_dict
         corner_kwargs['labels'] = self.ns_results.free_parameters
         corner_kwargs['weights'] = weights
-        corner_kwargs['range'] = [0.99 for i in self.ns_results.free_parameters]
+        corner_kwargs['range'] = [0.99999 for i in self.ns_results.free_parameters]
 
         # Create the figure
         fig = corner.corner(samples, **corner_kwargs)
@@ -286,9 +287,6 @@ class Plotting(object):
         if plot_native_model:
             ax.plot(native_model.wave, native_model.flux, color=config.color, linewidth=config.linewidth, zorder=config.zorder)
 
-        # Plot all observations and filters
-        observations.plot_all(fig=fig, ax=ax, ax_filt=ax_filt)
-
         # concatenate all residuals first
         all_residuals = []
 
@@ -301,6 +299,11 @@ class Plotting(object):
 
         # Plot best-fit and residuals
         for i, obs in enumerate(observations.observations):
+            # Create a copy of the observations to optionally remove component estimated by high-contrast module
+            obs_transformed = copy.deepcopy(obs)
+            obs_transformed._flux -= best_fit[i].component
+
+            obs_transformed.plot_data(fig=fig, ax=ax, ax_filt=ax_filt)
             res = best_fit[i].residuals(obs.flux)
 
             if obs.is_photometric:
@@ -313,7 +316,7 @@ class Plotting(object):
                     ax.plot(best_fit[i].wave, best_fit[i].flux, color=config.color, linewidth=config.linewidth, zorder=config.zorder)  # Best-fit
                 axr.plot(obs.wave, res / global_std, c=config.color)               # Residuals
 
-            axr2.hist(res/global_std, orientation='horizontal', bins=100, color='black', alpha=0.8, density=True)
+            axr2.hist(res/global_std, orientation='horizontal', bins=100, color=config.color, alpha=0.8, density=True)
 
         axr.set_xlabel(r'Wavelength ($\mu$m)')
         axr.set_ylabel(r'Residuals ($\sigma$)')
