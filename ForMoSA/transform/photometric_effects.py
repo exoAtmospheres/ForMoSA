@@ -67,9 +67,11 @@ class PhotometricEffects:
         # Scaling (R, D, alpha)
         # ======================
 
-        alpha = values_by_kind.get(ParameterKind.ALPHA, 1.0)
         if ParameterKind.DISTANCE in values_by_kind and ParameterKind.RADIUS in values_by_kind:
-            observed_model = ApplyPhysicsEffects._apply_scaling(observed_model, alpha, values_by_kind.get(ParameterKind.RADIUS), values_by_kind.get(ParameterKind.DISTANCE))
+            observed_model = ApplyPhysicsEffects._apply_scaling(observed_model, values_by_kind.get(ParameterKind.RADIUS), values_by_kind.get(ParameterKind.DISTANCE))
+
+        alpha = values_by_kind.get(ParameterKind.ALPHA, 1.0)
+        observed_model.flux *= alpha
 
         return observed_model
 

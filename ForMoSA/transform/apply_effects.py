@@ -102,14 +102,13 @@ class ApplyPhysicsEffects:
         return observed_model
 
     @staticmethod
-    def _apply_scaling(observed_model: ObservedModel, alpha_value: float, r_value: float, d_value: float) -> np.ndarray:
+    def _apply_scaling(observed_model: ObservedModel, r_value: float, d_value: float) -> np.ndarray:
         '''
         Apply scaling.
 
         Parameters
         ----------
         observed_model  (ObservedModel): Instance of class ObservedModel
-        alpha_value             (float): Scaling value
         r_value                 (float): Radius value
         d_value                 (float): Distance value
 
@@ -120,7 +119,7 @@ class ApplyPhysicsEffects:
         Authors: Allan Denis
         '''
 
-        observed_model.flux, ck = us.calc_ck(observed_model.flux, [], [], r_value, d_value, alpha=alpha_value)
+        observed_model.flux, ck = us.calc_ck(observed_model.flux, [], [], r_value, d_value)
         observed_model.scaling = 'physical'
 
         return observed_model
@@ -145,8 +144,7 @@ class ApplyObservationEffects:
         '''
 
         if obs.res.all() == 0:
-            raise ForMoSAError('Cannot degrade resolution on an observation for which the resolution is 0')
-
+            return observed_model
 
         if len(observed_model.wave) != len(obs.wave):
             flux = us.resolution_decreasing(observed_model.wave, observed_model.flux, observed_model.res, obs.wave, obs.res)
@@ -173,7 +171,7 @@ class ApplyObservationEffects:
         '''
 
         if observed_model.scaling == 'analytic':
-            observed_model.flux, ck = us.calc_ck(observed_model.flux, obs.flux, obs.err, 0, 0, alpha=1, analytic='yes', bounds = bounds)
+            observed_model.flux, ck = us.calc_ck(observed_model.flux, obs.flux, obs.err, 0, 0, analytic='yes', bounds = bounds)
 
         return observed_model
 

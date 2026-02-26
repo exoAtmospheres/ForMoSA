@@ -12,7 +12,7 @@ from ForMoSA.core.enums import VsiniFunction
 from scipy import optimize
 
 
-def calc_ck(flx_mod: np.ndarray, flx_obs: np.ndarray, err_obs: np.ndarray, r_picked: float, d_picked: float, alpha: float = 1.0, analytic: str = 'no', bounds: tuple[float, float] = (-float('inf'), float('inf'))) -> tuple[np.ndarray, float]:
+def calc_ck(flx_mod: np.ndarray, flx_obs: np.ndarray, err_obs: np.ndarray, r_picked: float, d_picked: float, analytic: str = 'no', bounds: tuple[float, float] = (-float('inf'), float('inf'))) -> tuple[np.ndarray, float]:
     '''
     Calculation of the dilution factor Ck and re-normalization of the synthetic spectrum.
 
@@ -23,7 +23,6 @@ def calc_ck(flx_mod: np.ndarray, flx_obs: np.ndarray, err_obs: np.ndarray, r_pic
     err_obs            (np.ndarray): Error of the data
     r_picked                (float): Radius (Rjup)
     d_picked                (float): Distance (pc)
-    alpha                   (float): Manual scaling factor (default=1.0)
     analytic                  (str): If 'yes', compute Ck by linear least-squares fitting, else use alpha*(R/d)^2
     bounds    (tuple[float, float]): Bounds for the Least Squares
 
@@ -39,7 +38,7 @@ def calc_ck(flx_mod: np.ndarray, flx_obs: np.ndarray, err_obs: np.ndarray, r_pic
     if analytic == 'no':
         r_picked *= u.Rjup
         d_picked *= u.pc
-        ck = alpha * (r_picked.to(u.m).value/d_picked.to(u.m).value)**2
+        ck = (r_picked.to(u.m).value/d_picked.to(u.m).value)**2
         flx_mod_ck = flx_mod * ck
     else:
         # Fit mode using fit_linear_model
