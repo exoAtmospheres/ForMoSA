@@ -331,11 +331,6 @@ class NSResults:
         Authors: Allan Denis
         '''
 
-        if self.ns.results is None:
-            raise ForMoSAError('Please first run the Nested Sampling before printing the summary', self.logger)
-
-        self.logger.info(f'    Summary of Nested Sampling: \n {self.results.summary()}')
-
         lines = []
         lines.append("======== Nested Sampling Summary ====================")
         lines.append(f"LogZ = {self.logz[0]:.3f} ± {self.logz[1]:.3f}")
