@@ -170,20 +170,24 @@ class CornerPlotConfig:
     '''
 
     figsize: tuple[float, float] = (15.0, 15.0)
-    bins: int = 30
-    smooth: float | None = None
+    color: str = "magenta"
+    bins: int = 80
+    smooth: float = 1
     smooth1d: float | None = None
-    plot_datapoints: bool = True
+    plot_datapoints: bool = False
     plot_density: bool = True
     plot_contours: bool = True
+    fill_contours: bool = True
     quantiles: tuple = (0.16, 0.5, 0.84)
+    levels: list = field(default_factory = lambda: [0.997, 0.95, 0.68])
     show_titles: bool = True
-    title_fmt: str = ".3f"
-    title_kwargs: dict | None = None
-    label_kwargs: dict | None = None
+    title_fmt: str = " .2f"
     hist_kwargs: dict | None = None
     contour_kwargs: dict | None = None
-    color: str = "magenta"
+    contour_kwargs: dict = field(default_factory = lambda: dict(colors='magenta', linewidths=0.7))
+    pcolor_kwargs: dict = field(default_factory = lambda: dict(color='red'))
+    title_kwargs: dict = field(default_factory = lambda: dict(fontsize=14))
+    label_kwargs: dict = field(default_factory= lambda: dict(fontsize=14))
     max_n_ticks: int = 4
 
     @property
