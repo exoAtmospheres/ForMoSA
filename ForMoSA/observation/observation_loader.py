@@ -201,7 +201,7 @@ class ObservationLoader:
             native_unit = WavelengthUnit.MICROMETER
             logger.warning(f'Wavelength unit not specified for observation. Assuming {native_unit.unit}')
         else:
-            unit_value = data[normalized["WAVELENGTH_UNIT"]]
+            unit_value = np.unique(np.asarray(data[normalized["WAVELENGTH_UNIT"]], dtype=str))[0]
             native_unit = WavelengthUnit[str(unit_value)]
 
         # --------------------------------
