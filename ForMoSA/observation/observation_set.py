@@ -527,7 +527,7 @@ class ObservationSet(object):
             # Plot on the appropriate axes
             obs.plot_data(fig=fig, ax=ax, ax_filt=ax_filt, plot_config=plot_config)
 
-    def stack(self, ind_obs: list[int] | None = None, print_logger: bool = False) -> dict:
+    def _stack(self, ind_obs: list[int] | None = None, print_logger: bool = False) -> dict:
         '''
         Stack all observations using the dictionary representation.
 

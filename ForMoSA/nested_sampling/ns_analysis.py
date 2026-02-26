@@ -163,7 +163,7 @@ class NSAnalysis(object):
         # Build stacked observed_model and observations
         stacked_model = ObservedModel(wave_all, flux_all, res_all)
         stacked_model._sort()
-        stacked_obs = self.ns.observations.stack(ind_obs_list, print_logger=print_logger)
+        stacked_obs = self.ns.observations._stack(ind_obs_list, print_logger=print_logger)
 
         # analytic scaling
         stacked_model.flux, ck = us.calc_ck(
