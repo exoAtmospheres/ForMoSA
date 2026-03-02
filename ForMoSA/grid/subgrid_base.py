@@ -479,4 +479,3 @@ class SubGrid(ModelGrid, ABC):
         observed_model = ObservedModel(model.coords['wavelength'], model.grid.values, model.attrs['res'])
 
         return observed_model
-

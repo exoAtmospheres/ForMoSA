@@ -119,7 +119,7 @@ class SubGridPhotometry(SubGrid):
         for filt in Filter:
             target_wavelength = np.append(target_wavelength, filt.central_wavelength)
 
-        subgrid._grid = subgrid._build_empty_adapted_grid(target_wavelength=target_wavelength, target_resolution=0)
+        subgrid._grid = subgrid._build_empty_adapted_grid(target_wavelength=target_wavelength, target_resolution=np.array([0] * len(target_wavelength)))
         subgrid.adapt()
 
         return subgrid
@@ -285,7 +285,7 @@ class SubGridPhotometry(SubGrid):
         '''
 
         if print_logger:
-            self.logger.debug(f' Integrate filter curve of {self.Filter.name} on the spectrum')
+            self.logger.debug(f'Integrate filter curve of {self.Filter.name} on the spectrum')
 
         # Model wavelength
         wave_model = model_to_adapt["wavelength"]
