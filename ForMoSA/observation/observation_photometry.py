@@ -117,10 +117,8 @@ class PhotometryObservation(Observation):
             self._Filter = np.append(self._Filter, PhotometryFilter(self.facility[i], self.instrument[i], filt_id))
             self._Filter[i]._set_unit(WavelengthUnit[str(self.unit)])
 
-        for filt in self.Filter:
-            if (self.wave[0] < filt.wavelength_min) or (self.wave[0] > filt.wavelength_max):
-                raise ForMoSAError(f'Wrong value for wave: {self.wave}. Expected a value between {list(filt.wavelength_range)}', self.logger)
-
+        if (self.wave[0] < self.wavelength_range[0]) or (self.wave[0] > self.wavelength_range[1]):
+            raise ForMoSAError(f'Wrong value for wave: {self.wave}. Expected a value between {list(self.wavelength_range)}', self.logger)
 
     def _adapt_to_resolution(self, target_resolution: float | None = None, wave_cont: str | None = None, res_cont: float | None = None) -> "PhotometryObservation":
         '''
