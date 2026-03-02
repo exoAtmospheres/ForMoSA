@@ -260,7 +260,7 @@ class Observation(ABC):
                 raise ForMoSAError(f'Unknown path extension: {Path(path).suffix[1:]}. Require a fits or npz extension', logger)
 
         except ForMoSAError as e:
-            raise ForMoSAError(f' Error for observation path {path}: {e}', logger)
+            raise ForMoSAError(f'Error for observation path {path}: {e}', logger)
 
     @classmethod
     def from_attributes(cls, logger: logging.Logger | None = None, log_level: str = 'INFO', **kwargs) -> "Observation":
@@ -288,7 +288,7 @@ class Observation(ABC):
         try:
             return ObservationLoader._from_attributes(logger=logger, **kwargs)
         except ForMoSAError as e:
-            raise ForMoSAError(f' Error for observation with attributes {kwargs}: {e}', logger)
+            raise ForMoSAError(f'Error for observation with attributes {kwargs}: {e}', logger)
 
     # ==================================================
     # Methods
@@ -347,7 +347,7 @@ class Observation(ABC):
         self.logger.debug(f'Save observation {self.name} to path {store_path}')
         # Get the saving path and automatically create it if it does not exist
         if not isinstance(store_path, str | os.PathLike):
-            raise ForMoSAError(f' Wrong type for store_path: {type(store_path)}. Expected a string or os.PathLike', self.logger)
+            raise ForMoSAError(f'Wrong type for store_path: {type(store_path)}. Expected a string or os.PathLike', self.logger)
 
         path = Path(store_path).expanduser()
         filename = f"Observation_{self.name}.npz"

@@ -284,7 +284,7 @@ class ModelGrid:
         Authors: Simon Petrus, Paulina Palma-Bifani, Matthieu Ravet and Allan Denis
         '''
 
-        self._logger.info(f'    Interpolating between holes of the grid {self.grid_name}')
+        self.logger.info(f'    Interpolating between holes of the grid {self.grid_name}')
 
         interp_kwargs = {"method": method, "fill_value": fill_value}
 
@@ -296,10 +296,10 @@ class ModelGrid:
         self._logger.info(f" {self.grid_name}")
 
         for idx, (key, title) in enumerate(zip(self.keys, self.titles)):
-            self._logger.info(f' {idx + 1}/{len(self.keys)} - {title}')
+            self.logger.info(f' {idx + 1}/{len(self.keys)} - {title}')
 
-            if self._grid.isnull().any(dim=key).any():
-                self._grid = self._grid.interpolate_na(dim=key, **interp_kwargs)
+            if self.grid.isnull().any(dim=key).any():
+                self._grid = self.grid.interpolate_na(dim=key, **interp_kwargs)
 
     def _nan_interpolated_grid(self):
         '''
@@ -340,7 +340,7 @@ class ModelGrid:
         '''
 
         if print_logger:
-            self._logger.info('Interpolate between gridpoints in the grid')
+            self.logger.info('Interpolate between gridpoints in the grid')
 
         if not isinstance(grid_params, dict):
             raise ForMoSAError(f'<Wrong type for grid_params: {type(grid_params)}. Expected a dictionary>', self.logger)
@@ -364,7 +364,7 @@ class ModelGrid:
             min_val, max_val = self.lims_params_grid[name]
             if not (min_val <= value <= max_val):
                 out_of_bounds = True
-                self._logger.warning(f"Grid parameter '{name}'={value} outside bounds [{min_val}, {max_val}]. Returning NaN grid")
+                self.logger.warning(f"Grid parameter '{name}'={value} outside bounds [{min_val}, {max_val}]. Returning NaN grid")
 
         # ==================================================
         #  out-of-bounds
@@ -379,13 +379,13 @@ class ModelGrid:
         interp_kwargs["method"] = method
         interp_kwargs["kwargs"] = {"fill_value": np.nan}
 
-        if not isinstance(self._grid, xr.Dataset):
+        if not isinstance(self.grid, xr.Dataset):
             raise ForMoSAError("Grid is not a valid xarray.Dataset", self.logger)
 
         if print_logger:
-            self._logger.debug('<Interpolation>')
+            self.logger.debug('<Interpolation>')
 
-        return self._grid.interp(**interp_kwargs)
+        return self.grid.interp(**interp_kwargs)
 
     def save_grid(self, store_path : str | os.PathLike) -> None:
         '''
@@ -434,12 +434,12 @@ class ModelGrid:
 
         store_path = Path(store_path).expanduser()
 
-        self._logger.info(f'<Load adapted grid {suffix}_{grid_name} from the store_path {store_path}>')
+        self.logger.info(f'<Load adapted grid {suffix}_{grid_name} from the store_path {store_path}>')
 
         filename = f"{suffix}_{grid_name}.nc"
         grid_file = store_path / filename
 
-        self._logger.debug(f'<Open grid file {grid_file}>')
+        self.logger.debug(f'<Open grid file {grid_file}>')
 
         try:
             grid = GridLoader._from_file(grid_file)
