@@ -303,16 +303,8 @@ class ObservationLoader:
             ins = np.asarray(data[normalized["INSTRUMENT"]], dtype=str)
             filter_id = np.asarray(data[normalized["FILTER_ID"]], dtype=str)
 
-            # if len(facility) != 1:
-            #     raise ForMoSAError(f'Wrong length for facility: {len(facility)}. You must provide only one facility')
-            # if len(ins) !=1:
-            #     raise ForMoSAError(f'Wrong length for instrument {len(ins)}. You must provide only one instrument')
-            # if len(filter_id) != 1:
-            #     raise ForMoSAError(f'Wrong length for filter_id: {len(filter_id)}. You must provide only one filter_id')
 
-            #facility, ins, filter_id = facility[0], ins[0], filter_id[0]
-
-            logger.info(f'    Detected photometric observation with filter {np.unique(facility)}/{np.unique(ins)}.{np.unique(filter_id)}')
+            logger.info(f'    Detected photometric observation with filter {np.unique(filter_id)}')
 
             # Error
             err = data[normalized["ERROR"]]

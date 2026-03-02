@@ -113,7 +113,7 @@ class PhotometryObservation(Observation):
         if not len(self.filter_id) == len(self.instrument):
             raise ForMoSAError('filter_id and instrument must have same lengths', self.logger)
 
-        for i, (filt_id, facility, instrument) in enumerate(zip(np.unique(self.filter_id), np.unique(self.facility), np.unique(self.instrument))):
+        for i, (filt_id, facility, instrument) in enumerate(zip(self.filter_id, self.facility, self.instrument)):
             self._Filter = np.append(self._Filter, PhotometryFilter(self.facility[i], self.instrument[i], filt_id))
             self._Filter[i]._set_unit(WavelengthUnit[str(self.unit)])
 

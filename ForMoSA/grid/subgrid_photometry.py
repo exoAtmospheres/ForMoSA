@@ -287,36 +287,47 @@ class SubGridPhotometry(SubGrid):
         if print_logger:
             self.logger.debug(f'Integrate filter curve of {self.Filter.name} on the spectrum')
 
-        # Model wavelength
-        wave_model = model_to_adapt["wavelength"]
+        trans_total = []
+        wave_total = []
 
-        # Filter as DataArray
-        transmission, wavelength = np.array([]), np.array([])
+        wave_model = model_to_adapt.wavelength.values
+        flux_model = model_to_adapt.values
+
         for filt in self.Filter:
-            transmission = np.append(transmission, filt.transmission)
-            wavelength = np.append(wavelength, filt.wavelength)
 
-        filter_da = xr.DataArray(
-            transmission,
-            coords={"wavelength": wavelength},
+            # Filter wavelength and transmission
+            wave_filt = filt.wavelength
+            trans_filt = filt.transmission
+
+            # Interpolation of transmission onto grid wavelength
+            trans_interp = np.interp(
+                wave_model,
+                wave_filt,
+                trans_filt,
+                left=0.0,
+                right=0.0
+            )
+
+            # integration
+            numerator = np.trapz(flux_model * trans_interp, wave_model)
+            denominator = np.trapz(trans_interp, wave_model)
+
+            if denominator == 0:
+                flux = np.nan
+            else:
+                flux = numerator / denominator
+
+            trans_total.append(flux)
+            wave_total.append(filt.central_wavelength)
+
+        # final concatenation
+        result_da = xr.DataArray(
+            data=np.array(trans_total),
+            coords={"wavelength": wave_total},
             dims=("wavelength",),
         )
 
-        # Interpolate filter transmission on model wavelength grid
-        filter_interp = filter_da.interp(
-            wavelength=wave_model,
-            kwargs={"fill_value": 0.0},
-        )
-
-        # Restrict to filter support
-        filter_interp = filter_interp.where(filter_interp > 0, drop=True)
-        model_sub = model_to_adapt.sel(wavelength=filter_interp.wavelength)
-
-        # Weighted integration
-        numerator = (model_sub * filter_interp).integrate("wavelength")
-        denominator = filter_interp.integrate("wavelength")
-
-        return (numerator / denominator).item()
+        return result_da
 
     def _apply_observational_effects(self, observed_model: ObservedModel, obs: Observation, bounds_lsq: tuple[float, float] =(-np.inf, np.inf)) -> ObservedModel:
         '''

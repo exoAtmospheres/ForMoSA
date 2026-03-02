@@ -309,7 +309,7 @@ class SubGrid(ModelGrid, ABC):
         wl_max_target = np.nanmax(target_wavelength)
 
         if (wl_min_target < wl_min_parent) or (wl_max_target > wl_max_parent):
-            raise ForMoSAError(f"target_wavelength={target_wavelength[0]} is outside the parent grid [{wl_min_parent}, {wl_max_parent}]>", self.logger)
+            raise ForMoSAError(f"target_wavelength={target_wavelength} is outside the parent grid [{wl_min_parent}, {wl_max_parent}]>", self.logger)
 
         # Shape of the native grid
         data_shape = len(target_wavelength), *tuple(len(self.parent_grid.grid[key]) for key in self.parent_grid.keys)
