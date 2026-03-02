@@ -320,7 +320,7 @@ class PhotometryFilter(object):
 
         self._display_unit = unit
         self._validate
-        self._logger.info(f"    Setting wavelength unit to {unit.unit} for filter {self.name}")
+        self._logger.info(f"    Setting wavelength unit to {unit.unit} for filter {self.name} to {self.unit}")
 
     def _save_filter(self) -> None:
         '''

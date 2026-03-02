@@ -64,7 +64,7 @@ class SpectralObservation(Observation):
     # ==================================================
 
     def __repr__(self) -> str:
-        return f' SpectralObservation : {self.facility} - {self.instrument} - {self.n_points} points'
+        return f' SpectralObservation : {self.name} - {self.n_points} points'
 
     def __format__(self) -> str:
         return self.__repr__()
@@ -167,7 +167,7 @@ class SpectralObservation(Observation):
 
     @property
     def name(self) -> str:                                      # Name of the observation
-        return f'{self.facility}_{self.instrument}'
+        return f'{"_".join([f"[{facility}_{ins}]" for facility, ins in zip(np.unique(self.facility), np.unique(self.instrument))])}'
 
     @property
     def wavelength_range(self) -> tuple[float, float]:          # Wavelength range of the observation
@@ -378,22 +378,25 @@ class SpectralObservation(Observation):
         elif fig is None:
             fig = ax.figure
 
-        if plot_config.label:
-            label = self.facility + '/' + self.instrument
-        else:
-            label = None
+        for i, (facility, instrument) in enumerate(zip(np.unique(self.facility), np.unique(self.instrument))):
+            if plot_config.label:
+                label = facility + '/' + instrument
 
-        # Plot data: either as line or scatter depending on marker
-        if plot_config.marker == 'None' :
-            ax.plot(self.wave, self.flux, color=plot_config.color, linewidth=plot_config.linewidth, zorder=plot_config.zorder_data, label = label)
-        else:
-            ax.scatter( self.wave, self.flux, color=plot_config.color, edgecolors=plot_config.edgecolor, marker=plot_config.marker, s=plot_config.markersize, linewidths=plot_config.linewidth, zorder=plot_config.zorder_data, label = label)
-            # Plot error bars
-            ax.errorbar(self.wave, self.flux, yerr=self.err, fmt=plot_config.errorbar_fmt, ecolor=plot_config.color, alpha=plot_config.errorbar_alpha, capsize=plot_config.errorbar_capsize, zorder=plot_config.zorder_error)
+            else:
+                label = None
 
-        # Legend
-        if plot_config.label:
-            ax.legend()
+            # Plot data: either as line or scatter depending on marker
+            if plot_config.marker == 'None' :
+                ax.plot(self.wave[self.instrument_idxs[i]: self.instrument_idxs[i+1]], self.flux[self.instrument_idxs[i]: self.instrument_idxs[i+1]], color=plot_config.color, linewidth=plot_config.linewidth, zorder=plot_config.zorder_data, label = label)
+
+            else:
+                ax.scatter(self.wave[self.instrument_idxs[i]: self.instrument_idxs[i+1]], self.flux[self.instrument_idxs[i]: self.instrument_idxs[i+1]], color=plot_config.color, edgecolors=plot_config.edgecolor, marker=plot_config.marker, s=plot_config.markersize, linewidths=plot_config.linewidth, zorder=plot_config.zorder_data, label = label)
+                # Plot error bars
+                ax.errorbar(self.wave[self.instrument_idxs[i]: self.instrument_idxs[i+1]], self.flux[self.instrument_idxs[i]: self.instrument_idxs[i+1]], yerr=self.err[self.instrument_idxs[i]: self.instrument_idxs[i+1]], fmt=plot_config.errorbar_fmt, ecolor=plot_config.color, alpha=plot_config.errorbar_alpha, capsize=plot_config.errorbar_capsize, zorder=plot_config.zorder_error)
+
+            # Legend
+            if plot_config.label:
+                ax.legend()
 
         # Axis labels
         ax.set_xlabel(f" Wavelength ({getattr(self, 'unit', '')})")
@@ -425,7 +428,7 @@ class SpectralObservation(Observation):
             windows = f'{self.wave[0]}, {self.wave[-1]}'
 
         if print_logger:
-            self.logger.debug(f'Restrict observation {self.name} onto wavelengths windows {windows}')
+            self.logger.debug(f'Restricting observation {self.name} onto wavelengths windows {windows}')
 
         ind = np.array([], dtype=int)
         for window in windows.split("/"):
@@ -446,6 +449,6 @@ class SpectralObservation(Observation):
         restricted._res_cont = self.res_cont
 
         if print_logger:
-            self.logger.info(f'Length of former Observation: {len(self.wave)}. Lengths of restricted obervation: {len(restricted.wave)}')
+            self.logger.info(f'    Wavelength of former Observation: {self.wavelength_range}. Wavelength of restricted obervation: {restricted.wavelength_range}')
 
         return restricted

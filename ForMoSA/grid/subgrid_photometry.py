@@ -19,20 +19,19 @@ class SubGridPhotometry(SubGrid):
 
     Parameters
     ----------
-    parent_grid          (ModelGrid): Parent model grid
-    Filter        (PhotometryFilter): Instance of :class:~PhotometryFilter corresponding to the photometric filter
-    logger          (logging.Logger): Logger
-    log_level                  (str): Level of the logger
-    name                       (str): Name of the subgrid
+    parent_grid                  (ModelGrid): Parent model grid
+    Filter    (np.ndarray[PhotometryFilter]): Instance of :class:~PhotometryFilter corresponding to the photometric filter
+    logger                  (logging.Logger): Logger
+    log_level                          (str): Level of the logger
+    name                               (str): Name of the subgrid
 
     Authors: Allan Denis
     '''
 
-    def __init__(self, grid: xr.Dataset, parent_grid: ModelGrid, Filter: PhotometryFilter, logger: logging.Logger | None = None, log_level: str = "INFO", display_unit: WavelengthUnit = WavelengthUnit.MICROMETER, name: str = 'Unknown'):
+    def __init__(self, grid: xr.Dataset, parent_grid: ModelGrid, Filter: np.ndarray[PhotometryFilter], logger: logging.Logger | None = None, log_level: str = "INFO", display_unit: WavelengthUnit = WavelengthUnit.MICROMETER, name: str = 'Unknown'):
         super().__init__(grid, parent_grid = parent_grid, logger=logger, log_level=log_level, name=name, display_unit=display_unit)
 
-        self._Filter = Filter
-        self.Filter._set_unit(display_unit)
+        self._Filter = np.asarray(Filter, dtype = object)
 
         self._validate_photometry()
 
@@ -41,7 +40,7 @@ class SubGridPhotometry(SubGrid):
     # ================================================
 
     def __repr__(self) -> str:
-        return f"<SubGridPhotometry name={self.name} filter_id={self.Filter.filter_id}>"
+        return f"SubGridPhotometry name={self.name}"
 
     # ================================================
     # properties
@@ -64,9 +63,7 @@ class SubGridPhotometry(SubGrid):
         return False
 
     @property
-    def Filter(self) -> PhotometryFilter:                             # Filter
-        if not isinstance(self._Filter, PhotometryFilter):
-            raise ForMoSAError(f'Wrong instance for Filter: {type(self._Filter)}. Expecting an instance of PhotometryFilter>', self.logger)
+    def Filter(self) -> np.ndarray[PhotometryFilter]:                 # Filter
         return self._Filter
 
     @property
@@ -86,18 +83,18 @@ class SubGridPhotometry(SubGrid):
     # ======================================================
 
     @classmethod
-    def from_parent(cls, parent_grid: ModelGrid, Filter: PhotometryFilter, name: str = 'unknown', logger: logging.Logger | None = None, log_level: str = 'INFO', display_unit: WavelengthUnit = WavelengthUnit.MICROMETER) -> 'SubGridPhotometry':
+    def from_parent(cls, parent_grid: ModelGrid, Filter: np.ndarray[PhotometryFilter], name: str = 'unknown', logger: logging.Logger | None = None, log_level: str = 'INFO', display_unit: WavelengthUnit = WavelengthUnit.MICROMETER) -> 'SubGridPhotometry':
         '''
         Build Photometric subgrid from the parent grid, target_wavelength.
 
         Parameters
         ----------
-        parent_grid (ModelGrid): Instance of ModelGrid
-        Filter        (PhotometryFilter): Instance of :class:~PhotometryFilter corresponding to the photometric filter
-        name                     (str): Name of the subgrid
-        logger (logging.Logger | None): Logger
-        log_level                (str): Level of the Logger
-        display_unit  (WavelengthUnit): Unit to display for the wavelength
+        parent_grid                 (ModelGrid): Instance of ModelGrid
+        Filter   (np.ndarray[PhotometryFilter]): Arrays containing instances of class PhotometryFilter corresponding to the photometric filter
+        name                              (str): Name of the subgrid
+        logger          (logging.Logger | None): Logger
+        log_level                         (str): Level of the Logger
+        display_unit           (WavelengthUnit): Unit to display for the wavelength
 
         Returns
         -------
@@ -118,7 +115,11 @@ class SubGridPhotometry(SubGrid):
             display_unit=display_unit,
         )
 
-        subgrid._grid = subgrid._build_empty_adapted_grid(target_wavelength=Filter.central_wavelength, target_resolution=0)
+        target_wavelength = np.array([])
+        for filt in Filter:
+            target_wavelength = np.append(target_wavelength, filt.central_wavelength)
+
+        subgrid._grid = subgrid._build_empty_adapted_grid(target_wavelength=target_wavelength, target_resolution=0)
         subgrid.adapt()
 
         return subgrid
@@ -158,7 +159,10 @@ class SubGridPhotometry(SubGrid):
 
         name = ds.attrs.get('name', 'unknown')
         filter_name = ds.attrs.get("filter_name")
-        Filter = PhotometryFilter._from_filter_name(filter_name)
+
+        Filter = []
+        for name in filter_name:
+            Filter.append(PhotometryFilter._from_filter_name(filter_name))
 
         logger.info('    Creating photometric SubGrid from dataset')
 
@@ -183,7 +187,11 @@ class SubGridPhotometry(SubGrid):
         Authors: Allan Denis
         '''
 
-        pass
+        for filt in self.Filter:
+            if not isinstance(filt, PhotometryFilter):
+                raise ForMoSAError('Filter must be an array of PhotometryFilter objects', self.logger)
+
+            filt._set_unit(WavelengthUnit[str(self.unit)])
 
     def adapt(self) -> None:
         '''
@@ -193,7 +201,7 @@ class SubGridPhotometry(SubGrid):
         '''
 
         self.adapt_grid()
-        self._grid.attrs['filter_name'] = self.Filter.name
+        self._grid.attrs['filter_name'] = [filt.name for filt in self.Filter]
 
     def _get_restriction_bounds(self) -> tuple[float, float]:
         '''
@@ -207,7 +215,13 @@ class SubGridPhotometry(SubGrid):
         '''
 
         margin = 0.05   # 5% margin
-        return self.Filter.wavelength_min * (1 - margin), self.Filter.wavelength_max * (1 + margin)
+
+        wavelength_min, wavelength_max = [], []
+        for filt in self.Filter:
+            wavelength_min.append(filt.wavelength_min * (1 - margin))
+            wavelength_max.append(filt.wavelength_max * (1 + margin))
+
+        return np.min(wavelength_min), np.max(wavelength_max)
 
     def _adapt_model(self, model_to_adapt: xr.DataArray):
         '''
@@ -277,9 +291,14 @@ class SubGridPhotometry(SubGrid):
         wave_model = model_to_adapt["wavelength"]
 
         # Filter as DataArray
+        transmission, wavelength = np.array([]), np.array([])
+        for filt in self.Filter:
+            transmission = np.append(transmission, filt.transmission)
+            wavelength = np.append(wavelength, filt.wavelength)
+
         filter_da = xr.DataArray(
-            self.Filter.transmission,
-            coords={"wavelength": self.Filter.wavelength},
+            transmission,
+            coords={"wavelength": wavelength},
             dims=("wavelength",),
         )
 

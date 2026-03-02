@@ -22,9 +22,9 @@ class PhotometryObservation(Observation):
     wave                (np.ndarray): Wavelength array
     flux                (np.ndarray): Flux array
     err                 (np.ndarray): Error array
-    instrument                 (str): Instrument
-    facility                   (str): Facility
-    filter_id                  (str): Filter ID
+    instrument          (np.ndarray): Instrument
+    facility            (np.ndarray): Facility
+    filter_id           (np.ndarray): Filter ID
     native_unit     (WavelengthUnit): native unit of the wavelength
     logger          (logging.Logger): Logger
     log_level                  (str): Level of the logger
@@ -33,23 +33,22 @@ class PhotometryObservation(Observation):
     Authors: Allan Denis
     '''
 
-    def __init__(self, wave: np.ndarray, flux: np.ndarray, err: np.ndarray, instrument: str, facility: str, filter_id: str, native_unit: WavelengthUnit, logger: logging.Logger | None = None, log_level: str = 'INFO', display_unit: WavelengthUnit = WavelengthUnit.MICROMETER) -> None:
+    def __init__(self, wave: np.ndarray, flux: np.ndarray, err: np.ndarray, instrument: np.ndarray, facility: np.ndarray, filter_id: np.ndarray, native_unit: WavelengthUnit, logger: logging.Logger | None = None, log_level: str = 'INFO', display_unit: WavelengthUnit = WavelengthUnit.MICROMETER) -> None:
 
-        self._filter_id = filter_id
+        self._filter_id = np.atleast_1d(np.asarray(filter_id, dtype=str))
         # Inherit from Observation class
         super().__init__(wave=wave, flux=flux, err=err, facility=facility, instrument=instrument, native_unit=native_unit, logger=logger, log_level=log_level, display_unit=display_unit)
 
-        self._Filter = PhotometryFilter(facility, instrument, filter_id)
+        self._Filter = np.array([])
 
         self._validate_photometry()
-        self._Filter._set_unit(display_unit)
 
     # ==================================================
     # Representation
     # ==================================================
 
     def __repr__(self) -> str:
-        return f' PhotometricObservation : {self.facility} - {self.instrument} - {self.filter_id}'
+        return f' PhotometricObservation : {self.name}'
 
     def __format__(self) -> str:
         return self.__repr__()
@@ -83,28 +82,22 @@ class PhotometryObservation(Observation):
         }
 
     @property
-    def Filter(self) -> PhotometryFilter:                         # Photometric filter
+    def Filter(self) -> np.ndarray[PhotometryFilter]:             # Photometric filters
         return self._Filter
 
-    @Filter.setter
-    def Filter(self, new_filter: PhotometryFilter) -> None:       # Setter for photometric filter
-        if not isinstance(new_filter, PhotometryFilter):
-            raise ForMoSAError(f'Wrong type for Filter: {type(new_filter)}. Expected an instance of PhotometryFilter', self.logger)
-        self._Filter = new_filter
-        self._validate_photometry()
-        self._Filter._set_unit(self.display_unit)
-
     @property
-    def filter_id(self) -> str:                                   # Filter ID
+    def filter_id(self) -> np.ndarray[str]:                       # Filter ID
         return self._filter_id
 
     @property
     def name(self) -> str:                                        # Name of the observation
-        return f"{self.facility}_{self.instrument}_{self.filter_id}"
+        return '_'.join([f"[{facility}_{ins}_{filt_id}]" for facility, ins, filt_id in zip(np.unique(self.facility), np.unique(self.instrument), np.unique(self.filter_id))])
 
     @property
     def wavelength_range(self) -> tuple:                          # Wavelength range of the observation
-        return self.Filter.wavelength_range
+        wmin = np.min([filt.wavelength_min for filt in self.Filter])
+        wmax = np.max([filt.wavelength_max for filt in self.Filter])
+        return wmin, wmax
 
     # ==================================================
     # Methods
@@ -117,11 +110,17 @@ class PhotometryObservation(Observation):
         Authors: Allan Denis
         '''
 
-        if not isinstance(self.Filter, PhotometryFilter):
-            raise ForMoSAError(f'Wrong type for Filter: {type(self.Filter)}. Expected an instance of PhotometryFilter', self.logger)
+        if not len(self.filter_id) == len(self.instrument):
+            raise ForMoSAError('filter_id and instrument must have same lengths', self.logger)
 
-        if (self.wave[0] < self.Filter.wavelength_min) or (self.wave[0] > self.Filter.wavelength_max):
-            raise ForMoSAError(f'Wrong value for wave: {self.wave}. Expected a value between {list(self.Filter.wavelength_range)}', self.logger)
+        for i, (filt_id, facility, instrument) in enumerate(zip(np.unique(self.filter_id), np.unique(self.facility), np.unique(self.instrument))):
+            self._Filter = np.append(self._Filter, PhotometryFilter(self.facility[i], self.instrument[i], filt_id))
+            self._Filter[i]._set_unit(WavelengthUnit[str(self.unit)])
+
+        for filt in self.Filter:
+            if (self.wave[0] < filt.wavelength_min) or (self.wave[0] > filt.wavelength_max):
+                raise ForMoSAError(f'Wrong value for wave: {self.wave}. Expected a value between {list(filt.wavelength_range)}', self.logger)
+
 
     def _adapt_to_resolution(self, target_resolution: float | None = None, wave_cont: str | None = None, res_cont: float | None = None) -> "PhotometryObservation":
         '''
@@ -164,18 +163,21 @@ class PhotometryObservation(Observation):
             ax_filt = fig.add_subplot(gs[0:3, 0:10], sharex=ax)
 
         # Plot filter transmission
-        ax_filt.plot(self.Filter.wavelength, self.Filter.transmission, label=getattr(self.Filter, "name"), color=plot_config.color)
-        ax_filt.legend()
         ax_filt.set_ylabel("Transmission")
 
-        # Plot data points
-        label = None
-        if plot_config.label:
-            label = self.facility + '/' + self.instrument + '.' + self.filter_id
-        ax.scatter(self.wave, self.flux, color=plot_config.color, edgecolors=plot_config.edgecolor, marker=plot_config.marker, s=plot_config.markersize, linewidths=plot_config.linewidth, zorder=plot_config.zorder_data, label = label)
+        for i, filt in enumerate(self.Filter):
+            ax_filt.plot(filt.wavelength, filt.transmission, label=getattr(filt, "name"), color=plot_config.color)
+            ax_filt.legend()
 
-        # Plot error bars
-        ax.errorbar(self.wave, self.flux, yerr=self.err, xerr=self.Filter.width, fmt=plot_config.errorbar_fmt, ecolor=plot_config.color, alpha=plot_config.errorbar_alpha, capsize=plot_config.errorbar_capsize, zorder=plot_config.zorder_error)
+            # Plot data points
+            label = None
+            if plot_config.label:
+                label = filt.facility + '/' + filt.instrument + '.' + filt.filter_id
+
+            ax.scatter(self.wave[self.instrument_idxs[i]: self.instrument_idxs[i+1]], self.flux[self.instrument_idxs[i]: self.instrument_idxs[i+1]], color=plot_config.color, edgecolors=plot_config.edgecolor, marker=plot_config.marker, s=plot_config.markersize, linewidths=plot_config.linewidth, zorder=plot_config.zorder_data, label = label)
+
+            # Plot error bars
+            ax.errorbar(self.wave[self.instrument_idxs[i]: self.instrument_idxs[i+1]], self.flux[self.instrument_idxs[i]: self.instrument_idxs[i+1]], yerr=self.err[self.instrument_idxs[i]: self.instrument_idxs[i+1]], xerr=filt.width, fmt=plot_config.errorbar_fmt, ecolor=plot_config.color, alpha=plot_config.errorbar_alpha, capsize=plot_config.errorbar_capsize, zorder=plot_config.zorder_error)
 
         # Axis labels
         ax.set_xlabel(f"Wavelength ({getattr(self, 'unit', '')})")
@@ -220,6 +222,6 @@ class PhotometryObservation(Observation):
                 setattr(restricted, name, value[ind])
 
         if print_logger:
-            self.logger.info(f'Length of former Observation: {len(self.wave)}. Lengths of restricted obervation: {len(restricted.wave)}')
+            self.logger.info(f'    Wavelength of former Observation: {self.wavelength_range}. Wavelength of restricted obervation: {restricted.wavelength_range}')
 
         return restricted

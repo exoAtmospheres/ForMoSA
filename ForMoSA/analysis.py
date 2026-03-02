@@ -198,8 +198,10 @@ class Analysis(object):
                         subgrid = SubGridSpectroscopy.from_parent(parent_grid = self.grid, target_wavelength=wave, target_resolution=res, name = obs.name, logger = self.logger, remove_continuum=remove_cont, res_cont=res_cont, wave_cont=wave_cont)
                     # Photometric observation
                     elif obs.ObsType == ObservationType.PHOTOMETRIC.obstype:
-                        Filter = PhotometryFilter(obs.facility, obs.instrument, obs.filter_id)
-                        subgrid = SubGridPhotometry.from_parent(parent_grid = self.grid, Filter = Filter, name = obs.name, logger = self.logger)
+                        Filter_list = []
+                        for facility, instrument, filter_id in zip(obs.facility, obs.instrument, obs.filter_id):
+                            Filter_list.append(PhotometryFilter(facility, instrument, filter_id))
+                        subgrid = SubGridPhotometry.from_parent(parent_grid = self.grid, Filter = Filter_list, name = obs.name, logger = self.logger)
                     # Unknown type
                     else:
                         raise ForMoSAError(f'Unknown ObservationType: {obs.ObsType}')

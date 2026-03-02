@@ -223,16 +223,16 @@ class ObservationLoader:
                 if canonical not in set(normalized.keys()):
                     logger.warning(f"Key {key} not in observation keys. Setting it to 'unknown'")
                     if key == 'FACILITY':
-                        facility = 'unknown'
+                        facility = np.array(['unknown'] * len(wave))
                     elif key == 'INSTRUMENT':
-                        ins = 'unknown'
+                        ins = np.array(['unknown'] * len(wave))
                 else:
                     if key == 'FACILITY':
-                        facility = np.unique(np.asarray(data[normalized["FACILITY"]], dtype=str))[0]
+                        facility = np.asarray(data[normalized["FACILITY"]], dtype=str)
                     elif key == 'INSTRUMENT':
-                        ins = np.unique(np.asarray(data[normalized["INSTRUMENT"]], dtype=str))[0]
+                        ins = np.asarray(data[normalized["INSTRUMENT"]], dtype=str)
 
-            logger.info(f'    Detected spectroscopic observation with instrument {facility}/{ins}')
+            logger.info(f'    Detected spectroscopic observation with instruments {np.unique(facility)}/{np.unique(ins)}')
 
             # Resolution
             res = data[normalized["RESOLUTION"]]
@@ -299,20 +299,20 @@ class ObservationLoader:
                 raise ForMoSAError(f"Missing required observation keys: {', '.join(missing_photo)}", logger)
 
             # Facility, ins and filter_id
-            facility = np.unique(np.asarray(data[normalized["FACILITY"]], dtype=str))
-            ins = np.unique(np.asarray(data[normalized["INSTRUMENT"]], dtype=str))
-            filter_id = np.unique(np.asarray(data[normalized["FILTER_ID"]], dtype=str))
+            facility = np.asarray(data[normalized["FACILITY"]], dtype=str)
+            ins = np.asarray(data[normalized["INSTRUMENT"]], dtype=str)
+            filter_id = np.asarray(data[normalized["FILTER_ID"]], dtype=str)
 
-            if len(facility) != 1:
-                raise ForMoSAError(f'Wrong length for facility: {len(facility)}. You must provide only one facility')
-            if len(ins) !=1:
-                raise ForMoSAError(f'Wrong length for instrument {len(ins)}. You must provide only one instrument')
-            if len(filter_id) != 1:
-                raise ForMoSAError(f'Wrong length for filter_id: {len(filter_id)}. You must provide only one filter_id')
+            # if len(facility) != 1:
+            #     raise ForMoSAError(f'Wrong length for facility: {len(facility)}. You must provide only one facility')
+            # if len(ins) !=1:
+            #     raise ForMoSAError(f'Wrong length for instrument {len(ins)}. You must provide only one instrument')
+            # if len(filter_id) != 1:
+            #     raise ForMoSAError(f'Wrong length for filter_id: {len(filter_id)}. You must provide only one filter_id')
 
-            facility, ins, filter_id = facility[0], ins[0], filter_id[0]
+            #facility, ins, filter_id = facility[0], ins[0], filter_id[0]
 
-            logger.info(f'    Detected photometric observation with filter {facility}/{ins}.{filter_id}')
+            logger.info(f'    Detected photometric observation with filter {np.unique(facility)}/{np.unique(ins)}.{np.unique(filter_id)}')
 
             # Error
             err = data[normalized["ERROR"]]

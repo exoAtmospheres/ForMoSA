@@ -21,8 +21,8 @@ class Observation(ABC):
     wave               (np.ndarray): Wavelength array
     flux               (np.ndarray): Flux array
     err                (np.ndarray): Error array
-    facility                  (str): Facility name
-    instrument                (str): Instrument name
+    facility           (np.ndarray): Facility name
+    instrument         (np.ndarray): Instrument name
     native_unit    (WavelengthUnit): Native unit of the wavelength array
     logger         (logging.Logger): Logger
     log_level                 (str): Level of the logging
@@ -40,8 +40,8 @@ class Observation(ABC):
         self._err  = np.atleast_1d(np.asarray(err, dtype=float))
         self._native_unit = native_unit
         self._display_unit = display_unit
-        self._facility  = facility
-        self._instrument  = instrument
+        self._facility  = np.atleast_1d(np.asarray(facility, dtype=str))
+        self._instrument  = np.atleast_1d(np.asarray(instrument, dtype=str))
 
         self._validate()
         self._logger.info(f'    Setting wavelength unit to {self.unit} for observation {self.name}')
@@ -156,11 +156,11 @@ class Observation(ABC):
         return self._err
 
     @property
-    def facility(self) -> str:                                    # Facility (e.g. 'JWST', 'Keck', 'Paranal')
+    def facility(self) -> np.ndarray[str]:                        # Facility (e.g. 'JWST', 'Keck', 'Paranal')
         return self._facility
 
     @property
-    def instrument(self) -> str:                                  # Instrument (e.g. 'NIRCam', 'NIRC2', 'SPHERE')
+    def instrument(self) -> np.ndarray[str]:                      # Instrument (e.g. 'NIRCam', 'NIRC2', 'SPHERE')
         return self._instrument
 
     @property
@@ -174,6 +174,19 @@ class Observation(ABC):
     @property
     def path(self) -> Path:                                       # Path of the observation (if any)
         return Path(self._path) if self._path is not None else 'in-memory observation'
+
+    @property
+    def instrument_idxs(self) -> np.ndarray:                      # Indexes of occurent of new instruments
+        idxs = np.array([0])
+        last_ins = self.instrument[0]
+
+        for idx, ins in enumerate(self.instrument):
+            if ins != last_ins:
+                idxs = np.append(idxs, idx)
+                last_ins = ins
+
+        idxs = np.append(idxs, len(self.instrument))
+        return idxs
 
     # ================================================
     # Class methods
@@ -288,8 +301,8 @@ class Observation(ABC):
         Authors: Allan Denis
         '''
 
-        if not (len(self._wave) == len(self._flux) == len(self._err)):
-            raise ForMoSAError('wave, flux and err must have same length', self.logger)
+        if not (len(self._wave) == len(self._flux) == len(self._err) == len(self.instrument) == len(self.facility)):
+            raise ForMoSAError(f'wave ({len(self.wave)}), flux ({len(self.flux)}), err ({len(self.err)}), instrument ({len(self.instrument)}) and facility ({len(self.facility)}) must have same length', self.logger)
 
         if not isinstance(self._native_unit, WavelengthUnit):
             raise ForMoSAError(f'Wrong type for native_unit: {type(self._native_unit)}. Expected a WavelengthUnit', self.logger)
@@ -301,10 +314,6 @@ class Observation(ABC):
         for unit in [self.native_unit, self.unit]:
             if unit not in valid_units:
                 raise ForMoSAError(f'Wrong unit: {unit}. Chose amongst {valid_units}', self.logger)
-
-        for param_str, param_type in [self.facility, self.instrument], ['facility', 'instrument']:
-            if not isinstance(param_str, str):
-                raise ForMoSAError(f'Wrong type for {param_type}: {type(param_str)}. Require a string', self.logger)
 
         if np.any(self.err <= 0):
             raise ForMoSAError('Error must be strictly positive', self.logger)
