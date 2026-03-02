@@ -162,7 +162,7 @@ class SubGridPhotometry(SubGrid):
 
         Filter = []
         for name in filter_name:
-            Filter.append(PhotometryFilter._from_filter_name(filter_name))
+            Filter.append(PhotometryFilter._from_filter_name(name))
 
         logger.info('    Creating photometric SubGrid from dataset')
 

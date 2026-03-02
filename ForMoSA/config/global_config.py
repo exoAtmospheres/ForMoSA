@@ -419,7 +419,7 @@ class ConfigParameters:
         kind = ParameterKind[base.upper()]
         return name, kind, "local", obs_index
 
-    def _parse_param_value(self, value: list[str]) -> Prior.Prior | str:
+    def _parse_param_value(self, value: list[str] | str) -> Prior.Prior | str:
         '''
         Parse parameter value from the current instance.
 
@@ -437,7 +437,7 @@ class ConfigParameters:
         if value not in self.to_dict.values():
             raise ForMoSAError(f' Please chose a value amongst {self.to_dict.value()}')
 
-        if value[0] == 'NA':
+        if value[0] == 'NA' or value == 'NA':
             return 'NA'
         else:
             prior_type = PriorType[value[0].strip().upper()]
