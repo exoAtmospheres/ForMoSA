@@ -153,8 +153,9 @@ class PhotometryFilter(object):
     @property
     def folder(self) -> Path:                             # Folder of the filter
         folder = self.filter_path / self.facility / self.instrument
+
         if not folder.exists():
-            self._logger.debug(f"<{folder} does not exist. Creating it>")
+            self._logger.info(f"    {folder} does not exist. Creating it")
             folder.mkdir(parents=True, exist_ok=True)
 
         return folder
