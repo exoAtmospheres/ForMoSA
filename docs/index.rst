@@ -20,7 +20,7 @@ We encourage the community to exploit its capabilities!
    :caption: Contents
 
    installation.rst
-   demo.rst
+   guidelines.rst
    api.rst
 
 

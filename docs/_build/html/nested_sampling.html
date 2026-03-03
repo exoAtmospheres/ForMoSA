@@ -1,3 +1,5 @@
+
+
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" data-content_root="./">
 <head>
@@ -5,22 +7,18 @@
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Nested Sampling &mdash; ForMoSA 1.1.6 documentation</title>
-      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=fa44fd50" />
-      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="_static/custom.css?v=d0b3e03c" />
 
   
     <link rel="shortcut icon" href="_static/favicon.ico"/>
-  <!--[if lt IE 9]>
-    <script src="_static/js/html5shiv.min.js"></script>
-  <![endif]-->
-  
-        <script src="_static/jquery.js?v=5d32c60e"></script>
-        <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="_static/documentation_options.js?v=937269b5"></script>
-        <script src="_static/doctools.js?v=9a2dae69"></script>
-        <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
-        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=937269b5"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -51,47 +49,19 @@
               <p class="caption" role="heading"><span class="caption-text">Contents</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="demo.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="guidelines.html">Guidelines</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="api.html">ForMoSA API</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="main_utilities.html">Main Utilities</a></li>
 <li class="toctree-l2"><a class="reference internal" href="adapt.html">Adapt the data</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#">Nested Sampling</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#module-ForMoSA.nested_sampling.nested_sampling">Nested Main:</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#ForMoSA.nested_sampling.nested_sampling.import_obsmod"><code class="docutils literal notranslate"><span class="pre">import_obsmod()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#ForMoSA.nested_sampling.nested_sampling.launch_nested_sampling"><code class="docutils literal notranslate"><span class="pre">launch_nested_sampling()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#ForMoSA.nested_sampling.nested_sampling.loglike"><code class="docutils literal notranslate"><span class="pre">loglike()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#ForMoSA.nested_sampling.nested_sampling.prior_transform"><code class="docutils literal notranslate"><span class="pre">prior_transform()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#ForMoSA.nested_sampling.nested_sampling.NestedSampling"><code class="docutils literal notranslate"><span class="pre">NestedSampling</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="#module-ForMoSA.nested_sampling.nested_modif_spec">Modify Spectra:</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#ForMoSA.nested_sampling.nested_modif_spec.modif_spec"><code class="docutils literal notranslate"><span class="pre">modif_spec()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="#module-ForMoSA.nested_sampling.nested_prior_functions">Prior Functions:</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#ForMoSA.nested_sampling.nested_prior_functions.gaussian_prior"><code class="docutils literal notranslate"><span class="pre">gaussian_prior()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#ForMoSA.nested_sampling.nested_prior_functions.loguniform_prior"><code class="docutils literal notranslate"><span class="pre">loguniform_prior()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#ForMoSA.nested_sampling.nested_prior_functions.uniform_prior"><code class="docutils literal notranslate"><span class="pre">uniform_prior()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="#module-ForMoSA.nested_sampling.nested_logL_functions">Likelihood Functions:</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#ForMoSA.nested_sampling.nested_logL_functions.logL_CCF_Brogi"><code class="docutils literal notranslate"><span class="pre">logL_CCF_Brogi()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#ForMoSA.nested_sampling.nested_logL_functions.logL_CCF_Zucker"><code class="docutils literal notranslate"><span class="pre">logL_CCF_Zucker()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#ForMoSA.nested_sampling.nested_logL_functions.logL_CCF_custom"><code class="docutils literal notranslate"><span class="pre">logL_CCF_custom()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#ForMoSA.nested_sampling.nested_logL_functions.logL_chi2"><code class="docutils literal notranslate"><span class="pre">logL_chi2()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#ForMoSA.nested_sampling.nested_logL_functions.logL_chi2_covariance"><code class="docutils literal notranslate"><span class="pre">logL_chi2_covariance()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#ForMoSA.nested_sampling.nested_logL_functions.logL_chi2_noisescaling"><code class="docutils literal notranslate"><span class="pre">logL_chi2_noisescaling()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#ForMoSA.nested_sampling.nested_logL_functions.logL_chi2_noisescaling_covariance"><code class="docutils literal notranslate"><span class="pre">logL_chi2_noisescaling_covariance()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="#module-ForMoSA.nested_sampling.nested_highcont_models">High-contrast Models:</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#ForMoSA.nested_sampling.nested_highcont_models.hc_model"><code class="docutils literal notranslate"><span class="pre">hc_model()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#ForMoSA.nested_sampling.nested_highcont_models.hc_model_estimate_speckles"><code class="docutils literal notranslate"><span class="pre">hc_model_estimate_speckles()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#ForMoSA.nested_sampling.nested_highcont_models.hc_model_estimate_speckles_estimate_continuum"><code class="docutils literal notranslate"><span class="pre">hc_model_estimate_speckles_estimate_continuum()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#ForMoSA.nested_sampling.nested_highcont_models.hc_model_estimate_speckles_remove_continuum"><code class="docutils literal notranslate"><span class="pre">hc_model_estimate_speckles_remove_continuum()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#ForMoSA.nested_sampling.nested_highcont_models.hc_model_nonlinear_estimate_speckles"><code class="docutils literal notranslate"><span class="pre">hc_model_nonlinear_estimate_speckles()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#ForMoSA.nested_sampling.nested_highcont_models.hc_model_remove_speckles"><code class="docutils literal notranslate"><span class="pre">hc_model_remove_speckles()</span></code></a></li>
-</ul>
-</li>
+<li class="toctree-l3"><a class="reference internal" href="#modify-spectra">Modify Spectra:</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#prior-functions">Prior Functions:</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#likelihood-functions">Likelihood Functions:</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#high-contrast-models">High-contrast Models:</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="plotting.html">Plotting Class</a></li>
@@ -128,564 +98,187 @@
 <span id="id1"></span><h1>Nested Sampling<a class="headerlink" href="#nested-sampling" title="Link to this heading"></a></h1>
 <section id="module-ForMoSA.nested_sampling.nested_sampling">
 <span id="nested-main"></span><h2>Nested Main:<a class="headerlink" href="#module-ForMoSA.nested_sampling.nested_sampling" title="Link to this heading"></a></h2>
-<dl class="py function">
-<dt class="sig sig-object py" id="ForMoSA.nested_sampling.nested_sampling.import_obsmod">
-<span class="sig-prename descclassname"><span class="pre">ForMoSA.nested_sampling.nested_sampling.</span></span><span class="sig-name descname"><span class="pre">import_obsmod</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">global_params</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ForMoSA/nested_sampling/nested_sampling.html#import_obsmod"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ForMoSA.nested_sampling.nested_sampling.import_obsmod" title="Link to this definition"></a></dt>
-<dd><p>Function to import spectra (model and data) before the inversion</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>global_params</strong> (<em>object</em>) – Class containing every input from the .ini file.</p>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p><dl class="simple">
-<dt>Return a list of lists with the wavelengths, flux, errors, covariance matrix,</dt><dd><p>transmission, star flux, systematics, grid indices and the grids for both spectroscopic and photometric data.</p>
-</dd>
-</dl>
-</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><ul class="simple">
-<li><p>main_file (list(array))</p></li>
-</ul>
-</p>
-</dd>
-</dl>
-<p>Authors: Simon Petrus, Matthieu Ravet and Allan Denis</p>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="ForMoSA.nested_sampling.nested_sampling.launch_nested_sampling">
-<span class="sig-prename descclassname"><span class="pre">ForMoSA.nested_sampling.nested_sampling.</span></span><span class="sig-name descname"><span class="pre">launch_nested_sampling</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">global_params</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ForMoSA/nested_sampling/nested_sampling.html#launch_nested_sampling"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ForMoSA.nested_sampling.nested_sampling.launch_nested_sampling" title="Link to this definition"></a></dt>
-<dd><p>Function to launch the nested sampling.
-We first perform LogL function check-ups.
-Then the free parameters are counted and the data imported.
-Finally, depending on the nested sampling methode chosen in the config file, we perform the inversion.
-(Methods succesfully implemented are Nestle and PyMultinest)</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>global_params</strong> (<em>object</em>) – Class containing every input from the .ini file.</p>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>None</p>
-</dd>
-</dl>
-<p>Author: Simon Petrus and Matthieu Ravet</p>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="ForMoSA.nested_sampling.nested_sampling.loglike">
-<span class="sig-prename descclassname"><span class="pre">ForMoSA.nested_sampling.nested_sampling.</span></span><span class="sig-name descname"><span class="pre">loglike</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">theta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">theta_index</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">global_params</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">main_file</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">for_plot</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'no'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ForMoSA/nested_sampling/nested_sampling.html#loglike"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ForMoSA.nested_sampling.nested_sampling.loglike" title="Link to this definition"></a></dt>
-<dd><p>Function that calculates the logarithm of the likelihood.
-The evaluation depends on the choice of likelihood.
-(If this function is used on the plotting module, it returns the outputs of the modif_spec function)</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="ForMoSA.nested_sampling.nested_sampling.NestedSampling">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ForMoSA.nested_sampling.nested_sampling.</span></span><span class="sig-name descname"><span class="pre">NestedSampling</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">algorithm</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">NestedAlgorithm</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">npoints</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logL_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">LogLikelihoodType</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config_NS</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Config_NS</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">observations</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ObservationSet</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subgrids</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">SubGridSet</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parameters</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ParameterSet</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wave_fit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interp_method</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'linear'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bounds_lsq</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logger</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Logger</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_level</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'INFO'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ForMoSA/nested_sampling/nested_sampling.html#NestedSampling"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ForMoSA.nested_sampling.nested_sampling.NestedSampling" title="Link to this definition"></a></dt>
+<dd><p>ForMoSA Nested_Sampling class, which provides easy access to the parameters of the nested sampling algorithm</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>theta</strong> (<em>list</em>) – Parameter values randomly picked by the nested sampling</p></li>
-<li><p><strong>theta_index</strong> (<em>list</em>) – Index for the parameter values randomly picked</p></li>
-<li><p><strong>global_params</strong> (<em>object</em>) – Class containing every input from the .ini file.</p></li>
-<li><p><strong>main_file</strong> (<em>list</em><em>(</em><em>list</em><em>)</em>) – List containing the wavelengths, flux, errors, covariance, and grid information</p></li>
-<li><p><strong>for_plot</strong> (<em>str</em>) – Default is ‘no’. When this function is called from the plotting functions module, we use ‘yes’</p></li>
+<li><p><strong>(</strong><strong>Logger</strong><strong>)</strong> (<em>logger</em>)</p></li>
+<li><p><strong>(</strong><strong>str</strong><strong>)</strong> (<em>log_level</em>)</p></li>
+<li><p><strong>(</strong><strong>int</strong><strong>)</strong> (<em>npoints</em>)</p></li>
+<li><p><strong>(</strong><strong>list</strong><strong>[</strong><strong>LogLikelihoodType</strong><strong>]</strong><strong>)</strong> (<em>logL_type</em>)</p></li>
+<li><p><strong>(</strong><strong>Config_NS</strong><strong>)</strong> (<em>config_NS</em>)</p></li>
+<li><p><strong>(</strong><strong>str</strong><strong>)</strong></p></li>
+<li><p><strong>(</strong><strong>list</strong><strong>[</strong><strong>str</strong><strong>]</strong><strong>)</strong> (<em>wave_fit</em>)</p></li>
+<li><p><strong>(</strong><strong>list</strong><strong>[</strong><strong>float</strong><strong>]</strong><strong>)</strong> (<em>bounds_lsq</em>)</p></li>
+<li><p><strong>(</strong><strong>logging.Logger</strong><strong>)</strong> (<em>logger</em>)</p></li>
+<li><p><strong>(</strong><strong>str</strong><strong>)</strong></p></li>
+<li><p><strong>Authors</strong> (<em>Allan Denis</em>)</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>Final evaluated loglikelihood for both spectra and photometry.</p>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="ForMoSA.nested_sampling.nested_sampling.NestedSampling.build_models_from_theta">
+<span class="sig-name descname"><span class="pre">build_models_from_theta</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">theta</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">ObservedModel</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/ForMoSA/nested_sampling/nested_sampling.html#NestedSampling.build_models_from_theta"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ForMoSA.nested_sampling.nested_sampling.NestedSampling.build_models_from_theta" title="Link to this definition"></a></dt>
+<dd><p>Build the models from the values of the free parameters drawn by the Nested Sampling</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>(</strong><strong>np.ndarray</strong><strong>[</strong><strong>float</strong><strong>]</strong><strong>)</strong> (<em>theta</em>)</p>
 </dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><ul class="simple">
-<li><p>FINAL_logL     (float)</p></li>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>list[ObservedModel]</strong> (<em>List of instances of class ObservedModel</em>)</p></li>
+<li><p><strong>Authors</strong> (<em>Allan Denis</em>)</p></li>
 </ul>
 </p>
 </dd>
 </dl>
-<p>Authors: Simon Petrus, Matthieu Ravet and Allan Denis</p>
 </dd></dl>
 
-<dl class="py function">
-<dt class="sig sig-object py" id="ForMoSA.nested_sampling.nested_sampling.prior_transform">
-<span class="sig-prename descclassname"><span class="pre">ForMoSA.nested_sampling.nested_sampling.</span></span><span class="sig-name descname"><span class="pre">prior_transform</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">theta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">theta_index</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lim_param_grid</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">global_params</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ForMoSA/nested_sampling/nested_sampling.html#prior_transform"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ForMoSA.nested_sampling.nested_sampling.prior_transform" title="Link to this definition"></a></dt>
-<dd><p>Function that define the priors to be used for the inversion.
-We check that the boundaries are consistent with the grid extension.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="ForMoSA.nested_sampling.nested_sampling.NestedSampling.from_dict">
+<em class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">observations</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ObservationSet</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subgrids</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">SubGridSet</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logger</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Logger</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_level</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'INFO'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#ForMoSA.nested_sampling.nested_sampling.NestedSampling" title="ForMoSA.nested_sampling.nested_sampling.NestedSampling"><span class="pre">NestedSampling</span></a></span></span><a class="reference internal" href="_modules/ForMoSA/nested_sampling/nested_sampling.html#NestedSampling.from_dict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ForMoSA.nested_sampling.nested_sampling.NestedSampling.from_dict" title="Link to this definition"></a></dt>
+<dd><p>Reconstruct an instance of NestedSampling from a dictionary of NestedSampling.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>theta</strong> (<em>list</em>) – Parameter values randomly picked by the nested sampling</p></li>
-<li><p><strong>theta_index</strong> (<em>list</em>) – Index for the parameter values randomly picked</p></li>
-<li><p><strong>lim_param_grid</strong> (<em>list</em>) – Boundaries for the parameters explored</p></li>
-<li><p><strong>global_params</strong> (<em>object</em>) – Class containing every input from the .ini file.</p></li>
+<li><p><strong>(</strong><strong>dict</strong><strong>)</strong> (<em>data</em>)</p></li>
+<li><p><strong>(</strong><strong>ObservationSet</strong><strong>)</strong> (<em>observations</em>)</p></li>
+<li><p><strong>(</strong><strong>SubGridSet</strong><strong>)</strong> (<em>subgrids</em>)</p></li>
+<li><p><strong>(</strong><strong>logging.Logger</strong><strong>)</strong> (<em>logger</em>)</p></li>
+<li><p><strong>(</strong><strong>str</strong><strong>)</strong> (<em>log_level</em>)</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>List containing all the prior information</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><ul class="simple">
-<li><p>prior           (list)</p></li>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>‘NestedSampling’</strong> (<em>An instance of class NestedSampling</em>)</p></li>
+<li><p><strong>Authors</strong> (<em>Allan Denis</em>)</p></li>
 </ul>
 </p>
 </dd>
 </dl>
-<p>Author: Simon Petrus, Matthieu Ravet, Allan Denis</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ForMoSA.nested_sampling.nested_sampling.NestedSampling.from_json">
+<em class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_json</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">PathLike</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">observations</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ObservationSet</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subgrids</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">SubGridSet</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logger</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Logger</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_level</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'INFO'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#ForMoSA.nested_sampling.nested_sampling.NestedSampling" title="ForMoSA.nested_sampling.nested_sampling.NestedSampling"><span class="pre">NestedSampling</span></a></span></span><a class="reference internal" href="_modules/ForMoSA/nested_sampling/nested_sampling.html#NestedSampling.from_json"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ForMoSA.nested_sampling.nested_sampling.NestedSampling.from_json" title="Link to this definition"></a></dt>
+<dd><p>Reconstruct an instance of NestedSampling from the folder containing the NestedSampling parameters.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>os.PathLike</strong><strong>)</strong> (<em>path</em><em>      (</em><em>str</em><em> |</em>)</p></li>
+<li><p><strong>(</strong><strong>ObservationSet</strong><strong>)</strong> (<em>observations</em>)</p></li>
+<li><p><strong>(</strong><strong>SubGridSet</strong><strong>)</strong> (<em>subgrids</em>)</p></li>
+<li><p><strong>(</strong><strong>logging.Logger</strong><strong>)</strong> (<em>logger</em>)</p></li>
+<li><p><strong>(</strong><strong>str</strong><strong>)</strong> (<em>log_level</em>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>‘NestedSampling’</strong> (<em>An instance of class NestedSampling</em>)</p></li>
+<li><p><strong>Authors</strong> (<em>Allan Denis</em>)</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ForMoSA.nested_sampling.nested_sampling.NestedSampling.load_results">
+<span class="sig-name descname"><span class="pre">load_results</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">results_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">PathLike</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/ForMoSA/nested_sampling/nested_sampling.html#NestedSampling.load_results"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ForMoSA.nested_sampling.nested_sampling.NestedSampling.load_results" title="Link to this definition"></a></dt>
+<dd><p>Method to load the results from the path results_paths</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>os.PathLike</strong><strong>)</strong> (<em>results_path</em><em> (</em><em>str</em><em> |</em>)</p></li>
+<li><p><strong>Authors</strong> (<em>Allan Denis</em>)</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ForMoSA.nested_sampling.nested_sampling.NestedSampling.loglike">
+<span class="sig-name descname"><span class="pre">loglike</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">theta</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="reference internal" href="_modules/ForMoSA/nested_sampling/nested_sampling.html#NestedSampling.loglike"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ForMoSA.nested_sampling.nested_sampling.NestedSampling.loglike" title="Link to this definition"></a></dt>
+<dd><p>Compute the loglikelihood for given parameters of the nested sampling.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>(</strong><strong>np.ndarray</strong><strong>[</strong><strong>float</strong><strong>]</strong><strong>)</strong> (<em>theta</em>)</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>logL (float)</strong></p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Final loglikelihood</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ForMoSA.nested_sampling.nested_sampling.NestedSampling.prior_transform">
+<span class="sig-name descname"><span class="pre">prior_transform</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">theta</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ndarray</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/ForMoSA/nested_sampling/nested_sampling.html#NestedSampling.prior_transform"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ForMoSA.nested_sampling.nested_sampling.NestedSampling.prior_transform" title="Link to this definition"></a></dt>
+<dd><p>ransform theta in [0,1]^N into physical values for free parameters.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>(</strong><strong>np.ndarray</strong><strong>[</strong><strong>float</strong><strong>]</strong><strong>)</strong> (<em>theta</em>)</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>np.ndarray[float]</strong> (<em>Transformed values</em>)</p></li>
+<li><p><strong>Authors</strong> (<em>Allan Denis</em>)</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ForMoSA.nested_sampling.nested_sampling.NestedSampling.run">
+<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">results_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">PathLike</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/ForMoSA/nested_sampling/nested_sampling.html#NestedSampling.run"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ForMoSA.nested_sampling.nested_sampling.NestedSampling.run" title="Link to this definition"></a></dt>
+<dd><p>Method to run the nested sampling algorithm using the model, observation and nested sampling parameters.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>os.PathLike</strong><strong>)</strong> (<em>results_path</em><em>   (</em><em>str</em><em> |</em>)</p></li>
+<li><p><strong>Authors</strong> (<em>Simon Petrus</em><em>, </em><em>Matthieu Ravet and Allan Denis</em>)</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ForMoSA.nested_sampling.nested_sampling.NestedSampling.save_results">
+<span class="sig-name descname"><span class="pre">save_results</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">results_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">PathLike</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/ForMoSA/nested_sampling/nested_sampling.html#NestedSampling.save_results"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ForMoSA.nested_sampling.nested_sampling.NestedSampling.save_results" title="Link to this definition"></a></dt>
+<dd><p>Method to save the results to the path results_path</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>os.PathLike</strong><strong>)</strong> (<em>results_path</em><em> (</em><em>str</em><em> |</em>)</p></li>
+<li><p><strong>(</strong><strong>wav_fit</strong> (<em>**kwargs                        = Additional parameters</em>)</p></li>
+<li><p><strong>interp_method</strong></p></li>
+<li><p><strong>bounds_lsq</strong><strong>)</strong></p></li>
+<li><p><strong>Authors</strong> (<em>Allan Denis</em>)</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
 </dd></dl>
 
 </section>
-<section id="module-ForMoSA.nested_sampling.nested_modif_spec">
-<span id="modify-spectra"></span><h2>Modify Spectra:<a class="headerlink" href="#module-ForMoSA.nested_sampling.nested_modif_spec" title="Link to this heading"></a></h2>
-<dl class="py function">
-<dt class="sig sig-object py" id="ForMoSA.nested_sampling.nested_modif_spec.modif_spec">
-<span class="sig-prename descclassname"><span class="pre">ForMoSA.nested_sampling.nested_modif_spec.</span></span><span class="sig-name descname"><span class="pre">modif_spec</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">global_params</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">theta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">theta_index</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">obs_dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flx_mod_spectro</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flx_mod_photo</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wav_mod_spectro</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">res_mod_obs_spectro</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">indobs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ForMoSA/nested_sampling/nested_modif_spec.html#modif_spec"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ForMoSA.nested_sampling.nested_modif_spec.modif_spec" title="Link to this definition"></a></dt>
-<dd><p>Modification of the interpolated synthetic spectra with the different extra-grid parameters.
-It can perform : Re-calibration on the data, Doppler shifting, Application of a substellar extinction, Application of a rotational velocity,
-Application of a circumplanetary disk (CPD).</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>global_params</strong> (<em>object</em>) – Class containing each parameter</p></li>
-<li><p><strong>theta</strong> (<em>list</em>) – Parameter values randomly picked by the nested sampling</p></li>
-<li><p><strong>theta_index</strong> (<em>list</em>) – Parameter index identificator</p></li>
-<li><p><strong>obs_dict</strong> (<em>dict</em>) – Dictionay containing all the observationnal entries (photometry, spectroscopy and/or optional)</p></li>
-<li><p><strong>flx_mod_spectro</strong> (<em>array</em>) – New flux of the interpolated synthetic spectrum (spectroscopy)</p></li>
-<li><p><strong>flx_mod_photo</strong> (<em>array</em>) – New flux of the interpolated synthetic spectrum (photometry)</p></li>
-<li><p><strong>wav_mod_spectro</strong> (<em>array</em>) – Wavelength array of the model (can be different from wav_obs_spectro)</p></li>
-<li><p><strong>res_mod_obs_spectro</strong> (<em>array</em>) – Spectroscopic resolution of the model interpolated onto wav_obs_spectro</p></li>
-<li><p><strong>indobs</strong> (<em>int</em>) – Index of the current observation looping</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>New dictionay containing all the observationnal entries (photometry, spectroscopy and/or optional)
-- flx_mod_spectro            (array): New flux of the interpolated synthetic spectrum (spectroscopy)
-- flx_mod_photo              (array): New flux of the interpolated synthetic spectrum (photometry)
-- flx_mod_spectro_nativ      (array): New flux of the interpolated synthetic spectrum NOT RESAMPLED (spectroscopy)
-- contributions              (array): Contributions from the high-contrast model
-- scale_spectro              (float): Spectroscopic flux scaling factor
-- scale_photo                (float): Photometric flux scaling factor</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><ul class="simple">
-<li><p>obs_dict                    (dict)</p></li>
-</ul>
-</p>
-</dd>
-</dl>
-<p>Author: Simon Petrus, Paulina Palma-Bifani, Allan Denis and Matthieu Ravet</p>
-</dd></dl>
-
+<section id="modify-spectra">
+<h2>Modify Spectra:<a class="headerlink" href="#modify-spectra" title="Link to this heading"></a></h2>
 </section>
-<section id="module-ForMoSA.nested_sampling.nested_prior_functions">
-<span id="prior-functions"></span><h2>Prior Functions:<a class="headerlink" href="#module-ForMoSA.nested_sampling.nested_prior_functions" title="Link to this heading"></a></h2>
-<dl class="py function">
-<dt class="sig sig-object py" id="ForMoSA.nested_sampling.nested_prior_functions.gaussian_prior">
-<span class="sig-prename descclassname"><span class="pre">ForMoSA.nested_sampling.nested_prior_functions.</span></span><span class="sig-name descname"><span class="pre">gaussian_prior</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">prior_fct_arg</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">theta</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ForMoSA/nested_sampling/nested_prior_functions.html#gaussian_prior"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ForMoSA.nested_sampling.nested_prior_functions.gaussian_prior" title="Link to this definition"></a></dt>
-<dd><p>Gaussian prior for nested sampling.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>prior_fct_arg</strong> (<em>list</em>) – Two-values list with uniform prior boundaries.</p></li>
-<li><p><strong>theta</strong> (<em>list</em>) – Parameter values randomly picked by the nested sampling</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>Evaluated prior</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><ul class="simple">
-<li><p>Evaluated      (float)</p></li>
-</ul>
-</p>
-</dd>
-</dl>
-<p>Author: Simon Petrus</p>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="ForMoSA.nested_sampling.nested_prior_functions.loguniform_prior">
-<span class="sig-prename descclassname"><span class="pre">ForMoSA.nested_sampling.nested_prior_functions.</span></span><span class="sig-name descname"><span class="pre">loguniform_prior</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">prior_fct_arg</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">theta</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ForMoSA/nested_sampling/nested_prior_functions.html#loguniform_prior"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ForMoSA.nested_sampling.nested_prior_functions.loguniform_prior" title="Link to this definition"></a></dt>
-<dd><p>LogUniform prior for nested sampling.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>prior_fct_arg</strong> (<em>list</em>) – Two-values list with loguniform prior boundaries.</p></li>
-<li><p><strong>theta</strong> (<em>list</em>) – Parameter values randomly picked by the nested sampling</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>Evaluated prior</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><ul class="simple">
-<li><p>Evaluated      (float)</p></li>
-</ul>
-</p>
-</dd>
-</dl>
-<p>Author: Simon Petrus</p>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="ForMoSA.nested_sampling.nested_prior_functions.uniform_prior">
-<span class="sig-prename descclassname"><span class="pre">ForMoSA.nested_sampling.nested_prior_functions.</span></span><span class="sig-name descname"><span class="pre">uniform_prior</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">prior_fct_arg</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">theta</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ForMoSA/nested_sampling/nested_prior_functions.html#uniform_prior"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ForMoSA.nested_sampling.nested_prior_functions.uniform_prior" title="Link to this definition"></a></dt>
-<dd><p>Uniform prior for nested sampling.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>prior_fct_arg</strong> (<em>list</em>) – Two-values list with uniform prior boundaries.</p></li>
-<li><p><strong>theta</strong> (<em>list</em>) – Parameter values randomly picked by the nested sampling</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>Evaluated prior</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><ul class="simple">
-<li><p>Evaluated      (float)</p></li>
-</ul>
-</p>
-</dd>
-</dl>
-<p>Author: Simon Petrus</p>
-</dd></dl>
-
+<section id="prior-functions">
+<h2>Prior Functions:<a class="headerlink" href="#prior-functions" title="Link to this heading"></a></h2>
 </section>
-<section id="module-ForMoSA.nested_sampling.nested_logL_functions">
-<span id="likelihood-functions"></span><h2>Likelihood Functions:<a class="headerlink" href="#module-ForMoSA.nested_sampling.nested_logL_functions" title="Link to this heading"></a></h2>
-<dl class="py function">
-<dt class="sig sig-object py" id="ForMoSA.nested_sampling.nested_logL_functions.logL_CCF_Brogi">
-<span class="sig-prename descclassname"><span class="pre">ForMoSA.nested_sampling.nested_logL_functions.</span></span><span class="sig-name descname"><span class="pre">logL_CCF_Brogi</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">flx_obs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flx_mod</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ForMoSA/nested_sampling/nested_logL_functions.html#logL_CCF_Brogi"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ForMoSA.nested_sampling.nested_logL_functions.logL_CCF_Brogi" title="Link to this definition"></a></dt>
-<dd><p>Function to compute logL based on the CCF mapping from Brogi et al. 2019
-under the assumption of gaussian and spectrally constant noise.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>flx_obs</strong> (<em>array</em>) – flux of the observation as a function of wavelength</p></li>
-<li><p><strong>flx_mod</strong> (<em>array</em>) – flux of the model as a function of wavelength</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>the loglikelihood value</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><ul class="simple">
-<li><p>logL (float)</p></li>
-</ul>
-</p>
-</dd>
-</dl>
-<p>Author: Matthieu Ravet</p>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="ForMoSA.nested_sampling.nested_logL_functions.logL_CCF_Zucker">
-<span class="sig-prename descclassname"><span class="pre">ForMoSA.nested_sampling.nested_logL_functions.</span></span><span class="sig-name descname"><span class="pre">logL_CCF_Zucker</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">flx_obs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flx_mod</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ForMoSA/nested_sampling/nested_logL_functions.html#logL_CCF_Zucker"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ForMoSA.nested_sampling.nested_logL_functions.logL_CCF_Zucker" title="Link to this definition"></a></dt>
-<dd><p>Function to compute logL based on the CCF mapping from Zucker 2003
-under the assumption of gaussian and spectrally constant noise.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>flx_obs</strong> (<em>array</em>) – flux of the observation as a function of wavelength</p></li>
-<li><p><strong>flx_mod</strong> (<em>array</em>) – flux of the model as a function of wavelength</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>the loglikelihood value</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><ul class="simple">
-<li><p>logL (float)</p></li>
-</ul>
-</p>
-</dd>
-</dl>
-<p>Author: Matthieu Ravet</p>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="ForMoSA.nested_sampling.nested_logL_functions.logL_CCF_custom">
-<span class="sig-prename descclassname"><span class="pre">ForMoSA.nested_sampling.nested_logL_functions.</span></span><span class="sig-name descname"><span class="pre">logL_CCF_custom</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">flx_obs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flx_mod</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">err_obs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ForMoSA/nested_sampling/nested_logL_functions.html#logL_CCF_custom"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ForMoSA.nested_sampling.nested_logL_functions.logL_CCF_custom" title="Link to this definition"></a></dt>
-<dd><p>Function to compute logL based on the custom CCF mapping from Me
-under the assumption of gaussian and spectrally constant noise.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>flx_obs</strong> (<em>array</em>) – flux of the observation as a function of wavelength</p></li>
-<li><p><strong>flx_mod</strong> (<em>array</em>) – flux of the model as a function of wavelength</p></li>
-<li><p><strong>err_obs</strong> (<em>array</em>) – errors of the observation as a function of wavelength</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>the loglikelihood value</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><ul class="simple">
-<li><p>logL (float)</p></li>
-</ul>
-</p>
-</dd>
-</dl>
-<p>Author: Matthieu Ravet</p>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="ForMoSA.nested_sampling.nested_logL_functions.logL_chi2">
-<span class="sig-prename descclassname"><span class="pre">ForMoSA.nested_sampling.nested_logL_functions.</span></span><span class="sig-name descname"><span class="pre">logL_chi2</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">delta_flx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">err</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_det</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">full</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ForMoSA/nested_sampling/nested_logL_functions.html#logL_chi2"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ForMoSA.nested_sampling.nested_logL_functions.logL_chi2" title="Link to this definition"></a></dt>
-<dd><p>Function to compute logL based on the classical chi2
-under the assumption of gaussian and spectrally uncorrelated noise.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>delta_flx</strong> (<em>array</em>) – residual data-model as a function of wavelength</p></li>
-<li><p><strong>err</strong> (<em>array</em>) – error (=standard deviation) of the observed spectrum as a function of wavelength</p></li>
-<li><p><strong>full</strong> (<em>bool</em>) – True or False to add the usual constant terms</p></li>
-<li><p><strong>log_det</strong> (<em>float</em>) – Log-determinant of the error bars</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>the loglikelihood value</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><ul class="simple">
-<li><p>logL (float)</p></li>
-</ul>
-</p>
-</dd>
-</dl>
-<p>Author: Matthieu Ravet</p>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="ForMoSA.nested_sampling.nested_logL_functions.logL_chi2_covariance">
-<span class="sig-prename descclassname"><span class="pre">ForMoSA.nested_sampling.nested_logL_functions.</span></span><span class="sig-name descname"><span class="pre">logL_chi2_covariance</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">delta_flx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inv_cov</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_det</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">full</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ForMoSA/nested_sampling/nested_logL_functions.html#logL_chi2_covariance"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ForMoSA.nested_sampling.nested_logL_functions.logL_chi2_covariance" title="Link to this definition"></a></dt>
-<dd><p>Function to compute logL based on the generalized chi2
-under the assumption of gaussian and spectrally correlated noise.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>delta_flx</strong> (<em>array</em>) – residual data-model as a function of wavelength</p></li>
-<li><p><strong>inv_cov</strong> (<em>n-array</em>) – inverse of the covariance matrix of the observed spectrum as a function of wavelength</p></li>
-<li><p><strong>full</strong> (<em>bool</em>) – True or False to add the usual constant terms</p></li>
-<li><p><strong>log_det</strong> (<em>float</em>) – Log-determinant of the covariance matrix</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>the loglikelihood value</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><ul class="simple">
-<li><p>logL (float)</p></li>
-</ul>
-</p>
-</dd>
-</dl>
-<p>Author: Matthieu Ravet</p>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="ForMoSA.nested_sampling.nested_logL_functions.logL_chi2_noisescaling">
-<span class="sig-prename descclassname"><span class="pre">ForMoSA.nested_sampling.nested_logL_functions.</span></span><span class="sig-name descname"><span class="pre">logL_chi2_noisescaling</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">delta_flx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">err</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_det</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">full</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ForMoSA/nested_sampling/nested_logL_functions.html#logL_chi2_noisescaling"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ForMoSA.nested_sampling.nested_logL_functions.logL_chi2_noisescaling" title="Link to this definition"></a></dt>
-<dd><p>Function to compute logL based on the chi2 with a fitted noise scaling s (marginalized)
-under the assumption of gaussian and spectrally uncorrelated noise.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>delta_flx</strong> (<em>array</em>) – residual data-model as a function of wavelength</p></li>
-<li><p><strong>err</strong> (<em>array</em>) – error (=standard deviation) of the observed spectrum as a function of wavelength</p></li>
-<li><p><strong>full</strong> (<em>bool</em>) – True or False to add the usual constant terms</p></li>
-<li><p><strong>log_det</strong> (<em>float</em>) – Log-determinant of the error bars matrix</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>the loglikelihood value</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><ul class="simple">
-<li><p>logL (float)</p></li>
-</ul>
-</p>
-</dd>
-</dl>
-<p>Author: Allan Denis and Matthieu Ravet</p>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="ForMoSA.nested_sampling.nested_logL_functions.logL_chi2_noisescaling_covariance">
-<span class="sig-prename descclassname"><span class="pre">ForMoSA.nested_sampling.nested_logL_functions.</span></span><span class="sig-name descname"><span class="pre">logL_chi2_noisescaling_covariance</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">delta_flx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inv_cov</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_det</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">full</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ForMoSA/nested_sampling/nested_logL_functions.html#logL_chi2_noisescaling_covariance"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ForMoSA.nested_sampling.nested_logL_functions.logL_chi2_noisescaling_covariance" title="Link to this definition"></a></dt>
-<dd><p>Function to compute logL based on the chi2 with a fitted noise scaling s (marginalized)
-under the assumption of gaussian and spectrally correlated noise.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>delta_flx</strong> (<em>array</em>) – residual data-model as a function of wavelength</p></li>
-<li><p><strong>inv_cov</strong> (<em>n-array</em>) – inverse of the covariance matrix of the observed spectrum as a function of wavelength</p></li>
-<li><p><strong>full</strong> (<em>bool</em>) – True or False to add the usual constant terms</p></li>
-<li><p><strong>log_det</strong> (<em>float</em>) – Log-determinant of the covariance matrix</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>the loglikelihood value</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><ul class="simple">
-<li><p>logL (float)</p></li>
-</ul>
-</p>
-</dd>
-</dl>
-<p>Author: Allan Denis and Matthieu Ravet</p>
-</dd></dl>
-
+<section id="likelihood-functions">
+<h2>Likelihood Functions:<a class="headerlink" href="#likelihood-functions" title="Link to this heading"></a></h2>
 </section>
-<section id="module-ForMoSA.nested_sampling.nested_highcont_models">
-<span id="high-contrast-models"></span><h2>High-contrast Models:<a class="headerlink" href="#module-ForMoSA.nested_sampling.nested_highcont_models" title="Link to this heading"></a></h2>
-<dl class="py function">
-<dt class="sig sig-object py" id="ForMoSA.nested_sampling.nested_highcont_models.hc_model">
-<span class="sig-prename descclassname"><span class="pre">ForMoSA.nested_sampling.nested_highcont_models.</span></span><span class="sig-name descname"><span class="pre">hc_model</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">global_params</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">obs_dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flx_mod_spectro</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">indobs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ForMoSA/nested_sampling/nested_highcont_models.html#hc_model"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ForMoSA.nested_sampling.nested_highcont_models.hc_model" title="Link to this definition"></a></dt>
-<dd><p>For high-contrast companions, where the star speckles signal contaminate the data</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>global_params</strong> (<em>object</em>) – Class containing each parameter used in ForMoSA</p></li>
-<li><p><strong>obs_dict</strong> (<em>dict</em>) – Dictionay containing all the observationnal entries (photometry, spectroscopy and/or optional)</p></li>
-<li><p><strong>flx_mod_spectro</strong> (<em>array</em>) – Model flux of the companion</p></li>
-<li><p><strong>indobs</strong> (<em>int</em>) – Index of the current observation loop</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>Results of the high-constrast model
-- flx_mod_spectro   (array): Model of the high-constrast model</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><ul class="simple">
-<li><p>results           (array)</p></li>
-</ul>
-</p>
-</dd>
-</dl>
-<p>Authors: Allan Denis</p>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="ForMoSA.nested_sampling.nested_highcont_models.hc_model_estimate_speckles">
-<span class="sig-prename descclassname"><span class="pre">ForMoSA.nested_sampling.nested_highcont_models.</span></span><span class="sig-name descname"><span class="pre">hc_model_estimate_speckles</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obs_dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flx_mod_spectro</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flx_cont_mod</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">star_flx_master</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">weights</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bounds</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ForMoSA/nested_sampling/nested_highcont_models.html#hc_model_estimate_speckles"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ForMoSA.nested_sampling.nested_highcont_models.hc_model_estimate_speckles" title="Link to this definition"></a></dt>
-<dd><p>Linear high-constrast model of planet and star contributions under the assumtion that the star speckles dominate the data  (see Landman et al. 2023)</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>obs_dict</strong> (<em>dict</em>) – Dictionay containing all the observationnal entries (photometry, spectroscopy and/or optional)</p></li>
-<li><p><strong>flx_mod_spectro</strong> (<em>array</em>) – Model of the companion</p></li>
-<li><p><strong>flx_cont_mod</strong> (<em>array</em>) – Continuum of the model of the companion</p></li>
-<li><p><strong>star_flx_master</strong> (<em>array</em>) – Master star data</p></li>
-<li><p><strong>weights</strong> (<em>array</em>) – Weights to apply to the data</p></li>
-<li><p><strong>bounds</strong> (<em>tuple</em>) – Bounds to be applied to the estimated parameters</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>Results of the high-constrast model
-- flx_mod_spectro           (array): Model of the high-constrast model</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><ul class="simple">
-<li><p>results                   (array)</p></li>
-</ul>
-</p>
-</dd>
-</dl>
-<p>Authors: Allan Denis</p>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="ForMoSA.nested_sampling.nested_highcont_models.hc_model_estimate_speckles_estimate_continuum">
-<span class="sig-prename descclassname"><span class="pre">ForMoSA.nested_sampling.nested_highcont_models.</span></span><span class="sig-name descname"><span class="pre">hc_model_estimate_speckles_estimate_continuum</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/ForMoSA/nested_sampling/nested_highcont_models.html#hc_model_estimate_speckles_estimate_continuum"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ForMoSA.nested_sampling.nested_highcont_models.hc_model_estimate_speckles_estimate_continuum" title="Link to this definition"></a></dt>
-<dd><p>Linear high-constrast model of planet and star contributions where we fit the continuum
-To Be Defined</p>
-<p>Authors: Allan Denis</p>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="ForMoSA.nested_sampling.nested_highcont_models.hc_model_estimate_speckles_remove_continuum">
-<span class="sig-prename descclassname"><span class="pre">ForMoSA.nested_sampling.nested_highcont_models.</span></span><span class="sig-name descname"><span class="pre">hc_model_estimate_speckles_remove_continuum</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obs_dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flx_mod_spectro</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flx_cont_mod</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">weights</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bounds</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ForMoSA/nested_sampling/nested_highcont_models.html#hc_model_estimate_speckles_remove_continuum"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ForMoSA.nested_sampling.nested_highcont_models.hc_model_estimate_speckles_remove_continuum" title="Link to this definition"></a></dt>
-<dd><p>Linear high-constrast model of planet and star contributions where we remove the continuums (see Wang et al. 2021)</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>obs_dict</strong> (<em>dict</em>) – Dictionay containing all the observationnal entries (photometry, spectroscopy and/or optional)</p></li>
-<li><p><strong>flx_mod_spectro</strong> (<em>array</em>) – Model of the companion</p></li>
-<li><p><strong>flx_cont_mod</strong> (<em>array</em>) – Continuum of the model of the companion</p></li>
-<li><p><strong>weights</strong> (<em>array</em>) – Weights to apply to the data</p></li>
-<li><p><strong>bounds</strong> (<em>tuple</em>) – Bounds to be applied to the estimated parameters</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>Results of the high-constrast model
-- flx_mod_spectro           (array): Model of the high-constrast model</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><ul class="simple">
-<li><p>results                   (array)</p></li>
-</ul>
-</p>
-</dd>
-</dl>
-<p>Authors: Allan Denis</p>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="ForMoSA.nested_sampling.nested_highcont_models.hc_model_nonlinear_estimate_speckles">
-<span class="sig-prename descclassname"><span class="pre">ForMoSA.nested_sampling.nested_highcont_models.</span></span><span class="sig-name descname"><span class="pre">hc_model_nonlinear_estimate_speckles</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obs_dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flx_mod_spectro</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flx_cont_mod</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">weights</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bounds</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ForMoSA/nested_sampling/nested_highcont_models.html#hc_model_nonlinear_estimate_speckles"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ForMoSA.nested_sampling.nested_highcont_models.hc_model_nonlinear_estimate_speckles" title="Link to this definition"></a></dt>
-<dd><p>Non linear high-constrast model of planet and star contributions (see Landman et al. 2023)
-This model is in principle more general than hc_model_estimate_speckles
-because in the latter case we make the assumption that the star speckels dominate the data which is not the case here</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>obs_dict</strong> (<em>dict</em>) – Dictionay containing all the observationnal entries (photometry, spectroscopy and/or optional)</p></li>
-<li><p><strong>flx_mod_spectro</strong> (<em>array</em>) – Model of the companion</p></li>
-<li><p><strong>flx_cont_mod</strong> (<em>array</em>) – Continuum of the model of the companion</p></li>
-<li><p><strong>weights</strong> (<em>array</em>) – Weights to apply to the data</p></li>
-<li><p><strong>bounds</strong> (<em>tuple</em>) – Bounds to be applied to the estimated parameters</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>Results of the high-constrast model
-- flx_mod_spectro   (array): Model of the high-constrast model</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><ul class="simple">
-<li><p>results           (array)</p></li>
-</ul>
-</p>
-</dd>
-</dl>
-<p>Authors: Allan Denis</p>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="ForMoSA.nested_sampling.nested_highcont_models.hc_model_remove_speckles">
-<span class="sig-prename descclassname"><span class="pre">ForMoSA.nested_sampling.nested_highcont_models.</span></span><span class="sig-name descname"><span class="pre">hc_model_remove_speckles</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obs_dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flx_mod_spectro</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flx_cont_mod</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">star_flx_master</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">weights</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bounds</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ForMoSA/nested_sampling/nested_highcont_models.html#hc_model_remove_speckles"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ForMoSA.nested_sampling.nested_highcont_models.hc_model_remove_speckles" title="Link to this definition"></a></dt>
-<dd><p>Linear high-constrast model of planet contribution only where the speckles are filtered out from the data (see Landman et al. 2023)</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>obs_dict</strong> (<em>dict</em>) – Dictionay containing all the observationnal entries (photometry, spectroscopy and/or optional)</p></li>
-<li><p><strong>flx_mod_spectro</strong> (<em>array</em>) – Model of the companion</p></li>
-<li><p><strong>flx_cont_mod</strong> (<em>array</em>) – Continuum of the model of the companion</p></li>
-<li><p><strong>star_flx_master</strong> (<em>array</em>) – Master star data</p></li>
-<li><p><strong>weights</strong> (<em>array</em>) – Weights to apply to the data</p></li>
-<li><p><strong>bounds</strong> (<em>tuple</em>) – Bounds to be applied to the estimated parameters</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>Results of the high-constrast model
-- flx_mod_spectro           (array): Model of the high-constrast model</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><ul class="simple">
-<li><p>results                   (array)</p></li>
-</ul>
-</p>
-</dd>
-</dl>
-<p>Authors: Allan Denis</p>
-</dd></dl>
-
+<section id="high-contrast-models">
+<h2>High-contrast Models:<a class="headerlink" href="#high-contrast-models" title="Link to this heading"></a></h2>
 </section>
 </section>
 
