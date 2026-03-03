@@ -59,7 +59,7 @@ class SpectralPlotConfig:
     figsize: tuple[float, float] = (10.0, 7.0)
 
     # --- Color management
-    cmap: mcolors.ListedColormap = field(default_factory = lambda: cm.seismic)   # Matplotlib colormap name
+    cmap: mcolors.ListedColormap = field(default_factory = lambda: cm.jet)   # Matplotlib colormap name
     color: str = "red"
     edgecolor: str = None
     norm: mcolors.Normalize = field(default_factory = lambda: plt.Normalize(vmin=1.0, vmax=15))
@@ -129,7 +129,7 @@ class PhotometricPlotConfig:
     figsize: tuple[float, float] = (10.0, 7.0)
 
     # --- Color management
-    cmap: mcolors.ListedColormap = field(default_factory = lambda: cm.seismic)   # Matplotlib colormap name
+    cmap: mcolors.ListedColormap = field(default_factory = lambda: cm.jet)   # Matplotlib colormap name
     color: str = "blue"
     edgecolor: str = None
     norm: mcolors.Normalize = field(default_factory = lambda: plt.Normalize(vmin=1.0, vmax=15))

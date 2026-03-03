@@ -534,7 +534,7 @@ class ObservationSet(object):
         nb_cols_filt = (self.legend_filter_nb + 4) // 5
 
         ax.legend(ncol=nb_cols_data, frameon=False)
-        ax_filt.legend(ncol = nb_cols_filt, frameon=False)
+        ax_filt.legend(ncol=nb_cols_filt, frameon=False)
 
 
     def _stack(self, ind_obs: list[int] | None = None, print_logger: bool = False) -> dict:
