@@ -205,9 +205,6 @@ class PhotometryObservation(Observation):
         # Plot data
         # --------------------------------------------------
 
-        data_handles = []
-        data_labels = []
-
         filt_handles = []
         filt_labels = []
 

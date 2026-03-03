@@ -319,7 +319,7 @@ class PhotometryFilter(object):
             ax.set_xlabel(f'Wavelength ({self.unit})')
             ax.set_ylabel('Transmission')
 
-        if plot_config.label_data:
+        if plot_config.label_filter:
             ax.plot(self.wavelength, self.transmission, color = plot_config.color, label = f'{self.name}')
             ax.legend(fontsize=plot_config.legend_fontsize)
         else:
