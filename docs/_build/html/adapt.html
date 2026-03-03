@@ -1,3 +1,5 @@
+
+
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" data-content_root="./">
 <head>
@@ -5,22 +7,18 @@
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Adapt the data &mdash; ForMoSA 1.1.6 documentation</title>
-      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=fa44fd50" />
-      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="_static/custom.css?v=d0b3e03c" />
 
   
     <link rel="shortcut icon" href="_static/favicon.ico"/>
-  <!--[if lt IE 9]>
-    <script src="_static/js/html5shiv.min.js"></script>
-  <![endif]-->
-  
-        <script src="_static/jquery.js?v=5d32c60e"></script>
-        <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="_static/documentation_options.js?v=937269b5"></script>
-        <script src="_static/doctools.js?v=9a2dae69"></script>
-        <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
-        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=937269b5"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -51,33 +49,14 @@
               <p class="caption" role="heading"><span class="caption-text">Contents</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="demo.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="guidelines.html">Guidelines</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="api.html">ForMoSA API</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="main_utilities.html">Main Utilities</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#">Adapt the data</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#module-ForMoSA.adapt.adapt_obs_mod">Adapt Observations and Models:</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#ForMoSA.adapt.adapt_obs_mod.launch_adapt"><code class="docutils literal notranslate"><span class="pre">launch_adapt()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="#module-ForMoSA.adapt.adapt_grid">Adapt Grid:</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#ForMoSA.adapt.adapt_grid.adapt_grid"><code class="docutils literal notranslate"><span class="pre">adapt_grid()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#ForMoSA.adapt.adapt_grid.array_to_numpy"><code class="docutils literal notranslate"><span class="pre">array_to_numpy()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#ForMoSA.adapt.adapt_grid.tpool_adapt"><code class="docutils literal notranslate"><span class="pre">tpool_adapt()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#ForMoSA.adapt.adapt_grid.tpool_adapt_init"><code class="docutils literal notranslate"><span class="pre">tpool_adapt_init()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="#module-ForMoSA.adapt.adapt_extraction_functions">Extraction Functions:</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#ForMoSA.adapt.adapt_extraction_functions.adapt_model"><code class="docutils literal notranslate"><span class="pre">adapt_model()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#ForMoSA.adapt.adapt_extraction_functions.adapt_observation"><code class="docutils literal notranslate"><span class="pre">adapt_observation()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#ForMoSA.adapt.adapt_extraction_functions.extract_observation"><code class="docutils literal notranslate"><span class="pre">extract_observation()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="#module-ForMoSA.adapt.adapt_emulators">Emulators:</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#ForMoSA.adapt.adapt_emulators.emulator_NMF"><code class="docutils literal notranslate"><span class="pre">emulator_NMF()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#ForMoSA.adapt.adapt_emulators.emulator_PCA"><code class="docutils literal notranslate"><span class="pre">emulator_PCA()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#ForMoSA.adapt.adapt_emulators.get_ws"><code class="docutils literal notranslate"><span class="pre">get_ws()</span></code></a></li>
-</ul>
-</li>
+<li class="toctree-l3"><a class="reference internal" href="#adapt-observations-and-models">Adapt Observations and Models:</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#adapt-grid">Adapt Grid:</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#extraction-functions">Extraction Functions:</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#emulators">Emulators:</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="nested_sampling.html">Nested Sampling</a></li>
@@ -113,266 +92,17 @@
              
   <section id="adapt-the-data">
 <span id="adapt"></span><h1>Adapt the data<a class="headerlink" href="#adapt-the-data" title="Link to this heading"></a></h1>
-<section id="module-ForMoSA.adapt.adapt_obs_mod">
-<span id="adapt-observations-and-models"></span><h2>Adapt Observations and Models:<a class="headerlink" href="#module-ForMoSA.adapt.adapt_obs_mod" title="Link to this heading"></a></h2>
-<dl class="py function">
-<dt class="sig sig-object py" id="ForMoSA.adapt.adapt_obs_mod.launch_adapt">
-<span class="sig-prename descclassname"><span class="pre">ForMoSA.adapt.adapt_obs_mod.</span></span><span class="sig-name descname"><span class="pre">launch_adapt</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">global_params</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">adapt_model</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ForMoSA/adapt/adapt_obs_mod.html#launch_adapt"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ForMoSA.adapt.adapt_obs_mod.launch_adapt" title="Link to this definition"></a></dt>
-<dd><p>Adapt the synthetic spectra of a grid to make them comparable with the data.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>global_params</strong> (<em>object</em>) – Class containing each parameter</p></li>
-<li><p><strong>adapt_model</strong> (<em>bool</em>) – True by default to also adapt the grid</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>None</p>
-</dd>
-</dl>
-<p>Author: Simon Petrus, Matthieu Ravet, Paulina Palma-Bifani and Allan Denis</p>
-</dd></dl>
-
+<section id="adapt-observations-and-models">
+<h2>Adapt Observations and Models:<a class="headerlink" href="#adapt-observations-and-models" title="Link to this heading"></a></h2>
 </section>
-<section id="module-ForMoSA.adapt.adapt_grid">
-<span id="adapt-grid"></span><h2>Adapt Grid:<a class="headerlink" href="#module-ForMoSA.adapt.adapt_grid" title="Link to this heading"></a></h2>
-<dl class="py function">
-<dt class="sig sig-object py" id="ForMoSA.adapt.adapt_grid.adapt_grid">
-<span class="sig-prename descclassname"><span class="pre">ForMoSA.adapt.adapt_grid.</span></span><span class="sig-name descname"><span class="pre">adapt_grid</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">global_params</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">obs_dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">res_mod_nativ</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_wav_mod</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_res_mod</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">obs_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">indobs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ForMoSA/adapt/adapt_grid.html#adapt_grid"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ForMoSA.adapt.adapt_grid.adapt_grid" title="Link to this definition"></a></dt>
-<dd><p>Adapt the synthetic spectra of a grid to make them comparable with the data.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>global_params</strong> (<em>object</em>) – Class containing each parameter</p></li>
-<li><p><strong>obs_dict</strong> (<em>dict</em>) – Dictionay containing all the observationnal entries (photometry, spectroscopy and/or optional)</p></li>
-<li><p><strong>res_mod_nativ</strong> (<em>array</em>) – Native resolution of the grid (might have changed if Nyquist is not respected or resample at wav_obs_spectro)</p></li>
-<li><p><strong>target_wav_mod</strong> (<em>array</em>) – Targeted wavelength grid of the final grid</p></li>
-<li><p><strong>target_res_mod</strong> (<em>array</em>) – Targeted spectral resolution of the final grid</p></li>
-<li><p><strong>obs_name</strong> (<em>str</em>) – Name of the current observation looping</p></li>
-<li><p><strong>indobs</strong> (<em>int</em>) – Index of the current observation looping</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>None</p>
-</dd>
-</dl>
-<p>Author: Simon Petrus, Matthieu Ravet, Paulina Palma-Bifani, Arthur Vigan and Allan Denis</p>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="ForMoSA.adapt.adapt_grid.array_to_numpy">
-<span class="sig-prename descclassname"><span class="pre">ForMoSA.adapt.adapt_grid.</span></span><span class="sig-name descname"><span class="pre">array_to_numpy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">shared_array</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shape</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dtype</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ForMoSA/adapt/adapt_grid.html#array_to_numpy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ForMoSA.adapt.adapt_grid.array_to_numpy" title="Link to this definition"></a></dt>
-<dd><p>Return a numpy array from a shared array</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>shared_array</strong> (<em>mp.RawArray</em>) – Raw shared array</p></li>
-<li><p><strong>shape</strong> (<em>tuple</em>) – Shape of the array</p></li>
-<li><p><strong>dtype</strong> (<em>numpy dtype</em>) – Data type of the array</p></li>
-</ul>
-</dd>
-</dl>
-<dl class="simple">
-<dt>Returns</dt><dd><p>numpy_array       (np.ndarray): Numpy array mapped to shared array</p>
-</dd>
-</dl>
-<p>Author: Arthur Vigan</p>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="ForMoSA.adapt.adapt_grid.tpool_adapt">
-<span class="sig-prename descclassname"><span class="pre">ForMoSA.adapt.adapt_grid.</span></span><span class="sig-name descname"><span class="pre">tpool_adapt</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">idx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">global_params</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">obs_dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wav_mod_nativ</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">res_mod_nativ</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_wav_mod</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_res_mod</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">indobs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">keys</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">titles</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">values</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ForMoSA/adapt/adapt_grid.html#tpool_adapt"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ForMoSA.adapt.adapt_grid.tpool_adapt" title="Link to this definition"></a></dt>
-<dd><p>Worker function for the parallelisation process of adapt_model()</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>idx</strong> (<em>tuple</em>) – Index of the current model</p></li>
-<li><p><strong>global_params</strong> (<em>object</em>) – Class containing each parameter</p></li>
-<li><p><strong>wav_mod_nativ</strong> (<em>array</em>) – Native wavelength array of the grid</p></li>
-<li><p><strong>res_mod_nativ</strong> (<em>array</em>) – Native resolution of the grid (might have changed if Nyquist is not respected or resample at wav_obs_spectro)</p></li>
-<li><p><strong>target_wav_mod</strong> (<em>array</em>) – Targeted wavelength grid of the final grid</p></li>
-<li><p><strong>target_res_mod</strong> (<em>array</em>) – Targeted spectral resolution of the final grid</p></li>
-<li><p><strong>indobs</strong> (<em>int</em>) – Index of the current observation looping</p></li>
-<li><p><strong>keys</strong> (<em>list</em>) – Attribute keys</p></li>
-<li><p><strong>titles</strong> (<em>list</em>) – Attribute titles</p></li>
-<li><p><strong>values</strong> (<em>dict</em>) – Values for each attribute</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>None</p>
-</dd>
-</dl>
-<p>Author: Arthur Vigan</p>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="ForMoSA.adapt.adapt_grid.tpool_adapt_init">
-<span class="sig-prename descclassname"><span class="pre">ForMoSA.adapt.adapt_grid.</span></span><span class="sig-name descname"><span class="pre">tpool_adapt_init</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">grid_input_shape_i</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">grid_input_data_i</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">grid_spectro_shape_i</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">grid_spectro_data_i</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">grid_photo_shape_i</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">grid_photo_data_i</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ForMoSA/adapt/adapt_grid.html#tpool_adapt_init"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ForMoSA.adapt.adapt_grid.tpool_adapt_init" title="Link to this definition"></a></dt>
-<dd><p>Thread pool init function for the parallelisation process of adapt_model()</p>
-<p>This function initializes the global variables stored as shared arrays</p>
-</dd></dl>
-
+<section id="adapt-grid">
+<h2>Adapt Grid:<a class="headerlink" href="#adapt-grid" title="Link to this heading"></a></h2>
 </section>
-<section id="module-ForMoSA.adapt.adapt_extraction_functions">
-<span id="extraction-functions"></span><h2>Extraction Functions:<a class="headerlink" href="#module-ForMoSA.adapt.adapt_extraction_functions" title="Link to this heading"></a></h2>
-<dl class="py function">
-<dt class="sig sig-object py" id="ForMoSA.adapt.adapt_extraction_functions.adapt_model">
-<span class="sig-prename descclassname"><span class="pre">ForMoSA.adapt.adapt_extraction_functions.</span></span><span class="sig-name descname"><span class="pre">adapt_model</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">global_params</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">obs_dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wav_mod_nativ</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flx_mod_nativ</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">res_mod_nativ</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_wav_mod</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_res_mod</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">indobs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ForMoSA/adapt/adapt_extraction_functions.html#adapt_model"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ForMoSA.adapt.adapt_extraction_functions.adapt_model" title="Link to this definition"></a></dt>
-<dd><p>Extracts a synthetic spectrum from a grid and decreases its spectral resolution. The photometry points are
-calculated too.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>global_params</strong> (<em>object</em>) – Class containing each parameter used in ForMoSA</p></li>
-<li><p><strong>obs_dict</strong> (<em>dict</em>) – Dictionay containing all the observationnal entries (photometry, spectroscopy and/or optional)</p></li>
-<li><p><strong>wav_mod_nativ</strong> (<em>array</em>) – Native wavelength grid of the model</p></li>
-<li><p><strong>flx_mod_nativ</strong> (<em>array</em>) – Flux of the model</p></li>
-<li><p><strong>res_mod_nativ</strong> (<em>array</em>) – Spectral resolution of the model</p></li>
-<li><p><strong>target_wav_mod</strong> (<em>array</em>) – Targeted wavelength grid of the final grid</p></li>
-<li><p><strong>target_res_mod</strong> (<em>array</em>) – Targeted spectral resolution of the final grid</p></li>
-<li><p><strong>indobs</strong> (<em>int</em>) – Index of the current observation looping</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>List containing the sub-spectra defined by the parameter “wav_for_adapt”.
-- mod_photo     (array): List containing the photometry (‘0’ replace the spectral resolution here).</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><ul class="simple">
-<li><p>mod_spectro   (array)</p></li>
-</ul>
-</p>
-</dd>
-</dl>
-<p>Author: Simon Petrus, Matthieu Ravet</p>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="ForMoSA.adapt.adapt_extraction_functions.adapt_observation">
-<span class="sig-prename descclassname"><span class="pre">ForMoSA.adapt.adapt_extraction_functions.</span></span><span class="sig-name descname"><span class="pre">adapt_observation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">global_params</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wav_mod_nativ</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">res_mod_nativ</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">obs_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">indobs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ForMoSA/adapt/adapt_extraction_functions.html#adapt_observation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ForMoSA.adapt.adapt_extraction_functions.adapt_observation" title="Link to this definition"></a></dt>
-<dd><p>Take back the extracted data spectrum from the function ‘extract_observation’, decrease its spectral
-resolution and remove the continuum if necessary</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>global_params</strong> (<em>object</em>) – Class containing each parameter</p></li>
-<li><p><strong>wav_mod_nativ</strong> (<em>array</em>) – Wavelength grid of the model</p></li>
-<li><p><strong>res_mod_nativ</strong> (<em>array</em>) – Spectral resolution of the model</p></li>
-<li><p><strong>obs_name</strong> (<em>str</em>) – Name of the current observation looping</p></li>
-<li><p><strong>indobs</strong> (<em>int</em>) – Index of the current observation looping</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>Dictionay containing all the observationnal entries (photometry, spectroscopy and/or optional)</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><ul class="simple">
-<li><p>obs_dict          (dict)</p></li>
-</ul>
-</p>
-</dd>
-</dl>
-<p>Author: Simon Petrus, Matthieu Ravet</p>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="ForMoSA.adapt.adapt_extraction_functions.extract_observation">
-<span class="sig-prename descclassname"><span class="pre">ForMoSA.adapt.adapt_extraction_functions.</span></span><span class="sig-name descname"><span class="pre">extract_observation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">global_params</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">indobs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ForMoSA/adapt/adapt_extraction_functions.html#extract_observation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ForMoSA.adapt.adapt_extraction_functions.extract_observation" title="Link to this definition"></a></dt>
-<dd><p>Extract the information from the observation file, including the wavelengths (um - vacuum), flux (W.m-2.um.1), errors (W.m-2.um.1), covariance (W.m-2.um.1)**2, spectral resolution,
-instrument/filter name, transmission (Atmo+inst) and star flux (W.m-2.um.1). The wavelength range is define by the parameter “wav_for_adapt”.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>global_params</strong> (<em>object</em>) – Class containing each parameter</p></li>
-<li><p><strong>obs_name</strong> (<em>str</em>) – Name of the current observation looping</p></li>
-<li><p><strong>indobs</strong> (<em>int</em>) – Index of the current observation looping</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>Dictionay containing all the observationnal entries (photometry, spectroscopy and/or optional)</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><ul class="simple">
-<li><p>obs_dict       (dict)</p></li>
-</ul>
-</p>
-</dd>
-</dl>
-<p>Author: Simon Petrus, Matthieu Ravet and Allan Denis</p>
-</dd></dl>
-
+<section id="extraction-functions">
+<h2>Extraction Functions:<a class="headerlink" href="#extraction-functions" title="Link to this heading"></a></h2>
 </section>
-<section id="module-ForMoSA.adapt.adapt_emulators">
-<span id="emulators"></span><h2>Emulators:<a class="headerlink" href="#module-ForMoSA.adapt.adapt_emulators" title="Link to this heading"></a></h2>
-<dl class="py function">
-<dt class="sig sig-object py" id="ForMoSA.adapt.adapt_emulators.emulator_NMF">
-<span class="sig-prename descclassname"><span class="pre">ForMoSA.adapt.adapt_emulators.</span></span><span class="sig-name descname"><span class="pre">emulator_NMF</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ds</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">NMF_comp</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ForMoSA/adapt/adapt_emulators.html#emulator_NMF"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ForMoSA.adapt.adapt_emulators.emulator_NMF" title="Link to this definition"></a></dt>
-<dd><p>Emulator of a grid spectra with NMF decomposition. Need CUDA to work on GPU</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>ds</strong> (<em>xarray</em>) – Grid used for the NMF</p></li>
-<li><p><strong>PCA_comp</strong> (<em>str</em><em> or </em><em>float</em>) – Number of NMF component to use.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>Reformated H matrix of the NMF decomposion = List of eigenspectra
-weights                 (xarray): Reformated W matrix of the NMF decomposion = Grid of weights (format = (NMF_comp, grid_shape))</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>NMF_spectra         (np.ndarray)</p>
-</dd>
-</dl>
-<p>Author: Matthieu Ravet</p>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="ForMoSA.adapt.adapt_emulators.emulator_PCA">
-<span class="sig-prename descclassname"><span class="pre">ForMoSA.adapt.adapt_emulators.</span></span><span class="sig-name descname"><span class="pre">emulator_PCA</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ds</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">PCA_comp</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'NA'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ForMoSA/adapt/adapt_emulators.html#emulator_PCA"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ForMoSA.adapt.adapt_emulators.emulator_PCA" title="Link to this definition"></a></dt>
-<dd><p>Emulator of a grid spectra with PCA decomposition</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>ds</strong> (<em>xarray</em>) – Grid used for the PCA</p></li>
-<li><p><strong>PCA_comp</strong> (<em>str</em><em> or </em><em>float</em>) – Number of PCA component to use.
-‘NA’ by default means that the emulator will try to explain at least 99% of the variance of the grid</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>Mean flux of the normalized grid
-flx_grid_std        (np.ndarray): Standart deviation of the normalized grid
-PCA_vectors         (np.ndarray): Eigenspectra of the PCA decomposion
-PCA_weights             (xarray): Grid of normalization factors and weights (format = (PCA_comp, grid_shape))</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>flx_grid_mean       (np.ndarray)</p>
-</dd>
-</dl>
-<p>Author: Matthieu Ravet, adapted from <a class="reference external" href="https://iopscience.iop.org/article/10.1088/0004-637X/812/2/128/pdf">https://iopscience.iop.org/article/10.1088/0004-637X/812/2/128/pdf</a></p>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="ForMoSA.adapt.adapt_emulators.get_ws">
-<span class="sig-prename descclassname"><span class="pre">ForMoSA.adapt.adapt_emulators.</span></span><span class="sig-name descname"><span class="pre">get_ws</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">eigenspectra</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flx_grid</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ForMoSA/adapt/adapt_emulators.html#get_ws"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ForMoSA.adapt.adapt_emulators.get_ws" title="Link to this definition"></a></dt>
-<dd><p>Since we will overflow memory if we actually calculate Phi, we have to
-determine ws in a memory-efficient manner.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>eigenspectra</strong> (<em>-</em>) – Eigenspectra of the PCA decomposion</p></li>
-<li><p><strong>flx_grid</strong> (<em>-</em>) – Flux of the normalized grid</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>Array of weights</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>ws                    (np.ndarray)</p>
-</dd>
-</dl>
-<p>Author: Miles Lucas</p>
-</dd></dl>
-
+<section id="emulators">
+<h2>Emulators:<a class="headerlink" href="#emulators" title="Link to this heading"></a></h2>
 </section>
 </section>
 
