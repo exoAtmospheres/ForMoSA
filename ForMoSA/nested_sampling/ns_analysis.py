@@ -63,7 +63,7 @@ class NSAnalysis(object):
         best_params = list(self.ns.results.median_parameters.values())
 
         # wavelength range
-        wrange = (self.ns.observations.wavelength_range[0] * 0.95, self.ns.observations.wavelength_range[1] * 1.05)
+        wrange = (self.ns.restricted_observations.wavelength_range[0] * 0.95, self.ns.restricted_observations.wavelength_range[1] * 1.05)
 
         # build restricted grid
         grid = self.ns.subgrids.parent_grid._restricted_grid(f'{wrange[0]},{wrange[1]}', print_logger=True)
@@ -163,7 +163,10 @@ class NSAnalysis(object):
         # Build stacked observed_model and observations
         stacked_model = ObservedModel(wave_all, flux_all, res_all)
         stacked_model._sort()
-        stacked_obs = self.ns.observations._stack(ind_obs_list, print_logger=print_logger)
+        stacked_obs = self.ns.restricted_observations._stack(ind_obs_list, print_logger=print_logger)
+
+        if np.any(np.isnan(stacked_model.flux)):
+            return ObservedModel(native_model.wave, [np.nan] * len(native_model.wave), native_model.flux)
 
         # analytic scaling
         stacked_model.flux, ck = us.calc_ck(

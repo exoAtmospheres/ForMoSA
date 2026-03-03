@@ -1,18 +1,21 @@
-from astroquery.svo_fps import SvoFps
-import numpy as np
-import matplotlib.pyplot as plt
+import os
 import logging
-import astropy.units as u
 import astropy
+import numpy as np
+import astropy.units as u
+import matplotlib.pyplot as plt
+from matplotlib.figure import Figure
+from astroquery.svo_fps import SvoFps
+from matplotlib.axes._axes import Axes
 
-from ForMoSA.core.config import FILTER_PATH
-from ForMoSA.core.loggings import setup_logging
-from ForMoSA.core.errors import ForMoSAError
-from ForMoSA.core.enums import WavelengthUnit
-from astropy.table import Table, MaskedColumn, Column
 from pathlib import Path
 from astropy.io import fits
-import os
+from ForMoSA.core.config import FILTER_PATH
+from ForMoSA.core.errors import ForMoSAError
+from ForMoSA.core.enums import WavelengthUnit
+from ForMoSA.core.loggings import setup_logging
+from astropy.table import Table, MaskedColumn, Column
+from ForMoSA.core.config import  PhotometricPlotConfig, PHOTOMETRIC_PLOT
 
 class PhotometryFilter(object):
     '''
@@ -288,19 +291,41 @@ class PhotometryFilter(object):
         except Exception as e:
             raise ForMoSAError(e, self.logger)
 
-    def _plot_transmission_curve(self) -> None:
+    def _plot_transmission_curve(self, fig: Figure | None = None, ax: Axes | None = None, plot_config: PhotometricPlotConfig = PHOTOMETRIC_PLOT) -> None:
         '''
         Method to plot the transmission curve
+
+        Parameters
+        ----------
+        figure     (matplotlib.figure.Figure): Figure (used to overplot on an existing figure)
+        ax       (matplotlib.axes._axes.Axes): Ax (used to overplot on an existing ax)
+        plot_config   (PhotometricPlotConfig): Instance of class PhotometricPlotConfig
+
+        Returns
+        -------
+        fig        (matplotlib.figure.Figure): Updated figure
+        ax       (matplotlib.axes._axes.Axes): Updated ax
 
         Authors: Allan Denis
         '''
 
-        self._logger.info(f"<Transmission curve of filter {self.name}>")
-        plt.figure()
-        plt.plot(self.wavelength, self.transmission)
-        plt.xlabel(f'Wavelength ({self.unit})')
-        plt.ylabel('Transmission Fraction')
-        plt.title('Filter Curve for ' + self.name)
+        self._logger.info(f"      Plotting transmission curve of filter {self.name}")
+
+        # --------------------------------------------------
+        # Figure / axes creation
+        # --------------------------------------------------
+        if ax is None:
+            fig, ax = plt.subplots(figsize=plot_config.figsize)
+            ax.set_xlabel(f'Wavelength ({self.unit})')
+            ax.set_ylabel('Transmission')
+
+        if plot_config.label_data:
+            ax.plot(self.wavelength, self.transmission, color = plot_config.color, label = f'{self.name}')
+            ax.legend(fontsize=plot_config.legend_fontsize)
+        else:
+            ax.plot(self.wavelength, self.transmission, color = plot_config.color)
+
+        return fig, ax
 
     def _set_unit(self, unit: WavelengthUnit) -> None:
         '''

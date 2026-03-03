@@ -63,7 +63,7 @@ class PhotometryObservation(Observation):
 
     @property
     def res(self) -> np.ndarray[float]:                           # Resolution
-        return np.array([0.0])
+        return np.array([0.0] * len(self.wave))
 
     @property
     def hc_mode(self) -> bool:                                    # Whether observation is in high-contrast mode
@@ -90,14 +90,49 @@ class PhotometryObservation(Observation):
         return self._filter_id
 
     @property
-    def name(self) -> str:                                        # Name of the observation
-        return '_'.join([f"[{facility}_{ins}_{filt_id}]" for facility, ins, filt_id in zip(np.unique(self.facility), np.unique(self.instrument), np.unique(self.filter_id))])
+    def name(self) -> str:                                        # Observation name
+        # ---- Facilities
+        facilities = sorted(set(self.facility.astype(str)))
+        facility_str = f'[{"+".join(facilities)}]'
+
+        # ---- Instruments
+        instruments = sorted(set(self.instrument.astype(str)))
+        instrument_str = f'[{"+".join(instruments)}]'
+
+        # ---- Filters
+        filters = sorted(set(self.filter_id.astype(str)))
+        nfilters = len(filters)
+
+        # Condense if too many filters
+        if nfilters <= 6:
+            filter_str = f'[{"+".join(filters)}]'
+        else:
+            filter_str = f"[{nfilters}filters]"
+
+        return f"{facility_str}_{instrument_str}_{filter_str}"
 
     @property
     def wavelength_range(self) -> tuple:                          # Wavelength range of the observation
         wmin = np.min([filt.wavelength_min for filt in self.Filter])
         wmax = np.max([filt.wavelength_max for filt in self.Filter])
         return wmin, wmax
+
+    @property
+    def filter_idxs(self) -> np.ndarray:                          # Indexes of occurence of new filters
+        idxs = np.array([0])
+        last_filt_id = self.filter_id[0]
+
+        for idx, filt_id in enumerate(self.filter_id):
+            if filt_id != last_filt_id:
+                idxs = np.append(idxs, idx)
+                last_filt_id = filt_id
+
+        idxs = np.append(idxs, len(self.filter_id))
+        return idxs
+
+    @property
+    def nb_filters(self) -> int:                                  # Number of filters
+        return len(self.filter_idxs) - 1
 
     # ==================================================
     # Methods
@@ -153,31 +188,93 @@ class PhotometryObservation(Observation):
 
         self.logger.info(f'      Plotting data for observation {self.name}')
 
-        # Create figure and axes if not provided
+        # --------------------------------------------------
+        # Figure / axes creation
+        # --------------------------------------------------
         if ax is None or ax_filt is None:
             fig = plt.figure(figsize=plot_config.figsize)
             gs = gridspec.GridSpec(9, 10)
             ax = fig.add_subplot(gs[3:9, 0:10])
             ax_filt = fig.add_subplot(gs[0:3, 0:10], sharex=ax)
 
-        # Plot filter transmission
         ax_filt.set_ylabel("Transmission")
+        ax.set_xlabel(f"Wavelength ({getattr(self, 'unit', '')})")
+        ax.set_ylabel("Flux")
+
+        # --------------------------------------------------
+        # Plot data
+        # --------------------------------------------------
+
+        data_handles = []
+        data_labels = []
+
+        filt_handles = []
+        filt_labels = []
 
         for i, filt in enumerate(self.Filter):
-            ax_filt.plot(filt.wavelength, filt.transmission, label=getattr(filt, "name"), color=plot_config.color)
-            ax_filt.legend()
+            idx0 = self.filter_idxs[i]
+            idx1 = self.filter_idxs[i + 1]
 
-            # Plot data points
-            label = None
-            if plot_config.label:
-                label = filt.facility + '/' + filt.instrument + '.' + filt.filter_id
+            # Use central wavelength to determine color
+            plot_config.set_photometric_plot_config(color = plot_config.cmap(plot_config.norm((filt.central_wavelength))))
 
-            ax.scatter(self.wave[self.instrument_idxs[i]: self.instrument_idxs[i+1]], self.flux[self.instrument_idxs[i]: self.instrument_idxs[i+1]], color=plot_config.color, edgecolors=plot_config.edgecolor, marker=plot_config.marker, s=plot_config.markersize, linewidths=plot_config.linewidth, zorder=plot_config.zorder_data, label = label)
+            # ------------------------
+            # Transmission (TOP PANEL)
+            # ------------------------
+            fig, ax_filt = filt._plot_transmission_curve(fig=fig, ax=ax_filt, plot_config=plot_config)
 
-            # Plot error bars
-            ax.errorbar(self.wave[self.instrument_idxs[i]: self.instrument_idxs[i+1]], self.flux[self.instrument_idxs[i]: self.instrument_idxs[i+1]], yerr=self.err[self.instrument_idxs[i]: self.instrument_idxs[i+1]], xerr=filt.width, fmt=plot_config.errorbar_fmt, ecolor=plot_config.color, alpha=plot_config.errorbar_alpha, capsize=plot_config.errorbar_capsize, zorder=plot_config.zorder_error)
+            # ------------------------
+            # Photometric points (MID PANEL)
+            # ------------------------
 
+            ax.scatter(
+                self.wave[idx0:idx1],
+                self.flux[idx0:idx1],
+                color=plot_config.color,
+                edgecolors=plot_config.edgecolor,
+                marker=plot_config.marker,
+                s=plot_config.markersize,
+                linewidths=plot_config.linewidth,
+                zorder=plot_config.zorder_data,
+                label=f'{filt.name}'
+            )
+
+            ax.errorbar(
+                self.wave[idx0:idx1],
+                self.flux[idx0:idx1],
+                yerr=self.err[idx0:idx1],
+                xerr=filt.width,
+                fmt=plot_config.errorbar_fmt,
+                ecolor=plot_config.color,
+                alpha=plot_config.errorbar_alpha,
+                capsize=plot_config.errorbar_capsize,
+                zorder=plot_config.zorder_error
+            )
+
+
+            # Get handles of ax_filt
+            lines = ax_filt.get_lines()
+            filt_handles.extend(lines)
+            filt_labels.append(f"{filt.name}")
+
+        # --------------------------------------------------
+        # Legend upper panel (Photometric data)
+        # --------------------------------------------------
+
+        if plot_config.label_filter:
+            plot_config.legend_filter_ncol = (self.nb_filters + 4) // 5
+            ax_filt.legend(filt_handles, filt_labels, fontsize=plot_config.legend_fontsize, ncol=plot_config.legend_filter_ncol, frameon=False)
+
+        # --------------------------------------------------
+        # Legend mid panel (Photometric data)
+        # --------------------------------------------------
+        if plot_config.label_data:
+            plot_config.legend_data_ncol = (self.nb_filters + 6) // 7
+            ax.legend(fontsize=plot_config.legend_fontsize, ncol=plot_config.legend_data_ncol, frameon=False)
+
+        # --------------------------------------------------
         # Axis labels
+        # --------------------------------------------------
         ax.set_xlabel(f"Wavelength ({getattr(self, 'unit', '')})")
         ax.set_ylabel("Flux")
 
@@ -215,7 +312,7 @@ class PhotometryObservation(Observation):
             ind = np.concatenate((ind, indices))
         ind = np.unique(ind)
 
-        for name, value in zip(['_wave', '_flux', '_err'], [self.wave, self.flux, self.err]):
+        for name, value in zip(['_wave', '_flux', '_err', '_Filter'], [self.wave, self.flux, self.err, self.Filter]):
             if value is not None:
                 setattr(restricted, name, value[ind])
 

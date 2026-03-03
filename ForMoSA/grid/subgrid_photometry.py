@@ -160,6 +160,9 @@ class SubGridPhotometry(SubGrid):
         name = ds.attrs.get('name', 'unknown')
         filter_name = ds.attrs.get("filter_name")
 
+        if isinstance(filter_name, str):
+            filter_name = [filter_name]
+
         Filter = []
         for name in filter_name:
             Filter.append(PhotometryFilter._from_filter_name(name))

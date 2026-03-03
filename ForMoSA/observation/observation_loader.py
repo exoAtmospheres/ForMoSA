@@ -303,7 +303,6 @@ class ObservationLoader:
             ins = np.asarray(data[normalized["INSTRUMENT"]], dtype=str)
             filter_id = np.asarray(data[normalized["FILTER_ID"]], dtype=str)
 
-
             logger.info(f'    Detected photometric observation with filter {np.unique(filter_id)}')
 
             # Error

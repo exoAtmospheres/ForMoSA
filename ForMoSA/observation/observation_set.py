@@ -7,6 +7,7 @@ import matplotlib.pyplot as plt
 from matplotlib.figure import Figure
 import matplotlib.gridspec as gridspec
 from matplotlib.axes._axes import Axes
+from matplotlib import colors as mcolors
 
 from ForMoSA.core.errors import ForMoSAError
 from ForMoSA.core.loggings import setup_logging
@@ -130,6 +131,18 @@ class ObservationSet(object):
         for i, name in enumerate(self.observation_names):
             data[name] = self.observations[i].to_dict
         return data
+
+    @property
+    def mcolors_normalize(self) -> mcolors.Normalize:                          # Color normalization (for plotting)
+        return plt.Normalize(vmin=self.wavelength_range[0], vmax=self.wavelength_range[1])
+
+    @property
+    def legend_filter_nb(self) -> int:                                         # Number of filters in legend (for plotting)
+        return np.sum([obs.nb_filters for obs in self.photometry_observations])
+
+    @property
+    def legend_data_nb(self) -> int:                                           # Number of datasets in legend (for plotting)
+        return np.sum([obs.nb_filters for obs in self.photometry_observations]) + np.sum([obs.nb_instruments for obs in self.spectral_observations])
 
     # ==================================================
     # Class methods
@@ -512,20 +525,17 @@ class ObservationSet(object):
             ax_filt = fig.add_subplot(gs[0:2, 0:10], sharex=ax)
 
         # Plot each observation
-        for i, obs in enumerate(self.observations):
-            if obs.ObsType == ObservationType.SPECTROSCOPIC.obstype:
-                plot_config = SPECTRAL_PLOT
-                plot_config.color = f'C{i}'
-
-            elif obs.ObsType == ObservationType.PHOTOMETRIC.obstype:
-                plot_config = PHOTOMETRIC_PLOT
-                plot_config.color = f'C{i}'
-
-            else:
-                raise ForMoSAError(f' Unknown observation type: {obs.ObsType}. Expected {[type.obstype for type in ObservationType]}')
+        for obs in self.observations:
 
             # Plot on the appropriate axes
-            obs.plot_data(fig=fig, ax=ax, ax_filt=ax_filt, plot_config=plot_config)
+            fig, ax, ax_filt = obs.plot_data(fig=fig, ax=ax, ax_filt=ax_filt)
+
+        nb_cols_data = (self.legend_data_nb + 6) // 7
+        nb_cols_filt = (self.legend_filter_nb + 4) // 5
+
+        ax.legend(ncol=nb_cols_data, frameon=False)
+        ax_filt.legend(ncol = nb_cols_filt, frameon=False)
+
 
     def _stack(self, ind_obs: list[int] | None = None, print_logger: bool = False) -> dict:
         '''

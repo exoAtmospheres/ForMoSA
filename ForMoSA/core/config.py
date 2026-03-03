@@ -1,5 +1,7 @@
 import os
 from pathlib import Path
+import matplotlib.cm as cm
+import matplotlib.pyplot as plt
 from dataclasses import dataclass, field
 from matplotlib import colors as mcolors
 
@@ -55,17 +57,31 @@ class SpectralPlotConfig:
     '''
 
     figsize: tuple[float, float] = (10.0, 7.0)
-    label: bool = True
-    color: str = "blue"
+
+    # --- Color management
+    cmap: mcolors.ListedColormap = field(default_factory = lambda: cm.seismic)   # Matplotlib colormap name
+    color: str = "red"
     edgecolor: str = None
+    norm: mcolors.Normalize = field(default_factory = lambda: plt.Normalize(vmin=1.0, vmax=15))
+
+    # --- Marker
     marker: str = "s"
     markersize: int = 40
-    linewidth: float = 1.0
+    linewidth: float = 1
+
+    # --- Errorbar
     errorbar_fmt: str = "None"
     errorbar_alpha: float = 1.0
     errorbar_capsize: float = 4.0
+
+    # --- zorder
     zorder_data: int = 3
     zorder_error: int = 1
+
+    # ---- Legend
+    label: bool = True
+    legend_ncol: int = 1
+    legend_fontsize: str = "small"
 
     def __post_init__(self):
         if self.edgecolor is None or self.edgecolor == "auto":
@@ -93,7 +109,7 @@ class SpectralPlotConfig:
 
         for key, value in kwargs.items():
             if not hasattr(self, key):
-                raise ForMoSAError(f'<Unknown spectral plot config key: {key}>')
+                raise ForMoSAError(f'Unknown spectral plot config key: {key}')
             setattr(self, key, value)
 
         self.edgecolor = darken_color(self.color)
@@ -108,21 +124,36 @@ SPECTRAL_PLOT = SpectralPlotConfig()
 class PhotometricPlotConfig:
     '''
     Dataclass to handle configurations for plotting photometric data.
-
-    Authors: Allan Denis
     '''
+
     figsize: tuple[float, float] = (10.0, 7.0)
-    label: bool = True
-    color: str = "red"
+
+    # --- Color management
+    cmap: mcolors.ListedColormap = field(default_factory = lambda: cm.seismic)   # Matplotlib colormap name
+    color: str = "blue"
     edgecolor: str = None
+    norm: mcolors.Normalize = field(default_factory = lambda: plt.Normalize(vmin=1.0, vmax=15))
+
+    # --- Marker
     marker: str = "s"
     markersize: int = 70
     linewidth: float = 2.0
+
+    # --- Errorbar
     errorbar_fmt: str = "None"
     errorbar_alpha: float = 1.0
     errorbar_capsize: float = 4.0
+
+    # --- zorder
     zorder_data: int = 3
     zorder_error: int = 1
+
+    # ---- Legend
+    label_filter: bool = True
+    label_data: bool = True
+    legend_filter_ncol: int = 1
+    legend_data_ncol: int = 1
+    legend_fontsize: str = "small"
 
     def __post_init__(self):
         if self.edgecolor is None or self.edgecolor == "auto":
@@ -150,7 +181,7 @@ class PhotometricPlotConfig:
 
         for key, value in kwargs.items():
             if not hasattr(self, key):
-                raise ForMoSAError(f'<Unknown photometric plot config key: {key}>')
+                raise ForMoSAError(f'Unknown photometric plot config key: {key}')
             setattr(self, key, value)
 
         self.edgecolor = darken_color(self.color)
@@ -391,9 +422,11 @@ class PlotsConfig:
     ChainsPlot: ChainsPlotConfig = field(default_factory = lambda: CHAINS_PLOT)
     RadarPlot: RadarPlotConfig = field(default_factory = lambda: RADAR_PLOT)
     BestFitPlot: BestFitPlotConfig = field(default_factory = lambda: BEST_FIT_PLOT)
+    SpectralPlot: SpectralPlotConfig = field(default_factory = lambda: SPECTRAL_PLOT)
+    PhotometricPlot: PhotometricPlotConfig = field(default_factory = lambda: PHOTOMETRIC_PLOT)
 
     def __post_init__(self):
-        for name, instance in zip(['CornerPlot', 'ChainsPlot', 'RadarPlot', 'BestFitPlot'], [CornerPlotConfig, ChainsPlotConfig, RadarPlotConfig, BestFitPlotConfig]):
+        for name, instance in zip(['CornerPlot', 'ChainsPlot', 'RadarPlot', 'BestFitPlot', 'SpectralPlot', 'PhotometricPlot'], [CornerPlotConfig, ChainsPlotConfig, RadarPlotConfig, BestFitPlotConfig, SpectralPlotConfig, PhotometricPlotConfig]):
             value = getattr(self, name)
             if not isinstance(value, instance):
                 raise ForMoSAError(f'Wrong type for {name}. Expected {instance}')
@@ -402,7 +435,7 @@ class PlotsConfig:
     def to_dict(self) -> dict:
         data = {}
 
-        for name in ['CornerPlot', 'ChainsPlot', 'RadarPlot', 'Spectralplot', 'PhotometricPlot']:
+        for name in ['CornerPlot', 'ChainsPlot', 'RadarPlot', 'BestFitPlot', 'Spectralplot', 'PhotometricPlot']:
             value = getattr(self, name).to_dict
             data[name] = value
 

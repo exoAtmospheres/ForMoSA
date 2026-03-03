@@ -44,7 +44,6 @@ class Observation(ABC):
         self._instrument  = np.atleast_1d(np.asarray(instrument, dtype=str))
 
         self._validate()
-        self._logger.info(f'    Setting wavelength unit to {self.unit} for observation {self.name}')
 
     # ==================================================
     # Abstract methods
@@ -174,19 +173,6 @@ class Observation(ABC):
     @property
     def path(self) -> Path:                                       # Path of the observation (if any)
         return Path(self._path) if self._path is not None else 'in-memory observation'
-
-    @property
-    def instrument_idxs(self) -> np.ndarray:                      # Indexes of occurent of new instruments
-        idxs = np.array([0])
-        last_ins = self.instrument[0]
-
-        for idx, ins in enumerate(self.instrument):
-            if ins != last_ins:
-                idxs = np.append(idxs, idx)
-                last_ins = ins
-
-        idxs = np.append(idxs, len(self.instrument))
-        return idxs
 
     # ================================================
     # Class methods

@@ -264,8 +264,23 @@ class Plotting(object):
             if not isinstance(native_model, ObservedModel):
                 raise ForMoSAError(f'If you want to plot the native model, native_model must be an instance of ObservedModel. Got {type(native_model)}')
 
-        # Get config for best fit plot
+        # Get config for best fit
         config = PLOTS_CONFIG.BestFitPlot
+        spectral = PLOTS_CONFIG.SpectralPlot
+        photo = PLOTS_CONFIG.PhotometricPlot
+
+        # norm for cmap
+        spectral.norm = observations.mcolors_normalize
+        photo.norm = observations.mcolors_normalize
+
+        obs_set_transformed = ObservationSet(self.logger)
+
+        for i, obs in enumerate(observations.observations):
+            # Create a copy of the observations to optionally remove component estimated by high-contrast module
+            obs_transformed = copy.deepcopy(obs)
+            obs_transformed._flux -= best_fit[i].component
+
+            obs_set_transformed.add_observation(obs_transformed)
 
         fig = plt.figure(figsize=figsize)
         fig.clf()
@@ -297,13 +312,11 @@ class Plotting(object):
         all_residuals = np.concatenate(all_residuals)
         global_std = np.std(all_residuals)
 
+        # Plot observations
+        obs_set_transformed.plot_all(fig=fig, ax=ax, ax_filt=ax_filt)
+
         # Plot best-fit and residuals
         for i, obs in enumerate(observations.observations):
-            # Create a copy of the observations to optionally remove component estimated by high-contrast module
-            obs_transformed = copy.deepcopy(obs)
-            obs_transformed._flux -= best_fit[i].component
-
-            obs_transformed.plot_data(fig=fig, ax=ax, ax_filt=ax_filt)
             res = best_fit[i].residuals(obs.flux)
 
             if obs.is_photometric:

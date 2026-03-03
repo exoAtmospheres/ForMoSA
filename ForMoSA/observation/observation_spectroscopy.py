@@ -2,6 +2,7 @@ import copy
 import logging
 import numpy as np
 import matplotlib.pyplot as plt
+from collections import defaultdict
 from matplotlib.figure import Figure
 from matplotlib.axes._axes import Axes
 from ForMoSA.utils.spec import resolution_decreasing, continuum_estimate
@@ -56,8 +57,8 @@ class SpectralObservation(Observation):
         self._res_cont = None
         self._wave_cont = None
 
-        self._validate_spectral()
         self._clean_nans()
+        self._validate_spectral()
 
     # ==================================================
     # Representation
@@ -166,12 +167,37 @@ class SpectralObservation(Observation):
         return data
 
     @property
-    def name(self) -> str:                                      # Name of the observation
-        return f'{"_".join([f"[{facility}_{ins}]" for facility, ins in zip(np.unique(self.facility), np.unique(self.instrument))])}'
+    def name(self) -> str:                                     # Observation name
+        # ---- Facilities
+        facilities = sorted(set(self.facility.astype(str)))
+        facility_str = f'[{"+".join(facilities)}]'
+
+        # ---- Instruments
+        instruments = sorted(set(self.instrument.astype(str)))
+        instrument_str = f'[{"+".join(instruments)}]'
+
+        return f"{facility_str}_{instrument_str}"
 
     @property
     def wavelength_range(self) -> tuple[float, float]:          # Wavelength range of the observation
         return float(self.wave.min()), float(self.wave.max())
+
+    @property
+    def instrument_idxs(self) -> np.ndarray:                    # Indexes of occurence of new instruments
+        idxs = np.array([0])
+        last_ins = self.instrument[0]
+
+        for idx, ins in enumerate(self.instrument):
+            if ins != last_ins:
+                idxs = np.append(idxs, idx)
+                last_ins = ins
+
+        idxs = np.append(idxs, len(self.instrument))
+        return idxs
+
+    @property
+    def nb_instruments(self) -> int:                            # Number of instruments
+        return len(self.instrument_idxs) - 1
 
     # ==================================================
     # Methods
@@ -261,6 +287,8 @@ class SpectralObservation(Observation):
         self._flux = self.flux[mask]
         self._err = self.err[mask]
         self._res = self.res[mask]
+        self._facility = self.facility[mask]
+        self._instrument = self.instrument[mask]
 
         if self.transm is not None:
             self._transm = self.transm[mask]
@@ -372,35 +400,74 @@ class SpectralObservation(Observation):
 
         self.logger.info(f'      Plotting data for observation {self.name}')
 
-        # Create figure and axes if not provided
+        # --------------------------------------------------
+        # Figure / axes creation
+        # --------------------------------------------------
         if ax is None:
             fig, ax = plt.subplots(figsize=plot_config.figsize)
         elif fig is None:
             fig = ax.figure
 
-        for i, (facility, instrument) in enumerate(zip(np.unique(self.facility), np.unique(self.instrument))):
-            if plot_config.label:
-                label = facility + '/' + instrument
+        # --------------------------------------------------
+        # Plotting
+        # --------------------------------------------------
+        for i in range(self.nb_instruments):
+            idx0 = self.instrument_idxs[i]
+            idx1 = self.instrument_idxs[i + 1]
+
+            # Use central wavelength to determine color
+            plot_config.set_spectral_plot_config(color = plot_config.cmap(plot_config.norm((self.wave[idx0] + self.wave[idx1-1]) / 2)))
+
+            label = f"{self.facility[idx0]}/{self.instrument[idx0]}"
+
+            if plot_config.marker == 'None':
+
+                ax.plot(
+                    self.wave[idx0:idx1],
+                    self.flux[idx0:idx1],
+                    color=plot_config.color,
+                    linewidth=plot_config.linewidth,
+                    zorder=plot_config.zorder_data,
+                    label=label
+                )
 
             else:
-                label = None
 
-            # Plot data: either as line or scatter depending on marker
-            if plot_config.marker == 'None' :
-                ax.plot(self.wave[self.instrument_idxs[i]: self.instrument_idxs[i+1]], self.flux[self.instrument_idxs[i]: self.instrument_idxs[i+1]], color=plot_config.color, linewidth=plot_config.linewidth, zorder=plot_config.zorder_data, label = label)
+                ax.scatter(
+                    self.wave[idx0:idx1],
+                    self.flux[idx0:idx1],
+                    color=plot_config.color,
+                    edgecolors=plot_config.edgecolor,
+                    marker=plot_config.marker,
+                    s=plot_config.markersize,
+                    linewidths=plot_config.linewidth,
+                    zorder=plot_config.zorder_data,
+                    label=label
+                )
 
-            else:
-                ax.scatter(self.wave[self.instrument_idxs[i]: self.instrument_idxs[i+1]], self.flux[self.instrument_idxs[i]: self.instrument_idxs[i+1]], color=plot_config.color, edgecolors=plot_config.edgecolor, marker=plot_config.marker, s=plot_config.markersize, linewidths=plot_config.linewidth, zorder=plot_config.zorder_data, label = label)
-                # Plot error bars
-                ax.errorbar(self.wave[self.instrument_idxs[i]: self.instrument_idxs[i+1]], self.flux[self.instrument_idxs[i]: self.instrument_idxs[i+1]], yerr=self.err[self.instrument_idxs[i]: self.instrument_idxs[i+1]], fmt=plot_config.errorbar_fmt, ecolor=plot_config.color, alpha=plot_config.errorbar_alpha, capsize=plot_config.errorbar_capsize, zorder=plot_config.zorder_error)
+                ax.errorbar(
+                    self.wave[idx0:idx1],
+                    self.flux[idx0:idx1],
+                    yerr=self.err[idx0:idx1],
+                    fmt=plot_config.errorbar_fmt,
+                    ecolor=plot_config.color,
+                    alpha=plot_config.errorbar_alpha,
+                    capsize=plot_config.errorbar_capsize,
+                    zorder=plot_config.zorder_error
+                )
 
-            # Legend
-            if plot_config.label:
-                ax.legend()
+        # --------------------------------------------------
+        # Legend (only once)
+        # --------------------------------------------------
+        if plot_config.label:
+            plot_config.legend_ncol = (self.nb_instruments + 6) // 7
+            ax.legend(fontsize=plot_config.legend_fontsize, ncol=plot_config.legend_ncol, frameon=False)
 
+        # --------------------------------------------------
         # Axis labels
-        ax.set_xlabel(f" Wavelength ({getattr(self, 'unit', '')})")
-        ax.set_ylabel('Flux')
+        # --------------------------------------------------
+        ax.set_xlabel(f"Wavelength ({getattr(self, 'unit', '')})")
+        ax.set_ylabel("Flux")
 
         return fig, ax, ax_filt
 
