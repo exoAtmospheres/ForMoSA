@@ -23,8 +23,7 @@ language = 'en'
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
 
-extensions = ['sphinx_rtd_theme',
-              'sphinx.ext.autodoc',
+extensions = ['sphinx.ext.autodoc',
               'sphinx.ext.doctest',
               'sphinx.ext.todo',
               'sphinx.ext.mathjax',    
@@ -58,32 +57,20 @@ pygments_style = 'sphinx'
 # If true, `todo` and `todoList` produce output, else they produce nothing.
 todo_include_todos = True
 
-import sphinx_rtd_theme
-import sphinx_rtd_theme
-
 html_static_path = ['_static']
 html_css_files = ['custom.css']
 
-#html_theme = 'bizstyle'
-html_theme = 'sphinx_rtd_theme'
+html_theme = 'sphinx_book_theme'
 html_logo = "_static/ForMoSA.png"
 html_favicon = '_static/favicon.ico'
-#html_theme = 'classic'
 
-#html_theme_options = {
-#    'path_to_docs': 'docs',
-#    'repository_url': 'https://github.com/exoAtmospheres/ForMoSA',
-#    'repository_branch': 'activ_dev',
-#    'launch_buttons': {
-#        'notebook_interface': 'jupyterlab',
-#    },
-#    'use_edit_page_button': True,
-#    'use_issues_button': True,
-#    'use_repository_button': True,
-#    'use_download_button': True,
-#}
-
-# These paths are either relative to html_static_path
-# or fully qualified paths (eg. https://...)
-html_theme_path = [sphinx_rtd_theme.get_html_theme_path()]
+html_theme_options = {
+    'path_to_docs': 'docs',
+    'repository_url': 'https://github.com/exoAtmospheres/ForMoSA',
+    'repository_branch': 'main',
+    'use_edit_page_button': True,
+    'use_issues_button': True,
+    'use_repository_button': True,
+    'use_download_button': True,
+}
 

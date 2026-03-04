@@ -53,7 +53,7 @@ def find_nearest(array, value):
     Returns
     -------
         int
-            Indice of the closest values from the desire value
+            Index of the closest values from the desire value
 
     Authors
     -------
