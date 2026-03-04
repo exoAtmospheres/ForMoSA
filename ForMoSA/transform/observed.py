@@ -107,7 +107,7 @@ class ObservedParameters:
 
         Parameters
         ----------
-        king : ParameterKind
+        kind : ParameterKind
             Kind to check
 
         Returns

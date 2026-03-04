@@ -253,7 +253,7 @@ def doppler_fct(wav_mod_spectro: np.ndarray, flx_mod_spectro: np.ndarray, res_mo
         flx_mod_spectro : array
             Flux of the interpolated synthetic spectrum
         res_mod_spectro : array
-            Resolution of the odel
+            Resolution of the model
         rv_picked : float
             Radial velocity randomly picked by the nested sampling (in km.s-1)
     Returns
@@ -338,13 +338,13 @@ def vsini_fct(wav_mod_spectro: np.ndarray, flx_mod_spectro: np.ndarray, res_mod_
         wav_mod_spectro : array
             Wavelength grid of the model
         flx_mod_spectro : array
-            Flux of tge interpolated synthetic spectrum (spectroscopy)
+            Flux of the interpolated synthetic spectrum (spectroscopy)
         res_mod_obs_spectro : array
             Resolution of the model as a function of the wavelength grid of the data
         ld_picked : float
             Limb darkening randomly picked by the nested sampling
         vsini_picked : float
-            v.sin(i) randomly picked by the nested samplin (in km.s-1)
+            v.sin(i) randomly picked by the nested sampling (in km.s-1)
         vsini_type : str
             Vsin(i) function to use
     Returns
@@ -400,7 +400,7 @@ def vsini_fct_rot_broad(wav_mod_spectro: np.ndarray, flx_mod_spectro: np.ndarray
         flx_mod_spectro : array
             Flux of the interpolated synthetic spectrum
         ld_picked : float
-            Limd darkening randomly picked by the nested sampling
+            Limb darkening randomly picked by the nested sampling
         vsini_picked : float
             v.sin(i) randomly picked by the nested sampling (in km.s-1)
     Returns
@@ -442,7 +442,7 @@ def vsini_fct_fast_rot_broad(wav_mod_spectro: np.ndarray, flx_mod_spectro: np.nd
         flx_mod_spectro : array
             Flux of the interpolated synthetic spectrum
         ld_picked : float
-            Limd darkening randomly picked by the nested sampling
+            Limb darkening randomly picked by the nested sampling
         vsini_picked : float
             v.sin(i) randomly picked by the nested sampling (in km.s-1)
     Returns
@@ -484,7 +484,7 @@ def vsini_fct_accurate(wav_mod_spectro: np.ndarray, flx_mod_spectro: np.ndarray,
         flx_mod_spectro : array
             Flux of the interpolated synthetic spectrum
         ld_picked : float
-            Limd darkening randomly picked by the nested sampling
+            Limb darkening randomly picked by the nested sampling
         vsini_picked : float
             v.sin(i) randomly picked by the nested sampling (in km.s-1)
         nr : int
@@ -544,7 +544,7 @@ def vsini_fct_accurate_fast_rot_broad(wav_mod_spectro: np.ndarray, flx_mod_spect
         flx_mod_spectro : array
             Flux of the interpolated synthetic spectrum
         ld_picked : float
-            Limd darkening randomly picked by the nested sampling
+            Limb darkening randomly picked by the nested sampling
         vsini_picked : float
             v.sin(i) randomly picked by the nested sampling (in km.s-1)
     Returns
@@ -988,7 +988,7 @@ def compute_ccf_single_rv(rv: float, wav_mod_spectro: np.ndarray, flx_mod_spectr
         wav_obs_spectro : np.ndarray
             Wavelength grid of the data
         flx_obs_spectro : np.ndarray
-            Fhe flux of the data
+            The flux of the data
         flx_cont_obs_spectro : np.ndarray
             Continuum of the flux of the data
         res_obs_spectro : np.ndarray
@@ -1015,7 +1015,7 @@ def compute_ccf_single_rv(rv: float, wav_mod_spectro: np.ndarray, flx_mod_spectr
         ccf : float
             Correlation between the template and the data
         acf : float
-            Autocorrelation between the template and iself
+            Autocorrelation between the template and itself
         ccf_star : float
             Correlation between the template and the star data
 

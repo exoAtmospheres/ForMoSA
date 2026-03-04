@@ -355,7 +355,7 @@ class RadarPlotConfig:
 
     Authors
     -------
-    Allan DenisÒ
+    Allan Denis
     '''
 
     figsize: tuple[float, float] = (6.0, 6.0)
