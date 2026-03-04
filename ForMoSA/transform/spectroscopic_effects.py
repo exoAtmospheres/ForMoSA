@@ -9,8 +9,10 @@ class SpectralEffects:
     '''
     Physical effects applied to a spectroscopic model.
 
-    Authors: Allan Denis
-    '''
+    Authors
+    -------
+    Allan Denis
+'''
 
     @staticmethod
     def _apply_physics(observed_model: ObservedModel, observed_params: ObservedParameters) -> ObservedModel:
@@ -19,15 +21,19 @@ class SpectralEffects:
 
         Parameters
         ----------
-        observed_model  (ObservedModel): Instance of class ObservedModel
-        params     (ObservedParameters): Instance of class ObservedParameters
+        observed_model : ObservedModel
+            Instance of class ObservedModel
+        params : ObservedParameters
+            Instance of class ObservedParameters
 
         Returns
         -------
         (ObservedModel): Instance of class ObservedModel transformed by the physics effects
 
-        Authors: Allan Denis
-        '''
+        Authors
+        -------
+        Allan Denis
+'''
 
         # ======================
         # Initial checkins
@@ -98,16 +104,22 @@ class SpectralEffects:
 
         Parameters
         ----------
-        observed_model  (ObservedModel): Instance of class ObservedModel
-        obs               (Observation): Instance of class Observation
-        bounds    (tuple[float, float]): Bounds for the least squares
+        observed_model : ObservedModel
+            Instance of class ObservedModel
+        obs : Observation
+            Instance of class Observation
+        bounds : tuple[float, float]
+            Bounds for the least squares
 
         Returns
         -------
-        ObservedModel: Instance of class ObservedModel transformed by the observational effects
+        ObservedModel
+            Instance of class ObservedModel transformed by the observational effects
 
-        Authors: Allan Denis
-        '''
+        Authors
+        -------
+        Allan Denis
+'''
 
         # ======================
         # Initial checkins
@@ -155,16 +167,22 @@ class SpectralEffects:
 
         Parameters
         ----------
-        observed_model (ObservedModel): Observed model
-        obs              (Observation): Observation
-        logL_type  (LogLikelihoodType): Loglikelihood function
+        observed_model : ObservedModel
+            Observed model
+        obs : Observation
+            Observation
+        logL_type : LogLikelihoodType
+            Loglikelihood function
 
         Returns
         -------
-        float: logL value
+        float
+            logL value
 
-        Authors: Simon Petrus, Matthieu Ravet and Allan Denis
-        '''
+        Authors
+        -------
+        Simon Petrus, Matthieu Ravet and Allan Denis
+'''
 
         # ======================
         # Initial checks

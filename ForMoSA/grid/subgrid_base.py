@@ -25,16 +25,25 @@ class SubGrid(ModelGrid, ABC):
 
     Parameters
     ----------
-    grid                        (xr.Dataset): Grid
-    parent_grid                  (ModelGrid): Parent model grid
-    target_resolution          (str | float): Target resolution to reach for the model ('obs', 'mod' or float)
-    logger           (logging.Logger | None): Logger
-    log_level                          (str): Level of the Logger
-    name                               (str): Name of the subgrid
-    display_unit            (WavelengthUnit): Unit of the wavelength
+    grid : xr.Dataset
+        Grid
+    parent_grid : ModelGrid
+        Parent model grid
+    target_resolution : str | float
+        Target resolution to reach for the model ('obs', 'mod' or float)
+    logger : logging.Logger | None
+        Logger
+    log_level : str
+        Level of the Logger
+    name : str
+        Name of the subgrid
+    display_unit : WavelengthUnit
+        Unit of the wavelength
 
-    Authors: Allan Denis
-    '''
+    Authors
+    -------
+    Allan Denis
+'''
 
     def __init__(self, grid: xr.Dataset, parent_grid: ModelGrid, logger: logging.Logger | None = None, log_level: str = "INFO", name: str = 'Unknown', display_unit: WavelengthUnit = WavelengthUnit.MICROMETER):
 
@@ -78,14 +87,18 @@ class SubGrid(ModelGrid, ABC):
 
         Parameters
         ----------
-        model  (xr.DataArray): Model to adapt
+        model : xr.DataArray
+            Model to adapt
 
         Returns
         -------
-        xr.DataArray: Adapted model
+        xr.DataArray
+            Adapted model
 
-        Authors: Allan Denis
-        '''
+        Authors
+        -------
+        Allan Denis
+'''
 
         pass
 
@@ -96,10 +109,13 @@ class SubGrid(ModelGrid, ABC):
 
         Returns
         -------
-        tuple[float, float]: Minimumn and maximum wavelengths of the restricted subgrid
+        tuple[float, float]
+            Minimumn and maximum wavelengths of the restricted subgrid
 
-        Authors: Allan Denis
-        '''
+        Authors
+        -------
+        Allan Denis
+'''
 
         pass
 
@@ -111,15 +127,20 @@ class SubGrid(ModelGrid, ABC):
 
         Parameters
         ----------
-        model           (ObservedModel): Instance of class ObservedModel to transform
-        params (dict[Parameter, float]): Dictionary of parameters values.
+        model : ObservedModel
+            Instance of class ObservedModel to transform
+        params : dict[Parameter, float]
+            Dictionary of parameters values.
 
         Returns
         -------
-        ObservedModel: Instance of class ObservedModel transformed
+        ObservedModel
+            Instance of class ObservedModel transformed
 
-        Authors: Allan Denis
-        '''
+        Authors
+        -------
+        Allan Denis
+'''
 
         pass
 
@@ -131,16 +152,22 @@ class SubGrid(ModelGrid, ABC):
 
         Parameters
         ----------
-        observed_model  (ObservedModel): Instance of class ObservedModel to transform
-        obs               (Observation): Instance of class Observation
-        bounds    (tuple[float, float]): Bounds for the least squares
+        observed_model : ObservedModel
+            Instance of class ObservedModel to transform
+        obs : Observation
+            Instance of class Observation
+        bounds : tuple[float, float]
+            Bounds for the least squares
 
         Returns
         -------
-        ObservedModel: Instance of class ObservedModel transformed
+        ObservedModel
+            Instance of class ObservedModel transformed
 
-        Authors: Allan Denis
-        '''
+        Authors
+        -------
+        Allan Denis
+'''
 
         pass
 
@@ -152,16 +179,22 @@ class SubGrid(ModelGrid, ABC):
 
         Parameters
         ----------
-        model          (ObservedModel): Instance of class ObservedModel
-        obs              (Observation): Observation
-        logL_type  (LogLikelihoodType): Loglikelihood function
+        model : ObservedModel
+            Instance of class ObservedModel
+        obs : Observation
+            Observation
+        logL_type : LogLikelihoodType
+            Loglikelihood function
 
         Returns
         -------
-        float: logL value
+        float
+            logL value
 
-        Authors: Simon Petrus, Matthieu Ravet and Allan Denis
-        '''
+        Authors
+        -------
+        Simon Petrus, Matthieu Ravet and Allan Denis
+'''
 
         pass
 
@@ -212,17 +245,24 @@ class SubGrid(ModelGrid, ABC):
 
         Parameters
         ----------
-        ds          (xr.Dataset): Dataset containing the parameters of the subgrid
-        parent_grid  (ModelGrid): Parent model grid
-        logger  (logging.Logger): Logger
-        log_level          (str): Level of the Logger
+        ds : xr.Dataset
+            Dataset containing the parameters of the subgrid
+        parent_grid : ModelGrid
+            Parent model grid
+        logger : logging.Logger
+            Logger
+        log_level : str
+            Level of the Logger
 
         Returns
         -------
-        'SubGrid': An instance of class SubGrid
+        'SubGrid'
+            An instance of class SubGrid
 
-        Authors: Allan Denis
-        '''
+        Authors
+        -------
+        Allan Denis
+'''
 
         logger = logger or setup_logging(level=log_level, name="Observation")
         logger.debug('Extracting SubGrid from dataset')
@@ -250,18 +290,26 @@ class SubGrid(ModelGrid, ABC):
 
         Parameters
         ----------
-        path         (str | os.PathLike): Path to the .nc file
-        parent_grid          (ModelGrid): Parent model grid
-        logger          (logging.Logger): Logger
-        log_level                  (str): Level of the Logger
-        display_unit    (WavelengthUnit): Unit to display for wavelength
+        path : str | os.PathLike
+            Path to the .nc file
+        parent_grid : ModelGrid
+            Parent model grid
+        logger : logging.Logger
+            Logger
+        log_level : str
+            Level of the Logger
+        display_unit : WavelengthUnit
+            Unit to display for wavelength
 
         Returns
         -------
-        'SubGrid': An instance of class SubGrid
+        'SubGrid'
+            An instance of class SubGrid
 
-        Authors: Allan Denis
-        '''
+        Authors
+        -------
+        Allan Denis
+'''
 
         logger = logger or setup_logging(level=log_level, name='SubGrid')
         logger.debug(f'Loading grid from file {path}')
@@ -285,15 +333,20 @@ class SubGrid(ModelGrid, ABC):
 
         Parameters
         ----------
-        target_wavelength (np.ndarray): Wavelength to reach for the subgrid
-        target_resolution (np.ndarray): Resolution to reach for the subgrid
+        target_wavelength : np.ndarray
+            Wavelength to reach for the subgrid
+        target_resolution : np.ndarray
+            Resolution to reach for the subgrid
 
         Returns
         -------
-        xr.Dataset: Empty grid
+        xr.Dataset
+            Empty grid
 
-        Authors: Allan Denis
-        '''
+        Authors
+        -------
+        Allan Denis
+'''
 
         self._logger.debug(f'Building empty grid from the native grid {self.parent_grid.grid_name}')
 
@@ -334,8 +387,10 @@ class SubGrid(ModelGrid, ABC):
         '''
         Adapt the entire grid to the observation.
 
-        Authors: Arthur Vigan and Allan Denis
-        '''
+        Authors
+        -------
+        Arthur Vigan and Allan Denis
+'''
 
         # Get a restricted version of the parent grid to spped up the adaptation
         wmin, wmax = self._get_restriction_bounds()
@@ -380,18 +435,25 @@ class SubGrid(ModelGrid, ABC):
 
         Parameters
         ----------
-        observed_model                 (ObservedModel): Instance of class ObservedModel
-        observation                      (Observation): Observation
+        observed_model : ObservedModel
+            Instance of class ObservedModel
+        observation : Observation
+            Observation
         logL_type                   LogLikelihoodType): Loglikelihood function
-        interp_method                            (str): Interpolation method
-        bounds_lsq               (tuple[float, float]): (lower, higher) bounds for the Least Squares
+        interp_method : str
+            Interpolation method
+        bounds_lsq : tuple[float, float]
+            (lower, higher) bounds for the Least Squares
 
         Returns
         -------
-        float: Loglikelihood
+        float
+            Loglikelihood
 
-        Authors: Allan Denis
-        '''
+        Authors
+        -------
+        Allan Denis
+'''
 
         # Initial check
         if not isinstance(observed_model, ObservedModel):
@@ -413,16 +475,22 @@ class SubGrid(ModelGrid, ABC):
         Parameters
         ----------
         observed_params    ObservedParameters): Instance of class ObservedParameters
-        observation              (Observation): Observation
-        interp_method                    (str): Interpolation method
-        bounds    (tuple[float, float]): Bounds for the least squares
+        observation : Observation
+            Observation
+        interp_method : str
+            Interpolation method
+        bounds : tuple[float, float]
+            Bounds for the least squares
 
         Returns
         -------
-        ObservedModel: Model build with the values of the parameters
+        ObservedModel
+            Model build with the values of the parameters
 
-        Authors: Allan Denis
-        '''
+        Authors
+        -------
+        Allan Denis
+'''
 
         # Split parameters
         grid_params = observed_params.grid
@@ -455,15 +523,20 @@ class SubGrid(ModelGrid, ABC):
 
         Parameters
         ----------
-        params (Dict[Parameter, float]): Dictionary of grid parameters and their associated values
-        interp_method             (str): Interpolation method
+        params : Dict[Parameter, float]
+            Dictionary of grid parameters and their associated values
+        interp_method : str
+            Interpolation method
 
         Returns
         -------
-        observed_model (ObservedModel): Instance of class ObservedModel
+        observed_model : ObservedModel
+            Instance of class ObservedModel
 
-        Authors: Allan Denis
-        '''
+        Authors
+        -------
+        Allan Denis
+'''
 
         # Initial checks
         if not isinstance(grid_params, ObservedParameters):

@@ -16,10 +16,13 @@ def set_filter_path(path: str | os.PathLike) -> None:
 
     Parameters
     ----------
-    path : str | os.PathLike, Path to the filters folder
+    path : str | os.PathLike
+        Path to the filters folder
 
-    Authors: Allan Denis
-    '''
+    Authors
+    -------
+    Allan Denis
+'''
 
     global FILTER_PATH
     FILTER_PATH = Path(path).expanduser().resolve()
@@ -30,15 +33,19 @@ def darken_color(color: str, factor: float = 0.7) -> str:
 
     Parameters
     ----------
-    color    (str): Any matplotlib-compatible color.
-    factor (float): Multiplicative factor (<1 darker, >1 lighter)
+    color : str
+        Any matplotlib-compatible color.
+    factor : float
+        Multiplicative factor (<1 darker, >1 lighter)
 
     Returns
     -------
     str : hex color
 
-    Authors: Allan Denis
-    '''
+    Authors
+    -------
+    Allan Denis
+'''
 
     rgb = mcolors.to_rgb(color)
     dark_rgb = tuple(max(0, min(1, c * factor)) for c in rgb)
@@ -53,8 +60,10 @@ class SpectralPlotConfig:
     '''
     Dataclass to handle configurations for plotting spectroscopic data.
 
-    Authors: Allan Denis
-    '''
+    Authors
+    -------
+    Allan Denis
+'''
 
     figsize: tuple[float, float] = (10.0, 7.0)
 
@@ -91,8 +100,10 @@ class SpectralPlotConfig:
         '''
         Return configuration options as a dictionary.
 
-        Authors: Allan Denis
-        '''
+        Authors
+        -------
+        Allan Denis
+'''
 
         return {k: v for k, v in self.__dict__.items() if v is not None}
 
@@ -102,10 +113,13 @@ class SpectralPlotConfig:
 
         Parameters
         ----------
-        **kwargs : dict, Keyword arguments to override attributes of the config
+        **kwargs : dict
+            Keyword arguments to override attributes of the config
 
-        Authors: Allan Denis
-        '''
+        Authors
+        -------
+        Allan Denis
+'''
 
         for key, value in kwargs.items():
             if not hasattr(self, key):
@@ -124,7 +138,7 @@ SPECTRAL_PLOT = SpectralPlotConfig()
 class PhotometricPlotConfig:
     '''
     Dataclass to handle configurations for plotting photometric data.
-    '''
+'''
 
     figsize: tuple[float, float] = (10.0, 7.0)
 
@@ -163,8 +177,10 @@ class PhotometricPlotConfig:
         '''
         Return configuration options as a dictionary.
 
-        Authors: Allan Denis
-        '''
+        Authors
+        -------
+        Allan Denis
+'''
 
         return {k: v for k, v in self.__dict__.items() if v is not None}
 
@@ -174,10 +190,13 @@ class PhotometricPlotConfig:
 
         Parameters
         ----------
-        **kwargs : dict, Keyword arguments to override attributes of the config
+        **kwargs : dict
+            Keyword arguments to override attributes of the config
 
-        Authors: Allan Denis
-        '''
+        Authors
+        -------
+        Allan Denis
+'''
 
         for key, value in kwargs.items():
             if not hasattr(self, key):
@@ -197,8 +216,10 @@ class CornerPlotConfig:
     '''
     Dataclass to handle configurations for corner plots.
 
-    Authors: Allan Denis
-    '''
+    Authors
+    -------
+    Allan Denis
+'''
 
     figsize: tuple[float, float] = (15.0, 15.0)
     color: str = "magenta"
@@ -226,8 +247,10 @@ class CornerPlotConfig:
         '''
         Return configuration options as a dictionary.
 
-        Authors: Allan Denis
-        '''
+        Authors
+        -------
+        Allan Denis
+'''
 
         return {k: v for k, v in self.__dict__.items() if v is not None}
 
@@ -237,10 +260,13 @@ class CornerPlotConfig:
 
         Parameters
         ----------
-        **kwargs : dict, Keyword arguments to override attributes of the config
+        **kwargs : dict
+            Keyword arguments to override attributes of the config
 
-        Authors: Allan Denis
-        '''
+        Authors
+        -------
+        Allan Denis
+'''
 
         for key, value in kwargs.items():
             if not hasattr(self, key):
@@ -258,8 +284,10 @@ class ChainsPlotConfig:
     '''
     Dataclass ot handle configurations for chains plot.
 
-    Authors: Allan Denis
-    '''
+    Authors
+    -------
+    Allan Denis
+'''
 
     figsize: tuple[float, float] = (15.0, 15.0)
 
@@ -288,8 +316,10 @@ class ChainsPlotConfig:
         '''
         Return configuration options as a dictionary.
 
-        Authors: Allan Denis
-        '''
+        Authors
+        -------
+        Allan Denis
+'''
 
         return {k: v for k, v in self.__dict__.items() if v is not None}
 
@@ -299,10 +329,13 @@ class ChainsPlotConfig:
 
         Parameters
         ----------
-        **kwargs : dict, Keyword arguments to override attributes of the config
+        **kwargs : dict
+            Keyword arguments to override attributes of the config
 
-        Authors: Allan Denis
-        '''
+        Authors
+        -------
+        Allan Denis
+'''
 
         for key, value in kwargs.items():
             if not hasattr(self, key):
@@ -320,8 +353,10 @@ class RadarPlotConfig:
     '''
     Dataclass to handle configurations for radar plot.
 
-    Authors: Allan DenisÒ
-    '''
+    Authors
+    -------
+    Allan DenisÒ
+'''
 
     figsize: tuple[float, float] = (6.0, 6.0)
 
@@ -343,8 +378,10 @@ class RadarPlotConfig:
         '''
         Return configuration options as a dictionary.
 
-        Authors: Allan Denis
-        '''
+        Authors
+        -------
+        Allan Denis
+'''
 
         return {k: v for k, v in self.__dict__.items() if v is not None}
 
@@ -354,10 +391,13 @@ class RadarPlotConfig:
 
         Parameters
         ----------
-        **kwargs : dict, Keyword arguments to override attributes of the config
+        **kwargs : dict
+            Keyword arguments to override attributes of the config
 
-        Authors: Allan Denis
-        '''
+        Authors
+        -------
+        Allan Denis
+'''
 
         for key, value in kwargs.items():
             if not hasattr(self, key):
@@ -375,8 +415,10 @@ class BestFitPlotConfig:
     '''
     Dataclass to handle configurations for best fit plot.
 
-    Authors: Allan Denis
-    '''
+    Authors
+    -------
+    Allan Denis
+'''
 
     color: str = 'black'
     linewidth: float = 2.0
@@ -387,8 +429,10 @@ class BestFitPlotConfig:
         '''
         Return configuration options as a dictionary.
 
-        Authors: Allan Denis
-        '''
+        Authors
+        -------
+        Allan Denis
+'''
 
         return {k: v for k, v in self.__dict__.items() if v is not None}
 
@@ -398,10 +442,13 @@ class BestFitPlotConfig:
 
         Parameters
         ----------
-        **kwargs : dict, Keyword arguments to override attributes of the config
+        **kwargs : dict
+            Keyword arguments to override attributes of the config
 
-        Authors: Allan Denis
-        '''
+        Authors
+        -------
+        Allan Denis
+'''
 
         for key, value in kwargs.items():
             if not hasattr(self, key):
@@ -415,8 +462,10 @@ class PlotsConfig:
     '''
     Dataclass to handle configurations for plots.
 
-    Authors: Allan Denis
-    '''
+    Authors
+    -------
+    Allan Denis
+'''
 
     CornerPlot: CornerPlotConfig = field(default_factory = lambda: CORNER_PLOT)
     ChainsPlot: ChainsPlotConfig = field(default_factory = lambda: CHAINS_PLOT)

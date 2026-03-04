@@ -12,8 +12,10 @@ class ObservedParameters:
     '''
     Parameters drawn from the nested sampling.
 
-    Authors: Allan Denis
-    '''
+    Authors
+    -------
+    Allan Denis
+'''
 
     # ======================
     # Attributes
@@ -84,13 +86,15 @@ class ObservedParameters:
 
         Parameters
         ----------
-        name (str): Name to check
+        name : str
+            Name to check
 
         Returns
         -------
-        bool: Whether the name is present in the parameter names
+        bool
+            Whether the name is present in the parameter names
 
-        '''
+'''
 
         if not isinstance(name, str):
             raise ForMoSAError('Wrong type for name: {type(name)}. Expected a string')
@@ -103,13 +107,15 @@ class ObservedParameters:
 
         Parameters
         ----------
-        king (ParameterKind): Kind to check
+        king : ParameterKind
+            Kind to check
 
         Returns
         -------
-        bool: Whether the name is present in the parameter names
+        bool
+            Whether the name is present in the parameter names
 
-        '''
+'''
 
         if not isinstance(kind, ParameterKind):
             raise ForMoSAError('Wrong type for kind: {type(kind)}. Expected a ParameterKind')
@@ -122,14 +128,18 @@ class ObservedParameters:
 
         Parameters
         ----------
-        name (str): Name of the parameter
+        name : str
+            Name of the parameter
 
         Returns
         -------
-        float: Value of the parameter
+        float
+            Value of the parameter
 
-        Authors: Allan Denis
-        '''
+        Authors
+        -------
+        Allan Denis
+'''
 
         if not self.has_name(name):
             raise ForMoSAError(f'Name ({name}) must be amongst the parameter names: {self.names}')
@@ -144,14 +154,18 @@ class ObservedParameters:
 
         Parameters
         ----------
-        kind (ParameterKind): Kind of the parameter
+        kind : ParameterKind
+            Kind of the parameter
 
         Returns
         -------
-        float: Value of the parameter
+        float
+            Value of the parameter
 
-        Authors: Allan Denis
-        '''
+        Authors
+        -------
+        Allan Denis
+'''
 
         if not self.has_kind(kind):
             raise ForMoSAError(f'Kind ({kind}) must be amongst the parameter kinds: {self.kinds}')
@@ -166,10 +180,13 @@ class ObservedParameters:
 
         Parameters
         ----------
-        *kind (ParameterKind): kinds of required parameters
+        *kind : ParameterKind
+            kinds of required parameters
 
-        Authors: Allan Denis
-        '''
+        Authors
+        -------
+        Allan Denis
+'''
 
         missing = [kind for kind in kinds if not self.has_kind(kind)]
         if missing:
@@ -180,8 +197,10 @@ class ObservedModel:
     '''
     Model drawn from the nested sampling.
 
-    Authors: Allan Denis
-    '''
+    Authors
+    -------
+    Allan Denis
+'''
 
     # ======================
     # Attributes
@@ -234,16 +253,22 @@ class ObservedModel:
 
         Parameters
         ----------
-        grid            (ModelGrid): An instance of ModelGrid
-        parmas (ObservedParameters): An instance of ObservedParameters
-        interp_method         (str): Interpolation method
+        grid : ModelGrid
+            An instance of ModelGrid
+        parmas : ObservedParameters
+            An instance of ObservedParameters
+        interp_method : str
+            Interpolation method
 
         Returns
         -------
-        'ObservedModel': An instance of class ObservedModel
+        'ObservedModel'
+            An instance of class ObservedModel
 
-        Authors: Allan Denis
-        '''
+        Authors
+        -------
+        Allan Denis
+'''
 
         # Initial checks
         if not isinstance(grid, ModelGrid):
@@ -324,15 +349,20 @@ class ObservedModel:
 
         Parameters
         ----------
-        flux_obs  (np.ndarray): Flux of the observations
-        componant_only ( bool): Whether to use only the componant (without the flux) of the instance
+        flux_obs : np.ndarray
+            Flux of the observations
+        componant_only : bool
+            Whether to use only the componant (without the flux) of the instance
 
         Returns
         -------
-        np.ndarray: Residuals
+        np.ndarray
+            Residuals
 
-        Authors: Allan Denis
-        '''
+        Authors
+        -------
+        Allan Denis
+'''
 
         flux_obs = np.asarray(flux_obs, dtype=float)
 
@@ -350,14 +380,18 @@ class ObservedModel:
 
         Parameters
         ----------
-        flux_obs  (np.ndarray): Flux of the observations
+        flux_obs : np.ndarray
+            Flux of the observations
 
         Returns
         -------
-        float: Standard deviation of the residuals
+        float
+            Standard deviation of the residuals
 
-        Authors: Allan Denis
-        '''
+        Authors
+        -------
+        Allan Denis
+'''
 
         if len(self.wave) == 1:
             return 1
@@ -374,18 +408,23 @@ class ObservedModel:
 
         Returns
         -------
-        ObservedModel: Copy of ObservedModel
+        ObservedModel
+            Copy of ObservedModel
 
-        Authors: Allan Denis
-        """
+        Authors
+        -------
+        Allan Denis
+"""
         return replace(self, **updates)
 
     def _sort(self) -> None:
         '''
         Sort by increasing wavelength
 
-        Authors: Allan Denis
-        '''
+        Authors
+        -------
+        Allan Denis
+'''
 
         # Sort wave, flux, res and component
         isort = np.argsort(self.wave)

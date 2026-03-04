@@ -24,16 +24,25 @@ class PhotometryFilter(object):
 
     Parameters
     ----------
-    facility                   (str): Name of the facility ('Paranal', 'Keck', 'JWST', ...)
-    instrument                 (str): Name of the instrument ('SPHERE', 'NIRC2', 'NIRCam', ...)
-    filter_id                  (str): ID of the filter ('IRDIS_B_H', 'Lp', F410M)
-    filter_path  (str | os.PathLike): Path where to save the filter data
-    log_level                  (str): Level of the logger
-    logger          (logging.Logger): Logger
-    display_unit    (WavelengthUnit): Unit of the wavelength to display
+    facility : str
+        Name of the facility ('Paranal', 'Keck', 'JWST', ...)
+    instrument : str
+        Name of the instrument ('SPHERE', 'NIRC2', 'NIRCam', ...)
+    filter_id : str
+        ID of the filter ('IRDIS_B_H', 'Lp', F410M)
+    filter_path : str | os.PathLike
+        Path where to save the filter data
+    log_level : str
+        Level of the logger
+    logger : logging.Logger
+        Logger
+    display_unit : WavelengthUnit
+        Unit of the wavelength to display
 
-    Authors: Allan Denis
-    '''
+    Authors
+    -------
+    Allan Denis
+'''
 
     def __init__(self, facility: str, instrument: str, filter_id: str, filter_path: str | os.PathLike | None = None, log_level: str = 'info', logger: logging.Logger | None = None, display_unit: WavelengthUnit = WavelengthUnit.MICROMETER):
         if logger == None:
@@ -223,18 +232,24 @@ class PhotometryFilter(object):
         Build an instance of Filter from the filter_name.
         filter_name must be under the format facility/instrument.filter_id (e.g. 'Keck/NIRC2.Lp')
 
-        Usage: Filter = PhotometryFilter.from_filter_name('Keck/NIRC2.Lp')
+        Examples
+        --------
+        >>> Filter = PhotometryFilter.from_filter_name('Keck/NIRC2.Lp')
 
         Parameters
         ----------
-        filter_name (str): Full name of the filter
+        filter_name : str
+            Full name of the filter
 
         Returns
         -------
-        'PhotometryFilter': Instance of PhotometryFilter
+        'PhotometryFilter'
+            Instance of PhotometryFilter
 
-        Authors: Allan Denis
-        '''
+        Authors
+        -------
+        Allan Denis
+'''
 
         facility, instrument, filter_id = filter_name.split('/')[0], filter_name.split('/')[1].split('.')[0], filter_name.split('/')[1].split('.')[1]
 
@@ -248,8 +263,10 @@ class PhotometryFilter(object):
         '''
         Validate the filter data.
 
-        Authors: Allan Denis
-        '''
+        Authors
+        -------
+        Allan Denis
+'''
 
         if not isinstance(self._filter_path, (str, os.PathLike)):
             raise ForMoSAError(f"<Wrong type for filter_path: {type(self._filter_path)}. Expected str or os.PathLike>", self.logger)
@@ -273,8 +290,10 @@ class PhotometryFilter(object):
         '''
         Get the filter data either from a local FITS file or from the Spanish Virtual Observatory's Filter Profile Service.
 
-        Authors: Allan Denis
-        '''
+        Authors
+        -------
+        Allan Denis
+'''
 
         try:
             self._logger.debug(f"<Look for the filter {self.name} in the folder {self.folder}>")
@@ -298,17 +317,24 @@ class PhotometryFilter(object):
 
         Parameters
         ----------
-        figure     (matplotlib.figure.Figure): Figure (used to overplot on an existing figure)
-        ax       (matplotlib.axes._axes.Axes): Ax (used to overplot on an existing ax)
-        plot_config   (PhotometricPlotConfig): Instance of class PhotometricPlotConfig
+        figure : matplotlib.figure.Figure
+            Figure (used to overplot on an existing figure)
+        ax : matplotlib.axes._axes.Axes
+            Ax (used to overplot on an existing ax)
+        plot_config : PhotometricPlotConfig
+            Instance of class PhotometricPlotConfig
 
         Returns
         -------
-        fig        (matplotlib.figure.Figure): Updated figure
-        ax       (matplotlib.axes._axes.Axes): Updated ax
+        fig : matplotlib.figure.Figure
+            Updated figure
+        ax : matplotlib.axes._axes.Axes
+            Updated ax
 
-        Authors: Allan Denis
-        '''
+        Authors
+        -------
+        Allan Denis
+'''
 
         self._logger.info(f"      Plotting transmission curve of filter {self.name}")
 
@@ -334,10 +360,13 @@ class PhotometryFilter(object):
 
         Parameters
         ----------
-        unit (WavelengthUnit): unit used (micrometer', 'nanometer', 'angstrom')
+        unit : WavelengthUnit
+            unit used (micrometer', 'nanometer', 'angstrom')
 
-        Authors: Allan Denis
-        '''
+        Authors
+        -------
+        Allan Denis
+'''
 
         if not isinstance(unit, WavelengthUnit):
             raise ForMoSAError(f"<Unit must be a WavelengthUnit Enum, got {type(unit)}>", self.logger)
@@ -352,8 +381,10 @@ class PhotometryFilter(object):
         '''
         Save filter data and metadata into a FITS file.
 
-        Authors: Allan Denis
-        '''
+        Authors
+        -------
+        Allan Denis
+'''
 
         path = self.file_path
 
@@ -428,8 +459,10 @@ class PhotometryFilter(object):
         '''
         Method to Query filter data in the Spanish Virtual Observatory's Filter Profile Service
 
-        Authors: Mickael Bonnefoy and Allan Denis
-        '''
+        Authors
+        -------
+        Mickael Bonnefoy and Allan Denis
+'''
 
         data = SvoFps.get_transmission_data(self.name)
         metadata = SvoFps.get_filter_list(facility=self.facility, instrument=self.instrument)
@@ -446,8 +479,10 @@ class PhotometryFilter(object):
         """
         Method to load filter data from the fits file.
 
-        Authors: Allan Denis
-        """
+        Authors
+        -------
+        Allan Denis
+"""
 
         # Convert to Path if it's a string
         fits_path = self.file_path

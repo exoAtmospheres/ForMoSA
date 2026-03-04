@@ -5,8 +5,10 @@ class WavelengthUnit(Enum):
     '''
     Enumeration of wavelength units used in ForMoSA with accepted aliases
 
-    Authors: Allan Denis
-    '''
+    Authors
+    -------
+    Allan Denis
+'''
 
     ANGSTROM = u.AA
     NANOMETER = u.nm
@@ -35,8 +37,10 @@ class FluxUnit(Enum):
     '''
     Enumeration of flux units used in ForMoSA
 
-    Authors: Allan Denis
-    '''
+    Authors
+    -------
+    Allan Denis
+'''
 
     FLAM = u.erg / (u.s * u.cm**2 * u.AA)
     FNU = u.erg / (u.s * u.cm**2 * u.Hz)
@@ -50,8 +54,10 @@ class DataUnit(Enum):
     '''
     Enumeration of data units used in ForMoSA
 
-    Authors: Allan Denis
-    '''
+    Authors
+    -------
+    Allan Denis
+'''
 
     COUNTS = 'counts'
     ELECTRONS = 'electrons'
@@ -65,8 +71,10 @@ class ObservationType(Enum):
     '''
     Enumeration of observation types used in ForMoSA with accepted aliases
 
-    Authors: Allan Denis
-    '''
+    Authors
+    -------
+    Allan Denis
+'''
 
     SPECTROSCOPIC = 'Spectroscopic'
     PHOTOMETRIC = 'Photometric'
@@ -89,14 +97,18 @@ class ObservationKeys(Enum):
     '''
     Enumeration of observation keys used in ForMoSA with accepted aliases
 
-    usage: WAVELENGTH = ObservationKeys.WAVELENGTH
-    -> WAVELENGTH.canonical = "WAVELENGTH"
-    -> WAVELENGTH.aliases = "WAVE", "WAV", "LAMBDA"
+    Examples
+    --------
+    >>> WAVELENGTH = ObservationKeys.WAVELENGTH
+    >>> WAVELENGTH.canonical = "WAVELENGTH"
+    >>> WAVELENGTH.aliases = "WAVE", "WAV", "LAMBDA"
 
     So the user can use "WAVELENGTH", "WAVE", "WAV" or "LAMBDA" to call the wavelength array of the observations
 
-    Authors: Allan Denis
-    '''
+    Authors
+    -------
+    Allan Denis
+'''
 
     WAVELENGTH = ("WAVELENGTH", ["WAVELENGTH", "WAVE", "WAV", "LAMBDA"])
     FLUX = ("FLUX", ["FLUX", "FLX"])
@@ -149,14 +161,18 @@ class ObservationKeys(Enum):
 
         Parameters
         ----------
-        present (set[str]): set of canonical observation keys
+        present : set[str]
+            set of canonical observation keys
 
         Returns
         -------
-        list[str]: List of required photometric keys absent
+        list[str]
+            List of required photometric keys absent
 
-        Authors: Allan Denis
-        '''
+        Authors
+        -------
+        Allan Denis
+'''
 
         missing = [key.canonical for key in cls.required_common() if key.canonical not in present]
         missing.extend([key.canonical for key in cls.required_photometric() if key.canonical not in present])
@@ -170,14 +186,18 @@ class ObservationKeys(Enum):
 
         Parameters
         ----------
-        present (set[str]): set of canonical observation keys
+        present : set[str]
+            set of canonical observation keys
 
         Returns
         -------
-        list[str]: List of required spectroscopic keys absent
+        list[str]
+            List of required spectroscopic keys absent
 
-        Authors: Allan Denis
-        '''
+        Authors
+        -------
+        Allan Denis
+'''
 
         missing = [key.canonical for key in cls.required_common() if key.canonical not in present]
         missing.extend([key.canonical for key in cls.required_spectroscopic() if key.canonical not in present])
@@ -207,8 +227,10 @@ class PriorType(Enum):
     '''
     Enumeration of prior types used in ForMoSA
 
-    Authors: Allan Denis
-    '''
+    Authors
+    -------
+    Allan Denis
+'''
 
     UNIFORM = 'uniform'
     GAUSSIAN = 'gaussian'
@@ -239,8 +261,10 @@ class VsiniFunction(Enum):
     '''
     Enumeration of vsini calculation functions used in ForMoSA
 
-    Authors: Allan Denis
-    '''
+    Authors
+    -------
+    Allan Denis
+'''
 
     RotBroad = 'RotBroad'
     FastRotBroad = 'FastRotBroad'
@@ -255,8 +279,10 @@ class ParameterKind(Enum):
     '''
     Enumeration of parameters names used in ForMoSA
 
-    Authors: Allan Denis
-    '''
+    Authors
+    -------
+    Allan Denis
+'''
 
     RADIUS = 'r'
     DISTANCE = 'd'
@@ -311,8 +337,10 @@ class LogLikelihoodType(Enum):
     '''
     Enumeration of log-likelihood types used in ForMoSA
 
-    Authors: Allan Denis
-    '''
+    Authors
+    -------
+    Allan Denis
+'''
 
     CHI2 = 'chi2'
     CHI2_COVARIANCE = 'chi2_covariance'
@@ -330,8 +358,10 @@ class NestedAlgorithm(Enum):
     '''
     Enumeration of nested sampling algorithms used in ForMoSA
 
-    Authors: Allan Denis
-    '''
+    Authors
+    -------
+    Allan Denis
+'''
 
     NESTLE = 'nestle'
     ULTRANEST = 'ultranest'

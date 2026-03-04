@@ -19,23 +19,39 @@ class SpectralObservation(Observation):
 
     Parameters
     ----------
-    wave                (np.ndarray): Wavelength array
-    flux                (np.ndarray): Flux array
-    err                 (np.ndarray): Error array
-    res                 (np.ndarray): Spectral resolution array
-    facility                   (str): Facility name
-    instrument                 (str): Instrument name
-    native_unit     (WavelengthUnit): Native unit of the wavelength
-    cov                 (np.ndarray): Covariance matrix
-    transm              (np.ndarray): Transmission array (Atmo+inst)
-    star_flux           (np.ndarray): Star flux array
-    system              (np.ndarray): Systematics array
-    logger          (logging.Logger): Logger
-    log_level                  (str): Level of the logger
-    display_unit    (WavelengthUnit): Unit of the wavelength to display
+    wave : np.ndarray
+        Wavelength array
+    flux : np.ndarray
+        Flux array
+    err : np.ndarray
+        Error array
+    res : np.ndarray
+        Spectral resolution array
+    facility : str
+        Facility name
+    instrument : str
+        Instrument name
+    native_unit : WavelengthUnit
+        Native unit of the wavelength
+    cov : np.ndarray
+        Covariance matrix
+    transm : np.ndarray
+        Transmission array (Atmo+inst)
+    star_flux : np.ndarray
+        Star flux array
+    system : np.ndarray
+        Systematics array
+    logger : logging.Logger
+        Logger
+    log_level : str
+        Level of the logger
+    display_unit : WavelengthUnit
+        Unit of the wavelength to display
 
-    Authors: Allan Denis
-    '''
+    Authors
+    -------
+    Allan Denis
+'''
 
     def __init__(self, wave: np.ndarray, flux: np.ndarray, err: np.ndarray, res: np.ndarray, facility: str, instrument: str, native_unit: WavelengthUnit, cov: np.ndarray | None = None, transm: np.ndarray | None = None, star_flux: np.ndarray | None = None, system: np.ndarray | None = None, logger: logging.Logger | None = None, log_level: str = 'INFO', display_unit: WavelengthUnit = WavelengthUnit.MICROMETER) -> None:
 
@@ -207,8 +223,10 @@ class SpectralObservation(Observation):
         '''
         Do some checks on spectroscopic observations.
 
-        Authors: Allan Denis
-        '''
+        Authors
+        -------
+        Allan Denis
+'''
 
         # Resolution
         if len(self._res) != self.n_points:
@@ -251,8 +269,10 @@ class SpectralObservation(Observation):
         Remove non-finite values from all observation vectors
         and adjust covariance matrix accordingly.
 
-        Authors: Allan Denis
-        '''
+        Authors
+        -------
+        Allan Denis
+'''
 
         # --------------------------------------------------
         # Start with mandatory 1D arrays
@@ -310,16 +330,22 @@ class SpectralObservation(Observation):
 
         Parameters
         ----------
-        target_resolution   (np.ndarray): Target spectral resolution array
-        wave_cont                  (str): Wavelengths used for the continuum ('window1 / window2 / window3 / ...' where windowi = wave{i}, wave{i+1})
-        res_cont                 (float): Resolution of the continuum
+        target_resolution : np.ndarray
+            Target spectral resolution array
+        wave_cont : str
+            Wavelengths used for the continuum ('window1 / window2 / window3 / ...' where windowi = wave{i}, wave{i+1})
+        res_cont : float
+            Resolution of the continuum
 
         Returns
         -------
-        dict: Dictionnary representation of the adapted observation
+        dict
+            Dictionnary representation of the adapted observation
 
-        Authors: Simon Petrus, Matthieu Ravet and Allan Denis
-        '''
+        Authors
+        -------
+        Simon Petrus, Matthieu Ravet and Allan Denis
+'''
 
         self.logger.info(f'      Target resolution for observation {self.name}: {target_resolution}')
 
@@ -384,19 +410,28 @@ class SpectralObservation(Observation):
 
         Parameters
         ----------
-        fig        (matplotlib.figure.Figure): Figure (used to overplot on an existing figure)
-        ax       (matplotlib.axes._axes.Axes): Ax (used to overplot on an existing ax)
-        ax_filt  (matplotlib.axes._axes.Axes): Ax used to overplot the transmission filter on an existing ax
-        plot_config      (SpectralPlotConfig): Instance of class ObservationPlotConfig
+        fig : matplotlib.figure.Figure
+            Figure (used to overplot on an existing figure)
+        ax : matplotlib.axes._axes.Axes
+            Ax (used to overplot on an existing ax)
+        ax_filt : matplotlib.axes._axes.Axes
+            Ax used to overplot the transmission filter on an existing ax
+        plot_config : SpectralPlotConfig
+            Instance of class ObservationPlotConfig
 
         Returns
         -------
-        fig        (matplotlib.figure.Figure): Updated figure
-        ax       (matplotlib.axes._axes.Axes): Updated ax
-        ax_filt  (matplotlib.axes._axes.Axes): Non updated ax_filt
+        fig : matplotlib.figure.Figure
+            Updated figure
+        ax : matplotlib.axes._axes.Axes
+            Updated ax
+        ax_filt : matplotlib.axes._axes.Axes
+            Non updated ax_filt
 
-        Authors: Allan Denis
-        '''
+        Authors
+        -------
+        Allan Denis
+'''
 
         self.logger.info(f'      Plotting data for observation {self.name}')
 
@@ -477,16 +512,22 @@ class SpectralObservation(Observation):
 
         Parameters
         ----------
-        windows        (str): Windows in the format 'wmin1,wmax1 / wmin2,wmax2 / ...'
-        print_logger  (bool): Whether to print logger
-        extension    (float): Extension factor of the windows
+        windows : str
+            Windows in the format 'wmin1,wmax1 / wmin2,wmax2 / ...'
+        print_logger : bool
+            Whether to print logger
+        extension : float
+            Extension factor of the windows
 
         Returns
         -------
-        SpectralObservation: Restricted observation
+        SpectralObservation
+            Restricted observation
 
-        Authors: Allan Denis
-        '''
+        Authors
+        -------
+        Allan Denis
+'''
 
         # Dictionary of the observation
         restricted = copy.deepcopy(self)

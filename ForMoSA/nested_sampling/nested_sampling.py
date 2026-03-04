@@ -49,8 +49,10 @@ class NestedSampling(object):
     logger                 (logging.Logger): Logger
     log_level                         (str): Level of the Logger
 
-    Authors: Allan Denis
-    '''
+    Authors
+    -------
+    Allan Denis
+'''
 
     def __init__(self, algorithm: NestedAlgorithm, npoints: int, logL_type: list[LogLikelihoodType], config_NS: Config_NS, observations: ObservationSet, subgrids: SubGridSet, parameters: ParameterSet, wave_fit: list[str] | None = None, interp_method: str = 'linear', bounds_lsq: list[tuple[float, float]] | None = None, logger: logging.Logger | None=None, log_level: str='INFO'):
         self._logger = logger or setup_logging(log_level, name='NestedSampling')
@@ -166,18 +168,26 @@ class NestedSampling(object):
 
         Parameters
         ----------
-        data                   (dict): Dictionary representation NestedSampling parameters
-        observations (ObservationSet): Instance of ObservationSet
-        subgrids         (SubGridSet): Instance of SubGridSet
-        logger       (logging.Logger): Logger
-        log_level               (str): Level of the Logger
+        data : dict
+            Dictionary representation NestedSampling parameters
+        observations : ObservationSet
+            Instance of ObservationSet
+        subgrids : SubGridSet
+            Instance of SubGridSet
+        logger : logging.Logger
+            Logger
+        log_level : str
+            Level of the Logger
 
         Returns
         -------
-        'NestedSampling': An instance of class NestedSampling
+        'NestedSampling'
+            An instance of class NestedSampling
 
-        Authors: Allan Denis
-        '''
+        Authors
+        -------
+        Allan Denis
+'''
 
         logger = logger or setup_logging(level=log_level, name='NestedSampling')
         logger.debug('Building an instance of NestedSampling from dictionary')
@@ -215,18 +225,26 @@ class NestedSampling(object):
 
         Parameters
         ----------
-        path      (str | os.PathLike): Dictionary representation NestedSampling parameters
-        observations (ObservationSet): Instance of ObservationSet
-        subgrids         (SubGridSet): Instance of SubGridSet
-        logger       (logging.Logger): Logger
-        log_level               (str): Level of the Logger
+        path : str | os.PathLike
+            Dictionary representation NestedSampling parameters
+        observations : ObservationSet
+            Instance of ObservationSet
+        subgrids : SubGridSet
+            Instance of SubGridSet
+        logger : logging.Logger
+            Logger
+        log_level : str
+            Level of the Logger
 
         Returns
         -------
-        'NestedSampling': An instance of class NestedSampling
+        'NestedSampling'
+            An instance of class NestedSampling
 
-        Authors: Allan Denis
-        '''
+        Authors
+        -------
+        Allan Denis
+'''
 
         logger = logger or setup_logging(level=log_level, name='NestedSampling')
 
@@ -263,8 +281,10 @@ class NestedSampling(object):
         '''
         Validation for NestedSamplin.
 
-        Authors: Allan Denis
-        '''
+        Authors
+        -------
+        Allan Denis
+'''
 
         for name, instance in zip(['logL_type', 'observations', 'subgrids', 'parameters', 'config_NS', 'wave_fit', 'interp_method', 'bounds_lsq'], [list, ObservationSet, SubGridSet, ParameterSet, Config_NS, list, str, list]):
             if not isinstance(getattr(self, name), instance):
@@ -307,8 +327,10 @@ class NestedSampling(object):
         Create restricted versions of subgrids and observations according to wave_fit.
         These restricted instances are stored internally and reused during the nested sampling.
 
-        Authors: Allan Denis
-        '''
+        Authors
+        -------
+        Allan Denis
+'''
 
         self.logger.info(f'    Restrict subgris and observations to windows {self.wave_fit}')
 
@@ -334,10 +356,13 @@ class NestedSampling(object):
 
         Parameters
         ----------
-        results_path   (str | os.PathLike): Path of the output
+        results_path : str | os.PathLike
+            Path of the output
 
-        Authors: Simon Petrus, Matthieu Ravet and Allan Denis
-        '''
+        Authors
+        -------
+        Simon Petrus, Matthieu Ravet and Allan Denis
+'''
 
         if not isinstance(results_path, (str, os.PathLike)):
             raise ForMoSAError(f'Wrong type for results_path: {type(results_path)}. Expected a string or os.PathLike', self.logger)
@@ -422,13 +447,15 @@ class NestedSampling(object):
 
         Parameters
         ----------
-        theta           (np.ndarray[float]): Values randomly drawn by the Nested Sampling
+        theta : np.ndarray[float]
+            Values randomly drawn by the Nested Sampling
 
         Returns
         -------
-        logL (float): Final loglikelihood
+        logL : float
+            Final loglikelihood
 
-        '''
+'''
 
         observed_models = self.build_models_from_theta(theta)
         return self._compute_loglikelihood(observed_models)
@@ -439,14 +466,18 @@ class NestedSampling(object):
 
         Parameters
         ----------
-        theta (np.ndarray[float]): List of the parameters drawn by the nested sampling algorithm
+        theta : np.ndarray[float]
+            List of the parameters drawn by the nested sampling algorithm
 
         Returns
         -------
-        np.ndarray[float]: Transformed values
+        np.ndarray[float]
+            Transformed values
 
-        Authors: Allan Denis
-        '''
+        Authors
+        -------
+        Allan Denis
+'''
 
         try:
             return self.parameters.prior_transform(theta)
@@ -459,14 +490,18 @@ class NestedSampling(object):
 
         Parameters
         ----------
-        theta (np.ndarray[float]): List of values picked by the Nested Sampling for the free parameters
+        theta : np.ndarray[float]
+            List of values picked by the Nested Sampling for the free parameters
 
         Returns
         -------
-        list[ObservedModel]: List of instances of class ObservedModel
+        list[ObservedModel]
+            List of instances of class ObservedModel
 
-        Authors: Allan Denis
-        '''
+        Authors
+        -------
+        Allan Denis
+'''
 
         observed_models = []
         for index in range(self.observations.n_observations):
@@ -487,14 +522,18 @@ class NestedSampling(object):
 
         Parameters
         ----------
-        observed_models (list[ObservedModel]): List of instances of class ObservedModel
+        observed_models : list[ObservedModel]
+            List of instances of class ObservedModel
 
         Returns
         -------
-        float: loglikelihood value
+        float
+            loglikelihood value
 
-        Authors: Allan Denis
-        '''
+        Authors
+        -------
+        Allan Denis
+'''
 
         logL = 0
         for index in range(self.observations.n_observations):
@@ -512,15 +551,20 @@ class NestedSampling(object):
 
         Parameters
         ----------
-        free_values (np.ndarray[float]): List of transformed values for the free parameters
-        obs_index                 (int): Index of the observation from which we want the parameter values
+        free_values : np.ndarray[float]
+            List of transformed values for the free parameters
+        obs_index : int
+            Index of the observation from which we want the parameter values
 
         Return
         ------
-        ObservedParameters: Intance of class ObservedParameters containing dictionary of parameters values (free + fixed) associated to the observation index
+        ObservedParameters
+            Intance of class ObservedParameters containing dictionary of parameters values (free + fixed) associated to the observation index
 
-        Authors: Allan Denis
-        '''
+        Authors
+        -------
+        Allan Denis
+'''
 
         if len(free_values) != self.parameters.n_free_parameters:
             raise ForMoSAError("Invalid free_values length", self.logger)
@@ -552,11 +596,14 @@ class NestedSampling(object):
 
         Parameters
         ----------
-        results_path (str | os.PathLike): Path to save the results to
+        results_path : str | os.PathLike
+            Path to save the results to
         **kwargs                        = Additional parameters (wav_fit, interp_method, bounds_lsq)
 
-        Authors: Allan Denis
-        '''
+        Authors
+        -------
+        Allan Denis
+'''
 
         self._logger.info('    Saving results')
 
@@ -581,10 +628,13 @@ class NestedSampling(object):
 
         Parameters
         ----------
-        results_path (str | os.PathLike): Path to save the results to
+        results_path : str | os.PathLike
+            Path to save the results to
 
-        Authors: Allan Denis
-        '''
+        Authors
+        -------
+        Allan Denis
+'''
 
         results_path = Path(results_path)  / 'NS_results'
 

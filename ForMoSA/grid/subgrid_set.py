@@ -20,12 +20,17 @@ class SubGridSet(object):
 
     Parameters
     ----------
-    parent_grid           (ModelGrid): Parent model grid
-    logger                (logging.Logger | None): Logger
-    log_level             (str): Logger level
+    parent_grid : ModelGrid
+        Parent model grid
+    logger : logging.Logger | None
+        Logger
+    log_level : str
+        Logger level
 
-    Authors: Allan Denis
-    '''
+    Authors
+    -------
+    Allan Denis
+'''
 
     def __init__(self, parent_grid: ModelGrid, logger: logging.Logger | None = None, log_level: str = "INFO") -> None:
 
@@ -106,17 +111,24 @@ class SubGridSet(object):
 
         Parameters
         ----------
-        path (str | os.PathLike): Path containing the subgrids
-        parent_grid  (ModelGrid): Instance of ModelGrid corresponding to the parent grid
-        logger  (logging.Logger): Logger
-        log_level          (str): Level of the Logger
+        path : str | os.PathLike
+            Path containing the subgrids
+        parent_grid : ModelGrid
+            Instance of ModelGrid corresponding to the parent grid
+        logger : logging.Logger
+            Logger
+        log_level : str
+            Level of the Logger
 
         Returns
         -------
-        "SubGridSet": Instance of SubGridSet
+        "SubGridSet"
+            Instance of SubGridSet
 
-        Authors: Allan Denis
-        '''
+        Authors
+        -------
+        Allan Denis
+'''
 
         logger = logger or setup_logging(level=log_level, name='SubGridSet')
 
@@ -171,8 +183,10 @@ class SubGridSet(object):
             - If a `.nc` file is provided, provide a single argument (str | Path)
             - If an xr.Dataset is provided, provide a single argument
 
-        Authors: Allan Denis
-        '''
+        Authors
+        -------
+        Allan Denis
+'''
 
         if len(args) == 1:
             if isinstance(args[0], SubGrid):
@@ -198,10 +212,13 @@ class SubGridSet(object):
 
         Parameters
         ----------
-        method (str): Interpolation method
+        method : str
+            Interpolation method
 
-        Authors: Allan Denis
-        '''
+        Authors
+        -------
+        Allan Denis
+'''
 
         if not isinstance(method, str):
             raise ForMoSAError(f' Wrong type for method: {type(method)}. Expected a string', self.logger)
@@ -215,10 +232,13 @@ class SubGridSet(object):
 
         Parameters
         ----------
-        store_path (str | os.PathLike): Directory where to save the subgrids
+        store_path : str | os.PathLike
+            Directory where to save the subgrids
 
-        Authors: Allan Denis
-        '''
+        Authors
+        -------
+        Allan Denis
+'''
 
         path = Path(path).expanduser() / 'Subgrids'
         if not path.exists():

@@ -18,13 +18,19 @@ class ModelGrid:
 
     Parameters
     ----------
-    path                (str | Path): Path to the model grid file
-    logger         (logging.Logger) : Logger instance for logging
-    log_level                  (str): Level of the logger
-    display_unit    (WavelengthUnit): Unit of the wavelength to display
+    path : str | Path
+        Path to the model grid file
+    logger : logging.Logger
+        Logger instance for logging
+    log_level : str
+        Level of the logger
+    display_unit : WavelengthUnit
+        Unit of the wavelength to display
 
-    Authors: Allan Denis
-    '''
+    Authors
+    -------
+    Allan Denis
+'''
 
     def __init__(self, dataset: xr.Dataset, model_path: str | os.PathLike | None = None, logger: logging.Logger | None = None, log_level: str = "INFO", display_unit: WavelengthUnit = WavelengthUnit.MICROMETER) -> None:
 
@@ -172,19 +178,28 @@ class ModelGrid:
 
         Parameters
         ----------
-        path         (str | os.PathLike): Path to the grid
-        logger         (logging.Logger) : Logger instance for logging
-        log_level                  (str): Level of the logger
-        display_unit    (WavelengthUnit): Unit of the wavelength to display
+        path : str | os.PathLike
+            Path to the grid
+        logger : logging.Logger
+            Logger instance for logging
+        log_level : str
+            Level of the logger
+        display_unit : WavelengthUnit
+            Unit of the wavelength to display
 
         Returns
         -------
-        ModelGrid: Instance of :class:~ModelGrid
+        ModelGrid
+            Instance of :class:~ModelGrid
 
-        Usage: grid = ModelGrid._from_file(path)
+        Examples
+        --------
+        >>> grid = ModelGrid._from_file(path)
 
-        Authors: Allan Denis
-        '''
+        Authors
+        -------
+        Allan Denis
+'''
 
         logger = logger or setup_logging(level=log_level, name = 'ModelGrid')
         logger.debug(f'Loading ModelGrid from file {path}')
@@ -200,21 +215,32 @@ class ModelGrid:
 
         Parameters
         ----------
-        data                (np.ndarray): Array of the grid
-        coords                    (dict): Dictionnary of coordinates
-        attrs                     (dict): Dictionnary of attributes
-        logger         (logging.Logger) : Logger instance for logging
-        log_level                  (str): Level of the logger
-        display_unit    (WavelengthUnit): Unit of the wavelength to display
+        data : np.ndarray
+            Array of the grid
+        coords : dict
+            Dictionnary of coordinates
+        attrs : dict
+            Dictionnary of attributes
+        logger : logging.Logger
+            Logger instance for logging
+        log_level : str
+            Level of the logger
+        display_unit : WavelengthUnit
+            Unit of the wavelength to display
 
         Returns
         -------
-        ModelGrid: Instance of :class:~ModelGrid
+        ModelGrid
+            Instance of :class:~ModelGrid
 
-        Usage: grid = ModelGrid._from_attributes(data, coords, attrs)
+        Examples
+        --------
+        >>> grid = ModelGrid._from_attributes(data, coords, attrs)
 
-        Authors: Allan Denis
-        '''
+        Authors
+        -------
+        Allan Denis
+'''
 
         logger = logger or setup_logging(level=log_level, name='ModelGrid')
         logger.debug('<Generate ModelGrid from attributes>')
@@ -233,10 +259,13 @@ class ModelGrid:
 
         Parameters
         ----------
-        unit (WavelengthUnit): unit used (micrometer', 'nanometer', 'angstrom')
+        unit : WavelengthUnit
+            unit used (micrometer', 'nanometer', 'angstrom')
 
-        Authors: Allan Denis
-        '''
+        Authors
+        -------
+        Allan Denis
+'''
 
         if not isinstance(unit, WavelengthUnit):
             raise ForMoSAError(f"<Unit must be a WavelengthUnit Enum, got {type(unit)}>", self.logger)
@@ -250,14 +279,18 @@ class ModelGrid:
 
         Parameters
         ----------
-        idx (tuple): Index of model to be loaded (e.g. (5, 0, 6, 3) for a 4-parameter grid)
+        idx : tuple
+            Index of model to be loaded (e.g. (5, 0, 6, 3) for a 4-parameter grid)
 
         Returns
         -------
-        model_to_return (xr.DataArray): Model at the specific index
+        model_to_return : xr.DataArray
+            Model at the specific index
 
-        Authors: Allan Denis
-        '''
+        Authors
+        -------
+        Allan Denis
+'''
 
         if not isinstance(idx, tuple):
             raise ForMoSAError(f'<Index is type{type(idx)}. It should be a tuple>', self.logger)
@@ -276,13 +309,19 @@ class ModelGrid:
 
         Parameters
         ----------
-        method      (str): Interpolation method to use.
-        limit       (int): Maximum number of consecutive NaNs to fill.
-        fill_value  (str): Method to fill in points outside of data range
-        max_gap     (int): Maximum size of gap, a continuous sequence of NaNs, that will be filled
+        method : str
+            Interpolation method to use.
+        limit : int
+            Maximum number of consecutive NaNs to fill.
+        fill_value : str
+            Method to fill in points outside of data range
+        max_gap : int
+            Maximum size of gap, a continuous sequence of NaNs, that will be filled
 
-        Authors: Simon Petrus, Paulina Palma-Bifani, Matthieu Ravet and Allan Denis
-        '''
+        Authors
+        -------
+        Simon Petrus, Paulina Palma-Bifani, Matthieu Ravet and Allan Denis
+'''
 
         self.logger.info(f'    Interpolating between holes of the grid {self.grid_name}')
 
@@ -306,8 +345,10 @@ class ModelGrid:
         Return a 1D interpolated grid filled with NaNs,
         with the same structure as a valid interpolated grid.
 
-        Authors: Allan Denis
-        '''
+        Authors
+        -------
+        Allan Denis
+'''
 
         ref_params = {k: 0.5 * (self.lims_params_grid[k][0] + self.lims_params_grid[k][1]) for k in self.keys}
 
@@ -326,18 +367,22 @@ class ModelGrid:
 
         Parameters
         ----------
-        grid_params   (dict[str, float]): Dictionary of grid parameter values
-        method                     (str): Interpolation method
-        print_logger              (bool): Whether to print logger info
+        grid_params : dict[str, float]
+            Dictionary of grid parameter values
+        method : str
+            Interpolation method
+        print_logger : bool
+            Whether to print logger info
 
         Returns
         -------
-        xr.Dataset: Interpolated 1D grid. If parameters are out-of-bounds, returns a 1D grid filled with NaNs.
+        xr.Dataset
+            Interpolated 1D grid. If parameters are out-of-bounds, returns a 1D grid filled with NaNs.
 
         Authors
         -------
         Simon Petrus, Paulina Palma-Bifani, Matthieu Ravet and Allan Denis
-        '''
+'''
 
         if print_logger:
             self.logger.info('Interpolate between gridpoints in the grid')
@@ -393,10 +438,13 @@ class ModelGrid:
 
         Parameters
         ----------
-        store_path (str | os.PathLike): Path where to store the grid
+        store_path : str | os.PathLike
+            Path where to store the grid
 
-        Authors: Simon Petrus, Paulina Palma-Bifani, Matthieu Ravet and Allan Denis
-        '''
+        Authors
+        -------
+        Simon Petrus, Paulina Palma-Bifani, Matthieu Ravet and Allan Denis
+'''
 
         if not isinstance(store_path, (str, os.PathLike)):
             raise ForMoSAError(f'<Wrong type for store_path: {type(store_path)}. Expected a string or os.PathLike>', self.logger)
@@ -418,16 +466,22 @@ class ModelGrid:
 
         Parameters
         ----------
-        store_path (str | os.PathLike): Path where to store the grid
-        grid_name                (str): Name of the grid
-        suffix                   (str): Suffix of the grid
+        store_path : str | os.PathLike
+            Path where to store the grid
+        grid_name : str
+            Name of the grid
+        suffix : str
+            Suffix of the grid
 
         Returns
         -------
-        xr.Dataset: Loaded grid
+        xr.Dataset
+            Loaded grid
 
-        Authors: Simon Petrus, Paulina Palma-Bifani, Matthieu Ravet and Allan Denis
-        '''
+        Authors
+        -------
+        Simon Petrus, Paulina Palma-Bifani, Matthieu Ravet and Allan Denis
+'''
 
         if not isinstance(store_path, (str, os.PathLike)):
             raise ForMoSAError(f'<Wrong type for store_path: {type(store_path)}. Expected a string or os.PathLike>', self.logger)
@@ -454,16 +508,22 @@ class ModelGrid:
 
         Parameters
         ----------
-        windows        (str): Windows in the format 'wmin1,wmax1 / wmin2,wmax2 / ...'
-        print_logger  (bool): Whether to print the Logger
-        extension    (float): Extension factor of the windows
+        windows : str
+            Windows in the format 'wmin1,wmax1 / wmin2,wmax2 / ...'
+        print_logger : bool
+            Whether to print the Logger
+        extension : float
+            Extension factor of the windows
 
         Returns
         -------
-        'ModelGrid': An instance of class ModelGrid
+        'ModelGrid'
+            An instance of class ModelGrid
 
-        Authors: Allan Denis
-        '''
+        Authors
+        -------
+        Allan Denis
+'''
 
         if not isinstance(windows, str):
             raise ForMoSAError(f'<Wrong type for windows: {type(windows)}. Requires a string>', self.logger)

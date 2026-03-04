@@ -26,13 +26,19 @@ class Analysis(object):
 
     Parameters
     ----------
-    config                (ConfigLoader): Instance of class ConfigLoader representing the configuration parameters.
-    adapted                       (bool): Whether the model is adapted to the data, by default False. Can be set to True if the model has already been adapted to the data
-    fitted                        (bool): Whether the data have already been fitted for
-    log_level                      (str): Log level of the handler, by default ``'info'`` for all important informations.
+    config : ConfigLoader
+        Instance of class ConfigLoader representing the configuration parameters.
+    adapted : bool
+        Whether the model is adapted to the data, by default False. Can be set to True if the model has already been adapted to the data
+    fitted : bool
+        Whether the data have already been fitted for
+    log_level : str
+        Log level of the handler, by default ``'info'`` for all important informations.
 
-    Authors: Allan Denis
-    '''
+    Authors
+    -------
+    Allan Denis
+'''
 
     def __init__(self, config_path: ConfigPath, adapted: bool = False, fitted: bool = False, log_level: str = 'info') -> None:
 
@@ -149,10 +155,13 @@ class Analysis(object):
 
         Parameters
         ----------
-        config_adapt (ConfigAdapt): Instance of ConfigAdapt
+        config_adapt : ConfigAdapt
+            Instance of ConfigAdapt
 
-        Authors: Simon Petrus, Matthieu Ravet and Allan Denis
-        '''
+        Authors
+        -------
+        Simon Petrus, Matthieu Ravet and Allan Denis
+'''
 
         # ==================
         # Checks
@@ -229,12 +238,17 @@ class Analysis(object):
 
         Parameters
         ----------
-        config_adapt           (ConfigAdapt): Instance of class ConfigAdapt
-        config_inversion   (ConfigInversion): Instance of class ConfigInversion
-        config_parameters (ConfigParameters): Instance of class ConfigParameters
+        config_adapt : ConfigAdapt
+            Instance of class ConfigAdapt
+        config_inversion : ConfigInversion
+            Instance of class ConfigInversion
+        config_parameters : ConfigParameters
+            Instance of class ConfigParameters
 
-        Authors: Allan Denis
-        '''
+        Authors
+        -------
+        Allan Denis
+'''
 
         for config, config_type in zip([config_parameters, config_adapt, config_inversion, config_NS], [ConfigParameters, ConfigAdapt, ConfigInversion, Config_NS]):
             if not isinstance(config, config_type):
@@ -293,12 +307,17 @@ class Analysis(object):
 
         Parameters
         ----------
-        results (NSResults): An instance of NSResults
-        save                (bool): Whether to save the results
-        plot_native_model   (bool): Whether to plot the native model
+        results : NSResults
+            An instance of NSResults
+        save : bool
+            Whether to save the results
+        plot_native_model : bool
+            Whether to plot the native model
 
-        Authors: Allan Denis
-        '''
+        Authors
+        -------
+        Allan Denis
+'''
 
         # Initial checks
         if not isinstance(results, NSResults):
@@ -349,12 +368,17 @@ class Analysis(object):
 
         Parameters
         ----------
-        rv_grid  (np.ndarray): Grid of radial velocity values (in km/s)
-        save_fig       (bool): Whether to save the figure
-        save_results   (bool): Whether to save the results of the CCF computation
+        rv_grid : np.ndarray
+            Grid of radial velocity values (in km/s)
+        save_fig : bool
+            Whether to save the figure
+        save_results : bool
+            Whether to save the results of the CCF computation
 
-        Authors: Bhavesh Rajpoot (adapted from Allan Denis)
-        '''
+        Authors
+        -------
+        Bhavesh Rajpoot (adapted from Allan Denis)
+'''
 
         if self.ns is None or self.ns.results is None:
             raise ForMoSAError('Please first run the Nested Sampling before computing the CCF', self.logger)
@@ -388,13 +412,19 @@ class Analysis(object):
 
         Parameters
         ----------
-        rv_grid    (np.ndarray): Grid of radial velocity values (in km/s)
-        vsini_grid (np.ndarray): Grid of v.sin(i) values (in km/s)
-        save_fig       (bool): Whether to save the figure
-        save_results   (bool): Whether to save the results of the RV-vsini map computation
+        rv_grid : np.ndarray
+            Grid of radial velocity values (in km/s)
+        vsini_grid : np.ndarray
+            Grid of v.sin(i) values (in km/s)
+        save_fig : bool
+            Whether to save the figure
+        save_results : bool
+            Whether to save the results of the RV-vsini map computation
 
-        Authors: Bhavesh Rajpoot (adapted from Allan Denis)
-        '''
+        Authors
+        -------
+        Bhavesh Rajpoot (adapted from Allan Denis)
+'''
 
         if self.ns is None or self.ns.results is None:
             raise ForMoSAError('Please first run the Nested Sampling before computing the RV-vsini map', self.logger)

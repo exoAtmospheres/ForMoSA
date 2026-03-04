@@ -18,8 +18,10 @@ class ParameterSet(object):
     logger         (logging.Logger): Logger
     log_level                 (str): Level of the logging
 
-    Authors: Allan Denis
-    """
+    Authors
+    -------
+    Allan Denis
+"""
 
     def __init__(self, logger: logging.Logger | None = None, log_level: str = 'INFO') -> None:
         self._parameters: list[Parameter] = []
@@ -95,16 +97,22 @@ class ParameterSet(object):
 
         Parameters
         ----------
-        config_params (ConfigParameters): Instance of ConfigParameters
-        logger          (logging.Logger): Logger
-        log_level                  (str): Level of the logging
+        config_params : ConfigParameters
+            Instance of ConfigParameters
+        logger : logging.Logger
+            Logger
+        log_level : str
+            Level of the logging
 
         Returns
         -------
-        "ParameterSet": As instance of ParameterSet
+        "ParameterSet"
+            As instance of ParameterSet
 
-        Authors: Allan Denis
-        '''
+        Authors
+        -------
+        Allan Denis
+'''
 
         logger = logger or setup_logging(level=log_level, name='ParameterSet')
 
@@ -136,16 +144,22 @@ class ParameterSet(object):
 
         Parameters
         ----------
-        data                (dict): Dictionary containing ParameterSet parameters
-        logger    (logging.Logger): Logger
-        log_level            (str): Level of the logging
+        data : dict
+            Dictionary containing ParameterSet parameters
+        logger : logging.Logger
+            Logger
+        log_level : str
+            Level of the logging
 
         Returns
         -------
-        'ParameterSet': An instance of class ParameterSet
+        'ParameterSet'
+            An instance of class ParameterSet
 
-        Authors: Allan Denis
-        '''
+        Authors
+        -------
+        Allan Denis
+'''
 
         logger = logger or setup_logging(level=log_level, name='ParameterSet')
         param_set = cls(logger=logger)
@@ -165,16 +179,22 @@ class ParameterSet(object):
 
         Parameters
         ----------
-        path   (str | os.PathLike): Path to the json file
-        logger    (logging.Logger): Logger
-        log_level            (str): Level of the logging
+        path : str | os.PathLike
+            Path to the json file
+        logger : logging.Logger
+            Logger
+        log_level : str
+            Level of the logging
 
         Returns
         -------
-        'ParameterSet': An instance of class ParameterSet
+        'ParameterSet'
+            An instance of class ParameterSet
 
-        Authors: Allan Denis
-        '''
+        Authors
+        -------
+        Allan Denis
+'''
 
         logger = logger or setup_logging(level=log_level, name='ParameterSet')
 
@@ -202,14 +222,17 @@ class ParameterSet(object):
 
         Parameters
         ----------
-        theta (list[float]) : list/array of floats in [0,1]^N where N is the number of free parameters
+        theta : list[float]
+            list/array of floats in [0,1]^N where N is the number of free parameters
 
         Returns
         -------
         list[float] : physical values in the same ordering as self.free_parameters
 
-        Authors: Allan Denis
-        '''
+        Authors
+        -------
+        Allan Denis
+'''
 
         # Initial checks
         if not isinstance(theta, np.ndarray):
@@ -231,10 +254,13 @@ class ParameterSet(object):
 
         Parameters
         ----------
-        parameter (Parameter): Instance of class Parameter to add
+        parameter : Parameter
+            Instance of class Parameter to add
 
-        Authors: Allan Denis
-        '''
+        Authors
+        -------
+        Allan Denis
+'''
 
         if not isinstance(parameter, Parameter):
             raise ForMoSAError("Parameter must be a Parameter instance")
@@ -252,14 +278,18 @@ class ParameterSet(object):
 
         Parameters
         ----------
-        as_dataframe (bool): If True, return pandas.DataFrame, else formatted string
+        as_dataframe : bool
+            If True, return pandas.DataFrame, else formatted string
 
         Returns
         -------
-        pandas.DataFrame | str: Summary of parameters
+        pandas.DataFrame | str
+            Summary of parameters
 
-        Authors: Allan Denis
-        '''
+        Authors
+        -------
+        Allan Denis
+'''
 
         rows = []
         for p in self.parameters:
@@ -292,10 +322,13 @@ class ParameterSet(object):
 
         Parameters
         ----------
-        path (str | os.PathLike): Path to save the set of parameters
+        path : str | os.PathLike
+            Path to save the set of parameters
 
-        Authors: Allan Denis
-        '''
+        Authors
+        -------
+        Allan Denis
+'''
 
         if not isinstance(path, (str, os.PathLike)):
             raise ForMoSAError(f'Wrong type for path: {type(path)}. Expected a string or os.PathLike', self.logger)

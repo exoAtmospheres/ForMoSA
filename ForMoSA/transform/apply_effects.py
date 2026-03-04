@@ -10,8 +10,10 @@ class ApplyPhysicsEffects:
     '''
     Apply physics effects to a model given parameters.
 
-    Authors: Allan Denis
-    '''
+    Authors
+    -------
+    Allan Denis
+'''
 
     @staticmethod
     def _apply_rv(observed_model: ObservedModel, rv_value: float) -> ObservedModel:
@@ -20,15 +22,20 @@ class ApplyPhysicsEffects:
 
         Parameters
         ----------
-        observed_model  (ObservedModel): Instance of class ObservedModel
-        rv_value               (float): RV value
+        observed_model : ObservedModel
+            Instance of class ObservedModel
+        rv_value : float
+            RV value
 
         Returns
         -------
-        observed_model  (ObservedModel): Instance of class ObservedModel Doppler shifted
+        observed_model : ObservedModel
+            Instance of class ObservedModel Doppler shifted
 
-        Authors: Allan Denis
-        '''
+        Authors
+        -------
+        Allan Denis
+'''
 
         observed_model.wave, observed_model.flux, observed_model.res = us.doppler_fct(observed_model.wave, observed_model.flux, observed_model.res, rv_value)
 
@@ -41,17 +48,24 @@ class ApplyPhysicsEffects:
 
         Parameters
         ----------
-        observed_model  (ObservedModel): Instance of class ObservedModel
-        vsini_value             (float): v.sini value
-        ld_value                (float): limbd darkening value
-        vsini_function  (VsiniFunction): Function used for the v.sini
+        observed_model : ObservedModel
+            Instance of class ObservedModel
+        vsini_value : float
+            v.sini value
+        ld_value : float
+            limbd darkening value
+        vsini_function : VsiniFunction
+            Function used for the v.sini
 
         Returns
         -------
-        observed_model  (ObservedModel): Instance of class ObservedModel rotationally broadened
+        observed_model : ObservedModel
+            Instance of class ObservedModel rotationally broadened
 
-        Authors: Allan Denis
-        '''
+        Authors
+        -------
+        Allan Denis
+'''
 
         observed_model.flux, observed_model.res = us.vsini_fct(observed_model.wave, observed_model.flux, observed_model.res, ld_value, vsini_value, vsini_function.value)
 
@@ -64,15 +78,20 @@ class ApplyPhysicsEffects:
 
         Parameters
         ----------
-        observed_model  (ObservedModel): Instance of class ObservedModel
-        av_value                (float): Extinction value
+        observed_model : ObservedModel
+            Instance of class ObservedModel
+        av_value : float
+            Extinction value
 
         Returns
         -------
-        observed_model  (ObservedModel): Instance of class ObservedModel redenned
+        observed_model : ObservedModel
+            Instance of class ObservedModel redenned
 
-        Authors: Allan Denis
-        '''
+        Authors
+        -------
+        Allan Denis
+'''
 
         observed_model.flux = us.reddening_fct(observed_model.wave, observed_model.flux, av_value)
 
@@ -85,17 +104,23 @@ class ApplyPhysicsEffects:
 
         Parameters
         ----------
-        observed_model  (ObservedModel): Instance of class ObservedModel
-        bb_T_value              (float): Black body temperature value
-        bb_R_value              (float): Black body radius value
-        d_value                 (float): Distance value
+        observed_model : ObservedModel
+            Instance of class ObservedModel
+        bb_T_value : float
+            Black body temperature value
+        bb_R_value : float
+            Black body radius value
+        d_value : float
+            Distance value
 
         Returns
         -------
         (ObservedModel): Instance of class ObservedModel with a CPD effect
 
-        Authors: Allan Denis
-        '''
+        Authors
+        -------
+        Allan Denis
+'''
 
         observed_model.flux = us.bb_cpd_fct(observed_model.wave, observed_model.flux, d_value, bb_T_value, bb_R_value)
 
@@ -108,16 +133,22 @@ class ApplyPhysicsEffects:
 
         Parameters
         ----------
-        observed_model  (ObservedModel): Instance of class ObservedModel
-        r_value                 (float): Radius value
-        d_value                 (float): Distance value
+        observed_model : ObservedModel
+            Instance of class ObservedModel
+        r_value : float
+            Radius value
+        d_value : float
+            Distance value
 
         Returns
         -------
-        flux_transformed   (np.ndarray): Scaled model
+        flux_transformed : np.ndarray
+            Scaled model
 
-        Authors: Allan Denis
-        '''
+        Authors
+        -------
+        Allan Denis
+'''
 
         observed_model.flux, ck = us.calc_ck(observed_model.flux, [], [], r_value, d_value)
         observed_model.scaling = 'physical'
@@ -133,15 +164,19 @@ class ApplyObservationEffects:
 
         Parameters
         ----------
-        observed_model  (ObservedModel): Instance of class ObservedModel to transform
-        obs               (Observation): Observation
+        observed_model : ObservedModel
+            Instance of class ObservedModel to transform
+        obs : Observation
+            Observation
 
         Returns
         -------
         (ObservedModel): Instance of class ObservedModel degraded in resolution
 
-        Authors: Allan Denis
-        '''
+        Authors
+        -------
+        Allan Denis
+'''
 
         if obs.res.all() == 0:
             return observed_model
@@ -159,16 +194,21 @@ class ApplyObservationEffects:
 
         Parameters
         ----------
-        observed_model  (ObservedModel): Instance of class ObservedModel to transform
-        obs               (Observation): Observation
-        bounds    (tuple[float, float]): Bounds for the Least Squares
+        observed_model : ObservedModel
+            Instance of class ObservedModel to transform
+        obs : Observation
+            Observation
+        bounds : tuple[float, float]
+            Bounds for the Least Squares
 
         Returns
         -------
         (ObservedModel): Instance of class ObservedModel scaled to the data
 
-        Authors: Allan Denis
-        '''
+        Authors
+        -------
+        Allan Denis
+'''
 
         if observed_model.scaling == 'analytic':
             observed_model.flux, ck = us.calc_ck(observed_model.flux, obs.flux, obs.err, 0, 0, analytic='yes', bounds = bounds)
@@ -183,16 +223,21 @@ class ApplyObservationEffects:
 
         Parameters
         ----------
-        observed_model  (ObservedModel): Instance of class ObservedModel to transform
-        obs               (Observation): Observation
-        bounds    (tuple[float, float]): Bounds for the least squares
+        observed_model : ObservedModel
+            Instance of class ObservedModel to transform
+        obs : Observation
+            Observation
+        bounds : tuple[float, float]
+            Bounds for the least squares
 
         Returns
         -------
         (ObservedModel): Instance of class ObservedModel high-contrast modelled
 
-        Authors: Allan Denis
-        '''
+        Authors
+        -------
+        Allan Denis
+'''
 
         # =================================
         # Initial checks
