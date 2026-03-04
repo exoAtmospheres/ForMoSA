@@ -38,7 +38,7 @@ class Analysis(object):
     Authors
     -------
     Allan Denis
-'''
+    '''
 
     def __init__(self, config_path: ConfigPath, adapted: bool = False, fitted: bool = False, log_level: str = 'info') -> None:
 
@@ -161,7 +161,7 @@ class Analysis(object):
         Authors
         -------
         Simon Petrus, Matthieu Ravet and Allan Denis
-'''
+        '''
 
         # ==================
         # Checks
@@ -248,7 +248,7 @@ class Analysis(object):
         Authors
         -------
         Allan Denis
-'''
+        '''
 
         for config, config_type in zip([config_parameters, config_adapt, config_inversion, config_NS], [ConfigParameters, ConfigAdapt, ConfigInversion, Config_NS]):
             if not isinstance(config, config_type):
@@ -317,7 +317,7 @@ class Analysis(object):
         Authors
         -------
         Allan Denis
-'''
+        '''
 
         # Initial checks
         if not isinstance(results, NSResults):
@@ -378,7 +378,7 @@ class Analysis(object):
         Authors
         -------
         Bhavesh Rajpoot (adapted from Allan Denis)
-'''
+        '''
 
         if self.ns is None or self.ns.results is None:
             raise ForMoSAError('Please first run the Nested Sampling before computing the CCF', self.logger)
@@ -424,7 +424,7 @@ class Analysis(object):
         Authors
         -------
         Bhavesh Rajpoot (adapted from Allan Denis)
-'''
+        '''
 
         if self.ns is None or self.ns.results is None:
             raise ForMoSAError('Please first run the Nested Sampling before computing the RV-vsini map', self.logger)

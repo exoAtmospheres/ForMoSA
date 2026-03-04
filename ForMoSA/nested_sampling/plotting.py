@@ -31,7 +31,7 @@ class Plotting(object):
     Authors
     -------
     Paulina Palma-Bifani, Matthieu Ravet and Allan Denis
-'''
+    '''
 
     def __init__(self, results: NSResults, logger: logging.Logger, log_level: str = 'INFO') -> None:
 
@@ -81,7 +81,7 @@ class Plotting(object):
         Authors
         -------
         Paulina Palma-Bifani, Matthieu Ravet and Allan Denis
-'''
+        '''
 
         self._logger.info('    Plotting Corner plot')
 
@@ -116,7 +116,7 @@ class Plotting(object):
         Authors
         -------
         Paulina Palma-Bifani, Matthieu Ravet and Allan Denis
-'''
+        '''
 
         self._logger.info('    Plotting posterior chains for each parameter.')
 
@@ -174,7 +174,7 @@ class Plotting(object):
         Authors
         -------
         Paulina Palma-Bifani, Matthieu Ravet and Allan Denis
-'''
+        '''
 
         self._logger.info('    Plotting radar plot of the chains')
 
@@ -274,7 +274,7 @@ class Plotting(object):
         Authors
         -------
         Paulina Palma-Bifani, Matthieu Ravet and Allan Denis
-'''
+        '''
 
         self._logger.info('    Plotting best fit and residuals')
 
@@ -391,7 +391,7 @@ class Plotting(object):
         Authors
         -------
         Bhavesh Rajpoot and Allan Denis
-'''
+        '''
 
         self._logger.info('    Plotting CCF')
 
@@ -441,7 +441,7 @@ class Plotting(object):
         Authors
         -------
         Bhavesh Rajpoot (adapted from Allan Denis)
-'''
+        '''
 
         self._logger.info('    Computing RV-vsini map')
 

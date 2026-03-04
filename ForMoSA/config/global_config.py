@@ -35,7 +35,7 @@ class ConfigPath:
         Authors
         -------
         Allan Denis
-'''
+        '''
 
         for name in ['adapt_store_path', 'result_path', 'model_path']:
             value = getattr(self, name)
@@ -66,7 +66,7 @@ class ConfigAdapt:
         Authors
         -------
         Allan Denis
-'''
+        '''
 
         # Check method
         if not isinstance(self.method, str):
@@ -97,7 +97,7 @@ class ConfigAdapt:
         Authors
         -------
         Allan Denis
-'''
+        '''
 
         if (not isinstance(n_obs, int)) or (n_obs < 1):
             raise ForMoSAError(f' n_obs ({n_obs}) must be an integer greater than 0')
@@ -130,7 +130,7 @@ class ConfigAdapt:
         Authors
         -------
         Simon Petrus, Matthieu Ravet and Allan Denis
-'''
+        '''
 
         # Initial check
         if not isinstance(observations, ObservationSet):
@@ -183,7 +183,7 @@ class ConfigAdapt:
         Authors
         -------
         Allan Denis
-'''
+        '''
 
         # Initial checks
         if not isinstance(observations, ObservationSet):
@@ -235,7 +235,7 @@ class ConfigAdapt:
         Authors
         -------
         Allan Denis
-'''
+        '''
 
         # Initial checks
         if not isinstance(observations, ObservationSet):
@@ -280,7 +280,7 @@ class ConfigInversion:
         Authors
         -------
         Allan Denis
-'''
+        '''
 
         # Check npoints
         if isinstance(self.npoints, str):
@@ -341,7 +341,7 @@ class ConfigInversion:
         Authors
         -------
         Allan Denis
-'''
+        '''
 
         if (not isinstance(n_obs, int)) or (n_obs < 1):
             raise ForMoSAError(f' n_obs ({n_obs}) must be an integer greater than 0')
@@ -376,7 +376,7 @@ class ConfigParameters:
         Authors
         -------
         Allan Denis
-'''
+        '''
 
         for name, value in self.__dict__.items():
             if not isinstance(value, list):
@@ -416,7 +416,7 @@ class ConfigParameters:
         Authors
         -------
         Allan Denis
-'''
+        '''
 
         setattr(self, str(param), value)
 
@@ -437,7 +437,7 @@ class ConfigParameters:
         Authors
         -------
         Allan Denis
-'''
+        '''
 
         if name not in self.to_dict.keys():
             raise ForMoSAError(f' Please chose a name amongst {self.to_dict.keys()}')
@@ -471,7 +471,7 @@ class ConfigParameters:
         Authors
         -------
         Allan Denis
-'''
+        '''
 
         if value not in self.to_dict.values():
             raise ForMoSAError(f' Please chose a value amongst {self.to_dict.value()}')
@@ -512,7 +512,7 @@ class ConfigParameters:
         Authors
         -------
         Allan Denis
-'''
+        '''
 
         name, kind, scope, obs_index = self._parse_param_name(name)
         prior = self._parse_param_value(value)
@@ -552,7 +552,7 @@ class ConfigNestle:
         Authors
         -------
         Allan Denis
-'''
+        '''
 
         # Check method
         if not isinstance(self.method, str):
@@ -624,7 +624,7 @@ class ConfigNestle:
         Authors
         -------
         Allan Denis
-'''
+        '''
 
         if not isinstance(data, dict):
             raise ForMoSAError(f'Wrong type for data: {type(data)}. Expected a dictionary')
@@ -660,7 +660,7 @@ class ConfigPyMultiNest:
         Authors
         -------
         Allan Denis
-'''
+        '''
 
         # Bool fields
         bool_fields = (
@@ -754,7 +754,7 @@ class ConfigPyMultiNest:
         Authors
         -------
         Allan Denis
-'''
+        '''
 
         if not isinstance(data, dict):
             raise ForMoSAError(f'Wrong type for data: {type(data)}. Expected a dictionary')
@@ -789,7 +789,7 @@ class ConfigUltraNest:
         Authors
         -------
         Allan Denis
-'''
+        '''
 
         # Float fields
         float_fields = (
@@ -931,7 +931,7 @@ class ConfigUltraNest:
         Authors
         -------
         Allan Denis
-'''
+        '''
 
         if not isinstance(data, dict):
             raise ForMoSAError(f'Wrong type for data: {type(data)}. Expected a dictionary')
@@ -951,7 +951,7 @@ class Config_NS:
         Authors
         -------
         Allan Denis
-'''
+        '''
 
         # Check nestle type
         if not isinstance(self.nestle, ConfigNestle):
@@ -999,7 +999,7 @@ class Config_NS:
         Authors
         -------
         Allan Denis
-'''
+        '''
 
         if not isinstance(data, dict):
             raise ForMoSAError(f'Wrong type for data: {type(data)}. Expected a dictionary')
@@ -1031,7 +1031,7 @@ class ConfigGenerator:
     Authors
     -------
     Mathieu Ravet and Allan Denis
-'''
+    '''
 
     def __init__(self, sections: dict = None, logger: logging.Logger | None = None, log_level: str = 'INFO') -> None:
         self.logger = logger or setup_logging(level=log_level, name='ConfigGenerator')
@@ -1221,7 +1221,7 @@ class ConfigGenerator:
         Authors
         -------
         Allan Denis
-'''
+        '''
 
         self.logger.info(f'    Save config to path {path}')
 
@@ -1252,7 +1252,7 @@ class ConfigLoader:
         Level of the Logger
 
     Auhors: Allan Denis
-'''
+    '''
 
     def __init__(self, path: str | os.PathLike, logger: logging.Logger | None = None, log_level: str = 'INFO') -> None:
         self.path = path
@@ -1269,7 +1269,7 @@ class ConfigLoader:
         Authors
         -------
         Allan Denis
-'''
+        '''
 
         self.logger.debug(f' Load config file {self.path}')
         # Default config file
@@ -1312,7 +1312,7 @@ class ConfigLoader:
         Authors
         -------
         Allan Denis
-'''
+        '''
 
         for section, default_obj in self.defaults.items():
             if section not in self.config_ini:

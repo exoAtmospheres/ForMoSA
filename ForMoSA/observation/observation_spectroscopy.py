@@ -51,7 +51,7 @@ class SpectralObservation(Observation):
     Authors
     -------
     Allan Denis
-'''
+    '''
 
     def __init__(self, wave: np.ndarray, flux: np.ndarray, err: np.ndarray, res: np.ndarray, facility: str, instrument: str, native_unit: WavelengthUnit, cov: np.ndarray | None = None, transm: np.ndarray | None = None, star_flux: np.ndarray | None = None, system: np.ndarray | None = None, logger: logging.Logger | None = None, log_level: str = 'INFO', display_unit: WavelengthUnit = WavelengthUnit.MICROMETER) -> None:
 
@@ -226,7 +226,7 @@ class SpectralObservation(Observation):
         Authors
         -------
         Allan Denis
-'''
+        '''
 
         # Resolution
         if len(self._res) != self.n_points:
@@ -272,7 +272,7 @@ class SpectralObservation(Observation):
         Authors
         -------
         Allan Denis
-'''
+        '''
 
         # --------------------------------------------------
         # Start with mandatory 1D arrays
@@ -345,7 +345,7 @@ class SpectralObservation(Observation):
         Authors
         -------
         Simon Petrus, Matthieu Ravet and Allan Denis
-'''
+        '''
 
         self.logger.info(f'      Target resolution for observation {self.name}: {target_resolution}')
 
@@ -431,7 +431,7 @@ class SpectralObservation(Observation):
         Authors
         -------
         Allan Denis
-'''
+        '''
 
         self.logger.info(f'      Plotting data for observation {self.name}')
 
@@ -527,7 +527,7 @@ class SpectralObservation(Observation):
         Authors
         -------
         Allan Denis
-'''
+        '''
 
         # Dictionary of the observation
         restricted = copy.deepcopy(self)

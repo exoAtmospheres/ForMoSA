@@ -21,7 +21,7 @@ class ParameterSet(object):
     Authors
     -------
     Allan Denis
-"""
+    """
 
     def __init__(self, logger: logging.Logger | None = None, log_level: str = 'INFO') -> None:
         self._parameters: list[Parameter] = []
@@ -112,7 +112,7 @@ class ParameterSet(object):
         Authors
         -------
         Allan Denis
-'''
+        '''
 
         logger = logger or setup_logging(level=log_level, name='ParameterSet')
 
@@ -159,7 +159,7 @@ class ParameterSet(object):
         Authors
         -------
         Allan Denis
-'''
+        '''
 
         logger = logger or setup_logging(level=log_level, name='ParameterSet')
         param_set = cls(logger=logger)
@@ -194,7 +194,7 @@ class ParameterSet(object):
         Authors
         -------
         Allan Denis
-'''
+        '''
 
         logger = logger or setup_logging(level=log_level, name='ParameterSet')
 
@@ -232,7 +232,7 @@ class ParameterSet(object):
         Authors
         -------
         Allan Denis
-'''
+        '''
 
         # Initial checks
         if not isinstance(theta, np.ndarray):
@@ -260,7 +260,7 @@ class ParameterSet(object):
         Authors
         -------
         Allan Denis
-'''
+        '''
 
         if not isinstance(parameter, Parameter):
             raise ForMoSAError("Parameter must be a Parameter instance")
@@ -289,7 +289,7 @@ class ParameterSet(object):
         Authors
         -------
         Allan Denis
-'''
+        '''
 
         rows = []
         for p in self.parameters:
@@ -328,7 +328,7 @@ class ParameterSet(object):
         Authors
         -------
         Allan Denis
-'''
+        '''
 
         if not isinstance(path, (str, os.PathLike)):
             raise ForMoSAError(f'Wrong type for path: {type(path)}. Expected a string or os.PathLike', self.logger)

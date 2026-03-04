@@ -22,7 +22,7 @@ def uniform_prior(bounds: list, theta: float) -> float:
     Authors
     -------
     Simon Petrus
-'''
+    '''
 
     if theta < 0 or theta > 1:
         raise ForMoSAError(f'Wrong value for theta: {theta}. Expected between 0 and 1')
@@ -51,7 +51,7 @@ def loguniform_prior(prior_fct_arg: list, theta: float) -> float:
     Authors
     -------
     Simon Petrus
-'''
+    '''
 
     if theta < 0 or theta > 1:
         raise ForMoSAError(f'Wrong value for theta: {theta}. Expected between 0 and 1')
@@ -82,7 +82,7 @@ def gaussian_prior(mean: float, std: float, theta: float):
     Authors
     -------
     Simon Petrus
-'''
+    '''
 
     if theta < 0 or theta > 1:
         raise ForMoSAError(f'Wrong value for theta: {theta}. Expected between 0 and 1')

@@ -30,7 +30,7 @@ class ModelGrid:
     Authors
     -------
     Allan Denis
-'''
+    '''
 
     def __init__(self, dataset: xr.Dataset, model_path: str | os.PathLike | None = None, logger: logging.Logger | None = None, log_level: str = "INFO", display_unit: WavelengthUnit = WavelengthUnit.MICROMETER) -> None:
 
@@ -199,7 +199,7 @@ class ModelGrid:
         Authors
         -------
         Allan Denis
-'''
+        '''
 
         logger = logger or setup_logging(level=log_level, name = 'ModelGrid')
         logger.debug(f'Loading ModelGrid from file {path}')
@@ -240,7 +240,7 @@ class ModelGrid:
         Authors
         -------
         Allan Denis
-'''
+        '''
 
         logger = logger or setup_logging(level=log_level, name='ModelGrid')
         logger.debug('<Generate ModelGrid from attributes>')
@@ -265,7 +265,7 @@ class ModelGrid:
         Authors
         -------
         Allan Denis
-'''
+        '''
 
         if not isinstance(unit, WavelengthUnit):
             raise ForMoSAError(f"<Unit must be a WavelengthUnit Enum, got {type(unit)}>", self.logger)
@@ -290,7 +290,7 @@ class ModelGrid:
         Authors
         -------
         Allan Denis
-'''
+        '''
 
         if not isinstance(idx, tuple):
             raise ForMoSAError(f'<Index is type{type(idx)}. It should be a tuple>', self.logger)
@@ -321,7 +321,7 @@ class ModelGrid:
         Authors
         -------
         Simon Petrus, Paulina Palma-Bifani, Matthieu Ravet and Allan Denis
-'''
+        '''
 
         self.logger.info(f'    Interpolating between holes of the grid {self.grid_name}')
 
@@ -348,7 +348,7 @@ class ModelGrid:
         Authors
         -------
         Allan Denis
-'''
+        '''
 
         ref_params = {k: 0.5 * (self.lims_params_grid[k][0] + self.lims_params_grid[k][1]) for k in self.keys}
 
@@ -382,7 +382,7 @@ class ModelGrid:
         Authors
         -------
         Simon Petrus, Paulina Palma-Bifani, Matthieu Ravet and Allan Denis
-'''
+        '''
 
         if print_logger:
             self.logger.info('Interpolate between gridpoints in the grid')
@@ -444,7 +444,7 @@ class ModelGrid:
         Authors
         -------
         Simon Petrus, Paulina Palma-Bifani, Matthieu Ravet and Allan Denis
-'''
+        '''
 
         if not isinstance(store_path, (str, os.PathLike)):
             raise ForMoSAError(f'<Wrong type for store_path: {type(store_path)}. Expected a string or os.PathLike>', self.logger)
@@ -481,7 +481,7 @@ class ModelGrid:
         Authors
         -------
         Simon Petrus, Paulina Palma-Bifani, Matthieu Ravet and Allan Denis
-'''
+        '''
 
         if not isinstance(store_path, (str, os.PathLike)):
             raise ForMoSAError(f'<Wrong type for store_path: {type(store_path)}. Expected a string or os.PathLike>', self.logger)
@@ -523,7 +523,7 @@ class ModelGrid:
         Authors
         -------
         Allan Denis
-'''
+        '''
 
         if not isinstance(windows, str):
             raise ForMoSAError(f'<Wrong type for windows: {type(windows)}. Requires a string>', self.logger)

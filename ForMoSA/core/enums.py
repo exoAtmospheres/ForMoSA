@@ -8,7 +8,7 @@ class WavelengthUnit(Enum):
     Authors
     -------
     Allan Denis
-'''
+    '''
 
     ANGSTROM = u.AA
     NANOMETER = u.nm
@@ -40,7 +40,7 @@ class FluxUnit(Enum):
     Authors
     -------
     Allan Denis
-'''
+    '''
 
     FLAM = u.erg / (u.s * u.cm**2 * u.AA)
     FNU = u.erg / (u.s * u.cm**2 * u.Hz)
@@ -57,7 +57,7 @@ class DataUnit(Enum):
     Authors
     -------
     Allan Denis
-'''
+    '''
 
     COUNTS = 'counts'
     ELECTRONS = 'electrons'
@@ -74,7 +74,7 @@ class ObservationType(Enum):
     Authors
     -------
     Allan Denis
-'''
+    '''
 
     SPECTROSCOPIC = 'Spectroscopic'
     PHOTOMETRIC = 'Photometric'
@@ -108,7 +108,7 @@ class ObservationKeys(Enum):
     Authors
     -------
     Allan Denis
-'''
+    '''
 
     WAVELENGTH = ("WAVELENGTH", ["WAVELENGTH", "WAVE", "WAV", "LAMBDA"])
     FLUX = ("FLUX", ["FLUX", "FLX"])
@@ -172,7 +172,7 @@ class ObservationKeys(Enum):
         Authors
         -------
         Allan Denis
-'''
+        '''
 
         missing = [key.canonical for key in cls.required_common() if key.canonical not in present]
         missing.extend([key.canonical for key in cls.required_photometric() if key.canonical not in present])
@@ -197,7 +197,7 @@ class ObservationKeys(Enum):
         Authors
         -------
         Allan Denis
-'''
+        '''
 
         missing = [key.canonical for key in cls.required_common() if key.canonical not in present]
         missing.extend([key.canonical for key in cls.required_spectroscopic() if key.canonical not in present])
@@ -230,7 +230,7 @@ class PriorType(Enum):
     Authors
     -------
     Allan Denis
-'''
+    '''
 
     UNIFORM = 'uniform'
     GAUSSIAN = 'gaussian'
@@ -264,7 +264,7 @@ class VsiniFunction(Enum):
     Authors
     -------
     Allan Denis
-'''
+    '''
 
     RotBroad = 'RotBroad'
     FastRotBroad = 'FastRotBroad'
@@ -282,7 +282,7 @@ class ParameterKind(Enum):
     Authors
     -------
     Allan Denis
-'''
+    '''
 
     RADIUS = 'r'
     DISTANCE = 'd'
@@ -340,7 +340,7 @@ class LogLikelihoodType(Enum):
     Authors
     -------
     Allan Denis
-'''
+    '''
 
     CHI2 = 'chi2'
     CHI2_COVARIANCE = 'chi2_covariance'
@@ -361,7 +361,7 @@ class NestedAlgorithm(Enum):
     Authors
     -------
     Allan Denis
-'''
+    '''
 
     NESTLE = 'nestle'
     ULTRANEST = 'ultranest'

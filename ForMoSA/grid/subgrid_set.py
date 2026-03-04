@@ -30,7 +30,7 @@ class SubGridSet(object):
     Authors
     -------
     Allan Denis
-'''
+    '''
 
     def __init__(self, parent_grid: ModelGrid, logger: logging.Logger | None = None, log_level: str = "INFO") -> None:
 
@@ -128,7 +128,7 @@ class SubGridSet(object):
         Authors
         -------
         Allan Denis
-'''
+        '''
 
         logger = logger or setup_logging(level=log_level, name='SubGridSet')
 
@@ -186,7 +186,7 @@ class SubGridSet(object):
         Authors
         -------
         Allan Denis
-'''
+        '''
 
         if len(args) == 1:
             if isinstance(args[0], SubGrid):
@@ -218,7 +218,7 @@ class SubGridSet(object):
         Authors
         -------
         Allan Denis
-'''
+        '''
 
         if not isinstance(method, str):
             raise ForMoSAError(f' Wrong type for method: {type(method)}. Expected a string', self.logger)
@@ -238,7 +238,7 @@ class SubGridSet(object):
         Authors
         -------
         Allan Denis
-'''
+        '''
 
         path = Path(path).expanduser() / 'Subgrids'
         if not path.exists():

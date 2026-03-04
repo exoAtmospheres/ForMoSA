@@ -12,7 +12,7 @@ class PhotometricEffects:
     Authors
     -------
     Allan Denis
-'''
+    '''
 
     @staticmethod
     def _apply_physics(observed_model: ObservedModel, observed_params: ObservedParameters) -> ObservedModel:
@@ -33,7 +33,7 @@ class PhotometricEffects:
         Authors
         -------
         Allan Denis
-'''
+        '''
 
         # ======================
         # Initial checkins
@@ -103,7 +103,7 @@ class PhotometricEffects:
         Authors
         -------
         Allan Denis
-'''
+        '''
 
         # ======================
         # Initial checkins
@@ -152,7 +152,7 @@ class PhotometricEffects:
         Authors
         -------
         Simon Petrus, Matthieu Ravet and Allan Denis
-'''
+        '''
 
         # ======================
         # Initial checks

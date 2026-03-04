@@ -15,7 +15,7 @@ class ObservedParameters:
     Authors
     -------
     Allan Denis
-'''
+    '''
 
     # ======================
     # Attributes
@@ -94,7 +94,7 @@ class ObservedParameters:
         bool
             Whether the name is present in the parameter names
 
-'''
+        '''
 
         if not isinstance(name, str):
             raise ForMoSAError('Wrong type for name: {type(name)}. Expected a string')
@@ -115,7 +115,7 @@ class ObservedParameters:
         bool
             Whether the name is present in the parameter names
 
-'''
+        '''
 
         if not isinstance(kind, ParameterKind):
             raise ForMoSAError('Wrong type for kind: {type(kind)}. Expected a ParameterKind')
@@ -139,7 +139,7 @@ class ObservedParameters:
         Authors
         -------
         Allan Denis
-'''
+        '''
 
         if not self.has_name(name):
             raise ForMoSAError(f'Name ({name}) must be amongst the parameter names: {self.names}')
@@ -165,7 +165,7 @@ class ObservedParameters:
         Authors
         -------
         Allan Denis
-'''
+        '''
 
         if not self.has_kind(kind):
             raise ForMoSAError(f'Kind ({kind}) must be amongst the parameter kinds: {self.kinds}')
@@ -186,7 +186,7 @@ class ObservedParameters:
         Authors
         -------
         Allan Denis
-'''
+        '''
 
         missing = [kind for kind in kinds if not self.has_kind(kind)]
         if missing:
@@ -200,7 +200,7 @@ class ObservedModel:
     Authors
     -------
     Allan Denis
-'''
+    '''
 
     # ======================
     # Attributes
@@ -268,7 +268,7 @@ class ObservedModel:
         Authors
         -------
         Allan Denis
-'''
+        '''
 
         # Initial checks
         if not isinstance(grid, ModelGrid):
@@ -362,7 +362,7 @@ class ObservedModel:
         Authors
         -------
         Allan Denis
-'''
+        '''
 
         flux_obs = np.asarray(flux_obs, dtype=float)
 
@@ -391,7 +391,7 @@ class ObservedModel:
         Authors
         -------
         Allan Denis
-'''
+        '''
 
         if len(self.wave) == 1:
             return 1
@@ -414,7 +414,7 @@ class ObservedModel:
         Authors
         -------
         Allan Denis
-"""
+        """
         return replace(self, **updates)
 
     def _sort(self) -> None:
@@ -424,7 +424,7 @@ class ObservedModel:
         Authors
         -------
         Allan Denis
-'''
+        '''
 
         # Sort wave, flux, res and component
         isort = np.argsort(self.wave)

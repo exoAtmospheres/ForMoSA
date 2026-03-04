@@ -14,7 +14,7 @@ class Prior(ABC):
     Authors
     -------
     Allan Denis
-"""
+    """
 
     def __init__(self, logger: logging.Logger | None = None, log_level: str='INFO') -> None:
         self._logger = logger or setup_logging(log_level, name='Prior')
@@ -60,7 +60,7 @@ class Prior(ABC):
         Authors
         -------
         Allan Denis
-'''
+        '''
 
         logger = logger or setup_logging(level=log_level, name='Prior')
         logger.debug('Extract Prior from dictionary')
@@ -93,7 +93,7 @@ class Prior(ABC):
         Authors
         -------
         Allan Denis
-'''
+        '''
 
         pass
 
@@ -138,7 +138,7 @@ class Prior(ABC):
         Authors
         -------
         Allan Denis
-'''
+        '''
 
         if prior_type.is_gaussian:
             return GaussianPrior(mean=params.get('mean'), stddev=params.get('stddev'), logger=logger, log_level=log_level)
@@ -173,7 +173,7 @@ class UniformPrior(Prior):
     Authors
     -------
     Allan Denis
-'''
+    '''
 
     def __init__(self, lower: float, upper: float, logger: logging.Logger | None = None, log_level: str='INFO') -> None:
         super().__init__(logger=logger, log_level=log_level)
@@ -240,7 +240,7 @@ class UniformPrior(Prior):
         Authors
         -------
         Allan Denis
-'''
+        '''
 
         if self.lower >= self.upper:
             raise ForMoSAError("Lower bound must be less than upper bound for Uniform prior", self.logger)
@@ -259,7 +259,7 @@ class UniformPrior(Prior):
         float
             Sampled value
 
-'''
+        '''
 
         try:
             return prior_functions.uniform_prior([self.lower, self.upper], theta)
@@ -278,7 +278,7 @@ class UniformPrior(Prior):
         Authors
         -------
         Allan Denis
-'''
+        '''
 
         return {"lower": self.lower, "upper": self.upper}
 
@@ -304,7 +304,7 @@ class LogUniformPrior(Prior):
     Authors
     -------
     Allan Denis
-'''
+    '''
 
     def __init__(self, lower: float, upper: float, logger: logging.Logger | None = None, log_level: str = 'INFO') -> None:
         super().__init__(logger=logger, log_level=log_level)
@@ -371,7 +371,7 @@ class LogUniformPrior(Prior):
         Authors
         -------
         Allan Denis
-'''
+        '''
 
         if self.lower <= 0 or self.upper <= 0:
             raise ForMoSAError("Lower and upper bounds must be positive for Log-Uniform prior", self.logger)
@@ -392,7 +392,7 @@ class LogUniformPrior(Prior):
         float
             Sampled value
 
-'''
+        '''
 
         try:
             return prior_functions.loguniform_prior([self.lower, self.upper], theta)
@@ -411,7 +411,7 @@ class LogUniformPrior(Prior):
         Authors
         -------
         Allan Denis
-'''
+        '''
 
         return {"lower": self.lower, "upper": self.upper}
 
@@ -434,7 +434,7 @@ class ConstantPrior(Prior):
     Authors
     -------
     Allan Denis
-'''
+    '''
 
     def __init__(self, value: float, logger: logging.Logger | None = None, log_level: str = 'INFO') -> None:
         super().__init__(logger=logger, log_level=log_level)
@@ -493,7 +493,7 @@ class ConstantPrior(Prior):
         float
             Sampled value
 
-'''
+        '''
 
         return self.value
 
@@ -509,7 +509,7 @@ class ConstantPrior(Prior):
         Authors
         -------
         Allan Denis
-'''
+        '''
 
         return {"value": self.value}
 
@@ -534,7 +534,7 @@ class GaussianPrior(Prior):
     Authors
     -------
     Allan Denis
-'''
+    '''
 
     def __init__(self, mean: float, stddev: float, logger: logging.Logger | None = None, log_level: str = 'INFO') -> None:
         super().__init__(logger=logger, log_level=log_level)
@@ -599,7 +599,7 @@ class GaussianPrior(Prior):
         Authors
         -------
         Allan Denis
-'''
+        '''
 
         if self.stddev <= 0:
             raise ForMoSAError("Standard deviation must be positive for Gaussian prior", self.logger)
@@ -618,7 +618,7 @@ class GaussianPrior(Prior):
         float
             Samples value
 
-'''
+        '''
 
         try:
             return prior_functions.gaussian_prior(self.mean, self.stddev, theta)
@@ -637,6 +637,6 @@ class GaussianPrior(Prior):
         Authors
         -------
         Allan Denis
-'''
+        '''
 
         return {"mean": self.mean, "stddev": self.stddev}

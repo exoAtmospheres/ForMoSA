@@ -42,7 +42,7 @@ class PhotometryFilter(object):
     Authors
     -------
     Allan Denis
-'''
+    '''
 
     def __init__(self, facility: str, instrument: str, filter_id: str, filter_path: str | os.PathLike | None = None, log_level: str = 'info', logger: logging.Logger | None = None, display_unit: WavelengthUnit = WavelengthUnit.MICROMETER):
         if logger == None:
@@ -249,7 +249,7 @@ class PhotometryFilter(object):
         Authors
         -------
         Allan Denis
-'''
+        '''
 
         facility, instrument, filter_id = filter_name.split('/')[0], filter_name.split('/')[1].split('.')[0], filter_name.split('/')[1].split('.')[1]
 
@@ -266,7 +266,7 @@ class PhotometryFilter(object):
         Authors
         -------
         Allan Denis
-'''
+        '''
 
         if not isinstance(self._filter_path, (str, os.PathLike)):
             raise ForMoSAError(f"<Wrong type for filter_path: {type(self._filter_path)}. Expected str or os.PathLike>", self.logger)
@@ -293,7 +293,7 @@ class PhotometryFilter(object):
         Authors
         -------
         Allan Denis
-'''
+        '''
 
         try:
             self._logger.debug(f"<Look for the filter {self.name} in the folder {self.folder}>")
@@ -334,7 +334,7 @@ class PhotometryFilter(object):
         Authors
         -------
         Allan Denis
-'''
+        '''
 
         self._logger.info(f"      Plotting transmission curve of filter {self.name}")
 
@@ -366,7 +366,7 @@ class PhotometryFilter(object):
         Authors
         -------
         Allan Denis
-'''
+        '''
 
         if not isinstance(unit, WavelengthUnit):
             raise ForMoSAError(f"<Unit must be a WavelengthUnit Enum, got {type(unit)}>", self.logger)
@@ -384,7 +384,7 @@ class PhotometryFilter(object):
         Authors
         -------
         Allan Denis
-'''
+        '''
 
         path = self.file_path
 
@@ -462,7 +462,7 @@ class PhotometryFilter(object):
         Authors
         -------
         Mickael Bonnefoy and Allan Denis
-'''
+        '''
 
         data = SvoFps.get_transmission_data(self.name)
         metadata = SvoFps.get_filter_list(facility=self.facility, instrument=self.instrument)
@@ -482,7 +482,7 @@ class PhotometryFilter(object):
         Authors
         -------
         Allan Denis
-"""
+        """
 
         # Convert to Path if it's a string
         fits_path = self.file_path

@@ -23,7 +23,7 @@ class Paths(object):
     Authors
     -------
     Allan Denis
-'''
+    '''
 
     def __init__(self, config_path: ConfigPath, logger: logging.Logger | None = None, log_level: str = 'info') -> None:
 
@@ -127,7 +127,7 @@ class Paths(object):
         Authors
         -------
         Allan Denis
-'''
+        '''
 
         if not self._model_path.exists():
             raise ForMoSAError(f'No Model file. {self._model_path} does not contain any grid model file', self.logger)

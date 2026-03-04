@@ -39,7 +39,7 @@ class SubGridSpectroscopy(SubGrid):
     Authors
     -------
     Allan Denis
-'''
+    '''
     def __init__(self, grid: xr.Dataset, parent_grid: ModelGrid | None = None, remove_continuum: bool = False, wave_cont: str | None = None, res_cont: float | None = None, logger: logging.Logger | None = None, log_level: str = "INFO", display_unit: WavelengthUnit = WavelengthUnit.MICROMETER, name: str = 'Unknown'):
         super().__init__(grid, parent_grid = parent_grid, logger = logger, log_level = log_level, name = name, display_unit = display_unit)
 
@@ -135,7 +135,7 @@ class SubGridSpectroscopy(SubGrid):
         Authors
         -------
         Allan Denis
-'''
+        '''
 
         subgrid = cls(
             grid=parent_grid.grid,
@@ -183,7 +183,7 @@ class SubGridSpectroscopy(SubGrid):
         Authors
         -------
         Allan Denis
-'''
+        '''
 
         logger = logger or setup_logging(level=log_level, name='SubGridSpectroscopy')
 
@@ -223,7 +223,7 @@ class SubGridSpectroscopy(SubGrid):
         Authors
         -------
         Allan Denis
-'''
+        '''
 
         if (self.remove_continuum) and (self.wave_cont is None or self.res_cont is None):
             raise ForMoSAError('If you want to remove the continuum, set values for wave_cont and res_cont', self.logger)
@@ -232,7 +232,7 @@ class SubGridSpectroscopy(SubGrid):
         '''
         Adapt the native grid to the target wavelength and resolution. Optionally remove the continuum.
 
-'''
+        '''
 
         try:
             self.adapt_grid()
@@ -255,7 +255,7 @@ class SubGridSpectroscopy(SubGrid):
         Authors
         -------
         Allan Denis
-'''
+        '''
 
         margin = 0.05   # 5% margin
         return self.wave[0] * (1 - margin), self.wave[-1] * (1 + margin)
@@ -278,7 +278,7 @@ class SubGridSpectroscopy(SubGrid):
         Authors
         -------
         Simon Petrus, Matthieu Ravet, Paulina Palma-Bifani and Allan Denis
-'''
+        '''
 
         try:
             if len(self.wave) > 0:
@@ -310,7 +310,7 @@ class SubGridSpectroscopy(SubGrid):
         Authors
         -------
         Allan Denis
-'''
+        '''
 
         # Parameters relevant to spectroscopy
         allowed_kinds = set(self.relevant_parameter_kinds)
@@ -344,7 +344,7 @@ class SubGridSpectroscopy(SubGrid):
         Authors
         -------
         Allan Denis
-'''
+        '''
 
         return SpectralEffects._apply_observation(observed_model, obs, bounds_lsq)
 
@@ -369,7 +369,7 @@ class SubGridSpectroscopy(SubGrid):
         Authors
         -------
         Simon Petrus, Matthieu Ravet and Allan Denis
-'''
+        '''
 
         return SpectralEffects._compute_loglike(observed_model, obs, logL_type)
 

@@ -22,7 +22,7 @@ def set_filter_path(path: str | os.PathLike) -> None:
     Authors
     -------
     Allan Denis
-'''
+    '''
 
     global FILTER_PATH
     FILTER_PATH = Path(path).expanduser().resolve()
@@ -45,7 +45,7 @@ def darken_color(color: str, factor: float = 0.7) -> str:
     Authors
     -------
     Allan Denis
-'''
+    '''
 
     rgb = mcolors.to_rgb(color)
     dark_rgb = tuple(max(0, min(1, c * factor)) for c in rgb)
@@ -63,7 +63,7 @@ class SpectralPlotConfig:
     Authors
     -------
     Allan Denis
-'''
+    '''
 
     figsize: tuple[float, float] = (10.0, 7.0)
 
@@ -103,7 +103,7 @@ class SpectralPlotConfig:
         Authors
         -------
         Allan Denis
-'''
+        '''
 
         return {k: v for k, v in self.__dict__.items() if v is not None}
 
@@ -119,7 +119,7 @@ class SpectralPlotConfig:
         Authors
         -------
         Allan Denis
-'''
+        '''
 
         for key, value in kwargs.items():
             if not hasattr(self, key):
@@ -138,7 +138,7 @@ SPECTRAL_PLOT = SpectralPlotConfig()
 class PhotometricPlotConfig:
     '''
     Dataclass to handle configurations for plotting photometric data.
-'''
+    '''
 
     figsize: tuple[float, float] = (10.0, 7.0)
 
@@ -180,7 +180,7 @@ class PhotometricPlotConfig:
         Authors
         -------
         Allan Denis
-'''
+        '''
 
         return {k: v for k, v in self.__dict__.items() if v is not None}
 
@@ -196,7 +196,7 @@ class PhotometricPlotConfig:
         Authors
         -------
         Allan Denis
-'''
+        '''
 
         for key, value in kwargs.items():
             if not hasattr(self, key):
@@ -219,7 +219,7 @@ class CornerPlotConfig:
     Authors
     -------
     Allan Denis
-'''
+    '''
 
     figsize: tuple[float, float] = (15.0, 15.0)
     color: str = "magenta"
@@ -250,7 +250,7 @@ class CornerPlotConfig:
         Authors
         -------
         Allan Denis
-'''
+        '''
 
         return {k: v for k, v in self.__dict__.items() if v is not None}
 
@@ -266,7 +266,7 @@ class CornerPlotConfig:
         Authors
         -------
         Allan Denis
-'''
+        '''
 
         for key, value in kwargs.items():
             if not hasattr(self, key):
@@ -287,7 +287,7 @@ class ChainsPlotConfig:
     Authors
     -------
     Allan Denis
-'''
+    '''
 
     figsize: tuple[float, float] = (15.0, 15.0)
 
@@ -319,7 +319,7 @@ class ChainsPlotConfig:
         Authors
         -------
         Allan Denis
-'''
+        '''
 
         return {k: v for k, v in self.__dict__.items() if v is not None}
 
@@ -335,7 +335,7 @@ class ChainsPlotConfig:
         Authors
         -------
         Allan Denis
-'''
+        '''
 
         for key, value in kwargs.items():
             if not hasattr(self, key):
@@ -356,7 +356,7 @@ class RadarPlotConfig:
     Authors
     -------
     Allan DenisÒ
-'''
+    '''
 
     figsize: tuple[float, float] = (6.0, 6.0)
 
@@ -381,7 +381,7 @@ class RadarPlotConfig:
         Authors
         -------
         Allan Denis
-'''
+        '''
 
         return {k: v for k, v in self.__dict__.items() if v is not None}
 
@@ -397,7 +397,7 @@ class RadarPlotConfig:
         Authors
         -------
         Allan Denis
-'''
+        '''
 
         for key, value in kwargs.items():
             if not hasattr(self, key):
@@ -418,7 +418,7 @@ class BestFitPlotConfig:
     Authors
     -------
     Allan Denis
-'''
+    '''
 
     color: str = 'black'
     linewidth: float = 2.0
@@ -432,7 +432,7 @@ class BestFitPlotConfig:
         Authors
         -------
         Allan Denis
-'''
+        '''
 
         return {k: v for k, v in self.__dict__.items() if v is not None}
 
@@ -448,7 +448,7 @@ class BestFitPlotConfig:
         Authors
         -------
         Allan Denis
-'''
+        '''
 
         for key, value in kwargs.items():
             if not hasattr(self, key):
@@ -465,7 +465,7 @@ class PlotsConfig:
     Authors
     -------
     Allan Denis
-'''
+    '''
 
     CornerPlot: CornerPlotConfig = field(default_factory = lambda: CORNER_PLOT)
     ChainsPlot: ChainsPlotConfig = field(default_factory = lambda: CHAINS_PLOT)

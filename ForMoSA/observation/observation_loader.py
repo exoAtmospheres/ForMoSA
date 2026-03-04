@@ -19,7 +19,7 @@ class ObservationLoader:
     Authors
     -------
     Allan Denis
-'''
+    '''
 
     @staticmethod
     def _attributes_to_dict(**kwargs) -> dict:
@@ -36,7 +36,7 @@ class ObservationLoader:
         Authors
         -------
         Allan Denis
-'''
+        '''
 
         return {k: np.asarray(v) for k, v in kwargs.items() if v is not None}
 
@@ -61,7 +61,7 @@ class ObservationLoader:
         Authors
         -------
         Allan Denis
-'''
+        '''
 
         if not isinstance(keys, Iterable):
             raise ForMoSAError("keys must be an iterable of strings")
@@ -102,7 +102,7 @@ class ObservationLoader:
         Authors
         -------
         Allan Denis
-'''
+        '''
 
         logger = logger or setup_logging(log_level, name='Observation loader')
 
@@ -141,7 +141,7 @@ class ObservationLoader:
         Authors
         -------
         Allan Denis
-'''
+        '''
 
         logger = logger or setup_logging(log_level, name='Observation loader')
         logger.info('    Creating Observation from data')
@@ -163,7 +163,7 @@ class ObservationLoader:
         Authors
         -------
         Allan Denis
-'''
+        '''
 
         # Retrieve logger arguments
         logger, log_level = kwargs.pop('logger', None), kwargs.pop('log_level', 'INFO')
@@ -198,7 +198,7 @@ class ObservationLoader:
         Authors
         -------
         Allan Denis
-'''
+        '''
 
         logger = logger or setup_logging(log_level, name='Observation loader')
 
@@ -376,7 +376,7 @@ class ObservationLoader:
         Authors
         -------
         Allan Denis
-'''
+        '''
 
         # Get the aliases corresponding to the key
         aliases = tuple(alias.upper() for alias in key.aliases)

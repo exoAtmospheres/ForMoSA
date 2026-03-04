@@ -12,7 +12,7 @@ class GridLoader:
     Authors
     -------
     Allan Denis
-'''
+    '''
 
     @staticmethod
     def _validate_model_grid_dataset(ds):
@@ -22,7 +22,7 @@ class GridLoader:
         Authors
         -------
         Allan Denis
-'''
+        '''
 
         # Grid key
         if "grid" not in ds:
@@ -74,7 +74,7 @@ class GridLoader:
         Authors
         -------
         Allan Denis
-'''
+        '''
 
         path = Path(path)
 
@@ -119,7 +119,7 @@ class GridLoader:
         Authors
         -------
         Allan Denis
-'''
+        '''
 
         # Data type
         if not isinstance(data, np.ndarray):

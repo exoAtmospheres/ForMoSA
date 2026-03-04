@@ -11,7 +11,7 @@ class NSResults:
     Authors
     -------
     Allan Denis
-'''
+    '''
 
     samples: np.ndarray
     weights: np.ndarray
@@ -106,7 +106,7 @@ class NSResults:
         Authors
         -------
         Allan Denis
-'''
+        '''
 
         return cls(
             samples=np.asarray(data["samples"], dtype=float),
@@ -138,7 +138,7 @@ class NSResults:
         Authors
         -------
         Allan Denis
-'''
+        '''
 
         return cls(
             samples=res['samples'],
@@ -169,7 +169,7 @@ class NSResults:
         Authors
         -------
         Allan Denis
-'''
+        '''
 
         # Read global evidence and error
         with open(f"{results_path}/RAW_stats.dat", 'rb') as f:
@@ -233,7 +233,7 @@ class NSResults:
         Authors
         -------
         Allan Denis
-"""
+        """
 
         ws = res['weighted_samples']
         samples, weights, loglike, logz, logz_err = ws['points'], ws['weights'], ws['logl'], res['logz'], res['logzerr']
@@ -270,7 +270,7 @@ class NSResults:
         np.ndarray
             Weighted quantile
 
-'''
+        '''
 
         values, weights = np.asarray(values, dtype=float), np.asarray(weights, dtype=float)
 
@@ -307,7 +307,7 @@ class NSResults:
         Authors
         -------
         Allan Denis
-'''
+        '''
 
         return {
             name: self._weighted_quantile(self.samples[:, i], self.weights, q)
@@ -333,7 +333,7 @@ class NSResults:
         Authors
         -------
         Allan Denis
-'''
+        '''
 
         if sigma == 1:
             q_low, q_high = 0.16, 0.84
@@ -367,7 +367,7 @@ class NSResults:
         Authors
         -------
         Allan Denis
-'''
+        '''
 
         lines = []
         lines.append("======== Nested Sampling Summary ====================")

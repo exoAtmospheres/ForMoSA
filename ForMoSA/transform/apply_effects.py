@@ -13,7 +13,7 @@ class ApplyPhysicsEffects:
     Authors
     -------
     Allan Denis
-'''
+    '''
 
     @staticmethod
     def _apply_rv(observed_model: ObservedModel, rv_value: float) -> ObservedModel:
@@ -35,7 +35,7 @@ class ApplyPhysicsEffects:
         Authors
         -------
         Allan Denis
-'''
+        '''
 
         observed_model.wave, observed_model.flux, observed_model.res = us.doppler_fct(observed_model.wave, observed_model.flux, observed_model.res, rv_value)
 
@@ -65,7 +65,7 @@ class ApplyPhysicsEffects:
         Authors
         -------
         Allan Denis
-'''
+        '''
 
         observed_model.flux, observed_model.res = us.vsini_fct(observed_model.wave, observed_model.flux, observed_model.res, ld_value, vsini_value, vsini_function.value)
 
@@ -91,7 +91,7 @@ class ApplyPhysicsEffects:
         Authors
         -------
         Allan Denis
-'''
+        '''
 
         observed_model.flux = us.reddening_fct(observed_model.wave, observed_model.flux, av_value)
 
@@ -120,7 +120,7 @@ class ApplyPhysicsEffects:
         Authors
         -------
         Allan Denis
-'''
+        '''
 
         observed_model.flux = us.bb_cpd_fct(observed_model.wave, observed_model.flux, d_value, bb_T_value, bb_R_value)
 
@@ -148,7 +148,7 @@ class ApplyPhysicsEffects:
         Authors
         -------
         Allan Denis
-'''
+        '''
 
         observed_model.flux, ck = us.calc_ck(observed_model.flux, [], [], r_value, d_value)
         observed_model.scaling = 'physical'
@@ -176,7 +176,7 @@ class ApplyObservationEffects:
         Authors
         -------
         Allan Denis
-'''
+        '''
 
         if obs.res.all() == 0:
             return observed_model
@@ -208,7 +208,7 @@ class ApplyObservationEffects:
         Authors
         -------
         Allan Denis
-'''
+        '''
 
         if observed_model.scaling == 'analytic':
             observed_model.flux, ck = us.calc_ck(observed_model.flux, obs.flux, obs.err, 0, 0, analytic='yes', bounds = bounds)
@@ -237,7 +237,7 @@ class ApplyObservationEffects:
         Authors
         -------
         Allan Denis
-'''
+        '''
 
         # =================================
         # Initial checks

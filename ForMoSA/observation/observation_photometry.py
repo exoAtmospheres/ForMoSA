@@ -43,7 +43,7 @@ class PhotometryObservation(Observation):
     Authors
     -------
     Allan Denis
-'''
+    '''
 
     def __init__(self, wave: np.ndarray, flux: np.ndarray, err: np.ndarray, instrument: np.ndarray, facility: np.ndarray, filter_id: np.ndarray, native_unit: WavelengthUnit, logger: logging.Logger | None = None, log_level: str = 'INFO', display_unit: WavelengthUnit = WavelengthUnit.MICROMETER) -> None:
 
@@ -157,7 +157,7 @@ class PhotometryObservation(Observation):
         Authors
         -------
         Allan Denis
-'''
+        '''
 
         if not len(self.filter_id) == len(self.instrument):
             raise ForMoSAError('filter_id and instrument must have same lengths', self.logger)
@@ -176,7 +176,7 @@ class PhotometryObservation(Observation):
         Authors
         -------
         Allan Denis
-'''
+        '''
 
         self.logger.info(f'      Observation {self.name} is photometric. No adaptation')
 
@@ -209,7 +209,7 @@ class PhotometryObservation(Observation):
         Authors
         -------
         Allan Denis
-'''
+        '''
 
         self.logger.info(f'      Plotting data for observation {self.name}')
 
@@ -321,7 +321,7 @@ class PhotometryObservation(Observation):
         Authors
         -------
         Allan Denis
-'''
+        '''
 
         # Dictionary of the observation
         restricted = copy.deepcopy(self)

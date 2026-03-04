@@ -40,7 +40,7 @@ class Observation(ABC):
     Authors
     -------
     Allan Denis
-'''
+    '''
 
     def __init__(self, wave: np.ndarray, flux: np.ndarray, err: np.ndarray, native_unit: WavelengthUnit, facility: str, instrument: str, logger: logging.Logger | None = None, log_level:str = 'INFO', display_unit: WavelengthUnit = WavelengthUnit.MICROMETER) -> None:
 
@@ -99,7 +99,7 @@ class Observation(ABC):
         Authors
         -------
         Allan Denis
-'''
+        '''
         pass
 
     @abstractmethod
@@ -121,7 +121,7 @@ class Observation(ABC):
         Authors
         -------
         Allan Denis
-'''
+        '''
 
     @abstractmethod
     def _restricted_observation(self, windows: str | None = None, print_logger: bool=True) -> "Observation":
@@ -141,7 +141,7 @@ class Observation(ABC):
         Authors
         -------
         Allan Denis
-'''
+        '''
 
         pass
 
@@ -228,7 +228,7 @@ class Observation(ABC):
         Authors
         -------
         Allan Denis
-'''
+        '''
 
         logger = logger or setup_logging(level=log_level, name="Observation")
         logger.debug('Extracting Observation from dictionary')
@@ -266,7 +266,7 @@ class Observation(ABC):
         Authors
         -------
         Allan Denis
-'''
+        '''
 
         logger = logger or setup_logging(level=log_level, name="Observation")
         logger.debug(f'Extracting observation from file {path}')
@@ -308,7 +308,7 @@ class Observation(ABC):
         Authors
         -------
         Allan Denis
-'''
+        '''
 
         logger = logger or setup_logging(level=log_level, name="Observation")
         logger.debug('Extractin observation from attributes')
@@ -331,7 +331,7 @@ class Observation(ABC):
         Authors
         -------
         Allan Denis
-'''
+        '''
 
         if not (len(self._wave) == len(self._flux) == len(self._err) == len(self.instrument) == len(self.facility)):
             raise ForMoSAError(f'wave ({len(self.wave)}), flux ({len(self.flux)}), err ({len(self.err)}), instrument ({len(self.instrument)}) and facility ({len(self.facility)}) must have same length', self.logger)
@@ -362,7 +362,7 @@ class Observation(ABC):
         Authors
         -------
         Allan Denis
-'''
+        '''
 
         if not(isinstance(unit, WavelengthUnit)):
             raise ForMoSAError(f'unit must be an instance of WavelengthUnit enum. Instead got {type(unit)}', self.logger)
@@ -380,7 +380,7 @@ class Observation(ABC):
         Authors
         -------
         Allan Denis
-'''
+        '''
 
         self.logger.debug(f'Save observation {self.name} to path {store_path}')
         # Get the saving path and automatically create it if it does not exist

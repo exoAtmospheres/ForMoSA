@@ -33,7 +33,7 @@ class NSAnalysis(object):
     Authors
     -------
     Allan Denis
-'''
+    '''
 
     def __init__(self, ns: NestedSampling, logger: logging.Logger | None = None, log_level: str = 'INFO') -> None:
 
@@ -90,7 +90,7 @@ class NSAnalysis(object):
         Authors
         -------
         Allan Denis
-'''
+        '''
 
         if not isinstance(self.ns, NestedSampling):
             raise ForMoSAError(f'Wrong type for ns: {type(self.ns)}. Expeceted an instance of NestedSampling')
@@ -112,7 +112,7 @@ class NSAnalysis(object):
         Authors
         -------
         Allan Denis
-'''
+        '''
 
         return self.ns.build_models_from_theta(theta)
 
@@ -137,7 +137,7 @@ class NSAnalysis(object):
         Authors
         -------
         Allan Denis
-'''
+        '''
 
         if not isinstance(grid, ModelGrid):
             raise ForMoSAError(f'Wrong type for grid: {type(grid)}. Expected an instance of ModelGrid', self.logger)
@@ -219,7 +219,7 @@ class NSAnalysis(object):
         Authors
         -------
         Allan Denis
-'''
+        '''
 
         perc = float(perc)
 
@@ -275,7 +275,7 @@ class NSAnalysis(object):
         Authors
         -------
         Bhavesh Rajpoot and Allan Denis
-'''
+        '''
 
         if theta is not None:
             if len(theta) != len(self.ns.parameters.free_names):
@@ -372,7 +372,7 @@ class NSAnalysis(object):
         Authors
         -------
         Bhavesh Rajpoot and Allan Denis
-'''
+        '''
 
         if theta is not None:
             if len(theta) != len(self.ns.parameters.free_names):

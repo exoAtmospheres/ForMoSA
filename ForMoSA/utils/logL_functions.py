@@ -7,21 +7,21 @@ def logL_chi2(delta_flx, err, full=False):
 
     Parameters
     ----------
-        delta_flx : array
-            residual data-model as a function of wavelength
-        err : array
-            error (=standard deviation) of the observed spectrum as a function of wavelength
-        full : bool
-            True or False to add the usual constant terms
+    delta_flx : array
+        residual data-model as a function of wavelength
+    err : array
+        error (=standard deviation) of the observed spectrum as a function of wavelength
+    full : bool
+        True or False to add the usual constant terms
     Returns
     -------
-        float
-            the loglikelihood value
+    float
+        the loglikelihood value
 
     Authors
     -------
     Matthieu Ravet
-"""
+    """
 
     N = len(delta_flx)
     chi2 = np.nansum((delta_flx / err) ** 2)
@@ -39,23 +39,23 @@ def logL_chi2_covariance(delta_flx, cov, inv_cov, full=False):
 
     Parameters
     ----------
-        delta_flx : array
-            residual data-model as a function of wavelength
-        cov : n-array
-            Covariance matrix of the observed spectrum as a function of wavelength
-        inv_cov : n-array
-            inverse of the covariance matrix of the observed spectrum as a function of wavelength
-        full : bool
-            True or False to add the usual constant terms
+    delta_flx : array
+        residual data-model as a function of wavelength
+    cov : n-array
+        Covariance matrix of the observed spectrum as a function of wavelength
+    inv_cov : n-array
+        inverse of the covariance matrix of the observed spectrum as a function of wavelength
+    full : bool
+        True or False to add the usual constant terms
     Returns
     -------
-        float
-            the loglikelihood value
+    float
+        the loglikelihood value
 
     Authors
     -------
     Matthieu Ravet
-"""
+    """
     N = len(delta_flx)
     chi2 = np.dot(delta_flx, np.dot(inv_cov, delta_flx))
     logL = - chi2 / 2
@@ -73,21 +73,21 @@ def logL_chi2_noisescaling(delta_flx, err, full=False):
 
     Parameters
     ----------
-        delta_flx : array
-            residual data-model as a function of wavelength
-        err : array
-            error (=standard deviation) of the observed spectrum as a function of wavelength
-        full : bool
-            True or False to add the usual constant terms
+    delta_flx : array
+        residual data-model as a function of wavelength
+    err : array
+        error (=standard deviation) of the observed spectrum as a function of wavelength
+    full : bool
+        True or False to add the usual constant terms
     Returns
     -------
-        float
-            the loglikelihood value
+    float
+        the loglikelihood value
 
     Authors
     -------
     Allan Denis and Matthieu Ravet
-"""
+    """
 
     N = len(delta_flx)
     chi2 = np.nansum((delta_flx / err) ** 2)
@@ -105,23 +105,23 @@ def logL_chi2_noisescaling_covariance(delta_flx, cov, inv_cov, full=False):
 
     Parameters
     ----------
-        delta_flx : array
-            residual data-model as a function of wavelength
-        cov : n-array
-            Covariance matrix of the observed spectrum as a function of wavelength
-        inv_cov : n-array
-            inverse of the covariance matrix of the observed spectrum as a function of wavelength
-        full : bool
-            True or False to add the usual constant terms
+    delta_flx : array
+        residual data-model as a function of wavelength
+    cov : n-array
+        Covariance matrix of the observed spectrum as a function of wavelength
+    inv_cov : n-array
+        inverse of the covariance matrix of the observed spectrum as a function of wavelength
+    full : bool
+        True or False to add the usual constant terms
     Returns
     -------
-        float
-            the loglikelihood value
+    float
+        the loglikelihood value
 
     Authors
     -------
     Allan Denis and Matthieu Ravet
-"""
+    """
 
     N = len(delta_flx)
     chi2 = np.dot(delta_flx, np.dot(inv_cov, delta_flx))
@@ -140,19 +140,19 @@ def logL_CCF_Brogi(flx_obs, flx_mod):
 
     Parameters
     ----------
-        flx_obs : array
-            flux of the observation as a function of wavelength
-        flx_mod : array
-            flux of the model as a function of wavelength
+    flx_obs : array
+        flux of the observation as a function of wavelength
+    flx_mod : array
+        flux of the model as a function of wavelength
     Returns
     -------
-        float
-            the loglikelihood value
+    float
+        the loglikelihood value
 
     Authors
     -------
     Matthieu Ravet
-"""
+    """
 
     N = len(flx_mod)
     flx_obs -= np.mean(flx_obs)
@@ -173,19 +173,19 @@ def logL_CCF_Zucker(flx_obs, flx_mod):
 
     Parameters
     ----------
-        flx_obs : array
-            flux of the observation as a function of wavelength
-        flx_mod : array
-            flux of the model as a function of wavelength
+    flx_obs : array
+        flux of the observation as a function of wavelength
+    flx_mod : array
+        flux of the model as a function of wavelength
     Returns
     -------
-        float
-            the loglikelihood value
+    float
+        the loglikelihood value
 
     Authors
     -------
     Matthieu Ravet
-"""
+    """
 
     N = len(flx_mod)
     Sf2 = 1/N * np.nansum(np.square(flx_obs))
@@ -205,21 +205,21 @@ def logL_CCF_custom(flx_obs, flx_mod, err_obs):
 
     Parameters
     ----------
-        flx_obs : array
-            flux of the observation as a function of wavelength
-        flx_mod : array
-            flux of the model as a function of wavelength
-        err_obs : array
-            errors of the observation as a function of wavelength
+    flx_obs : array
+        flux of the observation as a function of wavelength
+    flx_mod : array
+        flux of the model as a function of wavelength
+    err_obs : array
+        errors of the observation as a function of wavelength
     Returns
     -------
-        float
-            the loglikelihood value
+    float
+        the loglikelihood value
 
     Authors
     -------
     Matthieu Ravet
-"""
+    """
 
     N = len(flx_mod)
     Sf2 = 1/N * np.nansum(np.square(flx_obs))

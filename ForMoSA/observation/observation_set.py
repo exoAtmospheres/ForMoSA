@@ -31,7 +31,7 @@ class ObservationSet(object):
     Authors
     -------
     Allan Denis
-'''
+    '''
 
     def __init__(self, logger: logging.Logger | None = None, log_level: str = "INFO") -> None:
 
@@ -174,7 +174,7 @@ class ObservationSet(object):
         Authors
         -------
         Allan Denis
-'''
+        '''
 
         logger = logger or setup_logging(level=log_level, name='ObservationSet')
 
@@ -236,7 +236,7 @@ class ObservationSet(object):
         Authors
         -------
         Allan Denis
-'''
+        '''
 
         logger = logger or setup_logging(level=log_level, name='ObservationSet')
 
@@ -312,7 +312,7 @@ class ObservationSet(object):
         Authors
         -------
         Allan Denis
-'''
+        '''
 
         logger = logger or setup_logging(level=log_level, name='ParameterSet')
 
@@ -351,7 +351,7 @@ class ObservationSet(object):
         Authors
         -------
         Allan Denis
-'''
+        '''
 
         logger = logger or setup_logging(level=log_level, name='ParameterSet')
 
@@ -395,7 +395,7 @@ class ObservationSet(object):
         Authors
         -------
         Allan Denis
-'''
+        '''
 
         if len(args) == 1:
             if isinstance(args[0], (Observation, SpectralObservation, PhotometryObservation)):
@@ -436,7 +436,7 @@ class ObservationSet(object):
         Authors
         -------
         Allan Denis
-'''
+        '''
 
         path = Path(path).expanduser() / 'Observations'
 
@@ -472,7 +472,7 @@ class ObservationSet(object):
         Authors
         -------
         Simon Petrus, Matthieu Ravet and Allan Denis
-'''
+        '''
 
         # Initial checks
         if not isinstance(target_resolution, list):
@@ -517,7 +517,7 @@ class ObservationSet(object):
         Authors
         -------
         Allan Denis
-'''
+        '''
 
         if not isinstance(path, (str, os.PathLike)):
             raise ForMoSAError(f'Wrong type for path: {type(path)}. Expected a string or os.PathLike', self.logger)
@@ -554,7 +554,7 @@ class ObservationSet(object):
         Authors
         -------
         Allan Denis
-'''
+        '''
 
         self.logger.info(f'    Plotting all the observations {self.observation_names}')
 
@@ -602,7 +602,7 @@ class ObservationSet(object):
         Authors
         -------
         Allan Denis
-'''
+        '''
 
         if print_logger:
             self.logger.info("    Stacking observations")

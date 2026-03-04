@@ -43,7 +43,7 @@ def calc_ck(flx_mod: np.ndarray, flx_obs: np.ndarray, err_obs: np.ndarray, r_pic
     Authors
     -------
     Simon Petrus and Allan Denis
-'''
+    '''
 
     # Fixed analytical scaling
     if analytic == 'no':
@@ -94,7 +94,7 @@ def convolve_and_sample(wv_channels: list, sigmas_wvs: list, model_wvs: np.ndarr
     Authors
     -------
     Jason Wang
-"""
+    """
 
     model_in_range = np.where((model_wvs >= np.min(wv_channels)) & (model_wvs < np.max(wv_channels)))
     dwv_model = np.abs(model_wvs[model_in_range] - np.roll(model_wvs[model_in_range], 1))
@@ -149,7 +149,7 @@ def resolution_decreasing(wav_input: np.ndarray, flx_input: np.ndarray, res_inpu
     Authors
     -------
     Simon Petrus
-"""
+    """
 
     if len(flx_input) == 0 or len(wav_input) == 0:
         return np.array([])
@@ -203,7 +203,7 @@ def continuum_estimate(wav_input: np.ndarray, flx_input: np.ndarray, res_input: 
     -------
     Simon Petrus, Matthieu Ravet
 
-"""
+    """
 
     # Initialize
     flx_cont = np.asarray([])
@@ -268,7 +268,7 @@ def doppler_fct(wav_mod_spectro: np.ndarray, flx_mod_spectro: np.ndarray, res_mo
     Authors
     -------
     Simon Petrus, Allan Denis and Matthieu Ravet
-"""
+    """
 
     if len(flx_mod_spectro) != 0:
         new_wav = wav_mod_spectro * ((rv_picked / const.c.to(u.km/u.s).value) + 1)
@@ -313,7 +313,7 @@ def reddening_fct(wav: np.ndarray, flx: np.ndarray, av_picked: float) -> tuple[n
     Authors
     -------
     Simon Petrus
-"""
+    """
 
     if len(flx) != 0:
         dered_merge = extinction.fm07(wav * 10000, av_picked, unit='aa')
@@ -357,7 +357,7 @@ def vsini_fct(wav_mod_spectro: np.ndarray, flx_mod_spectro: np.ndarray, res_mod_
     Authors
     -------
     Allan Denis
-"""
+    """
     if len(flx_mod_spectro) != 0:
         if vsini_picked != 0:
             if vsini_type == VsiniFunction.RotBroad.value:
@@ -411,7 +411,7 @@ def vsini_fct_rot_broad(wav_mod_spectro: np.ndarray, flx_mod_spectro: np.ndarray
     Authors
     -------
     Simon Petrus
-"""
+    """
     # Correct irregulatities in the wavelength grid
     wav_interval = wav_mod_spectro[1:] - wav_mod_spectro[:-1]
     wav_to_vsini = np.arange(min(wav_mod_spectro), max(wav_mod_spectro), min(wav_interval) * 2/3)
@@ -453,7 +453,7 @@ def vsini_fct_fast_rot_broad(wav_mod_spectro: np.ndarray, flx_mod_spectro: np.nd
     Authors
     -------
     Simon Petrus
-"""
+    """
     # Correct irregulatities in the wavelength grid
     wav_interval = wav_mod_spectro[1:] - wav_mod_spectro[:-1]
     wav_to_vsini = np.arange(min(wav_mod_spectro), max(wav_mod_spectro), min(wav_interval) * 2/3)
@@ -505,7 +505,7 @@ def vsini_fct_accurate(wav_mod_spectro: np.ndarray, flx_mod_spectro: np.ndarray,
     Authors
     -------
     Allan Denis
-'''
+    '''
 
     ns = np.copy(flx_mod_spectro)*0.0
     tarea = 0.0
@@ -555,7 +555,7 @@ def vsini_fct_accurate_fast_rot_broad(wav_mod_spectro: np.ndarray, flx_mod_spect
     Authors
     -------
     Simon Petrus, Arthur Vigan and Allan Denis
-"""
+    """
     # Correct irregulatities in the wavelength grid
     wav_interval = wav_mod_spectro[1:] - wav_mod_spectro[:-1]
     wav_to_vsini = np.arange(min(wav_mod_spectro), max(wav_mod_spectro), min(wav_interval) * 2/3)
@@ -597,7 +597,7 @@ def bb_cpd_fct(wav: np.ndarray, flx: np.ndarray, distance: np.ndarray, bb_t_pick
     Authors
     -------
     Paulina Palma-Bifani
-'''
+    '''
 
     if len(flx) > 0:
         bb_t_picked *= u.K
@@ -650,7 +650,7 @@ def fit_linear_model(components: list[np.ndarray], flx_obs: np.ndarray, err_obs:
     Authors
     -------
     Allan Denis
-"""
+    """
 
     n = len(components)
     flx_obs = np.asarray(flx_obs)
@@ -756,7 +756,7 @@ def build_linear_components(flx_mod: np.ndarray | None = None, transm: np.ndarra
     Authors
     -------
     Allan Denis
-'''
+    '''
 
     components = []
     fixed_coeffs = {}
@@ -857,7 +857,7 @@ def compute_ccf(wav_mod_spectro: np.ndarray, flx_mod_spectro: np.ndarray, wav_ob
     Authors
     -------
     Arthur Vigan and Allan Denis
-'''
+    '''
 
     if not rv_sini_map and np.max(np.abs(rv_grid)) < 100:
         print(f'Your grid is {rv_grid}. \nPlease, choose an RV grid going beyond [-100, 100]')
@@ -1022,7 +1022,7 @@ def compute_ccf_single_rv(rv: float, wav_mod_spectro: np.ndarray, flx_mod_spectr
     Authors
     -------
     Arthur Vigan and Allan Denis
-'''
+    '''
 
     # Doppler shift + resolution match
     wav_shifted, flx_shifted, res_shifted = doppler_fct(wav_mod_spectro, flx_mod_spectro, res_mod_spectro, rv)

@@ -33,7 +33,7 @@ class SubGridPhotometry(SubGrid):
     Authors
     -------
     Allan Denis
-'''
+    '''
 
     def __init__(self, grid: xr.Dataset, parent_grid: ModelGrid, Filter: np.ndarray[PhotometryFilter], logger: logging.Logger | None = None, log_level: str = "INFO", display_unit: WavelengthUnit = WavelengthUnit.MICROMETER, name: str = 'Unknown'):
         super().__init__(grid, parent_grid = parent_grid, logger=logger, log_level=log_level, name=name, display_unit=display_unit)
@@ -121,7 +121,7 @@ class SubGridPhotometry(SubGrid):
         Authors
         -------
         Allan Denis
-'''
+        '''
 
         subgrid = cls(
             grid=parent_grid.grid,
@@ -172,7 +172,7 @@ class SubGridPhotometry(SubGrid):
         Authors
         -------
         Allan Denis
-'''
+        '''
 
         logger = logger or setup_logging(level=log_level, name='SubGridPhotometry')
 
@@ -218,7 +218,7 @@ class SubGridPhotometry(SubGrid):
         Authors
         -------
         Allan Denis
-'''
+        '''
 
         for filt in self.Filter:
             if not isinstance(filt, PhotometryFilter):
@@ -233,7 +233,7 @@ class SubGridPhotometry(SubGrid):
         Authors
         -------
         Allan Denis
-'''
+        '''
 
         self.adapt_grid()
         self._grid.attrs['filter_name'] = [filt.name for filt in self.Filter]
@@ -250,7 +250,7 @@ class SubGridPhotometry(SubGrid):
         Authors
         -------
         Allan Denis
-'''
+        '''
 
         margin = 0.05   # 5% margin
 
@@ -277,7 +277,7 @@ class SubGridPhotometry(SubGrid):
         Authors
         -------
         Allan Denis
-'''
+        '''
 
         model_adapted = self.integrate_filter_curve(model_to_adapt)
 
@@ -301,7 +301,7 @@ class SubGridPhotometry(SubGrid):
         Authors
         -------
         Allan Denis
-'''
+        '''
 
         # Parameters relevant to spectroscopy
         allowed_kinds = set(self.relevant_parameter_kinds)
@@ -331,7 +331,7 @@ class SubGridPhotometry(SubGrid):
         Authors
         -------
         Allan Denis
-'''
+        '''
 
         if print_logger:
             self.logger.debug(f'Integrate filter curve of {self.Filter.name} on the spectrum')
@@ -399,7 +399,7 @@ class SubGridPhotometry(SubGrid):
         Authors
         -------
         Allan Denis
-'''
+        '''
 
         return PhotometricEffects._apply_observation(observed_model, obs, bounds_lsq)
 
@@ -424,7 +424,7 @@ class SubGridPhotometry(SubGrid):
         Authors
         -------
         Simon Petrus, Matthieu Ravet and Allan Denis
-'''
+        '''
 
         return PhotometricEffects._compute_loglike(observed_model, obs, logL_type)
 

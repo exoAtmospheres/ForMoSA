@@ -52,7 +52,7 @@ class NestedSampling(object):
     Authors
     -------
     Allan Denis
-'''
+    '''
 
     def __init__(self, algorithm: NestedAlgorithm, npoints: int, logL_type: list[LogLikelihoodType], config_NS: Config_NS, observations: ObservationSet, subgrids: SubGridSet, parameters: ParameterSet, wave_fit: list[str] | None = None, interp_method: str = 'linear', bounds_lsq: list[tuple[float, float]] | None = None, logger: logging.Logger | None=None, log_level: str='INFO'):
         self._logger = logger or setup_logging(log_level, name='NestedSampling')
@@ -187,7 +187,7 @@ class NestedSampling(object):
         Authors
         -------
         Allan Denis
-'''
+        '''
 
         logger = logger or setup_logging(level=log_level, name='NestedSampling')
         logger.debug('Building an instance of NestedSampling from dictionary')
@@ -244,7 +244,7 @@ class NestedSampling(object):
         Authors
         -------
         Allan Denis
-'''
+        '''
 
         logger = logger or setup_logging(level=log_level, name='NestedSampling')
 
@@ -284,7 +284,7 @@ class NestedSampling(object):
         Authors
         -------
         Allan Denis
-'''
+        '''
 
         for name, instance in zip(['logL_type', 'observations', 'subgrids', 'parameters', 'config_NS', 'wave_fit', 'interp_method', 'bounds_lsq'], [list, ObservationSet, SubGridSet, ParameterSet, Config_NS, list, str, list]):
             if not isinstance(getattr(self, name), instance):
@@ -330,7 +330,7 @@ class NestedSampling(object):
         Authors
         -------
         Allan Denis
-'''
+        '''
 
         self.logger.info(f'    Restrict subgris and observations to windows {self.wave_fit}')
 
@@ -362,7 +362,7 @@ class NestedSampling(object):
         Authors
         -------
         Simon Petrus, Matthieu Ravet and Allan Denis
-'''
+        '''
 
         if not isinstance(results_path, (str, os.PathLike)):
             raise ForMoSAError(f'Wrong type for results_path: {type(results_path)}. Expected a string or os.PathLike', self.logger)
@@ -455,7 +455,7 @@ class NestedSampling(object):
         logL : float
             Final loglikelihood
 
-'''
+        '''
 
         observed_models = self.build_models_from_theta(theta)
         return self._compute_loglikelihood(observed_models)
@@ -477,7 +477,7 @@ class NestedSampling(object):
         Authors
         -------
         Allan Denis
-'''
+        '''
 
         try:
             return self.parameters.prior_transform(theta)
@@ -501,7 +501,7 @@ class NestedSampling(object):
         Authors
         -------
         Allan Denis
-'''
+        '''
 
         observed_models = []
         for index in range(self.observations.n_observations):
@@ -533,7 +533,7 @@ class NestedSampling(object):
         Authors
         -------
         Allan Denis
-'''
+        '''
 
         logL = 0
         for index in range(self.observations.n_observations):
@@ -564,7 +564,7 @@ class NestedSampling(object):
         Authors
         -------
         Allan Denis
-'''
+        '''
 
         if len(free_values) != self.parameters.n_free_parameters:
             raise ForMoSAError("Invalid free_values length", self.logger)
@@ -603,7 +603,7 @@ class NestedSampling(object):
         Authors
         -------
         Allan Denis
-'''
+        '''
 
         self._logger.info('    Saving results')
 
@@ -634,7 +634,7 @@ class NestedSampling(object):
         Authors
         -------
         Allan Denis
-'''
+        '''
 
         results_path = Path(results_path)  / 'NS_results'
 

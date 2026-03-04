@@ -26,7 +26,7 @@ def decoupe(second):
     Authors
     -------
     Simon Petrus
-"""
+    """
 
     hour = second / 3600
     second %= 3600
@@ -58,7 +58,7 @@ def find_nearest(array, value):
     Authors
     -------
     Simon Petrus
-'''
+    '''
 
     idx = (np.abs(array - value)).argmin()
 
@@ -91,7 +91,7 @@ def format_grid(grid, attr, free_comp, weights):
     Authors
     -------
     Matthieu Ravet
-'''
+    '''
 
     # Format the new grids in xarray
     vars_nfs_ws = ["eigen_indices"]
@@ -131,7 +131,7 @@ def get_weighted_percentile(n, data, weights=None):
     Authors
     -------
     Allan Denis
-'''
+    '''
 
     # Convert n to array
     n = np.atleast_1d(n).astype(float)
@@ -194,7 +194,7 @@ def scale_to_one_significant_digit(flux):
     Authors
     -------
     Allan Denis
-'''
+    '''
 
     if len(flux) == 0:
         return 0, 0
@@ -225,7 +225,7 @@ def from_recarray_to_dic(data: fits.fitsrec.FITS_rec):
     Authors
     -------
     Allan Denis
-'''
+    '''
 
     return {name: np.asarray(data[name]) for name in data.names}
 
@@ -254,7 +254,7 @@ def normalize_list(value, name: str, converter=None):
     Authors
     -------
     Allan Denis
-'''
+    '''
 
     # Ensure list
     if isinstance(value, list):
@@ -297,7 +297,7 @@ def to_float_if_possible(v):
     Authors
     -------
     Allan Denis
-'''
+    '''
 
     if isinstance(v, (int, float)):
         return float(v)

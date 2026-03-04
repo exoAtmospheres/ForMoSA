@@ -43,7 +43,7 @@ class SubGrid(ModelGrid, ABC):
     Authors
     -------
     Allan Denis
-'''
+    '''
 
     def __init__(self, grid: xr.Dataset, parent_grid: ModelGrid, logger: logging.Logger | None = None, log_level: str = "INFO", name: str = 'Unknown', display_unit: WavelengthUnit = WavelengthUnit.MICROMETER):
 
@@ -98,7 +98,7 @@ class SubGrid(ModelGrid, ABC):
         Authors
         -------
         Allan Denis
-'''
+        '''
 
         pass
 
@@ -115,7 +115,7 @@ class SubGrid(ModelGrid, ABC):
         Authors
         -------
         Allan Denis
-'''
+        '''
 
         pass
 
@@ -140,7 +140,7 @@ class SubGrid(ModelGrid, ABC):
         Authors
         -------
         Allan Denis
-'''
+        '''
 
         pass
 
@@ -167,7 +167,7 @@ class SubGrid(ModelGrid, ABC):
         Authors
         -------
         Allan Denis
-'''
+        '''
 
         pass
 
@@ -194,7 +194,7 @@ class SubGrid(ModelGrid, ABC):
         Authors
         -------
         Simon Petrus, Matthieu Ravet and Allan Denis
-'''
+        '''
 
         pass
 
@@ -262,7 +262,7 @@ class SubGrid(ModelGrid, ABC):
         Authors
         -------
         Allan Denis
-'''
+        '''
 
         logger = logger or setup_logging(level=log_level, name="Observation")
         logger.debug('Extracting SubGrid from dataset')
@@ -309,7 +309,7 @@ class SubGrid(ModelGrid, ABC):
         Authors
         -------
         Allan Denis
-'''
+        '''
 
         logger = logger or setup_logging(level=log_level, name='SubGrid')
         logger.debug(f'Loading grid from file {path}')
@@ -346,7 +346,7 @@ class SubGrid(ModelGrid, ABC):
         Authors
         -------
         Allan Denis
-'''
+        '''
 
         self._logger.debug(f'Building empty grid from the native grid {self.parent_grid.grid_name}')
 
@@ -390,7 +390,7 @@ class SubGrid(ModelGrid, ABC):
         Authors
         -------
         Arthur Vigan and Allan Denis
-'''
+        '''
 
         # Get a restricted version of the parent grid to spped up the adaptation
         wmin, wmax = self._get_restriction_bounds()
@@ -453,7 +453,7 @@ class SubGrid(ModelGrid, ABC):
         Authors
         -------
         Allan Denis
-'''
+        '''
 
         # Initial check
         if not isinstance(observed_model, ObservedModel):
@@ -490,7 +490,7 @@ class SubGrid(ModelGrid, ABC):
         Authors
         -------
         Allan Denis
-'''
+        '''
 
         # Split parameters
         grid_params = observed_params.grid
@@ -536,7 +536,7 @@ class SubGrid(ModelGrid, ABC):
         Authors
         -------
         Allan Denis
-'''
+        '''
 
         # Initial checks
         if not isinstance(grid_params, ObservedParameters):
