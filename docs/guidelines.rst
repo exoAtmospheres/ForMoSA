@@ -1,7 +1,7 @@
 .. _guidelines:
 
 Guidelines
-=========
+==========
 
 Good practices
 --------------

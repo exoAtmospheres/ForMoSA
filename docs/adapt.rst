@@ -3,22 +3,52 @@
 Adapt the data
 ==============
 
-Adapt Observations and Models:
-++++++++++++++++++++++++++++++
-.. automodule:: ForMoSA.adapt.adapt_obs_mod
-	:members:
-
-Adapt Grid:
+Model Grid:
 +++++++++++
-.. automodule:: ForMoSA.adapt.adapt_grid
+.. automodule:: ForMoSA.grid.model_grid
 	:members:
 
-Extraction Functions:
-+++++++++++++++++++++
-.. automodule:: ForMoSA.adapt.adapt_extraction_functions
+Grid Loader:
+++++++++++++
+.. automodule:: ForMoSA.grid.grid_loader
 	:members:
 
-Emulators:
-++++++++++
-.. automodule:: ForMoSA.adapt.adapt_emulators
+Subgrid Base:
++++++++++++++
+.. automodule:: ForMoSA.grid.subgrid_base
+	:members:
+
+Subgrid Set:
+++++++++++++
+.. automodule:: ForMoSA.grid.subgrid_set
+	:members:
+
+Spectroscopic Subgrid:
+++++++++++++++++++++++
+.. automodule:: ForMoSA.grid.subgrid_spectroscopy
+	:members:
+
+Photometric Subgrid:
+++++++++++++++++++++
+.. automodule:: ForMoSA.grid.subgrid_photometry
+	:members:
+
+Observed Model:
++++++++++++++++
+.. automodule:: ForMoSA.transform.observed
+	:members:
+
+Apply Effects:
+++++++++++++++
+.. automodule:: ForMoSA.transform.apply_effects
+	:members:
+
+Spectroscopic Effects:
+++++++++++++++++++++++
+.. automodule:: ForMoSA.transform.spectroscopic_effects
+	:members:
+
+Photometric Effects:
+++++++++++++++++++++
+.. automodule:: ForMoSA.transform.photometric_effects
 	:members:

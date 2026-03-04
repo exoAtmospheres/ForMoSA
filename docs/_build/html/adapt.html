@@ -1,140 +1,1413 @@
 
-
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" data-content_root="./">
-<head>
-  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Adapt the data &mdash; ForMoSA 1.1.6 documentation</title>
-      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
-      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
-      <link rel="stylesheet" type="text/css" href="_static/custom.css?v=d0b3e03c" />
+
+<html lang="en" data-content_root="./" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Adapt the data &#8212; ForMoSA 1.1.6 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="_static/styles/theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="_static/styles/bootstrap.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="_static/styles/pydata-sphinx-theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
 
   
-    <link rel="shortcut icon" href="_static/favicon.ico"/>
-      <script src="_static/jquery.js?v=5d32c60e"></script>
-      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="_static/documentation_options.js?v=937269b5"></script>
-      <script src="_static/doctools.js?v=9bcbadda"></script>
-      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
-      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
-    <script src="_static/js/theme.js"></script>
+  <link href="_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/sphinx-book-theme.css?v=eba8b062" />
+    <link rel="stylesheet" type="text/css" href="_static/custom.css?v=d0b3e03c" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b" />
+<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
+  <script src="_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+    <script src="_static/documentation_options.js?v=2bf2fbde"></script>
+    <script src="_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'adapt';</script>
+    <link rel="icon" href="_static/favicon.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Nested Sampling" href="nested_sampling.html" />
-    <link rel="prev" title="Main Utilities" href="main_utilities.html" /> 
-</head>
+    <link rel="prev" title="Main Utilities" href="main_utilities.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
 
-<body class="wy-body-for-nav"> 
-  <div class="wy-grid-for-nav">
-    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
-      <div class="wy-side-scroll">
-        <div class="wy-side-nav-search" >
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
 
-          
-          
-          <a href="index.html" class="icon icon-home">
-            ForMoSA
-              <img src="_static/ForMoSA.png" class="logo" alt="Logo"/>
-          </a>
-<div role="search">
-  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
-    <input type="hidden" name="check_keywords" value="yes" />
-    <input type="hidden" name="area" value="default" />
-  </form>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
 </div>
-        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <p class="caption" role="heading"><span class="caption-text">Contents</span></p>
-<ul class="current">
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="_static/ForMoSA.png" class="logo__image only-light" alt="ForMoSA 1.1.6 documentation - Home"/>
+    <script>document.write(`<img src="_static/ForMoSA.png" class="logo__image only-dark" alt="ForMoSA 1.1.6 documentation - Home"/>`);</script>
+  
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        <p aria-level="2" class="caption" role="heading"><span class="caption-text">Contents</span></p>
+<ul class="current nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="guidelines.html">Guidelines</a></li>
-<li class="toctree-l1 current"><a class="reference internal" href="api.html">ForMoSA API</a><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="main_utilities.html">Main Utilities</a></li>
-<li class="toctree-l2 current"><a class="current reference internal" href="#">Adapt the data</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#adapt-observations-and-models">Adapt Observations and Models:</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#adapt-grid">Adapt Grid:</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#extraction-functions">Extraction Functions:</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#emulators">Emulators:</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="guidelines.html">Guidelines</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="input_format/obs_format.html">Observation format</a></li>
+<li class="toctree-l2"><a class="reference internal" href="input_format/model_format.html">Grids format</a></li>
+<li class="toctree-l2"><a class="reference internal" href="input_format/config_format.html"><code class="docutils literal notranslate"><span class="pre">config.ini</span></code> format</a></li>
+<li class="toctree-l2"><a class="reference internal" href="demos/sinfoni/abpicb/end_to_end_abpicb.html">One medium-resolution spectrum : AB Pic b</a></li>
+<li class="toctree-l2"><a class="reference internal" href="demos/photo/vhs1256b/end_to_end_vhs1256b.html">Photometric points : VHS 1256 b</a></li>
 </ul>
-</li>
+</details></li>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="api.html">ForMoSA API</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="main_utilities.html">Main Utilities</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">Adapt the data</a></li>
 <li class="toctree-l2"><a class="reference internal" href="nested_sampling.html">Nested Sampling</a></li>
 <li class="toctree-l2"><a class="reference internal" href="plotting.html">Plotting Class</a></li>
 </ul>
-</li>
+</details></li>
 </ul>
 
-        </div>
-      </div>
-    </nav>
-
-    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
-          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-          <a href="index.html">ForMoSA</a>
-      </nav>
-
-      <div class="wy-nav-content">
-        <div class="rst-content">
-          <div role="navigation" aria-label="Page navigation">
-  <ul class="wy-breadcrumbs">
-      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
-          <li class="breadcrumb-item"><a href="api.html">ForMoSA API</a></li>
-      <li class="breadcrumb-item active">Adapt the data</li>
-      <li class="wy-breadcrumbs-aside">
-            <a href="_sources/adapt.rst.txt" rel="nofollow"> View page source</a>
-      </li>
-  </ul>
-  <hr/>
-</div>
-          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
-           <div itemprop="articleBody">
-             
-  <section id="adapt-the-data">
-<span id="adapt"></span><h1>Adapt the data<a class="headerlink" href="#adapt-the-data" title="Link to this heading"></a></h1>
-<section id="adapt-observations-and-models">
-<h2>Adapt Observations and Models:<a class="headerlink" href="#adapt-observations-and-models" title="Link to this heading"></a></h2>
-</section>
-<section id="adapt-grid">
-<h2>Adapt Grid:<a class="headerlink" href="#adapt-grid" title="Link to this heading"></a></h2>
-</section>
-<section id="extraction-functions">
-<h2>Extraction Functions:<a class="headerlink" href="#extraction-functions" title="Link to this heading"></a></h2>
-</section>
-<section id="emulators">
-<h2>Emulators:<a class="headerlink" href="#emulators" title="Link to this heading"></a></h2>
-</section>
-</section>
-
-
-           </div>
-          </div>
-          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="main_utilities.html" class="btn btn-neutral float-left" title="Main Utilities" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="nested_sampling.html" class="btn btn-neutral float-right" title="Nested Sampling" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
-
-  <hr/>
-
-  <div role="contentinfo">
-    <p>&#169; Copyright 2024, Simon Petrus, Paulina Palma-Bifani, Matthieu Ravet, Allan Denis, Mickaël Bonnefoy and Gaël Chauvin.</p>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
   </div>
+  
+  <div id="rtd-footer-container"></div>
 
-  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
-    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
-    provided by <a href="https://readthedocs.org">Read the Docs</a>.
-   
 
-</footer>
-        </div>
       </div>
-    </section>
-  </div>
-  <script>
-      jQuery(function () {
-          SphinxRtdTheme.Navigation.enable(true);
-      });
-  </script> 
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
 
-</body>
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-source-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Source repositories">
+    <i class="fab fa-github"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="https://github.com/exoAtmospheres/ForMoSA" target="_blank"
+   class="btn btn-sm btn-source-repository-button dropdown-item"
+   title="Source repository"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+<span class="btn__text-container">Repository</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li><a href="https://github.com/exoAtmospheres/ForMoSA/edit/main/docs/adapt.rst" target="_blank"
+   class="btn btn-sm btn-source-edit-button dropdown-item"
+   title="Suggest edit"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-pencil-alt"></i>
+  </span>
+<span class="btn__text-container">Suggest edit</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li><a href="https://github.com/exoAtmospheres/ForMoSA/issues/new?title=Issue%20on%20page%20%2Fadapt.html&body=Your%20issue%20content%20here." target="_blank"
+   class="btn btn-sm btn-source-issues-button dropdown-item"
+   title="Open an issue"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-lightbulb"></i>
+  </span>
+<span class="btn__text-container">Open issue</span>
+</a>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="_sources/adapt.rst" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.rst</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
+  </button>
+`);
+</script>
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm pst-navbar-icon search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+  </button>
+`);
+</script>
+<button class="sidebar-toggle secondary-toggle btn btn-sm" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>Adapt the data</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-ForMoSA.grid.model_grid">Model Grid:</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.grid.model_grid.ModelGrid"><code class="docutils literal notranslate"><span class="pre">ModelGrid</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.grid.model_grid.ModelGrid.from_file"><code class="docutils literal notranslate"><span class="pre">ModelGrid.from_file()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.grid.model_grid.ModelGrid.save_grid"><code class="docutils literal notranslate"><span class="pre">ModelGrid.save_grid()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-ForMoSA.grid.grid_loader">Grid Loader:</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.grid.grid_loader.GridLoader"><code class="docutils literal notranslate"><span class="pre">GridLoader</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-ForMoSA.grid.subgrid_base">Subgrid Base:</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.grid.subgrid_base.SubGrid"><code class="docutils literal notranslate"><span class="pre">SubGrid</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.grid.subgrid_base.SubGrid.adapt_grid"><code class="docutils literal notranslate"><span class="pre">SubGrid.adapt_grid()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.grid.subgrid_base.SubGrid.evaluate_at_gridpoints"><code class="docutils literal notranslate"><span class="pre">SubGrid.evaluate_at_gridpoints()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.grid.subgrid_base.SubGrid.from_dataset"><code class="docutils literal notranslate"><span class="pre">SubGrid.from_dataset()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.grid.subgrid_base.SubGrid.from_file"><code class="docutils literal notranslate"><span class="pre">SubGrid.from_file()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-ForMoSA.grid.subgrid_set">Subgrid Set:</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.grid.subgrid_set.SubGridSet"><code class="docutils literal notranslate"><span class="pre">SubGridSet</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.grid.subgrid_set.SubGridSet.add_subgrid"><code class="docutils literal notranslate"><span class="pre">SubGridSet.add_subgrid()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.grid.subgrid_set.SubGridSet.from_path"><code class="docutils literal notranslate"><span class="pre">SubGridSet.from_path()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.grid.subgrid_set.SubGridSet.interpolate_all"><code class="docutils literal notranslate"><span class="pre">SubGridSet.interpolate_all()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.grid.subgrid_set.SubGridSet.save_all"><code class="docutils literal notranslate"><span class="pre">SubGridSet.save_all()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-ForMoSA.grid.subgrid_spectroscopy">Spectroscopic Subgrid:</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.grid.subgrid_spectroscopy.SubGridSpectroscopy"><code class="docutils literal notranslate"><span class="pre">SubGridSpectroscopy</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.grid.subgrid_spectroscopy.SubGridSpectroscopy.adapt"><code class="docutils literal notranslate"><span class="pre">SubGridSpectroscopy.adapt()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.grid.subgrid_spectroscopy.SubGridSpectroscopy.from_grid"><code class="docutils literal notranslate"><span class="pre">SubGridSpectroscopy.from_grid()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.grid.subgrid_spectroscopy.SubGridSpectroscopy.from_parent"><code class="docutils literal notranslate"><span class="pre">SubGridSpectroscopy.from_parent()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-ForMoSA.grid.subgrid_photometry">Photometric Subgrid:</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.grid.subgrid_photometry.SubGridPhotometry"><code class="docutils literal notranslate"><span class="pre">SubGridPhotometry</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.grid.subgrid_photometry.SubGridPhotometry.adapt"><code class="docutils literal notranslate"><span class="pre">SubGridPhotometry.adapt()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.grid.subgrid_photometry.SubGridPhotometry.from_grid"><code class="docutils literal notranslate"><span class="pre">SubGridPhotometry.from_grid()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.grid.subgrid_photometry.SubGridPhotometry.from_parent"><code class="docutils literal notranslate"><span class="pre">SubGridPhotometry.from_parent()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.grid.subgrid_photometry.SubGridPhotometry.integrate_filter_curve"><code class="docutils literal notranslate"><span class="pre">SubGridPhotometry.integrate_filter_curve()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-ForMoSA.transform.observed">Observed Model:</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.transform.observed.ObservedModel"><code class="docutils literal notranslate"><span class="pre">ObservedModel</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.transform.observed.ObservedModel.copy"><code class="docutils literal notranslate"><span class="pre">ObservedModel.copy()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.transform.observed.ObservedModel.from_grid_and_params"><code class="docutils literal notranslate"><span class="pre">ObservedModel.from_grid_and_params()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.transform.observed.ObservedModel.residuals"><code class="docutils literal notranslate"><span class="pre">ObservedModel.residuals()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.transform.observed.ObservedModel.std_residuals"><code class="docutils literal notranslate"><span class="pre">ObservedModel.std_residuals()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.transform.observed.ObservedParameters"><code class="docutils literal notranslate"><span class="pre">ObservedParameters</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.transform.observed.ObservedParameters.get_kind"><code class="docutils literal notranslate"><span class="pre">ObservedParameters.get_kind()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.transform.observed.ObservedParameters.get_name"><code class="docutils literal notranslate"><span class="pre">ObservedParameters.get_name()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.transform.observed.ObservedParameters.has_kind"><code class="docutils literal notranslate"><span class="pre">ObservedParameters.has_kind()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.transform.observed.ObservedParameters.has_name"><code class="docutils literal notranslate"><span class="pre">ObservedParameters.has_name()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.transform.observed.ObservedParameters.require"><code class="docutils literal notranslate"><span class="pre">ObservedParameters.require()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-ForMoSA.transform.apply_effects">Apply Effects:</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.transform.apply_effects.ApplyPhysicsEffects"><code class="docutils literal notranslate"><span class="pre">ApplyPhysicsEffects</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-ForMoSA.transform.spectroscopic_effects">Spectroscopic Effects:</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.transform.spectroscopic_effects.SpectralEffects"><code class="docutils literal notranslate"><span class="pre">SpectralEffects</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-ForMoSA.transform.photometric_effects">Photometric Effects:</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.transform.photometric_effects.PhotometricEffects"><code class="docutils literal notranslate"><span class="pre">PhotometricEffects</span></code></a></li>
+</ul>
+</li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="adapt-the-data">
+<span id="adapt"></span><h1>Adapt the data<a class="headerlink" href="#adapt-the-data" title="Link to this heading">#</a></h1>
+<section id="module-ForMoSA.grid.model_grid">
+<span id="model-grid"></span><h2>Model Grid:<a class="headerlink" href="#module-ForMoSA.grid.model_grid" title="Link to this heading">#</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="ForMoSA.grid.model_grid.ModelGrid">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">ForMoSA.grid.model_grid.</span></span><span class="sig-name descname"><span class="pre">ModelGrid</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dataset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dataset</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">PathLike</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logger</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Logger</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_level</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'INFO'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">display_unit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">WavelengthUnit</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">WavelengthUnit.MICROMETER</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ForMoSA/grid/model_grid.html#ModelGrid"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ForMoSA.grid.model_grid.ModelGrid" title="Link to this definition">#</a></dt>
+<dd><p>Representation of a model grid with metadata.
+Handles loading from file and exposing basic properties.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>path</strong> (<em>str</em><em> | </em><em>Path</em>) – Path to the model grid file</p></li>
+<li><p><strong>logger</strong> (<em>logging.Logger</em>) – Logger instance for logging</p></li>
+<li><p><strong>log_level</strong> (<em>str</em>) – Level of the logger</p></li>
+<li><p><strong>display_unit</strong> (<em>WavelengthUnit</em>) – Unit of the wavelength to display</p></li>
+<li><p><strong>Authors</strong></p></li>
+<li><p><strong>-------</strong></p></li>
+<li><p><strong>Denis</strong> (<em>Allan</em>)</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="ForMoSA.grid.model_grid.ModelGrid.from_file">
+<span class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">from_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">PathLike</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logger</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Logger</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_level</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'INFO'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">display_unit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">WavelengthUnit</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">WavelengthUnit.MICROMETER</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ForMoSA/grid/model_grid.html#ModelGrid.from_file"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ForMoSA.grid.model_grid.ModelGrid.from_file" title="Link to this definition">#</a></dt>
+<dd><p>Generate grid from file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>path</strong> (<em>str</em><em> | </em><em>os.PathLike</em>) – Path to the grid</p></li>
+<li><p><strong>logger</strong> (<em>logging.Logger</em>) – Logger instance for logging</p></li>
+<li><p><strong>log_level</strong> (<em>str</em>) – Level of the logger</p></li>
+<li><p><strong>display_unit</strong> (<em>WavelengthUnit</em>) – Unit of the wavelength to display</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Instance of :class:~ModelGrid</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#ForMoSA.grid.model_grid.ModelGrid" title="ForMoSA.grid.model_grid.ModelGrid">ModelGrid</a></p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">grid</span> <span class="o">=</span> <span class="n">ModelGrid</span><span class="o">.</span><span class="n">_from_file</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+</pre></div>
+</div>
+<section id="authors">
+<h3>Authors<a class="headerlink" href="#authors" title="Link to this heading">#</a></h3>
+<p>Allan Denis</p>
+</section>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ForMoSA.grid.model_grid.ModelGrid.save_grid">
+<span class="sig-name descname"><span class="pre">save_grid</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">store_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">PathLike</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/ForMoSA/grid/model_grid.html#ModelGrid.save_grid"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ForMoSA.grid.model_grid.ModelGrid.save_grid" title="Link to this definition">#</a></dt>
+<dd><p>Save the grid to a specified directory.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>store_path</strong> (<em>str</em><em> | </em><em>os.PathLike</em>) – Path where to store the grid</p></li>
+<li><p><strong>Authors</strong></p></li>
+<li><p><strong>-------</strong></p></li>
+<li><p><strong>Petrus</strong> (<em>Simon</em>)</p></li>
+<li><p><strong>Palma-Bifani</strong> (<em>Paulina</em>)</p></li>
+<li><p><strong>Denis</strong> (<em>Matthieu Ravet and Allan</em>)</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-ForMoSA.grid.grid_loader">
+<span id="grid-loader"></span><h2>Grid Loader:<a class="headerlink" href="#module-ForMoSA.grid.grid_loader" title="Link to this heading">#</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="ForMoSA.grid.grid_loader.GridLoader">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">ForMoSA.grid.grid_loader.</span></span><span class="sig-name descname"><span class="pre">GridLoader</span></span><a class="reference internal" href="_modules/ForMoSA/grid/grid_loader.html#GridLoader"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ForMoSA.grid.grid_loader.GridLoader" title="Link to this definition">#</a></dt>
+<dd><p>Class responsible for Grid loading.</p>
+<section id="id1">
+<h3>Authors<a class="headerlink" href="#id1" title="Link to this heading">#</a></h3>
+<p>Allan Denis</p>
+</section>
+</dd></dl>
+
+</section>
+<section id="module-ForMoSA.grid.subgrid_base">
+<span id="subgrid-base"></span><h2>Subgrid Base:<a class="headerlink" href="#module-ForMoSA.grid.subgrid_base" title="Link to this heading">#</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="ForMoSA.grid.subgrid_base.SubGrid">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">ForMoSA.grid.subgrid_base.</span></span><span class="sig-name descname"><span class="pre">SubGrid</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">grid</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dataset</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parent_grid</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#ForMoSA.grid.model_grid.ModelGrid" title="ForMoSA.grid.model_grid.ModelGrid"><span class="pre">ModelGrid</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">logger</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Logger</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_level</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'INFO'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'Unknown'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">display_unit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">WavelengthUnit</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">WavelengthUnit.MICROMETER</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ForMoSA/grid/subgrid_base.html#SubGrid"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ForMoSA.grid.subgrid_base.SubGrid" title="Link to this definition">#</a></dt>
+<dd><p>Base class for any subgrid (spectroscopic or photometric). Inherits from the ModelGrid class.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>grid</strong> (<em>xr.Dataset</em>) – Grid</p></li>
+<li><p><strong>parent_grid</strong> (<a class="reference internal" href="#ForMoSA.grid.model_grid.ModelGrid" title="ForMoSA.grid.model_grid.ModelGrid"><em>ModelGrid</em></a>) – Parent model grid</p></li>
+<li><p><strong>target_resolution</strong> (<em>str</em><em> | </em><em>float</em>) – Target resolution to reach for the model (‘obs’, ‘mod’ or float)</p></li>
+<li><p><strong>logger</strong> (<em>logging.Logger</em><em> | </em><em>None</em>) – Logger</p></li>
+<li><p><strong>log_level</strong> (<em>str</em>) – Level of the Logger</p></li>
+<li><p><strong>name</strong> (<em>str</em>) – Name of the subgrid</p></li>
+<li><p><strong>display_unit</strong> (<em>WavelengthUnit</em>) – Unit of the wavelength</p></li>
+<li><p><strong>Authors</strong></p></li>
+<li><p><strong>-------</strong></p></li>
+<li><p><strong>Denis</strong> (<em>Allan</em>)</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="ForMoSA.grid.subgrid_base.SubGrid.adapt_grid">
+<span class="sig-name descname"><span class="pre">adapt_grid</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/ForMoSA/grid/subgrid_base.html#SubGrid.adapt_grid"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ForMoSA.grid.subgrid_base.SubGrid.adapt_grid" title="Link to this definition">#</a></dt>
+<dd><p>Adapt the entire grid to the observation.</p>
+<section id="id2">
+<h3>Authors<a class="headerlink" href="#id2" title="Link to this heading">#</a></h3>
+<p>Arthur Vigan and Allan Denis</p>
+</section>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ForMoSA.grid.subgrid_base.SubGrid.evaluate_at_gridpoints">
+<span class="sig-name descname"><span class="pre">evaluate_at_gridpoints</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">grid_params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#ForMoSA.transform.observed.ObservedParameters" title="ForMoSA.transform.observed.ObservedParameters"><span class="pre">ObservedParameters</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">interp_method</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'linear'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#ForMoSA.transform.observed.ObservedModel" title="ForMoSA.transform.observed.ObservedModel"><span class="pre">ObservedModel</span></a></span></span><a class="reference internal" href="_modules/ForMoSA/grid/subgrid_base.html#SubGrid.evaluate_at_gridpoints"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ForMoSA.grid.subgrid_base.SubGrid.evaluate_at_gridpoints" title="Link to this definition">#</a></dt>
+<dd><p>Evaluate model given a list of parameters and their associated values.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>params</strong> (<em>Dict</em><em>[</em><em>Parameter</em><em>, </em><em>float</em><em>]</em>) – Dictionary of grid parameters and their associated values</p></li>
+<li><p><strong>interp_method</strong> (<em>str</em>) – Interpolation method</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>observed_model</strong> (<em>ObservedModel</em>) – Instance of class ObservedModel</p></li>
+<li><p><em>Authors</em></p></li>
+<li><p><em>——-</em></p></li>
+<li><p><em>Allan Denis</em></p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ForMoSA.grid.subgrid_base.SubGrid.from_dataset">
+<span class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">from_dataset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ds</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dataset</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parent_grid</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#ForMoSA.grid.model_grid.ModelGrid" title="ForMoSA.grid.model_grid.ModelGrid"><span class="pre">ModelGrid</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">logger</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Logger</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_level</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'INFO'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">display_unit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">WavelengthUnit</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">WavelengthUnit.MICROMETER</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#ForMoSA.grid.subgrid_base.SubGrid" title="ForMoSA.grid.subgrid_base.SubGrid"><span class="pre">SubGrid</span></a></span></span><a class="reference internal" href="_modules/ForMoSA/grid/subgrid_base.html#SubGrid.from_dataset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ForMoSA.grid.subgrid_base.SubGrid.from_dataset" title="Link to this definition">#</a></dt>
+<dd><p>Generate SubGrid from dataset.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ds</strong> (<em>xr.Dataset</em>) – Dataset containing the parameters of the subgrid</p></li>
+<li><p><strong>parent_grid</strong> (<a class="reference internal" href="#ForMoSA.grid.model_grid.ModelGrid" title="ForMoSA.grid.model_grid.ModelGrid"><em>ModelGrid</em></a>) – Parent model grid</p></li>
+<li><p><strong>logger</strong> (<em>logging.Logger</em>) – Logger</p></li>
+<li><p><strong>log_level</strong> (<em>str</em>) – Level of the Logger</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><em>‘SubGrid’</em> – An instance of class SubGrid</p></li>
+<li><p><em>Authors</em></p></li>
+<li><p><em>——-</em></p></li>
+<li><p><em>Allan Denis</em></p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ForMoSA.grid.subgrid_base.SubGrid.from_file">
+<span class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">from_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">PathLike</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parent_grid</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#ForMoSA.grid.model_grid.ModelGrid" title="ForMoSA.grid.model_grid.ModelGrid"><span class="pre">ModelGrid</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">logger</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Logger</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_level</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'INFO'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">display_unit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">WavelengthUnit</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">WavelengthUnit.MICROMETER</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#ForMoSA.grid.subgrid_base.SubGrid" title="ForMoSA.grid.subgrid_base.SubGrid"><span class="pre">SubGrid</span></a></span></span><a class="reference internal" href="_modules/ForMoSA/grid/subgrid_base.html#SubGrid.from_file"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ForMoSA.grid.subgrid_base.SubGrid.from_file" title="Link to this definition">#</a></dt>
+<dd><p>Generate SubGrid from file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>path</strong> (<em>str</em><em> | </em><em>os.PathLike</em>) – Path to the .nc file</p></li>
+<li><p><strong>parent_grid</strong> (<a class="reference internal" href="#ForMoSA.grid.model_grid.ModelGrid" title="ForMoSA.grid.model_grid.ModelGrid"><em>ModelGrid</em></a>) – Parent model grid</p></li>
+<li><p><strong>logger</strong> (<em>logging.Logger</em>) – Logger</p></li>
+<li><p><strong>log_level</strong> (<em>str</em>) – Level of the Logger</p></li>
+<li><p><strong>display_unit</strong> (<em>WavelengthUnit</em>) – Unit to display for wavelength</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><em>‘SubGrid’</em> – An instance of class SubGrid</p></li>
+<li><p><em>Authors</em></p></li>
+<li><p><em>——-</em></p></li>
+<li><p><em>Allan Denis</em></p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-ForMoSA.grid.subgrid_set">
+<span id="subgrid-set"></span><h2>Subgrid Set:<a class="headerlink" href="#module-ForMoSA.grid.subgrid_set" title="Link to this heading">#</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="ForMoSA.grid.subgrid_set.SubGridSet">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">ForMoSA.grid.subgrid_set.</span></span><span class="sig-name descname"><span class="pre">SubGridSet</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parent_grid</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#ForMoSA.grid.model_grid.ModelGrid" title="ForMoSA.grid.model_grid.ModelGrid"><span class="pre">ModelGrid</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">logger</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Logger</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_level</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'INFO'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ForMoSA/grid/subgrid_set.html#SubGridSet"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ForMoSA.grid.subgrid_set.SubGridSet" title="Link to this definition">#</a></dt>
+<dd><p>Container for a set of subgrids (spectroscopic or photometric).</p>
+<p>Can be initialized empty or directly from an ObservationSet.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>parent_grid</strong> (<a class="reference internal" href="#ForMoSA.grid.model_grid.ModelGrid" title="ForMoSA.grid.model_grid.ModelGrid"><em>ModelGrid</em></a>) – Parent model grid</p></li>
+<li><p><strong>logger</strong> (<em>logging.Logger</em><em> | </em><em>None</em>) – Logger</p></li>
+<li><p><strong>log_level</strong> (<em>str</em>) – Logger level</p></li>
+<li><p><strong>Authors</strong></p></li>
+<li><p><strong>-------</strong></p></li>
+<li><p><strong>Denis</strong> (<em>Allan</em>)</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="ForMoSA.grid.subgrid_set.SubGridSet.add_subgrid">
+<span class="sig-name descname"><span class="pre">add_subgrid</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/ForMoSA/grid/subgrid_set.html#SubGridSet.add_subgrid"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ForMoSA.grid.subgrid_set.SubGridSet.add_subgrid" title="Link to this definition">#</a></dt>
+<dd><p>Add a subgrid to the set based on the type of data provided.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>args</strong> – <ul>
+<li><p>If a SubGrid object is provided, directly add it</p></li>
+<li><p>If a <cite>.nc</cite> file is provided, provide a single argument (str | Path)</p></li>
+<li><p>If an xr.Dataset is provided, provide a single argument</p></li>
+</ul>
+</p></li>
+<li><p><strong>Authors</strong></p></li>
+<li><p><strong>-------</strong></p></li>
+<li><p><strong>Denis</strong> (<em>Allan</em>)</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ForMoSA.grid.subgrid_set.SubGridSet.from_path">
+<span class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">from_path</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">PathLike</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parent_grid</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#ForMoSA.grid.model_grid.ModelGrid" title="ForMoSA.grid.model_grid.ModelGrid"><span class="pre">ModelGrid</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">logger</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Logger</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_level</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'INFO'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#ForMoSA.grid.subgrid_set.SubGridSet" title="ForMoSA.grid.subgrid_set.SubGridSet"><span class="pre">SubGridSet</span></a></span></span><a class="reference internal" href="_modules/ForMoSA/grid/subgrid_set.html#SubGridSet.from_path"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ForMoSA.grid.subgrid_set.SubGridSet.from_path" title="Link to this definition">#</a></dt>
+<dd><p>Generate an instance of SubGridSet from the folder containing all the subgrids.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>path</strong> (<em>str</em><em> | </em><em>os.PathLike</em>) – Path containing the subgrids</p></li>
+<li><p><strong>parent_grid</strong> (<a class="reference internal" href="#ForMoSA.grid.model_grid.ModelGrid" title="ForMoSA.grid.model_grid.ModelGrid"><em>ModelGrid</em></a>) – Instance of ModelGrid corresponding to the parent grid</p></li>
+<li><p><strong>logger</strong> (<em>logging.Logger</em>) – Logger</p></li>
+<li><p><strong>log_level</strong> (<em>str</em>) – Level of the Logger</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><em>“SubGridSet”</em> – Instance of SubGridSet</p></li>
+<li><p><em>Authors</em></p></li>
+<li><p><em>——-</em></p></li>
+<li><p><em>Allan Denis</em></p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ForMoSA.grid.subgrid_set.SubGridSet.interpolate_all">
+<span class="sig-name descname"><span class="pre">interpolate_all</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">method</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/ForMoSA/grid/subgrid_set.html#SubGridSet.interpolate_all"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ForMoSA.grid.subgrid_set.SubGridSet.interpolate_all" title="Link to this definition">#</a></dt>
+<dd><p>Interpolate missing values of all the subgrids.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>method</strong> (<em>str</em>) – Interpolation method</p></li>
+<li><p><strong>Authors</strong></p></li>
+<li><p><strong>-------</strong></p></li>
+<li><p><strong>Denis</strong> (<em>Allan</em>)</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ForMoSA.grid.subgrid_set.SubGridSet.save_all">
+<span class="sig-name descname"><span class="pre">save_all</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">PathLike</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/ForMoSA/grid/subgrid_set.html#SubGridSet.save_all"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ForMoSA.grid.subgrid_set.SubGridSet.save_all" title="Link to this definition">#</a></dt>
+<dd><p>Save all the grids of the set of subgrids to the directort store_path.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>store_path</strong> (<em>str</em><em> | </em><em>os.PathLike</em>) – Directory where to save the subgrids</p></li>
+<li><p><strong>Authors</strong></p></li>
+<li><p><strong>-------</strong></p></li>
+<li><p><strong>Denis</strong> (<em>Allan</em>)</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-ForMoSA.grid.subgrid_spectroscopy">
+<span id="spectroscopic-subgrid"></span><h2>Spectroscopic Subgrid:<a class="headerlink" href="#module-ForMoSA.grid.subgrid_spectroscopy" title="Link to this heading">#</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="ForMoSA.grid.subgrid_spectroscopy.SubGridSpectroscopy">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">ForMoSA.grid.subgrid_spectroscopy.</span></span><span class="sig-name descname"><span class="pre">SubGridSpectroscopy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">grid</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dataset</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parent_grid</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#ForMoSA.grid.model_grid.ModelGrid" title="ForMoSA.grid.model_grid.ModelGrid"><span class="pre">ModelGrid</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">remove_continuum</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wave_cont</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">res_cont</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logger</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Logger</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_level</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'INFO'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">display_unit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">WavelengthUnit</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">WavelengthUnit.MICROMETER</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'Unknown'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ForMoSA/grid/subgrid_spectroscopy.html#SubGridSpectroscopy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ForMoSA.grid.subgrid_spectroscopy.SubGridSpectroscopy" title="Link to this definition">#</a></dt>
+<dd><p>Spectral subgrid class, which implements adaptation to a specific wavelength and resolution.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>grid</strong> (<em>xr.Dataset</em>) – Grid</p></li>
+<li><p><strong>parent_grid</strong> (<a class="reference internal" href="#ForMoSA.grid.model_grid.ModelGrid" title="ForMoSA.grid.model_grid.ModelGrid"><em>ModelGrid</em></a>) – Parent model grid</p></li>
+<li><p><strong>remove_continuum</strong> (<em>bool</em>) – Whether to remove the continuum</p></li>
+<li><p><strong>wave_cont</strong> (<em>str</em>) – Wavelengths for continuum removal (‘window1 / window2 / windw3 / …’ where window{i} = ‘wave{i}, wave{i+1}’)</p></li>
+<li><p><strong>res_cont</strong> (<em>float</em>) – Resolutions for continuum removal</p></li>
+<li><p><strong>logger</strong> (<em>logging.Logger</em>) – Logger</p></li>
+<li><p><strong>log_level</strong> (<em>str</em>) – Level of the logger</p></li>
+<li><p><strong>name</strong> (<em>str</em>) – Name of the subgrid</p></li>
+<li><p><strong>Authors</strong></p></li>
+<li><p><strong>-------</strong></p></li>
+<li><p><strong>Denis</strong> (<em>Allan</em>)</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="ForMoSA.grid.subgrid_spectroscopy.SubGridSpectroscopy.adapt">
+<span class="sig-name descname"><span class="pre">adapt</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/ForMoSA/grid/subgrid_spectroscopy.html#SubGridSpectroscopy.adapt"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ForMoSA.grid.subgrid_spectroscopy.SubGridSpectroscopy.adapt" title="Link to this definition">#</a></dt>
+<dd><p>Adapt the native grid to the target wavelength and resolution. Optionally remove the continuum.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ForMoSA.grid.subgrid_spectroscopy.SubGridSpectroscopy.from_grid">
+<span class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">from_grid</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ds</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dataset</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parent_grid</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#ForMoSA.grid.model_grid.ModelGrid" title="ForMoSA.grid.model_grid.ModelGrid"><span class="pre">ModelGrid</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">logger</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Logger</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_level</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'INFO'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">display_unit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">WavelengthUnit</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">WavelengthUnit.MICROMETER</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#ForMoSA.grid.subgrid_spectroscopy.SubGridSpectroscopy" title="ForMoSA.grid.subgrid_spectroscopy.SubGridSpectroscopy"><span class="pre">SubGridSpectroscopy</span></a></span></span><a class="reference internal" href="_modules/ForMoSA/grid/subgrid_spectroscopy.html#SubGridSpectroscopy.from_grid"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ForMoSA.grid.subgrid_spectroscopy.SubGridSpectroscopy.from_grid" title="Link to this definition">#</a></dt>
+<dd><p>Retrieve spectorscopic subgrid from grid.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>dx</strong> (<em>xr.Dataset</em>) – Grid data</p></li>
+<li><p><strong>parent_grid</strong> (<a class="reference internal" href="#ForMoSA.grid.model_grid.ModelGrid" title="ForMoSA.grid.model_grid.ModelGrid"><em>ModelGrid</em></a>) – Instance of ModelGrid</p></li>
+<li><p><strong>logger</strong> (<em>logging.Logger</em><em> | </em><em>None</em>) – Logger</p></li>
+<li><p><strong>log_level</strong> (<em>str</em>) – Level of the Logger</p></li>
+<li><p><strong>display_unit</strong> (<em>WavelengthUnit</em>) – Unit to display for the wavelength</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Instance of SubGridSpectroscopy</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#ForMoSA.grid.subgrid_spectroscopy.SubGridSpectroscopy" title="ForMoSA.grid.subgrid_spectroscopy.SubGridSpectroscopy">SubGridSpectroscopy</a></p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">subgrid</span> <span class="o">=</span> <span class="n">SubGridSpectroscopy</span><span class="o">.</span><span class="n">from_grid</span><span class="p">(</span><span class="n">grid</span><span class="p">,</span> <span class="n">parent_grid</span><span class="p">,</span> <span class="n">logger</span><span class="p">,</span> <span class="n">log_level</span><span class="p">,</span> <span class="n">display_unit</span><span class="p">)</span>
+</pre></div>
+</div>
+<section id="id3">
+<h3>Authors<a class="headerlink" href="#id3" title="Link to this heading">#</a></h3>
+<p>Allan Denis</p>
+</section>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ForMoSA.grid.subgrid_spectroscopy.SubGridSpectroscopy.from_parent">
+<span class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">from_parent</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parent_grid</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#ForMoSA.grid.model_grid.ModelGrid" title="ForMoSA.grid.model_grid.ModelGrid"><span class="pre">ModelGrid</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_wavelength</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_resolution</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">remove_continuum</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wave_cont</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">res_cont</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'unknown'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logger</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Logger</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_level</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'INFO'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">display_unit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">WavelengthUnit</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">WavelengthUnit.MICROMETER</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#ForMoSA.grid.subgrid_spectroscopy.SubGridSpectroscopy" title="ForMoSA.grid.subgrid_spectroscopy.SubGridSpectroscopy"><span class="pre">SubGridSpectroscopy</span></a></span></span><a class="reference internal" href="_modules/ForMoSA/grid/subgrid_spectroscopy.html#SubGridSpectroscopy.from_parent"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ForMoSA.grid.subgrid_spectroscopy.SubGridSpectroscopy.from_parent" title="Link to this definition">#</a></dt>
+<dd><p>Build spectroscopic subgrid from the parent grid, target_wavelength.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>parent_grid</strong> (<a class="reference internal" href="#ForMoSA.grid.model_grid.ModelGrid" title="ForMoSA.grid.model_grid.ModelGrid"><em>ModelGrid</em></a>) – Instance of ModelGrid</p></li>
+<li><p><strong>target_wavelength</strong> (<em>np.ndarray</em>) – Target wavelength to reach for the subgrid</p></li>
+<li><p><strong>target_resolution</strong> (<em>np.ndarray</em>) – Target resolution to reach for the subgrid</p></li>
+<li><p><strong>remove_continuum</strong> (<em>bool</em>) – Whether to remove the continuum</p></li>
+<li><p><strong>wave_cont</strong> (<em>str</em><em> | </em><em>None</em>) – Wavelengths used for the continuum</p></li>
+<li><p><strong>res_cont</strong> (<em>float</em><em> | </em><em>None</em>) – Resolution used for the continuum</p></li>
+<li><p><strong>name</strong> (<em>str</em>) – Name of the subgrid</p></li>
+<li><p><strong>logger</strong> (<em>logging.Logger</em><em> | </em><em>None</em>) – Logger</p></li>
+<li><p><strong>log_level</strong> (<em>str</em>) – Level of the Logger</p></li>
+<li><p><strong>display_unit</strong> (<em>WavelengthUnit</em>) – Unit to display for the wavelength</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Instance of SubGridSpectroscopy</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>SubGridSPectroscopy</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">subgrid</span> <span class="o">=</span> <span class="n">SubGridSpectroscopy</span><span class="o">.</span><span class="n">from_parent</span><span class="p">(</span><span class="n">parent_grid</span><span class="p">,</span> <span class="n">target_wavelength</span><span class="p">,</span> <span class="n">target_resolution</span> <span class="n">remove_continuum</span><span class="p">,</span> <span class="n">wave_cont</span><span class="p">,</span> <span class="n">res_cont</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">logger</span><span class="p">,</span> <span class="n">log_level</span><span class="p">,</span> <span class="n">display_unit</span><span class="p">)</span>
+</pre></div>
+</div>
+<section id="id4">
+<h3>Authors<a class="headerlink" href="#id4" title="Link to this heading">#</a></h3>
+<p>Allan Denis</p>
+</section>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-ForMoSA.grid.subgrid_photometry">
+<span id="photometric-subgrid"></span><h2>Photometric Subgrid:<a class="headerlink" href="#module-ForMoSA.grid.subgrid_photometry" title="Link to this heading">#</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="ForMoSA.grid.subgrid_photometry.SubGridPhotometry">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">ForMoSA.grid.subgrid_photometry.</span></span><span class="sig-name descname"><span class="pre">SubGridPhotometry</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">grid</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dataset</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parent_grid</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#ForMoSA.grid.model_grid.ModelGrid" title="ForMoSA.grid.model_grid.ModelGrid"><span class="pre">ModelGrid</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">Filter</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span><span class="p"><span class="pre">[</span></span><span class="pre">PhotometryFilter</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logger</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Logger</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_level</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'INFO'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">display_unit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">WavelengthUnit</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">WavelengthUnit.MICROMETER</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'Unknown'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ForMoSA/grid/subgrid_photometry.html#SubGridPhotometry"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ForMoSA.grid.subgrid_photometry.SubGridPhotometry" title="Link to this definition">#</a></dt>
+<dd><p>Photometric subgrid class, which implements adaptation to a specific filter.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>parent_grid</strong> (<a class="reference internal" href="#ForMoSA.grid.model_grid.ModelGrid" title="ForMoSA.grid.model_grid.ModelGrid"><em>ModelGrid</em></a>) – Parent model grid</p></li>
+<li><p><strong>Filter</strong> (<em>np.ndarray</em><em>[</em><em>PhotometryFilter</em><em>]</em>) – Instance of :class:~PhotometryFilter corresponding to the photometric filter</p></li>
+<li><p><strong>logger</strong> (<em>logging.Logger</em>) – Logger</p></li>
+<li><p><strong>log_level</strong> (<em>str</em>) – Level of the logger</p></li>
+<li><p><strong>name</strong> (<em>str</em>) – Name of the subgrid</p></li>
+<li><p><strong>Authors</strong></p></li>
+<li><p><strong>-------</strong></p></li>
+<li><p><strong>Denis</strong> (<em>Allan</em>)</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="ForMoSA.grid.subgrid_photometry.SubGridPhotometry.adapt">
+<span class="sig-name descname"><span class="pre">adapt</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/ForMoSA/grid/subgrid_photometry.html#SubGridPhotometry.adapt"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ForMoSA.grid.subgrid_photometry.SubGridPhotometry.adapt" title="Link to this definition">#</a></dt>
+<dd><p>Adapt the native grid to the target wavelength and resolution.</p>
+<section id="id5">
+<h3>Authors<a class="headerlink" href="#id5" title="Link to this heading">#</a></h3>
+<p>Allan Denis</p>
+</section>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ForMoSA.grid.subgrid_photometry.SubGridPhotometry.from_grid">
+<span class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">from_grid</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ds</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dataset</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parent_grid</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#ForMoSA.grid.model_grid.ModelGrid" title="ForMoSA.grid.model_grid.ModelGrid"><span class="pre">ModelGrid</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">logger</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Logger</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_level</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'INFO'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">display_unit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">WavelengthUnit</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">WavelengthUnit.MICROMETER</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#ForMoSA.grid.subgrid_photometry.SubGridPhotometry" title="ForMoSA.grid.subgrid_photometry.SubGridPhotometry"><span class="pre">SubGridPhotometry</span></a></span></span><a class="reference internal" href="_modules/ForMoSA/grid/subgrid_photometry.html#SubGridPhotometry.from_grid"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ForMoSA.grid.subgrid_photometry.SubGridPhotometry.from_grid" title="Link to this definition">#</a></dt>
+<dd><p>Retrieve photometric subgrid from grid.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>dx</strong> (<em>xr.Dataset</em>) – Grid data</p></li>
+<li><p><strong>parent_grid</strong> (<a class="reference internal" href="#ForMoSA.grid.model_grid.ModelGrid" title="ForMoSA.grid.model_grid.ModelGrid"><em>ModelGrid</em></a>) – Instance of ModelGrid</p></li>
+<li><p><strong>logger</strong> (<em>logging.Logger</em><em> | </em><em>None</em>) – Logger</p></li>
+<li><p><strong>log_level</strong> (<em>str</em>) – Level of the Logger</p></li>
+<li><p><strong>display_unit</strong> (<em>WavelengthUnit</em>) – Unit to display for the wavelength</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Instance of SubGridPhotometry</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#ForMoSA.grid.subgrid_photometry.SubGridPhotometry" title="ForMoSA.grid.subgrid_photometry.SubGridPhotometry">SubGridPhotometry</a></p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">subgrid</span> <span class="o">=</span> <span class="n">SubGridPhotometry</span><span class="o">.</span><span class="n">from_grid</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">parent_grid</span><span class="p">,</span> <span class="n">logger</span><span class="p">,</span> <span class="n">log_level</span><span class="p">,</span> <span class="n">display_unit</span><span class="p">)</span>
+</pre></div>
+</div>
+<section id="id6">
+<h3>Authors<a class="headerlink" href="#id6" title="Link to this heading">#</a></h3>
+<p>Allan Denis</p>
+</section>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ForMoSA.grid.subgrid_photometry.SubGridPhotometry.from_parent">
+<span class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">from_parent</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parent_grid</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#ForMoSA.grid.model_grid.ModelGrid" title="ForMoSA.grid.model_grid.ModelGrid"><span class="pre">ModelGrid</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">Filter</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span><span class="p"><span class="pre">[</span></span><span class="pre">PhotometryFilter</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'unknown'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logger</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Logger</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_level</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'INFO'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">display_unit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">WavelengthUnit</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">WavelengthUnit.MICROMETER</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#ForMoSA.grid.subgrid_photometry.SubGridPhotometry" title="ForMoSA.grid.subgrid_photometry.SubGridPhotometry"><span class="pre">SubGridPhotometry</span></a></span></span><a class="reference internal" href="_modules/ForMoSA/grid/subgrid_photometry.html#SubGridPhotometry.from_parent"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ForMoSA.grid.subgrid_photometry.SubGridPhotometry.from_parent" title="Link to this definition">#</a></dt>
+<dd><p>Build Photometric subgrid from the parent grid, target_wavelength.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>parent_grid</strong> (<a class="reference internal" href="#ForMoSA.grid.model_grid.ModelGrid" title="ForMoSA.grid.model_grid.ModelGrid"><em>ModelGrid</em></a>) – Instance of ModelGrid</p></li>
+<li><p><strong>Filter</strong> (<em>np.ndarray</em><em>[</em><em>PhotometryFilter</em><em>]</em>) – Arrays containing instances of class PhotometryFilter corresponding to the photometric filter</p></li>
+<li><p><strong>name</strong> (<em>str</em>) – Name of the subgrid</p></li>
+<li><p><strong>logger</strong> (<em>logging.Logger</em><em> | </em><em>None</em>) – Logger</p></li>
+<li><p><strong>log_level</strong> (<em>str</em>) – Level of the Logger</p></li>
+<li><p><strong>display_unit</strong> (<em>WavelengthUnit</em>) – Unit to display for the wavelength</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Instance of SubGridPhotometry</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>SubGridPhotometryy</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">subgrid</span> <span class="o">=</span> <span class="n">SubGridPhotometry</span><span class="o">.</span><span class="n">from_parent</span><span class="p">(</span><span class="n">parent_grid</span><span class="p">,</span> <span class="n">Filter</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">logger</span><span class="p">,</span> <span class="n">log_level</span><span class="p">,</span> <span class="n">display_unit</span><span class="p">)</span>
+</pre></div>
+</div>
+<section id="id7">
+<h3>Authors<a class="headerlink" href="#id7" title="Link to this heading">#</a></h3>
+<p>Allan Denis</p>
+</section>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ForMoSA.grid.subgrid_photometry.SubGridPhotometry.integrate_filter_curve">
+<span class="sig-name descname"><span class="pre">integrate_filter_curve</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model_to_adapt</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataArray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">print_logger</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="reference internal" href="_modules/ForMoSA/grid/subgrid_photometry.html#SubGridPhotometry.integrate_filter_curve"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ForMoSA.grid.subgrid_photometry.SubGridPhotometry.integrate_filter_curve" title="Link to this definition">#</a></dt>
+<dd><p>Method to integrate the filter curve on a spectrum</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>model_to_adapt</strong> (<em>xr.DataArray</em>) – Model to integrate</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><em>xr.DataArray</em> – Integrated value under the filter curve</p></li>
+<li><p><em>Authors</em></p></li>
+<li><p><em>——-</em></p></li>
+<li><p><em>Allan Denis</em></p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-ForMoSA.transform.observed">
+<span id="observed-model"></span><h2>Observed Model:<a class="headerlink" href="#module-ForMoSA.transform.observed" title="Link to this heading">#</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="ForMoSA.transform.observed.ObservedModel">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">ForMoSA.transform.observed.</span></span><span class="sig-name descname"><span class="pre">ObservedModel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">wave</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flux</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">res</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">component</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scaling</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'analytic'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ForMoSA/transform/observed.html#ObservedModel"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ForMoSA.transform.observed.ObservedModel" title="Link to this definition">#</a></dt>
+<dd><p>Model drawn from the nested sampling.</p>
+<section id="id8">
+<h3>Authors<a class="headerlink" href="#id8" title="Link to this heading">#</a></h3>
+<p>Allan Denis</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="ForMoSA.transform.observed.ObservedModel.copy">
+<span class="sig-name descname"><span class="pre">copy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">updates</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#ForMoSA.transform.observed.ObservedModel" title="ForMoSA.transform.observed.ObservedModel"><span class="pre">ObservedModel</span></a></span></span><a class="reference internal" href="_modules/ForMoSA/transform/observed.html#ObservedModel.copy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ForMoSA.transform.observed.ObservedModel.copy" title="Link to this definition">#</a></dt>
+<dd><p>Return a modified copy of the ObservedModel.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>**updates</strong> (<em>Attributes to update</em>)</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><em>ObservedModel</em> – Copy of ObservedModel</p></li>
+<li><p><em>Authors</em></p></li>
+<li><p><em>——-</em></p></li>
+<li><p><em>Allan Denis</em></p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ForMoSA.transform.observed.ObservedModel.from_grid_and_params">
+<span class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">from_grid_and_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">grid</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#ForMoSA.grid.model_grid.ModelGrid" title="ForMoSA.grid.model_grid.ModelGrid"><span class="pre">ModelGrid</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#ForMoSA.transform.observed.ObservedParameters" title="ForMoSA.transform.observed.ObservedParameters"><span class="pre">ObservedParameters</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">interp_method</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'linear'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#ForMoSA.transform.observed.ObservedModel" title="ForMoSA.transform.observed.ObservedModel"><span class="pre">ObservedModel</span></a></span></span><a class="reference internal" href="_modules/ForMoSA/transform/observed.html#ObservedModel.from_grid_and_params"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ForMoSA.transform.observed.ObservedModel.from_grid_and_params" title="Link to this definition">#</a></dt>
+<dd><p>Build an instance of ObseredModel from a ModelGrid and an ObservedParameters objects.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>grid</strong> (<a class="reference internal" href="#ForMoSA.grid.model_grid.ModelGrid" title="ForMoSA.grid.model_grid.ModelGrid"><em>ModelGrid</em></a>) – An instance of ModelGrid</p></li>
+<li><p><strong>parmas</strong> (<a class="reference internal" href="#ForMoSA.transform.observed.ObservedParameters" title="ForMoSA.transform.observed.ObservedParameters"><em>ObservedParameters</em></a>) – An instance of ObservedParameters</p></li>
+<li><p><strong>interp_method</strong> (<em>str</em>) – Interpolation method</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><em>‘ObservedModel’</em> – An instance of class ObservedModel</p></li>
+<li><p><em>Authors</em></p></li>
+<li><p><em>——-</em></p></li>
+<li><p><em>Allan Denis</em></p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ForMoSA.transform.observed.ObservedModel.residuals">
+<span class="sig-name descname"><span class="pre">residuals</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">flux_obs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">component_only</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ndarray</span></span></span><a class="reference internal" href="_modules/ForMoSA/transform/observed.html#ObservedModel.residuals"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ForMoSA.transform.observed.ObservedModel.residuals" title="Link to this definition">#</a></dt>
+<dd><p>Compute residuals between observation flux and the instance of ObservedModel.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>flux_obs</strong> (<em>np.ndarray</em>) – Flux of the observations</p></li>
+<li><p><strong>componant_only</strong> (<em>bool</em>) – Whether to use only the componant (without the flux) of the instance</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><em>np.ndarray</em> – Residuals</p></li>
+<li><p><em>Authors</em></p></li>
+<li><p><em>——-</em></p></li>
+<li><p><em>Allan Denis</em></p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ForMoSA.transform.observed.ObservedModel.std_residuals">
+<span class="sig-name descname"><span class="pre">std_residuals</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">flux_obs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="reference internal" href="_modules/ForMoSA/transform/observed.html#ObservedModel.std_residuals"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ForMoSA.transform.observed.ObservedModel.std_residuals" title="Link to this definition">#</a></dt>
+<dd><p>Compute the standard deviation of the residuals between observation flux and the instance of ObservedModel.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>flux_obs</strong> (<em>np.ndarray</em>) – Flux of the observations</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><em>float</em> – Standard deviation of the residuals</p></li>
+<li><p><em>Authors</em></p></li>
+<li><p><em>——-</em></p></li>
+<li><p><em>Allan Denis</em></p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="ForMoSA.transform.observed.ObservedParameters">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">ForMoSA.transform.observed.</span></span><span class="sig-name descname"><span class="pre">ObservedParameters</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">values</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Mapping</span><span class="p"><span class="pre">[</span></span><span class="pre">Parameter</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ForMoSA/transform/observed.html#ObservedParameters"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ForMoSA.transform.observed.ObservedParameters" title="Link to this definition">#</a></dt>
+<dd><p>Parameters drawn from the nested sampling.</p>
+<section id="id9">
+<h3>Authors<a class="headerlink" href="#id9" title="Link to this heading">#</a></h3>
+<p>Allan Denis</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="ForMoSA.transform.observed.ObservedParameters.get_kind">
+<span class="sig-name descname"><span class="pre">get_kind</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">kind</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ParameterKind</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="reference internal" href="_modules/ForMoSA/transform/observed.html#ObservedParameters.get_kind"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ForMoSA.transform.observed.ObservedParameters.get_kind" title="Link to this definition">#</a></dt>
+<dd><p>Get parameter value according to its kind.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>kind</strong> (<em>ParameterKind</em>) – Kind of the parameter</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><em>float</em> – Value of the parameter</p></li>
+<li><p><em>Authors</em></p></li>
+<li><p><em>——-</em></p></li>
+<li><p><em>Allan Denis</em></p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ForMoSA.transform.observed.ObservedParameters.get_name">
+<span class="sig-name descname"><span class="pre">get_name</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="reference internal" href="_modules/ForMoSA/transform/observed.html#ObservedParameters.get_name"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ForMoSA.transform.observed.ObservedParameters.get_name" title="Link to this definition">#</a></dt>
+<dd><p>Get parameter value according to its name.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>name</strong> (<em>str</em>) – Name of the parameter</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><em>float</em> – Value of the parameter</p></li>
+<li><p><em>Authors</em></p></li>
+<li><p><em>——-</em></p></li>
+<li><p><em>Allan Denis</em></p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ForMoSA.transform.observed.ObservedParameters.has_kind">
+<span class="sig-name descname"><span class="pre">has_kind</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">kind</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ParameterKind</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="reference internal" href="_modules/ForMoSA/transform/observed.html#ObservedParameters.has_kind"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ForMoSA.transform.observed.ObservedParameters.has_kind" title="Link to this definition">#</a></dt>
+<dd><p>Check whether kind is present in the parameter kinds.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>kind</strong> (<em>ParameterKind</em>) – Kind to check</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Whether the name is present in the parameter names</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ForMoSA.transform.observed.ObservedParameters.has_name">
+<span class="sig-name descname"><span class="pre">has_name</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="reference internal" href="_modules/ForMoSA/transform/observed.html#ObservedParameters.has_name"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ForMoSA.transform.observed.ObservedParameters.has_name" title="Link to this definition">#</a></dt>
+<dd><p>Check whether name is present in the parameter names.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>name</strong> (<em>str</em>) – Name to check</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Whether the name is present in the parameter names</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ForMoSA.transform.observed.ObservedParameters.require">
+<span class="sig-name descname"><span class="pre">require</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">kinds</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ParameterKind</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/ForMoSA/transform/observed.html#ObservedParameters.require"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ForMoSA.transform.observed.ObservedParameters.require" title="Link to this definition">#</a></dt>
+<dd><p>Check that required parameters exist</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>*kind</strong> (<em>ParameterKind</em>) – kinds of required parameters</p></li>
+<li><p><strong>Authors</strong></p></li>
+<li><p><strong>-------</strong></p></li>
+<li><p><strong>Denis</strong> (<em>Allan</em>)</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+</dd></dl>
+
+</section>
+<section id="module-ForMoSA.transform.apply_effects">
+<span id="apply-effects"></span><h2>Apply Effects:<a class="headerlink" href="#module-ForMoSA.transform.apply_effects" title="Link to this heading">#</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="ForMoSA.transform.apply_effects.ApplyPhysicsEffects">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">ForMoSA.transform.apply_effects.</span></span><span class="sig-name descname"><span class="pre">ApplyPhysicsEffects</span></span><a class="reference internal" href="_modules/ForMoSA/transform/apply_effects.html#ApplyPhysicsEffects"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ForMoSA.transform.apply_effects.ApplyPhysicsEffects" title="Link to this definition">#</a></dt>
+<dd><p>Apply physics effects to a model given parameters.</p>
+<section id="id10">
+<h3>Authors<a class="headerlink" href="#id10" title="Link to this heading">#</a></h3>
+<p>Allan Denis</p>
+</section>
+</dd></dl>
+
+</section>
+<section id="module-ForMoSA.transform.spectroscopic_effects">
+<span id="spectroscopic-effects"></span><h2>Spectroscopic Effects:<a class="headerlink" href="#module-ForMoSA.transform.spectroscopic_effects" title="Link to this heading">#</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="ForMoSA.transform.spectroscopic_effects.SpectralEffects">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">ForMoSA.transform.spectroscopic_effects.</span></span><span class="sig-name descname"><span class="pre">SpectralEffects</span></span><a class="reference internal" href="_modules/ForMoSA/transform/spectroscopic_effects.html#SpectralEffects"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ForMoSA.transform.spectroscopic_effects.SpectralEffects" title="Link to this definition">#</a></dt>
+<dd><p>Physical effects applied to a spectroscopic model.</p>
+<section id="id11">
+<h3>Authors<a class="headerlink" href="#id11" title="Link to this heading">#</a></h3>
+<p>Allan Denis</p>
+</section>
+</dd></dl>
+
+</section>
+<section id="module-ForMoSA.transform.photometric_effects">
+<span id="photometric-effects"></span><h2>Photometric Effects:<a class="headerlink" href="#module-ForMoSA.transform.photometric_effects" title="Link to this heading">#</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="ForMoSA.transform.photometric_effects.PhotometricEffects">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">ForMoSA.transform.photometric_effects.</span></span><span class="sig-name descname"><span class="pre">PhotometricEffects</span></span><a class="reference internal" href="_modules/ForMoSA/transform/photometric_effects.html#PhotometricEffects"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ForMoSA.transform.photometric_effects.PhotometricEffects" title="Link to this definition">#</a></dt>
+<dd><p>Physical effects applied to a photometric model.</p>
+<section id="id12">
+<h3>Authors<a class="headerlink" href="#id12" title="Link to this heading">#</a></h3>
+<p>Allan Denis</p>
+</section>
+</dd></dl>
+
+</section>
+</section>
+
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="main_utilities.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Main Utilities</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="nested_sampling.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Nested Sampling</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-ForMoSA.grid.model_grid">Model Grid:</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.grid.model_grid.ModelGrid"><code class="docutils literal notranslate"><span class="pre">ModelGrid</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.grid.model_grid.ModelGrid.from_file"><code class="docutils literal notranslate"><span class="pre">ModelGrid.from_file()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.grid.model_grid.ModelGrid.save_grid"><code class="docutils literal notranslate"><span class="pre">ModelGrid.save_grid()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-ForMoSA.grid.grid_loader">Grid Loader:</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.grid.grid_loader.GridLoader"><code class="docutils literal notranslate"><span class="pre">GridLoader</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-ForMoSA.grid.subgrid_base">Subgrid Base:</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.grid.subgrid_base.SubGrid"><code class="docutils literal notranslate"><span class="pre">SubGrid</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.grid.subgrid_base.SubGrid.adapt_grid"><code class="docutils literal notranslate"><span class="pre">SubGrid.adapt_grid()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.grid.subgrid_base.SubGrid.evaluate_at_gridpoints"><code class="docutils literal notranslate"><span class="pre">SubGrid.evaluate_at_gridpoints()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.grid.subgrid_base.SubGrid.from_dataset"><code class="docutils literal notranslate"><span class="pre">SubGrid.from_dataset()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.grid.subgrid_base.SubGrid.from_file"><code class="docutils literal notranslate"><span class="pre">SubGrid.from_file()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-ForMoSA.grid.subgrid_set">Subgrid Set:</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.grid.subgrid_set.SubGridSet"><code class="docutils literal notranslate"><span class="pre">SubGridSet</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.grid.subgrid_set.SubGridSet.add_subgrid"><code class="docutils literal notranslate"><span class="pre">SubGridSet.add_subgrid()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.grid.subgrid_set.SubGridSet.from_path"><code class="docutils literal notranslate"><span class="pre">SubGridSet.from_path()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.grid.subgrid_set.SubGridSet.interpolate_all"><code class="docutils literal notranslate"><span class="pre">SubGridSet.interpolate_all()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.grid.subgrid_set.SubGridSet.save_all"><code class="docutils literal notranslate"><span class="pre">SubGridSet.save_all()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-ForMoSA.grid.subgrid_spectroscopy">Spectroscopic Subgrid:</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.grid.subgrid_spectroscopy.SubGridSpectroscopy"><code class="docutils literal notranslate"><span class="pre">SubGridSpectroscopy</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.grid.subgrid_spectroscopy.SubGridSpectroscopy.adapt"><code class="docutils literal notranslate"><span class="pre">SubGridSpectroscopy.adapt()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.grid.subgrid_spectroscopy.SubGridSpectroscopy.from_grid"><code class="docutils literal notranslate"><span class="pre">SubGridSpectroscopy.from_grid()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.grid.subgrid_spectroscopy.SubGridSpectroscopy.from_parent"><code class="docutils literal notranslate"><span class="pre">SubGridSpectroscopy.from_parent()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-ForMoSA.grid.subgrid_photometry">Photometric Subgrid:</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.grid.subgrid_photometry.SubGridPhotometry"><code class="docutils literal notranslate"><span class="pre">SubGridPhotometry</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.grid.subgrid_photometry.SubGridPhotometry.adapt"><code class="docutils literal notranslate"><span class="pre">SubGridPhotometry.adapt()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.grid.subgrid_photometry.SubGridPhotometry.from_grid"><code class="docutils literal notranslate"><span class="pre">SubGridPhotometry.from_grid()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.grid.subgrid_photometry.SubGridPhotometry.from_parent"><code class="docutils literal notranslate"><span class="pre">SubGridPhotometry.from_parent()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.grid.subgrid_photometry.SubGridPhotometry.integrate_filter_curve"><code class="docutils literal notranslate"><span class="pre">SubGridPhotometry.integrate_filter_curve()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-ForMoSA.transform.observed">Observed Model:</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.transform.observed.ObservedModel"><code class="docutils literal notranslate"><span class="pre">ObservedModel</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.transform.observed.ObservedModel.copy"><code class="docutils literal notranslate"><span class="pre">ObservedModel.copy()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.transform.observed.ObservedModel.from_grid_and_params"><code class="docutils literal notranslate"><span class="pre">ObservedModel.from_grid_and_params()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.transform.observed.ObservedModel.residuals"><code class="docutils literal notranslate"><span class="pre">ObservedModel.residuals()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.transform.observed.ObservedModel.std_residuals"><code class="docutils literal notranslate"><span class="pre">ObservedModel.std_residuals()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.transform.observed.ObservedParameters"><code class="docutils literal notranslate"><span class="pre">ObservedParameters</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.transform.observed.ObservedParameters.get_kind"><code class="docutils literal notranslate"><span class="pre">ObservedParameters.get_kind()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.transform.observed.ObservedParameters.get_name"><code class="docutils literal notranslate"><span class="pre">ObservedParameters.get_name()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.transform.observed.ObservedParameters.has_kind"><code class="docutils literal notranslate"><span class="pre">ObservedParameters.has_kind()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.transform.observed.ObservedParameters.has_name"><code class="docutils literal notranslate"><span class="pre">ObservedParameters.has_name()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.transform.observed.ObservedParameters.require"><code class="docutils literal notranslate"><span class="pre">ObservedParameters.require()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-ForMoSA.transform.apply_effects">Apply Effects:</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.transform.apply_effects.ApplyPhysicsEffects"><code class="docutils literal notranslate"><span class="pre">ApplyPhysicsEffects</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-ForMoSA.transform.spectroscopic_effects">Spectroscopic Effects:</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.transform.spectroscopic_effects.SpectralEffects"><code class="docutils literal notranslate"><span class="pre">SpectralEffects</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-ForMoSA.transform.photometric_effects">Photometric Effects:</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.transform.photometric_effects.PhotometricEffects"><code class="docutils literal notranslate"><span class="pre">PhotometricEffects</span></code></a></li>
+</ul>
+</li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By Simon Petrus, Paulina Palma-Bifani, Matthieu Ravet, Allan Denis, Mickaël Bonnefoy and Gaël Chauvin
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2024, Simon Petrus, Paulina Palma-Bifani, Matthieu Ravet, Allan Denis, Mickaël Bonnefoy and Gaël Chauvin.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b"></script>
+<script src="_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
 </html>

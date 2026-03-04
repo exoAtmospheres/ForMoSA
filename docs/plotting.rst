@@ -5,5 +5,5 @@ Plotting Class
 
 The plotting module of ForMoSA:
 +++++++++++++++++++++++++++++++
-.. automodule:: ForMoSA.plotting.plotting_class
+.. automodule:: ForMoSA.nested_sampling.plotting
 	:members:

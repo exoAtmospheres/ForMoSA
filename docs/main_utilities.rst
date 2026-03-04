@@ -5,15 +5,15 @@ Main Utilities
 
 Global functions:
 +++++++++++++++++
-.. automodule:: ForMoSA.global_file
+.. automodule:: ForMoSA.config.global_config
 	:members:
 
 Utilities:
 ++++++++++
-.. automodule:: ForMoSA.utils
+.. automodule:: ForMoSA.utils.misc
 	:members:
 
 Spectra utilities:
 ++++++++++++++++++
-.. automodule:: ForMoSA.utils_spec
+.. automodule:: ForMoSA.utils.spec
 	:members:

@@ -8,22 +8,22 @@ Nested Main:
 .. automodule:: ForMoSA.nested_sampling.nested_sampling
 	:members:
 
-Modify Spectra:
-+++++++++++++++
-.. automodule:: ForMoSA.nested_sampling.nested_modif_spec
+NS Analysis:
+++++++++++++
+.. automodule:: ForMoSA.nested_sampling.ns_analysis
+	:members:
+
+Results:
+++++++++
+.. automodule:: ForMoSA.nested_sampling.results
 	:members:
 
 Prior Functions:
 ++++++++++++++++
-.. automodule:: ForMoSA.nested_sampling.nested_prior_functions
+.. automodule:: ForMoSA.utils.prior_functions
 	:members:
 
 Likelihood Functions:
 +++++++++++++++++++++
-.. automodule:: ForMoSA.nested_sampling.nested_logL_functions
-	:members:
-
-High-contrast Models:
-+++++++++++++++++++++
-.. automodule:: ForMoSA.nested_sampling.nested_highcont_models
+.. automodule:: ForMoSA.utils.logL_functions
 	:members:

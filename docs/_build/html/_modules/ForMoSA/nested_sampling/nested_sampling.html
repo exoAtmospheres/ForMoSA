@@ -1,78 +1,328 @@
 
-
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" data-content_root="../../../">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>ForMoSA.nested_sampling.nested_sampling &mdash; ForMoSA 1.1.6 documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
-      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
-      <link rel="stylesheet" type="text/css" href="../../../_static/custom.css?v=d0b3e03c" />
+
+
+<html lang="en" data-content_root="../../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ForMoSA.nested_sampling.nested_sampling &#8212; ForMoSA 1.1.6 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../_static/styles/theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../../../_static/styles/bootstrap.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
 
   
-    <link rel="shortcut icon" href="../../../_static/favicon.ico"/>
-      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
-      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=937269b5"></script>
-      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
-      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
-      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
-    <script src="../../../_static/js/theme.js"></script>
+  <link href="../../../_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/styles/sphinx-book-theme.css?v=eba8b062" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/custom.css?v=d0b3e03c" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b" />
+<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
+  <script src="../../../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+    <script src="../../../_static/documentation_options.js?v=2bf2fbde"></script>
+    <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/ForMoSA/nested_sampling/nested_sampling';</script>
+    <link rel="icon" href="../../../_static/favicon.ico"/>
     <link rel="index" title="Index" href="../../../genindex.html" />
-    <link rel="search" title="Search" href="../../../search.html" /> 
-</head>
+    <link rel="search" title="Search" href="../../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
 
-<body class="wy-body-for-nav"> 
-  <div class="wy-grid-for-nav">
-    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
-      <div class="wy-side-scroll">
-        <div class="wy-side-nav-search" >
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
 
-          
-          
-          <a href="../../../index.html" class="icon icon-home">
-            ForMoSA
-              <img src="../../../_static/ForMoSA.png" class="logo" alt="Logo"/>
-          </a>
-<div role="search">
-  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
-    <input type="hidden" name="check_keywords" value="yes" />
-    <input type="hidden" name="area" value="default" />
-  </form>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
 </div>
-        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <p class="caption" role="heading"><span class="caption-text">Contents</span></p>
-<ul>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../../_static/ForMoSA.png" class="logo__image only-light" alt="ForMoSA 1.1.6 documentation - Home"/>
+    <script>document.write(`<img src="../../../_static/ForMoSA.png" class="logo__image only-dark" alt="ForMoSA 1.1.6 documentation - Home"/>`);</script>
+  
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        <p aria-level="2" class="caption" role="heading"><span class="caption-text">Contents</span></p>
+<ul class="nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../api.html">ForMoSA API</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../../guidelines.html">Guidelines</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../input_format/obs_format.html">Observation format</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../input_format/model_format.html">Grids format</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../input_format/config_format.html"><code class="docutils literal notranslate"><span class="pre">config.ini</span></code> format</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../demos/sinfoni/abpicb/end_to_end_abpicb.html">One medium-resolution spectrum : AB Pic b</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../demos/photo/vhs1256b/end_to_end_vhs1256b.html">Photometric points : VHS 1256 b</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../../api.html">ForMoSA API</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../main_utilities.html">Main Utilities</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../adapt.html">Adapt the data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../nested_sampling.html">Nested Sampling</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../plotting.html">Plotting Class</a></li>
+</ul>
+</details></li>
 </ul>
 
-        </div>
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
       </div>
-    </nav>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
 
-    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
-          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-          <a href="../../../index.html">ForMoSA</a>
-      </nav>
+<div class="sbt-scroll-pixel-helper"></div>
 
-      <div class="wy-nav-content">
-        <div class="rst-content">
-          <div role="navigation" aria-label="Page navigation">
-  <ul class="wy-breadcrumbs">
-      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
-          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
-      <li class="breadcrumb-item active">ForMoSA.nested_sampling.nested_sampling</li>
-      <li class="wy-breadcrumbs-aside">
-      </li>
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-source-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Source repositories">
+    <i class="fab fa-github"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="https://github.com/exoAtmospheres/ForMoSA" target="_blank"
+   class="btn btn-sm btn-source-repository-button dropdown-item"
+   title="Source repository"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+<span class="btn__text-container">Repository</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li><a href="https://github.com/exoAtmospheres/ForMoSA/issues/new?title=Issue%20on%20page%20%2F_modules/ForMoSA/nested_sampling/nested_sampling.html&body=Your%20issue%20content%20here." target="_blank"
+   class="btn btn-sm btn-source-issues-button dropdown-item"
+   title="Open an issue"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-lightbulb"></i>
+  </span>
+<span class="btn__text-container">Open issue</span>
+</a>
+</li>
+      
   </ul>
-  <hr/>
 </div>
-          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
-           <div itemprop="articleBody">
-             
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
+  </button>
+`);
+</script>
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm pst-navbar-icon search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+  </button>
+`);
+</script>
+
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1></h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
   <h1>Source code for ForMoSA.nested_sampling.nested_sampling</h1><div class="highlight"><pre>
 <span></span><span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
@@ -127,7 +377,9 @@
 <span class="sd">    logger                 (logging.Logger): Logger</span>
 <span class="sd">    log_level                         (str): Level of the Logger</span>
 
-<span class="sd">    Authors: Allan Denis</span>
+<span class="sd">    Authors</span>
+<span class="sd">    -------</span>
+<span class="sd">    Allan Denis</span>
 <span class="sd">    &#39;&#39;&#39;</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">algorithm</span><span class="p">:</span> <span class="n">NestedAlgorithm</span><span class="p">,</span> <span class="n">npoints</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">logL_type</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">LogLikelihoodType</span><span class="p">],</span> <span class="n">config_NS</span><span class="p">:</span> <span class="n">Config_NS</span><span class="p">,</span> <span class="n">observations</span><span class="p">:</span> <span class="n">ObservationSet</span><span class="p">,</span> <span class="n">subgrids</span><span class="p">:</span> <span class="n">SubGridSet</span><span class="p">,</span> <span class="n">parameters</span><span class="p">:</span> <span class="n">ParameterSet</span><span class="p">,</span> <span class="n">wave_fit</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">interp_method</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;linear&#39;</span><span class="p">,</span> <span class="n">bounds_lsq</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">logger</span><span class="p">:</span> <span class="n">logging</span><span class="o">.</span><span class="n">Logger</span> <span class="o">|</span> <span class="kc">None</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">log_level</span><span class="p">:</span> <span class="nb">str</span><span class="o">=</span><span class="s1">&#39;INFO&#39;</span><span class="p">):</span>
@@ -246,17 +498,25 @@
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        data                   (dict): Dictionary representation NestedSampling parameters</span>
-<span class="sd">        observations (ObservationSet): Instance of ObservationSet</span>
-<span class="sd">        subgrids         (SubGridSet): Instance of SubGridSet</span>
-<span class="sd">        logger       (logging.Logger): Logger</span>
-<span class="sd">        log_level               (str): Level of the Logger</span>
+<span class="sd">        data : dict</span>
+<span class="sd">            Dictionary representation NestedSampling parameters</span>
+<span class="sd">        observations : ObservationSet</span>
+<span class="sd">            Instance of ObservationSet</span>
+<span class="sd">        subgrids : SubGridSet</span>
+<span class="sd">            Instance of SubGridSet</span>
+<span class="sd">        logger : logging.Logger</span>
+<span class="sd">            Logger</span>
+<span class="sd">        log_level : str</span>
+<span class="sd">            Level of the Logger</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        &#39;NestedSampling&#39;: An instance of class NestedSampling</span>
+<span class="sd">        &#39;NestedSampling&#39;</span>
+<span class="sd">            An instance of class NestedSampling</span>
 
-<span class="sd">        Authors: Allan Denis</span>
+<span class="sd">        Authors</span>
+<span class="sd">        -------</span>
+<span class="sd">        Allan Denis</span>
 <span class="sd">        &#39;&#39;&#39;</span>
 
         <span class="n">logger</span> <span class="o">=</span> <span class="n">logger</span> <span class="ow">or</span> <span class="n">setup_logging</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="n">log_level</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;NestedSampling&#39;</span><span class="p">)</span>
@@ -298,17 +558,25 @@
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        path      (str | os.PathLike): Dictionary representation NestedSampling parameters</span>
-<span class="sd">        observations (ObservationSet): Instance of ObservationSet</span>
-<span class="sd">        subgrids         (SubGridSet): Instance of SubGridSet</span>
-<span class="sd">        logger       (logging.Logger): Logger</span>
-<span class="sd">        log_level               (str): Level of the Logger</span>
+<span class="sd">        path : str | os.PathLike</span>
+<span class="sd">            Dictionary representation NestedSampling parameters</span>
+<span class="sd">        observations : ObservationSet</span>
+<span class="sd">            Instance of ObservationSet</span>
+<span class="sd">        subgrids : SubGridSet</span>
+<span class="sd">            Instance of SubGridSet</span>
+<span class="sd">        logger : logging.Logger</span>
+<span class="sd">            Logger</span>
+<span class="sd">        log_level : str</span>
+<span class="sd">            Level of the Logger</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        &#39;NestedSampling&#39;: An instance of class NestedSampling</span>
+<span class="sd">        &#39;NestedSampling&#39;</span>
+<span class="sd">            An instance of class NestedSampling</span>
 
-<span class="sd">        Authors: Allan Denis</span>
+<span class="sd">        Authors</span>
+<span class="sd">        -------</span>
+<span class="sd">        Allan Denis</span>
 <span class="sd">        &#39;&#39;&#39;</span>
 
         <span class="n">logger</span> <span class="o">=</span> <span class="n">logger</span> <span class="ow">or</span> <span class="n">setup_logging</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="n">log_level</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;NestedSampling&#39;</span><span class="p">)</span>
@@ -347,7 +615,9 @@
 <span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        Validation for NestedSamplin.</span>
 
-<span class="sd">        Authors: Allan Denis</span>
+<span class="sd">        Authors</span>
+<span class="sd">        -------</span>
+<span class="sd">        Allan Denis</span>
 <span class="sd">        &#39;&#39;&#39;</span>
 
         <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">instance</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">([</span><span class="s1">&#39;logL_type&#39;</span><span class="p">,</span> <span class="s1">&#39;observations&#39;</span><span class="p">,</span> <span class="s1">&#39;subgrids&#39;</span><span class="p">,</span> <span class="s1">&#39;parameters&#39;</span><span class="p">,</span> <span class="s1">&#39;config_NS&#39;</span><span class="p">,</span> <span class="s1">&#39;wave_fit&#39;</span><span class="p">,</span> <span class="s1">&#39;interp_method&#39;</span><span class="p">,</span> <span class="s1">&#39;bounds_lsq&#39;</span><span class="p">],</span> <span class="p">[</span><span class="nb">list</span><span class="p">,</span> <span class="n">ObservationSet</span><span class="p">,</span> <span class="n">SubGridSet</span><span class="p">,</span> <span class="n">ParameterSet</span><span class="p">,</span> <span class="n">Config_NS</span><span class="p">,</span> <span class="nb">list</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">]):</span>
@@ -391,7 +661,9 @@
 <span class="sd">        Create restricted versions of subgrids and observations according to wave_fit.</span>
 <span class="sd">        These restricted instances are stored internally and reused during the nested sampling.</span>
 
-<span class="sd">        Authors: Allan Denis</span>
+<span class="sd">        Authors</span>
+<span class="sd">        -------</span>
+<span class="sd">        Allan Denis</span>
 <span class="sd">        &#39;&#39;&#39;</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;    Restrict subgris and observations to windows </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">wave_fit</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
@@ -420,9 +692,12 @@
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        results_path   (str | os.PathLike): Path of the output</span>
+<span class="sd">        results_path : str | os.PathLike</span>
+<span class="sd">            Path of the output</span>
 
-<span class="sd">        Authors: Simon Petrus, Matthieu Ravet and Allan Denis</span>
+<span class="sd">        Authors</span>
+<span class="sd">        -------</span>
+<span class="sd">        Simon Petrus, Matthieu Ravet and Allan Denis</span>
 <span class="sd">        &#39;&#39;&#39;</span>
 
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">results_path</span><span class="p">,</span> <span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">PathLike</span><span class="p">)):</span>
@@ -511,11 +786,13 @@
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        theta           (np.ndarray[float]): Values randomly drawn by the Nested Sampling</span>
+<span class="sd">        theta : np.ndarray[float]</span>
+<span class="sd">            Values randomly drawn by the Nested Sampling</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        logL (float): Final loglikelihood</span>
+<span class="sd">        logL : float</span>
+<span class="sd">            Final loglikelihood</span>
 
 <span class="sd">        &#39;&#39;&#39;</span>
 
@@ -531,13 +808,17 @@
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        theta (np.ndarray[float]): List of the parameters drawn by the nested sampling algorithm</span>
+<span class="sd">        theta : np.ndarray[float]</span>
+<span class="sd">            List of the parameters drawn by the nested sampling algorithm</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        np.ndarray[float]: Transformed values</span>
+<span class="sd">        np.ndarray[float]</span>
+<span class="sd">            Transformed values</span>
 
-<span class="sd">        Authors: Allan Denis</span>
+<span class="sd">        Authors</span>
+<span class="sd">        -------</span>
+<span class="sd">        Allan Denis</span>
 <span class="sd">        &#39;&#39;&#39;</span>
 
         <span class="k">try</span><span class="p">:</span>
@@ -554,13 +835,17 @@
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        theta (np.ndarray[float]): List of values picked by the Nested Sampling for the free parameters</span>
+<span class="sd">        theta : np.ndarray[float]</span>
+<span class="sd">            List of values picked by the Nested Sampling for the free parameters</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        list[ObservedModel]: List of instances of class ObservedModel</span>
+<span class="sd">        list[ObservedModel]</span>
+<span class="sd">            List of instances of class ObservedModel</span>
 
-<span class="sd">        Authors: Allan Denis</span>
+<span class="sd">        Authors</span>
+<span class="sd">        -------</span>
+<span class="sd">        Allan Denis</span>
 <span class="sd">        &#39;&#39;&#39;</span>
 
         <span class="n">observed_models</span> <span class="o">=</span> <span class="p">[]</span>
@@ -583,13 +868,17 @@
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        observed_models (list[ObservedModel]): List of instances of class ObservedModel</span>
+<span class="sd">        observed_models : list[ObservedModel]</span>
+<span class="sd">            List of instances of class ObservedModel</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        float: loglikelihood value</span>
+<span class="sd">        float</span>
+<span class="sd">            loglikelihood value</span>
 
-<span class="sd">        Authors: Allan Denis</span>
+<span class="sd">        Authors</span>
+<span class="sd">        -------</span>
+<span class="sd">        Allan Denis</span>
 <span class="sd">        &#39;&#39;&#39;</span>
 
         <span class="n">logL</span> <span class="o">=</span> <span class="mi">0</span>
@@ -608,14 +897,19 @@
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        free_values (np.ndarray[float]): List of transformed values for the free parameters</span>
-<span class="sd">        obs_index                 (int): Index of the observation from which we want the parameter values</span>
+<span class="sd">        free_values : np.ndarray[float]</span>
+<span class="sd">            List of transformed values for the free parameters</span>
+<span class="sd">        obs_index : int</span>
+<span class="sd">            Index of the observation from which we want the parameter values</span>
 
 <span class="sd">        Return</span>
 <span class="sd">        ------</span>
-<span class="sd">        ObservedParameters: Intance of class ObservedParameters containing dictionary of parameters values (free + fixed) associated to the observation index</span>
+<span class="sd">        ObservedParameters</span>
+<span class="sd">            Intance of class ObservedParameters containing dictionary of parameters values (free + fixed) associated to the observation index</span>
 
-<span class="sd">        Authors: Allan Denis</span>
+<span class="sd">        Authors</span>
+<span class="sd">        -------</span>
+<span class="sd">        Allan Denis</span>
 <span class="sd">        &#39;&#39;&#39;</span>
 
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">free_values</span><span class="p">)</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">n_free_parameters</span><span class="p">:</span>
@@ -650,10 +944,13 @@
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        results_path (str | os.PathLike): Path to save the results to</span>
+<span class="sd">        results_path : str | os.PathLike</span>
+<span class="sd">            Path to save the results to</span>
 <span class="sd">        **kwargs                        = Additional parameters (wav_fit, interp_method, bounds_lsq)</span>
 
-<span class="sd">        Authors: Allan Denis</span>
+<span class="sd">        Authors</span>
+<span class="sd">        -------</span>
+<span class="sd">        Allan Denis</span>
 <span class="sd">        &#39;&#39;&#39;</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;    Saving results&#39;</span><span class="p">)</span>
@@ -682,9 +979,12 @@
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        results_path (str | os.PathLike): Path to save the results to</span>
+<span class="sd">        results_path : str | os.PathLike</span>
+<span class="sd">            Path to save the results to</span>
 
-<span class="sd">        Authors: Allan Denis</span>
+<span class="sd">        Authors</span>
+<span class="sd">        -------</span>
+<span class="sd">        Allan Denis</span>
 <span class="sd">        &#39;&#39;&#39;</span>
 
         <span class="n">results_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">results_path</span><span class="p">)</span>  <span class="o">/</span> <span class="s1">&#39;NS_results&#39;</span>
@@ -705,31 +1005,70 @@
 
 </pre></div>
 
-           </div>
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+            
           </div>
-          <footer>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By Simon Petrus, Paulina Palma-Bifani, Matthieu Ravet, Allan Denis, Mickaël Bonnefoy and Gaël Chauvin
+</p>
 
-  <hr/>
-
-  <div role="contentinfo">
-    <p>&#169; Copyright 2024, Simon Petrus, Paulina Palma-Bifani, Matthieu Ravet, Allan Denis, Mickaël Bonnefoy and Gaël Chauvin.</p>
   </div>
+  
+  <div class="footer-item">
+    
 
-  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
-    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
-    provided by <a href="https://readthedocs.org">Read the Docs</a>.
-   
+  <p class="copyright">
+    
+      © Copyright 2024, Simon Petrus, Paulina Palma-Bifani, Matthieu Ravet, Allan Denis, Mickaël Bonnefoy and Gaël Chauvin.
+      <br/>
+    
+  </p>
 
-</footer>
-        </div>
-      </div>
-    </section>
   </div>
-  <script>
-      jQuery(function () {
-          SphinxRtdTheme.Navigation.enable(true);
-      });
-  </script> 
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
 
-</body>
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b"></script>
+<script src="../../../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
 </html>

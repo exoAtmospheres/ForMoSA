@@ -1,126 +1,676 @@
 
-
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" data-content_root="./">
-<head>
-  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Plotting Class &mdash; ForMoSA 1.1.6 documentation</title>
-      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
-      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
-      <link rel="stylesheet" type="text/css" href="_static/custom.css?v=d0b3e03c" />
+
+<html lang="en" data-content_root="./" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Plotting Class &#8212; ForMoSA 1.1.6 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="_static/styles/theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="_static/styles/bootstrap.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="_static/styles/pydata-sphinx-theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
 
   
-    <link rel="shortcut icon" href="_static/favicon.ico"/>
-      <script src="_static/jquery.js?v=5d32c60e"></script>
-      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="_static/documentation_options.js?v=937269b5"></script>
-      <script src="_static/doctools.js?v=9bcbadda"></script>
-      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
-      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
-    <script src="_static/js/theme.js"></script>
+  <link href="_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/sphinx-book-theme.css?v=eba8b062" />
+    <link rel="stylesheet" type="text/css" href="_static/custom.css?v=d0b3e03c" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b" />
+<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
+  <script src="_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+    <script src="_static/documentation_options.js?v=2bf2fbde"></script>
+    <script src="_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'plotting';</script>
+    <link rel="icon" href="_static/favicon.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="prev" title="Nested Sampling" href="nested_sampling.html" /> 
-</head>
+    <link rel="prev" title="Nested Sampling" href="nested_sampling.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
 
-<body class="wy-body-for-nav"> 
-  <div class="wy-grid-for-nav">
-    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
-      <div class="wy-side-scroll">
-        <div class="wy-side-nav-search" >
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
 
-          
-          
-          <a href="index.html" class="icon icon-home">
-            ForMoSA
-              <img src="_static/ForMoSA.png" class="logo" alt="Logo"/>
-          </a>
-<div role="search">
-  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
-    <input type="hidden" name="check_keywords" value="yes" />
-    <input type="hidden" name="area" value="default" />
-  </form>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
 </div>
-        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <p class="caption" role="heading"><span class="caption-text">Contents</span></p>
-<ul class="current">
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="_static/ForMoSA.png" class="logo__image only-light" alt="ForMoSA 1.1.6 documentation - Home"/>
+    <script>document.write(`<img src="_static/ForMoSA.png" class="logo__image only-dark" alt="ForMoSA 1.1.6 documentation - Home"/>`);</script>
+  
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        <p aria-level="2" class="caption" role="heading"><span class="caption-text">Contents</span></p>
+<ul class="current nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="guidelines.html">Guidelines</a></li>
-<li class="toctree-l1 current"><a class="reference internal" href="api.html">ForMoSA API</a><ul class="current">
+<li class="toctree-l1 has-children"><a class="reference internal" href="guidelines.html">Guidelines</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="input_format/obs_format.html">Observation format</a></li>
+<li class="toctree-l2"><a class="reference internal" href="input_format/model_format.html">Grids format</a></li>
+<li class="toctree-l2"><a class="reference internal" href="input_format/config_format.html"><code class="docutils literal notranslate"><span class="pre">config.ini</span></code> format</a></li>
+<li class="toctree-l2"><a class="reference internal" href="demos/sinfoni/abpicb/end_to_end_abpicb.html">One medium-resolution spectrum : AB Pic b</a></li>
+<li class="toctree-l2"><a class="reference internal" href="demos/photo/vhs1256b/end_to_end_vhs1256b.html">Photometric points : VHS 1256 b</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="api.html">ForMoSA API</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="main_utilities.html">Main Utilities</a></li>
 <li class="toctree-l2"><a class="reference internal" href="adapt.html">Adapt the data</a></li>
 <li class="toctree-l2"><a class="reference internal" href="nested_sampling.html">Nested Sampling</a></li>
-<li class="toctree-l2 current"><a class="current reference internal" href="#">Plotting Class</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#the-plotting-module-of-formosa">The plotting module of ForMoSA:</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">Plotting Class</a></li>
 </ul>
-</li>
-</ul>
-</li>
+</details></li>
 </ul>
 
-        </div>
-      </div>
-    </nav>
-
-    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
-          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-          <a href="index.html">ForMoSA</a>
-      </nav>
-
-      <div class="wy-nav-content">
-        <div class="rst-content">
-          <div role="navigation" aria-label="Page navigation">
-  <ul class="wy-breadcrumbs">
-      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
-          <li class="breadcrumb-item"><a href="api.html">ForMoSA API</a></li>
-      <li class="breadcrumb-item active">Plotting Class</li>
-      <li class="wy-breadcrumbs-aside">
-            <a href="_sources/plotting.rst.txt" rel="nofollow"> View page source</a>
-      </li>
-  </ul>
-  <hr/>
-</div>
-          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
-           <div itemprop="articleBody">
-             
-  <section id="plotting-class">
-<span id="plotting"></span><h1>Plotting Class<a class="headerlink" href="#plotting-class" title="Link to this heading"></a></h1>
-<section id="the-plotting-module-of-formosa">
-<h2>The plotting module of ForMoSA:<a class="headerlink" href="#the-plotting-module-of-formosa" title="Link to this heading"></a></h2>
-</section>
-</section>
-
-
-           </div>
-          </div>
-          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="nested_sampling.html" class="btn btn-neutral float-left" title="Nested Sampling" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
     </div>
-
-  <hr/>
-
-  <div role="contentinfo">
-    <p>&#169; Copyright 2024, Simon Petrus, Paulina Palma-Bifani, Matthieu Ravet, Allan Denis, Mickaël Bonnefoy and Gaël Chauvin.</p>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
   </div>
+  
+  <div id="rtd-footer-container"></div>
 
-  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
-    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
-    provided by <a href="https://readthedocs.org">Read the Docs</a>.
-   
 
-</footer>
-        </div>
       </div>
-    </section>
-  </div>
-  <script>
-      jQuery(function () {
-          SphinxRtdTheme.Navigation.enable(true);
-      });
-  </script> 
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
 
-</body>
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-source-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Source repositories">
+    <i class="fab fa-github"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="https://github.com/exoAtmospheres/ForMoSA" target="_blank"
+   class="btn btn-sm btn-source-repository-button dropdown-item"
+   title="Source repository"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+<span class="btn__text-container">Repository</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li><a href="https://github.com/exoAtmospheres/ForMoSA/edit/main/docs/plotting.rst" target="_blank"
+   class="btn btn-sm btn-source-edit-button dropdown-item"
+   title="Suggest edit"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-pencil-alt"></i>
+  </span>
+<span class="btn__text-container">Suggest edit</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li><a href="https://github.com/exoAtmospheres/ForMoSA/issues/new?title=Issue%20on%20page%20%2Fplotting.html&body=Your%20issue%20content%20here." target="_blank"
+   class="btn btn-sm btn-source-issues-button dropdown-item"
+   title="Open an issue"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-lightbulb"></i>
+  </span>
+<span class="btn__text-container">Open issue</span>
+</a>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="_sources/plotting.rst" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.rst</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
+  </button>
+`);
+</script>
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm pst-navbar-icon search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+  </button>
+`);
+</script>
+<button class="sidebar-toggle secondary-toggle btn btn-sm" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>Plotting Class</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-ForMoSA.nested_sampling.plotting">The plotting module of ForMoSA:</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.nested_sampling.plotting.Plotting"><code class="docutils literal notranslate"><span class="pre">Plotting</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.nested_sampling.plotting.Plotting.plot_ccf"><code class="docutils literal notranslate"><span class="pre">Plotting.plot_ccf()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.nested_sampling.plotting.Plotting.plot_chains"><code class="docutils literal notranslate"><span class="pre">Plotting.plot_chains()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.nested_sampling.plotting.Plotting.plot_corner"><code class="docutils literal notranslate"><span class="pre">Plotting.plot_corner()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.nested_sampling.plotting.Plotting.plot_fit"><code class="docutils literal notranslate"><span class="pre">Plotting.plot_fit()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.nested_sampling.plotting.Plotting.plot_radars"><code class="docutils literal notranslate"><span class="pre">Plotting.plot_radars()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.nested_sampling.plotting.Plotting.plot_rv_vsini_map"><code class="docutils literal notranslate"><span class="pre">Plotting.plot_rv_vsini_map()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="plotting-class">
+<span id="plotting"></span><h1>Plotting Class<a class="headerlink" href="#plotting-class" title="Link to this heading">#</a></h1>
+<section id="module-ForMoSA.nested_sampling.plotting">
+<span id="the-plotting-module-of-formosa"></span><h2>The plotting module of ForMoSA:<a class="headerlink" href="#module-ForMoSA.nested_sampling.plotting" title="Link to this heading">#</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="ForMoSA.nested_sampling.plotting.Plotting">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">ForMoSA.nested_sampling.plotting.</span></span><span class="sig-name descname"><span class="pre">Plotting</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">results</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="nested_sampling.html#ForMoSA.nested_sampling.results.NSResults" title="ForMoSA.nested_sampling.results.NSResults"><span class="pre">NSResults</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">logger</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Logger</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_level</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'INFO'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ForMoSA/nested_sampling/plotting.html#Plotting"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ForMoSA.nested_sampling.plotting.Plotting" title="Link to this definition">#</a></dt>
+<dd><p>Class of visualisation of the results of the nested sampling.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>results</strong> (<a class="reference internal" href="nested_sampling.html#ForMoSA.nested_sampling.results.NSResults" title="ForMoSA.nested_sampling.results.NSResults"><em>NSResults</em></a>) – Instance of class NSResults</p></li>
+<li><p><strong>logger</strong> (<em>Logger</em>) – Logger used</p></li>
+<li><p><strong>v</strong><strong>(</strong><strong>str</strong><strong>)</strong> (<em>log_level</em>)</p></li>
+<li><p><strong>Authors</strong></p></li>
+<li><p><strong>-------</strong></p></li>
+<li><p><strong>Palma-Bifani</strong> (<em>Paulina</em>)</p></li>
+<li><p><strong>Denis</strong> (<em>Matthieu Ravet and Allan</em>)</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="ForMoSA.nested_sampling.plotting.Plotting.plot_ccf">
+<span class="sig-name descname"><span class="pre">plot_ccf</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rv_grid</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ccf</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">acf</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ccf_star</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">Figure</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Axes</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/ForMoSA/nested_sampling/plotting.html#Plotting.plot_ccf"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ForMoSA.nested_sampling.plotting.Plotting.plot_ccf" title="Link to this definition">#</a></dt>
+<dd><p>Plot the Cross-Correlation Function (CCF).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>rv_grid</strong> (<em>np.ndarray</em>) – Grid of radial velocity values (in km/s)</p></li>
+<li><p><strong>ccf</strong> (<em>np.ndarray</em>) – Corresponding ccf (cross-correlation) values</p></li>
+<li><p><strong>acf</strong> (<em>np.ndarray</em>) – acf (aut-correlation) values</p></li>
+<li><p><strong>ccf_star</strong> (<em>np.ndarray</em>) – ccf values with star speckles</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><em>tuple[Figure, Axes]</em> – Figure and Axes objects</p></li>
+<li><p><em>Authors</em></p></li>
+<li><p><em>——-</em></p></li>
+<li><p><em>Bhavesh Rajpoot and Allan Denis</em></p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ForMoSA.nested_sampling.plotting.Plotting.plot_chains">
+<span class="sig-name descname"><span class="pre">plot_chains</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">Figure</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Axes</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/ForMoSA/nested_sampling/plotting.html#Plotting.plot_chains"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ForMoSA.nested_sampling.plotting.Plotting.plot_chains" title="Link to this definition">#</a></dt>
+<dd><p>Plot the chains of the samples results.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>Returns</strong></p></li>
+<li><p><strong>--------</strong></p></li>
+<li><p><strong>tuple</strong><strong>[</strong><strong>matplotlib.figure.Figure</strong> – Tuple containing Figure and Ax objects</p></li>
+<li><p><strong>matplotlib.axes._axes.Axes</strong><strong>]</strong> – Tuple containing Figure and Ax objects</p></li>
+<li><p><strong>Authors</strong></p></li>
+<li><p><strong>-------</strong></p></li>
+<li><p><strong>Palma-Bifani</strong> (<em>Paulina</em>)</p></li>
+<li><p><strong>Denis</strong> (<em>Matthieu Ravet and Allan</em>)</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ForMoSA.nested_sampling.plotting.Plotting.plot_corner">
+<span class="sig-name descname"><span class="pre">plot_corner</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Figure</span></span></span><a class="reference internal" href="_modules/ForMoSA/nested_sampling/plotting.html#Plotting.plot_corner"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ForMoSA.nested_sampling.plotting.Plotting.plot_corner" title="Link to this definition">#</a></dt>
+<dd><p>Corner plot the posterior samples from the nested sampling results.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>config</strong> (<em>CornerPlotConfig</em>) – Instance of class CornerPlotConfig</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><em>matplotlib.figure.Figure</em> – Figure containin corner plots.</p></li>
+<li><p><em>Authors</em></p></li>
+<li><p><em>——-</em></p></li>
+<li><p><em>Paulina Palma-Bifani, Matthieu Ravet and Allan Denis</em></p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ForMoSA.nested_sampling.plotting.Plotting.plot_fit">
+<span class="sig-name descname"><span class="pre">plot_fit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">observations</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ObservationSet</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">best_fit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="adapt.html#ForMoSA.transform.observed.ObservedModel" title="ForMoSA.transform.observed.ObservedModel"><span class="pre">ObservedModel</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">figsize</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tuple</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">(12,</span> <span class="pre">7)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plot_native_model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">native_model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="adapt.html#ForMoSA.transform.observed.ObservedModel" title="ForMoSA.transform.observed.ObservedModel"><span class="pre">ObservedModel</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">Figure</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Axes</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Axes</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Axes</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Axes</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/ForMoSA/nested_sampling/plotting.html#Plotting.plot_fit"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ForMoSA.nested_sampling.plotting.Plotting.plot_fit" title="Link to this definition">#</a></dt>
+<dd><p>Plot best fit</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>observations</strong> (<em>ObservationSet</em>) – Instance of class ObservationSet</p></li>
+<li><p><strong>best_fit</strong> (<em>list</em><em>[</em><a class="reference internal" href="adapt.html#ForMoSA.transform.observed.ObservedModel" title="ForMoSA.transform.observed.ObservedModel"><em>ObservedModel</em></a><em>]</em>) – List of instances of class ObservedModel corresponding to the best-fit model for each observation</p></li>
+<li><p><strong>figsize</strong> (<em>tuple</em><em>[</em><em>float</em><em>, </em><em>float</em><em>]</em>) – Size of the figure</p></li>
+<li><p><strong>plot_native_model</strong> (<em>bool</em>) – Whether to plot the native model</p></li>
+<li><p><strong>native_model</strong> (<a class="reference internal" href="adapt.html#ForMoSA.transform.observed.ObservedModel" title="ForMoSA.transform.observed.ObservedModel"><em>ObservedModel</em></a>) – As instance of ObservedModel</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><em>tuple[Figure, Axes, Axes, Axes, Axes]</em> – Figure and ax objects</p></li>
+<li><p><em>Authors</em></p></li>
+<li><p><em>——-</em></p></li>
+<li><p><em>Paulina Palma-Bifani, Matthieu Ravet and Allan Denis</em></p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ForMoSA.nested_sampling.plotting.Plotting.plot_radars">
+<span class="sig-name descname"><span class="pre">plot_radars</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">Figure</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Axes</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/ForMoSA/nested_sampling/plotting.html#Plotting.plot_radars"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ForMoSA.nested_sampling.plotting.Plotting.plot_radars" title="Link to this definition">#</a></dt>
+<dd><p>Radar plot the samples.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>config</strong> (<em>RadarPlotConfig</em>) – Instance of class RadarPlotConfig</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><em>tuple[matplotlib.figure.Figure, matplotlib.axes._axes.Axes]</em> – Tuple containing Figure and Ax objects</p></li>
+<li><p><em>Authors</em></p></li>
+<li><p><em>——-</em></p></li>
+<li><p><em>Paulina Palma-Bifani, Matthieu Ravet and Allan Denis</em></p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ForMoSA.nested_sampling.plotting.Plotting.plot_rv_vsini_map">
+<span class="sig-name descname"><span class="pre">plot_rv_vsini_map</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rv_grid</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vsini_grid</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logL_map</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">Figure</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">Axes</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/ForMoSA/nested_sampling/plotting.html#Plotting.plot_rv_vsini_map"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ForMoSA.nested_sampling.plotting.Plotting.plot_rv_vsini_map" title="Link to this definition">#</a></dt>
+<dd><p>Plot the RV vs v.sin(i) loglikelihood map.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>rv_grid</strong> (<em>np.ndarray</em>) – Grid of radial velocity values (in km/s)</p></li>
+<li><p><strong>ccf</strong> (<em>np.ndarray</em>) – Corresponding ccf (cross-correlation) values</p></li>
+<li><p><strong>acf</strong> (<em>np.ndarray</em>) – acf (aut-correlation) values</p></li>
+<li><p><strong>ccf_star</strong> (<em>np.ndarray</em>) – ccf values with star speckles</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><em>tuple[Figure, Axes]</em> – Figure and Axes objects</p></li>
+<li><p><em>Authors</em></p></li>
+<li><p><em>——-</em></p></li>
+<li><p><em>Bhavesh Rajpoot (adapted from Allan Denis)</em></p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+</section>
+
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="nested_sampling.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Nested Sampling</p>
+      </div>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-ForMoSA.nested_sampling.plotting">The plotting module of ForMoSA:</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.nested_sampling.plotting.Plotting"><code class="docutils literal notranslate"><span class="pre">Plotting</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.nested_sampling.plotting.Plotting.plot_ccf"><code class="docutils literal notranslate"><span class="pre">Plotting.plot_ccf()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.nested_sampling.plotting.Plotting.plot_chains"><code class="docutils literal notranslate"><span class="pre">Plotting.plot_chains()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.nested_sampling.plotting.Plotting.plot_corner"><code class="docutils literal notranslate"><span class="pre">Plotting.plot_corner()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.nested_sampling.plotting.Plotting.plot_fit"><code class="docutils literal notranslate"><span class="pre">Plotting.plot_fit()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.nested_sampling.plotting.Plotting.plot_radars"><code class="docutils literal notranslate"><span class="pre">Plotting.plot_radars()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.nested_sampling.plotting.Plotting.plot_rv_vsini_map"><code class="docutils literal notranslate"><span class="pre">Plotting.plot_rv_vsini_map()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By Simon Petrus, Paulina Palma-Bifani, Matthieu Ravet, Allan Denis, Mickaël Bonnefoy and Gaël Chauvin
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2024, Simon Petrus, Paulina Palma-Bifani, Matthieu Ravet, Allan Denis, Mickaël Bonnefoy and Gaël Chauvin.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b"></script>
+<script src="_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
 </html>
