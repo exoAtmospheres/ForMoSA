@@ -11,16 +11,22 @@ def setup_logging(level: str ="INFO", logfile: str | os.PathLike = None, name: s
 
     Parameters
     ----------
-    level                 (str): Level of the logger ('INFO', 'DEBUG', 'WARNING', 'ERROR', 'CRITICAL')
-    logfile (str | os.PathLike): Path of the log
-    name                  (str): Name of the logger
+    level : str
+        Level of the logger ('INFO', 'DEBUG', 'WARNING', 'ERROR', 'CRITICAL')
+    logfile : str | os.PathLike
+        Path of the log
+    name : str
+        Name of the logger
 
     Returns
     -------
-    logger (logging.Logger): Logger 
+    logger : logging.Logger
+        Logger
 
 
-    Authors: Arthur Vigan and Allan Denis
+    Authors
+    -------
+    Arthur Vigan and Allan Denis
     '''
 
     logger = logging.getLogger(f"ForMoSA.{name}") if name else logging.getLogger("ForMoSA")

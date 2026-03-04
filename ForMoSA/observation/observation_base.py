@@ -18,17 +18,28 @@ class Observation(ABC):
 
     Parameters
     ----------
-    wave               (np.ndarray): Wavelength array
-    flux               (np.ndarray): Flux array
-    err                (np.ndarray): Error array
-    facility           (np.ndarray): Facility name
-    instrument         (np.ndarray): Instrument name
-    native_unit    (WavelengthUnit): Native unit of the wavelength array
-    logger         (logging.Logger): Logger
-    log_level                 (str): Level of the logging
-    display_unit   (WavelengthUnit): Display unit of the wavelength array
+    wave : np.ndarray
+        Wavelength array
+    flux : np.ndarray
+        Flux array
+    err : np.ndarray
+        Error array
+    facility : np.ndarray
+        Facility name
+    instrument : np.ndarray
+        Instrument name
+    native_unit : WavelengthUnit
+        Native unit of the wavelength array
+    logger : logging.Logger
+        Logger
+    log_level : str
+        Level of the logging
+    display_unit : WavelengthUnit
+        Display unit of the wavelength array
 
-    Authors: Allan Denis
+    Authors
+    -------
+    Allan Denis
     '''
 
     def __init__(self, wave: np.ndarray, flux: np.ndarray, err: np.ndarray, native_unit: WavelengthUnit, facility: str, instrument: str, logger: logging.Logger | None = None, log_level:str = 'INFO', display_unit: WavelengthUnit = WavelengthUnit.MICROMETER) -> None:
@@ -85,7 +96,9 @@ class Observation(ABC):
         '''
         Adapt the spectral observation to the target resolution.
 
-        Authors: Allan Denis
+        Authors
+        -------
+        Allan Denis
         '''
         pass
 
@@ -96,12 +109,18 @@ class Observation(ABC):
 
         Parameters
         ----------
-        figsize                       (tuple): Size of the figure
-        figure     (matplotlib.figure.Figure): Figure (used to overplot on an existing figure)
-        ax       (matplotlib.axes._axes.Axes): Ax (used to overplot on an existing ax)
-        ax_filt  (matplotlib.axes._axes.Axes): Ax used to overplot the transmission filter on an existing ax
+        figsize : tuple
+            Size of the figure
+        figure : matplotlib.figure.Figure
+            Figure (used to overplot on an existing figure)
+        ax : matplotlib.axes._axes.Axes
+            Ax (used to overplot on an existing ax)
+        ax_filt : matplotlib.axes._axes.Axes
+            Ax used to overplot the transmission filter on an existing ax
 
-        Authors: Allan Denis
+        Authors
+        -------
+        Allan Denis
         '''
 
     @abstractmethod
@@ -111,13 +130,17 @@ class Observation(ABC):
 
         Parameters
         ----------
-        windows (str): Windows in the format 'wmin1,wmax1 / wmin2,wmax2 / ...'
+        windows : str
+            Windows in the format 'wmin1,wmax1 / wmin2,wmax2 / ...'
 
         Returns
         -------
-        dict: Restricted observation data
+        dict
+            Restricted observation data
 
-        Authors: Allan Denis
+        Authors
+        -------
+        Allan Denis
         '''
 
         pass
@@ -185,18 +208,26 @@ class Observation(ABC):
 
         Parameters
         ----------
-        data             (dict): Dictionary of data
-        logger (logging.Logger): Logger
-        log_level         (str): Level of the Logger
+        data : dict
+            Dictionary of data
+        logger : logging.Logger
+            Logger
+        log_level : str
+            Level of the Logger
         **kwargs               : Additional arguments
 
         Returns
         -------
-        Obervation: An instance of class Observation
+        Obervation
+            An instance of class Observation
 
-        Usage: obs = Observation.from_dict(data, logger, log_level)
+        Examples
+        --------
+        >>> obs = Observation.from_dict(data, logger, log_level)
 
-        Authors: Allan Denis
+        Authors
+        -------
+        Allan Denis
         '''
 
         logger = logger or setup_logging(level=log_level, name="Observation")
@@ -215,18 +246,26 @@ class Observation(ABC):
 
         Parameters
         ----------
-        path (str | os.PathLike): Path to the observation
-        logger  (logging.Logger): Logger
-        log_level          (str): Level of the Logger
+        path : str | os.PathLike
+            Path to the observation
+        logger : logging.Logger
+            Logger
+        log_level : str
+            Level of the Logger
         **kwargs                : Additional keyword arguments
 
         Returns
         -------
-        "Observation": Instance of class Observation
+        "Observation"
+            Instance of class Observation
 
-        Usage: obs = Observation._from_file(path, logger, log_level)
+        Examples
+        --------
+        >>> obs = Observation._from_file(path, logger, log_level)
 
-        Authors: Allan Denis
+        Authors
+        -------
+        Allan Denis
         '''
 
         logger = logger or setup_logging(level=log_level, name="Observation")
@@ -259,11 +298,16 @@ class Observation(ABC):
 
         Returns
         -------
-        "Observation": Instance of class Observation
+        "Observation"
+            Instance of class Observation
 
-        Usage: obs = Observation._from_attributes(**attributes, logger, log_level)
+        Examples
+        --------
+        >>> obs = Observation._from_attributes(**attributes, logger, log_level)
 
-        Authors: Allan Denis
+        Authors
+        -------
+        Allan Denis
         '''
 
         logger = logger or setup_logging(level=log_level, name="Observation")
@@ -284,7 +328,9 @@ class Observation(ABC):
         '''
         Check consistency in wavelength, flux and error
 
-        Authors: Allan Denis
+        Authors
+        -------
+        Allan Denis
         '''
 
         if not (len(self._wave) == len(self._flux) == len(self._err) == len(self.instrument) == len(self.facility)):
@@ -310,9 +356,12 @@ class Observation(ABC):
 
         Parameters
         ----------
-        unit         (WavelengthUnit): Desired display unit
+        unit : WavelengthUnit
+            Desired display unit
 
-        Authors: Allan Denis
+        Authors
+        -------
+        Allan Denis
         '''
 
         if not(isinstance(unit, WavelengthUnit)):
@@ -325,9 +374,12 @@ class Observation(ABC):
 
         Parameters
         ----------
-        store_path: str | os.PathLike: Path where to store the observation file
+        store_path : str | os.PathLike
+            Path where to store the observation file
 
-        Authors: Allan Denis
+        Authors
+        -------
+        Allan Denis
         '''
 
         self.logger.debug(f'Save observation {self.name} to path {store_path}')

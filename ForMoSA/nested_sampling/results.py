@@ -8,7 +8,9 @@ class NSResults:
     '''
     Dataclass to handle reading and storing results of the Nested Sampling algorithm
 
-    Authors: Allan Denis
+    Authors
+    -------
+    Allan Denis
     '''
 
     samples: np.ndarray
@@ -91,14 +93,19 @@ class NSResults:
 
         Parameters
         ----------
-        data                  (dict): Dictionary of NSResults
-        free_parameters  (list[str]): List of free parameters names
+        data : dict
+            Dictionary of NSResults
+        free_parameters : list[str]
+            List of free parameters names
 
         Returns
         -------
-        NSResults: Instance of class NSResults
+        NSResults
+            Instance of class NSResults
 
-        Authors: Allan Denis
+        Authors
+        -------
+        Allan Denis
         '''
 
         return cls(
@@ -118,14 +125,19 @@ class NSResults:
 
         Parameters
         ----------
-        res                    (dict): Dictionary containing Nested Sampling results
-        free_parameters  (list[str]): List of free parameters names
+        res : dict
+            Dictionary containing Nested Sampling results
+        free_parameters : list[str]
+            List of free parameters names
 
         Returns
         -------
-        NestleResults: An instance of NSResults
+        NestleResults
+            An instance of NSResults
 
-        Authors: Allan Denis
+        Authors
+        -------
+        Allan Denis
         '''
 
         return cls(
@@ -144,14 +156,19 @@ class NSResults:
 
         Parameters
         ----------
-        results_path (str | os.PathLike): Path to the PyMultiNest output folder containing RAW_stats.dat, RAW_ev.dat, RAW_.txt
-        free_parameters      (list[str]): List of free parameters names
+        results_path : str | os.PathLike
+            Path to the PyMultiNest output folder containing RAW_stats.dat, RAW_ev.dat, RAW_.txt
+        free_parameters : list[str]
+            List of free parameters names
 
         Returns
         -------
-        NSResults: An instance of NSResults
+        NSResults
+            An instance of NSResults
 
-        Authors: Allan Denis
+        Authors
+        -------
+        Allan Denis
         '''
 
         # Read global evidence and error
@@ -203,14 +220,19 @@ class NSResults:
 
         Parameters
         ----------
-        res                   (dict): Dictionary containing Nested Sampling results
-        free_parameters  (list[str]): List of free parameters names
+        res : dict
+            Dictionary containing Nested Sampling results
+        free_parameters : list[str]
+            List of free parameters names
 
         Returns
         -------
-        NSResults: An instance of NSResults
+        NSResults
+            An instance of NSResults
 
-        Authors: Allan Denis
+        Authors
+        -------
+        Allan Denis
         """
 
         ws = res['weighted_samples']
@@ -236,13 +258,17 @@ class NSResults:
 
         Parameters
         ----------
-        values   (np.ndarray): Values we want to compute the quantile for
-        weights  (np.ndarray): Weights
-        q             (float): Quantile
+        values : np.ndarray
+            Values we want to compute the quantile for
+        weights : np.ndarray
+            Weights
+        q : float
+            Quantile
 
         Returns
         -------
-        np.ndarray: Weighted quantile
+        np.ndarray
+            Weighted quantile
 
         '''
 
@@ -270,13 +296,17 @@ class NSResults:
 
         Parameters
         ----------
-        q (float): Quantile in [0, 1]
+        q : float
+            Quantile in [0, 1]
 
         Returns
         -------
-        dict[str, float]: Dictionary of parameter name associated to its quantile
+        dict[str, float]
+            Dictionary of parameter name associated to its quantile
 
-        Authors: Allan Denis
+        Authors
+        -------
+        Allan Denis
         '''
 
         return {
@@ -293,13 +323,16 @@ class NSResults:
 
         Parameters
         ----------
-        sigma (int): Sigma value
+        sigma : int
+            Sigma value
 
         Returns
         -------
         dict[str, tuple[float, float]]: Dictionary of parameter name associated to its interval
 
-        Authors: Allan Denis
+        Authors
+        -------
+        Allan Denis
         '''
 
         if sigma == 1:
@@ -321,14 +354,19 @@ class NSResults:
 
         Parameters
         ----------
-        sigma        (int): Credible interval (1 or 2 sigma)
-        include_map (bool): hether to include MAP estimate
+        sigma : int
+            Credible interval (1 or 2 sigma)
+        include_map : bool
+            hether to include MAP estimate
 
         Returns
         -------
-        str: Summary
+        str
+            Summary
 
-        Authors: Allan Denis
+        Authors
+        -------
+        Allan Denis
         '''
 
         lines = []

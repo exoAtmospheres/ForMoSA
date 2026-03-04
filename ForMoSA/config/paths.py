@@ -13,11 +13,16 @@ class Paths(object):
 
     Parameters
     ----------
-    config_path (     ConfigPath): Instance of class ConfigPath
-    logger       (logging.Logger): Logger
-    log_level               (str): Level of the Logger
+    config_path : ConfigPath
+        Instance of class ConfigPath
+    logger : logging.Logger
+        Logger
+    log_level : str
+        Level of the Logger
 
-    Authors: Allan Denis
+    Authors
+    -------
+    Allan Denis
     '''
 
     def __init__(self, config_path: ConfigPath, logger: logging.Logger | None = None, log_level: str = 'info') -> None:
@@ -119,7 +124,9 @@ class Paths(object):
         '''
         Validation of the paths.
 
-        Authors: Allan Denis
+        Authors
+        -------
+        Allan Denis
         '''
 
         if not self._model_path.exists():

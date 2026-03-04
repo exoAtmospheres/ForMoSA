@@ -9,7 +9,9 @@ class GridLoader:
     '''
     Class responsible for Grid loading.
 
-    Authors: Allan Denis
+    Authors
+    -------
+    Allan Denis
     '''
 
     @staticmethod
@@ -17,7 +19,9 @@ class GridLoader:
         '''
         Validate that an xarray.Dataset conforms to the ForMoSA grid specifications
 
-        Authors: Allan Denis
+        Authors
+        -------
+        Allan Denis
         '''
 
         # Grid key
@@ -59,13 +63,17 @@ class GridLoader:
 
         Parameters
         ----------
-        path (str | os.PathLike): Path to the NetCDF grid file.
+        path : str | os.PathLike
+            Path to the NetCDF grid file.
 
         Returns
         -------
-        xr.Dataset: Validated ForMoSA grid dataset.
+        xr.Dataset
+            Validated ForMoSA grid dataset.
 
-        Authors: Allan Denis
+        Authors
+        -------
+        Allan Denis
         '''
 
         path = Path(path)
@@ -96,15 +104,21 @@ class GridLoader:
 
         Parameters
         ----------
-        data   (np.ndarray): Grid data array. Expected shape: (n_wavelength, n_par1, ..., n_parN)
-        coords       (dict): Coordinate dictionary. Must include 'wavelength' and parameter coordinates.
-        attrs        (dict): Grid attributes required by ForMoSA.
+        data : np.ndarray
+            Grid data array. Expected shape: (n_wavelength, n_par1, ..., n_parN)
+        coords : dict
+            Coordinate dictionary. Must include 'wavelength' and parameter coordinates.
+        attrs : dict
+            Grid attributes required by ForMoSA.
 
         Returns
         -------
-        xr.Dataset: Validated ForMoSA grid dataset.
+        xr.Dataset
+            Validated ForMoSA grid dataset.
 
-        Authors: Allan Denis
+        Authors
+        -------
+        Allan Denis
         '''
 
         # Data type

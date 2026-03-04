@@ -23,10 +23,14 @@ class ObservationSet(object):
 
     Parameters
     ----------
-    logger                            (logging.Logger): Logger
-    log_level                                    (str): Level of the logging
+    logger : logging.Logger
+        Logger
+    log_level : str
+        Level of the logging
 
-    Authors: Allan Denis
+    Authors
+    -------
+    Allan Denis
     '''
 
     def __init__(self, logger: logging.Logger | None = None, log_level: str = "INFO") -> None:
@@ -155,15 +159,21 @@ class ObservationSet(object):
 
         Parameters
         ----------
-        path (str | os.PathLike): Path containing all the observations
-        logger  (logging.Logger): Logger
-        log_level          (str): Level of the Logger
+        path : str | os.PathLike
+            Path containing all the observations
+        logger : logging.Logger
+            Logger
+        log_level : str
+            Level of the Logger
 
         Returns
         -------
-        "ObservationSet": An instance of ObservationSet
+        "ObservationSet"
+            An instance of ObservationSet
 
-        Authors: Allan Denis
+        Authors
+        -------
+        Allan Denis
         '''
 
         logger = logger or setup_logging(level=log_level, name='ObservationSet')
@@ -211,15 +221,21 @@ class ObservationSet(object):
 
         Parameters
         ----------
-        path  (list[str | os.PathLike): Paths to the observations
-        logger        (logging.Logger): Logger
-        log_level                (str): Level of the Logger
+        path : list[str | os.PathLike
+            Paths to the observations
+        logger : logging.Logger
+            Logger
+        log_level : str
+            Level of the Logger
 
         Returns
         -------
-        "ObservationSet": An instance of ObservationSet
+        "ObservationSet"
+            An instance of ObservationSet
 
-        Authors: Allan Denis
+        Authors
+        -------
+        Allan Denis
         '''
 
         logger = logger or setup_logging(level=log_level, name='ObservationSet')
@@ -281,15 +297,21 @@ class ObservationSet(object):
 
         Parameters
         ----------
-        data                (dict): Dictionary containing ObservationSet parameters
-        logger    (logging.Logger): Logger
-        log_level            (str): Level of the logging
+        data : dict
+            Dictionary containing ObservationSet parameters
+        logger : logging.Logger
+            Logger
+        log_level : str
+            Level of the logging
 
         Returns
         -------
-        'ParameterSet': An instance of class ParameterSet
+        'ParameterSet'
+            An instance of class ParameterSet
 
-        Authors: Allan Denis
+        Authors
+        -------
+        Allan Denis
         '''
 
         logger = logger or setup_logging(level=log_level, name='ParameterSet')
@@ -314,15 +336,21 @@ class ObservationSet(object):
 
         Parameters
         ----------
-        path   (str | os.PathLike): Path to the json file
-        logger    (logging.Logger): Logger
-        log_level            (str): Level of the logging
+        path : str | os.PathLike
+            Path to the json file
+        logger : logging.Logger
+            Logger
+        log_level : str
+            Level of the logging
 
         Returns
         -------
-        'ParameterSet': An instance of class ParameterSet
+        'ParameterSet'
+            An instance of class ParameterSet
 
-        Authors: Allan Denis
+        Authors
+        -------
+        Allan Denis
         '''
 
         logger = logger or setup_logging(level=log_level, name='ParameterSet')
@@ -364,7 +392,9 @@ class ObservationSet(object):
         - self.add_observation(data={"wavelength": ..., "flux": ...})
         - self.add_observation(name="spectral_obs", wavelength=..., flux=..., ...)
 
-        Authors: Allan Denis
+        Authors
+        -------
+        Allan Denis
         '''
 
         if len(args) == 1:
@@ -396,11 +426,16 @@ class ObservationSet(object):
 
         Parameters
         ----------
-        path       (str | os.PathLike): Directory where to save the observations
-        prefix                  (str): Prefix for the saved files
-        to_json                (bool): Whether to save all observations in a json file
+        path : str | os.PathLike
+            Directory where to save the observations
+        prefix : str
+            Prefix for the saved files
+        to_json : bool
+            Whether to save all observations in a json file
 
-        Authors: Allan Denis
+        Authors
+        -------
+        Allan Denis
         '''
 
         path = Path(path).expanduser() / 'Observations'
@@ -429,10 +464,14 @@ class ObservationSet(object):
         Parameters
         ----------
         target_resolution: (list[np.ndarray]): List of target resolution to reach for the observations
-        wave_cont                 (list[str]): List of wavelengths used for the continuum
-        res_cont                (list[float]): List os resolutions used for the continuum
+        wave_cont : list[str]
+            List of wavelengths used for the continuum
+        res_cont : list[float]
+            List os resolutions used for the continuum
 
-        Authors: Simon Petrus, Matthieu Ravet and Allan Denis
+        Authors
+        -------
+        Simon Petrus, Matthieu Ravet and Allan Denis
         '''
 
         # Initial checks
@@ -472,9 +511,12 @@ class ObservationSet(object):
 
         Parameters
         ----------
-        path (str | os.PathLike): Path to save the set of parameters
+        path : str | os.PathLike
+            Path to save the set of parameters
 
-        Authors: Allan Denis
+        Authors
+        -------
+        Allan Denis
         '''
 
         if not isinstance(path, (str, os.PathLike)):
@@ -496,16 +538,22 @@ class ObservationSet(object):
 
         Parameters
         ----------
-        figsize (tuple[float, float]): Size of the figure to plot if fig is None
-        fig        (matplotlib.figure.Figure): Figure (used to overplot on an existing figure)
-        ax         (matplotlib.axes._axes.Axes): Ax (used to overplot the observations)
-        ax_filt    (matplotlib.axes._axes.Axes): Ax used to overplot the transmission filter
+        figsize : tuple[float, float]
+            Size of the figure to plot if fig is None
+        fig : matplotlib.figure.Figure
+            Figure (used to overplot on an existing figure)
+        ax : matplotlib.axes._axes.Axes
+            Ax (used to overplot the observations)
+        ax_filt : matplotlib.axes._axes.Axes
+            Ax used to overplot the transmission filter
 
         Returns
         -------
         None
 
-        Authors: Allan Denis
+        Authors
+        -------
+        Allan Denis
         '''
 
         self.logger.info(f'    Plotting all the observations {self.observation_names}')
@@ -543,13 +591,17 @@ class ObservationSet(object):
 
         Parameters
         ----------
-        ind_obs (list[int]): List of index of observations to stack. If None, stack all observations
+        ind_obs : list[int]
+            List of index of observations to stack. If None, stack all observations
 
         Returns
         -------
-        dict: Stacked observations sorted by wavelength
+        dict
+            Stacked observations sorted by wavelength
 
-        Authors: Allan Denis
+        Authors
+        -------
+        Allan Denis
         '''
 
         if print_logger:

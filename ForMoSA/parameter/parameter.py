@@ -12,18 +12,29 @@ class Parameter(object):
 
     Parameters
     ----------
-    name                       (str): Name of the parameter ('par1', 'par2', 'rv', 'd', ...)
-    prior                    (Prior): Prior object associated with the parameter (UniformPrior, GaussianPrior, ConstantPrior, LogUniformPrior)
-    kind             (ParameterKind): Type of parameter used to identify the parameter
-    scope                      (str): 'global' if this is a global parameter or 'local' if it is applied to specific observations
-    obs_index           (int | None): Index of the obervation the parameter is applied to (None if scope is 'global')
-    title               (str | None): Title of the parameter (used to connect grid parameters to their associated title)
-    vsini_function   (VsiniFunction): Vsini function used for the prior (required if name starts with 'vsini')
-    logger          (logging.Logger): Logger
-    log_level                  (str): Level of the Logger
+    name : str
+        Name of the parameter ('par1', 'par2', 'rv', 'd', ...)
+    prior : Prior
+        Prior object associated with the parameter (UniformPrior, GaussianPrior, ConstantPrior, LogUniformPrior)
+    kind : ParameterKind
+        Type of parameter used to identify the parameter
+    scope : str
+        'global' if this is a global parameter or 'local' if it is applied to specific observations
+    obs_index : int | None
+        Index of the obervation the parameter is applied to (None if scope is 'global')
+    title : str | None
+        Title of the parameter (used to connect grid parameters to their associated title)
+    vsini_function : VsiniFunction
+        Vsini function used for the prior (required if name starts with 'vsini')
+    logger : logging.Logger
+        Logger
+    log_level : str
+        Level of the Logger
 
 
-    Authors: Allan Denis
+    Authors
+    -------
+    Allan Denis
     '''
 
     def __init__(self, name: str, prior: Prior, kind: ParameterKind, scope: str = 'global', obs_index: list[int] | None = None, title: str | None = None, vsini_function: VsiniFunction | None = None, logger: logging.Logger | None = None, log_level: str='INFO'):
@@ -117,16 +128,22 @@ class Parameter(object):
 
         Parameters
         ----------
-        data              (dict): Dictionary containing parameter parameters
-        logger  (logging.Logger): Logger
-        log_level          (str): Level of the Logger
+        data : dict
+            Dictionary containing parameter parameters
+        logger : logging.Logger
+            Logger
+        log_level : str
+            Level of the Logger
 
 
         Returns
         -------
-        Parameter: An instance of class Parameter
+        Parameter
+            An instance of class Parameter
 
-        Authors: Allan Denis
+        Authors
+        -------
+        Allan Denis
         '''
 
         logger = logger or setup_logging(level=log_level, name='Parameter')
@@ -147,7 +164,9 @@ class Parameter(object):
         '''
         Validation of the parameter.
 
-        Authors: Allan Denis
+        Authors
+        -------
+        Allan Denis
         '''
 
         if not isinstance(self.prior, Prior):

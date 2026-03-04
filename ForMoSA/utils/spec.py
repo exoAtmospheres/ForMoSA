@@ -18,20 +18,31 @@ def calc_ck(flx_mod: np.ndarray, flx_obs: np.ndarray, err_obs: np.ndarray, r_pic
 
     Parameters
     ----------
-    flx_mod (np.ndarray): Flux of the model spectrum
-    flx_obs (np.ndarray): Flux of the data
-    err_obs            (np.ndarray): Error of the data
-    r_picked                (float): Radius (Rjup)
-    d_picked                (float): Distance (pc)
-    analytic                  (str): If 'yes', compute Ck by linear least-squares fitting, else use alpha*(R/d)^2
-    bounds    (tuple[float, float]): Bounds for the Least Squares
+    flx_mod : np.ndarray
+        Flux of the model spectrum
+    flx_obs : np.ndarray
+        Flux of the data
+    err_obs : np.ndarray
+        Error of the data
+    r_picked : float
+        Radius (Rjup)
+    d_picked : float
+        Distance (pc)
+    analytic : str
+        If 'yes', compute Ck by linear least-squares fitting, else use alpha*(R/d)^2
+    bounds : tuple[float, float]
+        Bounds for the Least Squares
 
     Returns
     -------
-    flx_mod_ck (np.ndarray): Scaled model flux
-    ck              (float): Scaling coefficient
+    flx_mod_ck : np.ndarray
+        Scaled model flux
+    ck : float
+        Scaling coefficient
 
-    Authors: Simon Petrus and Allan Denis
+    Authors
+    -------
+    Simon Petrus and Allan Denis
     '''
 
     # Fixed analytical scaling
@@ -61,17 +72,28 @@ def convolve_and_sample(wv_channels: list, sigmas_wvs: list, model_wvs: np.ndarr
     Simulate the observations of a model. Convolves the model with a variable Gaussian LSF, sampled at each desired
     spectral channel.
 
-    Args:
-        wv_channels (list(floats)): the wavelengths values desired
-        sigmas_wvs  (list(floats)): the LSF gaussian standard deviation of each wv_channels [IN UNITS OF model_wvs]
-        model_wvs          (array): the wavelengths of the model
-        model_fluxes       (array): the fluxes of the model
-        num_sigma            (int): number of +/- sigmas to evaluate the LSF to.
-        force_int         (bolean): False by default. If True, will force interpolation onto wv_channels when the kernel is singular
-    Returns:
-        - output_model     (array): the fluxes in each of the wavelength channels
+    Parameters
+    ----------
+        wv_channels : list(floats)
+            the wavelengths values desired
+        sigmas_wvs : list(floats)
+            the LSF gaussian standard deviation of each wv_channels [IN UNITS OF model_wvs]
+        model_wvs : array
+            the wavelengths of the model
+        model_fluxes : array
+            the fluxes of the model
+        num_sigma : int
+            number of +/- sigmas to evaluate the LSF to.
+        force_int : bolean
+            False by default. If True, will force interpolation onto wv_channels when the kernel is singular
+    Returns
+    -------
+        array
+            the fluxes in each of the wavelength channels
 
-    Author: Jason Wang
+    Authors
+    -------
+    Jason Wang
     """
 
     model_in_range = np.where((model_wvs >= np.min(wv_channels)) & (model_wvs < np.max(wv_channels)))
@@ -106,17 +128,27 @@ def resolution_decreasing(wav_input: np.ndarray, flx_input: np.ndarray, res_inpu
     """
     Decrease the resolution of a spectrum by convolving with a Gaussian kernel.
 
-    Args:
-        wav_input  (array): Wavelength grid of the input
-        flx_input  (array): Flux of the input
-        res_input  (array): Spectral resolution at wav_input
-        wav_output (array): Desired output wavelength grid
-        res_output (array): Spectral resolution at wav_output
+    Parameters
+    ----------
+        wav_input : array
+            Wavelength grid of the input
+        flx_input : array
+            Flux of the input
+        res_input : array
+            Spectral resolution at wav_input
+        wav_output : array
+            Desired output wavelength grid
+        res_output : array
+            Spectral resolution at wav_output
 
-    Returns:
-        array: Flux at lower resolution, resampled to wav_output
+    Returns
+    -------
+        array
+            Flux at lower resolution, resampled to wav_output
 
-    Authors: Simon Petrus
+    Authors
+    -------
+    Simon Petrus
     """
 
     if len(flx_input) == 0 or len(wav_input) == 0:
@@ -150,16 +182,26 @@ def continuum_estimate(wav_input: np.ndarray, flx_input: np.ndarray, res_input: 
     the resolution of the spectrum to this custom FWHM for each wavelength using a gaussian filter and resample it on
     the wavelength grid of the data.
 
-    Args:
-        wav_input              (np.ndarray): Wavelength grid of the spectrum for which you want to estimate the continuum
-        flx_input              (np.ndarray): Flux of the spectrum for which you want to estimate the continuum
-        res_input              (np.ndarray): Spectral resolution of the spectrum for which you want to estimate the continuum
-        wav_cont_bounds               (str): Wavelength bounds where you want to estimate the continuum
-        res_cont                    (float): Approximate resolution of the continuum
-    Returns:
-        - continuum    (np.ndarray): Estimated continuum of the spectrum re-sampled on the data wavelength grid
+    Parameters
+    ----------
+        wav_input : np.ndarray
+            Wavelength grid of the spectrum for which you want to estimate the continuum
+        flx_input : np.ndarray
+            Flux of the spectrum for which you want to estimate the continuum
+        res_input : np.ndarray
+            Spectral resolution of the spectrum for which you want to estimate the continuum
+        wav_cont_bounds : str
+            Wavelength bounds where you want to estimate the continuum
+        res_cont : float
+            Approximate resolution of the continuum
+    Returns
+    -------
+        np.ndarray
+            Estimated continuum of the spectrum re-sampled on the data wavelength grid
 
-    Author: Simon Petrus, Matthieu Ravet
+    Authors
+    -------
+    Simon Petrus, Matthieu Ravet
 
     """
 
@@ -204,17 +246,28 @@ def doppler_fct(wav_mod_spectro: np.ndarray, flx_mod_spectro: np.ndarray, res_mo
     The side effects of the Doppler shifting are taking into account by using a model interpolated on a larger wavelength grid as the wavelength grid of the data.
     After the Doppler shifting, the model is then cut to the wavelength of the data.
 
-    Args:
-        wav_mod_spectro      (array): Wavelength grid of the model
-        flx_mod_spectro      (array): Flux of the interpolated synthetic spectrum
-        res_mod_spectro      (array): Resolution of the odel
-        rv_picked            (float): Radial velocity randomly picked by the nested sampling (in km.s-1)
-    Returns:
-        - wav_post_doppler   (array): Wavelength grid after Doppler shifting
-        - flx_post_doppler   (array): New flux of the interpolated synthetic spectrum
-        - res_post_doppler   (array): New resolution of the interpolated synthetic spectrum
+    Parameters
+    ----------
+        wav_mod_spectro : array
+            Wavelength grid of the model
+        flx_mod_spectro : array
+            Flux of the interpolated synthetic spectrum
+        res_mod_spectro : array
+            Resolution of the model
+        rv_picked : float
+            Radial velocity randomly picked by the nested sampling (in km.s-1)
+    Returns
+    -------
+        array
+            Wavelength grid after Doppler shifting
+        array
+            New flux of the interpolated synthetic spectrum
+        array
+            New resolution of the interpolated synthetic spectrum
 
-    Author: Simon Petrus, Allan Denis and Matthieu Ravet
+    Authors
+    -------
+    Simon Petrus, Allan Denis and Matthieu Ravet
     """
 
     if len(flx_mod_spectro) != 0:
@@ -244,14 +297,22 @@ def reddening_fct(wav: np.ndarray, flx: np.ndarray, av_picked: float) -> tuple[n
     Application of a sythetic interstellar extinction to the interpolated synthetic spectrum using the function
     extinction.fm07.
 
-    Args:
-        wav         (array): Wavelength grid of the model
-        flx         (array): Flux of the interpolated synthetic spectrum
-        av_picked   (float): Extinction randomly picked by the nested sampling (in mag)
-    Returns:
-        - flx_rd    (array): New flux of the interpolated synthetic spectrum
+    Parameters
+    ----------
+        wav : array
+            Wavelength grid of the model
+        flx : array
+            Flux of the interpolated synthetic spectrum
+        av_picked : float
+            Extinction randomly picked by the nested sampling (in mag)
+    Returns
+    -------
+        array
+            New flux of the interpolated synthetic spectrum
 
-    Author: Simon Petrus
+    Authors
+    -------
+    Simon Petrus
     """
 
     if len(flx) != 0:
@@ -272,18 +333,30 @@ def vsini_fct(wav_mod_spectro: np.ndarray, flx_mod_spectro: np.ndarray, res_mod_
     """
     Application of a rotational velocity (line broadening) to the interpolated synthetic spectrum
 
-    Args:
-        wav_mod_spectro          (array): Wavelength grid of the model
-        flx_mod_spectro          (array): Flux of tge interpolated synthetic spectrum (spectroscopy)
-        res_mod_obs_spectro      (array): Resolution of the model as a function of the wavelength grid of the data
-        ld_picked                (float): Limb darkening randomly picked by the nested sampling
-        vsini_picked             (float): v.sin(i) randomly picked by the nested samplin (in km.s-1)
-        vsini_type                 (str): Vsin(i) function to use
-    Returns:
-        - flx_mod_spectro_broad  (array): New flux of the broadened synthetic spectrum (spectroscopy)
-        - res_mod_obs_broad      (array): New resolution of the broadened synthetic spectrum (photometry)
+    Parameters
+    ----------
+        wav_mod_spectro : array
+            Wavelength grid of the model
+        flx_mod_spectro : array
+            Flux of the interpolated synthetic spectrum (spectroscopy)
+        res_mod_obs_spectro : array
+            Resolution of the model as a function of the wavelength grid of the data
+        ld_picked : float
+            Limb darkening randomly picked by the nested sampling
+        vsini_picked : float
+            v.sin(i) randomly picked by the nested sampling (in km.s-1)
+        vsini_type : str
+            Vsin(i) function to use
+    Returns
+    -------
+        array
+            New flux of the broadened synthetic spectrum (spectroscopy)
+        array
+            New resolution of the broadened synthetic spectrum (photometry)
 
-    Author: Allan Denis
+    Authors
+    -------
+    Allan Denis
     """
     if len(flx_mod_spectro) != 0:
         if vsini_picked != 0:
@@ -320,15 +393,24 @@ def vsini_fct_rot_broad(wav_mod_spectro: np.ndarray, flx_mod_spectro: np.ndarray
     Application of a rotation velocity (line broadening) to the interpolated synthetic spectrum using the function
     extinction.fm07.
 
-    Args:
-        wav_mod_spectro            (array): Wavelength grid of the model
-        flx_mod_spectro            (array): Flux of the interpolated synthetic spectrum
-        ld_picked                  (float): Limd darkening randomly picked by the nested sampling
-        vsini_picked               (float): v.sin(i) randomly picked by the nested sampling (in km.s-1)
-    Returns:
-        - flx_mod_spectro_broad    (array): New flux of the interpolated synthetic spectrum
+    Parameters
+    ----------
+        wav_mod_spectro : array
+            Wavelength grid of the model
+        flx_mod_spectro : array
+            Flux of the interpolated synthetic spectrum
+        ld_picked : float
+            Limb darkening randomly picked by the nested sampling
+        vsini_picked : float
+            v.sin(i) randomly picked by the nested sampling (in km.s-1)
+    Returns
+    -------
+        array
+            New flux of the interpolated synthetic spectrum
 
-    Author: Simon Petrus
+    Authors
+    -------
+    Simon Petrus
     """
     # Correct irregulatities in the wavelength grid
     wav_interval = wav_mod_spectro[1:] - wav_mod_spectro[:-1]
@@ -353,15 +435,24 @@ def vsini_fct_fast_rot_broad(wav_mod_spectro: np.ndarray, flx_mod_spectro: np.nd
     Application of a rotation velocity (line broadening) to the interpolated synthetic spectrum using the function
     extinction.fm07.
 
-    Args:
-        wav_mod_spectro            (array): Wavelength grid of the model
-        flx_mod_spectro            (array): Flux of the interpolated synthetic spectrum
-        ld_picked                  (float): Limd darkening randomly picked by the nested sampling
-        vsini_picked               (float): v.sin(i) randomly picked by the nested sampling (in km.s-1)
-    Returns:
-        - flx_mod_spectro_broad    (array): New flux of the interpolated synthetic spectrum
+    Parameters
+    ----------
+        wav_mod_spectro : array
+            Wavelength grid of the model
+        flx_mod_spectro : array
+            Flux of the interpolated synthetic spectrum
+        ld_picked : float
+            Limb darkening randomly picked by the nested sampling
+        vsini_picked : float
+            v.sin(i) randomly picked by the nested sampling (in km.s-1)
+    Returns
+    -------
+        array
+            New flux of the interpolated synthetic spectrum
 
-    Author: Simon Petrus
+    Authors
+    -------
+    Simon Petrus
     """
     # Correct irregulatities in the wavelength grid
     wav_interval = wav_mod_spectro[1:] - wav_mod_spectro[:-1]
@@ -386,22 +477,34 @@ def vsini_fct_accurate(wav_mod_spectro: np.ndarray, flx_mod_spectro: np.ndarray,
     A routine to quickly rotationally broaden a spectrum in linear time.
     Adapted from Carvalho & Johns-Krull 2023 https://ui.adsabs.harvard.edu/abs/2023RNAAS...7...91C/abstract
 
-    Args:
-        wav_mod_spectro            (array): Wavelength grid of the model
-        flx_mod_spectro            (array): Flux of the interpolated synthetic spectrum
-        ld_picked                  (float): Limd darkening randomly picked by the nested sampling
-        vsini_picked               (float): v.sin(i) randomly picked by the nested sampling (in km.s-1)
-        nr                           (int): (default = 10) The number of radial bins on the projected disk
-        ntheta                       (int): (default = 100) The number of azimuthal bins in the largest radial annulus
+    Parameters
+    ----------
+        wav_mod_spectro : array
+            Wavelength grid of the model
+        flx_mod_spectro : array
+            Flux of the interpolated synthetic spectrum
+        ld_picked : float
+            Limb darkening randomly picked by the nested sampling
+        vsini_picked : float
+            v.sin(i) randomly picked by the nested sampling (in km.s-1)
+        nr : int
+            (default = 10) The number of radial bins on the projected disk
+        ntheta : int
+            (default = 100) The number of azimuthal bins in the largest radial annulus
                                             note: the number of bins at each r is int(r*ntheta) where r < 1
-        dif                        (float): (default = 0) The differential rotation coefficient, applied according to the law Omeg(th)/Omeg(eq) = (1 - dif/2 - (dif/2) cos(2 th)).
+        dif : float
+            (default = 0) The differential rotation coefficient, applied according to the law Omeg(th)/Omeg(eq) = (1 - dif/2 - (dif/2) cos(2 th)).
                                             Dif = .675 nicely reproduces the law proposed by Smith, 1994, A&A, Vol. 287, p. 523-534, to unify WTTS and CTTS.
                                             Dif = .23 is similar to observed solar differential rotation. Note: the th in the above expression is the stellar co-latitude, not the same as the integration variable used below.
                                             This is a disk integration routine.
-    Returns:
-        - flx_mod_spectro_broad    (array): New flux of the interpolated synthetic spectrum
+    Returns
+    -------
+        array
+            New flux of the interpolated synthetic spectrum
 
-    Author: Allan Denis
+    Authors
+    -------
+    Allan Denis
     '''
 
     ns = np.copy(flx_mod_spectro)*0.0
@@ -434,15 +537,24 @@ def vsini_fct_accurate_fast_rot_broad(wav_mod_spectro: np.ndarray, flx_mod_spect
     """
     Application of a rotation velocity (line broadening) to the interpolated synthetic spectrum using the Carvalho & Johns-Krull (2023) approach
 
-    Args:
-        wav_mod_spectro           (array): Wavelength grid of the model
-        flx_mod_spectro           (array): Flux of the interpolated synthetic spectrum
-        ld_picked                 (float): Limd darkening randomly picked by the nested sampling
-        vsini_picked              (float): v.sin(i) randomly picked by the nested sampling (in km.s-1)
-    Returns:
-        - flx_mod_spectro_broad   (array): New flux of the interpolated synthetic spectrum
+    Parameters
+    ----------
+        wav_mod_spectro : array
+            Wavelength grid of the model
+        flx_mod_spectro : array
+            Flux of the interpolated synthetic spectrum
+        ld_picked : float
+            Limb darkening randomly picked by the nested sampling
+        vsini_picked : float
+            v.sin(i) randomly picked by the nested sampling (in km.s-1)
+    Returns
+    -------
+        array
+            New flux of the interpolated synthetic spectrum
 
-    Author: Simon Petrus, Arthur Vigan and Allan Denis
+    Authors
+    -------
+    Simon Petrus, Arthur Vigan and Allan Denis
     """
     # Correct irregulatities in the wavelength grid
     wav_interval = wav_mod_spectro[1:] - wav_mod_spectro[:-1]
@@ -466,16 +578,25 @@ def bb_cpd_fct(wav: np.ndarray, flx: np.ndarray, distance: np.ndarray, bb_t_pick
     '''
     Function to add the effect of a cpd (circum planetary disc) to the models.
 
-    Args:
-        wav           (array): Wavelength grid of the model
-        flx           (array): Flux of the interpolated synthetic spectrum
-        distance      (array): Distance from the observation in pc units
-        bb_t_picked   (float): Temperature value randomly picked by the nested sampling in K units
+    Parameters
+    ----------
+        wav : array
+            Wavelength grid of the model
+        flx : array
+            Flux of the interpolated synthetic spectrum
+        distance : array
+            Distance from the observation in pc units
+        bb_t_picked : float
+            Temperature value randomly picked by the nested sampling in K units
         bb_r_picked   float): Radius randomly picked by the nested sampling in units of planetary radius
-    Returns:
-        - flx_bb  (array): New flux of the interpolated synthetic spectrum
+    Returns
+    -------
+        array
+            New flux of the interpolated synthetic spectrum
 
-    Author: Paulina Palma-Bifani
+    Authors
+    -------
+    Paulina Palma-Bifani
     '''
 
     if len(flx) > 0:
@@ -508,11 +629,16 @@ def fit_linear_model(components: list[np.ndarray], flx_obs: np.ndarray, err_obs:
 
     Parameters
     ----------
-    components        (list[np.ndarray]): Model components M_i
-    flx_obs                 (np.ndarray): Observation
-    err_obs          (np.ndarray | None): Error
-    bounds  (tuple(float, float) | None): Bounds for the least sqaures
-    fixed_coeffs      (dict(int: float)): Dictionary of fixed coeff {index: value}
+    components : list[np.ndarray]
+        Model components M_i
+    flx_obs : np.ndarray
+        Observation
+    err_obs : np.ndarray | None
+        Error
+    bounds : tuple(float, float) | None
+        Bounds for the least sqaures
+    fixed_coeffs : dict(int: float)
+        Dictionary of fixed coeff {index: value}
 
     Returns
     -------
@@ -521,7 +647,9 @@ def fit_linear_model(components: list[np.ndarray], flx_obs: np.ndarray, err_obs:
         reconstructed
         model
 
-    Authors: Allan Denis
+    Authors
+    -------
+    Allan Denis
     """
 
     n = len(components)
@@ -595,24 +723,39 @@ def build_linear_components(flx_mod: np.ndarray | None = None, transm: np.ndarra
 
     Parameters
     ----------
-    flx_mod             (np.ndarray | None): Model flux
-    transm              (np.ndarray | None): Transmission function
-    flx_cont_mod        (np.ndarray | None): Model continuum flux
-    star_flx_obs        (np.ndarray | None): Stellar flux
-    flx_cont_obs        (np.ndarray | None): Observed continuum flux
-    star_flx_cont_obs   (np.ndarray | None): Observation star flux continuum
-    system_obs          (np.ndarray | None): Systematics model
-    analytic                          (str): 'yes' to fit for the model, 'no' to apply a constant scaling law
-    ck_value                 (float | None): Fixed scaling coefficient if scaling_mode is "fixed"
-    bounds                   (tuple | None): Bounds for the optimization
+    flx_mod : np.ndarray | None
+        Model flux
+    transm : np.ndarray | None
+        Transmission function
+    flx_cont_mod : np.ndarray | None
+        Model continuum flux
+    star_flx_obs : np.ndarray | None
+        Stellar flux
+    flx_cont_obs : np.ndarray | None
+        Observed continuum flux
+    star_flx_cont_obs : np.ndarray | None
+        Observation star flux continuum
+    system_obs : np.ndarray | None
+        Systematics model
+    analytic : str
+        'yes' to fit for the model, 'no' to apply a constant scaling law
+    ck_value : float | None
+        Fixed scaling coefficient if scaling_mode is "fixed"
+    bounds : tuple | None
+        Bounds for the optimization
 
     Returns
     -------
-    components            (list[np.ndarray]): Model components
-    fixed_coeffs          (dict[int, float]): Fixed coefficients
-    labels                       (list[str]): Labels for each component
+    components : list[np.ndarray]
+        Model components
+    fixed_coeffs : dict[int, float]
+        Fixed coefficients
+    labels : list[str]
+        Labels for each component
 
-    Authors: Allan Denis
+    Authors
+    -------
+    Allan Denis
     '''
 
     components = []
@@ -667,30 +810,53 @@ def compute_ccf(wav_mod_spectro: np.ndarray, flx_mod_spectro: np.ndarray, wav_ob
     '''
     Function to compute the ccf between a template and data
 
-    Args:
-        wav_mod_spectro             (np.ndarray): Wavelength grid of the template
-        flx_mod_spectro             (np.ndarray): Flux of the template
-        wav_obs_spectro             (np.ndarray): Wavelength grid of the data
-        flx_obs_spectro             (np.ndarray): Flux of the data
-        err_obs_spectro             (np.ndarray): Error of the data
-        res_mod_spectro             (np.ndarray): Resolution of the template
-        res_obs_spectro             (np.ndarray): Resolution of the data
-        res_cont                         (float): Resolution of the continuum
-        wav_fit               (str | np.ndarray): Wavelengths used for fitting
-        star_flx_obs_spectro        (np.ndarray): Star flux of the data
-        transm_obs_spectro  (float | np.ndarray): Transmission
-        system_obs_spectro          (np.ndarray): Systematics
-        rv_grid                     (np.ndarray): Grid of RV for the CCF function
-        rv_vsini_map                      (bool): Whether to use this function to compute a rv / vsini map
-        normalize                         (bool): Whether to normalize ccf
+    Parameters
+    ----------
+        wav_mod_spectro : np.ndarray
+            Wavelength grid of the template
+        flx_mod_spectro : np.ndarray
+            Flux of the template
+        wav_obs_spectro : np.ndarray
+            Wavelength grid of the data
+        flx_obs_spectro : np.ndarray
+            Flux of the data
+        err_obs_spectro : np.ndarray
+            Error of the data
+        res_mod_spectro : np.ndarray
+            Resolution of the template
+        res_obs_spectro : np.ndarray
+            Resolution of the data
+        res_cont : float
+            Resolution of the continuum
+        wav_fit : str | np.ndarray
+            Wavelengths used for fitting
+        star_flx_obs_spectro : np.ndarray
+            Star flux of the data
+        transm_obs_spectro : float | np.ndarray
+            Transmission
+        system_obs_spectro : np.ndarray
+            Systematics
+        rv_grid : np.ndarray
+            Grid of RV for the CCF function
+        rv_vsini_map : bool
+            Whether to use this function to compute a rv / vsini map
+        normalize : bool
+            Whether to normalize ccf
 
-    Returns:
-        ccf_norm         (np.ndarray): CCF function normalized by the SNR
-        acf_norm         (np.ndarray): ACF function rescaled and shifted at the peak of the RV
-        star_ccf_norm    (np.ndarray): CCF function with star data
-        rv_peak               (float): Peak of the RV
+    Returns
+    -------
+        ccf_norm : np.ndarray
+            CCF function normalized by the SNR
+        acf_norm : np.ndarray
+            ACF function rescaled and shifted at the peak of the RV
+        star_ccf_norm : np.ndarray
+            CCF function with star data
+        rv_peak : float
+            Peak of the RV
 
-    Authors: Arthur Vigan and Allan Denis
+    Authors
+    -------
+    Arthur Vigan and Allan Denis
     '''
 
     if not rv_sini_map and np.max(np.abs(rv_grid)) < 100:
@@ -805,32 +971,57 @@ def compute_ccf_single_rv(rv: float, wav_mod_spectro: np.ndarray, flx_mod_spectr
     '''
     Function to compute the correlation between template and data for a specific rv value
 
-    Args:
-        rv                                   (float): rv value
-        vsini                                (float): vsini value
-        wav_mod_spectro                 (np.ndarray): Wavelength grid of the template
-        flx_mod_spectro                 (np.ndarray): Flux of the template
-        flx_mod_spectro_no_rv_hf        (np.ndarray): High frequency content of the flux of the model at 0 rv
-        res_mod_spectro             (np.ndarray): Resolution of the template interpolated onto the wavelength grid of the data
-        wav_obs_spectro                 (np.ndarray): Wavelength grid of the data
-        flx_obs_spectro                 (np.ndarray): Fhe flux of the data
-        flx_cont_obs_spectro            (np.ndarray): Continuum of the flux of the data
-        res_obs_spectro                 (np.ndarray): Resolution of the data
-        wav_cont                               (str): Wavelength used for the continuum
-        res_cont                             (float): Resolution of the continuum
-        err_obs_spectro                 (np.ndarray): Error of the flux
-        transm_obs_spectro        (int | np.ndarray): Transmission
-        star_flx_obs_spectro            (np.ndarray): Flux of the star
-        star_flx_cont_obs_spectro (int | np.ndarray): Continuum of the flux of the star
-        system_obs_spectro              (np.ndarray): Systematics
-        speckles                  (int | np.ndarray): Speckles
+    Parameters
+    ----------
+        rv : float
+            rv value
+        vsini : float
+            vsini value
+        wav_mod_spectro : np.ndarray
+            Wavelength grid of the template
+        flx_mod_spectro : np.ndarray
+            Flux of the template
+        flx_mod_spectro_no_rv_hf : np.ndarray
+            High frequency content of the flux of the model at 0 rv
+        res_mod_spectro : np.ndarray
+            Resolution of the template interpolated onto the wavelength grid of the data
+        wav_obs_spectro : np.ndarray
+            Wavelength grid of the data
+        flx_obs_spectro : np.ndarray
+            The flux of the data
+        flx_cont_obs_spectro : np.ndarray
+            Continuum of the flux of the data
+        res_obs_spectro : np.ndarray
+            Resolution of the data
+        wav_cont : str
+            Wavelength used for the continuum
+        res_cont : float
+            Resolution of the continuum
+        err_obs_spectro : np.ndarray
+            Error of the flux
+        transm_obs_spectro : int | np.ndarray
+            Transmission
+        star_flx_obs_spectro : np.ndarray
+            Flux of the star
+        star_flx_cont_obs_spectro : int | np.ndarray
+            Continuum of the flux of the star
+        system_obs_spectro : np.ndarray
+            Systematics
+        speckles : int | np.ndarray
+            Speckles
 
-    Returns:
-        ccf        (float): Correlation between the template and the data
-        acf        (float): Autocorrelation between the template and iself
-        ccf_star   (float): Correlation between the template and the star data
+    Returns
+    -------
+        ccf : float
+            Correlation between the template and the data
+        acf : float
+            Autocorrelation between the template and itself
+        ccf_star : float
+            Correlation between the template and the star data
 
-    Authors: Arthur Vigan and Allan Denis
+    Authors
+    -------
+    Arthur Vigan and Allan Denis
     '''
 
     # Doppler shift + resolution match

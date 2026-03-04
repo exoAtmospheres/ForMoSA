@@ -16,7 +16,9 @@ class ObservationLoader:
     '''
     Class responsible for observation loading from various inputs format
 
-    Authors: Allan Denis
+    Authors
+    -------
+    Allan Denis
     '''
 
     @staticmethod
@@ -28,9 +30,12 @@ class ObservationLoader:
 
         Returns
         -------
-        dict: Dictionnary representation of the attributes
+        dict
+            Dictionnary representation of the attributes
 
-        Authors: Allan Denis
+        Authors
+        -------
+        Allan Denis
         '''
 
         return {k: np.asarray(v) for k, v in kwargs.items() if v is not None}
@@ -42,15 +47,20 @@ class ObservationLoader:
 
         Parameters
         ----------
-        keys          (iterable): Column names (FITS table) or dictionary keys.
+        keys : iterable
+            Column names (FITS table) or dictionary keys.
 
         Returns
         -------
         Mapping {canonical_key: actual_key_in_input}
 
-        Usage: normalize_keys(["wave", "flux", "err", "instrument"]) --> {'WAVELENGTH': 'wave', 'FLUX': 'flux', 'ERROR': 'err', 'INSTRUMENT': 'instrument'}
+        Examples
+        --------
+        >>> normalize_keys(["wave", "flux", "err", "instrument"]) --> {'WAVELENGTH': 'wave', 'FLUX': 'flux', 'ERROR': 'err', 'INSTRUMENT': 'instrument'}
 
-        Authors: Allan Denis
+        Authors
+        -------
+        Allan Denis
         '''
 
         if not isinstance(keys, Iterable):
@@ -76,16 +86,22 @@ class ObservationLoader:
 
         Parameters
         ----------
-        path           (str | os.PathLike): Path of the data (Fits file)
-        logger            (logging.Logger): Logger
-        log_level                    (str): Level of the Logger
+        path : str | os.PathLike
+            Path of the data (Fits file)
+        logger : logging.Logger
+            Logger
+        log_level : str
+            Level of the Logger
         **kwargs                          : Additional arguments
 
         Returns
         -------
-        Observation: Instance of class Observation
+        Observation
+            Instance of class Observation
 
-        Authors: Allan Denis
+        Authors
+        -------
+        Allan Denis
         '''
 
         logger = logger or setup_logging(log_level, name='Observation loader')
@@ -109,16 +125,22 @@ class ObservationLoader:
 
         Parameters
         ----------
-        data  (Mapping[str, np.ndarray]): Data
-        logger          (logging.Logger): Logger
-        log_level                  (str): Level of the Logger
+        data : Mapping[str, np.ndarray]
+            Data
+        logger : logging.Logger
+            Logger
+        log_level : str
+            Level of the Logger
         **kwargs                        : Additional arguments
 
         Returns
         -------
-        Observation: Instance of class Observation
+        Observation
+            Instance of class Observation
 
-        Authors: Allan Denis
+        Authors
+        -------
+        Allan Denis
         '''
 
         logger = logger or setup_logging(log_level, name='Observation loader')
@@ -138,7 +160,9 @@ class ObservationLoader:
         -------
         Observation
 
-        Authors: Allan Denis
+        Authors
+        -------
+        Allan Denis
         '''
 
         # Retrieve logger arguments
@@ -158,16 +182,22 @@ class ObservationLoader:
 
         Parameters
         ----------
-        data  (Mapping[str, np.ndarray]): Data
-        logger          (logging.Logger): Logger
-        log_level                  (str): Level of the Logger
+        data : Mapping[str, np.ndarray]
+            Data
+        logger : logging.Logger
+            Logger
+        log_level : str
+            Level of the Logger
         **kwargs                        : Additional arguments
 
         Returns
         -------
-        Observation: instance of class Observation
+        Observation
+            instance of class Observation
 
-        Authors: Allan Denis
+        Authors
+        -------
+        Allan Denis
         '''
 
         logger = logger or setup_logging(log_level, name='Observation loader')
@@ -325,20 +355,27 @@ class ObservationLoader:
         '''
         Extract columns like PREFIX1, PREFIX2, ... and stack them.
 
-        Example usage: systematics_array = ObservationFactory._extract_vector_series(data, ObservationKeys.SYSTEMATICS)
-        -> np.ndarray([systematics1, systematics2, systematics3, ...])
+        Examples
+        --------
+        >>> systematics_array = ObservationFactory._extract_vector_series(data, ObservationKeys.SYSTEMATICS)
+        >>> np.ndarray([systematics1, systematics2, systematics3, ...])
 
         Parameters
         ----------
-        data   (Mapping[str, np.ndarray]): Data
-        key             (ObservationKeys): Key of the column we want to extract (ObservationKeys.STAR_FLUX, ObservationKeys.SYSTEMATICS)
+        data : Mapping[str, np.ndarray]
+            Data
+        key : ObservationKeys
+            Key of the column we want to extract (ObservationKeys.STAR_FLUX, ObservationKeys.SYSTEMATICS)
         **kwargs                         : Additional arguments
 
         Returns
         -------
-        None | np.ndarray: Stacked columns
+        None | np.ndarray
+            Stacked columns
 
-        Authors: Allan Denis
+        Authors
+        -------
+        Allan Denis
         '''
 
         # Get the aliases corresponding to the key

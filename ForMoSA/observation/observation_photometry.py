@@ -19,18 +19,30 @@ class PhotometryObservation(Observation):
 
     Parameters
     ----------
-    wave                (np.ndarray): Wavelength array
-    flux                (np.ndarray): Flux array
-    err                 (np.ndarray): Error array
-    instrument          (np.ndarray): Instrument
-    facility            (np.ndarray): Facility
-    filter_id           (np.ndarray): Filter ID
-    native_unit     (WavelengthUnit): native unit of the wavelength
-    logger          (logging.Logger): Logger
-    log_level                  (str): Level of the logger
-    display_unit    (WavelengthUnit): Unit of the wavelength to display
+    wave : np.ndarray
+        Wavelength array
+    flux : np.ndarray
+        Flux array
+    err : np.ndarray
+        Error array
+    instrument : np.ndarray
+        Instrument
+    facility : np.ndarray
+        Facility
+    filter_id : np.ndarray
+        Filter ID
+    native_unit : WavelengthUnit
+        native unit of the wavelength
+    logger : logging.Logger
+        Logger
+    log_level : str
+        Level of the logger
+    display_unit : WavelengthUnit
+        Unit of the wavelength to display
 
-    Authors: Allan Denis
+    Authors
+    -------
+    Allan Denis
     '''
 
     def __init__(self, wave: np.ndarray, flux: np.ndarray, err: np.ndarray, instrument: np.ndarray, facility: np.ndarray, filter_id: np.ndarray, native_unit: WavelengthUnit, logger: logging.Logger | None = None, log_level: str = 'INFO', display_unit: WavelengthUnit = WavelengthUnit.MICROMETER) -> None:
@@ -142,7 +154,9 @@ class PhotometryObservation(Observation):
         '''
         Do some checks on photometric observations.
 
-        Authors: Allan Denis
+        Authors
+        -------
+        Allan Denis
         '''
 
         if not len(self.filter_id) == len(self.instrument):
@@ -159,7 +173,9 @@ class PhotometryObservation(Observation):
         '''
         For photometry, this function does not implement anything.
 
-        Authors: Allan Denis
+        Authors
+        -------
+        Allan Denis
         '''
 
         self.logger.info(f'      Observation {self.name} is photometric. No adaptation')
@@ -172,18 +188,27 @@ class PhotometryObservation(Observation):
 
         Parameters
         ----------
-        figure     (matplotlib.figure.Figure): Figure (used to overplot on an existing figure)
-        ax       (matplotlib.axes._axes.Axes): Ax (used to overplot on an existing ax)
-        ax_filt  (matplotlib.axes._axes.Axes): Ax used to overplot the transmission filter on an existing ax
-        plot_config   (PhotometricPlotConfig): Instance of class PhotometricPlotConfig
+        figure : matplotlib.figure.Figure
+            Figure (used to overplot on an existing figure)
+        ax : matplotlib.axes._axes.Axes
+            Ax (used to overplot on an existing ax)
+        ax_filt : matplotlib.axes._axes.Axes
+            Ax used to overplot the transmission filter on an existing ax
+        plot_config : PhotometricPlotConfig
+            Instance of class PhotometricPlotConfig
 
         Returns
         -------
-        fig        (matplotlib.figure.Figure): Updated figure
-        ax       (matplotlib.axes._axes.Axes): Updated ax
-        ax_filt  (matplotlib.axes._axes.Axes): Updated ax_filt
+        fig : matplotlib.figure.Figure
+            Updated figure
+        ax : matplotlib.axes._axes.Axes
+            Updated ax
+        ax_filt : matplotlib.axes._axes.Axes
+            Updated ax_filt
 
-        Authors: Allan Denis
+        Authors
+        -------
+        Allan Denis
         '''
 
         self.logger.info(f'      Plotting data for observation {self.name}')
@@ -283,14 +308,19 @@ class PhotometryObservation(Observation):
 
         Parameters
         ----------
-        windows        (str): Windows in the format 'wmin1,wmax1 / wmin2,wmax2 / ...'
-        print_logger  (bool): Whether to print logger
+        windows : str
+            Windows in the format 'wmin1,wmax1 / wmin2,wmax2 / ...'
+        print_logger : bool
+            Whether to print logger
 
         Returns
         -------
-        PhotometryObservation: Restricted observation
+        PhotometryObservation
+            Restricted observation
 
-        Authors: Allan Denis
+        Authors
+        -------
+        Allan Denis
         '''
 
         # Dictionary of the observation

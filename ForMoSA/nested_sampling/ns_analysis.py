@@ -19,13 +19,20 @@ class NSAnalysis(object):
 
     Parameters
     ----------
-    ns            (NestedSampling): Instance of class NestedSampling
-    observations  (ObservationSet): Instance of class ObservationSet
-    subgrids          (SubGridSet): Instance of class SubGridSet
-    logger        (logging.Logger): Logger
-    log_level                (str): Level of the Logger
+    ns : NestedSampling
+        Instance of class NestedSampling
+    observations : ObservationSet
+        Instance of class ObservationSet
+    subgrids : SubGridSet
+        Instance of class SubGridSet
+    logger : logging.Logger
+        Logger
+    log_level : str
+        Level of the Logger
 
-    Authors: Allan Denis
+    Authors
+    -------
+    Allan Denis
     '''
 
     def __init__(self, ns: NestedSampling, logger: logging.Logger | None = None, log_level: str = 'INFO') -> None:
@@ -80,7 +87,9 @@ class NSAnalysis(object):
         '''
         Validation for NSAnalysis.
 
-        Authors: Allan Denis
+        Authors
+        -------
+        Allan Denis
         '''
 
         if not isinstance(self.ns, NestedSampling):
@@ -92,13 +101,17 @@ class NSAnalysis(object):
 
         Parameters
         ----------
-        theta (np.ndarray[float]): List of values picked by the Nested Sampling for the free parameters
+        theta : np.ndarray[float]
+            List of values picked by the Nested Sampling for the free parameters
 
         Returns
         -------
-        list[ObservedModel]: List of instances of class ObservedModel
+        list[ObservedModel]
+            List of instances of class ObservedModel
 
-        Authors: Allan Denis
+        Authors
+        -------
+        Allan Denis
         '''
 
         return self.ns.build_models_from_theta(theta)
@@ -109,15 +122,21 @@ class NSAnalysis(object):
 
         Parameters
         ----------
-        grid     (ModelGrid): Instance of class ModelGrid
-        params (list[float]): list or array model parameters
-        print_logger  (bool): Whether to print the logger
+        grid : ModelGrid
+            Instance of class ModelGrid
+        params : list[float]
+            list or array model parameters
+        print_logger : bool
+            Whether to print the logger
 
         Returns
         -------
-        ObservedModel: Native observed model
+        ObservedModel
+            Native observed model
 
-        Authors: Allan Denis
+        Authors
+        -------
+        Allan Denis
         '''
 
         if not isinstance(grid, ModelGrid):
@@ -188,14 +207,18 @@ class NSAnalysis(object):
 
         Parameters
         ----------
-        perc (float): Percentile value between 0 and 1 (0.68 for 1 sigma, 0.95 for 2 sigmas)
+        perc : float
+            Percentile value between 0 and 1 (0.68 for 1 sigma, 0.95 for 2 sigmas)
 
 
         Returns
         -------
-        tuple[ObservedModel, ObservedModel]: lower and higher values of the flux for the confidence interval
+        tuple[ObservedModel, ObservedModel]
+            lower and higher values of the flux for the confidence interval
 
-        Authors: Allan Denis
+        Authors
+        -------
+        Allan Denis
         '''
 
         perc = float(perc)
@@ -237,15 +260,21 @@ class NSAnalysis(object):
 
         Parameters
         ----------
-        rv_grid  (np.ndarray): Grid of radial velocity values (in km/s)
-        index           (int): Index of observation used for the ccf computation
-        theta          (list): List of free values of the parameters. If not provided, the best fitted parameters are used
+        rv_grid : np.ndarray
+            Grid of radial velocity values (in km/s)
+        index : int
+            Index of observation used for the ccf computation
+        theta : list
+            List of free values of the parameters. If not provided, the best fitted parameters are used
 
         Returns
         -------
-        dict[str, np.ndarray]: Dictionary of CCF results keyed by observation name
+        dict[str, np.ndarray]
+            Dictionary of CCF results keyed by observation name
 
-        Authors: Bhavesh Rajpoot and Allan Denis
+        Authors
+        -------
+        Bhavesh Rajpoot and Allan Denis
         '''
 
         if theta is not None:
@@ -326,16 +355,23 @@ class NSAnalysis(object):
 
         Parameters
         ----------
-        rv_grid           (np.ndarray): Grid of radial velocity values (in km/s)
-        vsini_grid        (np.ndarray): Grid of v.sin(i) values (in km/s)
-        index                    (int): Index of observation used for the ccf computation
-        theta                  (list): List of free values of the parameters. If not provided, the best fitted parameters are used
+        rv_grid : np.ndarray
+            Grid of radial velocity values (in km/s)
+        vsini_grid : np.ndarray
+            Grid of v.sin(i) values (in km/s)
+        index : int
+            Index of observation used for the ccf computation
+        theta : list
+            List of free values of the parameters. If not provided, the best fitted parameters are used
 
         Returns
         -------
-        dict[str, np.ndarray]: Dictionary of RV-vsini map results keyed by observation name
+        dict[str, np.ndarray]
+            Dictionary of RV-vsini map results keyed by observation name
 
-        Authors: Bhavesh Rajpoot and Allan Denis
+        Authors
+        -------
+        Bhavesh Rajpoot and Allan Denis
         '''
 
         if theta is not None:

@@ -19,13 +19,20 @@ class SubGridPhotometry(SubGrid):
 
     Parameters
     ----------
-    parent_grid                  (ModelGrid): Parent model grid
-    Filter    (np.ndarray[PhotometryFilter]): Instance of :class:~PhotometryFilter corresponding to the photometric filter
-    logger                  (logging.Logger): Logger
-    log_level                          (str): Level of the logger
-    name                               (str): Name of the subgrid
+    parent_grid : ModelGrid
+        Parent model grid
+    Filter : np.ndarray[PhotometryFilter]
+        Instance of :class:~PhotometryFilter corresponding to the photometric filter
+    logger : logging.Logger
+        Logger
+    log_level : str
+        Level of the logger
+    name : str
+        Name of the subgrid
 
-    Authors: Allan Denis
+    Authors
+    -------
+    Allan Denis
     '''
 
     def __init__(self, grid: xr.Dataset, parent_grid: ModelGrid, Filter: np.ndarray[PhotometryFilter], logger: logging.Logger | None = None, log_level: str = "INFO", display_unit: WavelengthUnit = WavelengthUnit.MICROMETER, name: str = 'Unknown'):
@@ -89,20 +96,31 @@ class SubGridPhotometry(SubGrid):
 
         Parameters
         ----------
-        parent_grid                 (ModelGrid): Instance of ModelGrid
-        Filter   (np.ndarray[PhotometryFilter]): Arrays containing instances of class PhotometryFilter corresponding to the photometric filter
-        name                              (str): Name of the subgrid
-        logger          (logging.Logger | None): Logger
-        log_level                         (str): Level of the Logger
-        display_unit           (WavelengthUnit): Unit to display for the wavelength
+        parent_grid : ModelGrid
+            Instance of ModelGrid
+        Filter : np.ndarray[PhotometryFilter]
+            Arrays containing instances of class PhotometryFilter corresponding to the photometric filter
+        name : str
+            Name of the subgrid
+        logger : logging.Logger | None
+            Logger
+        log_level : str
+            Level of the Logger
+        display_unit : WavelengthUnit
+            Unit to display for the wavelength
 
         Returns
         -------
-        SubGridPhotometryy: Instance of SubGridPhotometry
+        SubGridPhotometryy
+            Instance of SubGridPhotometry
 
-        Usage: subgrid = SubGridPhotometry.from_parent(parent_grid, Filter, name, logger, log_level, display_unit)
+        Examples
+        --------
+        >>> subgrid = SubGridPhotometry.from_parent(parent_grid, Filter, name, logger, log_level, display_unit)
 
-        Authors: Allan Denis
+        Authors
+        -------
+        Allan Denis
         '''
 
         subgrid = cls(
@@ -131,19 +149,29 @@ class SubGridPhotometry(SubGrid):
 
         Parameters
         ----------
-        dx                (xr.Dataset): Grid data
-        parent_grid        (ModelGrid): Instance of ModelGrid
-        logger (logging.Logger | None): Logger
-        log_level                (str): Level of the Logger
-        display_unit  (WavelengthUnit): Unit to display for the wavelength
+        dx : xr.Dataset
+            Grid data
+        parent_grid : ModelGrid
+            Instance of ModelGrid
+        logger : logging.Logger | None
+            Logger
+        log_level : str
+            Level of the Logger
+        display_unit : WavelengthUnit
+            Unit to display for the wavelength
 
         Returns
         -------
-        SubGridPhotometry: Instance of SubGridPhotometry
+        SubGridPhotometry
+            Instance of SubGridPhotometry
 
-        Usage: subgrid = SubGridPhotometry.from_grid(ds, parent_grid, logger, log_level, display_unit)
+        Examples
+        --------
+        >>> subgrid = SubGridPhotometry.from_grid(ds, parent_grid, logger, log_level, display_unit)
 
-        Authors: Allan Denis
+        Authors
+        -------
+        Allan Denis
         '''
 
         logger = logger or setup_logging(level=log_level, name='SubGridPhotometry')
@@ -187,7 +215,9 @@ class SubGridPhotometry(SubGrid):
         '''
         Check the consistency between the target wavelength and the wavelengths of the filter.
 
-        Authors: Allan Denis
+        Authors
+        -------
+        Allan Denis
         '''
 
         for filt in self.Filter:
@@ -200,7 +230,9 @@ class SubGridPhotometry(SubGrid):
         '''
         Adapt the native grid to the target wavelength and resolution.
 
-        Authors: Allan Denis
+        Authors
+        -------
+        Allan Denis
         '''
 
         self.adapt_grid()
@@ -212,9 +244,12 @@ class SubGridPhotometry(SubGrid):
 
         Returns
         -------
-        tuple[float, float]: Minimumn and maximum wavelengths of the restricted subgrid
+        tuple[float, float]
+            Minimumn and maximum wavelengths of the restricted subgrid
 
-        Authors: Allan Denis
+        Authors
+        -------
+        Allan Denis
         '''
 
         margin = 0.05   # 5% margin
@@ -232,13 +267,16 @@ class SubGridPhotometry(SubGrid):
 
         Parameters
         ----------
-        model_to_adapt         (xr.DataArray): Model to adapt
+        model_to_adapt : xr.DataArray
+            Model to adapt
 
         Returns
         -------
         model_adapted
 
-        Authors: Allan Denis
+        Authors
+        -------
+        Allan Denis
         '''
 
         model_adapted = self.integrate_filter_curve(model_to_adapt)
@@ -251,14 +289,18 @@ class SubGridPhotometry(SubGrid):
 
         Parameters
         ----------
-        observed_model  (ObservedModel): Model to modify.
-        params     (ObservedParameters): Dictionary of parameters values.
+        observed_model : ObservedModel
+            Model to modify.
+        params : ObservedParameters
+            Dictionary of parameters values.
 
         Returns
         -------
         (ObservedModel): observed_model transformed by the physics effects
 
-        Authors: Allan Denis
+        Authors
+        -------
+        Allan Denis
         '''
 
         # Parameters relevant to spectroscopy
@@ -278,13 +320,17 @@ class SubGridPhotometry(SubGrid):
 
         Parameters
         ----------
-        model_to_adapt (xr.DataArray): Model to integrate
+        model_to_adapt : xr.DataArray
+            Model to integrate
 
         Returns
         -------
-        xr.DataArray: Integrated value under the filter curve
+        xr.DataArray
+            Integrated value under the filter curve
 
-        Authors: Allan Denis
+        Authors
+        -------
+        Allan Denis
         '''
 
         if print_logger:
@@ -338,15 +384,21 @@ class SubGridPhotometry(SubGrid):
 
         Parameters
         ----------
-        observed_model     (ObservedModel): Instance of class ObservedModel to transform
-        obs                  (Observation): Instance of class Observation
-        bounds_lsq   (tuple[float, float]): Bounds for the least squares
+        observed_model : ObservedModel
+            Instance of class ObservedModel to transform
+        obs : Observation
+            Instance of class Observation
+        bounds_lsq : tuple[float, float]
+            Bounds for the least squares
 
         Returns
         -------
-        ObservedModel: Instance of class ObservedModel transformed
+        ObservedModel
+            Instance of class ObservedModel transformed
 
-        Authors: Allan Denis
+        Authors
+        -------
+        Allan Denis
         '''
 
         return PhotometricEffects._apply_observation(observed_model, obs, bounds_lsq)
@@ -357,15 +409,21 @@ class SubGridPhotometry(SubGrid):
 
         Parameters
         ----------
-        observed_model (ObservedModel): Observed model
-        obs              (Observation): Observation
-        logL_type  (LogLikelihoodType): Loglikelihood function
+        observed_model : ObservedModel
+            Observed model
+        obs : Observation
+            Observation
+        logL_type : LogLikelihoodType
+            Loglikelihood function
 
         Returns
         -------
-        float: logL value
+        float
+            logL value
 
-        Authors: Simon Petrus, Matthieu Ravet and Allan Denis
+        Authors
+        -------
+        Simon Petrus, Matthieu Ravet and Allan Denis
         '''
 
         return PhotometricEffects._compute_loglike(observed_model, obs, logL_type)

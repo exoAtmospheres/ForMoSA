@@ -32,7 +32,9 @@ class ConfigPath:
         '''
         Check paths types.
 
-        Authors: Allan Denis
+        Authors
+        -------
+        Allan Denis
         '''
 
         for name in ['adapt_store_path', 'result_path', 'model_path']:
@@ -61,7 +63,9 @@ class ConfigAdapt:
         '''
         Check adapt configuration parameters and normalize types.
 
-        Authors: Allan Denis
+        Authors
+        -------
+        Allan Denis
         '''
 
         # Check method
@@ -87,9 +91,12 @@ class ConfigAdapt:
 
         Parameters
         ----------
-        n_obs (int): Number to be tested against lengths of list parameters
+        n_obs : int
+            Number to be tested against lengths of list parameters
 
-        Authors: Allan Denis
+        Authors
+        -------
+        Allan Denis
         '''
 
         if (not isinstance(n_obs, int)) or (n_obs < 1):
@@ -110,14 +117,19 @@ class ConfigAdapt:
 
         Parameters
         ----------
-        observations  (ObservationSet): Instance of class Observtation
-        grid               (ModelGrid): Instance of class ModelGrid
+        observations : ObservationSet
+            Instance of class Observtation
+        grid : ModelGrid
+            Instance of class ModelGrid
 
         Returns
         -------
-        list[np.ndarray]: Target resolution for each observation
+        list[np.ndarray]
+            Target resolution for each observation
 
-        Authors: Simon Petrus, Matthieu Ravet and Allan Denis
+        Authors
+        -------
+        Simon Petrus, Matthieu Ravet and Allan Denis
         '''
 
         # Initial check
@@ -159,14 +171,18 @@ class ConfigAdapt:
 
         Parameters
         ----------
-        observations  (ObservationSet): Instance of class Observtation
-        grid               (ModelGrid): Instance of class ModelGrid
+        observations : ObservationSet
+            Instance of class Observtation
+        grid : ModelGrid
+            Instance of class ModelGrid
 
         Returns
         -------
         tuple[list[np.ndarray], list[np.ndarray]]: Targets wavelength and resolution lists
 
-        Authors: Allan Denis
+        Authors
+        -------
+        Allan Denis
         '''
 
         # Initial checks
@@ -208,13 +224,17 @@ class ConfigAdapt:
 
         Parameters
         ----------
-        observations  (ObservationSet): Instance of class Observtation
+        observations : ObservationSet
+            Instance of class Observtation
 
         Returns
         -------
-        list[bool]: Whether the continuum should be removed for each observation
+        list[bool]
+            Whether the continuum should be removed for each observation
 
-        Authors: Allan Denis
+        Authors
+        -------
+        Allan Denis
         '''
 
         # Initial checks
@@ -257,7 +277,9 @@ class ConfigInversion:
         '''
         Check inversion configuration parameters and normalize types.
 
-        Authors: Allan Denis
+        Authors
+        -------
+        Allan Denis
         '''
 
         # Check npoints
@@ -313,9 +335,12 @@ class ConfigInversion:
 
         Parameters
         ----------
-        n_obs (int): Number to be tested against lengths of list parameters
+        n_obs : int
+            Number to be tested against lengths of list parameters
 
-        Authors: Allan Denis
+        Authors
+        -------
+        Allan Denis
         '''
 
         if (not isinstance(n_obs, int)) or (n_obs < 1):
@@ -348,7 +373,9 @@ class ConfigParameters:
         '''
         Check parameters configuration.
 
-        Authors: Allan Denis
+        Authors
+        -------
+        Allan Denis
         '''
 
         for name, value in self.__dict__.items():
@@ -381,10 +408,14 @@ class ConfigParameters:
 
         Parameters
         ----------
-        param (str): Name of the parameter
-        value (str): Value of the parameter
+        param : str
+            Name of the parameter
+        value : str
+            Value of the parameter
 
-        Authors: Allan Denis
+        Authors
+        -------
+        Allan Denis
         '''
 
         setattr(self, str(param), value)
@@ -395,13 +426,17 @@ class ConfigParameters:
 
         Parameters
         ----------
-        name (str): Name of the parameter in the config file
+        name : str
+            Name of the parameter in the config file
 
         Returns
         -------
-        tuple[str, str, list | None]: (name, scope, obs_index) of the parameter
+        tuple[str, str, list | None]
+            (name, scope, obs_index) of the parameter
 
-        Authors: Allan Denis
+        Authors
+        -------
+        Allan Denis
         '''
 
         if name not in self.to_dict.keys():
@@ -425,13 +460,17 @@ class ConfigParameters:
 
         Parameters
         ----------
-        value (list[str]): Value of the parameter in the config file
+        value : list[str]
+            Value of the parameter in the config file
 
         Returns
         -------
-        Prior.Prior | str: Instance of Prior.Prior or 'NA'
+        Prior.Prior | str
+            Instance of Prior.Prior or 'NA'
 
-        Authors: Allan Denis
+        Authors
+        -------
+        Allan Denis
         '''
 
         if value not in self.to_dict.values():
@@ -459,15 +498,20 @@ class ConfigParameters:
 
         Parameters
         ----------
-        name  (str): Name of the parameter in the config file
-        value (str): Value of the parameter in the config file
+        name : str
+            Name of the parameter in the config file
+        value : str
+            Value of the parameter in the config file
         **kwargs   : Additional arguments (logger, log_level, ...)
 
         Returns
         -------
-        Parameter | None: Instance of class Parameter or None if parameter has no prior
+        Parameter | None
+            Instance of class Parameter or None if parameter has no prior
 
-        Authors: Allan Denis
+        Authors
+        -------
+        Allan Denis
         '''
 
         name, kind, scope, obs_index = self._parse_param_name(name)
@@ -505,7 +549,9 @@ class ConfigNestle:
         '''
         Check Nestle configuration parameters and normalize types.
 
-        Authors: Allan Denis
+        Authors
+        -------
+        Allan Denis
         '''
 
         # Check method
@@ -567,13 +613,17 @@ class ConfigNestle:
 
         Parameters
         ----------
-        data (dict): Dictionary of Nestle parameters
+        data : dict
+            Dictionary of Nestle parameters
 
         Returns
         -------
-        'ConfigNestle': An instance of class ConfigNestle
+        'ConfigNestle'
+            An instance of class ConfigNestle
 
-        Authors: Allan Denis
+        Authors
+        -------
+        Allan Denis
         '''
 
         if not isinstance(data, dict):
@@ -607,7 +657,9 @@ class ConfigPyMultiNest:
         '''
         Check PyMultiNest configuration parameters and normalize types.
 
-        Authors: Allan Denis
+        Authors
+        -------
+        Allan Denis
         '''
 
         # Bool fields
@@ -691,13 +743,17 @@ class ConfigPyMultiNest:
 
         Parameters
         ----------
-        data (dict): Dictionary of PyMultiNest parameters
+        data : dict
+            Dictionary of PyMultiNest parameters
 
         Returns
         -------
-        'ConfigPyMultiNest': An instance of class ConfigPyMultiNest
+        'ConfigPyMultiNest'
+            An instance of class ConfigPyMultiNest
 
-        Authors: Allan Denis
+        Authors
+        -------
+        Allan Denis
         '''
 
         if not isinstance(data, dict):
@@ -730,7 +786,9 @@ class ConfigUltraNest:
         '''
         Check UltraNest configuration parameters and normalize types.
 
-        Authors: Allan Denis
+        Authors
+        -------
+        Allan Denis
         '''
 
         # Float fields
@@ -862,13 +920,17 @@ class ConfigUltraNest:
 
         Parameters
         ----------
-        data (dict): Dictionary of UltraNest parameters
+        data : dict
+            Dictionary of UltraNest parameters
 
         Returns
         -------
-        'ConfigUltraNest': An instance of class ConfigUltraNest
+        'ConfigUltraNest'
+            An instance of class ConfigUltraNest
 
-        Authors: Allan Denis
+        Authors
+        -------
+        Allan Denis
         '''
 
         if not isinstance(data, dict):
@@ -886,7 +948,9 @@ class Config_NS:
         '''
         Check Config_NS configuration parameters.
 
-        Authors: Allan Denis
+        Authors
+        -------
+        Allan Denis
         '''
 
         # Check nestle type
@@ -924,13 +988,17 @@ class Config_NS:
 
         Parameters
         ----------
-        data (dict): Dictionary representation of data
+        data : dict
+            Dictionary representation of data
 
         Returns
         -------
-        "Config_NS": An instance of class Config_NS
+        "Config_NS"
+            An instance of class Config_NS
 
-        Authors: Allan Denis
+        Authors
+        -------
+        Allan Denis
         '''
 
         if not isinstance(data, dict):
@@ -953,11 +1021,16 @@ class ConfigGenerator:
 
     Parameters
     ----------
-    sections          (dict): Dictionary containing sections of the config file
-    logger  (logging.Logger): Logger
-    log_level          (str): Level of the Logger
+    sections : dict
+        Dictionary containing sections of the config file
+    logger : logging.Logger
+        Logger
+    log_level : str
+        Level of the Logger
 
-    Authors: Mathieu Ravet and Allan Denis
+    Authors
+    -------
+    Mathieu Ravet and Allan Denis
     '''
 
     def __init__(self, sections: dict = None, logger: logging.Logger | None = None, log_level: str = 'INFO') -> None:
@@ -1140,10 +1213,14 @@ class ConfigGenerator:
 
         Parameters
         ----------
-        path (str | os.PathLike): Path where to save the config file
-        name               (str): Name of the config file
+        path : str | os.PathLike
+            Path where to save the config file
+        name : str
+            Name of the config file
 
-        Authors: Allan Denis
+        Authors
+        -------
+        Allan Denis
         '''
 
         self.logger.info(f'    Save config to path {path}')
@@ -1167,9 +1244,12 @@ class ConfigLoader:
 
     Parameters
     ----------
-    path (str | os.PathLike): Path to the config file
-    logger  (logging.Logger): Logger
-    log_level          (str): Level of the Logger
+    path : str | os.PathLike
+        Path to the config file
+    logger : logging.Logger
+        Logger
+    log_level : str
+        Level of the Logger
 
     Auhors: Allan Denis
     '''
@@ -1186,7 +1266,9 @@ class ConfigLoader:
         '''
         Load all the sections of .ini file in dataclasses.
 
-        Authors: Allan Denis
+        Authors
+        -------
+        Allan Denis
         '''
 
         self.logger.debug(f' Load config file {self.path}')
@@ -1227,7 +1309,9 @@ class ConfigLoader:
         '''
         Add missing sections / keys using defaults without overwriting existing values.
 
-        Authors: Allan Denis
+        Authors
+        -------
+        Allan Denis
         '''
 
         for section, default_obj in self.defaults.items():

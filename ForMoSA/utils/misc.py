@@ -13,14 +13,19 @@ def decoupe(second):
     """
     Re-arranged a number of seconds in the hours-minutes-seconds format.
 
-    Args:
-        second (float): number of second
-    Returns:
+    Parameters
+    ----------
+        second : float
+            number of second
+    Returns
+    -------
         - float     : hours
         - float     : minutes
         - float     : seconds
 
-    Author: Simon Petrus
+    Authors
+    -------
+    Simon Petrus
     """
 
     hour = second / 3600
@@ -40,13 +45,19 @@ def find_nearest(array, value):
 
     Parameters
     ----------
-    array (array): Array to explore
-    value (float): Desire value
+    array : array
+        Array to explore
+    value : float
+        Desire value
 
-    Returns:
-        - idx (int)          : Indice of the closest values from the desire value
+    Returns
+    -------
+        int
+            Index of the closest values from the desire value
 
-    Author: Simon Petrus
+    Authors
+    -------
+    Simon Petrus
     '''
 
     idx = (np.abs(array - value)).argmin()
@@ -63,15 +74,23 @@ def format_grid(grid, attr, free_comp, weights):
 
     Parameters
     ----------
-    grid              (np.ndarray): Original grid
-    attr                    (dict): Original grid attributs
-    free_comp                (int): Number of free components in the new grid (= PCA component used during PCA + 1 (nfs))
-    weights           (np.ndarray): PCA or NMF weights grid
+    grid : np.ndarray
+        Original grid
+    attr : dict
+        Original grid attributs
+    free_comp : int
+        Number of free components in the new grid (= PCA component used during PCA + 1 (nfs))
+    weights : np.ndarray
+        PCA or NMF weights grid
 
-    Returns:
-        - ds_weights              (xarray): Xarray of the PCA or NMF weights grid
+    Returns
+    -------
+        xarray
+            Xarray of the PCA or NMF weights grid
 
-    Author: Matthieu Ravet
+    Authors
+    -------
+    Matthieu Ravet
     '''
 
     # Format the new grids in xarray
@@ -93,18 +112,25 @@ def get_weighted_percentile(n, data, weights=None):
     '''
     Return the weighted nth percentile(s) of the data
 
-    Args:
-        n (float | list | array): Percentile(s) between 0 and 100
-    data                 (array): Data array, shape (N,) or (N, M)
-    weights      (array | None): Weights array of shape (N,). If None, uniform weights are used.
+    Parameters
+    ----------
+        n : float | list | array
+            Percentile(s) between 0 and 100
+    data : array
+        Data array, shape (N,) or (N, M)
+    weights : array | None
+        Weights array of shape (N,). If None, uniform weights are used.
 
     Returns
     -------
-        percentiles (array): Weighted percentile values.
+        percentiles : array
+            Weighted percentile values.
             - shape (len(n),) if data is 1D
             - shape (len(n), M) if data is 2D
 
-    Authors: Allan Denis
+    Authors
+    -------
+    Allan Denis
     '''
 
     # Convert n to array
@@ -165,7 +191,9 @@ def scale_to_one_significant_digit(flux):
     '''
     Returns a tuple (scaled_flux, factor) such that flux ≈ scaled_flux * 10**factor
 
-    Authors: Allan Denis
+    Authors
+    -------
+    Allan Denis
     '''
 
     if len(flux) == 0:
@@ -186,13 +214,17 @@ def from_recarray_to_dic(data: fits.fitsrec.FITS_rec):
 
     Parameters
     ----------
-    data (fits.fitsred.FITS_rec): Data from a fits file
+    data : fits.fitsred.FITS_rec
+        Data from a fits file
 
     Returns
     -------
-    data_dict (dic): Dictionary representation of the data
+    data_dict : dic
+        Dictionary representation of the data
 
-    Authors: Allan Denis
+    Authors
+    -------
+    Allan Denis
     '''
 
     return {name: np.asarray(data[name]) for name in data.names}
@@ -207,15 +239,21 @@ def normalize_list(value, name: str, converter=None):
 
     Parameters
     ----------
-    value          (Any): Value to normalize
-    name           (str): Parameter name (for error messages)
-    converter (callable): Function applied to each element if provided
+    value : Any
+        Value to normalize
+    name : str
+        Parameter name (for error messages)
+    converter : callable
+        Function applied to each element if provided
 
     Returns
     -------
-    list: Normalized list
+    list
+        Normalized list
 
-    Authors: Allan Denis
+    Authors
+    -------
+    Allan Denis
     '''
 
     # Ensure list
@@ -248,13 +286,17 @@ def to_float_if_possible(v):
 
     Parameters
     ----------
-    v (Any): Value to convert
+    v : Any
+        Value to convert
 
     Returns
     -------
-    float: Float if conversion succeeds, otherwise original value
+    float
+        Float if conversion succeeds, otherwise original value
 
-    Authors: Allan Denis
+    Authors
+    -------
+    Allan Denis
     '''
 
     if isinstance(v, (int, float)):

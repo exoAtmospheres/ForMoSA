@@ -22,11 +22,15 @@ class Plotting(object):
 
     Parameters
     ----------
-    results      (NSResults): Instance of class NSResults
-    logger          (Logger): Logger used
+    results : NSResults
+        Instance of class NSResults
+    logger : Logger
+        Logger used
     log_level         v(str): Level of the Logger
 
-    Authors: Paulina Palma-Bifani, Matthieu Ravet and Allan Denis
+    Authors
+    -------
+    Paulina Palma-Bifani, Matthieu Ravet and Allan Denis
     '''
 
     def __init__(self, results: NSResults, logger: logging.Logger, log_level: str = 'INFO') -> None:
@@ -66,13 +70,17 @@ class Plotting(object):
 
         Parameters
         ----------
-        config (CornerPlotConfig): Instance of class CornerPlotConfig
+        config : CornerPlotConfig
+            Instance of class CornerPlotConfig
 
         Returns
         -------
-        matplotlib.figure.Figure: Figure containin corner plots.
+        matplotlib.figure.Figure
+            Figure containin corner plots.
 
-        Authors: Paulina Palma-Bifani, Matthieu Ravet and Allan Denis
+        Authors
+        -------
+        Paulina Palma-Bifani, Matthieu Ravet and Allan Denis
         '''
 
         self._logger.info('    Plotting Corner plot')
@@ -102,9 +110,12 @@ class Plotting(object):
 
         Returns:
         --------
-        tuple[matplotlib.figure.Figure, matplotlib.axes._axes.Axes]: Tuple containing Figure and Ax objects
+        tuple[matplotlib.figure.Figure, matplotlib.axes._axes.Axes]
+            Tuple containing Figure and Ax objects
 
-        Authors: Paulina Palma-Bifani, Matthieu Ravet and Allan Denis
+        Authors
+        -------
+        Paulina Palma-Bifani, Matthieu Ravet and Allan Denis
         '''
 
         self._logger.info('    Plotting posterior chains for each parameter.')
@@ -151,14 +162,18 @@ class Plotting(object):
 
         Parameters
         ----------
-        config (RadarPlotConfig): Instance of class RadarPlotConfig
+        config : RadarPlotConfig
+            Instance of class RadarPlotConfig
 
 
         Returns
         -------
-        tuple[matplotlib.figure.Figure, matplotlib.axes._axes.Axes]: Tuple containing Figure and Ax objects
+        tuple[matplotlib.figure.Figure, matplotlib.axes._axes.Axes]
+            Tuple containing Figure and Ax objects
 
-        Authors: Paulina Palma-Bifani, Matthieu Ravet and Allan Denis
+        Authors
+        -------
+        Paulina Palma-Bifani, Matthieu Ravet and Allan Denis
         '''
 
         self._logger.info('    Plotting radar plot of the chains')
@@ -239,18 +254,26 @@ class Plotting(object):
 
         Parameters
         ----------
-        observations       (ObservationSet): Instance of class ObservationSet
-        best_fit           (list[ObservedModel]): List of instances of class ObservedModel corresponding to the best-fit model for each observation
-        figsize            (tuple[float, float]): Size of the figure
-        plot_native_model                 (bool): Whether to plot the native model
-        native_model             (ObservedModel): As instance of ObservedModel
+        observations : ObservationSet
+            Instance of class ObservationSet
+        best_fit : list[ObservedModel]
+            List of instances of class ObservedModel corresponding to the best-fit model for each observation
+        figsize : tuple[float, float]
+            Size of the figure
+        plot_native_model : bool
+            Whether to plot the native model
+        native_model : ObservedModel
+            As instance of ObservedModel
 
 
         Returns
         -------
-        tuple[Figure, Axes, Axes, Axes, Axes]: Figure and ax objects
+        tuple[Figure, Axes, Axes, Axes, Axes]
+            Figure and ax objects
 
-        Authors: Paulina Palma-Bifani, Matthieu Ravet and Allan Denis
+        Authors
+        -------
+        Paulina Palma-Bifani, Matthieu Ravet and Allan Denis
         '''
 
         self._logger.info('    Plotting best fit and residuals')
@@ -351,16 +374,23 @@ class Plotting(object):
 
         Parameters
         ----------
-        rv_grid           (np.ndarray): Grid of radial velocity values (in km/s)
-        ccf               (np.ndarray): Corresponding ccf (cross-correlation) values
-        acf               (np.ndarray): acf (aut-correlation) values
-        ccf_star          (np.ndarray): ccf values with star speckles
+        rv_grid : np.ndarray
+            Grid of radial velocity values (in km/s)
+        ccf : np.ndarray
+            Corresponding ccf (cross-correlation) values
+        acf : np.ndarray
+            acf (aut-correlation) values
+        ccf_star : np.ndarray
+            ccf values with star speckles
 
         Returns
         -------
-        tuple[Figure, Axes]: Figure and Axes objects
+        tuple[Figure, Axes]
+            Figure and Axes objects
 
-        Authors: Bhavesh Rajpoot and Allan Denis
+        Authors
+        -------
+        Bhavesh Rajpoot and Allan Denis
         '''
 
         self._logger.info('    Plotting CCF')
@@ -394,16 +424,23 @@ class Plotting(object):
 
         Parameters
         ----------
-        rv_grid           (np.ndarray): Grid of radial velocity values (in km/s)
-        ccf               (np.ndarray): Corresponding ccf (cross-correlation) values
-        acf               (np.ndarray): acf (aut-correlation) values
-        ccf_star          (np.ndarray): ccf values with star speckles
+        rv_grid : np.ndarray
+            Grid of radial velocity values (in km/s)
+        ccf : np.ndarray
+            Corresponding ccf (cross-correlation) values
+        acf : np.ndarray
+            acf (aut-correlation) values
+        ccf_star : np.ndarray
+            ccf values with star speckles
 
         Returns
         -------
-        tuple[Figure, Axes]: Figure and Axes objects
+        tuple[Figure, Axes]
+            Figure and Axes objects
 
-        Authors: Bhavesh Rajpoot (adapted from Allan Denis)
+        Authors
+        -------
+        Bhavesh Rajpoot (adapted from Allan Denis)
         '''
 
         self._logger.info('    Computing RV-vsini map')

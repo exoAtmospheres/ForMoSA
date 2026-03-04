@@ -11,7 +11,9 @@ class Prior(ABC):
     """
     Abstract base class for prior distributions.
 
-    Authors: Allan Denis
+    Authors
+    -------
+    Allan Denis
     """
 
     def __init__(self, logger: logging.Logger | None = None, log_level: str='INFO') -> None:
@@ -43,15 +45,21 @@ class Prior(ABC):
 
         Parameters
         ----------
-        data              (dict): Dictionary containing prior parameters
-        logger  (logging.Logger): Logger
-        log_level          (str): Level of the Logger
+        data : dict
+            Dictionary containing prior parameters
+        logger : logging.Logger
+            Logger
+        log_level : str
+            Level of the Logger
 
         Returns
         -------
-        Prior: An instance of Prior
+        Prior
+            An instance of Prior
 
-        Authors: Allan Denis
+        Authors
+        -------
+        Allan Denis
         '''
 
         logger = logger or setup_logging(level=log_level, name='Prior')
@@ -74,13 +82,17 @@ class Prior(ABC):
 
         Parameters
         ----------
-        theta (float): A value between 0 and 1 to sample from the prior
+        theta : float
+            A value between 0 and 1 to sample from the prior
 
         Returns
         -------
-        float: Sampled value from the prior distribution
+        float
+            Sampled value from the prior distribution
 
-        Authors: Allan Denis
+        Authors
+        -------
+        Allan Denis
         '''
 
         pass
@@ -105,18 +117,27 @@ class Prior(ABC):
 
         Parameters
         ----------
-        prior_type   (PriorType): Type of the prior
-        params            (dict): Dictionary of prior parameters
-        logger  (logging.Logger): Logger
-        log_level          (str): Level of the Logger
+        prior_type : PriorType
+            Type of the prior
+        params : dict
+            Dictionary of prior parameters
+        logger : logging.Logger
+            Logger
+        log_level : str
+            Level of the Logger
 
         Returns
         -------
-        Prior: Prior object corresponding to the specified type and parameters
+        Prior
+            Prior object corresponding to the specified type and parameters
 
-        Usage: Prior = Prior.parse_prior(prior_type, params)
+        Examples
+        --------
+        >>> Prior = Prior.parse_prior(prior_type, params)
 
-        Authors: Allan Denis
+        Authors
+        -------
+        Allan Denis
         '''
 
         if prior_type.is_gaussian:
@@ -140,12 +161,18 @@ class UniformPrior(Prior):
 
     Parameters
     ----------
-    lower            (float): Lower bound of the uniform prior
-    upper            (float): Upper bound of the uniform prior
-    logger  (logging.Logger): Logger
-    log_level          (str): Level of the Logger
+    lower : float
+        Lower bound of the uniform prior
+    upper : float
+        Upper bound of the uniform prior
+    logger : logging.Logger
+        Logger
+    log_level : str
+        Level of the Logger
 
-    Authors: Allan Denis
+    Authors
+    -------
+    Allan Denis
     '''
 
     def __init__(self, lower: float, upper: float, logger: logging.Logger | None = None, log_level: str='INFO') -> None:
@@ -210,7 +237,9 @@ class UniformPrior(Prior):
         '''
         Validation
 
-        Authors: Allan Denis
+        Authors
+        -------
+        Allan Denis
         '''
 
         if self.lower >= self.upper:
@@ -222,11 +251,13 @@ class UniformPrior(Prior):
 
         Parameters
         ----------
-        theta (float): theta value between 0 and 1
+        theta : float
+            theta value between 0 and 1
 
         Returns
         -------
-        float: Sampled value
+        float
+            Sampled value
 
         '''
 
@@ -241,9 +272,12 @@ class UniformPrior(Prior):
 
         Returns
         -------
-        dict: Dictionary of the parameter
+        dict
+            Dictionary of the parameter
 
-        Authors: Allan Denis
+        Authors
+        -------
+        Allan Denis
         '''
 
         return {"lower": self.lower, "upper": self.upper}
@@ -258,12 +292,18 @@ class LogUniformPrior(Prior):
 
     Parameters
     ----------
-    lower            (float): Lower bound of the log-uniform prior
-    upper            (float): Upper bound of the log-uniform prior
-    logger  (logging.Logger): Logger
-    log_level          (str): Level of the Logger
+    lower : float
+        Lower bound of the log-uniform prior
+    upper : float
+        Upper bound of the log-uniform prior
+    logger : logging.Logger
+        Logger
+    log_level : str
+        Level of the Logger
 
-    Authors: Allan Denis
+    Authors
+    -------
+    Allan Denis
     '''
 
     def __init__(self, lower: float, upper: float, logger: logging.Logger | None = None, log_level: str = 'INFO') -> None:
@@ -328,7 +368,9 @@ class LogUniformPrior(Prior):
         '''
         Validation.
 
-        Authors: Allan Denis
+        Authors
+        -------
+        Allan Denis
         '''
 
         if self.lower <= 0 or self.upper <= 0:
@@ -342,11 +384,13 @@ class LogUniformPrior(Prior):
 
         Parameters
         ----------
-        theta (float): theta value between 0 and 1
+        theta : float
+            theta value between 0 and 1
 
         Returns
         -------
-        float: Sampled value
+        float
+            Sampled value
 
         '''
 
@@ -361,9 +405,12 @@ class LogUniformPrior(Prior):
 
         Returns
         -------
-        dict: Dictionary of the parameter
+        dict
+            Dictionary of the parameter
 
-        Authors: Allan Denis
+        Authors
+        -------
+        Allan Denis
         '''
 
         return {"lower": self.lower, "upper": self.upper}
@@ -377,11 +424,16 @@ class ConstantPrior(Prior):
 
     Parameters
     ----------
-    value            (float): Constant value of the prior
-    logger  (logging.Logger): Logger
-    log_level          (str): Level of the Logger
+    value : float
+        Constant value of the prior
+    logger : logging.Logger
+        Logger
+    log_level : str
+        Level of the Logger
 
-    Authors: Allan Denis
+    Authors
+    -------
+    Allan Denis
     '''
 
     def __init__(self, value: float, logger: logging.Logger | None = None, log_level: str = 'INFO') -> None:
@@ -433,11 +485,13 @@ class ConstantPrior(Prior):
 
         Parameters
         ----------
-        theta (float): theta value between 0 and 1
+        theta : float
+            theta value between 0 and 1
 
         Returns
         -------
-        float: Sampled value
+        float
+            Sampled value
 
         '''
 
@@ -449,9 +503,12 @@ class ConstantPrior(Prior):
 
         Returns
         -------
-        dict: Dictionary of the parameter
+        dict
+            Dictionary of the parameter
 
-        Authors: Allan Denis
+        Authors
+        -------
+        Allan Denis
         '''
 
         return {"value": self.value}
@@ -465,12 +522,18 @@ class GaussianPrior(Prior):
 
     Parameters
     ----------
-    mean             (float): Mean of the Gaussian prior
-    stddev           (float): Standard deviation of the Gaussian prior
-    logger  (logging.Logger): Logger
-    log_level          (str): Level of the Logger
+    mean : float
+        Mean of the Gaussian prior
+    stddev : float
+        Standard deviation of the Gaussian prior
+    logger : logging.Logger
+        Logger
+    log_level : str
+        Level of the Logger
 
-    Authors: Allan Denis
+    Authors
+    -------
+    Allan Denis
     '''
 
     def __init__(self, mean: float, stddev: float, logger: logging.Logger | None = None, log_level: str = 'INFO') -> None:
@@ -533,7 +596,9 @@ class GaussianPrior(Prior):
         '''
         Validation.
 
-        Authors: Allan Denis
+        Authors
+        -------
+        Allan Denis
         '''
 
         if self.stddev <= 0:
@@ -545,11 +610,13 @@ class GaussianPrior(Prior):
 
         Parameters
         ----------
-        theta (float): theta value between 0 and 1
+        theta : float
+            theta value between 0 and 1
 
         Returns
         -------
-        float: Samples value
+        float
+            Samples value
 
         '''
 
@@ -564,9 +631,12 @@ class GaussianPrior(Prior):
 
         Returns
         -------
-        dict: Dictionary of the parameter
+        dict
+            Dictionary of the parameter
 
-        Authors: Allan Denis
+        Authors
+        -------
+        Allan Denis
         '''
 
         return {"mean": self.mean, "stddev": self.stddev}

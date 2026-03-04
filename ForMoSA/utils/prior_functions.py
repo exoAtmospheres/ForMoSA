@@ -9,14 +9,19 @@ def uniform_prior(bounds: list, theta: float) -> float:
 
     Parameters
     ----------
-    bounds          (list): Uniform prior boundaries
-    theta          (float): Parameter value between 0 and 1
+    bounds : list
+        Uniform prior boundaries
+    theta : float
+        Parameter value between 0 and 1
 
     Returns
     -------
-    float: Evaluated prior
+    float
+        Evaluated prior
 
-    Author: Simon Petrus
+    Authors
+    -------
+    Simon Petrus
     '''
 
     if theta < 0 or theta > 1:
@@ -33,14 +38,19 @@ def loguniform_prior(prior_fct_arg: list, theta: float) -> float:
 
     Parameters
     ----------
-    prior_fct_arg   (list): Loguniform prior boundaries.
-    theta          (float): Parameter values randomly picked by the nested sampling
+    prior_fct_arg : list
+        Loguniform prior boundaries.
+    theta : float
+        Parameter values randomly picked by the nested sampling
 
     Returns
     -------
-    float: Evaluated prior
+    float
+        Evaluated prior
 
-    Author: Simon Petrus
+    Authors
+    -------
+    Simon Petrus
     '''
 
     if theta < 0 or theta > 1:
@@ -57,15 +67,21 @@ def gaussian_prior(mean: float, std: float, theta: float):
 
     Parameters
     ----------
-    mean           (float): Gaussian prior mean
-    std            (float): Gaussian prior standard deviation
-    theta          (float): Parameter values randomly picked by the nested sampling
+    mean : float
+        Gaussian prior mean
+    std : float
+        Gaussian prior standard deviation
+    theta : float
+        Parameter values randomly picked by the nested sampling
 
     Returns
     -------
-    float: Evaluated prior
+    float
+        Evaluated prior
 
-    Author: Simon Petrus
+    Authors
+    -------
+    Simon Petrus
     '''
 
     if theta < 0 or theta > 1:

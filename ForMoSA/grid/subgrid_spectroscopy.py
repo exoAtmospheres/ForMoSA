@@ -19,16 +19,26 @@ class SubGridSpectroscopy(SubGrid):
 
     Parameters
     ----------
-    grid                (xr.Dataset): Grid
-    parent_grid          (ModelGrid): Parent model grid
-    remove_continuum          (bool): Whether to remove the continuum
-    wave_cont                  (str): Wavelengths for continuum removal ('window1 / window2 / windw3 / ...' where window{i} = 'wave{i}, wave{i+1}')
-    res_cont                 (float): Resolutions for continuum removal
-    logger          (logging.Logger): Logger
-    log_level                  (str): Level of the logger
-    name                       (str): Name of the subgrid
+    grid : xr.Dataset
+        Grid
+    parent_grid : ModelGrid
+        Parent model grid
+    remove_continuum : bool
+        Whether to remove the continuum
+    wave_cont : str
+        Wavelengths for continuum removal ('window1 / window2 / windw3 / ...' where window{i} = 'wave{i}, wave{i+1}')
+    res_cont : float
+        Resolutions for continuum removal
+    logger : logging.Logger
+        Logger
+    log_level : str
+        Level of the logger
+    name : str
+        Name of the subgrid
 
-    Authors: Allan Denis
+    Authors
+    -------
+    Allan Denis
     '''
     def __init__(self, grid: xr.Dataset, parent_grid: ModelGrid | None = None, remove_continuum: bool = False, wave_cont: str | None = None, res_cont: float | None = None, logger: logging.Logger | None = None, log_level: str = "INFO", display_unit: WavelengthUnit = WavelengthUnit.MICROMETER, name: str = 'Unknown'):
         super().__init__(grid, parent_grid = parent_grid, logger = logger, log_level = log_level, name = name, display_unit = display_unit)
@@ -92,24 +102,39 @@ class SubGridSpectroscopy(SubGrid):
 
         Parameters
         ----------
-        parent_grid (ModelGrid): Instance of ModelGrid
-        target_wavelength (np.ndarray): Target wavelength to reach for the subgrid
-        target_resolution (np.ndarray): Target resolution to reach for the subgrid
-        remove_continuum        (bool): Whether to remove the continuum
-        wave_cont         (str | None): Wavelengths used for the continuum
-        res_cont        (float | None): Resolution used for the continuum
-        name                     (str): Name of the subgrid
-        logger (logging.Logger | None): Logger
-        log_level                (str): Level of the Logger
-        display_unit  (WavelengthUnit): Unit to display for the wavelength
+        parent_grid : ModelGrid
+            Instance of ModelGrid
+        target_wavelength : np.ndarray
+            Target wavelength to reach for the subgrid
+        target_resolution : np.ndarray
+            Target resolution to reach for the subgrid
+        remove_continuum : bool
+            Whether to remove the continuum
+        wave_cont : str | None
+            Wavelengths used for the continuum
+        res_cont : float | None
+            Resolution used for the continuum
+        name : str
+            Name of the subgrid
+        logger : logging.Logger | None
+            Logger
+        log_level : str
+            Level of the Logger
+        display_unit : WavelengthUnit
+            Unit to display for the wavelength
 
         Returns
         -------
-        SubGridSPectroscopy: Instance of SubGridSpectroscopy
+        SubGridSPectroscopy
+            Instance of SubGridSpectroscopy
 
-        Usage: subgrid = SubGridSpectroscopy.from_parent(parent_grid, target_wavelength, target_resolution remove_continuum, wave_cont, res_cont, name, logger, log_level, display_unit)
+        Examples
+        --------
+        >>> subgrid = SubGridSpectroscopy.from_parent(parent_grid, target_wavelength, target_resolution remove_continuum, wave_cont, res_cont, name, logger, log_level, display_unit)
 
-        Authors: Allan Denis
+        Authors
+        -------
+        Allan Denis
         '''
 
         subgrid = cls(
@@ -135,19 +160,29 @@ class SubGridSpectroscopy(SubGrid):
 
         Parameters
         ----------
-        dx                (xr.Dataset): Grid data
-        parent_grid        (ModelGrid): Instance of ModelGrid
-        logger (logging.Logger | None): Logger
-        log_level                (str): Level of the Logger
-        display_unit  (WavelengthUnit): Unit to display for the wavelength
+        dx : xr.Dataset
+            Grid data
+        parent_grid : ModelGrid
+            Instance of ModelGrid
+        logger : logging.Logger | None
+            Logger
+        log_level : str
+            Level of the Logger
+        display_unit : WavelengthUnit
+            Unit to display for the wavelength
 
         Returns
         -------
-        SubGridSpectroscopy: Instance of SubGridSpectroscopy
+        SubGridSpectroscopy
+            Instance of SubGridSpectroscopy
 
-        Usage: subgrid = SubGridSpectroscopy.from_grid(grid, parent_grid, logger, log_level, display_unit)
+        Examples
+        --------
+        >>> subgrid = SubGridSpectroscopy.from_grid(grid, parent_grid, logger, log_level, display_unit)
 
-        Authors: Allan Denis
+        Authors
+        -------
+        Allan Denis
         '''
 
         logger = logger or setup_logging(level=log_level, name='SubGridSpectroscopy')
@@ -185,7 +220,9 @@ class SubGridSpectroscopy(SubGrid):
     def _validate_spectral(self) -> None:
         '''
 
-        Authors: Allan Denis
+        Authors
+        -------
+        Allan Denis
         '''
 
         if (self.remove_continuum) and (self.wave_cont is None or self.res_cont is None):
@@ -212,9 +249,12 @@ class SubGridSpectroscopy(SubGrid):
 
         Returns
         -------
-        tuple[float, float]: Minimumn and maximum wavelengths of the restricted subgrid
+        tuple[float, float]
+            Minimumn and maximum wavelengths of the restricted subgrid
 
-        Authors: Allan Denis
+        Authors
+        -------
+        Allan Denis
         '''
 
         margin = 0.05   # 5% margin
@@ -227,13 +267,17 @@ class SubGridSpectroscopy(SubGrid):
 
         Parameters
         ----------
-        model_to_adapt  (xd.DataArray): Model to adapt
+        model_to_adapt : xd.DataArray
+            Model to adapt
 
         Returns
         -------
-        model_adapted  (xr.DataArray): Adapted model
+        model_adapted : xr.DataArray
+            Adapted model
 
-        Authors: Simon Petrus, Matthieu Ravet, Paulina Palma-Bifani and Allan Denis
+        Authors
+        -------
+        Simon Petrus, Matthieu Ravet, Paulina Palma-Bifani and Allan Denis
         '''
 
         try:
@@ -253,14 +297,19 @@ class SubGridSpectroscopy(SubGrid):
 
         Parameters
         ----------
-        observed_model  (ObservedModel): Instance of class ObservedModel
-        params (dict[Parameter, float]): Dictionary of parameters values
+        observed_model : ObservedModel
+            Instance of class ObservedModel
+        params : dict[Parameter, float]
+            Dictionary of parameters values
 
         Returns
         -------
-        ObservedModel: Instance of class ObservedModel transformed
+        ObservedModel
+            Instance of class ObservedModel transformed
 
-        Authors: Allan Denis
+        Authors
+        -------
+        Allan Denis
         '''
 
         # Parameters relevant to spectroscopy
@@ -280,15 +329,21 @@ class SubGridSpectroscopy(SubGrid):
 
         Parameters
         ----------
-        observed_model     (ObservedModel): Instance of class ObservedModel to transform
-        obs                  (Observation): Instance of class Observation
-        bounds_lsq   (tuple[float, float]): Bounds for the least squares
+        observed_model : ObservedModel
+            Instance of class ObservedModel to transform
+        obs : Observation
+            Instance of class Observation
+        bounds_lsq : tuple[float, float]
+            Bounds for the least squares
 
         Returns
         -------
-        ObservedModel: Instance of class ObservedModel transformed
+        ObservedModel
+            Instance of class ObservedModel transformed
 
-        Authors: Allan Denis
+        Authors
+        -------
+        Allan Denis
         '''
 
         return SpectralEffects._apply_observation(observed_model, obs, bounds_lsq)
@@ -299,15 +354,21 @@ class SubGridSpectroscopy(SubGrid):
 
         Parameters
         ----------
-        observed_model (ObservedModel): Observed model
-        obs              (Observation): Observation
-        logL_type  (LogLikelihoodType): Loglikelihood function
+        observed_model : ObservedModel
+            Observed model
+        obs : Observation
+            Observation
+        logL_type : LogLikelihoodType
+            Loglikelihood function
 
         Returns
         -------
-        float: logL value
+        float
+            logL value
 
-        Authors: Simon Petrus, Matthieu Ravet and Allan Denis
+        Authors
+        -------
+        Simon Petrus, Matthieu Ravet and Allan Denis
         '''
 
         return SpectralEffects._compute_loglike(observed_model, obs, logL_type)
