@@ -134,10 +134,10 @@ class ConfigAdapt:
 
         # Initial check
         if not isinstance(observations, ObservationSet):
-            raise ForMoSAError('Wrong type for observations: {type(observations)}. Expected an instance of ObservationSet')
+            raise ForMoSAError(f'Wrong type for observations: {type(observations)}. Expected an instance of ObservationSet')
 
         if not isinstance(grid, ModelGrid):
-            raise ForMoSAError('Wrong type for grid: {type(grid)}. Expected an isntance of ModelGrid')
+            raise ForMoSAError(f'Wrong type for grid: {type(grid)}. Expected an isntance of ModelGrid')
 
         # Check that len(config_adapt.target_res_obs) is consistent with the number of observations
         self._check_with_n_obs(observations.n_observations)

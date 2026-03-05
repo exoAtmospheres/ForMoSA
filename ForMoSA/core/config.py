@@ -52,13 +52,13 @@ def darken_color(color: str, factor: float = 0.7) -> str:
     return mcolors.to_hex(dark_rgb)
 
 # ==================================================
-# Spectroscopic plotting configuration
+# General plotting configuration
 # ==================================================
 
 @dataclass
-class SpectralPlotConfig:
+class MainPlotConfig:
     '''
-    Dataclass to handle configurations for plotting spectroscopic data.
+    Dataclass to handle main parameters forplotting.
 
     Authors
     -------
@@ -66,9 +66,29 @@ class SpectralPlotConfig:
     '''
 
     figsize: tuple[float, float] = (10.0, 7.0)
+    legend_ncol: int = 1
+    legend_filt_ncol: int = 1
+    legend_fontsize: str = "small"
+
+MAIN_PLOT = MainPlotConfig()
+
+# ==================================================
+# Spectroscopic plotting configuration
+# ==================================================
+
+@dataclass
+class ObsPlotConfig:
+    '''
+    Dataclass to handle configurations for plotting data.
+
+    Authors
+    -------
+    Allan Denis
+    '''
+
 
     # --- Color management
-    cmap: mcolors.ListedColormap = field(default_factory = lambda: cm.jet)   # Matplotlib colormap name
+    cmap: mcolors.Colormap = field(default_factory = lambda: cm.jet)
     color: str = "red"
     edgecolor: str = None
     norm: mcolors.Normalize = field(default_factory = lambda: plt.Normalize(vmin=1.0, vmax=15))
@@ -89,8 +109,6 @@ class SpectralPlotConfig:
 
     # ---- Legend
     label: bool = True
-    legend_ncol: int = 1
-    legend_fontsize: str = "small"
 
     def __post_init__(self):
         if self.edgecolor is None or self.edgecolor == "auto":
@@ -107,7 +125,7 @@ class SpectralPlotConfig:
 
         return {k: v for k, v in self.__dict__.items() if v is not None}
 
-    def set_spectral_plot_config(self, **kwargs) -> None:
+    def set_plot_config(self, **kwargs) -> None:
         '''
         Update global default plotting parameters for spectroscopic plots.
 
@@ -128,84 +146,35 @@ class SpectralPlotConfig:
 
         self.edgecolor = darken_color(self.color)
 
-SPECTRAL_PLOT = SpectralPlotConfig()
+@dataclass
+class SpectralPlotConfig(ObsPlotConfig):
+    '''
+    Dataclass to handle configurations for plotting spectroscopic data.
+
+    Authors: Allan Denis
+    '''
+
+    color: str = "red"
+    marker: str = "None"
 
 # ==================================================
 # Photometric plotting configuration
 # ==================================================
 
 @dataclass
-class PhotometricPlotConfig:
+class PhotometricPlotConfig(ObsPlotConfig):
     '''
     Dataclass to handle configurations for plotting photometric data.
+
+    Authors: Allan Denis
     '''
 
-    figsize: tuple[float, float] = (10.0, 7.0)
-
-    # --- Color management
-    cmap: mcolors.ListedColormap = field(default_factory = lambda: cm.jet)   # Matplotlib colormap name
     color: str = "blue"
-    edgecolor: str = None
-    norm: mcolors.Normalize = field(default_factory = lambda: plt.Normalize(vmin=1.0, vmax=15))
-
-    # --- Marker
-    marker: str = "s"
     markersize: int = 70
     linewidth: float = 2.0
 
-    # --- Errorbar
-    errorbar_fmt: str = "None"
-    errorbar_alpha: float = 1.0
-    errorbar_capsize: float = 4.0
-
-    # --- zorder
-    zorder_data: int = 3
-    zorder_error: int = 1
-
-    # ---- Legend
-    label_filter: bool = True
+    label_filter: bool = False
     label_data: bool = True
-    legend_filter_ncol: int = 1
-    legend_data_ncol: int = 1
-    legend_fontsize: str = "small"
-
-    def __post_init__(self):
-        if self.edgecolor is None or self.edgecolor == "auto":
-            self.edgecolor = darken_color(self.color)
-
-    def to_dict(self) -> dict:
-        '''
-        Return configuration options as a dictionary.
-
-        Authors
-        -------
-        Allan Denis
-        '''
-
-        return {k: v for k, v in self.__dict__.items() if v is not None}
-
-    def set_photometric_plot_config(self, **kwargs) -> None:
-        '''
-        Update global default plotting parameters for photometric plots.
-
-        Parameters
-        ----------
-        **kwargs : dict
-            Keyword arguments to override attributes of the config
-
-        Authors
-        -------
-        Allan Denis
-        '''
-
-        for key, value in kwargs.items():
-            if not hasattr(self, key):
-                raise ForMoSAError(f'Unknown photometric plot config key: {key}')
-            setattr(self, key, value)
-
-        self.edgecolor = darken_color(self.color)
-
-PHOTOMETRIC_PLOT = PhotometricPlotConfig()
 
 # ==================================================
 # CornerPlot plotting configuration
@@ -471,11 +440,9 @@ class PlotsConfig:
     ChainsPlot: ChainsPlotConfig = field(default_factory = lambda: CHAINS_PLOT)
     RadarPlot: RadarPlotConfig = field(default_factory = lambda: RADAR_PLOT)
     BestFitPlot: BestFitPlotConfig = field(default_factory = lambda: BEST_FIT_PLOT)
-    SpectralPlot: SpectralPlotConfig = field(default_factory = lambda: SPECTRAL_PLOT)
-    PhotometricPlot: PhotometricPlotConfig = field(default_factory = lambda: PHOTOMETRIC_PLOT)
 
     def __post_init__(self):
-        for name, instance in zip(['CornerPlot', 'ChainsPlot', 'RadarPlot', 'BestFitPlot', 'SpectralPlot', 'PhotometricPlot'], [CornerPlotConfig, ChainsPlotConfig, RadarPlotConfig, BestFitPlotConfig, SpectralPlotConfig, PhotometricPlotConfig]):
+        for name, instance in zip(['CornerPlot', 'ChainsPlot', 'RadarPlot', 'BestFitPlot'], [CornerPlotConfig, ChainsPlotConfig, RadarPlotConfig, BestFitPlotConfig]):
             value = getattr(self, name)
             if not isinstance(value, instance):
                 raise ForMoSAError(f'Wrong type for {name}. Expected {instance}')
@@ -484,7 +451,7 @@ class PlotsConfig:
     def to_dict(self) -> dict:
         data = {}
 
-        for name in ['CornerPlot', 'ChainsPlot', 'RadarPlot', 'BestFitPlot', 'Spectralplot', 'PhotometricPlot']:
+        for name in ['CornerPlot', 'ChainsPlot', 'RadarPlot', 'BestFitPlot']:
             value = getattr(self, name).to_dict
             data[name] = value
 

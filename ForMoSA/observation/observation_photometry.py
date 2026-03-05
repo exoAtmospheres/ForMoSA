@@ -9,9 +9,8 @@ from matplotlib.axes._axes import Axes
 from ForMoSA.core.errors import ForMoSAError
 from ForMoSA.filter.filter import PhotometryFilter
 from ForMoSA.observation.observation_base import Observation
-from ForMoSA.core.config import  PhotometricPlotConfig, PHOTOMETRIC_PLOT
+from ForMoSA.core.config import  PhotometricPlotConfig, MAIN_PLOT
 from ForMoSA.core.enums import ObservationType, ObservationKeys, WavelengthUnit
-
 
 class PhotometryObservation(Observation):
     '''
@@ -49,7 +48,7 @@ class PhotometryObservation(Observation):
 
         self._filter_id = np.atleast_1d(np.asarray(filter_id, dtype=str))
         # Inherit from Observation class
-        super().__init__(wave=wave, flux=flux, err=err, facility=facility, instrument=instrument, native_unit=native_unit, logger=logger, log_level=log_level, display_unit=display_unit)
+        super().__init__(wave=wave, flux=flux, err=err, facility=facility, instrument=instrument, native_unit=native_unit, logger=logger, log_level=log_level, display_unit=display_unit, plot_config=PhotometricPlotConfig())
 
         self._Filter = np.array([])
 
@@ -182,7 +181,7 @@ class PhotometryObservation(Observation):
 
         return self
 
-    def plot_data(self, fig: Figure | None = None, ax: Axes | None = None, ax_filt: Axes | None = None, plot_config: PhotometricPlotConfig = PHOTOMETRIC_PLOT) -> tuple[Figure, Axes, Axes]:
+    def plot_data(self, fig: Figure | None = None, ax: Axes | None = None, ax_filt: Axes | None = None) -> tuple[Figure, Axes, Axes]:
         '''
         Plot photometric data.
 
@@ -194,8 +193,6 @@ class PhotometryObservation(Observation):
             Ax (used to overplot on an existing ax)
         ax_filt : matplotlib.axes._axes.Axes
             Ax used to overplot the transmission filter on an existing ax
-        plot_config : PhotometricPlotConfig
-            Instance of class PhotometricPlotConfig
 
         Returns
         -------
@@ -213,11 +210,14 @@ class PhotometryObservation(Observation):
 
         self.logger.info(f'      Plotting data for observation {self.name}')
 
+        plot_config = self.plot_config
+        main_plot_config = MAIN_PLOT
+
         # --------------------------------------------------
         # Figure / axes creation
         # --------------------------------------------------
         if ax is None or ax_filt is None:
-            fig = plt.figure(figsize=plot_config.figsize)
+            fig = plt.figure(figsize=main_plot_config.figsize)
             gs = gridspec.GridSpec(9, 10)
             ax = fig.add_subplot(gs[3:9, 0:10])
             ax_filt = fig.add_subplot(gs[0:3, 0:10], sharex=ax)
@@ -237,13 +237,10 @@ class PhotometryObservation(Observation):
             idx0 = self.filter_idxs[i]
             idx1 = self.filter_idxs[i + 1]
 
-            # Use central wavelength to determine color
-            plot_config.set_photometric_plot_config(color = plot_config.cmap(plot_config.norm((filt.central_wavelength))))
-
             # ------------------------
             # Transmission (TOP PANEL)
             # ------------------------
-            fig, ax_filt = filt._plot_transmission_curve(fig=fig, ax=ax_filt, plot_config=plot_config)
+            fig, ax_filt = filt._plot_transmission_curve(fig=fig, ax=ax_filt, plot_config=plot_config, main_plot_config = main_plot_config)
 
             # ------------------------
             # Photometric points (MID PANEL)
@@ -284,15 +281,13 @@ class PhotometryObservation(Observation):
         # --------------------------------------------------
 
         if plot_config.label_filter:
-            plot_config.legend_filter_ncol = (self.nb_filters + 4) // 5
-            ax_filt.legend(filt_handles, filt_labels, fontsize=plot_config.legend_fontsize, ncol=plot_config.legend_filter_ncol, frameon=False)
+            ax_filt.legend(filt_handles, filt_labels, fontsize=main_plot_config.legend_fontsize, ncol=main_plot_config.legend_filt_ncol, frameon=False)
 
         # --------------------------------------------------
         # Legend mid panel (Photometric data)
         # --------------------------------------------------
         if plot_config.label_data:
-            plot_config.legend_data_ncol = (self.nb_filters + 6) // 7
-            ax.legend(fontsize=plot_config.legend_fontsize, ncol=plot_config.legend_data_ncol, frameon=False)
+            ax.legend(fontsize=main_plot_config.legend_fontsize, ncol=main_plot_config.legend_ncol, frameon=False)
 
         # --------------------------------------------------
         # Axis labels

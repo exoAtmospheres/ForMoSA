@@ -4,16 +4,17 @@ import logging
 import numpy as np
 from pathlib import Path
 import matplotlib.pyplot as plt
+import matplotlib.ticker as ticker
 from matplotlib.figure import Figure
 import matplotlib.gridspec as gridspec
 from matplotlib.axes._axes import Axes
 from matplotlib import colors as mcolors
 
+from ForMoSA.core.config import MAIN_PLOT
 from ForMoSA.core.errors import ForMoSAError
+from ForMoSA.core.enums import ObservationKeys
 from ForMoSA.core.loggings import setup_logging
 from ForMoSA.observation.observation_base import Observation
-from ForMoSA.core.config import SPECTRAL_PLOT, PHOTOMETRIC_PLOT
-from ForMoSA.core.enums import ObservationType, ObservationKeys
 from ForMoSA.observation.observation_spectroscopy import SpectralObservation
 from ForMoSA.observation.observation_photometry import PhotometryObservation
 
@@ -86,16 +87,23 @@ class ObservationSet(object):
         return len(self)
 
     @property
-    def has_spectroscopy(self) -> bool:                                        # Whether the observations set has spectroscopy
+    def has_spectroscopy(self) -> bool:                                        # Whether the observation set has spectroscopy
         for obs in self.observations:
             if obs.is_spectroscopic:
                 return True
         return False
 
     @property
-    def has_photometry(self) -> bool:                                          # Whether the observations set has photometry
+    def has_photometry(self) -> bool:                                          # Whether the observation set has photometry
         for obs in self.observations:
             if obs.is_photometric:
+                return True
+        return False
+
+    @property
+    def has_high_contrast(self) -> bool:                                       # Whether the observation set has high-contrast observations
+        for obs in self.observations:
+            if obs.hc_mode:
                 return True
         return False
 
@@ -106,6 +114,10 @@ class ObservationSet(object):
     @property
     def photometry_observations(self) -> list[PhotometryObservation]:          # List of photometric observations
         return [obs for obs in self.observations if obs.is_photometric]
+
+    @property
+    def high_contrast_observations(self) -> list[Observation]:                 # List of high-contrast observation
+        return [obs for obs in self.observations if obs.hc_mode]
 
     @property
     def max_resolution(self) -> float | None:                                  # Maximum resolution (None if no spectroscopic observation)
@@ -139,14 +151,6 @@ class ObservationSet(object):
     @property
     def mcolors_normalize(self) -> mcolors.Normalize:                          # Color normalization (for plotting)
         return plt.Normalize(vmin=self.wavelength_range[0], vmax=self.wavelength_range[1])
-
-    @property
-    def legend_filter_nb(self) -> int:                                         # Number of filters in legend (for plotting)
-        return np.sum([obs.nb_filters for obs in self.photometry_observations])
-
-    @property
-    def legend_data_nb(self) -> int:                                           # Number of datasets in legend (for plotting)
-        return np.sum([obs.nb_filters for obs in self.photometry_observations]) + np.sum([obs.nb_instruments for obs in self.spectral_observations])
 
     # ==================================================
     # Class methods
@@ -369,6 +373,47 @@ class ObservationSet(object):
 
         return cls.from_dict(data, logger=logger, log_level=log_level)
 
+    @classmethod
+    def from_list(cls, obs_list: list[Observation], logger: logging.Logger | None = None, log_level: str = 'INFO') -> 'ObservationSet':
+        '''
+        Reconstruct an ObservationSet from a list of observations.
+
+        Parameters
+        ----------
+        obs_list : list[Observation]
+            List containing observations
+        logger : logging.Logger
+            Logger
+        log_level : str
+            Level of the logging
+
+        Returns
+        -------
+        'ParameterSet'
+            An instance of class ParameterSet
+
+        Authors
+        -------
+        Allan Denis
+        '''
+
+        logger = logger or setup_logging(level=log_level, name='ParameterSet')
+
+        if not isinstance(obs_list, list):
+            raise ForMoSAError(f'Wrong type for obs_list: {type(obs_list)}. Expected a list', logger)
+
+        if not all(isinstance(obs, Observation) for obs in obs_list):
+            raise ForMoSAError('Expected a list of observations for obs_list', logger)
+
+        obs_set = cls(logger=logger)
+
+        logger.debug('Build instance of ObservationSet from dictionary')
+
+        for obs in obs_list:
+            obs_set.add_observation(obs)
+
+        return obs_set
+
     # ==================================================
     # Methods
     # ==================================================
@@ -532,14 +577,12 @@ class ObservationSet(object):
         with open(path / 'observations.json', 'w') as f:
             json.dump(self.to_dict, f, indent=4)
 
-    def plot_all(self, figsize=(10,7), fig: Figure | None = None, ax: Axes | None = None, ax_filt: Axes | None = None) -> None:
+    def plot_all(self, fig: Figure | None = None, ax: Axes | None = None, ax_filt: Axes | None = None) -> None:
         '''
         Plot all the observations and photometric filters.
 
         Parameters
         ----------
-        figsize : tuple[float, float]
-            Size of the figure to plot if fig is None
         fig : matplotlib.figure.Figure
             Figure (used to overplot on an existing figure)
         ax : matplotlib.axes._axes.Axes
@@ -549,7 +592,12 @@ class ObservationSet(object):
 
         Returns
         -------
-        None
+        fig : matplotlib.figure.Figure
+            New Figure object
+        ax : matplotlib.axes._axes.Axes
+            New Ax object
+        ax_filt : matplotlib.axes._axes.Axes
+            New ax object for photometric filters
 
         Authors
         -------
@@ -558,14 +606,26 @@ class ObservationSet(object):
 
         self.logger.info(f'    Plotting all the observations {self.observation_names}')
 
+        main_plot_config = MAIN_PLOT
+
         # Create figure if not provided
         if fig is None:
-            fig = plt.figure(figsize=figsize)
+            fig = plt.figure(figsize=main_plot_config.figsize)
 
         # Create main axis if not provided
         if ax is None:
             gs = gridspec.GridSpec(9, 10)
-            ax = fig.add_subplot(gs[0:7, 0:10])
+
+            if self.has_high_contrast and len(self.high_contrast_observations) != self.n_observations:
+                ax = fig.add_subplot(gs[2:6, 0:10])
+                ax_hc = fig.add_subplot(gs[6:9, 0:10], sharex=ax)
+
+            else:
+                if self.has_high_contrast:
+                    ax_hc = fig.add_subplot(gs[2:9, 0:10])
+
+                else:
+                    ax = fig.add_subplot(gs[2:9, 0:10])
 
         # Create photometric filter axis only if not provided
         if self.has_photometry and ax_filt is None:
@@ -575,15 +635,24 @@ class ObservationSet(object):
         # Plot each observation
         for obs in self.observations:
 
-            # Plot on the appropriate axes
-            fig, ax, ax_filt = obs.plot_data(fig=fig, ax=ax, ax_filt=ax_filt)
+            if not obs.hc_mode:
+                # Plot on the appropriate axes
+                fig, ax, ax_filt = obs.plot_data(fig=fig, ax=ax, ax_filt=ax_filt)
 
-        nb_cols_data = (self.legend_data_nb + 6) // 7
-        nb_cols_filt = (self.legend_filter_nb + 4) // 5
+            else:
+                fig, ax_hc, ax_filt = obs.plot_data(fig=fig, ax=ax_hc, ax_filt=ax_filt)
 
-        ax.legend(ncol=nb_cols_data, frameon=False)
-        ax_filt.legend(ncol=nb_cols_filt, frameon=False)
+        ax.legend(ncol=main_plot_config.legend_ncol, frameon=False, loc='upper right', fontsize=main_plot_config.legend_fontsize)
+        ax_filt.legend(ncol=main_plot_config.legend_filt_ncol, frameon=False)
 
+        # Rescale y axis with a power of 10
+        ymin, ymax = ax.get_ylim()
+        ymax_abs = max(abs(ymin), abs(ymax))
+        exponent = int(np.floor(np.log10(ymax_abs)))
+        ax.yaxis.set_major_formatter(ticker.FuncFormatter(lambda y, pos: f"{y/10**exponent:.1f}"))
+        ax.set_ylabel(rf'Flux ($10^{{{exponent}}}$  W.m$^{{-2}}$.$\mu$m$^{{-1}}$)')
+
+        return fig, ax, ax_filt
 
     def _stack(self, ind_obs: list[int] | None = None, print_logger: bool = False) -> dict:
         '''

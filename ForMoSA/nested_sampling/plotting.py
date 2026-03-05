@@ -3,7 +3,6 @@ import corner
 import logging
 import numpy as np
 import matplotlib.pyplot as plt
-import matplotlib.ticker as ticker
 from matplotlib.figure import Figure
 import matplotlib.gridspec as gridspec
 from matplotlib.axes._axes import Axes
@@ -289,12 +288,6 @@ class Plotting(object):
 
         # Get config for best fit
         config = PLOTS_CONFIG.BestFitPlot
-        spectral = PLOTS_CONFIG.SpectralPlot
-        photo = PLOTS_CONFIG.PhotometricPlot
-
-        # norm for cmap
-        spectral.norm = observations.mcolors_normalize
-        photo.norm = observations.mcolors_normalize
 
         obs_set_transformed = ObservationSet(self.logger)
 
@@ -358,13 +351,6 @@ class Plotting(object):
         axr.set_ylabel(r'Residuals ($\sigma$)')
         axr.axhline(y=0, linestyle='--', color = 'lightgrey')
         axr2.axis('off')
-
-        # Rescale y axis with a power of 10
-        ymin, ymax = ax.get_ylim()
-        ymax_abs = max(abs(ymin), abs(ymax))
-        exponent = int(np.floor(np.log10(ymax_abs)))
-        ax.yaxis.set_major_formatter(ticker.FuncFormatter(lambda y, pos: f"{y/10**exponent:.1f}"))
-        ax.set_ylabel(rf'Flux ($10^{{{exponent}}}$  W.m$^{{-2}}$.$\mu$m$^{{-1}}$)')
 
         return fig, ax, ax_filt, axr, axr2
 

@@ -7,6 +7,7 @@ from abc import ABC, abstractmethod
 from matplotlib.figure import Figure
 from matplotlib.axes._axes import Axes
 
+from ForMoSA.core.config import ObsPlotConfig
 from ForMoSA.core.loggings import setup_logging
 from ForMoSA.core.errors import ForMoSAError
 from ForMoSA.core.enums import WavelengthUnit, ObservationType
@@ -42,7 +43,7 @@ class Observation(ABC):
     Allan Denis
     '''
 
-    def __init__(self, wave: np.ndarray, flux: np.ndarray, err: np.ndarray, native_unit: WavelengthUnit, facility: str, instrument: str, logger: logging.Logger | None = None, log_level:str = 'INFO', display_unit: WavelengthUnit = WavelengthUnit.MICROMETER) -> None:
+    def __init__(self, wave: np.ndarray, flux: np.ndarray, err: np.ndarray, native_unit: WavelengthUnit, facility: str, instrument: str, logger: logging.Logger | None = None, log_level:str = 'INFO', display_unit: WavelengthUnit = WavelengthUnit.MICROMETER, plot_config: ObsPlotConfig = ObsPlotConfig()) -> None:
 
         self._logger = logger or setup_logging(log_level)
 
@@ -53,6 +54,8 @@ class Observation(ABC):
         self._display_unit = display_unit
         self._facility  = np.atleast_1d(np.asarray(facility, dtype=str))
         self._instrument  = np.atleast_1d(np.asarray(instrument, dtype=str))
+
+        self._plot_config = plot_config
 
         self._validate()
 
@@ -170,6 +173,10 @@ class Observation(ABC):
         return ((self._wave * self.native_unit).to(self.unit)).value
 
     @property
+    def central_wavelength(self) -> float:                        # Central wavelength
+        return (self.wavelength_range[0] + self.wavelength_range[1]) / 2
+
+    @property
     def flux(self) -> np.ndarray[float]:                          # Flux array
         return self._flux
 
@@ -196,6 +203,14 @@ class Observation(ABC):
     @property
     def path(self) -> Path:                                       # Path of the observation (if any)
         return Path(self._path) if self._path is not None else 'in-memory observation'
+
+    @property
+    def plot_config(self) -> ObsPlotConfig:                       # Configuration plotting
+        return self._plot_config
+
+    @plot_config.setter
+    def plot_config(self, config: ObsPlotConfig):                  # Configuration plotting setter
+        self._plot_config = config
 
     # ================================================
     # Class methods

@@ -2,7 +2,6 @@ import logging
 import numpy as np
 
 from ForMoSA.config.paths import Paths
-from ForMoSA.core.config import PLOTS_CONFIG
 from ForMoSA.core.errors import ForMoSAError
 from ForMoSA.grid.model_grid import ModelGrid
 from ForMoSA.core.loggings import setup_logging
@@ -10,6 +9,7 @@ from ForMoSA.grid.subgrid_set import SubGridSet
 from ForMoSA.filter.filter import PhotometryFilter
 from ForMoSA.nested_sampling.results import NSResults
 from ForMoSA.nested_sampling.plotting import Plotting
+from ForMoSA.core.config import PLOTS_CONFIG, MAIN_PLOT
 from ForMoSA.parameter.parameter_set import ParameterSet
 from ForMoSA.nested_sampling.ns_analysis import NSAnalysis
 from ForMoSA.grid.subgrid_photometry import SubGridPhotometry
@@ -81,6 +81,17 @@ class Analysis(object):
             except ForMoSAError as e:
                 raise ForMoSAError(f'Recovering NestedSampling from path {self.paths.result_path} produced the following error: {e}. You probably want to fit your data first (set fitted to False)', self._logger)
 
+        # Update configurations for plotting
+        for obs in self._observations:
+            obs.plot_config.set_plot_config(color=obs.plot_config.cmap(self._observations.mcolors_normalize(obs.central_wavelength)))
+
+        # Upade main plot configuration
+        MAIN_PLOT.legend_ncol = (np.sum(
+            [obs.nb_filters for obs in self.observations.photometry_observations])
+            + np.sum([obs.nb_instruments for obs in self.observations.spectral_observations])
+            + 6 - len(self.observations.high_contrast_observations)) // 7
+
+        MAIN_PLOT.legend_filt_ncol = (np.sum([obs.nb_filters for obs in self.observations.photometry_observations]) + 4) // 5
 
     # =======================
     # Properties

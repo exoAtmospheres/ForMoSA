@@ -2,14 +2,13 @@ import copy
 import logging
 import numpy as np
 import matplotlib.pyplot as plt
-from collections import defaultdict
 from matplotlib.figure import Figure
 from matplotlib.axes._axes import Axes
 from ForMoSA.utils.spec import resolution_decreasing, continuum_estimate
 
 from ForMoSA.core.errors import ForMoSAError
 from ForMoSA.observation.observation_base import Observation
-from ForMoSA.core.config import SpectralPlotConfig, SPECTRAL_PLOT
+from ForMoSA.core.config import SpectralPlotConfig, MAIN_PLOT
 from ForMoSA.core.enums import ObservationType, ObservationKeys, WavelengthUnit
 
 
@@ -56,7 +55,7 @@ class SpectralObservation(Observation):
     def __init__(self, wave: np.ndarray, flux: np.ndarray, err: np.ndarray, res: np.ndarray, facility: str, instrument: str, native_unit: WavelengthUnit, cov: np.ndarray | None = None, transm: np.ndarray | None = None, star_flux: np.ndarray | None = None, system: np.ndarray | None = None, logger: logging.Logger | None = None, log_level: str = 'INFO', display_unit: WavelengthUnit = WavelengthUnit.MICROMETER) -> None:
 
         # Inherit from Observation class
-        super().__init__(wave=wave, flux=flux, err=err, facility=facility, instrument=instrument, native_unit=native_unit, logger=logger, log_level=log_level, display_unit=display_unit)
+        super().__init__(wave=wave, flux=flux, err=err, facility=facility, instrument=instrument, native_unit=native_unit, logger=logger, log_level=log_level, display_unit=display_unit, plot_config=SpectralPlotConfig())
 
         # Spectral-specific attributes
         self._res = np.atleast_1d(np.asarray(res, dtype=float))
@@ -404,7 +403,7 @@ class SpectralObservation(Observation):
 
         return adapted_obs
 
-    def plot_data(self, fig: Figure | None = None, ax: Axes | None = None, ax_filt: Axes | None = None, plot_config: SpectralPlotConfig = SPECTRAL_PLOT) -> tuple[Figure, Axes, Axes]:
+    def plot_data(self, fig: Figure | None = None, ax: Axes | None = None, ax_filt: Axes | None = None) -> tuple[Figure, Axes, Axes]:
         '''
         Plot spectroscopic data.
 
@@ -416,8 +415,6 @@ class SpectralObservation(Observation):
             Ax (used to overplot on an existing ax)
         ax_filt : matplotlib.axes._axes.Axes
             Ax used to overplot the transmission filter on an existing ax
-        plot_config : SpectralPlotConfig
-            Instance of class ObservationPlotConfig
 
         Returns
         -------
@@ -435,11 +432,14 @@ class SpectralObservation(Observation):
 
         self.logger.info(f'      Plotting data for observation {self.name}')
 
+        plot_config = self.plot_config
+        main_plot_config = MAIN_PLOT
+
         # --------------------------------------------------
         # Figure / axes creation
         # --------------------------------------------------
         if ax is None:
-            fig, ax = plt.subplots(figsize=plot_config.figsize)
+            fig, ax = plt.subplots(figsize=main_plot_config.figsize)
         elif fig is None:
             fig = ax.figure
 
@@ -449,9 +449,6 @@ class SpectralObservation(Observation):
         for i in range(self.nb_instruments):
             idx0 = self.instrument_idxs[i]
             idx1 = self.instrument_idxs[i + 1]
-
-            # Use central wavelength to determine color
-            plot_config.set_spectral_plot_config(color = plot_config.cmap(plot_config.norm((self.wave[idx0] + self.wave[idx1-1]) / 2)))
 
             label = f"{self.facility[idx0]}/{self.instrument[idx0]}"
 
@@ -496,7 +493,7 @@ class SpectralObservation(Observation):
         # --------------------------------------------------
         if plot_config.label:
             plot_config.legend_ncol = (self.nb_instruments + 6) // 7
-            ax.legend(fontsize=plot_config.legend_fontsize, ncol=plot_config.legend_ncol, frameon=False)
+            ax.legend(fontsize=main_plot_config.legend_fontsize, ncol=main_plot_config.legend_ncol, frameon=False)
 
         # --------------------------------------------------
         # Axis labels

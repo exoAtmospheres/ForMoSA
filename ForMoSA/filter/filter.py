@@ -15,7 +15,7 @@ from ForMoSA.core.errors import ForMoSAError
 from ForMoSA.core.enums import WavelengthUnit
 from ForMoSA.core.loggings import setup_logging
 from astropy.table import Table, MaskedColumn, Column
-from ForMoSA.core.config import  PhotometricPlotConfig, PHOTOMETRIC_PLOT
+from ForMoSA.core.config import  MainPlotConfig, MAIN_PLOT, PhotometricPlotConfig
 
 class PhotometryFilter(object):
     '''
@@ -311,7 +311,7 @@ class PhotometryFilter(object):
         except Exception as e:
             raise ForMoSAError(e, self.logger)
 
-    def _plot_transmission_curve(self, fig: Figure | None = None, ax: Axes | None = None, plot_config: PhotometricPlotConfig = PHOTOMETRIC_PLOT) -> None:
+    def _plot_transmission_curve(self, fig: Figure | None = None, ax: Axes | None = None, plot_config: PhotometricPlotConfig = PhotometricPlotConfig(), main_plot_config: MainPlotConfig = MAIN_PLOT) -> None:
         '''
         Method to plot the transmission curve
 
@@ -323,6 +323,8 @@ class PhotometryFilter(object):
             Ax (used to overplot on an existing ax)
         plot_config : PhotometricPlotConfig
             Instance of class PhotometricPlotConfig
+        main_plot_config : MainPlotConfig
+            Instance of class MainPlotConfig
 
         Returns
         -------
@@ -342,7 +344,7 @@ class PhotometryFilter(object):
         # Figure / axes creation
         # --------------------------------------------------
         if ax is None:
-            fig, ax = plt.subplots(figsize=plot_config.figsize)
+            fig, ax = plt.subplots(figsize=main_plot_config.figsize)
             ax.set_xlabel(f'Wavelength ({self.unit})')
             ax.set_ylabel('Transmission')
 
