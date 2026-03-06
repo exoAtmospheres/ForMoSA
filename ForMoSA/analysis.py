@@ -91,6 +91,8 @@ class Analysis(object):
             + np.sum([obs.nb_instruments for obs in self.observations.spectral_observations])
             + 6 - len(self.observations.high_contrast_observations)) // 7
 
+        MAIN_PLOT.legend_hc_ncol = (np.sum([obs.nb_instruments for obs in self.observations.high_contrast_observations]) + 6) // 7
+
         MAIN_PLOT.legend_filt_ncol = (np.sum([obs.nb_filters for obs in self.observations.photometry_observations]) + 4) // 5
 
     # =======================

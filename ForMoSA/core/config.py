@@ -67,6 +67,7 @@ class MainPlotConfig:
 
     figsize: tuple[float, float] = (10.0, 7.0)
     legend_ncol: int = 1
+    legend_hc_ncol: int = 1
     legend_filt_ncol: int = 1
     legend_fontsize: str = "small"
 
