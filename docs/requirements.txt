@@ -4,3 +4,4 @@ nbsphinx
 jupyter
 pandoc
 sphinx_rtd_theme
+Sphinx-book-theme
