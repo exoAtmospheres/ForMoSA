@@ -643,7 +643,8 @@ class ObservationSet(object):
                 fig, ax_hc, ax_filt = obs.plot_data(fig=fig, ax=ax_hc, ax_filt=ax_filt)
 
         ax.legend(ncol=main_plot_config.legend_ncol, frameon=False, loc='upper right', fontsize=main_plot_config.legend_fontsize)
-        ax_filt.legend(ncol=main_plot_config.legend_filt_ncol, frameon=False)
+        if ax_filt is not None:
+            ax_filt.legend(ncol=main_plot_config.legend_filt_ncol, frameon=False)
 
         # Rescale y axis with a power of 10
         ymin, ymax = ax.get_ylim()
