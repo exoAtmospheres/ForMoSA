@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Plotting Class &#8212; ForMoSA 1.1.6 documentation</title>
+    <title>Plotting &#8212; ForMoSA 1.1.6 documentation</title>
   
   
   
@@ -46,6 +46,7 @@
     <link rel="icon" href="_static/favicon.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Utilities" href="main_utilities.html" />
     <link rel="prev" title="Nested Sampling" href="nested_sampling.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
@@ -168,10 +169,17 @@
 </ul>
 </details></li>
 <li class="toctree-l1 current active has-children"><a class="reference internal" href="api.html">ForMoSA API</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="main_utilities.html">Main Utilities</a></li>
-<li class="toctree-l2"><a class="reference internal" href="adapt.html">Adapt the data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="analysis.html">Analysis</a></li>
+<li class="toctree-l2"><a class="reference internal" href="config.html">Configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="core.html">Core</a></li>
+<li class="toctree-l2"><a class="reference internal" href="observation.html">Observations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="grid.html">Model Grids</a></li>
+<li class="toctree-l2"><a class="reference internal" href="parameter.html">Parameters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="filter.html">Photometry Filters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="transform.html">Model Transformations</a></li>
 <li class="toctree-l2"><a class="reference internal" href="nested_sampling.html">Nested Sampling</a></li>
-<li class="toctree-l2 current active"><a class="current reference internal" href="#">Plotting Class</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">Plotting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="main_utilities.html">Utilities</a></li>
 </ul>
 </details></li>
 </ul>
@@ -376,7 +384,7 @@ document.write(`
               
 
 <div id="jb-print-docs-body" class="onlyprint">
-    <h1>Plotting Class</h1>
+    <h1>Plotting</h1>
     <!-- Table of contents -->
     <div id="print-main-content">
         <div id="jb-print-toc">
@@ -386,8 +394,10 @@ document.write(`
             </div>
             <nav aria-label="Page">
                 <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-ForMoSA.nested_sampling.plotting">The plotting module of ForMoSA:</a><ul class="nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#plotting-module">Plotting Module</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.nested_sampling.plotting.Plotting"><code class="docutils literal notranslate"><span class="pre">Plotting</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.nested_sampling.plotting.Plotting.logger"><code class="docutils literal notranslate"><span class="pre">Plotting.logger</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.nested_sampling.plotting.Plotting.ns_results"><code class="docutils literal notranslate"><span class="pre">Plotting.ns_results</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.nested_sampling.plotting.Plotting.plot_ccf"><code class="docutils literal notranslate"><span class="pre">Plotting.plot_ccf()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.nested_sampling.plotting.Plotting.plot_chains"><code class="docutils literal notranslate"><span class="pre">Plotting.plot_chains()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.nested_sampling.plotting.Plotting.plot_corner"><code class="docutils literal notranslate"><span class="pre">Plotting.plot_corner()</span></code></a></li>
@@ -409,14 +419,17 @@ document.write(`
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <section id="plotting-class">
-<span id="plotting"></span><h1>Plotting Class<a class="headerlink" href="#plotting-class" title="Link to this heading">#</a></h1>
-<section id="module-ForMoSA.nested_sampling.plotting">
-<span id="the-plotting-module-of-formosa"></span><h2>The plotting module of ForMoSA:<a class="headerlink" href="#module-ForMoSA.nested_sampling.plotting" title="Link to this heading">#</a></h2>
-<dl class="py class">
+  <section id="plotting">
+<span id="id1"></span><h1>Plotting<a class="headerlink" href="#plotting" title="Link to this heading">#</a></h1>
+<section id="plotting-module">
+<h2>Plotting Module<a class="headerlink" href="#plotting-module" title="Link to this heading">#</a></h2>
+<p>High-level plotting routines for corner plots, chains, radar diagrams,
+best-fit spectra, CCFs, and RV–v sin i maps.</p>
+<dl class="py class" id="module-ForMoSA.nested_sampling.plotting">
 <dt class="sig sig-object py" id="ForMoSA.nested_sampling.plotting.Plotting">
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">ForMoSA.nested_sampling.plotting.</span></span><span class="sig-name descname"><span class="pre">Plotting</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">results</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="nested_sampling.html#ForMoSA.nested_sampling.results.NSResults" title="ForMoSA.nested_sampling.results.NSResults"><span class="pre">NSResults</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">logger</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Logger</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_level</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'INFO'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ForMoSA/nested_sampling/plotting.html#Plotting"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ForMoSA.nested_sampling.plotting.Plotting" title="Link to this definition">#</a></dt>
-<dd><p>Class of visualisation of the results of the nested sampling.</p>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Class of visualisation of the results of the nested sampling.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -430,6 +443,16 @@ document.write(`
 </ul>
 </dd>
 </dl>
+<dl class="py property">
+<dt class="sig sig-object py" id="ForMoSA.nested_sampling.plotting.Plotting.logger">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">logger</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Logger</span></span><a class="headerlink" href="#ForMoSA.nested_sampling.plotting.Plotting.logger" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="ForMoSA.nested_sampling.plotting.Plotting.ns_results">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">ns_results</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="nested_sampling.html#ForMoSA.nested_sampling.results.NSResults" title="ForMoSA.nested_sampling.results.NSResults"><span class="pre">NSResults</span></a></span><a class="headerlink" href="#ForMoSA.nested_sampling.plotting.Plotting.ns_results" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
 <dl class="py method">
 <dt class="sig sig-object py" id="ForMoSA.nested_sampling.plotting.Plotting.plot_ccf">
 <span class="sig-name descname"><span class="pre">plot_ccf</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rv_grid</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ccf</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">acf</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ccf_star</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">Figure</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Axes</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/ForMoSA/nested_sampling/plotting.html#Plotting.plot_ccf"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ForMoSA.nested_sampling.plotting.Plotting.plot_ccf" title="Link to this definition">#</a></dt>
@@ -481,7 +504,7 @@ document.write(`
 <dd><p>Corner plot the posterior samples from the nested sampling results.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>config</strong> (<em>CornerPlotConfig</em>) – Instance of class CornerPlotConfig</p>
+<dd class="field-odd"><p><strong>config</strong> (<a class="reference internal" href="core.html#ForMoSA.core.config.CornerPlotConfig" title="ForMoSA.core.config.CornerPlotConfig"><em>CornerPlotConfig</em></a>) – Instance of class CornerPlotConfig</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p><ul class="simple">
@@ -497,16 +520,16 @@ document.write(`
 
 <dl class="py method">
 <dt class="sig sig-object py" id="ForMoSA.nested_sampling.plotting.Plotting.plot_fit">
-<span class="sig-name descname"><span class="pre">plot_fit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">observations</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ObservationSet</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">best_fit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="adapt.html#ForMoSA.transform.observed.ObservedModel" title="ForMoSA.transform.observed.ObservedModel"><span class="pre">ObservedModel</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">figsize</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tuple</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">(12,</span> <span class="pre">7)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plot_native_model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">native_model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="adapt.html#ForMoSA.transform.observed.ObservedModel" title="ForMoSA.transform.observed.ObservedModel"><span class="pre">ObservedModel</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">Figure</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Axes</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Axes</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Axes</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Axes</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/ForMoSA/nested_sampling/plotting.html#Plotting.plot_fit"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ForMoSA.nested_sampling.plotting.Plotting.plot_fit" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">plot_fit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">observations</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="observation.html#ForMoSA.observation.observation_set.ObservationSet" title="ForMoSA.observation.observation_set.ObservationSet"><span class="pre">ObservationSet</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">best_fit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="transform.html#ForMoSA.transform.observed.ObservedModel" title="ForMoSA.transform.observed.ObservedModel"><span class="pre">ObservedModel</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">figsize</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tuple</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">(12,</span> <span class="pre">7)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plot_native_model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">native_model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="transform.html#ForMoSA.transform.observed.ObservedModel" title="ForMoSA.transform.observed.ObservedModel"><span class="pre">ObservedModel</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">Figure</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Axes</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Axes</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Axes</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Axes</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/ForMoSA/nested_sampling/plotting.html#Plotting.plot_fit"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ForMoSA.nested_sampling.plotting.Plotting.plot_fit" title="Link to this definition">#</a></dt>
 <dd><p>Plot best fit</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>observations</strong> (<em>ObservationSet</em>) – Instance of class ObservationSet</p></li>
-<li><p><strong>best_fit</strong> (<em>list</em><em>[</em><a class="reference internal" href="adapt.html#ForMoSA.transform.observed.ObservedModel" title="ForMoSA.transform.observed.ObservedModel"><em>ObservedModel</em></a><em>]</em>) – List of instances of class ObservedModel corresponding to the best-fit model for each observation</p></li>
+<li><p><strong>observations</strong> (<a class="reference internal" href="observation.html#ForMoSA.observation.observation_set.ObservationSet" title="ForMoSA.observation.observation_set.ObservationSet"><em>ObservationSet</em></a>) – Instance of class ObservationSet</p></li>
+<li><p><strong>best_fit</strong> (<em>list</em><em>[</em><a class="reference internal" href="transform.html#ForMoSA.transform.observed.ObservedModel" title="ForMoSA.transform.observed.ObservedModel"><em>ObservedModel</em></a><em>]</em>) – List of instances of class ObservedModel corresponding to the best-fit model for each observation</p></li>
 <li><p><strong>figsize</strong> (<em>tuple</em><em>[</em><em>float</em><em>, </em><em>float</em><em>]</em>) – Size of the figure</p></li>
 <li><p><strong>plot_native_model</strong> (<em>bool</em>) – Whether to plot the native model</p></li>
-<li><p><strong>native_model</strong> (<a class="reference internal" href="adapt.html#ForMoSA.transform.observed.ObservedModel" title="ForMoSA.transform.observed.ObservedModel"><em>ObservedModel</em></a>) – As instance of ObservedModel</p></li>
+<li><p><strong>native_model</strong> (<a class="reference internal" href="transform.html#ForMoSA.transform.observed.ObservedModel" title="ForMoSA.transform.observed.ObservedModel"><em>ObservedModel</em></a>) – As instance of ObservedModel</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -527,7 +550,7 @@ document.write(`
 <dd><p>Radar plot the samples.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>config</strong> (<em>RadarPlotConfig</em>) – Instance of class RadarPlotConfig</p>
+<dd class="field-odd"><p><strong>config</strong> (<a class="reference internal" href="core.html#ForMoSA.core.config.RadarPlotConfig" title="ForMoSA.core.config.RadarPlotConfig"><em>RadarPlotConfig</em></a>) – Instance of class RadarPlotConfig</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p><ul class="simple">
@@ -591,6 +614,15 @@ document.write(`
         <p class="prev-next-title">Nested Sampling</p>
       </div>
     </a>
+    <a class="right-next"
+       href="main_utilities.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Utilities</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
 </div>
                 </footer>
               
@@ -607,8 +639,10 @@ document.write(`
   </div>
   <nav class="bd-toc-nav page-toc">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-ForMoSA.nested_sampling.plotting">The plotting module of ForMoSA:</a><ul class="nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#plotting-module">Plotting Module</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.nested_sampling.plotting.Plotting"><code class="docutils literal notranslate"><span class="pre">Plotting</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.nested_sampling.plotting.Plotting.logger"><code class="docutils literal notranslate"><span class="pre">Plotting.logger</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.nested_sampling.plotting.Plotting.ns_results"><code class="docutils literal notranslate"><span class="pre">Plotting.ns_results</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.nested_sampling.plotting.Plotting.plot_ccf"><code class="docutils literal notranslate"><span class="pre">Plotting.plot_ccf()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.nested_sampling.plotting.Plotting.plot_chains"><code class="docutils literal notranslate"><span class="pre">Plotting.plot_chains()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.nested_sampling.plotting.Plotting.plot_corner"><code class="docutils literal notranslate"><span class="pre">Plotting.plot_corner()</span></code></a></li>

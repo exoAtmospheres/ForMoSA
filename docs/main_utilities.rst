@@ -1,19 +1,26 @@
 .. _main_utilities:
 
-Main Utilities
-==============
+Utilities
+=========
 
-Global functions:
-+++++++++++++++++
-.. automodule:: ForMoSA.config.global_config
-	:members:
+Miscellaneous Utilities
++++++++++++++++++++++++
 
-Utilities:
-++++++++++
+Helper functions used throughout the package (type conversions,
+array normalization, percentile computations, etc.).
+
 .. automodule:: ForMoSA.utils.misc
 	:members:
+	:undoc-members:
+	:show-inheritance:
 
-Spectra utilities:
-++++++++++++++++++
+Spectra Utilities
++++++++++++++++++
+
+Spectral manipulation routines: resolution degradation, Doppler shift,
+rotational broadening, reddening, continuum estimation, and more.
+
 .. automodule:: ForMoSA.utils.spec
 	:members:
+	:undoc-members:
+	:show-inheritance:

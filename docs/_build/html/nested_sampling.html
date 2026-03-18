@@ -46,8 +46,8 @@
     <link rel="icon" href="_static/favicon.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Plotting Class" href="plotting.html" />
-    <link rel="prev" title="Adapt the data" href="adapt.html" />
+    <link rel="next" title="Plotting" href="plotting.html" />
+    <link rel="prev" title="Model Transformations" href="transform.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   </head>
@@ -169,10 +169,17 @@
 </ul>
 </details></li>
 <li class="toctree-l1 current active has-children"><a class="reference internal" href="api.html">ForMoSA API</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="main_utilities.html">Main Utilities</a></li>
-<li class="toctree-l2"><a class="reference internal" href="adapt.html">Adapt the data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="analysis.html">Analysis</a></li>
+<li class="toctree-l2"><a class="reference internal" href="config.html">Configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="core.html">Core</a></li>
+<li class="toctree-l2"><a class="reference internal" href="observation.html">Observations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="grid.html">Model Grids</a></li>
+<li class="toctree-l2"><a class="reference internal" href="parameter.html">Parameters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="filter.html">Photometry Filters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="transform.html">Model Transformations</a></li>
 <li class="toctree-l2 current active"><a class="current reference internal" href="#">Nested Sampling</a></li>
-<li class="toctree-l2"><a class="reference internal" href="plotting.html">Plotting Class</a></li>
+<li class="toctree-l2"><a class="reference internal" href="plotting.html">Plotting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="main_utilities.html">Utilities</a></li>
 </ul>
 </details></li>
 </ul>
@@ -387,48 +394,79 @@ document.write(`
             </div>
             <nav aria-label="Page">
                 <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-ForMoSA.nested_sampling.nested_sampling">Nested Main:</a><ul class="nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#nested-sampling-engine">Nested Sampling Engine</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.nested_sampling.nested_sampling.NestedSampling"><code class="docutils literal notranslate"><span class="pre">NestedSampling</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.nested_sampling.nested_sampling.NestedSampling.algorithm"><code class="docutils literal notranslate"><span class="pre">NestedSampling.algorithm</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.nested_sampling.nested_sampling.NestedSampling.bounds_lsq"><code class="docutils literal notranslate"><span class="pre">NestedSampling.bounds_lsq</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.nested_sampling.nested_sampling.NestedSampling.build_models_from_theta"><code class="docutils literal notranslate"><span class="pre">NestedSampling.build_models_from_theta()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.nested_sampling.nested_sampling.NestedSampling.config_NS"><code class="docutils literal notranslate"><span class="pre">NestedSampling.config_NS</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.nested_sampling.nested_sampling.NestedSampling.from_dict"><code class="docutils literal notranslate"><span class="pre">NestedSampling.from_dict()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.nested_sampling.nested_sampling.NestedSampling.from_json"><code class="docutils literal notranslate"><span class="pre">NestedSampling.from_json()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.nested_sampling.nested_sampling.NestedSampling.interp_method"><code class="docutils literal notranslate"><span class="pre">NestedSampling.interp_method</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.nested_sampling.nested_sampling.NestedSampling.load_results"><code class="docutils literal notranslate"><span class="pre">NestedSampling.load_results()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.nested_sampling.nested_sampling.NestedSampling.logL_type"><code class="docutils literal notranslate"><span class="pre">NestedSampling.logL_type</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.nested_sampling.nested_sampling.NestedSampling.logger"><code class="docutils literal notranslate"><span class="pre">NestedSampling.logger</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.nested_sampling.nested_sampling.NestedSampling.loglike"><code class="docutils literal notranslate"><span class="pre">NestedSampling.loglike()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.nested_sampling.nested_sampling.NestedSampling.npoints"><code class="docutils literal notranslate"><span class="pre">NestedSampling.npoints</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.nested_sampling.nested_sampling.NestedSampling.ns_params"><code class="docutils literal notranslate"><span class="pre">NestedSampling.ns_params</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.nested_sampling.nested_sampling.NestedSampling.observations"><code class="docutils literal notranslate"><span class="pre">NestedSampling.observations</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.nested_sampling.nested_sampling.NestedSampling.parameters"><code class="docutils literal notranslate"><span class="pre">NestedSampling.parameters</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.nested_sampling.nested_sampling.NestedSampling.prior_transform"><code class="docutils literal notranslate"><span class="pre">NestedSampling.prior_transform()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.nested_sampling.nested_sampling.NestedSampling.restricted_observations"><code class="docutils literal notranslate"><span class="pre">NestedSampling.restricted_observations</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.nested_sampling.nested_sampling.NestedSampling.restricted_subgrids"><code class="docutils literal notranslate"><span class="pre">NestedSampling.restricted_subgrids</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.nested_sampling.nested_sampling.NestedSampling.results"><code class="docutils literal notranslate"><span class="pre">NestedSampling.results</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.nested_sampling.nested_sampling.NestedSampling.run"><code class="docutils literal notranslate"><span class="pre">NestedSampling.run()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.nested_sampling.nested_sampling.NestedSampling.save_results"><code class="docutils literal notranslate"><span class="pre">NestedSampling.save_results()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.nested_sampling.nested_sampling.NestedSampling.subgrids"><code class="docutils literal notranslate"><span class="pre">NestedSampling.subgrids</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.nested_sampling.nested_sampling.NestedSampling.to_dict"><code class="docutils literal notranslate"><span class="pre">NestedSampling.to_dict</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.nested_sampling.nested_sampling.NestedSampling.wave_fit"><code class="docutils literal notranslate"><span class="pre">NestedSampling.wave_fit</span></code></a></li>
 </ul>
 </li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-ForMoSA.nested_sampling.ns_analysis">NS Analysis:</a><ul class="nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#ns-analysis">NS Analysis</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.nested_sampling.ns_analysis.NSAnalysis"><code class="docutils literal notranslate"><span class="pre">NSAnalysis</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.nested_sampling.ns_analysis.NSAnalysis.best_fit"><code class="docutils literal notranslate"><span class="pre">NSAnalysis.best_fit</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.nested_sampling.ns_analysis.NSAnalysis.best_fit_interval"><code class="docutils literal notranslate"><span class="pre">NSAnalysis.best_fit_interval()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.nested_sampling.ns_analysis.NSAnalysis.build_models_from_theta"><code class="docutils literal notranslate"><span class="pre">NSAnalysis.build_models_from_theta()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.nested_sampling.ns_analysis.NSAnalysis.compute_ccf"><code class="docutils literal notranslate"><span class="pre">NSAnalysis.compute_ccf()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.nested_sampling.ns_analysis.NSAnalysis.compute_rv_vsini_map"><code class="docutils literal notranslate"><span class="pre">NSAnalysis.compute_rv_vsini_map()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.nested_sampling.ns_analysis.NSAnalysis.logger"><code class="docutils literal notranslate"><span class="pre">NSAnalysis.logger</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.nested_sampling.ns_analysis.NSAnalysis.native_best_fit"><code class="docutils literal notranslate"><span class="pre">NSAnalysis.native_best_fit</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.nested_sampling.ns_analysis.NSAnalysis.ns"><code class="docutils literal notranslate"><span class="pre">NSAnalysis.ns</span></code></a></li>
 </ul>
 </li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-ForMoSA.nested_sampling.results">Results:</a><ul class="nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#results">Results</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.nested_sampling.results.NSResults"><code class="docutils literal notranslate"><span class="pre">NSResults</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.nested_sampling.results.NSResults.best_logL"><code class="docutils literal notranslate"><span class="pre">NSResults.best_logL</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.nested_sampling.results.NSResults.burn_in"><code class="docutils literal notranslate"><span class="pre">NSResults.burn_in</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.nested_sampling.results.NSResults.free_parameters"><code class="docutils literal notranslate"><span class="pre">NSResults.free_parameters</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.nested_sampling.results.NSResults.from_dict"><code class="docutils literal notranslate"><span class="pre">NSResults.from_dict()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.nested_sampling.results.NSResults.from_nestle"><code class="docutils literal notranslate"><span class="pre">NSResults.from_nestle()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.nested_sampling.results.NSResults.from_pymultinest"><code class="docutils literal notranslate"><span class="pre">NSResults.from_pymultinest()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.nested_sampling.results.NSResults.from_ultranest"><code class="docutils literal notranslate"><span class="pre">NSResults.from_ultranest()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.nested_sampling.results.NSResults.logl"><code class="docutils literal notranslate"><span class="pre">NSResults.logl</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.nested_sampling.results.NSResults.logvol"><code class="docutils literal notranslate"><span class="pre">NSResults.logvol</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.nested_sampling.results.NSResults.logz"><code class="docutils literal notranslate"><span class="pre">NSResults.logz</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.nested_sampling.results.NSResults.median_parameters"><code class="docutils literal notranslate"><span class="pre">NSResults.median_parameters</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.nested_sampling.results.NSResults.param_samples_dict"><code class="docutils literal notranslate"><span class="pre">NSResults.param_samples_dict</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.nested_sampling.results.NSResults.samples"><code class="docutils literal notranslate"><span class="pre">NSResults.samples</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.nested_sampling.results.NSResults.summary"><code class="docutils literal notranslate"><span class="pre">NSResults.summary()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.nested_sampling.results.NSResults.to_dict"><code class="docutils literal notranslate"><span class="pre">NSResults.to_dict</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.nested_sampling.results.NSResults.weights"><code class="docutils literal notranslate"><span class="pre">NSResults.weights</span></code></a></li>
 </ul>
 </li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-ForMoSA.utils.prior_functions">Prior Functions:</a><ul class="nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#prior-functions">Prior Functions</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.utils.prior_functions.gaussian_prior"><code class="docutils literal notranslate"><span class="pre">gaussian_prior()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.utils.prior_functions.loguniform_prior"><code class="docutils literal notranslate"><span class="pre">loguniform_prior()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.utils.prior_functions.uniform_prior"><code class="docutils literal notranslate"><span class="pre">uniform_prior()</span></code></a></li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-ForMoSA.utils.logL_functions">Likelihood Functions:</a><ul class="nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#likelihood-functions">Likelihood Functions</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.utils.logL_functions.logL_CCF_Brogi"><code class="docutils literal notranslate"><span class="pre">logL_CCF_Brogi()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.utils.logL_functions.logL_CCF_Zucker"><code class="docutils literal notranslate"><span class="pre">logL_CCF_Zucker()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.utils.logL_functions.logL_CCF_custom"><code class="docutils literal notranslate"><span class="pre">logL_CCF_custom()</span></code></a></li>
@@ -451,24 +489,27 @@ document.write(`
                   
   <section id="nested-sampling">
 <span id="id1"></span><h1>Nested Sampling<a class="headerlink" href="#nested-sampling" title="Link to this heading">#</a></h1>
-<section id="module-ForMoSA.nested_sampling.nested_sampling">
-<span id="nested-main"></span><h2>Nested Main:<a class="headerlink" href="#module-ForMoSA.nested_sampling.nested_sampling" title="Link to this heading">#</a></h2>
-<dl class="py class">
+<section id="nested-sampling-engine">
+<h2>Nested Sampling Engine<a class="headerlink" href="#nested-sampling-engine" title="Link to this heading">#</a></h2>
+<p>Orchestrates the nested-sampling run with support for
+<em>nestle</em>, <em>PyMultiNest</em>, and <em>UltraNest</em> back-ends.</p>
+<dl class="py class" id="module-ForMoSA.nested_sampling.nested_sampling">
 <dt class="sig sig-object py" id="ForMoSA.nested_sampling.nested_sampling.NestedSampling">
-<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">ForMoSA.nested_sampling.nested_sampling.</span></span><span class="sig-name descname"><span class="pre">NestedSampling</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">algorithm</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">NestedAlgorithm</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">npoints</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logL_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">LogLikelihoodType</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config_NS</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="main_utilities.html#ForMoSA.config.global_config.Config_NS" title="ForMoSA.config.global_config.Config_NS"><span class="pre">Config_NS</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">observations</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ObservationSet</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subgrids</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="adapt.html#ForMoSA.grid.subgrid_set.SubGridSet" title="ForMoSA.grid.subgrid_set.SubGridSet"><span class="pre">SubGridSet</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">parameters</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ParameterSet</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wave_fit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interp_method</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'linear'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bounds_lsq</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logger</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Logger</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_level</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'INFO'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ForMoSA/nested_sampling/nested_sampling.html#NestedSampling"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ForMoSA.nested_sampling.nested_sampling.NestedSampling" title="Link to this definition">#</a></dt>
-<dd><p>ForMoSA Nested_Sampling class, which provides easy access to the parameters of the nested sampling algorithm</p>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">ForMoSA.nested_sampling.nested_sampling.</span></span><span class="sig-name descname"><span class="pre">NestedSampling</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">algorithm</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="core.html#ForMoSA.core.enums.NestedAlgorithm" title="ForMoSA.core.enums.NestedAlgorithm"><span class="pre">NestedAlgorithm</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">npoints</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logL_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="core.html#ForMoSA.core.enums.LogLikelihoodType" title="ForMoSA.core.enums.LogLikelihoodType"><span class="pre">LogLikelihoodType</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config_NS</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="config.html#ForMoSA.config.global_config.Config_NS" title="ForMoSA.config.global_config.Config_NS"><span class="pre">Config_NS</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">observations</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="observation.html#ForMoSA.observation.observation_set.ObservationSet" title="ForMoSA.observation.observation_set.ObservationSet"><span class="pre">ObservationSet</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">subgrids</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="grid.html#ForMoSA.grid.subgrid_set.SubGridSet" title="ForMoSA.grid.subgrid_set.SubGridSet"><span class="pre">SubGridSet</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">parameters</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="parameter.html#ForMoSA.parameter.parameter_set.ParameterSet" title="ForMoSA.parameter.parameter_set.ParameterSet"><span class="pre">ParameterSet</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">wave_fit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interp_method</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'linear'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bounds_lsq</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logger</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Logger</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_level</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'INFO'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ForMoSA/nested_sampling/nested_sampling.html#NestedSampling"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ForMoSA.nested_sampling.nested_sampling.NestedSampling" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>ForMoSA Nested_Sampling class, which provides easy access to the parameters of the nested sampling algorithm</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>(</strong><strong>Logger</strong><strong>)</strong> (<em>logger</em>)</p></li>
+<li><p><strong>(</strong><strong>Logger</strong><strong>)</strong> (<a class="reference internal" href="#ForMoSA.nested_sampling.nested_sampling.NestedSampling.logger" title="ForMoSA.nested_sampling.nested_sampling.NestedSampling.logger"><em>logger</em></a>)</p></li>
 <li><p><strong>(</strong><strong>str</strong><strong>)</strong> (<em>log_level</em>)</p></li>
-<li><p><strong>(</strong><strong>int</strong><strong>)</strong> (<em>npoints</em>)</p></li>
-<li><p><strong>(</strong><strong>list</strong><strong>[</strong><strong>LogLikelihoodType</strong><strong>]</strong><strong>)</strong> (<em>logL_type</em>)</p></li>
-<li><p><strong>(</strong><strong>Config_NS</strong><strong>)</strong> (<em>config_NS</em>)</p></li>
+<li><p><strong>(</strong><strong>int</strong><strong>)</strong> (<a class="reference internal" href="#ForMoSA.nested_sampling.nested_sampling.NestedSampling.npoints" title="ForMoSA.nested_sampling.nested_sampling.NestedSampling.npoints"><em>npoints</em></a>)</p></li>
+<li><p><strong>(</strong><strong>list</strong><strong>[</strong><strong>LogLikelihoodType</strong><strong>]</strong><strong>)</strong> (<a class="reference internal" href="#ForMoSA.nested_sampling.nested_sampling.NestedSampling.logL_type" title="ForMoSA.nested_sampling.nested_sampling.NestedSampling.logL_type"><em>logL_type</em></a>)</p></li>
+<li><p><strong>(</strong><strong>Config_NS</strong><strong>)</strong> (<a class="reference internal" href="#ForMoSA.nested_sampling.nested_sampling.NestedSampling.config_NS" title="ForMoSA.nested_sampling.nested_sampling.NestedSampling.config_NS"><em>config_NS</em></a>)</p></li>
 <li><p><strong>(</strong><strong>str</strong><strong>)</strong></p></li>
-<li><p><strong>(</strong><strong>list</strong><strong>[</strong><strong>str</strong><strong>]</strong><strong>)</strong> (<em>wave_fit</em>)</p></li>
-<li><p><strong>(</strong><strong>list</strong><strong>[</strong><strong>float</strong><strong>]</strong><strong>)</strong> (<em>bounds_lsq</em>)</p></li>
-<li><p><strong>(</strong><strong>logging.Logger</strong><strong>)</strong> (<em>logger</em>)</p></li>
+<li><p><strong>(</strong><strong>list</strong><strong>[</strong><strong>str</strong><strong>]</strong><strong>)</strong> (<a class="reference internal" href="#ForMoSA.nested_sampling.nested_sampling.NestedSampling.wave_fit" title="ForMoSA.nested_sampling.nested_sampling.NestedSampling.wave_fit"><em>wave_fit</em></a>)</p></li>
+<li><p><strong>(</strong><strong>list</strong><strong>[</strong><strong>float</strong><strong>]</strong><strong>)</strong> (<a class="reference internal" href="#ForMoSA.nested_sampling.nested_sampling.NestedSampling.bounds_lsq" title="ForMoSA.nested_sampling.nested_sampling.NestedSampling.bounds_lsq"><em>bounds_lsq</em></a>)</p></li>
+<li><p><strong>(</strong><strong>logging.Logger</strong><strong>)</strong> (<a class="reference internal" href="#ForMoSA.nested_sampling.nested_sampling.NestedSampling.logger" title="ForMoSA.nested_sampling.nested_sampling.NestedSampling.logger"><em>logger</em></a>)</p></li>
 <li><p><strong>(</strong><strong>str</strong><strong>)</strong></p></li>
 <li><p><strong>Authors</strong></p></li>
 <li><p><strong>-------</strong></p></li>
@@ -476,9 +517,19 @@ document.write(`
 </ul>
 </dd>
 </dl>
+<dl class="py property">
+<dt class="sig sig-object py" id="ForMoSA.nested_sampling.nested_sampling.NestedSampling.algorithm">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">algorithm</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></span><a class="headerlink" href="#ForMoSA.nested_sampling.nested_sampling.NestedSampling.algorithm" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="ForMoSA.nested_sampling.nested_sampling.NestedSampling.bounds_lsq">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">bounds_lsq</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#ForMoSA.nested_sampling.nested_sampling.NestedSampling.bounds_lsq" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
 <dl class="py method">
 <dt class="sig sig-object py" id="ForMoSA.nested_sampling.nested_sampling.NestedSampling.build_models_from_theta">
-<span class="sig-name descname"><span class="pre">build_models_from_theta</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">theta</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="adapt.html#ForMoSA.transform.observed.ObservedModel" title="ForMoSA.transform.observed.ObservedModel"><span class="pre">ObservedModel</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/ForMoSA/nested_sampling/nested_sampling.html#NestedSampling.build_models_from_theta"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ForMoSA.nested_sampling.nested_sampling.NestedSampling.build_models_from_theta" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">build_models_from_theta</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">theta</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="transform.html#ForMoSA.transform.observed.ObservedModel" title="ForMoSA.transform.observed.ObservedModel"><span class="pre">ObservedModel</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/ForMoSA/nested_sampling/nested_sampling.html#NestedSampling.build_models_from_theta"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ForMoSA.nested_sampling.nested_sampling.NestedSampling.build_models_from_theta" title="Link to this definition">#</a></dt>
 <dd><p>Build the models from the values of the free parameters drawn by the Nested Sampling</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -496,16 +547,21 @@ document.write(`
 </dl>
 </dd></dl>
 
+<dl class="py property">
+<dt class="sig sig-object py" id="ForMoSA.nested_sampling.nested_sampling.NestedSampling.config_NS">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">config_NS</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="config.html#ForMoSA.config.global_config.Config_NS" title="ForMoSA.config.global_config.Config_NS"><span class="pre">Config_NS</span></a></span><a class="headerlink" href="#ForMoSA.nested_sampling.nested_sampling.NestedSampling.config_NS" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
 <dl class="py method">
 <dt class="sig sig-object py" id="ForMoSA.nested_sampling.nested_sampling.NestedSampling.from_dict">
-<span class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">from_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">observations</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ObservationSet</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subgrids</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="adapt.html#ForMoSA.grid.subgrid_set.SubGridSet" title="ForMoSA.grid.subgrid_set.SubGridSet"><span class="pre">SubGridSet</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">logger</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Logger</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_level</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'INFO'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#ForMoSA.nested_sampling.nested_sampling.NestedSampling" title="ForMoSA.nested_sampling.nested_sampling.NestedSampling"><span class="pre">NestedSampling</span></a></span></span><a class="reference internal" href="_modules/ForMoSA/nested_sampling/nested_sampling.html#NestedSampling.from_dict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ForMoSA.nested_sampling.nested_sampling.NestedSampling.from_dict" title="Link to this definition">#</a></dt>
+<span class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">from_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">observations</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="observation.html#ForMoSA.observation.observation_set.ObservationSet" title="ForMoSA.observation.observation_set.ObservationSet"><span class="pre">ObservationSet</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">subgrids</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="grid.html#ForMoSA.grid.subgrid_set.SubGridSet" title="ForMoSA.grid.subgrid_set.SubGridSet"><span class="pre">SubGridSet</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">logger</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Logger</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_level</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'INFO'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#ForMoSA.nested_sampling.nested_sampling.NestedSampling" title="ForMoSA.nested_sampling.nested_sampling.NestedSampling"><span class="pre">NestedSampling</span></a></span></span><a class="reference internal" href="_modules/ForMoSA/nested_sampling/nested_sampling.html#NestedSampling.from_dict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ForMoSA.nested_sampling.nested_sampling.NestedSampling.from_dict" title="Link to this definition">#</a></dt>
 <dd><p>Reconstruct an instance of NestedSampling from a dictionary of NestedSampling.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>data</strong> (<em>dict</em>) – Dictionary representation NestedSampling parameters</p></li>
-<li><p><strong>observations</strong> (<em>ObservationSet</em>) – Instance of ObservationSet</p></li>
-<li><p><strong>subgrids</strong> (<a class="reference internal" href="adapt.html#ForMoSA.grid.subgrid_set.SubGridSet" title="ForMoSA.grid.subgrid_set.SubGridSet"><em>SubGridSet</em></a>) – Instance of SubGridSet</p></li>
+<li><p><strong>observations</strong> (<a class="reference internal" href="observation.html#ForMoSA.observation.observation_set.ObservationSet" title="ForMoSA.observation.observation_set.ObservationSet"><em>ObservationSet</em></a>) – Instance of ObservationSet</p></li>
+<li><p><strong>subgrids</strong> (<a class="reference internal" href="grid.html#ForMoSA.grid.subgrid_set.SubGridSet" title="ForMoSA.grid.subgrid_set.SubGridSet"><em>SubGridSet</em></a>) – Instance of SubGridSet</p></li>
 <li><p><strong>logger</strong> (<em>logging.Logger</em>) – Logger</p></li>
 <li><p><strong>log_level</strong> (<em>str</em>) – Level of the Logger</p></li>
 </ul>
@@ -524,14 +580,14 @@ document.write(`
 
 <dl class="py method">
 <dt class="sig sig-object py" id="ForMoSA.nested_sampling.nested_sampling.NestedSampling.from_json">
-<span class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">from_json</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">PathLike</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">observations</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ObservationSet</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subgrids</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="adapt.html#ForMoSA.grid.subgrid_set.SubGridSet" title="ForMoSA.grid.subgrid_set.SubGridSet"><span class="pre">SubGridSet</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">logger</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Logger</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_level</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'INFO'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#ForMoSA.nested_sampling.nested_sampling.NestedSampling" title="ForMoSA.nested_sampling.nested_sampling.NestedSampling"><span class="pre">NestedSampling</span></a></span></span><a class="reference internal" href="_modules/ForMoSA/nested_sampling/nested_sampling.html#NestedSampling.from_json"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ForMoSA.nested_sampling.nested_sampling.NestedSampling.from_json" title="Link to this definition">#</a></dt>
+<span class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">from_json</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">PathLike</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">observations</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="observation.html#ForMoSA.observation.observation_set.ObservationSet" title="ForMoSA.observation.observation_set.ObservationSet"><span class="pre">ObservationSet</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">subgrids</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="grid.html#ForMoSA.grid.subgrid_set.SubGridSet" title="ForMoSA.grid.subgrid_set.SubGridSet"><span class="pre">SubGridSet</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">logger</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Logger</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_level</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'INFO'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#ForMoSA.nested_sampling.nested_sampling.NestedSampling" title="ForMoSA.nested_sampling.nested_sampling.NestedSampling"><span class="pre">NestedSampling</span></a></span></span><a class="reference internal" href="_modules/ForMoSA/nested_sampling/nested_sampling.html#NestedSampling.from_json"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ForMoSA.nested_sampling.nested_sampling.NestedSampling.from_json" title="Link to this definition">#</a></dt>
 <dd><p>Reconstruct an instance of NestedSampling from the folder containing the NestedSampling parameters.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>path</strong> (<em>str</em><em> | </em><em>os.PathLike</em>) – Dictionary representation NestedSampling parameters</p></li>
-<li><p><strong>observations</strong> (<em>ObservationSet</em>) – Instance of ObservationSet</p></li>
-<li><p><strong>subgrids</strong> (<a class="reference internal" href="adapt.html#ForMoSA.grid.subgrid_set.SubGridSet" title="ForMoSA.grid.subgrid_set.SubGridSet"><em>SubGridSet</em></a>) – Instance of SubGridSet</p></li>
+<li><p><strong>observations</strong> (<a class="reference internal" href="observation.html#ForMoSA.observation.observation_set.ObservationSet" title="ForMoSA.observation.observation_set.ObservationSet"><em>ObservationSet</em></a>) – Instance of ObservationSet</p></li>
+<li><p><strong>subgrids</strong> (<a class="reference internal" href="grid.html#ForMoSA.grid.subgrid_set.SubGridSet" title="ForMoSA.grid.subgrid_set.SubGridSet"><em>SubGridSet</em></a>) – Instance of SubGridSet</p></li>
 <li><p><strong>logger</strong> (<em>logging.Logger</em>) – Logger</p></li>
 <li><p><strong>log_level</strong> (<em>str</em>) – Level of the Logger</p></li>
 </ul>
@@ -547,6 +603,11 @@ document.write(`
 </dd>
 </dl>
 </dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="ForMoSA.nested_sampling.nested_sampling.NestedSampling.interp_method">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">interp_method</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></span><a class="headerlink" href="#ForMoSA.nested_sampling.nested_sampling.NestedSampling.interp_method" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="ForMoSA.nested_sampling.nested_sampling.NestedSampling.load_results">
@@ -564,6 +625,16 @@ document.write(`
 </dl>
 </dd></dl>
 
+<dl class="py property">
+<dt class="sig sig-object py" id="ForMoSA.nested_sampling.nested_sampling.NestedSampling.logL_type">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">logL_type</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">list</span></span><a class="headerlink" href="#ForMoSA.nested_sampling.nested_sampling.NestedSampling.logL_type" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="ForMoSA.nested_sampling.nested_sampling.NestedSampling.logger">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">logger</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Logger</span></span><a class="headerlink" href="#ForMoSA.nested_sampling.nested_sampling.NestedSampling.logger" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
 <dl class="py method">
 <dt class="sig sig-object py" id="ForMoSA.nested_sampling.nested_sampling.NestedSampling.loglike">
 <span class="sig-name descname"><span class="pre">loglike</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">theta</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="reference internal" href="_modules/ForMoSA/nested_sampling/nested_sampling.html#NestedSampling.loglike"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ForMoSA.nested_sampling.nested_sampling.NestedSampling.loglike" title="Link to this definition">#</a></dt>
@@ -580,6 +651,26 @@ document.write(`
 </dd>
 </dl>
 </dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="ForMoSA.nested_sampling.nested_sampling.NestedSampling.npoints">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">npoints</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></span><a class="headerlink" href="#ForMoSA.nested_sampling.nested_sampling.NestedSampling.npoints" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="ForMoSA.nested_sampling.nested_sampling.NestedSampling.ns_params">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">ns_params</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">dict</span></span><a class="headerlink" href="#ForMoSA.nested_sampling.nested_sampling.NestedSampling.ns_params" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="ForMoSA.nested_sampling.nested_sampling.NestedSampling.observations">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">observations</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="observation.html#ForMoSA.observation.observation_set.ObservationSet" title="ForMoSA.observation.observation_set.ObservationSet"><span class="pre">ObservationSet</span></a></span><a class="headerlink" href="#ForMoSA.nested_sampling.nested_sampling.NestedSampling.observations" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="ForMoSA.nested_sampling.nested_sampling.NestedSampling.parameters">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">parameters</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="parameter.html#ForMoSA.parameter.parameter_set.ParameterSet" title="ForMoSA.parameter.parameter_set.ParameterSet"><span class="pre">ParameterSet</span></a></span><a class="headerlink" href="#ForMoSA.nested_sampling.nested_sampling.NestedSampling.parameters" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="ForMoSA.nested_sampling.nested_sampling.NestedSampling.prior_transform">
@@ -600,6 +691,21 @@ document.write(`
 </dd>
 </dl>
 </dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="ForMoSA.nested_sampling.nested_sampling.NestedSampling.restricted_observations">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">restricted_observations</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="observation.html#ForMoSA.observation.observation_set.ObservationSet" title="ForMoSA.observation.observation_set.ObservationSet"><span class="pre">ObservationSet</span></a></span><a class="headerlink" href="#ForMoSA.nested_sampling.nested_sampling.NestedSampling.restricted_observations" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="ForMoSA.nested_sampling.nested_sampling.NestedSampling.restricted_subgrids">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">restricted_subgrids</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="grid.html#ForMoSA.grid.subgrid_set.SubGridSet" title="ForMoSA.grid.subgrid_set.SubGridSet"><span class="pre">SubGridSet</span></a></span><a class="headerlink" href="#ForMoSA.nested_sampling.nested_sampling.NestedSampling.restricted_subgrids" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="ForMoSA.nested_sampling.nested_sampling.NestedSampling.results">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">results</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#ForMoSA.nested_sampling.results.NSResults" title="ForMoSA.nested_sampling.results.NSResults"><span class="pre">NSResults</span></a></span><a class="headerlink" href="#ForMoSA.nested_sampling.nested_sampling.NestedSampling.results" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="ForMoSA.nested_sampling.nested_sampling.NestedSampling.run">
@@ -637,22 +743,40 @@ document.write(`
 </dl>
 </dd></dl>
 
+<dl class="py property">
+<dt class="sig sig-object py" id="ForMoSA.nested_sampling.nested_sampling.NestedSampling.subgrids">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">subgrids</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="grid.html#ForMoSA.grid.subgrid_set.SubGridSet" title="ForMoSA.grid.subgrid_set.SubGridSet"><span class="pre">SubGridSet</span></a></span><a class="headerlink" href="#ForMoSA.nested_sampling.nested_sampling.NestedSampling.subgrids" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="ForMoSA.nested_sampling.nested_sampling.NestedSampling.to_dict">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">to_dict</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">dict</span></span><a class="headerlink" href="#ForMoSA.nested_sampling.nested_sampling.NestedSampling.to_dict" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="ForMoSA.nested_sampling.nested_sampling.NestedSampling.wave_fit">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">wave_fit</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></span><a class="headerlink" href="#ForMoSA.nested_sampling.nested_sampling.NestedSampling.wave_fit" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
 </dd></dl>
 
 </section>
-<section id="module-ForMoSA.nested_sampling.ns_analysis">
-<span id="ns-analysis"></span><h2>NS Analysis:<a class="headerlink" href="#module-ForMoSA.nested_sampling.ns_analysis" title="Link to this heading">#</a></h2>
-<dl class="py class">
+<section id="ns-analysis">
+<h2>NS Analysis<a class="headerlink" href="#ns-analysis" title="Link to this heading">#</a></h2>
+<p>Post-processing of nested-sampling products: best-fit reconstruction,
+CCF computation, RV–v sin i maps, and confidence intervals.</p>
+<dl class="py class" id="module-ForMoSA.nested_sampling.ns_analysis">
 <dt class="sig sig-object py" id="ForMoSA.nested_sampling.ns_analysis.NSAnalysis">
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">ForMoSA.nested_sampling.ns_analysis.</span></span><span class="sig-name descname"><span class="pre">NSAnalysis</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ns</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#ForMoSA.nested_sampling.nested_sampling.NestedSampling" title="ForMoSA.nested_sampling.nested_sampling.NestedSampling"><span class="pre">NestedSampling</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">logger</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Logger</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_level</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'INFO'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ForMoSA/nested_sampling/ns_analysis.html#NSAnalysis"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ForMoSA.nested_sampling.ns_analysis.NSAnalysis" title="Link to this definition">#</a></dt>
-<dd><p>Class used to subsequent analysis of nested sampling products.
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Class used to subsequent analysis of nested sampling products.
 It includes the reconstructions of models, best fit, computations of ccf, …</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>ns</strong> (<a class="reference internal" href="#ForMoSA.nested_sampling.nested_sampling.NestedSampling" title="ForMoSA.nested_sampling.nested_sampling.NestedSampling"><em>NestedSampling</em></a>) – Instance of class NestedSampling</p></li>
-<li><p><strong>observations</strong> (<em>ObservationSet</em>) – Instance of class ObservationSet</p></li>
-<li><p><strong>subgrids</strong> (<a class="reference internal" href="adapt.html#ForMoSA.grid.subgrid_set.SubGridSet" title="ForMoSA.grid.subgrid_set.SubGridSet"><em>SubGridSet</em></a>) – Instance of class SubGridSet</p></li>
+<li><p><strong>observations</strong> (<a class="reference internal" href="observation.html#ForMoSA.observation.observation_set.ObservationSet" title="ForMoSA.observation.observation_set.ObservationSet"><em>ObservationSet</em></a>) – Instance of class ObservationSet</p></li>
+<li><p><strong>subgrids</strong> (<a class="reference internal" href="grid.html#ForMoSA.grid.subgrid_set.SubGridSet" title="ForMoSA.grid.subgrid_set.SubGridSet"><em>SubGridSet</em></a>) – Instance of class SubGridSet</p></li>
 <li><p><strong>logger</strong> (<em>logging.Logger</em>) – Logger</p></li>
 <li><p><strong>log_level</strong> (<em>str</em>) – Level of the Logger</p></li>
 <li><p><strong>Authors</strong></p></li>
@@ -661,9 +785,14 @@ It includes the reconstructions of models, best fit, computations of ccf, …</p
 </ul>
 </dd>
 </dl>
+<dl class="py property">
+<dt class="sig sig-object py" id="ForMoSA.nested_sampling.ns_analysis.NSAnalysis.best_fit">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">best_fit</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="transform.html#ForMoSA.transform.observed.ObservedModel" title="ForMoSA.transform.observed.ObservedModel"><span class="pre">ObservedModel</span></a><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#ForMoSA.nested_sampling.ns_analysis.NSAnalysis.best_fit" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
 <dl class="py method">
 <dt class="sig sig-object py" id="ForMoSA.nested_sampling.ns_analysis.NSAnalysis.best_fit_interval">
-<span class="sig-name descname"><span class="pre">best_fit_interval</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">perc</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.68</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="adapt.html#ForMoSA.transform.observed.ObservedModel" title="ForMoSA.transform.observed.ObservedModel"><span class="pre">ObservedModel</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="adapt.html#ForMoSA.transform.observed.ObservedModel" title="ForMoSA.transform.observed.ObservedModel"><span class="pre">ObservedModel</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/ForMoSA/nested_sampling/ns_analysis.html#NSAnalysis.best_fit_interval"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ForMoSA.nested_sampling.ns_analysis.NSAnalysis.best_fit_interval" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">best_fit_interval</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">perc</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.68</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="transform.html#ForMoSA.transform.observed.ObservedModel" title="ForMoSA.transform.observed.ObservedModel"><span class="pre">ObservedModel</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="transform.html#ForMoSA.transform.observed.ObservedModel" title="ForMoSA.transform.observed.ObservedModel"><span class="pre">ObservedModel</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/ForMoSA/nested_sampling/ns_analysis.html#NSAnalysis.best_fit_interval"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ForMoSA.nested_sampling.ns_analysis.NSAnalysis.best_fit_interval" title="Link to this definition">#</a></dt>
 <dd><p>Confidence interval of the native best fit.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -750,18 +879,50 @@ It includes the reconstructions of models, best fit, computations of ccf, …</p
 </dl>
 </dd></dl>
 
+<dl class="py property">
+<dt class="sig sig-object py" id="ForMoSA.nested_sampling.ns_analysis.NSAnalysis.logger">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">logger</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Logger</span></span><a class="headerlink" href="#ForMoSA.nested_sampling.ns_analysis.NSAnalysis.logger" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="ForMoSA.nested_sampling.ns_analysis.NSAnalysis.native_best_fit">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">native_best_fit</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="transform.html#ForMoSA.transform.observed.ObservedModel" title="ForMoSA.transform.observed.ObservedModel"><span class="pre">ObservedModel</span></a></span><a class="headerlink" href="#ForMoSA.nested_sampling.ns_analysis.NSAnalysis.native_best_fit" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="ForMoSA.nested_sampling.ns_analysis.NSAnalysis.ns">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">ns</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#ForMoSA.nested_sampling.nested_sampling.NestedSampling" title="ForMoSA.nested_sampling.nested_sampling.NestedSampling"><span class="pre">NestedSampling</span></a></span><a class="headerlink" href="#ForMoSA.nested_sampling.ns_analysis.NSAnalysis.ns" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
 </dd></dl>
 
 </section>
-<section id="module-ForMoSA.nested_sampling.results">
-<span id="results"></span><h2>Results:<a class="headerlink" href="#module-ForMoSA.nested_sampling.results" title="Link to this heading">#</a></h2>
-<dl class="py class">
+<section id="results">
+<h2>Results<a class="headerlink" href="#results" title="Link to this heading">#</a></h2>
+<p>Data container that stores the raw output of a nested-sampling run.</p>
+<dl class="py class" id="module-ForMoSA.nested_sampling.results">
 <dt class="sig sig-object py" id="ForMoSA.nested_sampling.results.NSResults">
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">ForMoSA.nested_sampling.results.</span></span><span class="sig-name descname"><span class="pre">NSResults</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">samples</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">weights</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logl</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logvol</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logz</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">free_parameters</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">burn_in</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ForMoSA/nested_sampling/results.html#NSResults"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ForMoSA.nested_sampling.results.NSResults" title="Link to this definition">#</a></dt>
-<dd><p>Dataclass to handle reading and storing results of the Nested Sampling algorithm</p>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Dataclass to handle reading and storing results of the Nested Sampling algorithm</p>
 <section id="authors">
 <h3>Authors<a class="headerlink" href="#authors" title="Link to this heading">#</a></h3>
 <p>Allan Denis</p>
+<dl class="py property">
+<dt class="sig sig-object py" id="ForMoSA.nested_sampling.results.NSResults.best_logL">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">best_logL</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></span><a class="headerlink" href="#ForMoSA.nested_sampling.results.NSResults.best_logL" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ForMoSA.nested_sampling.results.NSResults.burn_in">
+<span class="sig-name descname"><span class="pre">burn_in</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0</span></span><a class="headerlink" href="#ForMoSA.nested_sampling.results.NSResults.burn_in" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ForMoSA.nested_sampling.results.NSResults.free_parameters">
+<span class="sig-name descname"><span class="pre">free_parameters</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#ForMoSA.nested_sampling.results.NSResults.free_parameters" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
 <dl class="py method">
 <dt class="sig sig-object py" id="ForMoSA.nested_sampling.results.NSResults.from_dict">
 <span class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">from_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#ForMoSA.nested_sampling.results.NSResults" title="ForMoSA.nested_sampling.results.NSResults"><span class="pre">NSResults</span></a></span></span><a class="reference internal" href="_modules/ForMoSA/nested_sampling/results.html#NSResults.from_dict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ForMoSA.nested_sampling.results.NSResults.from_dict" title="Link to this definition">#</a></dt>
@@ -815,7 +976,7 @@ It includes the reconstructions of models, best fit, computations of ccf, …</p
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>results_path</strong> (<em>str</em><em> | </em><em>os.PathLike</em>) – Path to the PyMultiNest output folder containing RAW_stats.dat, RAW_ev.dat, <a href="#id2"><span class="problematic" id="id3">RAW_</span></a>.txt</p></li>
+<li><p><strong>results_path</strong> (<em>str</em><em> | </em><em>os.PathLike</em>) – Path to the PyMultiNest output folder containing <code class="docutils literal notranslate"><span class="pre">RAW_stats.dat</span></code>, <code class="docutils literal notranslate"><span class="pre">RAW_ev.dat</span></code>, <code class="docutils literal notranslate"><span class="pre">RAW_.txt</span></code></p></li>
 <li><p><strong>free_parameters</strong> (<em>list</em><em>[</em><em>str</em><em>]</em>) – List of free parameters names</p></li>
 </ul>
 </dd>
@@ -854,6 +1015,36 @@ It includes the reconstructions of models, best fit, computations of ccf, …</p
 </dl>
 </dd></dl>
 
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ForMoSA.nested_sampling.results.NSResults.logl">
+<span class="sig-name descname"><span class="pre">logl</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ndarray</span></span><a class="headerlink" href="#ForMoSA.nested_sampling.results.NSResults.logl" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ForMoSA.nested_sampling.results.NSResults.logvol">
+<span class="sig-name descname"><span class="pre">logvol</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ndarray</span></span><a class="headerlink" href="#ForMoSA.nested_sampling.results.NSResults.logvol" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ForMoSA.nested_sampling.results.NSResults.logz">
+<span class="sig-name descname"><span class="pre">logz</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#ForMoSA.nested_sampling.results.NSResults.logz" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="ForMoSA.nested_sampling.results.NSResults.median_parameters">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">median_parameters</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#ForMoSA.nested_sampling.results.NSResults.median_parameters" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="ForMoSA.nested_sampling.results.NSResults.param_samples_dict">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">param_samples_dict</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#ForMoSA.nested_sampling.results.NSResults.param_samples_dict" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ForMoSA.nested_sampling.results.NSResults.samples">
+<span class="sig-name descname"><span class="pre">samples</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ndarray</span></span><a class="headerlink" href="#ForMoSA.nested_sampling.results.NSResults.samples" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
 <dl class="py method">
 <dt class="sig sig-object py" id="ForMoSA.nested_sampling.results.NSResults.summary">
 <span class="sig-name descname"><span class="pre">summary</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sigma</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">include_map</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="_modules/ForMoSA/nested_sampling/results.html#NSResults.summary"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ForMoSA.nested_sampling.results.NSResults.summary" title="Link to this definition">#</a></dt>
@@ -877,13 +1068,25 @@ It includes the reconstructions of models, best fit, computations of ccf, …</p
 </dl>
 </dd></dl>
 
+<dl class="py property">
+<dt class="sig sig-object py" id="ForMoSA.nested_sampling.results.NSResults.to_dict">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">to_dict</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">dict</span></span><a class="headerlink" href="#ForMoSA.nested_sampling.results.NSResults.to_dict" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ForMoSA.nested_sampling.results.NSResults.weights">
+<span class="sig-name descname"><span class="pre">weights</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ndarray</span></span><a class="headerlink" href="#ForMoSA.nested_sampling.results.NSResults.weights" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
 </section>
 </dd></dl>
 
 </section>
-<section id="module-ForMoSA.utils.prior_functions">
-<span id="prior-functions"></span><h2>Prior Functions:<a class="headerlink" href="#module-ForMoSA.utils.prior_functions" title="Link to this heading">#</a></h2>
-<dl class="py function">
+<section id="prior-functions">
+<h2>Prior Functions<a class="headerlink" href="#prior-functions" title="Link to this heading">#</a></h2>
+<p>Low-level prior sampling functions used internally by the
+<a class="reference internal" href="parameter.html#module-ForMoSA.parameter.prior" title="ForMoSA.parameter.prior"><code class="xref py py-mod docutils literal notranslate"><span class="pre">prior</span></code></a> classes.</p>
+<dl class="py function" id="module-ForMoSA.utils.prior_functions">
 <dt class="sig sig-object py" id="ForMoSA.utils.prior_functions.gaussian_prior">
 <span class="sig-prename descclassname"><span class="pre">ForMoSA.utils.prior_functions.</span></span><span class="sig-name descname"><span class="pre">gaussian_prior</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mean</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">theta</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ForMoSA/utils/prior_functions.html#gaussian_prior"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ForMoSA.utils.prior_functions.gaussian_prior" title="Link to this definition">#</a></dt>
 <dd><p>Gaussian prior for nested sampling.</p>
@@ -954,9 +1157,10 @@ It includes the reconstructions of models, best fit, computations of ccf, …</p
 </dd></dl>
 
 </section>
-<section id="module-ForMoSA.utils.logL_functions">
-<span id="likelihood-functions"></span><h2>Likelihood Functions:<a class="headerlink" href="#module-ForMoSA.utils.logL_functions" title="Link to this heading">#</a></h2>
-<dl class="py function">
+<section id="likelihood-functions">
+<h2>Likelihood Functions<a class="headerlink" href="#likelihood-functions" title="Link to this heading">#</a></h2>
+<p>Log-likelihood functions available for nested sampling.</p>
+<dl class="py function" id="module-ForMoSA.utils.logL_functions">
 <dt class="sig sig-object py" id="ForMoSA.utils.logL_functions.logL_CCF_Brogi">
 <span class="sig-prename descclassname"><span class="pre">ForMoSA.utils.logL_functions.</span></span><span class="sig-name descname"><span class="pre">logL_CCF_Brogi</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">flx_obs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flx_mod</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ForMoSA/utils/logL_functions.html#logL_CCF_Brogi"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ForMoSA.utils.logL_functions.logL_CCF_Brogi" title="Link to this definition">#</a></dt>
 <dd><p>Function to compute logL based on the CCF mapping from Brogi et al. 2019
@@ -1146,12 +1350,12 @@ under the assumption of gaussian and spectrally correlated noise.</p>
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="adapt.html"
+       href="transform.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">Adapt the data</p>
+        <p class="prev-next-title">Model Transformations</p>
       </div>
     </a>
     <a class="right-next"
@@ -1159,7 +1363,7 @@ under the assumption of gaussian and spectrally correlated noise.</p>
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">Plotting Class</p>
+        <p class="prev-next-title">Plotting</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -1179,48 +1383,79 @@ under the assumption of gaussian and spectrally correlated noise.</p>
   </div>
   <nav class="bd-toc-nav page-toc">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-ForMoSA.nested_sampling.nested_sampling">Nested Main:</a><ul class="nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#nested-sampling-engine">Nested Sampling Engine</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.nested_sampling.nested_sampling.NestedSampling"><code class="docutils literal notranslate"><span class="pre">NestedSampling</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.nested_sampling.nested_sampling.NestedSampling.algorithm"><code class="docutils literal notranslate"><span class="pre">NestedSampling.algorithm</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.nested_sampling.nested_sampling.NestedSampling.bounds_lsq"><code class="docutils literal notranslate"><span class="pre">NestedSampling.bounds_lsq</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.nested_sampling.nested_sampling.NestedSampling.build_models_from_theta"><code class="docutils literal notranslate"><span class="pre">NestedSampling.build_models_from_theta()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.nested_sampling.nested_sampling.NestedSampling.config_NS"><code class="docutils literal notranslate"><span class="pre">NestedSampling.config_NS</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.nested_sampling.nested_sampling.NestedSampling.from_dict"><code class="docutils literal notranslate"><span class="pre">NestedSampling.from_dict()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.nested_sampling.nested_sampling.NestedSampling.from_json"><code class="docutils literal notranslate"><span class="pre">NestedSampling.from_json()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.nested_sampling.nested_sampling.NestedSampling.interp_method"><code class="docutils literal notranslate"><span class="pre">NestedSampling.interp_method</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.nested_sampling.nested_sampling.NestedSampling.load_results"><code class="docutils literal notranslate"><span class="pre">NestedSampling.load_results()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.nested_sampling.nested_sampling.NestedSampling.logL_type"><code class="docutils literal notranslate"><span class="pre">NestedSampling.logL_type</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.nested_sampling.nested_sampling.NestedSampling.logger"><code class="docutils literal notranslate"><span class="pre">NestedSampling.logger</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.nested_sampling.nested_sampling.NestedSampling.loglike"><code class="docutils literal notranslate"><span class="pre">NestedSampling.loglike()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.nested_sampling.nested_sampling.NestedSampling.npoints"><code class="docutils literal notranslate"><span class="pre">NestedSampling.npoints</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.nested_sampling.nested_sampling.NestedSampling.ns_params"><code class="docutils literal notranslate"><span class="pre">NestedSampling.ns_params</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.nested_sampling.nested_sampling.NestedSampling.observations"><code class="docutils literal notranslate"><span class="pre">NestedSampling.observations</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.nested_sampling.nested_sampling.NestedSampling.parameters"><code class="docutils literal notranslate"><span class="pre">NestedSampling.parameters</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.nested_sampling.nested_sampling.NestedSampling.prior_transform"><code class="docutils literal notranslate"><span class="pre">NestedSampling.prior_transform()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.nested_sampling.nested_sampling.NestedSampling.restricted_observations"><code class="docutils literal notranslate"><span class="pre">NestedSampling.restricted_observations</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.nested_sampling.nested_sampling.NestedSampling.restricted_subgrids"><code class="docutils literal notranslate"><span class="pre">NestedSampling.restricted_subgrids</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.nested_sampling.nested_sampling.NestedSampling.results"><code class="docutils literal notranslate"><span class="pre">NestedSampling.results</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.nested_sampling.nested_sampling.NestedSampling.run"><code class="docutils literal notranslate"><span class="pre">NestedSampling.run()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.nested_sampling.nested_sampling.NestedSampling.save_results"><code class="docutils literal notranslate"><span class="pre">NestedSampling.save_results()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.nested_sampling.nested_sampling.NestedSampling.subgrids"><code class="docutils literal notranslate"><span class="pre">NestedSampling.subgrids</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.nested_sampling.nested_sampling.NestedSampling.to_dict"><code class="docutils literal notranslate"><span class="pre">NestedSampling.to_dict</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.nested_sampling.nested_sampling.NestedSampling.wave_fit"><code class="docutils literal notranslate"><span class="pre">NestedSampling.wave_fit</span></code></a></li>
 </ul>
 </li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-ForMoSA.nested_sampling.ns_analysis">NS Analysis:</a><ul class="nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#ns-analysis">NS Analysis</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.nested_sampling.ns_analysis.NSAnalysis"><code class="docutils literal notranslate"><span class="pre">NSAnalysis</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.nested_sampling.ns_analysis.NSAnalysis.best_fit"><code class="docutils literal notranslate"><span class="pre">NSAnalysis.best_fit</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.nested_sampling.ns_analysis.NSAnalysis.best_fit_interval"><code class="docutils literal notranslate"><span class="pre">NSAnalysis.best_fit_interval()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.nested_sampling.ns_analysis.NSAnalysis.build_models_from_theta"><code class="docutils literal notranslate"><span class="pre">NSAnalysis.build_models_from_theta()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.nested_sampling.ns_analysis.NSAnalysis.compute_ccf"><code class="docutils literal notranslate"><span class="pre">NSAnalysis.compute_ccf()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.nested_sampling.ns_analysis.NSAnalysis.compute_rv_vsini_map"><code class="docutils literal notranslate"><span class="pre">NSAnalysis.compute_rv_vsini_map()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.nested_sampling.ns_analysis.NSAnalysis.logger"><code class="docutils literal notranslate"><span class="pre">NSAnalysis.logger</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.nested_sampling.ns_analysis.NSAnalysis.native_best_fit"><code class="docutils literal notranslate"><span class="pre">NSAnalysis.native_best_fit</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.nested_sampling.ns_analysis.NSAnalysis.ns"><code class="docutils literal notranslate"><span class="pre">NSAnalysis.ns</span></code></a></li>
 </ul>
 </li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-ForMoSA.nested_sampling.results">Results:</a><ul class="nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#results">Results</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.nested_sampling.results.NSResults"><code class="docutils literal notranslate"><span class="pre">NSResults</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.nested_sampling.results.NSResults.best_logL"><code class="docutils literal notranslate"><span class="pre">NSResults.best_logL</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.nested_sampling.results.NSResults.burn_in"><code class="docutils literal notranslate"><span class="pre">NSResults.burn_in</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.nested_sampling.results.NSResults.free_parameters"><code class="docutils literal notranslate"><span class="pre">NSResults.free_parameters</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.nested_sampling.results.NSResults.from_dict"><code class="docutils literal notranslate"><span class="pre">NSResults.from_dict()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.nested_sampling.results.NSResults.from_nestle"><code class="docutils literal notranslate"><span class="pre">NSResults.from_nestle()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.nested_sampling.results.NSResults.from_pymultinest"><code class="docutils literal notranslate"><span class="pre">NSResults.from_pymultinest()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.nested_sampling.results.NSResults.from_ultranest"><code class="docutils literal notranslate"><span class="pre">NSResults.from_ultranest()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.nested_sampling.results.NSResults.logl"><code class="docutils literal notranslate"><span class="pre">NSResults.logl</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.nested_sampling.results.NSResults.logvol"><code class="docutils literal notranslate"><span class="pre">NSResults.logvol</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.nested_sampling.results.NSResults.logz"><code class="docutils literal notranslate"><span class="pre">NSResults.logz</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.nested_sampling.results.NSResults.median_parameters"><code class="docutils literal notranslate"><span class="pre">NSResults.median_parameters</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.nested_sampling.results.NSResults.param_samples_dict"><code class="docutils literal notranslate"><span class="pre">NSResults.param_samples_dict</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.nested_sampling.results.NSResults.samples"><code class="docutils literal notranslate"><span class="pre">NSResults.samples</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.nested_sampling.results.NSResults.summary"><code class="docutils literal notranslate"><span class="pre">NSResults.summary()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.nested_sampling.results.NSResults.to_dict"><code class="docutils literal notranslate"><span class="pre">NSResults.to_dict</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.nested_sampling.results.NSResults.weights"><code class="docutils literal notranslate"><span class="pre">NSResults.weights</span></code></a></li>
 </ul>
 </li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-ForMoSA.utils.prior_functions">Prior Functions:</a><ul class="nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#prior-functions">Prior Functions</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.utils.prior_functions.gaussian_prior"><code class="docutils literal notranslate"><span class="pre">gaussian_prior()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.utils.prior_functions.loguniform_prior"><code class="docutils literal notranslate"><span class="pre">loguniform_prior()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.utils.prior_functions.uniform_prior"><code class="docutils literal notranslate"><span class="pre">uniform_prior()</span></code></a></li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-ForMoSA.utils.logL_functions">Likelihood Functions:</a><ul class="nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#likelihood-functions">Likelihood Functions</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.utils.logL_functions.logL_CCF_Brogi"><code class="docutils literal notranslate"><span class="pre">logL_CCF_Brogi()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.utils.logL_functions.logL_CCF_Zucker"><code class="docutils literal notranslate"><span class="pre">logL_CCF_Zucker()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.utils.logL_functions.logL_CCF_custom"><code class="docutils literal notranslate"><span class="pre">logL_CCF_custom()</span></code></a></li>

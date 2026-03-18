@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Main Utilities &#8212; ForMoSA 1.1.6 documentation</title>
+    <title>Utilities &#8212; ForMoSA 1.1.6 documentation</title>
   
   
   
@@ -46,8 +46,7 @@
     <link rel="icon" href="_static/favicon.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Adapt the data" href="adapt.html" />
-    <link rel="prev" title="ForMoSA API" href="api.html" />
+    <link rel="prev" title="Plotting" href="plotting.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   </head>
@@ -169,10 +168,17 @@
 </ul>
 </details></li>
 <li class="toctree-l1 current active has-children"><a class="reference internal" href="api.html">ForMoSA API</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
-<li class="toctree-l2 current active"><a class="current reference internal" href="#">Main Utilities</a></li>
-<li class="toctree-l2"><a class="reference internal" href="adapt.html">Adapt the data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="analysis.html">Analysis</a></li>
+<li class="toctree-l2"><a class="reference internal" href="config.html">Configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="core.html">Core</a></li>
+<li class="toctree-l2"><a class="reference internal" href="observation.html">Observations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="grid.html">Model Grids</a></li>
+<li class="toctree-l2"><a class="reference internal" href="parameter.html">Parameters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="filter.html">Photometry Filters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="transform.html">Model Transformations</a></li>
 <li class="toctree-l2"><a class="reference internal" href="nested_sampling.html">Nested Sampling</a></li>
-<li class="toctree-l2"><a class="reference internal" href="plotting.html">Plotting Class</a></li>
+<li class="toctree-l2"><a class="reference internal" href="plotting.html">Plotting</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">Utilities</a></li>
 </ul>
 </details></li>
 </ul>
@@ -377,7 +383,7 @@ document.write(`
               
 
 <div id="jb-print-docs-body" class="onlyprint">
-    <h1>Main Utilities</h1>
+    <h1>Utilities</h1>
     <!-- Table of contents -->
     <div id="print-main-content">
         <div id="jb-print-toc">
@@ -387,38 +393,7 @@ document.write(`
             </div>
             <nav aria-label="Page">
                 <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-ForMoSA.config.global_config">Global functions:</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.config.global_config.ConfigAdapt"><code class="docutils literal notranslate"><span class="pre">ConfigAdapt</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.config.global_config.ConfigGenerator"><code class="docutils literal notranslate"><span class="pre">ConfigGenerator</span></code></a><ul class="nav section-nav flex-column">
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.config.global_config.ConfigGenerator.save"><code class="docutils literal notranslate"><span class="pre">ConfigGenerator.save()</span></code></a></li>
-</ul>
-</li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.config.global_config.ConfigInversion"><code class="docutils literal notranslate"><span class="pre">ConfigInversion</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.config.global_config.ConfigLoader"><code class="docutils literal notranslate"><span class="pre">ConfigLoader</span></code></a><ul class="nav section-nav flex-column">
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.config.global_config.ConfigLoader.load"><code class="docutils literal notranslate"><span class="pre">ConfigLoader.load()</span></code></a></li>
-</ul>
-</li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.config.global_config.ConfigNestle"><code class="docutils literal notranslate"><span class="pre">ConfigNestle</span></code></a><ul class="nav section-nav flex-column">
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.config.global_config.ConfigNestle.from_dict"><code class="docutils literal notranslate"><span class="pre">ConfigNestle.from_dict()</span></code></a></li>
-</ul>
-</li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.config.global_config.ConfigParameters"><code class="docutils literal notranslate"><span class="pre">ConfigParameters</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.config.global_config.ConfigPath"><code class="docutils literal notranslate"><span class="pre">ConfigPath</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.config.global_config.ConfigPyMultiNest"><code class="docutils literal notranslate"><span class="pre">ConfigPyMultiNest</span></code></a><ul class="nav section-nav flex-column">
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.config.global_config.ConfigPyMultiNest.from_dict"><code class="docutils literal notranslate"><span class="pre">ConfigPyMultiNest.from_dict()</span></code></a></li>
-</ul>
-</li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.config.global_config.ConfigUltraNest"><code class="docutils literal notranslate"><span class="pre">ConfigUltraNest</span></code></a><ul class="nav section-nav flex-column">
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.config.global_config.ConfigUltraNest.from_dict"><code class="docutils literal notranslate"><span class="pre">ConfigUltraNest.from_dict()</span></code></a></li>
-</ul>
-</li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.config.global_config.Config_NS"><code class="docutils literal notranslate"><span class="pre">Config_NS</span></code></a><ul class="nav section-nav flex-column">
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.config.global_config.Config_NS.from_dict"><code class="docutils literal notranslate"><span class="pre">Config_NS.from_dict()</span></code></a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-ForMoSA.utils.misc">Utilities:</a><ul class="nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#miscellaneous-utilities">Miscellaneous Utilities</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.utils.misc.decoupe"><code class="docutils literal notranslate"><span class="pre">decoupe()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.utils.misc.find_nearest"><code class="docutils literal notranslate"><span class="pre">find_nearest()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.utils.misc.format_grid"><code class="docutils literal notranslate"><span class="pre">format_grid()</span></code></a></li>
@@ -429,7 +404,7 @@ document.write(`
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.utils.misc.to_float_if_possible"><code class="docutils literal notranslate"><span class="pre">to_float_if_possible()</span></code></a></li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-ForMoSA.utils.spec">Spectra utilities:</a><ul class="nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#spectra-utilities">Spectra Utilities</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.utils.spec.bb_cpd_fct"><code class="docutils literal notranslate"><span class="pre">bb_cpd_fct()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.utils.spec.build_linear_components"><code class="docutils literal notranslate"><span class="pre">build_linear_components()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.utils.spec.calc_ck"><code class="docutils literal notranslate"><span class="pre">calc_ck()</span></code></a></li>
@@ -459,195 +434,13 @@ document.write(`
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <section id="main-utilities">
-<span id="id1"></span><h1>Main Utilities<a class="headerlink" href="#main-utilities" title="Link to this heading">#</a></h1>
-<section id="module-ForMoSA.config.global_config">
-<span id="global-functions"></span><h2>Global functions:<a class="headerlink" href="#module-ForMoSA.config.global_config" title="Link to this heading">#</a></h2>
-<dl class="py class">
-<dt class="sig sig-object py" id="ForMoSA.config.global_config.ConfigAdapt">
-<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">ForMoSA.config.global_config.</span></span><span class="sig-name descname"><span class="pre">ConfigAdapt</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">method</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'linear'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">emulator</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_res_obs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list[typing.Union[str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">float]]</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_res_mod</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list[typing.Union[str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">float]]</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">res_cont</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list[typing.Union[str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">float]]</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">&lt;factory&gt;</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ForMoSA/config/global_config.html#ConfigAdapt"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ForMoSA.config.global_config.ConfigAdapt" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="ForMoSA.config.global_config.ConfigGenerator">
-<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">ForMoSA.config.global_config.</span></span><span class="sig-name descname"><span class="pre">ConfigGenerator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sections</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logger</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Logger</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_level</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'INFO'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ForMoSA/config/global_config.html#ConfigGenerator"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ForMoSA.config.global_config.ConfigGenerator" title="Link to this definition">#</a></dt>
-<dd><p>Config file generator.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>sections</strong> (<em>dict</em>) – Dictionary containing sections of the config file</p></li>
-<li><p><strong>logger</strong> (<em>logging.Logger</em>) – Logger</p></li>
-<li><p><strong>log_level</strong> (<em>str</em>) – Level of the Logger</p></li>
-<li><p><strong>Authors</strong></p></li>
-<li><p><strong>-------</strong></p></li>
-<li><p><strong>Denis</strong> (<em>Mathieu Ravet and Allan</em>)</p></li>
-</ul>
-</dd>
-</dl>
-<dl class="py method">
-<dt class="sig sig-object py" id="ForMoSA.config.global_config.ConfigGenerator.save">
-<span class="sig-name descname"><span class="pre">save</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">PathLike</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'new_config.ini'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ForMoSA/config/global_config.html#ConfigGenerator.save"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ForMoSA.config.global_config.ConfigGenerator.save" title="Link to this definition">#</a></dt>
-<dd><p>Save the ConfigGenerator to a given path.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>path</strong> (<em>str</em><em> | </em><em>os.PathLike</em>) – Path where to save the config file</p></li>
-<li><p><strong>name</strong> (<em>str</em>) – Name of the config file</p></li>
-<li><p><strong>Authors</strong></p></li>
-<li><p><strong>-------</strong></p></li>
-<li><p><strong>Denis</strong> (<em>Allan</em>)</p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="ForMoSA.config.global_config.ConfigInversion">
-<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">ForMoSA.config.global_config.</span></span><span class="sig-name descname"><span class="pre">ConfigInversion</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">logL_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wav_fit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ns_algo</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">npoints</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hc_lower_bounds_lsq</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hc_higher_bounds_lsq</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">&lt;factory&gt;</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ForMoSA/config/global_config.html#ConfigInversion"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ForMoSA.config.global_config.ConfigInversion" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="ForMoSA.config.global_config.ConfigLoader">
-<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">ForMoSA.config.global_config.</span></span><span class="sig-name descname"><span class="pre">ConfigLoader</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">PathLike</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logger</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Logger</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_level</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'INFO'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ForMoSA/config/global_config.html#ConfigLoader"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ForMoSA.config.global_config.ConfigLoader" title="Link to this definition">#</a></dt>
-<dd><p>Class handling the loading of a config file.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>path</strong> (<em>str</em><em> | </em><em>os.PathLike</em>) – Path to the config file</p></li>
-<li><p><strong>logger</strong> (<em>logging.Logger</em>) – Logger</p></li>
-<li><p><strong>log_level</strong> (<em>str</em>) – Level of the Logger</p></li>
-<li><p><strong>Auhors</strong> (<em>Allan Denis</em>)</p></li>
-</ul>
-</dd>
-</dl>
-<dl class="py method">
-<dt class="sig sig-object py" id="ForMoSA.config.global_config.ConfigLoader.load">
-<span class="sig-name descname"><span class="pre">load</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/ForMoSA/config/global_config.html#ConfigLoader.load"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ForMoSA.config.global_config.ConfigLoader.load" title="Link to this definition">#</a></dt>
-<dd><p>Load all the sections of .ini file in dataclasses.</p>
-<section id="authors">
-<h3>Authors<a class="headerlink" href="#authors" title="Link to this heading">#</a></h3>
-<p>Allan Denis</p>
-</section>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="ForMoSA.config.global_config.ConfigNestle">
-<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">ForMoSA.config.global_config.</span></span><span class="sig-name descname"><span class="pre">ConfigNestle</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">method</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">update_interval</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">npdim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">maxiter</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">maxcall</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dlogz</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">decline_factor</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rstate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">&lt;factory&gt;</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ForMoSA/config/global_config.html#ConfigNestle"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ForMoSA.config.global_config.ConfigNestle" title="Link to this definition">#</a></dt>
-<dd><dl class="py method">
-<dt class="sig sig-object py" id="ForMoSA.config.global_config.ConfigNestle.from_dict">
-<span class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">from_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#ForMoSA.config.global_config.ConfigNestle" title="ForMoSA.config.global_config.ConfigNestle"><span class="pre">ConfigNestle</span></a></span></span><a class="reference internal" href="_modules/ForMoSA/config/global_config.html#ConfigNestle.from_dict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ForMoSA.config.global_config.ConfigNestle.from_dict" title="Link to this definition">#</a></dt>
-<dd><p>Build an instance of ConfigNestle from dictionary of Nestle parameters.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>data</strong> (<em>dict</em>) – Dictionary of Nestle parameters</p>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p><ul class="simple">
-<li><p><em>‘ConfigNestle’</em> – An instance of class ConfigNestle</p></li>
-<li><p><em>Authors</em></p></li>
-<li><p><em>——-</em></p></li>
-<li><p><em>Allan Denis</em></p></li>
-</ul>
-</p>
-</dd>
-</dl>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="ForMoSA.config.global_config.ConfigParameters">
-<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">ForMoSA.config.global_config.</span></span><span class="sig-name descname"><span class="pre">ConfigParameters</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">par1</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">par2</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">par3</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">par4</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">r</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">d</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bb_T</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rv</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vsini</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ld</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">&lt;factory&gt;</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ForMoSA/config/global_config.html#ConfigParameters"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ForMoSA.config.global_config.ConfigParameters" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="ForMoSA.config.global_config.ConfigPath">
-<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">ForMoSA.config.global_config.</span></span><span class="sig-name descname"><span class="pre">ConfigPath</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">observation_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">os.PathLike</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">adapt_store_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">os.PathLike</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">result_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">os.PathLike</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">os.PathLike</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">&lt;factory&gt;</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ForMoSA/config/global_config.html#ConfigPath"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ForMoSA.config.global_config.ConfigPath" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="ForMoSA.config.global_config.ConfigPyMultiNest">
-<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">ForMoSA.config.global_config.</span></span><span class="sig-name descname"><span class="pre">ConfigPyMultiNest</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">importance_nested_sampling</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">multimodal</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">const_efficiency_mode</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">evidence_tolerance</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sampling_efficiency</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_iter_before_update</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">null_log_evidence</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_modes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mode_tolerance</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">resume</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_zero</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_iter</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">init_MPI</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wrapped_params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dump_callback</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_MPI</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">&lt;factory&gt;</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ForMoSA/config/global_config.html#ConfigPyMultiNest"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ForMoSA.config.global_config.ConfigPyMultiNest" title="Link to this definition">#</a></dt>
-<dd><dl class="py method">
-<dt class="sig sig-object py" id="ForMoSA.config.global_config.ConfigPyMultiNest.from_dict">
-<span class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">from_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#ForMoSA.config.global_config.ConfigPyMultiNest" title="ForMoSA.config.global_config.ConfigPyMultiNest"><span class="pre">ConfigPyMultiNest</span></a></span></span><a class="reference internal" href="_modules/ForMoSA/config/global_config.html#ConfigPyMultiNest.from_dict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ForMoSA.config.global_config.ConfigPyMultiNest.from_dict" title="Link to this definition">#</a></dt>
-<dd><p>Build an instance of ConfigPyMultiNest from dictionary of PyMultiNest parameters.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>data</strong> (<em>dict</em>) – Dictionary of PyMultiNest parameters</p>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p><ul class="simple">
-<li><p><em>‘ConfigPyMultiNest’</em> – An instance of class ConfigPyMultiNest</p></li>
-<li><p><em>Authors</em></p></li>
-<li><p><em>——-</em></p></li>
-<li><p><em>Allan Denis</em></p></li>
-</ul>
-</p>
-</dd>
-</dl>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="ForMoSA.config.global_config.ConfigUltraNest">
-<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">ForMoSA.config.global_config.</span></span><span class="sig-name descname"><span class="pre">ConfigUltraNest</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">wrapped_params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vectorized</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">resume</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">run_num</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_bootstraps</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">storage_backend</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">warmstart_max_tau</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dlogz</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_iters</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_ncalls</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_ess</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frac_remain</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cluster_num_live_points</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Lepsilon</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">&lt;factory&gt;</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ForMoSA/config/global_config.html#ConfigUltraNest"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ForMoSA.config.global_config.ConfigUltraNest" title="Link to this definition">#</a></dt>
-<dd><dl class="py method">
-<dt class="sig sig-object py" id="ForMoSA.config.global_config.ConfigUltraNest.from_dict">
-<span class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">from_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#ForMoSA.config.global_config.ConfigUltraNest" title="ForMoSA.config.global_config.ConfigUltraNest"><span class="pre">ConfigUltraNest</span></a></span></span><a class="reference internal" href="_modules/ForMoSA/config/global_config.html#ConfigUltraNest.from_dict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ForMoSA.config.global_config.ConfigUltraNest.from_dict" title="Link to this definition">#</a></dt>
-<dd><p>Build an instance of ConfigUltraNest from dictionary of UltraNest parameters.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>data</strong> (<em>dict</em>) – Dictionary of UltraNest parameters</p>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p><ul class="simple">
-<li><p><em>‘ConfigUltraNest’</em> – An instance of class ConfigUltraNest</p></li>
-<li><p><em>Authors</em></p></li>
-<li><p><em>——-</em></p></li>
-<li><p><em>Allan Denis</em></p></li>
-</ul>
-</p>
-</dd>
-</dl>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="ForMoSA.config.global_config.Config_NS">
-<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">ForMoSA.config.global_config.</span></span><span class="sig-name descname"><span class="pre">Config_NS</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nestle</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#ForMoSA.config.global_config.ConfigNestle" title="ForMoSA.config.global_config.ConfigNestle"><span class="pre">ForMoSA.config.global_config.ConfigNestle</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pymultinest</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#ForMoSA.config.global_config.ConfigPyMultiNest" title="ForMoSA.config.global_config.ConfigPyMultiNest"><span class="pre">ForMoSA.config.global_config.ConfigPyMultiNest</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ultranest</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#ForMoSA.config.global_config.ConfigUltraNest" title="ForMoSA.config.global_config.ConfigUltraNest"><span class="pre">ForMoSA.config.global_config.ConfigUltraNest</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">&lt;factory&gt;</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ForMoSA/config/global_config.html#Config_NS"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ForMoSA.config.global_config.Config_NS" title="Link to this definition">#</a></dt>
-<dd><dl class="py method">
-<dt class="sig sig-object py" id="ForMoSA.config.global_config.Config_NS.from_dict">
-<span class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">from_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#ForMoSA.config.global_config.Config_NS" title="ForMoSA.config.global_config.Config_NS"><span class="pre">Config_NS</span></a></span></span><a class="reference internal" href="_modules/ForMoSA/config/global_config.html#Config_NS.from_dict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ForMoSA.config.global_config.Config_NS.from_dict" title="Link to this definition">#</a></dt>
-<dd><p>Build an instance of Config_NS from a dictionary of data.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>data</strong> (<em>dict</em>) – Dictionary representation of data</p>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p><ul class="simple">
-<li><p><em>“Config_NS”</em> – An instance of class Config_NS</p></li>
-<li><p><em>Authors</em></p></li>
-<li><p><em>——-</em></p></li>
-<li><p><em>Allan Denis</em></p></li>
-</ul>
-</p>
-</dd>
-</dl>
-</dd></dl>
-
-</dd></dl>
-
-</section>
-<section id="module-ForMoSA.utils.misc">
-<span id="utilities"></span><h2>Utilities:<a class="headerlink" href="#module-ForMoSA.utils.misc" title="Link to this heading">#</a></h2>
-<dl class="py function">
+  <section id="utilities">
+<span id="main-utilities"></span><h1>Utilities<a class="headerlink" href="#utilities" title="Link to this heading">#</a></h1>
+<section id="miscellaneous-utilities">
+<h2>Miscellaneous Utilities<a class="headerlink" href="#miscellaneous-utilities" title="Link to this heading">#</a></h2>
+<p>Helper functions used throughout the package (type conversions,
+array normalization, percentile computations, etc.).</p>
+<dl class="py function" id="module-ForMoSA.utils.misc">
 <dt class="sig sig-object py" id="ForMoSA.utils.misc.decoupe">
 <span class="sig-prename descclassname"><span class="pre">ForMoSA.utils.misc.</span></span><span class="sig-name descname"><span class="pre">decoupe</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">second</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ForMoSA/utils/misc.html#decoupe"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ForMoSA.utils.misc.decoupe" title="Link to this definition">#</a></dt>
 <dd><p>Re-arranged a number of seconds in the hours-minutes-seconds format.</p>
@@ -664,8 +457,8 @@ document.write(`
 </p>
 </dd>
 </dl>
-<section id="id2">
-<h3>Authors<a class="headerlink" href="#id2" title="Link to this heading">#</a></h3>
+<section id="authors">
+<h3>Authors<a class="headerlink" href="#authors" title="Link to this heading">#</a></h3>
 <p>Simon Petrus</p>
 </section>
 </dd></dl>
@@ -688,8 +481,8 @@ document.write(`
 <dd class="field-odd"><p>int</p>
 </dd>
 </dl>
-<section id="id3">
-<h3>Authors<a class="headerlink" href="#id3" title="Link to this heading">#</a></h3>
+<section id="id1">
+<h3>Authors<a class="headerlink" href="#id1" title="Link to this heading">#</a></h3>
 <p>Simon Petrus</p>
 </section>
 </dd></dl>
@@ -714,8 +507,8 @@ document.write(`
 <dd class="field-odd"><p>xarray</p>
 </dd>
 </dl>
-<section id="id4">
-<h3>Authors<a class="headerlink" href="#id4" title="Link to this heading">#</a></h3>
+<section id="id2">
+<h3>Authors<a class="headerlink" href="#id2" title="Link to this heading">#</a></h3>
 <p>Matthieu Ravet</p>
 </section>
 </dd></dl>
@@ -765,8 +558,8 @@ document.write(`
 <dd class="field-even"><p>array</p>
 </dd>
 </dl>
-<section id="id5">
-<h3>Authors<a class="headerlink" href="#id5" title="Link to this heading">#</a></h3>
+<section id="id3">
+<h3>Authors<a class="headerlink" href="#id3" title="Link to this heading">#</a></h3>
 <p>Allan Denis</p>
 </section>
 </dd></dl>
@@ -799,8 +592,8 @@ document.write(`
 <dt class="sig sig-object py" id="ForMoSA.utils.misc.scale_to_one_significant_digit">
 <span class="sig-prename descclassname"><span class="pre">ForMoSA.utils.misc.</span></span><span class="sig-name descname"><span class="pre">scale_to_one_significant_digit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">flux</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ForMoSA/utils/misc.html#scale_to_one_significant_digit"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ForMoSA.utils.misc.scale_to_one_significant_digit" title="Link to this definition">#</a></dt>
 <dd><p>Returns a tuple (scaled_flux, factor) such that flux ≈ scaled_flux * 10**factor</p>
-<section id="id6">
-<h3>Authors<a class="headerlink" href="#id6" title="Link to this heading">#</a></h3>
+<section id="id4">
+<h3>Authors<a class="headerlink" href="#id4" title="Link to this heading">#</a></h3>
 <p>Allan Denis</p>
 </section>
 </dd></dl>
@@ -826,9 +619,11 @@ document.write(`
 </dd></dl>
 
 </section>
-<section id="module-ForMoSA.utils.spec">
-<span id="spectra-utilities"></span><h2>Spectra utilities:<a class="headerlink" href="#module-ForMoSA.utils.spec" title="Link to this heading">#</a></h2>
-<dl class="py function">
+<section id="spectra-utilities">
+<h2>Spectra Utilities<a class="headerlink" href="#spectra-utilities" title="Link to this heading">#</a></h2>
+<p>Spectral manipulation routines: resolution degradation, Doppler shift,
+rotational broadening, reddening, continuum estimation, and more.</p>
+<dl class="py function" id="module-ForMoSA.utils.spec">
 <dt class="sig sig-object py" id="ForMoSA.utils.spec.bb_cpd_fct">
 <span class="sig-prename descclassname"><span class="pre">ForMoSA.utils.spec.</span></span><span class="sig-name descname"><span class="pre">bb_cpd_fct</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">wav</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flx</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">distance</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bb_t_picked</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bb_r_picked</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">ndarray</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">ndarray</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/ForMoSA/utils/spec.html#bb_cpd_fct"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ForMoSA.utils.spec.bb_cpd_fct" title="Link to this definition">#</a></dt>
 <dd><p>Function to add the effect of a cpd (circum planetary disc) to the models.</p>
@@ -849,8 +644,8 @@ document.write(`
 <dd class="field-odd"><p>array</p>
 </dd>
 </dl>
-<section id="id7">
-<h3>Authors<a class="headerlink" href="#id7" title="Link to this heading">#</a></h3>
+<section id="id5">
+<h3>Authors<a class="headerlink" href="#id5" title="Link to this heading">#</a></h3>
 <p>Paulina Palma-Bifani</p>
 </section>
 </dd></dl>
@@ -952,8 +747,8 @@ for fit_linear_model().</p>
 </p>
 </dd>
 </dl>
-<section id="id8">
-<h3>Authors<a class="headerlink" href="#id8" title="Link to this heading">#</a></h3>
+<section id="id6">
+<h3>Authors<a class="headerlink" href="#id6" title="Link to this heading">#</a></h3>
 <p>Arthur Vigan and Allan Denis</p>
 </section>
 </dd></dl>
@@ -994,8 +789,8 @@ for fit_linear_model().</p>
 </p>
 </dd>
 </dl>
-<section id="id9">
-<h3>Authors<a class="headerlink" href="#id9" title="Link to this heading">#</a></h3>
+<section id="id7">
+<h3>Authors<a class="headerlink" href="#id7" title="Link to this heading">#</a></h3>
 <p>Arthur Vigan and Allan Denis</p>
 </section>
 </dd></dl>
@@ -1024,8 +819,8 @@ the wavelength grid of the data.</p>
 <dd class="field-odd"><p>np.ndarray</p>
 </dd>
 </dl>
-<section id="id10">
-<h3>Authors<a class="headerlink" href="#id10" title="Link to this heading">#</a></h3>
+<section id="id8">
+<h3>Authors<a class="headerlink" href="#id8" title="Link to this heading">#</a></h3>
 <p>Simon Petrus, Matthieu Ravet</p>
 </section>
 </dd></dl>
@@ -1053,8 +848,8 @@ spectral channel.</p>
 <dd class="field-odd"><p>array</p>
 </dd>
 </dl>
-<section id="id11">
-<h3>Authors<a class="headerlink" href="#id11" title="Link to this heading">#</a></h3>
+<section id="id9">
+<h3>Authors<a class="headerlink" href="#id9" title="Link to this heading">#</a></h3>
 <p>Jason Wang</p>
 </section>
 </dd></dl>
@@ -1083,8 +878,8 @@ After the Doppler shifting, the model is then cut to the wavelength of the data.
 </p>
 </dd>
 </dl>
-<section id="id12">
-<h3>Authors<a class="headerlink" href="#id12" title="Link to this heading">#</a></h3>
+<section id="id10">
+<h3>Authors<a class="headerlink" href="#id10" title="Link to this heading">#</a></h3>
 <p>Simon Petrus, Allan Denis and Matthieu Ravet</p>
 </section>
 </dd></dl>
@@ -1141,8 +936,8 @@ extinction.fm07.</p>
 <dd class="field-odd"><p>array</p>
 </dd>
 </dl>
-<section id="id13">
-<h3>Authors<a class="headerlink" href="#id13" title="Link to this heading">#</a></h3>
+<section id="id11">
+<h3>Authors<a class="headerlink" href="#id11" title="Link to this heading">#</a></h3>
 <p>Simon Petrus</p>
 </section>
 </dd></dl>
@@ -1168,8 +963,8 @@ extinction.fm07.</p>
 <dd class="field-odd"><p>array</p>
 </dd>
 </dl>
-<section id="id14">
-<h3>Authors<a class="headerlink" href="#id14" title="Link to this heading">#</a></h3>
+<section id="id12">
+<h3>Authors<a class="headerlink" href="#id12" title="Link to this heading">#</a></h3>
 <p>Simon Petrus</p>
 </section>
 </dd></dl>
@@ -1197,8 +992,8 @@ extinction.fm07.</p>
 </p>
 </dd>
 </dl>
-<section id="id15">
-<h3>Authors<a class="headerlink" href="#id15" title="Link to this heading">#</a></h3>
+<section id="id13">
+<h3>Authors<a class="headerlink" href="#id13" title="Link to this heading">#</a></h3>
 <p>Allan Denis</p>
 </section>
 </dd></dl>
@@ -1237,8 +1032,8 @@ This is a disk integration routine.</p>
 <dd class="field-odd"><p>array</p>
 </dd>
 </dl>
-<section id="id16">
-<h3>Authors<a class="headerlink" href="#id16" title="Link to this heading">#</a></h3>
+<section id="id14">
+<h3>Authors<a class="headerlink" href="#id14" title="Link to this heading">#</a></h3>
 <p>Allan Denis</p>
 </section>
 </dd></dl>
@@ -1263,8 +1058,8 @@ This is a disk integration routine.</p>
 <dd class="field-odd"><p>array</p>
 </dd>
 </dl>
-<section id="id17">
-<h3>Authors<a class="headerlink" href="#id17" title="Link to this heading">#</a></h3>
+<section id="id15">
+<h3>Authors<a class="headerlink" href="#id15" title="Link to this heading">#</a></h3>
 <p>Simon Petrus, Arthur Vigan and Allan Denis</p>
 </section>
 </dd></dl>
@@ -1290,8 +1085,8 @@ extinction.fm07.</p>
 <dd class="field-odd"><p>array</p>
 </dd>
 </dl>
-<section id="id18">
-<h3>Authors<a class="headerlink" href="#id18" title="Link to this heading">#</a></h3>
+<section id="id16">
+<h3>Authors<a class="headerlink" href="#id16" title="Link to this heading">#</a></h3>
 <p>Simon Petrus</p>
 </section>
 </dd></dl>
@@ -1317,8 +1112,8 @@ extinction.fm07.</p>
 <dd class="field-odd"><p>array</p>
 </dd>
 </dl>
-<section id="id19">
-<h3>Authors<a class="headerlink" href="#id19" title="Link to this heading">#</a></h3>
+<section id="id17">
+<h3>Authors<a class="headerlink" href="#id17" title="Link to this heading">#</a></h3>
 <p>Simon Petrus</p>
 </section>
 </dd></dl>
@@ -1338,22 +1133,13 @@ extinction.fm07.</p>
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="api.html"
+       href="plotting.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">ForMoSA API</p>
+        <p class="prev-next-title">Plotting</p>
       </div>
-    </a>
-    <a class="right-next"
-       href="adapt.html"
-       title="next page">
-      <div class="prev-next-info">
-        <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">Adapt the data</p>
-      </div>
-      <i class="fa-solid fa-angle-right"></i>
     </a>
 </div>
                 </footer>
@@ -1371,38 +1157,7 @@ extinction.fm07.</p>
   </div>
   <nav class="bd-toc-nav page-toc">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-ForMoSA.config.global_config">Global functions:</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.config.global_config.ConfigAdapt"><code class="docutils literal notranslate"><span class="pre">ConfigAdapt</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.config.global_config.ConfigGenerator"><code class="docutils literal notranslate"><span class="pre">ConfigGenerator</span></code></a><ul class="nav section-nav flex-column">
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.config.global_config.ConfigGenerator.save"><code class="docutils literal notranslate"><span class="pre">ConfigGenerator.save()</span></code></a></li>
-</ul>
-</li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.config.global_config.ConfigInversion"><code class="docutils literal notranslate"><span class="pre">ConfigInversion</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.config.global_config.ConfigLoader"><code class="docutils literal notranslate"><span class="pre">ConfigLoader</span></code></a><ul class="nav section-nav flex-column">
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.config.global_config.ConfigLoader.load"><code class="docutils literal notranslate"><span class="pre">ConfigLoader.load()</span></code></a></li>
-</ul>
-</li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.config.global_config.ConfigNestle"><code class="docutils literal notranslate"><span class="pre">ConfigNestle</span></code></a><ul class="nav section-nav flex-column">
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.config.global_config.ConfigNestle.from_dict"><code class="docutils literal notranslate"><span class="pre">ConfigNestle.from_dict()</span></code></a></li>
-</ul>
-</li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.config.global_config.ConfigParameters"><code class="docutils literal notranslate"><span class="pre">ConfigParameters</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.config.global_config.ConfigPath"><code class="docutils literal notranslate"><span class="pre">ConfigPath</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.config.global_config.ConfigPyMultiNest"><code class="docutils literal notranslate"><span class="pre">ConfigPyMultiNest</span></code></a><ul class="nav section-nav flex-column">
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.config.global_config.ConfigPyMultiNest.from_dict"><code class="docutils literal notranslate"><span class="pre">ConfigPyMultiNest.from_dict()</span></code></a></li>
-</ul>
-</li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.config.global_config.ConfigUltraNest"><code class="docutils literal notranslate"><span class="pre">ConfigUltraNest</span></code></a><ul class="nav section-nav flex-column">
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.config.global_config.ConfigUltraNest.from_dict"><code class="docutils literal notranslate"><span class="pre">ConfigUltraNest.from_dict()</span></code></a></li>
-</ul>
-</li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.config.global_config.Config_NS"><code class="docutils literal notranslate"><span class="pre">Config_NS</span></code></a><ul class="nav section-nav flex-column">
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.config.global_config.Config_NS.from_dict"><code class="docutils literal notranslate"><span class="pre">Config_NS.from_dict()</span></code></a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-ForMoSA.utils.misc">Utilities:</a><ul class="nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#miscellaneous-utilities">Miscellaneous Utilities</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.utils.misc.decoupe"><code class="docutils literal notranslate"><span class="pre">decoupe()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.utils.misc.find_nearest"><code class="docutils literal notranslate"><span class="pre">find_nearest()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.utils.misc.format_grid"><code class="docutils literal notranslate"><span class="pre">format_grid()</span></code></a></li>
@@ -1413,7 +1168,7 @@ extinction.fm07.</p>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.utils.misc.to_float_if_possible"><code class="docutils literal notranslate"><span class="pre">to_float_if_possible()</span></code></a></li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-ForMoSA.utils.spec">Spectra utilities:</a><ul class="nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#spectra-utilities">Spectra Utilities</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.utils.spec.bb_cpd_fct"><code class="docutils literal notranslate"><span class="pre">bb_cpd_fct()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.utils.spec.build_linear_components"><code class="docutils literal notranslate"><span class="pre">build_linear_components()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.utils.spec.calc_ck"><code class="docutils literal notranslate"><span class="pre">calc_ck()</span></code></a></li>

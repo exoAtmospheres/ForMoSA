@@ -5,8 +5,15 @@ ForMoSA API
 
 .. toctree::
    :titlesonly:
-   
-   main_utilities.rst
-   adapt.rst
+
+   analysis.rst
+   config.rst
+   core.rst
+   observation.rst
+   grid.rst
+   parameter.rst
+   filter.rst
+   transform.rst
    nested_sampling.rst
    plotting.rst
+   main_utilities.rst

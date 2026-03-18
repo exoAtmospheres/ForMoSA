@@ -157,7 +157,7 @@ class NSResults:
         Parameters
         ----------
         results_path : str | os.PathLike
-            Path to the PyMultiNest output folder containing RAW_stats.dat, RAW_ev.dat, RAW_.txt
+            Path to the PyMultiNest output folder containing ``RAW_stats.dat``, ``RAW_ev.dat``, ``RAW_.txt``
         free_parameters : list[str]
             List of free parameters names
 
