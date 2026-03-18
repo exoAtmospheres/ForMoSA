@@ -199,7 +199,7 @@ class PhotometryFilter(object):
 
     @property
     def mean_wavelength(self) -> float:
-        """Mean integrated wavelength ($\lambda_{mean} = \frac{int_{\lambda} \lambda T(\lambda) d\lambda}{T(\lambda) d\lambda}$)."""
+        r"""Mean integrated wavelength ($\lambda_{mean} = \frac{int_{\lambda} \lambda T(\lambda) d\lambda}{T(\lambda) d\lambda}$)."""
         return ((self.metadata['WavelengthMean'][0] * self.native_unit).to(self.unit)).value
 
     @property
@@ -209,7 +209,7 @@ class PhotometryFilter(object):
 
     @property
     def wavelength_eff(self) -> float:
-        """Mean integrated wavelength with Vega spectrum ($\lambda_{ref} = \frac{\int_{\lambda} \lambda T(\lambda) Vega(\lambda) d\lambda}{T(\lambda) Vega(\lambda) d\lambda}$)."""
+        r"""Mean integrated wavelength with Vega spectrum ($\lambda_{ref} = \frac{\int_{\lambda} \lambda T(\lambda) Vega(\lambda) d\lambda}{T(\lambda) Vega(\lambda) d\lambda}$)."""
         return ((self.metadata['WavelengthEff'][0] * self.native_unit).to(self.unit).value)
 
     @property
@@ -219,12 +219,12 @@ class PhotometryFilter(object):
 
     @property
     def pivot_wavelength(self) -> float:
-        """Wavelength computed as \sqrt{\frac{\lambda T(\lambda) d\lambda}{T(\lambda) d\lambda / \lambda}}."""
+        r"""Wavelength computed as \sqrt{\frac{\lambda T(\lambda) d\lambda}{T(\lambda) d\lambda / \lambda}}."""
         return ((self.metadata['WavelengthPivot'][0] * self.native_unit).to(self.unit)).value
 
     @property
     def photon_wavelength(self) -> float:
-        """Photon distribution based effective wavelength ($\lambda_{phot} = \frac{\int_{\lambda} \lambda^2 T(\lambda) Vega(\lambda) d\lambda}{\lambda T(\lambda) Vega(\lambda) d\lambda}$)."""
+        r"""Photon distribution based effective wavelength ($\lambda_{phot} = \frac{\int_{\lambda} \lambda^2 T(\lambda) Vega(\lambda) d\lambda}{\lambda T(\lambda) Vega(\lambda) d\lambda}$)."""
         return ((self.metadata['WavelengthPhot'][0] * self.native_unit).to(self.unit)).value
 
     @property
@@ -244,7 +244,7 @@ class PhotometryFilter(object):
 
     @property
     def effective_width(self) -> float:
-        """Equivalent to the width of a rectangle with height equal to maximum transmission and with the same area that the one covered by the filter transmission curve ($Width_{eff} = \frac{T(\lambda) d\lambda}{Max(T(\lambda))}$)."""
+        r"""Equivalent to the width of a rectangle with height equal to maximum transmission and with the same area that the one covered by the filter transmission curve ($Width_{eff} = \frac{T(\lambda) d\lambda}{Max(T(\lambda))}$)."""
         return ((self.metadata['WidthEff'][0] * self.native_unit).to(self.unit)).value
 
     @property
