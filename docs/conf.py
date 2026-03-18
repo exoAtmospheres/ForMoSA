@@ -79,7 +79,7 @@ napoleon_include_special_with_doc = True
 napoleon_use_admonition_for_examples = True
 napoleon_use_admonition_for_notes = True
 napoleon_use_param = True
-napoleon_use_rtype = True
+napoleon_use_rtype = False
 
 # -- Autodoc settings ---------------------------------------------------
 autodoc_default_options = {
@@ -94,6 +94,9 @@ autodoc_mock_imports = []
 
 # Show typehints in the description, not in the signature
 autodoc_typehints = 'description'
+
+# Suppress warnings from third-party type annotations (e.g. matplotlib internals)
+suppress_warnings = ['sphinx_autodoc_typehints.forward_reference']
 
 # -- Intersphinx (cross-referencing external docs) -----------------------
 intersphinx_mapping = {
