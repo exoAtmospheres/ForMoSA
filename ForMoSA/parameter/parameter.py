@@ -32,6 +32,8 @@ class Parameter(object):
         Level of the Logger
 
 
+    Notes
+    -----
     Authors: Allan Denis
     '''
 
@@ -60,51 +62,63 @@ class Parameter(object):
     # ======================
 
     @property
-    def logger(self) -> logging.Logger:                # Logger
+    def logger(self) -> logging.Logger:
+        """Logger."""
         return self._logger
 
     @property
-    def name(self) -> str:                             # Name of the parameter
+    def name(self) -> str:
+        """Name of the parameter."""
         return self._name
 
     @property
-    def kind(self) -> ParameterKind:                   # Parameter type
+    def kind(self) -> ParameterKind:
+        """Parameter type."""
         return self._kind
 
     @property
-    def scope(self) -> str:                            # Scope ('global' or 'local')
+    def scope(self) -> str:
+        """Scope ('global' or 'local')."""
         return self._scope
 
     @property
-    def is_local(self) -> bool:                        # Whether the parameter is local
+    def is_local(self) -> bool:
+        """Whether the parameter is local."""
         return self.scope == 'local'
 
     @property
-    def title(self) -> str:                            # Title
+    def title(self) -> str:
+        """Title."""
         return self._title
 
     @property
-    def obs_index(self) -> list[int] | None:           # Index of the observation the parameter is applied to
+    def obs_index(self) -> list[int] | None:
+        """Index of the observation the parameter is applied to."""
         return self._obs_index
 
     @property
-    def prior(self) -> Prior:                          # Prior object associated with the parameter
+    def prior(self) -> Prior:
+        """Prior object associated with the parameter."""
         return self._prior
 
     @property
-    def vsini_function(self) -> str:                   # Vsini function used for the prior
+    def vsini_function(self) -> str:
+        """Vsini function used for the prior."""
         return self._vsini_function
 
     @vsini_function.setter
-    def vsini_function(self, value: str):              # Setter for vsini_function
+    def vsini_function(self, value: str):
+        """Setter for vsini_function."""
         self._vsini_function = value
 
     @property
-    def is_fixed(self) -> bool:                        # Whether the parameter is fixed (constant prior) or free
+    def is_fixed(self) -> bool:
+        """Whether the parameter is fixed (constant prior) or free."""
         return self._prior.is_fixed
 
     @property
-    def to_dict(self) -> dict:                         # Dictionary representation of the parameter
+    def to_dict(self) -> dict:
+        """Dictionary representation of the parameter."""
         return {
             'name': self.name,
             'prior': self.prior.to_dict,
@@ -139,6 +153,8 @@ class Parameter(object):
         Parameter
             An instance of class Parameter
 
+        Notes
+        -----
         Authors: Allan Denis
         '''
 
@@ -160,6 +176,8 @@ class Parameter(object):
         '''
         Validation of the parameter.
 
+        Notes
+        -----
         Authors: Allan Denis
         '''
 

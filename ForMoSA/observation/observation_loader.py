@@ -16,6 +16,8 @@ class ObservationLoader:
     '''
     Class responsible for observation loading from various inputs format
 
+    Notes
+    -----
     Authors: Allan Denis
     '''
 
@@ -31,6 +33,8 @@ class ObservationLoader:
         dict
             Dictionnary representation of the attributes
 
+        Notes
+        -----
         Authors: Allan Denis
         '''
 
@@ -54,6 +58,8 @@ class ObservationLoader:
         --------
         >>> normalize_keys(["wave", "flux", "err", "instrument"]) --> {'WAVELENGTH': 'wave', 'FLUX': 'flux', 'ERROR': 'err', 'INSTRUMENT': 'instrument'}
 
+        Notes
+        -----
         Authors: Allan Denis
         '''
 
@@ -93,6 +99,8 @@ class ObservationLoader:
         Observation
             Instance of class Observation
 
+        Notes
+        -----
         Authors: Allan Denis
         '''
 
@@ -130,6 +138,8 @@ class ObservationLoader:
         Observation
             Instance of class Observation
 
+        Notes
+        -----
         Authors: Allan Denis
         '''
 
@@ -150,6 +160,8 @@ class ObservationLoader:
         -------
         Observation
 
+        Notes
+        -----
         Authors: Allan Denis
         '''
 
@@ -183,6 +195,8 @@ class ObservationLoader:
         Observation
             instance of class Observation
 
+        Notes
+        -----
         Authors: Allan Denis
         '''
 
@@ -359,6 +373,8 @@ class ObservationLoader:
         None | np.ndarray
             Stacked columns
 
+        Notes
+        -----
         Authors: Allan Denis
         '''
 

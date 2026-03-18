@@ -47,6 +47,8 @@ class SpectralObservation(Observation):
     display_unit : WavelengthUnit
         Unit of the wavelength to display
 
+    Notes
+    -----
     Authors: Allan Denis
     '''
 
@@ -88,63 +90,78 @@ class SpectralObservation(Observation):
     # ==================================================
 
     @property
-    def ObsType(self) -> ObservationType:                       # Observation type
+    def ObsType(self) -> ObservationType:
+        """Observation type."""
         return ObservationType.SPECTROSCOPIC.value
 
     @property
-    def res(self) -> np.ndarray[float]:                         # Resolution
+    def res(self) -> np.ndarray[float]:
+        """Resolution."""
         return self._res
 
     @property
-    def cov(self) -> np.ndarray[float] | None:                  # Covariance
+    def cov(self) -> np.ndarray[float] | None:
+        """Covariance."""
         return self._cov
 
     @property
-    def inv_cov(self) -> np.ndarray[float] | None:              # Inverse of covariance
+    def inv_cov(self) -> np.ndarray[float] | None:
+        """Inverse of covariance."""
         return self._inv_cov
 
     @property
-    def transm(self) -> np.ndarray[float] | None:               # Transmission
+    def transm(self) -> np.ndarray[float] | None:
+        """Transmission."""
         return self._transm
 
     @property
-    def star_flux(self) -> np.ndarray[float] | None:            # Stellar flux
+    def star_flux(self) -> np.ndarray[float] | None:
+        """Stellar flux."""
         return self._star_flux
 
     @property
-    def system(self) -> np.ndarray[float] | None:               # Systematics
+    def system(self) -> np.ndarray[float] | None:
+        """Systematics."""
         return self._system
 
     @property
-    def flux_cont(self) -> np.ndarray[float] | None:            # Continuum of the flux
+    def flux_cont(self) -> np.ndarray[float] | None:
+        """Continuum of the flux."""
         return self._flux_cont
 
     @property
-    def star_flux_cont(self) -> np.ndarray[float] | None:       # Continuum of the star flux
+    def star_flux_cont(self) -> np.ndarray[float] | None:
+        """Continuum of the star flux."""
         return self._star_flux_cont
 
     @property
-    def wave_cont(self) -> str | None:                          # Wavelengths used for the continuum
+    def wave_cont(self) -> str | None:
+        """Wavelengths used for the continuum."""
         return self._wave_cont
 
     @property
-    def res_cont(self) -> float | None:                         # Resolution used for the continuum
+    def res_cont(self) -> float | None:
+        """Resolution used for the continuum."""
         return self._res_cont
 
     @property
-    def hc_mode(self) -> bool:                                  # Whether the observation is in high-contrast mode
+    def hc_mode(self) -> bool:
+        """Whether the observation is in high-contrast mode."""
         return self._star_flux is not None
 
     @property
-    def max_resolution(self) -> float:                          # Maximum resolution
+    def max_resolution(self) -> float:
+        """Maximum resolution."""
         return float(np.max(self._res))
 
     @property
-    def min_resolution(self) -> float:                          # Minimum resolution
+    def min_resolution(self) -> float:
+        """Minimum resolution."""
         return float(np.min(self._res))
 
     @property
-    def to_dict(self) -> dict[str, np.ndarray]:                 # Dictionary representation of spectroscopic data
+    def to_dict(self) -> dict[str, np.ndarray]:
+        """Dictionary representation of spectroscopic data."""
         data = {
             ObservationKeys.WAVELENGTH.canonical: self.wave.tolist(),
             ObservationKeys.FLUX.canonical: self.flux.tolist(),
@@ -180,7 +197,8 @@ class SpectralObservation(Observation):
         return data
 
     @property
-    def name(self) -> str:                                     # Observation name
+    def name(self) -> str:
+        """Observation name."""
         # ---- Facilities
         facilities = sorted(set(self.facility.astype(str)))
         facility_str = f'[{"+".join(facilities)}]'
@@ -192,11 +210,13 @@ class SpectralObservation(Observation):
         return f"{facility_str}_{instrument_str}"
 
     @property
-    def wavelength_range(self) -> tuple[float, float]:          # Wavelength range of the observation
+    def wavelength_range(self) -> tuple[float, float]:
+        """Wavelength range of the observation."""
         return float(self.wave.min()), float(self.wave.max())
 
     @property
-    def instrument_idxs(self) -> np.ndarray:                    # Indexes of occurence of new instruments
+    def instrument_idxs(self) -> np.ndarray:
+        """Indexes of occurence of new instruments."""
         idxs = np.array([0])
         last_ins = self.instrument[0]
 
@@ -209,7 +229,8 @@ class SpectralObservation(Observation):
         return idxs
 
     @property
-    def nb_instruments(self) -> int:                            # Number of instruments
+    def nb_instruments(self) -> int:
+        """Number of instruments."""
         return len(self.instrument_idxs) - 1
 
     # ==================================================
@@ -220,6 +241,8 @@ class SpectralObservation(Observation):
         '''
         Do some checks on spectroscopic observations.
 
+        Notes
+        -----
         Authors: Allan Denis
         '''
 
@@ -264,6 +287,8 @@ class SpectralObservation(Observation):
         Remove non-finite values from all observation vectors
         and adjust covariance matrix accordingly.
 
+        Notes
+        -----
         Authors: Allan Denis
         '''
 
@@ -335,6 +360,8 @@ class SpectralObservation(Observation):
         dict
             Dictionnary representation of the adapted observation
 
+        Notes
+        -----
         Authors: Simon Petrus, Matthieu Ravet and Allan Denis
         '''
 
@@ -417,6 +444,8 @@ class SpectralObservation(Observation):
         ax_filt : matplotlib.axes._axes.Axes
             Non updated ax_filt
 
+        Notes
+        -----
         Authors: Allan Denis
         '''
 
@@ -511,6 +540,8 @@ class SpectralObservation(Observation):
         SpectralObservation
             Restricted observation
 
+        Notes
+        -----
         Authors: Allan Denis
         '''
 

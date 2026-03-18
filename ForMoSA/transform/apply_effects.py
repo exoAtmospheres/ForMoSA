@@ -10,6 +10,8 @@ class ApplyPhysicsEffects:
     '''
     Apply physics effects to a model given parameters.
 
+    Notes
+    -----
     Authors: Allan Denis
     '''
 
@@ -30,6 +32,8 @@ class ApplyPhysicsEffects:
         observed_model : ObservedModel
             Instance of class ObservedModel Doppler shifted
 
+        Notes
+        -----
         Authors: Allan Denis
         '''
 
@@ -58,6 +62,8 @@ class ApplyPhysicsEffects:
         observed_model : ObservedModel
             Instance of class ObservedModel rotationally broadened
 
+        Notes
+        -----
         Authors: Allan Denis
         '''
 
@@ -82,6 +88,8 @@ class ApplyPhysicsEffects:
         observed_model : ObservedModel
             Instance of class ObservedModel redenned
 
+        Notes
+        -----
         Authors: Allan Denis
         '''
 
@@ -109,6 +117,8 @@ class ApplyPhysicsEffects:
         -------
         (ObservedModel): Instance of class ObservedModel with a CPD effect
 
+        Notes
+        -----
         Authors: Allan Denis
         '''
 
@@ -135,6 +145,8 @@ class ApplyPhysicsEffects:
         flux_transformed : np.ndarray
             Scaled model
 
+        Notes
+        -----
         Authors: Allan Denis
         '''
 
@@ -161,6 +173,8 @@ class ApplyObservationEffects:
         -------
         (ObservedModel): Instance of class ObservedModel degraded in resolution
 
+        Notes
+        -----
         Authors: Allan Denis
         '''
 
@@ -191,6 +205,8 @@ class ApplyObservationEffects:
         -------
         (ObservedModel): Instance of class ObservedModel scaled to the data
 
+        Notes
+        -----
         Authors: Allan Denis
         '''
 
@@ -218,6 +234,8 @@ class ApplyObservationEffects:
         -------
         (ObservedModel): Instance of class ObservedModel high-contrast modelled
 
+        Notes
+        -----
         Authors: Allan Denis
         '''
 

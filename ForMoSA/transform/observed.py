@@ -12,6 +12,8 @@ class ObservedParameters:
     '''
     Parameters drawn from the nested sampling.
 
+    Notes
+    -----
     Authors: Allan Denis
     '''
 
@@ -35,43 +37,53 @@ class ObservedParameters:
     # ======================
 
     @property
-    def grid(self) -> "ObservedParameters":                                    # Grid parameters
+    def grid(self) -> "ObservedParameters":
+        """Grid parameters."""
         return ObservedParameters({p: v for p, v in self.values.items() if p.kind == ParameterKind.GRID})
 
     @property
-    def physics(self) -> "ObservedParameters":                                 # Non grid parameters
+    def physics(self) -> "ObservedParameters":
+        """Non grid parameters."""
         return ObservedParameters({p: v for p, v in self.values.items() if p.kind != ParameterKind.GRID})
 
     @property
-    def global_params(self) -> "ObservedParameters":                                  # GLobal parameters
+    def global_params(self) -> "ObservedParameters":
+        """GLobal parameters."""
         return ObservedParameters({p: v for p, v in self.values.items() if p.scope == 'global'})
 
     @property
-    def names(self) -> list[str]:                                              # Names of the parameters
+    def names(self) -> list[str]:
+        """Names of the parameters."""
         return [p.name for p in self.values]
 
     @property
-    def kinds(self) -> list[ParameterKind]:                                    # Parameter kinds of the parameters
+    def kinds(self) -> list[ParameterKind]:
+        """Parameter kinds of the parameters."""
         return [p.kind for p in self.values]
 
     @property
-    def has_grid(self) -> bool:                                                # Whether the parameter has a grid parameter kind
+    def has_grid(self) -> bool:
+        """Whether the parameter has a grid parameter kind."""
         return self.has_kind(ParameterKind.GRID)
 
     @property
-    def has_physics(self) -> bool:                                             # Whether the parameter has a physics parameter kind
+    def has_physics(self) -> bool:
+        """Whether the parameter has a physics parameter kind."""
         return any(p.kind != ParameterKind.GRID for p in self.values)
 
     @property
-    def values_by_kind(self) -> dict[ParameterKind, float]:                    # Parameter values by kind
+    def values_by_kind(self) -> dict[ParameterKind, float]:
+        """Parameter values by kind."""
         return {p.kind: v for p, v in self.values.items()}
 
     @property
-    def values_by_name(self) -> dict[str, float]:                              # Parameter values by name
+    def values_by_name(self) -> dict[str, float]:
+        """Parameter values by name."""
         return {p.name: v for p, v in self.values.items()}
 
     @property
-    def params_by_kind(self) -> dict[ParameterKind, float]:                    # Parameters by kind
+    def params_by_kind(self) -> dict[ParameterKind, float]:
+        """Parameters by kind."""
         return {p.kind: p for p in self.values}
 
     # ======================
@@ -134,6 +146,8 @@ class ObservedParameters:
         float
             Value of the parameter
 
+        Notes
+        -----
         Authors: Allan Denis
         '''
 
@@ -158,6 +172,8 @@ class ObservedParameters:
         float
             Value of the parameter
 
+        Notes
+        -----
         Authors: Allan Denis
         '''
 
@@ -177,6 +193,8 @@ class ObservedParameters:
         *kind : ParameterKind
             kinds of required parameters
 
+        Notes
+        -----
         Authors: Allan Denis
         '''
 
@@ -189,6 +207,8 @@ class ObservedModel:
     '''
     Model drawn from the nested sampling.
 
+    Notes
+    -----
     Authors: Allan Denis
     '''
 
@@ -225,11 +245,13 @@ class ObservedModel:
     # ======================
 
     @property
-    def total_flux(self) -> np.ndarray:                     # Total flux including HC components
+    def total_flux(self) -> np.ndarray:
+        """Total flux including HC components."""
         return self.flux + self.component
 
     @property
-    def npts(self) -> int:                                  # Number of points
+    def npts(self) -> int:
+        """Number of points."""
         return self.flux.size
 
     # ======================
@@ -255,6 +277,8 @@ class ObservedModel:
         'ObservedModel'
             An instance of class ObservedModel
 
+        Notes
+        -----
         Authors: Allan Denis
         '''
 
@@ -347,6 +371,8 @@ class ObservedModel:
         np.ndarray
             Residuals
 
+        Notes
+        -----
         Authors: Allan Denis
         '''
 
@@ -374,6 +400,8 @@ class ObservedModel:
         float
             Standard deviation of the residuals
 
+        Notes
+        -----
         Authors: Allan Denis
         '''
 
@@ -395,6 +423,8 @@ class ObservedModel:
         ObservedModel
             Copy of ObservedModel
 
+        Notes
+        -----
         Authors: Allan Denis
         """
         return replace(self, **updates)
@@ -403,6 +433,8 @@ class ObservedModel:
         '''
         Sort by increasing wavelength
 
+        Notes
+        -----
         Authors: Allan Denis
         '''
 

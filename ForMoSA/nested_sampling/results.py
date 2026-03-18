@@ -8,6 +8,8 @@ class NSResults:
     '''
     Dataclass to handle reading and storing results of the Nested Sampling algorithm
 
+    Notes
+    -----
     Authors: Allan Denis
     '''
 
@@ -54,7 +56,8 @@ class NSResults:
     # ===================
 
     @property
-    def to_dict(self) -> dict:                                    # Dictionary view of the results
+    def to_dict(self) -> dict:
+        """Dictionary view of the results."""
         return {
             "samples": self.samples.tolist(),
             "weights": self.weights.tolist(),
@@ -66,18 +69,21 @@ class NSResults:
         }
 
     @property
-    def median_parameters(self) -> dict[str, float]:     # Weighted posterior median for each parameter
+    def median_parameters(self) -> dict[str, float]:
+        """Weighted posterior median for each parameter."""
         return {
             name: self._weighted_quantile(self.samples[self.burn_in:, i], self.weights[self.burn_in:], 0.5)
             for i, name in enumerate(self.free_parameters)
         }
 
     @property
-    def param_samples_dict(self) -> dict[str, float]:             # Samples of each parameter
+    def param_samples_dict(self) -> dict[str, float]:
+        """Samples of each parameter."""
         return {name: self.samples[self.burn_in:, i] for i, name in enumerate(self.free_parameters)}
 
     @property
-    def best_logL(self) -> float:                                 # Averaged value of logL
+    def best_logL(self) -> float:
+        """Averaged value of logL."""
         return np.average(self.results.logl[self.burn_in:], weights = self.results.weights[self.burn_in:])
 
     # ===================
@@ -101,6 +107,8 @@ class NSResults:
         NSResults
             Instance of class NSResults
 
+        Notes
+        -----
         Authors: Allan Denis
         '''
 
@@ -131,6 +139,8 @@ class NSResults:
         NestleResults
             An instance of NSResults
 
+        Notes
+        -----
         Authors: Allan Denis
         '''
 
@@ -160,6 +170,8 @@ class NSResults:
         NSResults
             An instance of NSResults
 
+        Notes
+        -----
         Authors: Allan Denis
         '''
 
@@ -222,6 +234,8 @@ class NSResults:
         NSResults
             An instance of NSResults
 
+        Notes
+        -----
         Authors: Allan Denis
         """
 
@@ -294,6 +308,8 @@ class NSResults:
         dict[str, float]
             Dictionary of parameter name associated to its quantile
 
+        Notes
+        -----
         Authors: Allan Denis
         '''
 
@@ -318,6 +334,8 @@ class NSResults:
         -------
         dict[str, tuple[float, float]]: Dictionary of parameter name associated to its interval
 
+        Notes
+        -----
         Authors: Allan Denis
         '''
 
@@ -350,6 +368,8 @@ class NSResults:
         str
             Summary
 
+        Notes
+        -----
         Authors: Allan Denis
         '''
 

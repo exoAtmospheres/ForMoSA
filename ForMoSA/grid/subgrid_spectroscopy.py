@@ -36,6 +36,8 @@ class SubGridSpectroscopy(SubGrid):
     name : str
         Name of the subgrid
 
+    Notes
+    -----
     Authors: Allan Denis
     '''
     def __init__(self, grid: xr.Dataset, parent_grid: ModelGrid | None = None, remove_continuum: bool = False, wave_cont: str | None = None, res_cont: float | None = None, logger: logging.Logger | None = None, log_level: str = "INFO", display_unit: WavelengthUnit = WavelengthUnit.MICROMETER, name: str = 'Unknown'):
@@ -59,23 +61,28 @@ class SubGridSpectroscopy(SubGrid):
     # ================================================
 
     @property
-    def GridType(self) -> ObservationType:                                    # Observation type
+    def GridType(self) -> ObservationType:
+        """Observation type."""
         return ObservationType.SPECTROSCOPIC.value
 
     @property
-    def wave_cont(self) -> str | np.ndarray | None:                           # Wavelengths for continuum removal
+    def wave_cont(self) -> str | np.ndarray | None:
+        """Wavelengths for continuum removal."""
         return self._wave_cont
 
     @property
-    def res_cont(self) -> float | None:                                       # Resolutions for continuum removal
+    def res_cont(self) -> float | None:
+        """Resolutions for continuum removal."""
         return self._res_cont
 
     @property
-    def remove_continuum(self) -> bool:                                       # Whether to remove continuum
+    def remove_continuum(self) -> bool:
+        """Whether to remove continuum."""
         return self._remove_continuum
 
     @property
-    def relevant_parameter_kinds(self) -> list[ParameterKind]:                # List of relevant parameter kinds the observation applies to
+    def relevant_parameter_kinds(self) -> list[ParameterKind]:
+        """List of relevant parameter kinds the observation applies to."""
         return [
             ParameterKind.GRID,
             ParameterKind.RV,
@@ -130,6 +137,8 @@ class SubGridSpectroscopy(SubGrid):
         --------
         >>> subgrid = SubGridSpectroscopy.from_parent(parent_grid, target_wavelength, target_resolution remove_continuum, wave_cont, res_cont, name, logger, log_level, display_unit)
 
+        Notes
+        -----
         Authors: Allan Denis
         '''
 
@@ -176,6 +185,8 @@ class SubGridSpectroscopy(SubGrid):
         --------
         >>> subgrid = SubGridSpectroscopy.from_grid(grid, parent_grid, logger, log_level, display_unit)
 
+        Notes
+        -----
         Authors: Allan Denis
         '''
 
@@ -214,6 +225,8 @@ class SubGridSpectroscopy(SubGrid):
     def _validate_spectral(self) -> None:
         '''
 
+        Notes
+        -----
         Authors: Allan Denis
         '''
 
@@ -244,6 +257,8 @@ class SubGridSpectroscopy(SubGrid):
         tuple[float, float]
             Minimumn and maximum wavelengths of the restricted subgrid
 
+        Notes
+        -----
         Authors: Allan Denis
         '''
 
@@ -265,6 +280,8 @@ class SubGridSpectroscopy(SubGrid):
         model_adapted : xr.DataArray
             Adapted model
 
+        Notes
+        -----
         Authors: Simon Petrus, Matthieu Ravet, Paulina Palma-Bifani and Allan Denis
         '''
 
@@ -295,6 +312,8 @@ class SubGridSpectroscopy(SubGrid):
         ObservedModel
             Instance of class ObservedModel transformed
 
+        Notes
+        -----
         Authors: Allan Denis
         '''
 
@@ -327,6 +346,8 @@ class SubGridSpectroscopy(SubGrid):
         ObservedModel
             Instance of class ObservedModel transformed
 
+        Notes
+        -----
         Authors: Allan Denis
         '''
 
@@ -350,6 +371,8 @@ class SubGridSpectroscopy(SubGrid):
         float
             logL value
 
+        Notes
+        -----
         Authors: Simon Petrus, Matthieu Ravet and Allan Denis
         '''
 

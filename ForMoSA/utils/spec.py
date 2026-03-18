@@ -40,6 +40,8 @@ def calc_ck(flx_mod: np.ndarray, flx_obs: np.ndarray, err_obs: np.ndarray, r_pic
     ck : float
         Scaling coefficient
 
+    Notes
+    -----
     Authors: Simon Petrus and Allan Denis
     '''
 
@@ -89,6 +91,8 @@ def convolve_and_sample(wv_channels: list, sigmas_wvs: list, model_wvs: np.ndarr
         array
             the fluxes in each of the wavelength channels
 
+    Notes
+    -----
     Authors: Jason Wang
     """
 
@@ -142,6 +146,8 @@ def resolution_decreasing(wav_input: np.ndarray, flx_input: np.ndarray, res_inpu
         array
             Flux at lower resolution, resampled to wav_output
 
+    Notes
+    -----
     Authors: Simon Petrus
     """
 
@@ -193,6 +199,8 @@ def continuum_estimate(wav_input: np.ndarray, flx_input: np.ndarray, res_input: 
         np.ndarray
             Estimated continuum of the spectrum re-sampled on the data wavelength grid
 
+    Notes
+    -----
     Authors: Simon Petrus, Matthieu Ravet
 
     """
@@ -257,6 +265,8 @@ def doppler_fct(wav_mod_spectro: np.ndarray, flx_mod_spectro: np.ndarray, res_mo
         array
             New resolution of the interpolated synthetic spectrum
 
+    Notes
+    -----
     Authors: Simon Petrus, Allan Denis and Matthieu Ravet
     """
 
@@ -300,6 +310,8 @@ def reddening_fct(wav: np.ndarray, flx: np.ndarray, av_picked: float) -> tuple[n
         array
             New flux of the interpolated synthetic spectrum
 
+    Notes
+    -----
     Authors: Simon Petrus
     """
 
@@ -342,6 +354,8 @@ def vsini_fct(wav_mod_spectro: np.ndarray, flx_mod_spectro: np.ndarray, res_mod_
         array
             New resolution of the broadened synthetic spectrum (photometry)
 
+    Notes
+    -----
     Authors: Allan Denis
     """
     if len(flx_mod_spectro) != 0:
@@ -394,6 +408,8 @@ def vsini_fct_rot_broad(wav_mod_spectro: np.ndarray, flx_mod_spectro: np.ndarray
         array
             New flux of the interpolated synthetic spectrum
 
+    Notes
+    -----
     Authors: Simon Petrus
     """
     # Correct irregulatities in the wavelength grid
@@ -434,6 +450,8 @@ def vsini_fct_fast_rot_broad(wav_mod_spectro: np.ndarray, flx_mod_spectro: np.nd
         array
             New flux of the interpolated synthetic spectrum
 
+    Notes
+    -----
     Authors: Simon Petrus
     """
     # Correct irregulatities in the wavelength grid
@@ -484,6 +502,8 @@ def vsini_fct_accurate(wav_mod_spectro: np.ndarray, flx_mod_spectro: np.ndarray,
         array
             New flux of the interpolated synthetic spectrum
 
+    Notes
+    -----
     Authors: Allan Denis
     '''
 
@@ -532,6 +552,8 @@ def vsini_fct_accurate_fast_rot_broad(wav_mod_spectro: np.ndarray, flx_mod_spect
         array
             New flux of the interpolated synthetic spectrum
 
+    Notes
+    -----
     Authors: Simon Petrus, Arthur Vigan and Allan Denis
     """
     # Correct irregulatities in the wavelength grid
@@ -572,6 +594,8 @@ def bb_cpd_fct(wav: np.ndarray, flx: np.ndarray, distance: np.ndarray, bb_t_pick
         array
             New flux of the interpolated synthetic spectrum
 
+    Notes
+    -----
     Authors: Paulina Palma-Bifani
     '''
 
@@ -623,6 +647,8 @@ def fit_linear_model(components: list[np.ndarray], flx_obs: np.ndarray, err_obs:
         reconstructed
         model
 
+    Notes
+    -----
     Authors: Allan Denis
     """
 
@@ -727,6 +753,8 @@ def build_linear_components(flx_mod: np.ndarray | None = None, transm: np.ndarra
     labels : list[str]
         Labels for each component
 
+    Notes
+    -----
     Authors: Allan Denis
     '''
 
@@ -826,6 +854,8 @@ def compute_ccf(wav_mod_spectro: np.ndarray, flx_mod_spectro: np.ndarray, wav_ob
         rv_peak : float
             Peak of the RV
 
+    Notes
+    -----
     Authors: Arthur Vigan and Allan Denis
     '''
 
@@ -989,6 +1019,8 @@ def compute_ccf_single_rv(rv: float, wav_mod_spectro: np.ndarray, flx_mod_spectr
         ccf_star : float
             Correlation between the template and the star data
 
+    Notes
+    -----
     Authors: Arthur Vigan and Allan Denis
     '''
 

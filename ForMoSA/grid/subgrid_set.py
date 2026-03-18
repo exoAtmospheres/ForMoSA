@@ -27,6 +27,8 @@ class SubGridSet(object):
     log_level : str
         Logger level
 
+    Notes
+    -----
     Authors: Allan Denis
     '''
 
@@ -51,43 +53,53 @@ class SubGridSet(object):
     # ======================================
 
     @property
-    def logger(self) -> logging.Logger:                                        # Logger
+    def logger(self) -> logging.Logger:
+        """Logger."""
         return self._logger
 
     @property
-    def parent_grid(self) -> ModelGrid:                                        # Parent grid
+    def parent_grid(self) -> ModelGrid:
+        """Parent grid."""
         return self._parent_grid
 
     @property
-    def subgrids(self) -> list[SubGrid]:                                       # List of adapted subgrids
+    def subgrids(self) -> list[SubGrid]:
+        """List of adapted subgrids."""
         return self._subgrids
 
     @property
-    def n_subgrids(self) -> int:                                               # Number of subgrids
+    def n_subgrids(self) -> int:
+        """Number of subgrids."""
         return len(self._subgrids)
 
     @property
-    def is_empty(self) -> bool:                                                # Whether the subgrid set is empty
+    def is_empty(self) -> bool:
+        """Whether the subgrid set is empty."""
         return len(self._subgrids) == 0
 
     @property
-    def has_spectroscopy(self) -> bool:                                        # Whether the subgrid set contains spectroscopic subgrids
+    def has_spectroscopy(self) -> bool:
+        """Whether the subgrid set contains spectroscopic subgrids."""
         return any(sg.is_spectroscopic for sg in self._subgrids)
 
     @property
-    def has_photometry(self) -> bool:                                          # Whether the subgrid set contains photometric subgrids
+    def has_photometry(self) -> bool:
+        """Whether the subgrid set contains photometric subgrids."""
         return any(sg.is_photometric for sg in self._subgrids)
 
     @property
-    def spectroscopic_subgrids(self) -> list[SubGridSpectroscopy]:             # List of spectroscopic subgrids
+    def spectroscopic_subgrids(self) -> list[SubGridSpectroscopy]:
+        """List of spectroscopic subgrids."""
         return [sg for sg in self._subgrids if sg.is_spectroscopic]
 
     @property
-    def photometric_subgrids(self) -> list[SubGridPhotometry]:                 # List of photometric subgrids
+    def photometric_subgrids(self) -> list[SubGridPhotometry]:
+        """List of photometric subgrids."""
         return [sg for sg in self._subgrids if sg.is_photometric]
 
     @property
-    def wavelength_range(self) -> tuple:                                       # Global wavelength range
+    def wavelength_range(self) -> tuple:
+        """Global wavelength range."""
         if self.is_empty:
             return (0.0, 0.0)
         wmins = [sg.wavelength_range[0] for sg in self._subgrids]
@@ -95,7 +107,8 @@ class SubGridSet(object):
         return (min(wmins), max(wmaxs))
 
     @property
-    def subgrid_names(self) -> list[str]:                                      # List of grid names
+    def subgrid_names(self) -> list[str]:
+        """List of grid names."""
         return [grid.grid_name for grid in self.subgrids]
 
     # ======================================
@@ -123,6 +136,8 @@ class SubGridSet(object):
         "SubGridSet"
             Instance of SubGridSet
 
+        Notes
+        -----
         Authors: Allan Denis
         '''
 
@@ -179,6 +194,8 @@ class SubGridSet(object):
             - If a `.nc` file is provided, provide a single argument (str | Path)
             - If an xr.Dataset is provided, provide a single argument
 
+        Notes
+        -----
         Authors: Allan Denis
         '''
 
@@ -209,6 +226,8 @@ class SubGridSet(object):
         method : str
             Interpolation method
 
+        Notes
+        -----
         Authors: Allan Denis
         '''
 
@@ -227,6 +246,8 @@ class SubGridSet(object):
         store_path : str | os.PathLike
             Directory where to save the subgrids
 
+        Notes
+        -----
         Authors: Allan Denis
         '''
 

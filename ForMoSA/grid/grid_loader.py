@@ -9,6 +9,8 @@ class GridLoader:
     '''
     Class responsible for Grid loading.
 
+    Notes
+    -----
     Authors: Allan Denis
     '''
 
@@ -17,6 +19,8 @@ class GridLoader:
         '''
         Validate that an xarray.Dataset conforms to the ForMoSA grid specifications
 
+        Notes
+        -----
         Authors: Allan Denis
         '''
 
@@ -67,6 +71,8 @@ class GridLoader:
         xr.Dataset
             Validated ForMoSA grid dataset.
 
+        Notes
+        -----
         Authors: Allan Denis
         '''
 
@@ -110,6 +116,8 @@ class GridLoader:
         xr.Dataset
             Validated ForMoSA grid dataset.
 
+        Notes
+        -----
         Authors: Allan Denis
         '''
 

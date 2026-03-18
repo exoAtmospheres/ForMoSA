@@ -24,6 +24,8 @@ def setup_logging(level: str ="INFO", logfile: str | os.PathLike = None, name: s
         Logger
 
 
+    Notes
+    -----
     Authors: Arthur Vigan and Allan Denis
     '''
 

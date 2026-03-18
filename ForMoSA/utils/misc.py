@@ -23,6 +23,8 @@ def decoupe(second):
         - float     : minutes
         - float     : seconds
 
+    Notes
+    -----
     Authors: Simon Petrus
     """
 
@@ -53,6 +55,8 @@ def find_nearest(array, value):
         int
             Index of the closest values from the desire value
 
+    Notes
+    -----
     Authors: Simon Petrus
     '''
 
@@ -84,6 +88,8 @@ def format_grid(grid, attr, free_comp, weights):
         xarray
             Xarray of the PCA or NMF weights grid
 
+    Notes
+    -----
     Authors: Matthieu Ravet
     '''
 
@@ -122,6 +128,8 @@ def get_weighted_percentile(n, data, weights=None):
             - shape (len(n),) if data is 1D
             - shape (len(n), M) if data is 2D
 
+    Notes
+    -----
     Authors: Allan Denis
     '''
 
@@ -183,6 +191,8 @@ def scale_to_one_significant_digit(flux):
     '''
     Returns a tuple (scaled_flux, factor) such that flux ≈ scaled_flux * 10**factor
 
+    Notes
+    -----
     Authors: Allan Denis
     '''
 
@@ -212,6 +222,8 @@ def from_recarray_to_dic(data: fits.fitsrec.FITS_rec):
     data_dict : dic
         Dictionary representation of the data
 
+    Notes
+    -----
     Authors: Allan Denis
     '''
 
@@ -239,6 +251,8 @@ def normalize_list(value, name: str, converter=None):
     list
         Normalized list
 
+    Notes
+    -----
     Authors: Allan Denis
     '''
 
@@ -280,6 +294,8 @@ def to_float_if_possible(v):
     float
         Float if conversion succeeds, otherwise original value
 
+    Notes
+    -----
     Authors: Allan Denis
     '''
 

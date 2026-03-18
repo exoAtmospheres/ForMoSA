@@ -39,6 +39,8 @@ class PhotometryObservation(Observation):
     display_unit : WavelengthUnit
         Unit of the wavelength to display
 
+    Notes
+    -----
     Authors: Allan Denis
     '''
 
@@ -67,19 +69,23 @@ class PhotometryObservation(Observation):
     # ==================================================
 
     @property
-    def ObsType(self) -> ObservationType:                         # Observation type
+    def ObsType(self) -> ObservationType:
+        """Observation type."""
         return ObservationType.PHOTOMETRIC.obstype
 
     @property
-    def res(self) -> np.ndarray[float]:                           # Resolution
+    def res(self) -> np.ndarray[float]:
+        """Resolution."""
         return np.array([0.0] * len(self.wave))
 
     @property
-    def hc_mode(self) -> bool:                                    # Whether observation is in high-contrast mode
+    def hc_mode(self) -> bool:
+        """Whether observation is in high-contrast mode."""
         return False
 
     @property
-    def to_dict(self) -> dict[str, np.ndarray]:                   # Dictionary representation of photometric observations
+    def to_dict(self) -> dict[str, np.ndarray]:
+        """Dictionary representation of photometric observations."""
         return {
             ObservationKeys.WAVELENGTH.canonical: self.wave.tolist(),
             ObservationKeys.FLUX.canonical: self.flux.tolist(),
@@ -91,15 +97,18 @@ class PhotometryObservation(Observation):
         }
 
     @property
-    def Filter(self) -> np.ndarray[PhotometryFilter]:             # Photometric filters
+    def Filter(self) -> np.ndarray[PhotometryFilter]:
+        """Photometric filters."""
         return self._Filter
 
     @property
-    def filter_id(self) -> np.ndarray[str]:                       # Filter ID
+    def filter_id(self) -> np.ndarray[str]:
+        """Filter ID."""
         return self._filter_id
 
     @property
-    def name(self) -> str:                                        # Observation name
+    def name(self) -> str:
+        """Observation name."""
         # ---- Facilities
         facilities = sorted(set(self.facility.astype(str)))
         facility_str = f'[{"+".join(facilities)}]'
@@ -121,13 +130,15 @@ class PhotometryObservation(Observation):
         return f"{facility_str}_{instrument_str}_{filter_str}"
 
     @property
-    def wavelength_range(self) -> tuple:                          # Wavelength range of the observation
+    def wavelength_range(self) -> tuple:
+        """Wavelength range of the observation."""
         wmin = np.min([filt.wavelength_min for filt in self.Filter])
         wmax = np.max([filt.wavelength_max for filt in self.Filter])
         return wmin, wmax
 
     @property
-    def filter_idxs(self) -> np.ndarray:                          # Indexes of occurence of new filters
+    def filter_idxs(self) -> np.ndarray:
+        """Indexes of occurence of new filters."""
         idxs = np.array([0])
         last_filt_id = self.filter_id[0]
 
@@ -140,7 +151,8 @@ class PhotometryObservation(Observation):
         return idxs
 
     @property
-    def nb_filters(self) -> int:                                  # Number of filters
+    def nb_filters(self) -> int:
+        """Number of filters."""
         return len(self.filter_idxs) - 1
 
     # ==================================================
@@ -151,6 +163,8 @@ class PhotometryObservation(Observation):
         '''
         Do some checks on photometric observations.
 
+        Notes
+        -----
         Authors: Allan Denis
         '''
 
@@ -168,6 +182,8 @@ class PhotometryObservation(Observation):
         '''
         For photometry, this function does not implement anything.
 
+        Notes
+        -----
         Authors: Allan Denis
         '''
 
@@ -197,6 +213,8 @@ class PhotometryObservation(Observation):
         ax_filt : matplotlib.axes._axes.Axes
             Updated ax_filt
 
+        Notes
+        -----
         Authors: Allan Denis
         '''
 
@@ -305,6 +323,8 @@ class PhotometryObservation(Observation):
         PhotometryObservation
             Restricted observation
 
+        Notes
+        -----
         Authors: Allan Denis
         '''
 

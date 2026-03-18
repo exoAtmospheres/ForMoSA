@@ -20,6 +20,8 @@ class Paths(object):
     log_level : str
         Level of the Logger
 
+    Notes
+    -----
     Authors: Allan Denis
     '''
 
@@ -52,10 +54,12 @@ class Paths(object):
 
     @property
     def logger(self):
+        """Logger."""
         return self._logger
 
     @property
     def config_file_path(self):
+        """Path to the configuration file."""
         if not self._config_file_path.exists():
             self._logger.error(f' No config file. {self._config_file_path} is not a valid configuration path.')
             self._path_error = True
@@ -65,6 +69,7 @@ class Paths(object):
 
     @property
     def observation_path(self):
+        """List of observation paths."""
         return self._observation_path
 
     @observation_path.setter
@@ -74,6 +79,7 @@ class Paths(object):
 
     @property
     def adapt_store_path(self):
+        """Path to the adapted store directory."""
         if not self._adapt_store_path.exists():
             self._logger.info(f' Creating {self._adapt_store_path}')
             self._adapt_store_path.mkdir(parents=True, exist_ok=True)
@@ -86,6 +92,7 @@ class Paths(object):
 
     @property
     def result_path(self):
+        """Path to the results directory."""
         return self._result_path
 
     @result_path.setter
@@ -95,6 +102,7 @@ class Paths(object):
 
     @property
     def model_path(self):
+        """Path to the model grid file."""
         return self._model_path
 
     @model_path.setter
@@ -104,24 +112,29 @@ class Paths(object):
 
     @property
     def path_error(self):
+        """Whether a path error was detected."""
         return self._path_error
 
     @property
     def observation(self):
+        """Observation instance."""
         return self._observation
 
     @property
     def grid(self):
+        """Model grid instance."""
         return self._grid
 
     # ====================
-    # LMethods
+    # Methods
     # ====================
 
     def _validate(self) -> None:
         '''
         Validation of the paths.
 
+        Notes
+        -----
         Authors: Allan Denis
         '''
 

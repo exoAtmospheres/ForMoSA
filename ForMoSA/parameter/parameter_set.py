@@ -15,9 +15,15 @@ class ParameterSet(object):
     """
     Container for nested sampling parameters.
 
-    logger         (logging.Logger): Logger
-    log_level                 (str): Level of the logging
+    Parameters
+    ----------
+    logger : logging.Logger
+        Logger
+    log_level : str
+        Level of the logging
 
+    Notes
+    -----
     Authors: Allan Denis
     """
 
@@ -38,47 +44,58 @@ class ParameterSet(object):
     # ===========================
 
     @property
-    def logger(self) -> logging.Logger:                               # Logger
+    def logger(self) -> logging.Logger:
+        """Logger."""
         return self._logger
 
     @property
-    def parameters(self) -> list[Parameter]:                          # List of parameters
+    def parameters(self) -> list[Parameter]:
+        """List of parameters."""
         return self._parameters
 
     @property
-    def free_parameters(self) -> list[Parameter]:                     # list of free parameters
+    def free_parameters(self) -> list[Parameter]:
+        """list of free parameters."""
         return [p for p in self.parameters if not p.is_fixed]
 
     @property
-    def fixed_parameters(self) -> list[Parameter]:                    # list of fixed parameters
+    def fixed_parameters(self) -> list[Parameter]:
+        """list of fixed parameters."""
         return [p for p in self.parameters if p.is_fixed]
 
     @property
-    def names(self) -> list[str]:                                     # list of parameter names
+    def names(self) -> list[str]:
+        """list of parameter names."""
         return [p.name for p in self.parameters]
 
     @property
-    def free_names(self) -> list[str]:                                # list of parameter names
+    def free_names(self) -> list[str]:
+        """list of parameter names."""
         return [p.name for p in self.free_parameters]
 
     @property
-    def titles(self) -> list[str]:                                    # List of titles
+    def titles(self) -> list[str]:
+        """List of titles."""
         return [p.title for p in self.parameters]
 
     @property
-    def free_titles(self) -> list[str]:                               # List of titles
+    def free_titles(self) -> list[str]:
+        """List of titles."""
         return [p.title for p in self.free_parameters]
 
     @property
-    def kinds(self) -> list[ParameterKind]:                           # list of parameter kinds
+    def kinds(self) -> list[ParameterKind]:
+        """list of parameter kinds."""
         return [p.kind for p in self.parameters]
 
     @property
-    def n_free_parameters(self) -> int:                               # Number of free parameters
+    def n_free_parameters(self) -> int:
+        """Number of free parameters."""
         return len(self.free_parameters)
 
     @property
-    def to_dict(self) -> dict:                                        # Dictionary representation of the set of parameters
+    def to_dict(self) -> dict:
+        """Dictionary representation of the set of parameters."""
         data = {}
         for i, name in enumerate(self.names):
             data[name] = self.parameters[i].to_dict
@@ -107,6 +124,8 @@ class ParameterSet(object):
         "ParameterSet"
             As instance of ParameterSet
 
+        Notes
+        -----
         Authors: Allan Denis
         '''
 
@@ -152,6 +171,8 @@ class ParameterSet(object):
         'ParameterSet'
             An instance of class ParameterSet
 
+        Notes
+        -----
         Authors: Allan Denis
         '''
 
@@ -185,6 +206,8 @@ class ParameterSet(object):
         'ParameterSet'
             An instance of class ParameterSet
 
+        Notes
+        -----
         Authors: Allan Denis
         '''
 
@@ -221,6 +244,8 @@ class ParameterSet(object):
         -------
         list[float] : physical values in the same ordering as self.free_parameters
 
+        Notes
+        -----
         Authors: Allan Denis
         '''
 
@@ -247,6 +272,8 @@ class ParameterSet(object):
         parameter : Parameter
             Instance of class Parameter to add
 
+        Notes
+        -----
         Authors: Allan Denis
         '''
 
@@ -274,6 +301,8 @@ class ParameterSet(object):
         pandas.DataFrame | str
             Summary of parameters
 
+        Notes
+        -----
         Authors: Allan Denis
         '''
 
@@ -311,6 +340,8 @@ class ParameterSet(object):
         path : str | os.PathLike
             Path to save the set of parameters
 
+        Notes
+        -----
         Authors: Allan Denis
         '''
 

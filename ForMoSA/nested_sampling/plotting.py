@@ -25,8 +25,11 @@ class Plotting(object):
         Instance of class NSResults
     logger : Logger
         Logger used
-    log_level         v(str): Level of the Logger
+    log_level : str
+        Level of the Logger
 
+    Notes
+    -----
     Authors: Paulina Palma-Bifani, Matthieu Ravet and Allan Denis
     '''
 
@@ -50,11 +53,13 @@ class Plotting(object):
     # =================
 
     @property
-    def logger(self) -> logging.Logger:                  # Logger
+    def logger(self) -> logging.Logger:
+        """Logger."""
         return self._logger
 
     @property
-    def ns_results(self) -> NSResults:                   # Instance of classe NSResults
+    def ns_results(self) -> NSResults:
+        """Instance of classe NSResults."""
         return self._ns_results
 
     # =================
@@ -75,6 +80,8 @@ class Plotting(object):
         matplotlib.figure.Figure
             Figure containin corner plots.
 
+        Notes
+        -----
         Authors: Paulina Palma-Bifani, Matthieu Ravet and Allan Denis
         '''
 
@@ -108,6 +115,8 @@ class Plotting(object):
         tuple[matplotlib.figure.Figure, matplotlib.axes._axes.Axes]
             Tuple containing Figure and Ax objects
 
+        Notes
+        -----
         Authors: Paulina Palma-Bifani, Matthieu Ravet and Allan Denis
         '''
 
@@ -164,6 +173,8 @@ class Plotting(object):
         tuple[matplotlib.figure.Figure, matplotlib.axes._axes.Axes]
             Tuple containing Figure and Ax objects
 
+        Notes
+        -----
         Authors: Paulina Palma-Bifani, Matthieu Ravet and Allan Denis
         '''
 
@@ -262,6 +273,8 @@ class Plotting(object):
         tuple[Figure, Axes, Axes, Axes, Axes]
             Figure and ax objects
 
+        Notes
+        -----
         Authors: Paulina Palma-Bifani, Matthieu Ravet and Allan Denis
         '''
 
@@ -364,6 +377,8 @@ class Plotting(object):
         tuple[Figure, Axes]
             Figure and Axes objects
 
+        Notes
+        -----
         Authors: Bhavesh Rajpoot and Allan Denis
         '''
 
@@ -412,6 +427,8 @@ class Plotting(object):
         tuple[Figure, Axes]
             Figure and Axes objects
 
+        Notes
+        -----
         Authors: Bhavesh Rajpoot (adapted from Allan Denis)
         '''
 

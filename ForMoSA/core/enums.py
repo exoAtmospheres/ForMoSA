@@ -5,6 +5,8 @@ class WavelengthUnit(Enum):
     '''
     Enumeration of wavelength units used in ForMoSA with accepted aliases
 
+    Notes
+    -----
     Authors: Allan Denis
     '''
 
@@ -35,6 +37,8 @@ class FluxUnit(Enum):
     '''
     Enumeration of flux units used in ForMoSA
 
+    Notes
+    -----
     Authors: Allan Denis
     '''
 
@@ -50,6 +54,8 @@ class DataUnit(Enum):
     '''
     Enumeration of data units used in ForMoSA
 
+    Notes
+    -----
     Authors: Allan Denis
     '''
 
@@ -65,6 +71,8 @@ class ObservationType(Enum):
     '''
     Enumeration of observation types used in ForMoSA with accepted aliases
 
+    Notes
+    -----
     Authors: Allan Denis
     '''
 
@@ -97,6 +105,8 @@ class ObservationKeys(Enum):
 
     So the user can use "WAVELENGTH", "WAVE", "WAV" or "LAMBDA" to call the wavelength array of the observations
 
+    Notes
+    -----
     Authors: Allan Denis
     '''
 
@@ -159,6 +169,8 @@ class ObservationKeys(Enum):
         list[str]
             List of required photometric keys absent
 
+        Notes
+        -----
         Authors: Allan Denis
         '''
 
@@ -182,6 +194,8 @@ class ObservationKeys(Enum):
         list[str]
             List of required spectroscopic keys absent
 
+        Notes
+        -----
         Authors: Allan Denis
         '''
 
@@ -213,6 +227,8 @@ class PriorType(Enum):
     '''
     Enumeration of prior types used in ForMoSA
 
+    Notes
+    -----
     Authors: Allan Denis
     '''
 
@@ -245,6 +261,8 @@ class VsiniFunction(Enum):
     '''
     Enumeration of vsini calculation functions used in ForMoSA
 
+    Notes
+    -----
     Authors: Allan Denis
     '''
 
@@ -261,6 +279,8 @@ class ParameterKind(Enum):
     '''
     Enumeration of parameters names used in ForMoSA
 
+    Notes
+    -----
     Authors: Allan Denis
     '''
 
@@ -317,6 +337,8 @@ class LogLikelihoodType(Enum):
     '''
     Enumeration of log-likelihood types used in ForMoSA
 
+    Notes
+    -----
     Authors: Allan Denis
     '''
 
@@ -336,6 +358,8 @@ class NestedAlgorithm(Enum):
     '''
     Enumeration of nested sampling algorithms used in ForMoSA
 
+    Notes
+    -----
     Authors: Allan Denis
     '''
 

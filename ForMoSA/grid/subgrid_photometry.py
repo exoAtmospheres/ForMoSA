@@ -19,6 +19,8 @@ class SubGridPhotometry(SubGrid):
 
     Parameters
     ----------
+    grid : xr.Dataset
+        Dataset containing the subgrid
     parent_grid : ModelGrid
         Parent model grid
     Filter : np.ndarray[PhotometryFilter]
@@ -27,9 +29,13 @@ class SubGridPhotometry(SubGrid):
         Logger
     log_level : str
         Level of the logger
+    display_unit : WavelengthUnit
+        Unit of the wavelength to display
     name : str
         Name of the subgrid
 
+    Notes
+    -----
     Authors: Allan Denis
     '''
 
@@ -52,27 +58,33 @@ class SubGridPhotometry(SubGrid):
     # ================================================
 
     @property
-    def GridType(self) -> ObservationType:                            # Observation type
+    def GridType(self) -> ObservationType:
+        """Observation type."""
         return ObservationType.PHOTOMETRIC.obstype
 
     @property
-    def wave_cont(self) -> np.ndarray | None:                         # Wavelengths for continuum removal
+    def wave_cont(self) -> np.ndarray | None:
+        """Wavelengths for continuum removal."""
         return None
 
     @property
-    def res_cont(self) -> float | None:                               # Resolutions for continuum removal
+    def res_cont(self) -> float | None:
+        """Resolutions for continuum removal."""
         return None
 
     @property
-    def remove_continuum(self) -> bool:                               # Whether to remove continuum
+    def remove_continuum(self) -> bool:
+        """Whether to remove continuum."""
         return False
 
     @property
-    def Filter(self) -> np.ndarray[PhotometryFilter]:                 # Filter
+    def Filter(self) -> np.ndarray[PhotometryFilter]:
+        """Filter."""
         return self._Filter
 
     @property
-    def relevant_parameter_kinds(self) -> list[ParameterKind]:        # List of relevant parameter kinds the subgrid applies to
+    def relevant_parameter_kinds(self) -> list[ParameterKind]:
+        """List of relevant parameter kinds the subgrid applies to."""
         return [
             ParameterKind.GRID,
             ParameterKind.ALPHA,
@@ -116,6 +128,8 @@ class SubGridPhotometry(SubGrid):
         --------
         >>> subgrid = SubGridPhotometry.from_parent(parent_grid, Filter, name, logger, log_level, display_unit)
 
+        Notes
+        -----
         Authors: Allan Denis
         '''
 
@@ -165,6 +179,8 @@ class SubGridPhotometry(SubGrid):
         --------
         >>> subgrid = SubGridPhotometry.from_grid(ds, parent_grid, logger, log_level, display_unit)
 
+        Notes
+        -----
         Authors: Allan Denis
         '''
 
@@ -209,6 +225,8 @@ class SubGridPhotometry(SubGrid):
         '''
         Check the consistency between the target wavelength and the wavelengths of the filter.
 
+        Notes
+        -----
         Authors: Allan Denis
         '''
 
@@ -222,6 +240,8 @@ class SubGridPhotometry(SubGrid):
         '''
         Adapt the native grid to the target wavelength and resolution.
 
+        Notes
+        -----
         Authors: Allan Denis
         '''
 
@@ -237,6 +257,8 @@ class SubGridPhotometry(SubGrid):
         tuple[float, float]
             Minimumn and maximum wavelengths of the restricted subgrid
 
+        Notes
+        -----
         Authors: Allan Denis
         '''
 
@@ -262,6 +284,8 @@ class SubGridPhotometry(SubGrid):
         -------
         model_adapted
 
+        Notes
+        -----
         Authors: Allan Denis
         '''
 
@@ -284,6 +308,8 @@ class SubGridPhotometry(SubGrid):
         -------
         (ObservedModel): observed_model transformed by the physics effects
 
+        Notes
+        -----
         Authors: Allan Denis
         '''
 
@@ -312,6 +338,8 @@ class SubGridPhotometry(SubGrid):
         xr.DataArray
             Integrated value under the filter curve
 
+        Notes
+        -----
         Authors: Allan Denis
         '''
 
@@ -378,6 +406,8 @@ class SubGridPhotometry(SubGrid):
         ObservedModel
             Instance of class ObservedModel transformed
 
+        Notes
+        -----
         Authors: Allan Denis
         '''
 
@@ -401,6 +431,8 @@ class SubGridPhotometry(SubGrid):
         float
             logL value
 
+        Notes
+        -----
         Authors: Simon Petrus, Matthieu Ravet and Allan Denis
         '''
 

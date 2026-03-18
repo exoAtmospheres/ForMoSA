@@ -18,6 +18,8 @@ def logL_chi2(delta_flx, err, full=False):
     float
         the loglikelihood value
 
+    Notes
+    -----
     Authors: Matthieu Ravet
     """
 
@@ -50,6 +52,8 @@ def logL_chi2_covariance(delta_flx, cov, inv_cov, full=False):
     float
         the loglikelihood value
 
+    Notes
+    -----
     Authors: Matthieu Ravet
     """
     N = len(delta_flx)
@@ -80,6 +84,8 @@ def logL_chi2_noisescaling(delta_flx, err, full=False):
     float
         the loglikelihood value
 
+    Notes
+    -----
     Authors: Allan Denis and Matthieu Ravet
     """
 
@@ -112,6 +118,8 @@ def logL_chi2_noisescaling_covariance(delta_flx, cov, inv_cov, full=False):
     float
         the loglikelihood value
 
+    Notes
+    -----
     Authors: Allan Denis and Matthieu Ravet
     """
 
@@ -141,6 +149,8 @@ def logL_CCF_Brogi(flx_obs, flx_mod):
     float
         the loglikelihood value
 
+    Notes
+    -----
     Authors: Matthieu Ravet
     """
 
@@ -172,6 +182,8 @@ def logL_CCF_Zucker(flx_obs, flx_mod):
     float
         the loglikelihood value
 
+    Notes
+    -----
     Authors: Matthieu Ravet
     """
 
@@ -204,6 +216,8 @@ def logL_CCF_custom(flx_obs, flx_mod, err_obs):
     float
         the loglikelihood value
 
+    Notes
+    -----
     Authors: Matthieu Ravet
     """
 

@@ -29,6 +29,8 @@ class ObservationSet(object):
     log_level : str
         Level of the logging
 
+    Notes
+    -----
     Authors: Allan Denis
     '''
 
@@ -65,68 +67,81 @@ class ObservationSet(object):
     # ==================================================
 
     @property
-    def is_empty(self) -> bool:                                                # Whether ObservationSet is empty
+    def is_empty(self) -> bool:
+        """Whether ObservationSet is empty."""
         return len(self.observations) == 0
 
     @property
-    def logger(self) -> logging.Logger:                                        # Logger
+    def logger(self) -> logging.Logger:
+        """Logger."""
         return self._logger
 
     @property
-    def observation_names(self) -> list[str]:                                  # List of observation names
+    def observation_names(self) -> list[str]:
+        """List of observation names."""
         return [obs.name for obs in self.observations]
 
     @property
-    def observations(self) -> list[Observation]:                               # List of observations
+    def observations(self) -> list[Observation]:
+        """List of observations."""
         return self._observations
 
     @property
-    def n_observations(self) -> int:                                           # Number of observations
+    def n_observations(self) -> int:
+        """Number of observations."""
         return len(self)
 
     @property
-    def has_spectroscopy(self) -> bool:                                        # Whether the observation set has spectroscopy
+    def has_spectroscopy(self) -> bool:
+        """Whether the observation set has spectroscopy."""
         for obs in self.observations:
             if obs.is_spectroscopic:
                 return True
         return False
 
     @property
-    def has_photometry(self) -> bool:                                          # Whether the observation set has photometry
+    def has_photometry(self) -> bool:
+        """Whether the observation set has photometry."""
         for obs in self.observations:
             if obs.is_photometric:
                 return True
         return False
 
     @property
-    def has_high_contrast(self) -> bool:                                       # Whether the observation set has high-contrast observations
+    def has_high_contrast(self) -> bool:
+        """Whether the observation set has high-contrast observations."""
         for obs in self.observations:
             if obs.hc_mode:
                 return True
         return False
 
     @property
-    def spectral_observations(self) -> list[SpectralObservation]:              # List of spectroscopic observations
+    def spectral_observations(self) -> list[SpectralObservation]:
+        """List of spectroscopic observations."""
         return [obs for obs in self.observations if obs.is_spectroscopic]
 
     @property
-    def photometry_observations(self) -> list[PhotometryObservation]:          # List of photometric observations
+    def photometry_observations(self) -> list[PhotometryObservation]:
+        """List of photometric observations."""
         return [obs for obs in self.observations if obs.is_photometric]
 
     @property
-    def high_contrast_observations(self) -> list[Observation]:                 # List of high-contrast observation
+    def high_contrast_observations(self) -> list[Observation]:
+        """List of high-contrast observation."""
         return [obs for obs in self.observations if obs.hc_mode]
 
     @property
-    def max_resolution(self) -> float | None:                                  # Maximum resolution (None if no spectroscopic observation)
+    def max_resolution(self) -> float | None:
+        """Maximum resolution (None if no spectroscopic observation)."""
         specs = self.spectral_observations
         if not specs:
             return None
 
         return None if not self.spectral_observations else max(obs.max_resolution for obs in specs)
 
-    @property                                                                  # Minimum resolution (None if no spectroscopic observation)
+    @property
     def min_resolution(self) -> float | None:
+        """Minimum resolution (None if no spectroscopic observation)."""
         specs = self.spectral_observations
         if not specs:
             return None
@@ -134,20 +149,23 @@ class ObservationSet(object):
         return None if not self.spectral_observations else min(obs.min_resolution for obs in specs)
 
     @property
-    def wavelength_range(self) -> tuple[float, float]:                         # Global wavelength range
+    def wavelength_range(self) -> tuple[float, float]:
+        """Global wavelength range."""
         wmins = [obs.wavelength_range[0] for obs in self._observations]
         wmaxs = [obs.wavelength_range[1] for obs in self._observations]
         return min(wmins), max(wmaxs)
 
     @property
-    def to_dict(self) -> dict:                                                 # Dictionary representation of the set of observations
+    def to_dict(self) -> dict:
+        """Dictionary representation of the set of observations."""
         data = {}
         for i, name in enumerate(self.observation_names):
             data[name] = self.observations[i].to_dict
         return data
 
     @property
-    def mcolors_normalize(self) -> mcolors.Normalize:                          # Color normalization (for plotting)
+    def mcolors_normalize(self) -> mcolors.Normalize:
+        """Color normalization (for plotting)."""
         return plt.Normalize(vmin=self.wavelength_range[0], vmax=self.wavelength_range[1])
 
     # ==================================================
@@ -173,6 +191,8 @@ class ObservationSet(object):
         "ObservationSet"
             An instance of ObservationSet
 
+        Notes
+        -----
         Authors: Allan Denis
         '''
 
@@ -233,6 +253,8 @@ class ObservationSet(object):
         "ObservationSet"
             An instance of ObservationSet
 
+        Notes
+        -----
         Authors: Allan Denis
         '''
 
@@ -307,6 +329,8 @@ class ObservationSet(object):
         'ParameterSet'
             An instance of class ParameterSet
 
+        Notes
+        -----
         Authors: Allan Denis
         '''
 
@@ -344,6 +368,8 @@ class ObservationSet(object):
         'ParameterSet'
             An instance of class ParameterSet
 
+        Notes
+        -----
         Authors: Allan Denis
         '''
 
@@ -382,6 +408,8 @@ class ObservationSet(object):
         'ParameterSet'
             An instance of class ParameterSet
 
+        Notes
+        -----
         Authors: Allan Denis
         '''
 
@@ -425,6 +453,8 @@ class ObservationSet(object):
         - self.add_observation(data={"wavelength": ..., "flux": ...})
         - self.add_observation(name="spectral_obs", wavelength=..., flux=..., ...)
 
+        Notes
+        -----
         Authors: Allan Denis
         '''
 
@@ -464,6 +494,8 @@ class ObservationSet(object):
         to_json : bool
             Whether to save all observations in a json file
 
+        Notes
+        -----
         Authors: Allan Denis
         '''
 
@@ -498,6 +530,8 @@ class ObservationSet(object):
         res_cont : list[float]
             List os resolutions used for the continuum
 
+        Notes
+        -----
         Authors: Simon Petrus, Matthieu Ravet and Allan Denis
         '''
 
@@ -541,6 +575,8 @@ class ObservationSet(object):
         path : str | os.PathLike
             Path to save the set of parameters
 
+        Notes
+        -----
         Authors: Allan Denis
         '''
 
@@ -579,6 +615,8 @@ class ObservationSet(object):
         ax_filt : matplotlib.axes._axes.Axes
             New ax object for photometric filters
 
+        Notes
+        -----
         Authors: Allan Denis
         '''
 
@@ -647,6 +685,8 @@ class ObservationSet(object):
         dict
             Stacked observations sorted by wavelength
 
+        Notes
+        -----
         Authors: Allan Denis
         '''
 

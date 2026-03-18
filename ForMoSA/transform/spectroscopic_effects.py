@@ -9,6 +9,8 @@ class SpectralEffects:
     '''
     Physical effects applied to a spectroscopic model.
 
+    Notes
+    -----
     Authors: Allan Denis
     '''
 
@@ -28,6 +30,8 @@ class SpectralEffects:
         -------
         (ObservedModel): Instance of class ObservedModel transformed by the physics effects
 
+        Notes
+        -----
         Authors: Allan Denis
         '''
 
@@ -112,6 +116,8 @@ class SpectralEffects:
         ObservedModel
             Instance of class ObservedModel transformed by the observational effects
 
+        Notes
+        -----
         Authors: Allan Denis
         '''
 
@@ -173,6 +179,8 @@ class SpectralEffects:
         float
             logL value
 
+        Notes
+        -----
         Authors: Simon Petrus, Matthieu Ravet and Allan Denis
         '''
 

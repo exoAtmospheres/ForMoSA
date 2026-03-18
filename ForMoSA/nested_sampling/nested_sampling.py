@@ -37,18 +37,33 @@ class NestedSampling(object):
 
     Parameters
     ----------
+    algorithm : NestedAlgorithm
+        Algorithm used for the nested sampling ('nestle', 'ultranest' or 'pymultinest')
+    npoints : int
+        Number of living points used for the nested sampling
+    logL_type : list[LogLikelihoodType]
+        List of loglikelihood types used in the nested sampling
+    config_NS : Config_NS
+        Instance of class Config_NS containing parameters of ns algorithms for each of the algorithm
+    observations : ObservationSet
+        Instance of ObservationSet
+    subgrids : SubGridSet
+        Instance of SubGridSet
+    parameters : ParameterSet
+        Instance of ParameterSet
+    wave_fit : list[str] | None
+        List of wavelength grid used for fitting
+    interp_method : str
+        Interpolation method ('linear', 'cubic', 'spline', ...)
+    bounds_lsq : list[tuple[float, float]] | None
+        List of bounds used for the least squares (used for high contrast)
+    logger : logging.Logger
+        Logger
+    log_level : str
+        Level of the Logger
 
-    logger                         (Logger): Logger
-    algorithm                         (str): Algorithm used for the nested sampling ('nestle', 'ultranest' or 'pymultinest')
-    npoints                           (int): Number of living points used for the nested sampling
-    logL_type     (list[LogLikelihoodType]): List of loglikelihood types used in the nested sampling
-    config_NS                   (Config_NS): Instance of class Config_NS containing parameters of ns algorithms for each of the algorithm
-    interp_method                     (str): Interpolation method ('linear', 'cubic', 'spline', ...)
-    wave_fit                    (list[str]): List of wavelength grid used for fitting
-    bounds_lsq                (list[float]): List of bounds used for the least squares (used for high contrast)
-    logger                 (logging.Logger): Logger
-    log_level                         (str): Level of the Logger
-
+    Notes
+    -----
     Authors: Allan Denis
     '''
 
@@ -83,67 +98,83 @@ class NestedSampling(object):
     # =================
 
     @property
-    def algorithm(self) -> str:                             # Algorithm
+    def algorithm(self) -> str:
+        """Algorithm."""
         return self._algorithm
 
     @property
-    def logL_type(self) -> list:                            # logL functions
+    def logL_type(self) -> list:
+        """logL functions."""
         return self._logL_type
 
     @property
-    def observations(self) -> ObservationSet:               # Set of observations
+    def observations(self) -> ObservationSet:
+        """Set of observations."""
         return self._observations
 
     @property
-    def subgrids(self) -> SubGridSet:                       # Set of subgrids
+    def subgrids(self) -> SubGridSet:
+        """Set of subgrids."""
         return self._subgrids
 
     @property
-    def parameters(self) -> ParameterSet:                   # Priors parameters
+    def parameters(self) -> ParameterSet:
+        """Priors parameters."""
         return self._parameters
 
     @property
-    def config_NS(self) -> Config_NS:                       # Config_NS
+    def config_NS(self) -> Config_NS:
+        """Config_NS."""
         return self._config_NS
 
     @property
-    def interp_method(self) -> str:                         # Interpolation method
+    def interp_method(self) -> str:
+        """Interpolation method."""
         return self._interp_method
 
     @property
-    def wave_fit(self) -> str:                              # Wavelengths for fitting
+    def wave_fit(self) -> str:
+        """Wavelengths for fitting."""
         return self._wave_fit
 
     @property
-    def bounds_lsq(self) -> list[float]:                    # Bounds for the Least Squares estimation
+    def bounds_lsq(self) -> list[float]:
+        """Bounds for the Least Squares estimation."""
         return self._bounds_lsq
 
     @property
-    def ns_params(self) -> dict:                            # Dictionary of NS algo
+    def ns_params(self) -> dict:
+        """Dictionary of NS algo."""
         return getattr(self.config_NS, self.algorithm.lower()).to_dict
 
     @property
-    def npoints(self) -> int:                               # Nested sampling number of living points
+    def npoints(self) -> int:
+        """Nested sampling number of living points."""
         return self._npoints
 
     @property
-    def restricted_observations(self) -> ObservationSet:    # Set of restricted observations according to wave_fit
+    def restricted_observations(self) -> ObservationSet:
+        """Set of restricted observations according to wave_fit."""
         return self._restricted_observations
 
     @property
-    def restricted_subgrids(self) -> SubGridSet:            # Set of restricted subgrids according to wave_fit
+    def restricted_subgrids(self) -> SubGridSet:
+        """Set of restricted subgrids according to wave_fit."""
         return self._restricted_subgrids
 
     @property
-    def results(self) -> "NSResults":                       # Results
+    def results(self) -> "NSResults":
+        """Results."""
         return self._results
 
     @property
-    def logger(self) -> logging.Logger:                     # Logger
+    def logger(self) -> logging.Logger:
+        """Logger."""
         return self._logger
 
     @property
-    def to_dict(self) -> dict:                              # Dictionary representation of NestedSampling
+    def to_dict(self) -> dict:
+        """Dictionary representation of NestedSampling."""
         return {
             'algorithm': self.algorithm,
             'npoints': self.npoints,
@@ -182,6 +213,8 @@ class NestedSampling(object):
         'NestedSampling'
             An instance of class NestedSampling
 
+        Notes
+        -----
         Authors: Allan Denis
         '''
 
@@ -237,6 +270,8 @@ class NestedSampling(object):
         'NestedSampling'
             An instance of class NestedSampling
 
+        Notes
+        -----
         Authors: Allan Denis
         '''
 
@@ -273,8 +308,10 @@ class NestedSampling(object):
 
     def _validate(self) -> None:
         '''
-        Validation for NestedSamplin.
+        Validation for NestedSampling.
 
+        Notes
+        -----
         Authors: Allan Denis
         '''
 
@@ -319,6 +356,8 @@ class NestedSampling(object):
         Create restricted versions of subgrids and observations according to wave_fit.
         These restricted instances are stored internally and reused during the nested sampling.
 
+        Notes
+        -----
         Authors: Allan Denis
         '''
 
@@ -349,6 +388,8 @@ class NestedSampling(object):
         results_path : str | os.PathLike
             Path of the output
 
+        Notes
+        -----
         Authors: Simon Petrus, Matthieu Ravet and Allan Denis
         '''
 
@@ -462,6 +503,8 @@ class NestedSampling(object):
         np.ndarray[float]
             Transformed values
 
+        Notes
+        -----
         Authors: Allan Denis
         '''
 
@@ -484,6 +527,8 @@ class NestedSampling(object):
         list[ObservedModel]
             List of instances of class ObservedModel
 
+        Notes
+        -----
         Authors: Allan Denis
         '''
 
@@ -514,6 +559,8 @@ class NestedSampling(object):
         float
             loglikelihood value
 
+        Notes
+        -----
         Authors: Allan Denis
         '''
 
@@ -543,6 +590,8 @@ class NestedSampling(object):
         ObservedParameters
             Intance of class ObservedParameters containing dictionary of parameters values (free + fixed) associated to the observation index
 
+        Notes
+        -----
         Authors: Allan Denis
         '''
 
@@ -580,6 +629,8 @@ class NestedSampling(object):
             Path to save the results to
         **kwargs                        = Additional parameters (wav_fit, interp_method, bounds_lsq)
 
+        Notes
+        -----
         Authors: Allan Denis
         '''
 
@@ -609,6 +660,8 @@ class NestedSampling(object):
         results_path : str | os.PathLike
             Path to save the results to
 
+        Notes
+        -----
         Authors: Allan Denis
         '''
 

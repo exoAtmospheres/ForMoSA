@@ -21,15 +21,13 @@ class NSAnalysis(object):
     ----------
     ns : NestedSampling
         Instance of class NestedSampling
-    observations : ObservationSet
-        Instance of class ObservationSet
-    subgrids : SubGridSet
-        Instance of class SubGridSet
     logger : logging.Logger
         Logger
     log_level : str
         Level of the Logger
 
+    Notes
+    -----
     Authors: Allan Denis
     '''
 
@@ -44,15 +42,18 @@ class NSAnalysis(object):
     # ===================
 
     @property
-    def logger(self) -> logging.Logger:                  # Logger
+    def logger(self) -> logging.Logger:
+        """Logger."""
         return self._logger
 
     @property
-    def ns(self) -> NestedSampling:                      # Instance of NestedSampling
+    def ns(self) -> NestedSampling:
+        """Instance of NestedSampling."""
         return self._ns
 
     @property
-    def best_fit(self) -> list[ObservedModel]:            # Best fit
+    def best_fit(self) -> list[ObservedModel]:
+        """Best fit."""
         if self.ns.results is None:
             raise ForMoSAError('Please first run the Nested Sampling before computing the best fit', self.logger)
 
@@ -60,7 +61,8 @@ class NSAnalysis(object):
         return self.build_models_from_theta(best_params)
 
     @property
-    def native_best_fit(self) -> ObservedModel:           # Best fit parameters applied to the native model
+    def native_best_fit(self) -> ObservedModel:
+        """Best fit parameters applied to the native model."""
         if self.ns.results is None:
             raise ForMoSAError('Please first run the Nested Sampling before computing the best fit', self.logger)
 
@@ -85,6 +87,8 @@ class NSAnalysis(object):
         '''
         Validation for NSAnalysis.
 
+        Notes
+        -----
         Authors: Allan Denis
         '''
 
@@ -105,6 +109,8 @@ class NSAnalysis(object):
         list[ObservedModel]
             List of instances of class ObservedModel
 
+        Notes
+        -----
         Authors: Allan Denis
         '''
 
@@ -128,6 +134,8 @@ class NSAnalysis(object):
         ObservedModel
             Native observed model
 
+        Notes
+        -----
         Authors: Allan Denis
         '''
 
@@ -208,6 +216,8 @@ class NSAnalysis(object):
         tuple[ObservedModel, ObservedModel]
             lower and higher values of the flux for the confidence interval
 
+        Notes
+        -----
         Authors: Allan Denis
         '''
 
@@ -262,6 +272,8 @@ class NSAnalysis(object):
         dict[str, np.ndarray]
             Dictionary of CCF results keyed by observation name
 
+        Notes
+        -----
         Authors: Bhavesh Rajpoot and Allan Denis
         '''
 
@@ -357,6 +369,8 @@ class NSAnalysis(object):
         dict[str, np.ndarray]
             Dictionary of RV-vsini map results keyed by observation name
 
+        Notes
+        -----
         Authors: Bhavesh Rajpoot and Allan Denis
         '''
 

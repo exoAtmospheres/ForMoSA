@@ -32,6 +32,8 @@ class ConfigPath:
         '''
         Check paths types.
 
+        Notes
+        -----
         Authors: Allan Denis
         '''
 
@@ -44,7 +46,7 @@ class ConfigPath:
             setattr(self, 'observation_path', [self.observation_path])
 
         if not isinstance(self.observation_path, list):
-            raise ForMoSAError(f"Wront type for observation_path: {type(self.observation_path)}. Expected a list")
+            raise ForMoSAError(f"Wrong type for observation_path: {type(self.observation_path)}. Expected a list")
 
         if not all(isinstance(obs_path, (str | os.PathLike)) for obs_path in self.observation_path):
             raise ForMoSAError("observation_path must be a list of str or os.PathLike")
@@ -61,6 +63,8 @@ class ConfigAdapt:
         '''
         Check adapt configuration parameters and normalize types.
 
+        Notes
+        -----
         Authors: Allan Denis
         '''
 
@@ -90,6 +94,8 @@ class ConfigAdapt:
         n_obs : int
             Number to be tested against lengths of list parameters
 
+        Notes
+        -----
         Authors: Allan Denis
         '''
 
@@ -112,7 +118,7 @@ class ConfigAdapt:
         Parameters
         ----------
         observations : ObservationSet
-            Instance of class Observtation
+            Instance of class ObservationSet
         grid : ModelGrid
             Instance of class ModelGrid
 
@@ -121,6 +127,8 @@ class ConfigAdapt:
         list[np.ndarray]
             Target resolution for each observation
 
+        Notes
+        -----
         Authors: Simon Petrus, Matthieu Ravet and Allan Denis
         '''
 
@@ -164,7 +172,7 @@ class ConfigAdapt:
         Parameters
         ----------
         observations : ObservationSet
-            Instance of class Observtation
+            Instance of class ObservationSet
         grid : ModelGrid
             Instance of class ModelGrid
 
@@ -172,6 +180,8 @@ class ConfigAdapt:
         -------
         tuple[list[np.ndarray], list[np.ndarray]]: Targets wavelength and resolution lists
 
+        Notes
+        -----
         Authors: Allan Denis
         '''
 
@@ -215,13 +225,15 @@ class ConfigAdapt:
         Parameters
         ----------
         observations : ObservationSet
-            Instance of class Observtation
+            Instance of class ObservationSet
 
         Returns
         -------
         list[bool]
             Whether the continuum should be removed for each observation
 
+        Notes
+        -----
         Authors: Allan Denis
         '''
 
@@ -265,6 +277,8 @@ class ConfigInversion:
         '''
         Check inversion configuration parameters and normalize types.
 
+        Notes
+        -----
         Authors: Allan Denis
         '''
 
@@ -324,6 +338,8 @@ class ConfigInversion:
         n_obs : int
             Number to be tested against lengths of list parameters
 
+        Notes
+        -----
         Authors: Allan Denis
         '''
 
@@ -357,6 +373,8 @@ class ConfigParameters:
         '''
         Check parameters configuration.
 
+        Notes
+        -----
         Authors: Allan Denis
         '''
 
@@ -377,7 +395,8 @@ class ConfigParameters:
     # =======================
 
     @property
-    def to_dict(self) -> dict:                              # Dictionary representation of ConfigParameters
+    def to_dict(self) -> dict:
+        """Dictionary representation of ConfigParameters."""
         return self.__dict__
 
     # =======================
@@ -395,6 +414,8 @@ class ConfigParameters:
         value : str
             Value of the parameter
 
+        Notes
+        -----
         Authors: Allan Denis
         '''
 
@@ -414,6 +435,8 @@ class ConfigParameters:
         tuple[str, str, list | None]
             (name, scope, obs_index) of the parameter
 
+        Notes
+        -----
         Authors: Allan Denis
         '''
 
@@ -446,6 +469,8 @@ class ConfigParameters:
         Prior.Prior | str
             Instance of Prior.Prior or 'NA'
 
+        Notes
+        -----
         Authors: Allan Denis
         '''
 
@@ -485,6 +510,8 @@ class ConfigParameters:
         Parameter | None
             Instance of class Parameter or None if parameter has no prior
 
+        Notes
+        -----
         Authors: Allan Denis
         '''
 
@@ -523,6 +550,8 @@ class ConfigNestle:
         '''
         Check Nestle configuration parameters and normalize types.
 
+        Notes
+        -----
         Authors: Allan Denis
         '''
 
@@ -571,7 +600,8 @@ class ConfigNestle:
     # =======================
 
     @property
-    def to_dict(self) -> dict:                             # Dictionary representation of ConfigNestle
+    def to_dict(self) -> dict:
+        """Dictionary representation of ConfigNestle."""
         return self.__dict__
 
     # =======================
@@ -593,6 +623,8 @@ class ConfigNestle:
         'ConfigNestle'
             An instance of class ConfigNestle
 
+        Notes
+        -----
         Authors: Allan Denis
         '''
 
@@ -627,6 +659,8 @@ class ConfigPyMultiNest:
         '''
         Check PyMultiNest configuration parameters and normalize types.
 
+        Notes
+        -----
         Authors: Allan Denis
         '''
 
@@ -697,7 +731,8 @@ class ConfigPyMultiNest:
     # =======================
 
     @property
-    def to_dict(self) -> dict:                            # Dictionary representation of ConfigPyMultiNest
+    def to_dict(self) -> dict:
+        """Dictionary representation of ConfigPyMultiNest."""
         return self.__dict__
 
     # =======================
@@ -719,6 +754,8 @@ class ConfigPyMultiNest:
         'ConfigPyMultiNest'
             An instance of class ConfigPyMultiNest
 
+        Notes
+        -----
         Authors: Allan Denis
         '''
 
@@ -752,6 +789,8 @@ class ConfigUltraNest:
         '''
         Check UltraNest configuration parameters and normalize types.
 
+        Notes
+        -----
         Authors: Allan Denis
         '''
 
@@ -870,7 +909,8 @@ class ConfigUltraNest:
             }
 
     @property
-    def to_dict(self) -> dict:            # Dictionary representation of ConfigUltranest
+    def to_dict(self) -> dict:
+        """Dictionary representation of ConfigUltranest."""
         return {'ReactiveNS': self.ReactiveNSParams, 'runNS': self.runNSParams}
 
     # =======================
@@ -892,6 +932,8 @@ class ConfigUltraNest:
         'ConfigUltraNest'
             An instance of class ConfigUltraNest
 
+        Notes
+        -----
         Authors: Allan Denis
         '''
 
@@ -910,6 +952,8 @@ class Config_NS:
         '''
         Check Config_NS configuration parameters.
 
+        Notes
+        -----
         Authors: Allan Denis
         '''
 
@@ -956,6 +1000,8 @@ class Config_NS:
         "Config_NS"
             An instance of class Config_NS
 
+        Notes
+        -----
         Authors: Allan Denis
         '''
 
@@ -986,6 +1032,8 @@ class ConfigGenerator:
     log_level : str
         Level of the Logger
 
+    Notes
+    -----
     Authors: Mathieu Ravet and Allan Denis
     '''
 
@@ -1174,6 +1222,8 @@ class ConfigGenerator:
         name : str
             Name of the config file
 
+        Notes
+        -----
         Authors: Allan Denis
         '''
 
@@ -1205,7 +1255,9 @@ class ConfigLoader:
     log_level : str
         Level of the Logger
 
-    Auhors: Allan Denis
+    Notes
+    -----
+    Authors: Allan Denis
     '''
 
     def __init__(self, path: str | os.PathLike, logger: logging.Logger | None = None, log_level: str = 'INFO') -> None:
@@ -1220,6 +1272,8 @@ class ConfigLoader:
         '''
         Load all the sections of .ini file in dataclasses.
 
+        Notes
+        -----
         Authors: Allan Denis
         '''
 
@@ -1261,6 +1315,8 @@ class ConfigLoader:
         '''
         Add missing sections / keys using defaults without overwriting existing values.
 
+        Notes
+        -----
         Authors: Allan Denis
         '''
 

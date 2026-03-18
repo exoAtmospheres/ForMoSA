@@ -26,8 +26,8 @@ class Analysis(object):
 
     Parameters
     ----------
-    config : ConfigLoader
-        Instance of class ConfigLoader representing the configuration parameters.
+    config_path : ConfigPath
+        Instance of class ConfigPath representing the configuration paths.
     adapted : bool
         Whether the model is adapted to the data, by default False. Can be set to True if the model has already been adapted to the data
     fitted : bool
@@ -35,6 +35,8 @@ class Analysis(object):
     log_level : str
         Log level of the handler, by default ``'info'`` for all important informations.
 
+    Notes
+    -----
     Authors: Allan Denis
     '''
 
@@ -98,15 +100,18 @@ class Analysis(object):
     # =======================
 
     @property
-    def adapted(self) -> bool:                                      # Whether data and model are adapted
+    def adapted(self) -> bool:
+        """Whether data and model are adapted."""
         return self._adapted
 
     @adapted.setter
-    def adapted(self, adapted_status: bool) -> bool:                # Setter for adapted
+    def adapted(self, adapted_status: bool) -> bool:
+        """Setter for adapted."""
         self._adapted = adapted_status
 
     @property
-    def fitted(self) -> bool:                                       # Whether models have been fitted to the data
+    def fitted(self) -> bool:
+        """Whether models have been fitted to the data."""
         return self._fitted
 
     @fitted.setter
@@ -114,39 +119,48 @@ class Analysis(object):
         self._fitted = fitted_status
 
     @property
-    def logger(self) -> logging.Logger:                             # Logger
+    def logger(self) -> logging.Logger:
+        """Logger."""
         return self._logger
 
     @property
-    def config_path(self) -> ConfigPath:                            # ConfigLoader
+    def config_path(self) -> ConfigPath:
+        """ConfigLoader."""
         return self._config_path
 
     @property
-    def observations(self) -> ObservationSet:                       # Set of observations
+    def observations(self) -> ObservationSet:
+        """Set of observations."""
         return self._observations
 
     @property
-    def grid(self) -> ModelGrid:                                    # ModelGrid
+    def grid(self) -> ModelGrid:
+        """ModelGrid."""
         return self._grid
 
     @property
-    def parameters(self) -> ParameterSet:                           # Set of parameters
+    def parameters(self) -> ParameterSet:
+        """Set of parameters."""
         return self._parameters
 
     @property
-    def paths(self) -> Paths:                                       # ForMoSAPaths
+    def paths(self) -> Paths:
+        """ForMoSAPaths."""
         return self._paths
 
     @property
-    def subgrids(self) -> SubGridSet:                               # Set of subgrids
+    def subgrids(self) -> SubGridSet:
+        """Set of subgrids."""
         return self._subgrids
 
     @property
-    def ns(self) -> NestedSampling:                                 # Nested Sampling
+    def ns(self) -> NestedSampling:
+        """Nested Sampling."""
         return self._ns
 
     @property
-    def ns_analysis(self) -> NSAnalysis:                            # NSAnalysis
+    def ns_analysis(self) -> NSAnalysis:
+        """NSAnalysis."""
         return self._ns_analysis
 
     # =======================
@@ -169,6 +183,8 @@ class Analysis(object):
         config_adapt : ConfigAdapt
             Instance of ConfigAdapt
 
+        Notes
+        -----
         Authors: Simon Petrus, Matthieu Ravet and Allan Denis
         '''
 
@@ -254,6 +270,8 @@ class Analysis(object):
         config_parameters : ConfigParameters
             Instance of class ConfigParameters
 
+        Notes
+        -----
         Authors: Allan Denis
         '''
 
@@ -321,6 +339,8 @@ class Analysis(object):
         plot_native_model : bool
             Whether to plot the native model
 
+        Notes
+        -----
         Authors: Allan Denis
         '''
 
@@ -380,6 +400,8 @@ class Analysis(object):
         save_results : bool
             Whether to save the results of the CCF computation
 
+        Notes
+        -----
         Authors: Bhavesh Rajpoot (adapted from Allan Denis)
         '''
 
@@ -424,6 +446,8 @@ class Analysis(object):
         save_results : bool
             Whether to save the results of the RV-vsini map computation
 
+        Notes
+        -----
         Authors: Bhavesh Rajpoot (adapted from Allan Denis)
         '''
 

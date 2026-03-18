@@ -40,6 +40,8 @@ class SubGrid(ModelGrid, ABC):
     display_unit : WavelengthUnit
         Unit of the wavelength
 
+    Notes
+    -----
     Authors: Allan Denis
     '''
 
@@ -62,12 +64,14 @@ class SubGrid(ModelGrid, ABC):
 
     @property
     @abstractmethod
-    def GridType(self) -> ObservationType.obstype:                        # Grid type (spectroscopic or photometric)
+    def GridType(self) -> ObservationType.obstype:
+        """Grid type (spectroscopic or photometric)."""
         pass
 
     @property
     @abstractmethod
-    def relevant_parameter_kinds(self) -> list[ParameterKind]:            # List of relevant parameter kinds the subgrid applies to
+    def relevant_parameter_kinds(self) -> list[ParameterKind]:
+        """List of relevant parameter kinds the subgrid applies to."""
         return [
             ParameterKind.ALPHA,
             ParameterKind.RADIUS,
@@ -93,6 +97,8 @@ class SubGrid(ModelGrid, ABC):
         xr.DataArray
             Adapted model
 
+        Notes
+        -----
         Authors: Allan Denis
         '''
 
@@ -108,6 +114,8 @@ class SubGrid(ModelGrid, ABC):
         tuple[float, float]
             Minimumn and maximum wavelengths of the restricted subgrid
 
+        Notes
+        -----
         Authors: Allan Denis
         '''
 
@@ -131,6 +139,8 @@ class SubGrid(ModelGrid, ABC):
         ObservedModel
             Instance of class ObservedModel transformed
 
+        Notes
+        -----
         Authors: Allan Denis
         '''
 
@@ -156,6 +166,8 @@ class SubGrid(ModelGrid, ABC):
         ObservedModel
             Instance of class ObservedModel transformed
 
+        Notes
+        -----
         Authors: Allan Denis
         '''
 
@@ -181,6 +193,8 @@ class SubGrid(ModelGrid, ABC):
         float
             logL value
 
+        Notes
+        -----
         Authors: Simon Petrus, Matthieu Ravet and Allan Denis
         '''
 
@@ -191,35 +205,43 @@ class SubGrid(ModelGrid, ABC):
     # =========================================
 
     @property
-    def parent_grid(self) -> ModelGrid:                           # Parent grid
+    def parent_grid(self) -> ModelGrid:
+        """Parent grid."""
         return self._parent_grid
 
     @property
-    def suffix(self) -> str:                                      # Suffix used for saving
+    def suffix(self) -> str:
+        """Suffix used for saving."""
         return 'adapted'
 
     @property
-    def name(self) -> str:                                        # Name of the subgrid
+    def name(self) -> str:
+        """Name of the subgrid."""
         return self._name
 
     @property
-    def grid_name(self) -> str:                                   # Name of the grid
+    def grid_name(self) -> str:
+        """Name of the grid."""
         return f'{self.parent_grid.grid_name}_{self.name}_{self.GridType}'
 
     @property
-    def wavelength_range(self) -> tuple:                          # Wavelength range of the subgrid
+    def wavelength_range(self) -> tuple:
+        """Wavelength range of the subgrid."""
         return float(self.wave.min()), float(self.wave.max())
 
     @property
-    def unit(self) -> u.core.PrefixUnit:                          # Unit of the wavelength to display
+    def unit(self) -> u.core.PrefixUnit:
+        """Unit of the wavelength to display."""
         return self._display_unit.unit
 
     @property
-    def is_spectroscopic(self) -> bool:                           # Whether subgrid is spectroscopic
+    def is_spectroscopic(self) -> bool:
+        """Whether subgrid is spectroscopic."""
         return self.GridType == ObservationType.SPECTROSCOPIC.obstype
 
     @property
-    def is_photometric(self) -> bool:                             # Whether subgrid is photometric
+    def is_photometric(self) -> bool:
+        """Whether subgrid is photometric."""
         return self.GridType == ObservationType.PHOTOMETRIC.obstype
 
     # ==========================
@@ -247,6 +269,8 @@ class SubGrid(ModelGrid, ABC):
         'SubGrid'
             An instance of class SubGrid
 
+        Notes
+        -----
         Authors: Allan Denis
         '''
 
@@ -292,6 +316,8 @@ class SubGrid(ModelGrid, ABC):
         'SubGrid'
             An instance of class SubGrid
 
+        Notes
+        -----
         Authors: Allan Denis
         '''
 
@@ -327,6 +353,8 @@ class SubGrid(ModelGrid, ABC):
         xr.Dataset
             Empty grid
 
+        Notes
+        -----
         Authors: Allan Denis
         '''
 
@@ -369,6 +397,8 @@ class SubGrid(ModelGrid, ABC):
         '''
         Adapt the entire grid to the observation.
 
+        Notes
+        -----
         Authors: Arthur Vigan and Allan Denis
         '''
 
@@ -430,6 +460,8 @@ class SubGrid(ModelGrid, ABC):
         float
             Loglikelihood
 
+        Notes
+        -----
         Authors: Allan Denis
         '''
 
@@ -465,6 +497,8 @@ class SubGrid(ModelGrid, ABC):
         ObservedModel
             Model build with the values of the parameters
 
+        Notes
+        -----
         Authors: Allan Denis
         '''
 
@@ -509,6 +543,8 @@ class SubGrid(ModelGrid, ABC):
         observed_model : ObservedModel
             Instance of class ObservedModel
 
+        Notes
+        -----
         Authors: Allan Denis
         '''
 

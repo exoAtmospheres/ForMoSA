@@ -18,7 +18,9 @@ class ModelGrid:
 
     Parameters
     ----------
-    path : str | Path
+    dataset : xr.Dataset
+        Dataset containing the model grid
+    model_path : str | os.PathLike | None
         Path to the model grid file
     logger : logging.Logger
         Logger instance for logging
@@ -27,6 +29,8 @@ class ModelGrid:
     display_unit : WavelengthUnit
         Unit of the wavelength to display
 
+    Notes
+    -----
     Authors: Allan Denis
     '''
 
@@ -63,82 +67,100 @@ class ModelGrid:
     # ================================================
 
     @property
-    def suffix(self) -> str:                                        # Suffix used for saving (Overriden in subgrid)
+    def suffix(self) -> str:
+        """Suffix used for saving (Overriden in subgrid)."""
         return 'native'
 
     @property
-    def GridType(self) -> str:                                      # OGrid type (overriden in subgrid)
+    def GridType(self) -> str:
+        """OGrid type (overriden in subgrid)."""
         return 'native'
 
     @property
-    def grid(self) -> xr.Dataset:                                    # Grid as xr.Dataset
+    def grid(self) -> xr.Dataset:
+        """Grid as xr.Dataset."""
         return self._grid
 
     @property
-    def grid_as_dataarray(self) -> xr.DataArray:                     # Grid as xr.DataArray (more tailored to manipulations)
+    def grid_as_dataarray(self) -> xr.DataArray:
+        """Grid as xr.DataArray (more tailored to manipulations)."""
         da = self._grid["grid"].copy()
         # Propagate attributes of the Dataset
         da.attrs.update(self.attrs)
         return da
 
     @property
-    def model_path(self) -> Path | str:                              # Path to the model
+    def model_path(self) -> Path | str:
+        """Path to the model."""
         return Path(self._model_path).expanduser() if self._model_path is not None else 'in-memory-grid'
 
     @property
-    def grid_name(self) -> str:                                      # Name of the grid (Overriden in subgrid)
+    def grid_name(self) -> str:
+        """Name of the grid (Overriden in subgrid)."""
         return str(self.model_path).split('/')[-1].split('.nc')[0]
 
     @property
-    def logger(self) -> logging.Logger:                              # Logger
+    def logger(self) -> logging.Logger:
+        """Logger."""
         return self._logger
 
     @property
-    def native_unit(self) -> u.core.PrefixUnit:                      # Native unit of the wavelength
+    def native_unit(self) -> u.core.PrefixUnit:
+        """Native unit of the wavelength."""
         return WavelengthUnit[self.attrs['wave_unit']].unit
 
     @property
-    def unit(self) -> u.core.PrefixUnit:                             # Unit of the wavelength to display
+    def unit(self) -> u.core.PrefixUnit:
+        """Unit of the wavelength to display."""
         return self._display_unit.unit
 
     @property
-    def wave(self) -> np.ndarray:                                    # Wavelength of the grid
+    def wave(self) -> np.ndarray:
+        """Wavelength of the grid."""
         return ((self.grid.coords['wavelength'].values * self.native_unit).to(self.unit)).value
 
     @property
-    def res(self) -> np.ndarray:                                    # Resolution of the grid
+    def res(self) -> np.ndarray:
+        """Resolution of the grid."""
         return self.attrs['res']
 
     @grid.setter
-    def grid(self, grid_array):                                      # Grid setter
+    def grid(self, grid_array):
+        """Grid setter."""
         self._grid = grid_array
         return grid_array
 
     @property
-    def attrs(self) -> dict:                                         # Dictionary of attributes of the grid
+    def attrs(self) -> dict:
+        """Dictionary of attributes of the grid."""
         return dict(self.grid.attrs)
 
     @property
-    def keys(self) -> list:                                          # Keys of the grid parameters
+    def keys(self) -> list:
+        """Keys of the grid parameters."""
         return self.attrs['key']
 
     @property
-    def titles(self) -> list:                                        # Names of the grid parameters
+    def titles(self) -> list:
+        """Names of the grid parameters."""
         return self.attrs['title']
 
     @property
-    def key_values(self) -> dict:                                    # Values taken by the grid parameters
+    def key_values(self) -> dict:
+        """Values taken by the grid parameters."""
         values = {}
         for key in self.keys:
             values[key] = np.atleast_1d(self.grid[key].values)
         return values
 
     @property
-    def lims_params_grid(self):                                       # Limits of grid parameters
+    def lims_params_grid(self):
+        """Limits of grid parameters."""
         return {par : [min(self.key_values[par]), max(self.key_values[par])] for par in self.keys}
 
     @property
-    def nyquist(self) -> np.ndarray:                                 # Nyquist sampling
+    def nyquist(self) -> np.ndarray:
+        """Nyquist sampling."""
         if self.wave is None or len(self.wave) < 2:
             return self.wave
 
@@ -146,23 +168,28 @@ class ModelGrid:
         return self.wave / (2 * diff)
 
     @property
-    def effective_resolution(self) -> np.ndarray:                    # Effective resolution beeing the minimum between Nyquist sampling and resolution
+    def effective_resolution(self) -> np.ndarray:
+        """Effective resolution beeing the minimum between Nyquist sampling and resolution."""
         return np.minimum(self.res, self.nyquist)
 
     @property
-    def n_grids(self) -> int:                                        # Number of grids
+    def n_grids(self) -> int:
+        """Number of grids."""
         return self.grid.grid[0,].size
 
     @property
-    def size(self) -> int:                                           # Size of the grid
+    def size(self) -> int:
+        """Size of the grid."""
         return self.grid.data_vars['grid'].size
 
     @property
-    def dims(self) -> list[str]:                                     # List of names for each dimension of the grid
+    def dims(self) -> list[str]:
+        """List of names for each dimension of the grid."""
         return list(self.grid.dims.keys())
 
     @property
-    def dimensions(self) -> list[int]:                               # List of number of points for each dimension
+    def dimensions(self) -> list[int]:
+        """List of number of points for each dimension."""
         return list(self.grid.dims.values())
 
     # ================================================
@@ -194,6 +221,8 @@ class ModelGrid:
         --------
         >>> grid = ModelGrid._from_file(path)
 
+        Notes
+        -----
         Authors: Allan Denis
         '''
 
@@ -233,6 +262,8 @@ class ModelGrid:
         --------
         >>> grid = ModelGrid._from_attributes(data, coords, attrs)
 
+        Notes
+        -----
         Authors: Allan Denis
         '''
 
@@ -256,6 +287,8 @@ class ModelGrid:
         unit : WavelengthUnit
             unit used (micrometer', 'nanometer', 'angstrom')
 
+        Notes
+        -----
         Authors: Allan Denis
         '''
 
@@ -279,6 +312,8 @@ class ModelGrid:
         model_to_return : xr.DataArray
             Model at the specific index
 
+        Notes
+        -----
         Authors: Allan Denis
         '''
 
@@ -308,6 +343,8 @@ class ModelGrid:
         max_gap : int
             Maximum size of gap, a continuous sequence of NaNs, that will be filled
 
+        Notes
+        -----
         Authors: Simon Petrus, Paulina Palma-Bifani, Matthieu Ravet and Allan Denis
         '''
 
@@ -333,6 +370,8 @@ class ModelGrid:
         Return a 1D interpolated grid filled with NaNs,
         with the same structure as a valid interpolated grid.
 
+        Notes
+        -----
         Authors: Allan Denis
         '''
 
@@ -365,6 +404,8 @@ class ModelGrid:
         xr.Dataset
             Interpolated 1D grid. If parameters are out-of-bounds, returns a 1D grid filled with NaNs.
 
+        Notes
+        -----
         Authors: Simon Petrus, Paulina Palma-Bifani, Matthieu Ravet and Allan Denis
         '''
 
@@ -425,6 +466,8 @@ class ModelGrid:
         store_path : str | os.PathLike
             Path where to store the grid
 
+        Notes
+        -----
         Authors: Simon Petrus, Paulina Palma-Bifani, Matthieu Ravet and Allan Denis
         '''
 
@@ -460,6 +503,8 @@ class ModelGrid:
         xr.Dataset
             Loaded grid
 
+        Notes
+        -----
         Authors: Simon Petrus, Paulina Palma-Bifani, Matthieu Ravet and Allan Denis
         '''
 
@@ -500,6 +545,8 @@ class ModelGrid:
         'ModelGrid'
             An instance of class ModelGrid
 
+        Notes
+        -----
         Authors: Allan Denis
         '''
 

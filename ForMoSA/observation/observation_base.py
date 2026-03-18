@@ -25,19 +25,23 @@ class Observation(ABC):
         Flux array
     err : np.ndarray
         Error array
-    facility : np.ndarray
-        Facility name
-    instrument : np.ndarray
-        Instrument name
     native_unit : WavelengthUnit
         Native unit of the wavelength array
+    facility : str
+        Facility name
+    instrument : str
+        Instrument name
     logger : logging.Logger
         Logger
     log_level : str
         Level of the logging
     display_unit : WavelengthUnit
         Display unit of the wavelength array
+    plot_config : ObsPlotConfig
+        Plot configuration for the observation
 
+    Notes
+    -----
     Authors: Allan Denis
     '''
 
@@ -64,32 +68,38 @@ class Observation(ABC):
 
     @property
     @abstractmethod
-    def ObsType(self) -> ObservationType.obstype:                # Observation type
+    def ObsType(self) -> ObservationType.obstype:
+        """Observation type."""
         pass
 
     @property
     @abstractmethod
-    def to_dict(self) -> dict[str, np.ndarray]:                  # Dictionary representation of the observations
+    def to_dict(self) -> dict[str, np.ndarray]:
+        """Dictionary representation of the observations."""
         pass
 
     @property
     @abstractmethod
-    def name(self) -> str:                                       # Observation name
+    def name(self) -> str:
+        """Observation name."""
         pass
 
     @property
     @abstractmethod
-    def wavelength_range(self) -> tuple[float, float]:           # Wavelength range
+    def wavelength_range(self) -> tuple[float, float]:
+        """Wavelength range."""
         pass
 
     @property
     @abstractmethod
-    def res(self) -> np.ndarray[float]:                          # Resolution
+    def res(self) -> np.ndarray[float]:
+        """Resolution."""
         pass
 
     @property
     @abstractmethod
-    def hc_mode(self) -> bool:                                   # Whether observation is in high-contrast mode
+    def hc_mode(self) -> bool:
+        """Whether observation is in high-contrast mode."""
         pass
 
     @abstractmethod
@@ -97,6 +107,8 @@ class Observation(ABC):
         '''
         Adapt the spectral observation to the target resolution.
 
+        Notes
+        -----
         Authors: Allan Denis
         '''
         pass
@@ -117,6 +129,8 @@ class Observation(ABC):
         ax_filt : matplotlib.axes._axes.Axes
             Ax used to overplot the transmission filter on an existing ax
 
+        Notes
+        -----
         Authors: Allan Denis
         '''
 
@@ -135,6 +149,8 @@ class Observation(ABC):
         dict
             Restricted observation data
 
+        Notes
+        -----
         Authors: Allan Denis
         '''
 
@@ -145,63 +161,78 @@ class Observation(ABC):
     # ==================================================
 
     @property
-    def is_spectroscopic(self) -> bool:                          # Whether observation is spectroscopic
+    def is_spectroscopic(self) -> bool:
+        """Whether observation is spectroscopic."""
         return self.ObsType == ObservationType.SPECTROSCOPIC.obstype
 
     @property
-    def is_photometric(self) -> bool:                            # Whether observation is photometric
+    def is_photometric(self) -> bool:
+        """Whether observation is photometric."""
         return self.ObsType == ObservationType.PHOTOMETRIC.obstype
 
     @property
-    def native_unit(self) -> u.core.Unit:                        # Native unit of the wavelength array
+    def native_unit(self) -> u.core.Unit:
+        """Native unit of the wavelength array."""
         return self._native_unit.unit
 
     @property
-    def unit(self) -> u.core.PrefixUnit:                          # Display unit of the wavelength array
+    def unit(self) -> u.core.PrefixUnit:
+        """Display unit of the wavelength array."""
         return self._display_unit.unit
 
     @property
-    def wave(self) -> np.ndarray:                                 # Wavelength array
+    def wave(self) -> np.ndarray:
+        """Wavelength array."""
         return ((self._wave * self.native_unit).to(self.unit)).value
 
     @property
-    def central_wavelength(self) -> float:                        # Central wavelength
+    def central_wavelength(self) -> float:
+        """Central wavelength."""
         return (self.wavelength_range[0] + self.wavelength_range[1]) / 2
 
     @property
-    def flux(self) -> np.ndarray[float]:                          # Flux array
+    def flux(self) -> np.ndarray[float]:
+        """Flux array."""
         return self._flux
 
     @property
-    def err(self) -> np.ndarray[float]:                           # Error array
+    def err(self) -> np.ndarray[float]:
+        """Error array."""
         return self._err
 
     @property
-    def facility(self) -> np.ndarray[str]:                        # Facility (e.g. 'JWST', 'Keck', 'Paranal')
+    def facility(self) -> np.ndarray[str]:
+        """Facility (e.g. 'JWST', 'Keck', 'Paranal')."""
         return self._facility
 
     @property
-    def instrument(self) -> np.ndarray[str]:                      # Instrument (e.g. 'NIRCam', 'NIRC2', 'SPHERE')
+    def instrument(self) -> np.ndarray[str]:
+        """Instrument (e.g. 'NIRCam', 'NIRC2', 'SPHERE')."""
         return self._instrument
 
     @property
-    def n_points(self) -> int:                                    # Number of points
+    def n_points(self) -> int:
+        """Number of points."""
         return len(self.wave)
 
     @property
-    def logger(self) -> logging.Logger:                           # Logger
+    def logger(self) -> logging.Logger:
+        """Logger."""
         return self._logger
 
     @property
-    def path(self) -> Path:                                       # Path of the observation (if any)
+    def path(self) -> Path:
+        """Path of the observation (if any)."""
         return Path(self._path) if self._path is not None else 'in-memory observation'
 
     @property
-    def plot_config(self) -> ObsPlotConfig:                       # Configuration plotting
+    def plot_config(self) -> ObsPlotConfig:
+        """Configuration plotting."""
         return self._plot_config
 
     @plot_config.setter
-    def plot_config(self, config: ObsPlotConfig):                  # Configuration plotting setter
+    def plot_config(self, config: ObsPlotConfig):
+        """Configuration plotting setter."""
         self._plot_config = config
 
     # ================================================
@@ -232,6 +263,8 @@ class Observation(ABC):
         --------
         >>> obs = Observation.from_dict(data, logger, log_level)
 
+        Notes
+        -----
         Authors: Allan Denis
         '''
 
@@ -268,6 +301,8 @@ class Observation(ABC):
         --------
         >>> obs = Observation._from_file(path, logger, log_level)
 
+        Notes
+        -----
         Authors: Allan Denis
         '''
 
@@ -308,6 +343,8 @@ class Observation(ABC):
         --------
         >>> obs = Observation._from_attributes(**attributes, logger, log_level)
 
+        Notes
+        -----
         Authors: Allan Denis
         '''
 
@@ -329,6 +366,8 @@ class Observation(ABC):
         '''
         Check consistency in wavelength, flux and error
 
+        Notes
+        -----
         Authors: Allan Denis
         '''
 
@@ -358,6 +397,8 @@ class Observation(ABC):
         unit : WavelengthUnit
             Desired display unit
 
+        Notes
+        -----
         Authors: Allan Denis
         '''
 
@@ -374,6 +415,8 @@ class Observation(ABC):
         store_path : str | os.PathLike
             Path where to store the observation file
 
+        Notes
+        -----
         Authors: Allan Denis
         '''
 

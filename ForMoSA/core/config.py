@@ -19,6 +19,8 @@ def set_filter_path(path: str | os.PathLike) -> None:
     path : str | os.PathLike
         Path to the filters folder
 
+    Notes
+    -----
     Authors: Allan Denis
     '''
 
@@ -40,6 +42,8 @@ def darken_color(color: str, factor: float = 0.7) -> str:
     -------
     str : hex color
 
+    Notes
+    -----
     Authors: Allan Denis
     '''
 
@@ -54,8 +58,10 @@ def darken_color(color: str, factor: float = 0.7) -> str:
 @dataclass
 class MainPlotConfig:
     '''
-    Dataclass to handle main parameters forplotting.
+    Dataclass to handle main parameters for plotting.
 
+    Notes
+    -----
     Authors: Allan Denis
     '''
 
@@ -76,6 +82,8 @@ class ObsPlotConfig:
     '''
     Dataclass to handle configurations for plotting data.
 
+    Notes
+    -----
     Authors: Allan Denis
     '''
 
@@ -111,6 +119,8 @@ class ObsPlotConfig:
         '''
         Return configuration options as a dictionary.
 
+        Notes
+        -----
         Authors: Allan Denis
         '''
 
@@ -125,6 +135,8 @@ class ObsPlotConfig:
         **kwargs : dict
             Keyword arguments to override attributes of the config
 
+        Notes
+        -----
         Authors: Allan Denis
         '''
 
@@ -140,6 +152,8 @@ class SpectralPlotConfig(ObsPlotConfig):
     '''
     Dataclass to handle configurations for plotting spectroscopic data.
 
+    Notes
+    -----
     Authors: Allan Denis
     '''
 
@@ -155,6 +169,8 @@ class PhotometricPlotConfig(ObsPlotConfig):
     '''
     Dataclass to handle configurations for plotting photometric data.
 
+    Notes
+    -----
     Authors: Allan Denis
     '''
 
@@ -174,6 +190,8 @@ class CornerPlotConfig:
     '''
     Dataclass to handle configurations for corner plots.
 
+    Notes
+    -----
     Authors: Allan Denis
     '''
 
@@ -203,6 +221,8 @@ class CornerPlotConfig:
         '''
         Return configuration options as a dictionary.
 
+        Notes
+        -----
         Authors: Allan Denis
         '''
 
@@ -217,6 +237,8 @@ class CornerPlotConfig:
         **kwargs : dict
             Keyword arguments to override attributes of the config
 
+        Notes
+        -----
         Authors: Allan Denis
         '''
 
@@ -234,8 +256,10 @@ CORNER_PLOT = CornerPlotConfig()
 @dataclass
 class ChainsPlotConfig:
     '''
-    Dataclass ot handle configurations for chains plot.
+    Dataclass to handle configurations for chains plot.
 
+    Notes
+    -----
     Authors: Allan Denis
     '''
 
@@ -266,6 +290,8 @@ class ChainsPlotConfig:
         '''
         Return configuration options as a dictionary.
 
+        Notes
+        -----
         Authors: Allan Denis
         '''
 
@@ -280,6 +306,8 @@ class ChainsPlotConfig:
         **kwargs : dict
             Keyword arguments to override attributes of the config
 
+        Notes
+        -----
         Authors: Allan Denis
         '''
 
@@ -299,6 +327,8 @@ class RadarPlotConfig:
     '''
     Dataclass to handle configurations for radar plot.
 
+    Notes
+    -----
     Authors: Allan Denis
     '''
 
@@ -322,6 +352,8 @@ class RadarPlotConfig:
         '''
         Return configuration options as a dictionary.
 
+        Notes
+        -----
         Authors: Allan Denis
         '''
 
@@ -336,6 +368,8 @@ class RadarPlotConfig:
         **kwargs : dict
             Keyword arguments to override attributes of the config
 
+        Notes
+        -----
         Authors: Allan Denis
         '''
 
@@ -355,6 +389,8 @@ class BestFitPlotConfig:
     '''
     Dataclass to handle configurations for best fit plot.
 
+    Notes
+    -----
     Authors: Allan Denis
     '''
 
@@ -367,6 +403,8 @@ class BestFitPlotConfig:
         '''
         Return configuration options as a dictionary.
 
+        Notes
+        -----
         Authors: Allan Denis
         '''
 
@@ -381,6 +419,8 @@ class BestFitPlotConfig:
         **kwargs : dict
             Keyword arguments to override attributes of the config
 
+        Notes
+        -----
         Authors: Allan Denis
         '''
 
@@ -396,6 +436,8 @@ class PlotsConfig:
     '''
     Dataclass to handle configurations for plots.
 
+    Notes
+    -----
     Authors: Allan Denis
     '''
 

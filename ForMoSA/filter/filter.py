@@ -39,6 +39,8 @@ class PhotometryFilter(object):
     display_unit : WavelengthUnit
         Unit of the wavelength to display
 
+    Notes
+    -----
     Authors: Allan Denis
     '''
 
@@ -81,19 +83,23 @@ class PhotometryFilter(object):
     # ------------------
 
     @property
-    def logger(self) -> logging.Logger:                   # Logger
+    def logger(self) -> logging.Logger:
+        """Logger."""
         return self._logger
 
     @property
-    def facility(self) -> str:                            # Facility for the filter (e.g. 'Paranal', 'Keck', 'JWST', ...)
+    def facility(self) -> str:
+        """Facility for the filter (e.g. 'Paranal', 'Keck', 'JWST', ...)."""
         return self._facility
 
     @property
-    def instrument(self) -> str:                          # Instrument used of the filter (e.g. 'SPHERE', 'NIRC2', 'NIRCam', ...)
+    def instrument(self) -> str:
+        """Instrument used of the filter (e.g. 'SPHERE', 'NIRC2', 'NIRCam', ...)."""
         return self._instrument
 
     @property
-    def filter_id(self) -> str:                           # ID of the filter (e.g. 'IRDIS_B_H', 'Lp', 'F410M', ...)
+    def filter_id(self) -> str:
+        """ID of the filter (e.g. 'IRDIS_B_H', 'Lp', 'F410M', ...)."""
         return self._filter_id
 
     @property
@@ -105,60 +111,74 @@ class PhotometryFilter(object):
         self._filter_path = new_path
 
     @property
-    def name(self) -> str:                                # Full name of the filter (e.g. 'Paranal/SPHERE.IRDIS_B_H', 'Keck/NIRC2.Lp', 'JWST/NIRCam.F410M')
+    def name(self) -> str:
+        """Full name of the filter (e.g. 'Paranal/SPHERE.IRDIS_B_H', 'Keck/NIRC2.Lp', 'JWST/NIRCam.F410M')."""
         return self.facility + '/' + self.instrument + '.' + self.filter_id
 
     @property
-    def data(self) -> astropy.table.table.Table:          # Table containing the data of the filter (wavelength, transmission)
+    def data(self) -> astropy.table.table.Table:
+        """Table containing the data of the filter (wavelength, transmission)."""
         return self._data
 
     @property
-    def unit(self) -> u.core.PrefixUnit:                  # Unit to use for the wavelength
+    def unit(self) -> u.core.PrefixUnit:
+        """Unit to use for the wavelength."""
         return self._display_unit.unit
 
     @property
-    def native_unit(self) -> u.core.PrefixUnit:           # Native unit of the wavelength (Angstrom)
+    def native_unit(self) -> u.core.PrefixUnit:
+        """Native unit of the wavelength (Angstrom)."""
         return self._native_unit.unit
 
     @native_unit.setter
-    def native_unit(self, new_unit: WavelengthUnit) -> None:           # Setter for native unit of the wavelength
+    def native_unit(self, new_unit: WavelengthUnit) -> None:
+        """Setter for native unit of the wavelength."""
         self._native_unit = new_unit
         self._validate()
 
     @property
-    def metadata(self) -> astropy.table.table.Table:      # Table containing the metadata of the filter
+    def metadata(self) -> astropy.table.table.Table:
+        """Table containing the metadata of the filter."""
         return self._metadata
 
     @property
-    def wavelength(self) -> u.quantity.Quantity:          # Wavelength grid of the filter
+    def wavelength(self) -> u.quantity.Quantity:
+        """Wavelength grid of the filter."""
         return ((self.data['Wavelength'].data.filled(np.nan) * self.native_unit).to(self.unit)).value
 
     @property
-    def transmission(self) -> np.ndarray:                 # Transmission of the filter
+    def transmission(self) -> np.ndarray:
+        """Transmission of the filter."""
         return self.data['Transmission'].data.filled(np.nan)
 
     @property
-    def fwhm(self) -> u.quantity.Quantity:                # FWHM
+    def fwhm(self) -> u.quantity.Quantity:
+        """FWHM."""
         return ((self.metadata['FWHM'][0] * self.native_unit).to(self.unit)).value
 
     @property
-    def zero_point(self) -> np.float64:                   # Zero point
+    def zero_point(self) -> np.float64:
+        """Zero point."""
         return self.metadata['ZeroPoint'][0]
 
     @property
-    def Mag0(self) -> np.float64:                         # Magnitude 0
+    def Mag0(self) -> np.float64:
+        """Magnitude 0."""
         return self.metadata['Mag0'][0]
 
     @property
-    def zero_point_type(self) -> str:                     # Zero point type ('Pogson', 'Asinh', 'Linear', see https://www.ivoa.net/documents/Notes/SVOFPS/NOTE-SVOFPS-1.0.20121015.pdf)
+    def zero_point_type(self) -> str:
+        """Zero point type ('Pogson', 'Asinh', 'Linear', see https://www.ivoa.net/documents/Notes/SVOFPS/NOTE-SVOFPS-1.0.20121015.pdf)."""
         return self.metadata['ZeroPointType'][0]
 
     @property
-    def softening_parameter(self) -> str:                 # Softening parameter (see https://www.ivoa.net/documents/Notes/SVOFPS/NOTE-SVOFPS-1.0.20121015.pdf)
+    def softening_parameter(self) -> str:
+        """Softening parameter (see https://www.ivoa.net/documents/Notes/SVOFPS/NOTE-SVOFPS-1.0.20121015.pdf)."""
         return self.metadata['AsinhSoft'][0]
 
     @property
-    def folder(self) -> Path:                             # Folder of the filter
+    def folder(self) -> Path:
+        """Folder of the filter."""
         folder = self.filter_path / self.facility / self.instrument
 
         if not folder.exists():
@@ -168,7 +188,8 @@ class PhotometryFilter(object):
         return folder
 
     @property
-    def file_path(self) -> Path:                          # Path of the filter
+    def file_path(self) -> Path:
+        """Path of the filter."""
         return self.folder / f"{self.filter_id}.fits"
 
     # ---------------------------------------------------------------------------------------------
@@ -177,47 +198,58 @@ class PhotometryFilter(object):
     # ---------------------------------------------------------------------------------------------
 
     @property
-    def mean_wavelength(self) -> float:                   # Mean integrated wavelength ($\lambda_{mean} = \frac{int_{\lambda} \lambda T(\lambda) d\lambda}{T(\lambda) d\lambda}$)
+    def mean_wavelength(self) -> float:
+        """Mean integrated wavelength ($\lambda_{mean} = \frac{int_{\lambda} \lambda T(\lambda) d\lambda}{T(\lambda) d\lambda}$)."""
         return ((self.metadata['WavelengthMean'][0] * self.native_unit).to(self.unit)).value
 
     @property
-    def central_wavelength(self) -> float:                # Central wavelength between the 2 wavelengths used to compute the FWHM
+    def central_wavelength(self) -> float:
+        """Central wavelength between the 2 wavelengths used to compute the FWHM."""
         return ((self.metadata['WavelengthCen'][0] * self.native_unit).to(self.unit)).value
 
     @property
-    def wavelength_eff(self) -> float:                    # Mean integrated wavelength with Vega spectrum ($\lambda_{ref} = \frac{\int_{\lambda} \lambda T(\lambda) Vega(\lambda) d\lambda}{T(\lambda) Vega(\lambda) d\lambda}$)
+    def wavelength_eff(self) -> float:
+        """Mean integrated wavelength with Vega spectrum ($\lambda_{ref} = \frac{\int_{\lambda} \lambda T(\lambda) Vega(\lambda) d\lambda}{T(\lambda) Vega(\lambda) d\lambda}$)."""
         return ((self.metadata['WavelengthEff'][0] * self.native_unit).to(self.unit).value)
 
     @property
-    def peak_wavelength(self) -> float:                   # Wavelength corresponding to the maximum of transmission
+    def peak_wavelength(self) -> float:
+        """Wavelength corresponding to the maximum of transmission."""
         return ((self.metadata['WavelengthPeak'][0] * self.native_unit).to(self.unit)).value
 
     @property
-    def pivot_wavelength(self) -> float:                  # Wavelength computed as \sqrt{\frac{\lambda T(\lambda) d\lambda}{T(\lambda) d\lambda / \lambda}}
+    def pivot_wavelength(self) -> float:
+        """Wavelength computed as \sqrt{\frac{\lambda T(\lambda) d\lambda}{T(\lambda) d\lambda / \lambda}}."""
         return ((self.metadata['WavelengthPivot'][0] * self.native_unit).to(self.unit)).value
 
     @property
-    def photon_wavelength(self) -> float:                 # Photon distribution based effective wavelength ($\lambda_{phot} = \frac{\int_{\lambda} \lambda^2 T(\lambda) Vega(\lambda) d\lambda}{\lambda T(\lambda) Vega(\lambda) d\lambda}$)
+    def photon_wavelength(self) -> float:
+        """Photon distribution based effective wavelength ($\lambda_{phot} = \frac{\int_{\lambda} \lambda^2 T(\lambda) Vega(\lambda) d\lambda}{\lambda T(\lambda) Vega(\lambda) d\lambda}$)."""
         return ((self.metadata['WavelengthPhot'][0] * self.native_unit).to(self.unit)).value
 
     @property
-    def wavelength_min(self) -> float:                    # Minimum wavelength with transmission > 1% of maximum transmission
+    def wavelength_min(self) -> float:
+        """Minimum wavelength with transmission > 1% of maximum transmission."""
         return ((self.metadata['WavelengthMin'][0] * self.native_unit).to(self.unit)).value
 
     @property
-    def wavelength_max(self) -> float:                    # Maximum wavelength with transmission > 1% of maximum transmission
+    def wavelength_max(self) -> float:
+        """Maximum wavelength with transmission > 1% of maximum transmission."""
         return ((self.metadata['WavelengthMax'][0] * self.native_unit).to(self.unit)).value
 
     @property
-    def wavelength_range(self) -> tuple[float, float]:    # Wavelength range
+    def wavelength_range(self) -> tuple[float, float]:
+        """Wavelength range."""
         return self.wavelength_min, self.wavelength_max
 
     @property
-    def effective_width(self) -> float:                   # Equivalent to the width of a rectangle with height equal to maximum transmission and with the same area that the one covered by the filter transmission curve ($Width_{eff} = \frac{T(\lambda) d\lambda}{Max(T(\lambda))}$)
+    def effective_width(self) -> float:
+        """Equivalent to the width of a rectangle with height equal to maximum transmission and with the same area that the one covered by the filter transmission curve ($Width_{eff} = \frac{T(\lambda) d\lambda}{Max(T(\lambda))}$)."""
         return ((self.metadata['WidthEff'][0] * self.native_unit).to(self.unit)).value
 
     @property
-    def width(self) -> np.ndarray[float, float]:                # Width of the filter
+    def width(self) -> np.ndarray[float, float]:
+        """Width of the filter."""
         return np.array([self.central_wavelength - self.wavelength_min, self.wavelength_max - self.central_wavelength])[:,np.newaxis]
 
     # ===============================================
@@ -244,6 +276,8 @@ class PhotometryFilter(object):
         'PhotometryFilter'
             Instance of PhotometryFilter
 
+        Notes
+        -----
         Authors: Allan Denis
         '''
 
@@ -259,6 +293,8 @@ class PhotometryFilter(object):
         '''
         Validate the filter data.
 
+        Notes
+        -----
         Authors: Allan Denis
         '''
 
@@ -284,6 +320,8 @@ class PhotometryFilter(object):
         '''
         Get the filter data either from a local FITS file or from the Spanish Virtual Observatory's Filter Profile Service.
 
+        Notes
+        -----
         Authors: Allan Denis
         '''
 
@@ -325,6 +363,8 @@ class PhotometryFilter(object):
         ax : matplotlib.axes._axes.Axes
             Updated ax
 
+        Notes
+        -----
         Authors: Allan Denis
         '''
 
@@ -355,6 +395,8 @@ class PhotometryFilter(object):
         unit : WavelengthUnit
             unit used (micrometer', 'nanometer', 'angstrom')
 
+        Notes
+        -----
         Authors: Allan Denis
         '''
 
@@ -371,6 +413,8 @@ class PhotometryFilter(object):
         '''
         Save filter data and metadata into a FITS file.
 
+        Notes
+        -----
         Authors: Allan Denis
         '''
 
@@ -447,6 +491,8 @@ class PhotometryFilter(object):
         '''
         Method to Query filter data in the Spanish Virtual Observatory's Filter Profile Service
 
+        Notes
+        -----
         Authors: Mickael Bonnefoy and Allan Denis
         '''
 
@@ -465,6 +511,8 @@ class PhotometryFilter(object):
         """
         Method to load filter data from the fits file.
 
+        Notes
+        -----
         Authors: Allan Denis
         """
 

@@ -11,6 +11,8 @@ class Prior(ABC):
     """
     Abstract base class for prior distributions.
 
+    Notes
+    -----
     Authors: Allan Denis
     """
 
@@ -22,11 +24,13 @@ class Prior(ABC):
     # ==================================================
 
     @property
-    def logger(self) -> logging.Logger:                # Logger
+    def logger(self) -> logging.Logger:
+        """Logger."""
         return self._logger
 
     @property
-    def to_dict(self) -> dict:                         # Dictionary representation of the prior
+    def to_dict(self) -> dict:
+        """Dictionary representation of the prior."""
         return {
             "prior_type": self.prior_type.priortype,
             "params": self.get_params_dict()
@@ -55,6 +59,8 @@ class Prior(ABC):
         Prior
             An instance of Prior
 
+        Notes
+        -----
         Authors: Allan Denis
         '''
 
@@ -86,6 +92,8 @@ class Prior(ABC):
         float
             Sampled value from the prior distribution
 
+        Notes
+        -----
         Authors: Allan Denis
         '''
 
@@ -93,12 +101,14 @@ class Prior(ABC):
 
     @property
     @abstractmethod
-    def is_fixed(self) -> bool:                                                # Whether the prior is fixed
+    def is_fixed(self) -> bool:
+        """Whether the prior is fixed."""
         pass
 
     @property
     @abstractmethod
-    def prior_type(self) -> PriorType:                                         # Type of prior
+    def prior_type(self) -> PriorType:
+        """Type of prior."""
         pass
 
     # ==================================================
@@ -129,6 +139,8 @@ class Prior(ABC):
         --------
         >>> Prior = Prior.parse_prior(prior_type, params)
 
+        Notes
+        -----
         Authors: Allan Denis
         '''
 
@@ -162,6 +174,8 @@ class UniformPrior(Prior):
     log_level : str
         Level of the Logger
 
+    Notes
+    -----
     Authors: Allan Denis
     '''
 
@@ -189,6 +203,7 @@ class UniformPrior(Prior):
 
     @property
     def lower(self) -> float:
+        """Lower bound of the uniform prior."""
         return self._lower
 
     @lower.setter
@@ -199,6 +214,7 @@ class UniformPrior(Prior):
 
     @property
     def upper(self) -> float:
+        """Upper bound of the uniform prior."""
         return self._upper
 
     @upper.setter
@@ -209,14 +225,17 @@ class UniformPrior(Prior):
 
     @property
     def bounds(self) -> list:
+        """Bounds of the uniform prior."""
         return [self.lower, self.upper]
 
     @property
     def prior_type(self) -> PriorType:
+        """Type of prior."""
         return PriorType.UNIFORM
 
     @property
     def is_fixed(self) -> bool:
+        """Whether the prior is fixed."""
         return False
 
     # =========================
@@ -227,6 +246,8 @@ class UniformPrior(Prior):
         '''
         Validation
 
+        Notes
+        -----
         Authors: Allan Denis
         '''
 
@@ -263,6 +284,8 @@ class UniformPrior(Prior):
         dict
             Dictionary of the parameter
 
+        Notes
+        -----
         Authors: Allan Denis
         '''
 
@@ -287,6 +310,8 @@ class LogUniformPrior(Prior):
     log_level : str
         Level of the Logger
 
+    Notes
+    -----
     Authors: Allan Denis
     '''
 
@@ -314,6 +339,7 @@ class LogUniformPrior(Prior):
 
     @property
     def lower(self) -> float:
+        """Lower bound of the log-uniform prior."""
         return self._lower
 
     @lower.setter
@@ -324,6 +350,7 @@ class LogUniformPrior(Prior):
 
     @property
     def upper(self) -> float:
+        """Upper bound of the log-uniform prior."""
         return self._upper
 
     @upper.setter
@@ -334,14 +361,17 @@ class LogUniformPrior(Prior):
 
     @property
     def bounds(self) -> list:
+        """Bounds of the log-uniform prior."""
         return [self.lower, self.upper]
 
     @property
     def prior_type(self) -> PriorType:
+        """Type of prior."""
         return PriorType.LOG_UNIFORM
 
     @property
     def is_fixed(self) -> bool:
+        """Whether the prior is fixed."""
         return False
 
     # =========================
@@ -352,6 +382,8 @@ class LogUniformPrior(Prior):
         '''
         Validation.
 
+        Notes
+        -----
         Authors: Allan Denis
         '''
 
@@ -390,6 +422,8 @@ class LogUniformPrior(Prior):
         dict
             Dictionary of the parameter
 
+        Notes
+        -----
         Authors: Allan Denis
         '''
 
@@ -411,6 +445,8 @@ class ConstantPrior(Prior):
     log_level : str
         Level of the Logger
 
+    Notes
+    -----
     Authors: Allan Denis
     '''
 
@@ -435,6 +471,7 @@ class ConstantPrior(Prior):
 
     @property
     def value(self) -> float:
+        """Constant value of the prior."""
         return self._value
 
     @value.setter
@@ -443,14 +480,17 @@ class ConstantPrior(Prior):
 
     @property
     def prior_type(self) -> PriorType:
+        """Type of prior."""
         return PriorType.CONSTANT
 
     @property
     def is_fixed(self) -> bool:
+        """Whether the prior is fixed."""
         return True
 
     @property
     def bounds(self) -> float:
+        """Bounds of the constant prior."""
         return self.value
 
     # =========================
@@ -484,6 +524,8 @@ class ConstantPrior(Prior):
         dict
             Dictionary of the parameter
 
+        Notes
+        -----
         Authors: Allan Denis
         '''
 
@@ -507,6 +549,8 @@ class GaussianPrior(Prior):
     log_level : str
         Level of the Logger
 
+    Notes
+    -----
     Authors: Allan Denis
     '''
 
@@ -534,6 +578,7 @@ class GaussianPrior(Prior):
 
     @property
     def mean(self) -> float:
+        """Mean of the Gaussian prior."""
         return self._mean
 
     @mean.setter
@@ -542,6 +587,7 @@ class GaussianPrior(Prior):
 
     @property
     def stddev(self) -> float:
+        """Standard deviation of the Gaussian prior."""
         return self._stddev
 
     @stddev.setter
@@ -552,14 +598,17 @@ class GaussianPrior(Prior):
 
     @property
     def prior_type(self) -> PriorType:
+        """Type of prior."""
         return PriorType.GAUSSIAN
 
     @property
     def is_fixed(self) -> bool:
+        """Whether the prior is fixed."""
         return False
 
     @property
     def bounds(self) -> tuple[float, float]:
+        """Bounds of the Gaussian prior (mean, stddev)."""
         return self.mean, self.stddev
 
     # =========================
@@ -570,6 +619,8 @@ class GaussianPrior(Prior):
         '''
         Validation.
 
+        Notes
+        -----
         Authors: Allan Denis
         '''
 
@@ -606,6 +657,8 @@ class GaussianPrior(Prior):
         dict
             Dictionary of the parameter
 
+        Notes
+        -----
         Authors: Allan Denis
         '''
 

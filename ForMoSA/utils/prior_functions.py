@@ -19,6 +19,8 @@ def uniform_prior(bounds: list, theta: float) -> float:
     float
         Evaluated prior
 
+    Notes
+    -----
     Authors: Simon Petrus
     '''
 
@@ -46,6 +48,8 @@ def loguniform_prior(prior_fct_arg: list, theta: float) -> float:
     float
         Evaluated prior
 
+    Notes
+    -----
     Authors: Simon Petrus
     '''
 
@@ -75,6 +79,8 @@ def gaussian_prior(mean: float, std: float, theta: float):
     float
         Evaluated prior
 
+    Notes
+    -----
     Authors: Simon Petrus
     '''
 
