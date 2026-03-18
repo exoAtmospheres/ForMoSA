@@ -11,5 +11,6 @@ spectres
 pyyaml
 tqdm
 colorlog
+rich
 importlib-metadata==4.13.0
 xarray==2023.10.1
