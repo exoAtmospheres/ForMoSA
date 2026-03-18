@@ -108,6 +108,59 @@ ForMoSA/
 
 ---
 
+## What's New in v2.0.0
+
+> **v2.0.0 is a complete rewrite and is not backwards-compatible with v1.x.**
+> See the [full migration guide](https://formosa.readthedocs.io/en/latest/whats_new.html) in the docs.
+
+| Area | v1.x | v2.0.0 |
+|---|---|---|
+| Entry point | `main.py` script + `launch_adapt()` / `launch_nested_sampling()` | Single `Analysis` class |
+| Configuration | `config.ini` + `GlobFile` | Python dataclasses (`ConfigPath`, `ConfigAdapt`, …) |
+| Observations | Raw arrays from INI file paths | Typed `ObservationSet` loaded from `.fits` |
+| Model grid handling | `adapt/` functions | `grid/` subgrid classes |
+| Photometry filters | Bundled `.npz` files | Auto-downloaded from SVO and cached |
+| CCF / RV–v sin i | ✗ | ✓ new via `analysis.plot_ccf()` / `analysis.plot_rv_vsini_map()` |
+| Logging | `print` statements | Python `logging` module |
+| Error handling | Generic exceptions | `ForMoSAError` |
+
+### Upgrading from v1.x
+
+Replace the old script-based calls:
+
+```python
+# v1.x (old)
+from ForMoSA.global_file import GlobFile
+from ForMoSA.adapt.adapt_obs_mod import launch_adapt
+from ForMoSA.nested_sampling.nested_sampling import launch_nested_sampling
+
+global_params = GlobFile("config.ini")
+launch_adapt(global_params, adapt_model=True)
+launch_nested_sampling(global_params)
+```
+
+with the new class-based API:
+
+```python
+# v2.0.0 (new)
+from ForMoSA import Analysis
+from ForMoSA.config.global_config import ConfigPath, ConfigAdapt, ConfigInversion, ConfigParameters
+
+analysis = Analysis(ConfigPath(
+    observation_path=["obs.fits"],
+    adapt_store_path="adapted_grid/",
+    result_path="results/",
+    model_path="model_grid.nc",
+))
+analysis.adapt(ConfigAdapt(), ConfigInversion())
+analysis.nested_sampling(ConfigParameters(par1=["uniform","500","3000"], r=["uniform","0.5","3.0"], d=["constant","50"]))
+analysis.plot(analysis.ns.results)
+```
+
+If you need the old behaviour in the short term, pin to `formosa==1.1.6`.
+
+---
+
 ## Attribution
 
 If you use ForMoSA in your research, please cite [Petrus et al. (2023)](https://ui.adsabs.harvard.edu/abs/2023A%26A...670L...9P/abstract).

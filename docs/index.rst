@@ -22,6 +22,7 @@ We encourage the community to exploit its capabilities!
    installation.rst
    guidelines.rst
    api.rst
+   whats_new.rst
 
 
 
@@ -41,6 +42,8 @@ If you run into any other problem, please create an issue on `GitHub <https://gi
 
 Version Track
 +++++++++++++
+
+- ``2.0.0`` Complete rewrite with a class-based API (``Analysis``), Python dataclass configuration, restructured package layout, automatic photometry filter retrieval, CCF / RV–v sin i analysis, structured logging, and typed error handling. **Not backwards-compatible with v1.x.** See :ref:`whats_new` for the full details.
 
 - ``1.1.6`` Addition of high-contrast models, ultranest and automatically generated config files.
 
