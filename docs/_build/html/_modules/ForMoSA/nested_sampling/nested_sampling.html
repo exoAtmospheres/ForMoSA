@@ -29,6 +29,7 @@
 
     <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/sphinx-book-theme.css?v=eba8b062" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
     <link rel="stylesheet" type="text/css" href="../../../_static/custom.css?v=d0b3e03c" />
   
   <!-- Pre-loaded scripts that we'll load fully later -->
@@ -39,6 +40,8 @@
     <script src="../../../_static/documentation_options.js?v=2bf2fbde"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../../_static/copybutton.js?v=f281be69"></script>
     <script src="../../../_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = '_modules/ForMoSA/nested_sampling/nested_sampling';</script>
@@ -156,10 +159,18 @@
  </script></div>
         <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
     <div class="bd-toc-item navbar-nav active">
+        
+        <ul class="nav bd-sidenav bd-sidenav__home-link">
+            <li class="toctree-l1">
+                <a class="reference internal" href="../../../index.html">
+                    Forward Modeling Tool for Spectral Analysis
+                </a>
+            </li>
+        </ul>
         <p aria-level="2" class="caption" role="heading"><span class="caption-text">Contents</span></p>
 <ul class="nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
-<li class="toctree-l1 has-children"><a class="reference internal" href="../../../guidelines.html">Guidelines</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../../guidelines.html">Guidelines</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../../input_format/obs_format.html">Observation format</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../input_format/model_format.html">Grids format</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../input_format/config_format.html"><code class="docutils literal notranslate"><span class="pre">config.ini</span></code> format</a></li>
@@ -167,7 +178,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../../../demos/photo/vhs1256b/end_to_end_vhs1256b.html">Photometric points : VHS 1256 b</a></li>
 </ul>
 </details></li>
-<li class="toctree-l1 has-children"><a class="reference internal" href="../../../api.html">ForMoSA API</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../../api.html">ForMoSA API</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../../analysis.html">Analysis</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../config.html">Configuration</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../core.html">Core</a></li>
@@ -384,9 +395,7 @@ document.write(`
 <span class="sd">    logger                 (logging.Logger): Logger</span>
 <span class="sd">    log_level                         (str): Level of the Logger</span>
 
-<span class="sd">    Authors</span>
-<span class="sd">    -------</span>
-<span class="sd">    Allan Denis</span>
+<span class="sd">    Authors: Allan Denis</span>
 <span class="sd">    &#39;&#39;&#39;</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">algorithm</span><span class="p">:</span> <span class="n">NestedAlgorithm</span><span class="p">,</span> <span class="n">npoints</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">logL_type</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">LogLikelihoodType</span><span class="p">],</span> <span class="n">config_NS</span><span class="p">:</span> <span class="n">Config_NS</span><span class="p">,</span> <span class="n">observations</span><span class="p">:</span> <span class="n">ObservationSet</span><span class="p">,</span> <span class="n">subgrids</span><span class="p">:</span> <span class="n">SubGridSet</span><span class="p">,</span> <span class="n">parameters</span><span class="p">:</span> <span class="n">ParameterSet</span><span class="p">,</span> <span class="n">wave_fit</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">interp_method</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;linear&#39;</span><span class="p">,</span> <span class="n">bounds_lsq</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">logger</span><span class="p">:</span> <span class="n">logging</span><span class="o">.</span><span class="n">Logger</span> <span class="o">|</span> <span class="kc">None</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">log_level</span><span class="p">:</span> <span class="nb">str</span><span class="o">=</span><span class="s1">&#39;INFO&#39;</span><span class="p">):</span>
@@ -521,9 +530,7 @@ document.write(`
 <span class="sd">        &#39;NestedSampling&#39;</span>
 <span class="sd">            An instance of class NestedSampling</span>
 
-<span class="sd">        Authors</span>
-<span class="sd">        -------</span>
-<span class="sd">        Allan Denis</span>
+<span class="sd">        Authors: Allan Denis</span>
 <span class="sd">        &#39;&#39;&#39;</span>
 
         <span class="n">logger</span> <span class="o">=</span> <span class="n">logger</span> <span class="ow">or</span> <span class="n">setup_logging</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="n">log_level</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;NestedSampling&#39;</span><span class="p">)</span>
@@ -581,9 +588,7 @@ document.write(`
 <span class="sd">        &#39;NestedSampling&#39;</span>
 <span class="sd">            An instance of class NestedSampling</span>
 
-<span class="sd">        Authors</span>
-<span class="sd">        -------</span>
-<span class="sd">        Allan Denis</span>
+<span class="sd">        Authors: Allan Denis</span>
 <span class="sd">        &#39;&#39;&#39;</span>
 
         <span class="n">logger</span> <span class="o">=</span> <span class="n">logger</span> <span class="ow">or</span> <span class="n">setup_logging</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="n">log_level</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;NestedSampling&#39;</span><span class="p">)</span>
@@ -622,9 +627,7 @@ document.write(`
 <span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        Validation for NestedSamplin.</span>
 
-<span class="sd">        Authors</span>
-<span class="sd">        -------</span>
-<span class="sd">        Allan Denis</span>
+<span class="sd">        Authors: Allan Denis</span>
 <span class="sd">        &#39;&#39;&#39;</span>
 
         <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">instance</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">([</span><span class="s1">&#39;logL_type&#39;</span><span class="p">,</span> <span class="s1">&#39;observations&#39;</span><span class="p">,</span> <span class="s1">&#39;subgrids&#39;</span><span class="p">,</span> <span class="s1">&#39;parameters&#39;</span><span class="p">,</span> <span class="s1">&#39;config_NS&#39;</span><span class="p">,</span> <span class="s1">&#39;wave_fit&#39;</span><span class="p">,</span> <span class="s1">&#39;interp_method&#39;</span><span class="p">,</span> <span class="s1">&#39;bounds_lsq&#39;</span><span class="p">],</span> <span class="p">[</span><span class="nb">list</span><span class="p">,</span> <span class="n">ObservationSet</span><span class="p">,</span> <span class="n">SubGridSet</span><span class="p">,</span> <span class="n">ParameterSet</span><span class="p">,</span> <span class="n">Config_NS</span><span class="p">,</span> <span class="nb">list</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">]):</span>
@@ -668,9 +671,7 @@ document.write(`
 <span class="sd">        Create restricted versions of subgrids and observations according to wave_fit.</span>
 <span class="sd">        These restricted instances are stored internally and reused during the nested sampling.</span>
 
-<span class="sd">        Authors</span>
-<span class="sd">        -------</span>
-<span class="sd">        Allan Denis</span>
+<span class="sd">        Authors: Allan Denis</span>
 <span class="sd">        &#39;&#39;&#39;</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;    Restrict subgris and observations to windows </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">wave_fit</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
@@ -702,9 +703,7 @@ document.write(`
 <span class="sd">        results_path : str | os.PathLike</span>
 <span class="sd">            Path of the output</span>
 
-<span class="sd">        Authors</span>
-<span class="sd">        -------</span>
-<span class="sd">        Simon Petrus, Matthieu Ravet and Allan Denis</span>
+<span class="sd">        Authors: Simon Petrus, Matthieu Ravet and Allan Denis</span>
 <span class="sd">        &#39;&#39;&#39;</span>
 
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">results_path</span><span class="p">,</span> <span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">PathLike</span><span class="p">)):</span>
@@ -823,9 +822,7 @@ document.write(`
 <span class="sd">        np.ndarray[float]</span>
 <span class="sd">            Transformed values</span>
 
-<span class="sd">        Authors</span>
-<span class="sd">        -------</span>
-<span class="sd">        Allan Denis</span>
+<span class="sd">        Authors: Allan Denis</span>
 <span class="sd">        &#39;&#39;&#39;</span>
 
         <span class="k">try</span><span class="p">:</span>
@@ -850,9 +847,7 @@ document.write(`
 <span class="sd">        list[ObservedModel]</span>
 <span class="sd">            List of instances of class ObservedModel</span>
 
-<span class="sd">        Authors</span>
-<span class="sd">        -------</span>
-<span class="sd">        Allan Denis</span>
+<span class="sd">        Authors: Allan Denis</span>
 <span class="sd">        &#39;&#39;&#39;</span>
 
         <span class="n">observed_models</span> <span class="o">=</span> <span class="p">[]</span>
@@ -883,9 +878,7 @@ document.write(`
 <span class="sd">        float</span>
 <span class="sd">            loglikelihood value</span>
 
-<span class="sd">        Authors</span>
-<span class="sd">        -------</span>
-<span class="sd">        Allan Denis</span>
+<span class="sd">        Authors: Allan Denis</span>
 <span class="sd">        &#39;&#39;&#39;</span>
 
         <span class="n">logL</span> <span class="o">=</span> <span class="mi">0</span>
@@ -914,9 +907,7 @@ document.write(`
 <span class="sd">        ObservedParameters</span>
 <span class="sd">            Intance of class ObservedParameters containing dictionary of parameters values (free + fixed) associated to the observation index</span>
 
-<span class="sd">        Authors</span>
-<span class="sd">        -------</span>
-<span class="sd">        Allan Denis</span>
+<span class="sd">        Authors: Allan Denis</span>
 <span class="sd">        &#39;&#39;&#39;</span>
 
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">free_values</span><span class="p">)</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">n_free_parameters</span><span class="p">:</span>
@@ -955,9 +946,7 @@ document.write(`
 <span class="sd">            Path to save the results to</span>
 <span class="sd">        **kwargs                        = Additional parameters (wav_fit, interp_method, bounds_lsq)</span>
 
-<span class="sd">        Authors</span>
-<span class="sd">        -------</span>
-<span class="sd">        Allan Denis</span>
+<span class="sd">        Authors: Allan Denis</span>
 <span class="sd">        &#39;&#39;&#39;</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;    Saving results&#39;</span><span class="p">)</span>
@@ -989,9 +978,7 @@ document.write(`
 <span class="sd">        results_path : str | os.PathLike</span>
 <span class="sd">            Path to save the results to</span>
 
-<span class="sd">        Authors</span>
-<span class="sd">        -------</span>
-<span class="sd">        Allan Denis</span>
+<span class="sd">        Authors: Allan Denis</span>
 <span class="sd">        &#39;&#39;&#39;</span>
 
         <span class="n">results_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">results_path</span><span class="p">)</span>  <span class="o">/</span> <span class="s1">&#39;NS_results&#39;</span>
@@ -1038,7 +1025,7 @@ document.write(`
   <div class="footer-item">
     
 <p class="component-author">
-By Simon Petrus, Paulina Palma-Bifani, Matthieu Ravet, Allan Denis, Mickaël Bonnefoy and Gaël Chauvin
+By Simon Petrus, Paulina Palma-Bifani, Matthieu Ravet, Allan Denis, Bhavesh Rajpoot, Mickaël Bonnefoy and Gaël Chauvin
 </p>
 
   </div>
@@ -1048,7 +1035,7 @@ By Simon Petrus, Paulina Palma-Bifani, Matthieu Ravet, Allan Denis, Mickaël Bon
 
   <p class="copyright">
     
-      © Copyright 2024, Simon Petrus, Paulina Palma-Bifani, Matthieu Ravet, Allan Denis, Mickaël Bonnefoy and Gaël Chauvin.
+      © Copyright 2024, Simon Petrus, Paulina Palma-Bifani, Matthieu Ravet, Allan Denis, Bhavesh Rajpoot, Mickaël Bonnefoy and Gaël Chauvin.
       <br/>
     
   </p>

@@ -30,6 +30,7 @@
 
     <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
     <link rel="stylesheet" type="text/css" href="_static/styles/sphinx-book-theme.css?v=eba8b062" />
+    <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
     <link rel="stylesheet" type="text/css" href="_static/custom.css?v=d0b3e03c" />
   
   <!-- Pre-loaded scripts that we'll load fully later -->
@@ -40,6 +41,8 @@
     <script src="_static/documentation_options.js?v=2bf2fbde"></script>
     <script src="_static/doctools.js?v=fd6eb6e6"></script>
     <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="_static/copybutton.js?v=f281be69"></script>
     <script src="_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'plotting';</script>
@@ -157,10 +160,18 @@
  </script></div>
         <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
     <div class="bd-toc-item navbar-nav active">
+        
+        <ul class="nav bd-sidenav bd-sidenav__home-link">
+            <li class="toctree-l1">
+                <a class="reference internal" href="index.html">
+                    Forward Modeling Tool for Spectral Analysis
+                </a>
+            </li>
+        </ul>
         <p aria-level="2" class="caption" role="heading"><span class="caption-text">Contents</span></p>
 <ul class="current nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
-<li class="toctree-l1 has-children"><a class="reference internal" href="guidelines.html">Guidelines</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l1 has-children"><a class="reference internal" href="guidelines.html">Guidelines</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="input_format/obs_format.html">Observation format</a></li>
 <li class="toctree-l2"><a class="reference internal" href="input_format/model_format.html">Grids format</a></li>
 <li class="toctree-l2"><a class="reference internal" href="input_format/config_format.html"><code class="docutils literal notranslate"><span class="pre">config.ini</span></code> format</a></li>
@@ -394,15 +405,15 @@ document.write(`
             </div>
             <nav aria-label="Page">
                 <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#plotting-module">Plotting Module</a><ul class="nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#plotting-module">Plotting Module</a><ul class="visible nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.nested_sampling.plotting.Plotting"><code class="docutils literal notranslate"><span class="pre">Plotting</span></code></a><ul class="nav section-nav flex-column">
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.nested_sampling.plotting.Plotting.logger"><code class="docutils literal notranslate"><span class="pre">Plotting.logger</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.nested_sampling.plotting.Plotting.ns_results"><code class="docutils literal notranslate"><span class="pre">Plotting.ns_results</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.nested_sampling.plotting.Plotting.plot_ccf"><code class="docutils literal notranslate"><span class="pre">Plotting.plot_ccf()</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.nested_sampling.plotting.Plotting.plot_chains"><code class="docutils literal notranslate"><span class="pre">Plotting.plot_chains()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.nested_sampling.plotting.Plotting.plot_corner"><code class="docutils literal notranslate"><span class="pre">Plotting.plot_corner()</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.nested_sampling.plotting.Plotting.plot_fit"><code class="docutils literal notranslate"><span class="pre">Plotting.plot_fit()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.nested_sampling.plotting.Plotting.plot_chains"><code class="docutils literal notranslate"><span class="pre">Plotting.plot_chains()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.nested_sampling.plotting.Plotting.plot_radars"><code class="docutils literal notranslate"><span class="pre">Plotting.plot_radars()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.nested_sampling.plotting.Plotting.plot_fit"><code class="docutils literal notranslate"><span class="pre">Plotting.plot_fit()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.nested_sampling.plotting.Plotting.plot_ccf"><code class="docutils literal notranslate"><span class="pre">Plotting.plot_ccf()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.nested_sampling.plotting.Plotting.plot_rv_vsini_map"><code class="docutils literal notranslate"><span class="pre">Plotting.plot_rv_vsini_map()</span></code></a></li>
 </ul>
 </li>
@@ -427,8 +438,8 @@ document.write(`
 best-fit spectra, CCFs, and RV–v sin i maps.</p>
 <dl class="py class" id="module-ForMoSA.nested_sampling.plotting">
 <dt class="sig sig-object py" id="ForMoSA.nested_sampling.plotting.Plotting">
-<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">ForMoSA.nested_sampling.plotting.</span></span><span class="sig-name descname"><span class="pre">Plotting</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">results</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="nested_sampling.html#ForMoSA.nested_sampling.results.NSResults" title="ForMoSA.nested_sampling.results.NSResults"><span class="pre">NSResults</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">logger</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Logger</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_level</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'INFO'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ForMoSA/nested_sampling/plotting.html#Plotting"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ForMoSA.nested_sampling.plotting.Plotting" title="Link to this definition">#</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">ForMoSA.nested_sampling.plotting.</span></span><span class="sig-name descname"><span class="pre">Plotting</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">results</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logger</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_level</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'INFO'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ForMoSA/nested_sampling/plotting.html#Plotting"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ForMoSA.nested_sampling.plotting.Plotting" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <p>Class of visualisation of the results of the nested sampling.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -436,16 +447,14 @@ best-fit spectra, CCFs, and RV–v sin i maps.</p>
 <li><p><strong>results</strong> (<a class="reference internal" href="nested_sampling.html#ForMoSA.nested_sampling.results.NSResults" title="ForMoSA.nested_sampling.results.NSResults"><em>NSResults</em></a>) – Instance of class NSResults</p></li>
 <li><p><strong>logger</strong> (<em>Logger</em>) – Logger used</p></li>
 <li><p><strong>v</strong><strong>(</strong><strong>str</strong><strong>)</strong> (<em>log_level</em>)</p></li>
-<li><p><strong>Authors</strong></p></li>
-<li><p><strong>-------</strong></p></li>
-<li><p><strong>Palma-Bifani</strong> (<em>Paulina</em>)</p></li>
-<li><p><strong>Denis</strong> (<em>Matthieu Ravet and Allan</em>)</p></li>
+<li><p><strong>Authors</strong> (<em>Paulina Palma-Bifani</em><em>, </em><em>Matthieu Ravet and Allan Denis</em>)</p></li>
+<li><p><strong>log_level</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>)</p></li>
 </ul>
 </dd>
 </dl>
 <dl class="py property">
 <dt class="sig sig-object py" id="ForMoSA.nested_sampling.plotting.Plotting.logger">
-<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">logger</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Logger</span></span><a class="headerlink" href="#ForMoSA.nested_sampling.plotting.Plotting.logger" title="Link to this definition">#</a></dt>
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">logger</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/logging.html#logging.Logger" title="(in Python v3.14)"><span class="pre">Logger</span></a></span><a class="headerlink" href="#ForMoSA.nested_sampling.plotting.Plotting.logger" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py property">
@@ -454,24 +463,20 @@ best-fit spectra, CCFs, and RV–v sin i maps.</p>
 <dd></dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="ForMoSA.nested_sampling.plotting.Plotting.plot_ccf">
-<span class="sig-name descname"><span class="pre">plot_ccf</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rv_grid</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ccf</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">acf</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ccf_star</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">Figure</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Axes</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/ForMoSA/nested_sampling/plotting.html#Plotting.plot_ccf"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ForMoSA.nested_sampling.plotting.Plotting.plot_ccf" title="Link to this definition">#</a></dt>
-<dd><p>Plot the Cross-Correlation Function (CCF).</p>
+<dt class="sig sig-object py" id="ForMoSA.nested_sampling.plotting.Plotting.plot_corner">
+<span class="sig-name descname"><span class="pre">plot_corner</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/ForMoSA/nested_sampling/plotting.html#Plotting.plot_corner"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ForMoSA.nested_sampling.plotting.Plotting.plot_corner" title="Link to this definition">#</a></dt>
+<dd><p>Corner plot the posterior samples from the nested sampling results.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>rv_grid</strong> (<em>np.ndarray</em>) – Grid of radial velocity values (in km/s)</p></li>
-<li><p><strong>ccf</strong> (<em>np.ndarray</em>) – Corresponding ccf (cross-correlation) values</p></li>
-<li><p><strong>acf</strong> (<em>np.ndarray</em>) – acf (aut-correlation) values</p></li>
-<li><p><strong>ccf_star</strong> (<em>np.ndarray</em>) – ccf values with star speckles</p></li>
-</ul>
+<dd class="field-odd"><p><strong>config</strong> (<a class="reference internal" href="core.html#ForMoSA.core.config.CornerPlotConfig" title="ForMoSA.core.config.CornerPlotConfig"><em>CornerPlotConfig</em></a>) – Instance of class CornerPlotConfig</p>
 </dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p><ul class="simple">
-<li><p><em>tuple[Figure, Axes]</em> – Figure and Axes objects</p></li>
-<li><p><em>Authors</em></p></li>
-<li><p><em>——-</em></p></li>
-<li><p><em>Bhavesh Rajpoot and Allan Denis</em></p></li>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://matplotlib.org/stable/api/_as_gen/matplotlib.figure.Figure.html#matplotlib.figure.Figure" title="(in Matplotlib v3.10.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Figure</span></code></a></span></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><ul class="simple">
+<li><p><em>matplotlib.figure.Figure</em> – Figure containin corner plots.</p></li>
+<li><p><strong>Authors</strong> (<em>Paulina Palma-Bifani, Matthieu Ravet and Allan Denis</em>)</p></li>
 </ul>
 </p>
 </dd>
@@ -480,7 +485,7 @@ best-fit spectra, CCFs, and RV–v sin i maps.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="ForMoSA.nested_sampling.plotting.Plotting.plot_chains">
-<span class="sig-name descname"><span class="pre">plot_chains</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">Figure</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Axes</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/ForMoSA/nested_sampling/plotting.html#Plotting.plot_chains"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ForMoSA.nested_sampling.plotting.Plotting.plot_chains" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">plot_chains</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/ForMoSA/nested_sampling/plotting.html#Plotting.plot_chains"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ForMoSA.nested_sampling.plotting.Plotting.plot_chains" title="Link to this definition">#</a></dt>
 <dd><p>Plot the chains of the samples results.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -489,29 +494,30 @@ best-fit spectra, CCFs, and RV–v sin i maps.</p>
 <li><p><strong>--------</strong></p></li>
 <li><p><strong>tuple</strong><strong>[</strong><strong>matplotlib.figure.Figure</strong> – Tuple containing Figure and Ax objects</p></li>
 <li><p><strong>matplotlib.axes._axes.Axes</strong><strong>]</strong> – Tuple containing Figure and Ax objects</p></li>
-<li><p><strong>Authors</strong></p></li>
-<li><p><strong>-------</strong></p></li>
-<li><p><strong>Palma-Bifani</strong> (<em>Paulina</em>)</p></li>
-<li><p><strong>Denis</strong> (<em>Matthieu Ravet and Allan</em>)</p></li>
+<li><p><strong>Authors</strong> (<em>Paulina Palma-Bifani</em><em>, </em><em>Matthieu Ravet and Allan Denis</em>)</p></li>
 </ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code></a>[<a class="reference external" href="https://matplotlib.org/stable/api/_as_gen/matplotlib.figure.Figure.html#matplotlib.figure.Figure" title="(in Matplotlib v3.10.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Figure</span></code></a>, <a class="reference external" href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.html#matplotlib.axes.Axes" title="(in Matplotlib v3.10.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Axes</span></code></a>]</span></p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="ForMoSA.nested_sampling.plotting.Plotting.plot_corner">
-<span class="sig-name descname"><span class="pre">plot_corner</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Figure</span></span></span><a class="reference internal" href="_modules/ForMoSA/nested_sampling/plotting.html#Plotting.plot_corner"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ForMoSA.nested_sampling.plotting.Plotting.plot_corner" title="Link to this definition">#</a></dt>
-<dd><p>Corner plot the posterior samples from the nested sampling results.</p>
+<dt class="sig sig-object py" id="ForMoSA.nested_sampling.plotting.Plotting.plot_radars">
+<span class="sig-name descname"><span class="pre">plot_radars</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/ForMoSA/nested_sampling/plotting.html#Plotting.plot_radars"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ForMoSA.nested_sampling.plotting.Plotting.plot_radars" title="Link to this definition">#</a></dt>
+<dd><p>Radar plot the samples.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>config</strong> (<a class="reference internal" href="core.html#ForMoSA.core.config.CornerPlotConfig" title="ForMoSA.core.config.CornerPlotConfig"><em>CornerPlotConfig</em></a>) – Instance of class CornerPlotConfig</p>
+<dd class="field-odd"><p><strong>config</strong> (<a class="reference internal" href="core.html#ForMoSA.core.config.RadarPlotConfig" title="ForMoSA.core.config.RadarPlotConfig"><em>RadarPlotConfig</em></a>) – Instance of class RadarPlotConfig</p>
 </dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p><ul class="simple">
-<li><p><em>matplotlib.figure.Figure</em> – Figure containin corner plots.</p></li>
-<li><p><em>Authors</em></p></li>
-<li><p><em>——-</em></p></li>
-<li><p><em>Paulina Palma-Bifani, Matthieu Ravet and Allan Denis</em></p></li>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code></a>[<a class="reference external" href="https://matplotlib.org/stable/api/_as_gen/matplotlib.figure.Figure.html#matplotlib.figure.Figure" title="(in Matplotlib v3.10.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Figure</span></code></a>, <a class="reference external" href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.html#matplotlib.axes.Axes" title="(in Matplotlib v3.10.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Axes</span></code></a>]</span></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><ul class="simple">
+<li><p><em>tuple[matplotlib.figure.Figure, matplotlib.axes._axes.Axes]</em> – Tuple containing Figure and Ax objects</p></li>
+<li><p><strong>Authors</strong> (<em>Paulina Palma-Bifani, Matthieu Ravet and Allan Denis</em>)</p></li>
 </ul>
 </p>
 </dd>
@@ -520,24 +526,25 @@ best-fit spectra, CCFs, and RV–v sin i maps.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="ForMoSA.nested_sampling.plotting.Plotting.plot_fit">
-<span class="sig-name descname"><span class="pre">plot_fit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">observations</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="observation.html#ForMoSA.observation.observation_set.ObservationSet" title="ForMoSA.observation.observation_set.ObservationSet"><span class="pre">ObservationSet</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">best_fit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="transform.html#ForMoSA.transform.observed.ObservedModel" title="ForMoSA.transform.observed.ObservedModel"><span class="pre">ObservedModel</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">figsize</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tuple</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">(12,</span> <span class="pre">7)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plot_native_model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">native_model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="transform.html#ForMoSA.transform.observed.ObservedModel" title="ForMoSA.transform.observed.ObservedModel"><span class="pre">ObservedModel</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">Figure</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Axes</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Axes</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Axes</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Axes</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/ForMoSA/nested_sampling/plotting.html#Plotting.plot_fit"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ForMoSA.nested_sampling.plotting.Plotting.plot_fit" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">plot_fit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">observations</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">best_fit</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">figsize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(12,</span> <span class="pre">7)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plot_native_model</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">native_model</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ForMoSA/nested_sampling/plotting.html#Plotting.plot_fit"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ForMoSA.nested_sampling.plotting.Plotting.plot_fit" title="Link to this definition">#</a></dt>
 <dd><p>Plot best fit</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>observations</strong> (<a class="reference internal" href="observation.html#ForMoSA.observation.observation_set.ObservationSet" title="ForMoSA.observation.observation_set.ObservationSet"><em>ObservationSet</em></a>) – Instance of class ObservationSet</p></li>
-<li><p><strong>best_fit</strong> (<em>list</em><em>[</em><a class="reference internal" href="transform.html#ForMoSA.transform.observed.ObservedModel" title="ForMoSA.transform.observed.ObservedModel"><em>ObservedModel</em></a><em>]</em>) – List of instances of class ObservedModel corresponding to the best-fit model for each observation</p></li>
-<li><p><strong>figsize</strong> (<em>tuple</em><em>[</em><em>float</em><em>, </em><em>float</em><em>]</em>) – Size of the figure</p></li>
-<li><p><strong>plot_native_model</strong> (<em>bool</em>) – Whether to plot the native model</p></li>
+<li><p><strong>best_fit</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><em>list</em></a><em>[</em><a class="reference internal" href="transform.html#ForMoSA.transform.observed.ObservedModel" title="ForMoSA.transform.observed.ObservedModel"><em>ObservedModel</em></a><em>]</em>) – List of instances of class ObservedModel corresponding to the best-fit model for each observation</p></li>
+<li><p><strong>figsize</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.14)"><em>tuple</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><em>float</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><em>float</em></a><em>]</em>) – Size of the figure</p></li>
+<li><p><strong>plot_native_model</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a>) – Whether to plot the native model</p></li>
 <li><p><strong>native_model</strong> (<a class="reference internal" href="transform.html#ForMoSA.transform.observed.ObservedModel" title="ForMoSA.transform.observed.ObservedModel"><em>ObservedModel</em></a>) – As instance of ObservedModel</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p><ul class="simple">
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code></a>[<a class="reference external" href="https://matplotlib.org/stable/api/_as_gen/matplotlib.figure.Figure.html#matplotlib.figure.Figure" title="(in Matplotlib v3.10.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Figure</span></code></a>, <a class="reference external" href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.html#matplotlib.axes.Axes" title="(in Matplotlib v3.10.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Axes</span></code></a>, <a class="reference external" href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.html#matplotlib.axes.Axes" title="(in Matplotlib v3.10.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Axes</span></code></a>, <a class="reference external" href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.html#matplotlib.axes.Axes" title="(in Matplotlib v3.10.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Axes</span></code></a>, <a class="reference external" href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.html#matplotlib.axes.Axes" title="(in Matplotlib v3.10.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Axes</span></code></a>]</span></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><ul class="simple">
 <li><p><em>tuple[Figure, Axes, Axes, Axes, Axes]</em> – Figure and ax objects</p></li>
-<li><p><em>Authors</em></p></li>
-<li><p><em>——-</em></p></li>
-<li><p><em>Paulina Palma-Bifani, Matthieu Ravet and Allan Denis</em></p></li>
+<li><p><strong>Authors</strong> (<em>Paulina Palma-Bifani, Matthieu Ravet and Allan Denis</em>)</p></li>
 </ul>
 </p>
 </dd>
@@ -545,19 +552,26 @@ best-fit spectra, CCFs, and RV–v sin i maps.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="ForMoSA.nested_sampling.plotting.Plotting.plot_radars">
-<span class="sig-name descname"><span class="pre">plot_radars</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">Figure</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Axes</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/ForMoSA/nested_sampling/plotting.html#Plotting.plot_radars"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ForMoSA.nested_sampling.plotting.Plotting.plot_radars" title="Link to this definition">#</a></dt>
-<dd><p>Radar plot the samples.</p>
+<dt class="sig sig-object py" id="ForMoSA.nested_sampling.plotting.Plotting.plot_ccf">
+<span class="sig-name descname"><span class="pre">plot_ccf</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rv_grid</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ccf</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">acf</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ccf_star</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ForMoSA/nested_sampling/plotting.html#Plotting.plot_ccf"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ForMoSA.nested_sampling.plotting.Plotting.plot_ccf" title="Link to this definition">#</a></dt>
+<dd><p>Plot the Cross-Correlation Function (CCF).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>config</strong> (<a class="reference internal" href="core.html#ForMoSA.core.config.RadarPlotConfig" title="ForMoSA.core.config.RadarPlotConfig"><em>RadarPlotConfig</em></a>) – Instance of class RadarPlotConfig</p>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>rv_grid</strong> (<em>np.ndarray</em>) – Grid of radial velocity values (in km/s)</p></li>
+<li><p><strong>ccf</strong> (<em>np.ndarray</em>) – Corresponding ccf (cross-correlation) values</p></li>
+<li><p><strong>acf</strong> (<em>np.ndarray</em>) – acf (aut-correlation) values</p></li>
+<li><p><strong>ccf_star</strong> (<em>np.ndarray</em>) – ccf values with star speckles</p></li>
+<li><p><strong>title</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>)</p></li>
+</ul>
 </dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p><ul class="simple">
-<li><p><em>tuple[matplotlib.figure.Figure, matplotlib.axes._axes.Axes]</em> – Tuple containing Figure and Ax objects</p></li>
-<li><p><em>Authors</em></p></li>
-<li><p><em>——-</em></p></li>
-<li><p><em>Paulina Palma-Bifani, Matthieu Ravet and Allan Denis</em></p></li>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code></a>[<a class="reference external" href="https://matplotlib.org/stable/api/_as_gen/matplotlib.figure.Figure.html#matplotlib.figure.Figure" title="(in Matplotlib v3.10.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Figure</span></code></a>, <a class="reference external" href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.html#matplotlib.axes.Axes" title="(in Matplotlib v3.10.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Axes</span></code></a>]</span></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><ul class="simple">
+<li><p><em>tuple[Figure, Axes]</em> – Figure and Axes objects</p></li>
+<li><p><strong>Authors</strong> (<em>Bhavesh Rajpoot and Allan Denis</em>)</p></li>
 </ul>
 </p>
 </dd>
@@ -566,7 +580,7 @@ best-fit spectra, CCFs, and RV–v sin i maps.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="ForMoSA.nested_sampling.plotting.Plotting.plot_rv_vsini_map">
-<span class="sig-name descname"><span class="pre">plot_rv_vsini_map</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rv_grid</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vsini_grid</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logL_map</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">Figure</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">Axes</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/ForMoSA/nested_sampling/plotting.html#Plotting.plot_rv_vsini_map"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ForMoSA.nested_sampling.plotting.Plotting.plot_rv_vsini_map" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">plot_rv_vsini_map</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rv_grid</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vsini_grid</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logL_map</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ForMoSA/nested_sampling/plotting.html#Plotting.plot_rv_vsini_map"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ForMoSA.nested_sampling.plotting.Plotting.plot_rv_vsini_map" title="Link to this definition">#</a></dt>
 <dd><p>Plot the RV vs v.sin(i) loglikelihood map.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -575,14 +589,18 @@ best-fit spectra, CCFs, and RV–v sin i maps.</p>
 <li><p><strong>ccf</strong> (<em>np.ndarray</em>) – Corresponding ccf (cross-correlation) values</p></li>
 <li><p><strong>acf</strong> (<em>np.ndarray</em>) – acf (aut-correlation) values</p></li>
 <li><p><strong>ccf_star</strong> (<em>np.ndarray</em>) – ccf values with star speckles</p></li>
+<li><p><strong>vsini_grid</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.4)"><em>ndarray</em></a>)</p></li>
+<li><p><strong>logL_map</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.4)"><em>ndarray</em></a>)</p></li>
+<li><p><strong>title</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>)</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p><ul class="simple">
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a>[<a class="reference external" href="https://matplotlib.org/stable/api/_as_gen/matplotlib.figure.Figure.html#matplotlib.figure.Figure" title="(in Matplotlib v3.10.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Figure</span></code></a>], <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a>[<a class="reference external" href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.html#matplotlib.axes.Axes" title="(in Matplotlib v3.10.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Axes</span></code></a>]]</span></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><ul class="simple">
 <li><p><em>tuple[Figure, Axes]</em> – Figure and Axes objects</p></li>
-<li><p><em>Authors</em></p></li>
-<li><p><em>——-</em></p></li>
-<li><p><em>Bhavesh Rajpoot (adapted from Allan Denis)</em></p></li>
+<li><p><strong>Authors</strong> (<em>Bhavesh Rajpoot (adapted from Allan Denis)</em>)</p></li>
 </ul>
 </p>
 </dd>
@@ -639,15 +657,15 @@ best-fit spectra, CCFs, and RV–v sin i maps.</p>
   </div>
   <nav class="bd-toc-nav page-toc">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#plotting-module">Plotting Module</a><ul class="nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#plotting-module">Plotting Module</a><ul class="visible nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.nested_sampling.plotting.Plotting"><code class="docutils literal notranslate"><span class="pre">Plotting</span></code></a><ul class="nav section-nav flex-column">
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.nested_sampling.plotting.Plotting.logger"><code class="docutils literal notranslate"><span class="pre">Plotting.logger</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.nested_sampling.plotting.Plotting.ns_results"><code class="docutils literal notranslate"><span class="pre">Plotting.ns_results</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.nested_sampling.plotting.Plotting.plot_ccf"><code class="docutils literal notranslate"><span class="pre">Plotting.plot_ccf()</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.nested_sampling.plotting.Plotting.plot_chains"><code class="docutils literal notranslate"><span class="pre">Plotting.plot_chains()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.nested_sampling.plotting.Plotting.plot_corner"><code class="docutils literal notranslate"><span class="pre">Plotting.plot_corner()</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.nested_sampling.plotting.Plotting.plot_fit"><code class="docutils literal notranslate"><span class="pre">Plotting.plot_fit()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.nested_sampling.plotting.Plotting.plot_chains"><code class="docutils literal notranslate"><span class="pre">Plotting.plot_chains()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.nested_sampling.plotting.Plotting.plot_radars"><code class="docutils literal notranslate"><span class="pre">Plotting.plot_radars()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.nested_sampling.plotting.Plotting.plot_fit"><code class="docutils literal notranslate"><span class="pre">Plotting.plot_fit()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.nested_sampling.plotting.Plotting.plot_ccf"><code class="docutils literal notranslate"><span class="pre">Plotting.plot_ccf()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#ForMoSA.nested_sampling.plotting.Plotting.plot_rv_vsini_map"><code class="docutils literal notranslate"><span class="pre">Plotting.plot_rv_vsini_map()</span></code></a></li>
 </ul>
 </li>
@@ -667,7 +685,7 @@ best-fit spectra, CCFs, and RV–v sin i maps.</p>
   <div class="footer-item">
     
 <p class="component-author">
-By Simon Petrus, Paulina Palma-Bifani, Matthieu Ravet, Allan Denis, Mickaël Bonnefoy and Gaël Chauvin
+By Simon Petrus, Paulina Palma-Bifani, Matthieu Ravet, Allan Denis, Bhavesh Rajpoot, Mickaël Bonnefoy and Gaël Chauvin
 </p>
 
   </div>
@@ -677,7 +695,7 @@ By Simon Petrus, Paulina Palma-Bifani, Matthieu Ravet, Allan Denis, Mickaël Bon
 
   <p class="copyright">
     
-      © Copyright 2024, Simon Petrus, Paulina Palma-Bifani, Matthieu Ravet, Allan Denis, Mickaël Bonnefoy and Gaël Chauvin.
+      © Copyright 2024, Simon Petrus, Paulina Palma-Bifani, Matthieu Ravet, Allan Denis, Bhavesh Rajpoot, Mickaël Bonnefoy and Gaël Chauvin.
       <br/>
     
   </p>
