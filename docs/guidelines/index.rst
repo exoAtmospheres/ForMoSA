@@ -108,30 +108,3 @@ Learn how to set it up in various cases:
    :maxdepth: 1
 
    input_format/config_format.ipynb
-
-
-Demos
------
-
-In this section, we detail the different steps required to perform an end-to-end analysis of spectroscopic and photometric data with ForMoSA.
-
-The first example focuses on the inversion of the medium-resolution spectrum of AB Pic b obtained in the K band with the instrument SINFONI at the VLT.
-
-.. toctree::
-   :maxdepth: 1
-
-   demos/sinfoni/abpicb/end_to_end_abpicb.ipynb
-   
-The second example considers only photometric points of VHS 1256 b.
-
-.. toctree::
-   :maxdepth: 1
-
-   demos/photo/vhs1256b/end_to_end_vhs1256b.ipynb
-
-
-The third example combines photometric and spectroscopic information on the atmosphere of 51 Eri b observed with different instruments.
-
-XXXXX
-
-   

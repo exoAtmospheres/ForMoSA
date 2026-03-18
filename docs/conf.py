@@ -31,14 +31,15 @@ language = 'en'
 
 extensions = [
     # Core Sphinx
-    'sphinx.ext.autodoc',          # Auto-generate docs from docstrings
-    'sphinx.ext.napoleon',         # Support NumPy-style docstrings
-    'sphinx.ext.viewcode',         # Add [source] links to API docs
-    'sphinx.ext.intersphinx',      # Cross-reference external docs
-    'sphinx.ext.mathjax',          # Render LaTeX math
-    'sphinx.ext.todo',             # Support .. todo:: directives
-    'sphinx.ext.doctest',          # Test snippets  in the docs
-    'sphinx.ext.inheritance_diagram', # Class inheritance diagrams
+    'sphinx.ext.autodoc',               # Auto-generate docs from docstrings
+    'sphinx.ext.napoleon',              # Support NumPy-style docstrings
+    'sphinx.ext.viewcode',              # Add [source] links to API docs
+    'sphinx.ext.intersphinx',           # Cross-reference external docs
+    'sphinx.ext.mathjax',               # Render LaTeX math
+    'sphinx.ext.todo',                  # Support .. todo:: directives
+    'sphinx.ext.doctest',               # Test snippets  in the docs
+    'sphinx.ext.inheritance_diagram',   # Class inheritance diagrams
+    'sphinx.ext.graphviz',              # Graphviz extension for diagrams
 
     # Third-party
     'nbsphinx',                    # Source parser for .ipynb files
@@ -66,10 +67,12 @@ nbsphinx_timeout = -1
 
 # Allow errors from notebooks
 nbsphinx_allow_errors = True
+
+# Show both class-level docstring and __init__ docstring in class documentation
 autoclass_content = 'both'
 
 # Patterns to exclude
-exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store', 'tutorials/.ipynb_checkpoints/*']
+exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store', 'tutorials/.ipynb_checkpoints/*', 'README.md']
 
 # -- Napoleon (NumPy docstring) settings --------------------------------
 napoleon_google_docstring = False
@@ -135,7 +138,15 @@ html_theme_options = {
     'show_toc_level': 2,
 }
 
-
 # -- Todo extension ------------------------------------------------------
 # If true, `todo` and `todoList` produce output, else they produce nothing.
 todo_include_todos = True
+
+# -- Inheritance extension ------------------------------------------------------
+
+inheritance_graph_attrs = dict(rankdir="TB", splines='polyline')
+# Also remove minimum node dimensions, and increase line size a bit.
+inheritance_node_attrs = dict(height=0.02, margin=0.055, penwidth=1, width=0.01)
+inheritance_edge_attrs = dict(penwidth=1)
+
+graphviz_output_format = 'svg'

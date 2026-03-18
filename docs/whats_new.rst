@@ -98,17 +98,20 @@ class, to control every aspect of an analysis.  v2.0.0 replaces this with a
 set of lightweight Python **dataclasses** that can be instantiated directly in
 code *or* loaded from an INI file:
 
-+--------------------------------+----------------------------------------------+
-| Dataclass                      | Controls                                     |
-+================================+==============================================+
-| :class:`~ForMoSA.config.global_config.ConfigPath`      | File paths (observations, grid, results)     |
-+--------------------------------+----------------------------------------------+
-| :class:`~ForMoSA.config.global_config.ConfigAdapt`     | Grid adaptation settings (method, resolution)|
-+--------------------------------+----------------------------------------------+
-| :class:`~ForMoSA.config.global_config.ConfigInversion` | Nested-sampling algorithm, likelihood, priors|
-+--------------------------------+----------------------------------------------+
-| :class:`~ForMoSA.config.global_config.ConfigParameters`| Prior distributions for each fitted parameter|
-+--------------------------------+----------------------------------------------+
+.. list-table::
+   :header-rows: 1
+   :widths: auto
+
+   * - Dataclass
+     - Controls
+   * - :class:`~ForMoSA.config.global_config.ConfigPath`
+     - File paths (observations, grid, results)
+   * - :class:`~ForMoSA.config.global_config.ConfigAdapt`
+     - Grid adaptation settings (method, resolution)
+   * - :class:`~ForMoSA.config.global_config.ConfigInversion`
+     - Nested-sampling algorithm, likelihood, priors
+   * - :class:`~ForMoSA.config.global_config.ConfigParameters`
+     - Prior distributions for each fitted parameter
 
 This makes it straightforward to build configuration programmatically, inspect
 and modify individual values, and loop over parameter grids in notebooks.

@@ -7,8 +7,8 @@
 
    <br />
 
-Forward Modeling Tool for Spectral Analysis
-===========================================
+Forward Modeling Tool for Spectral Analysis (ForMoSA)
+=====================================================
 
 Welcome to the documentation of ForMoSA, an open-source Python package.
 Using a forward modeling approach, we designed this tool to model exoplanetary atmospheres.
@@ -19,10 +19,11 @@ We encourage the community to exploit its capabilities!
    :maxdepth: 2
    :caption: Contents
 
-   installation.rst
-   guidelines.rst
-   api.rst
-   whats_new.rst
+   installation
+   guidelines/index
+   demos/index
+   api/index
+   whats_new
 
 
 

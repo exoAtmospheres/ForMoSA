@@ -1,9 +1,9 @@
-sphinx
+sphinx>=9.1
 ipykernel
 nbsphinx
 jupyter
-pandoc
-sphinx-book-theme
-sphinx-autodoc-typehints
-sphinx-copybutton
-myst-parser
+pandoc>=3.9
+sphinx-book-theme>=1.1
+sphinx-autodoc-typehints>=3.9.8
+sphinx-copybutton>=0.5
+myst-parser>=2.0
