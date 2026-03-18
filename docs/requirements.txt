@@ -1,7 +1,9 @@
-sphinx>=1.4
+sphinx
 ipykernel
 nbsphinx
 jupyter
 pandoc
-sphinx_rtd_theme
-Sphinx-book-theme
+sphinx-book-theme
+sphinx-autodoc-typehints
+sphinx-copybutton
+myst-parser

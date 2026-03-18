@@ -32,9 +32,7 @@ class Parameter(object):
         Level of the Logger
 
 
-    Authors
-    -------
-    Allan Denis
+    Authors: Allan Denis
     '''
 
     def __init__(self, name: str, prior: Prior, kind: ParameterKind, scope: str = 'global', obs_index: list[int] | None = None, title: str | None = None, vsini_function: VsiniFunction | None = None, logger: logging.Logger | None = None, log_level: str='INFO'):
@@ -141,9 +139,7 @@ class Parameter(object):
         Parameter
             An instance of class Parameter
 
-        Authors
-        -------
-        Allan Denis
+        Authors: Allan Denis
         '''
 
         logger = logger or setup_logging(level=log_level, name='Parameter')
@@ -164,9 +160,7 @@ class Parameter(object):
         '''
         Validation of the parameter.
 
-        Authors
-        -------
-        Allan Denis
+        Authors: Allan Denis
         '''
 
         if not isinstance(self.prior, Prior):

@@ -19,9 +19,7 @@ def set_filter_path(path: str | os.PathLike) -> None:
     path : str | os.PathLike
         Path to the filters folder
 
-    Authors
-    -------
-    Allan Denis
+    Authors: Allan Denis
     '''
 
     global FILTER_PATH
@@ -42,9 +40,7 @@ def darken_color(color: str, factor: float = 0.7) -> str:
     -------
     str : hex color
 
-    Authors
-    -------
-    Allan Denis
+    Authors: Allan Denis
     '''
 
     rgb = mcolors.to_rgb(color)
@@ -60,9 +56,7 @@ class MainPlotConfig:
     '''
     Dataclass to handle main parameters forplotting.
 
-    Authors
-    -------
-    Allan Denis
+    Authors: Allan Denis
     '''
 
     figsize: tuple[float, float] = (10.0, 7.0)
@@ -82,9 +76,7 @@ class ObsPlotConfig:
     '''
     Dataclass to handle configurations for plotting data.
 
-    Authors
-    -------
-    Allan Denis
+    Authors: Allan Denis
     '''
 
 
@@ -119,9 +111,7 @@ class ObsPlotConfig:
         '''
         Return configuration options as a dictionary.
 
-        Authors
-        -------
-        Allan Denis
+        Authors: Allan Denis
         '''
 
         return {k: v for k, v in self.__dict__.items() if v is not None}
@@ -135,9 +125,7 @@ class ObsPlotConfig:
         **kwargs : dict
             Keyword arguments to override attributes of the config
 
-        Authors
-        -------
-        Allan Denis
+        Authors: Allan Denis
         '''
 
         for key, value in kwargs.items():
@@ -186,9 +174,7 @@ class CornerPlotConfig:
     '''
     Dataclass to handle configurations for corner plots.
 
-    Authors
-    -------
-    Allan Denis
+    Authors: Allan Denis
     '''
 
     figsize: tuple[float, float] = (15.0, 15.0)
@@ -217,9 +203,7 @@ class CornerPlotConfig:
         '''
         Return configuration options as a dictionary.
 
-        Authors
-        -------
-        Allan Denis
+        Authors: Allan Denis
         '''
 
         return {k: v for k, v in self.__dict__.items() if v is not None}
@@ -233,9 +217,7 @@ class CornerPlotConfig:
         **kwargs : dict
             Keyword arguments to override attributes of the config
 
-        Authors
-        -------
-        Allan Denis
+        Authors: Allan Denis
         '''
 
         for key, value in kwargs.items():
@@ -254,9 +236,7 @@ class ChainsPlotConfig:
     '''
     Dataclass ot handle configurations for chains plot.
 
-    Authors
-    -------
-    Allan Denis
+    Authors: Allan Denis
     '''
 
     figsize: tuple[float, float] = (15.0, 15.0)
@@ -286,9 +266,7 @@ class ChainsPlotConfig:
         '''
         Return configuration options as a dictionary.
 
-        Authors
-        -------
-        Allan Denis
+        Authors: Allan Denis
         '''
 
         return {k: v for k, v in self.__dict__.items() if v is not None}
@@ -302,9 +280,7 @@ class ChainsPlotConfig:
         **kwargs : dict
             Keyword arguments to override attributes of the config
 
-        Authors
-        -------
-        Allan Denis
+        Authors: Allan Denis
         '''
 
         for key, value in kwargs.items():
@@ -323,9 +299,7 @@ class RadarPlotConfig:
     '''
     Dataclass to handle configurations for radar plot.
 
-    Authors
-    -------
-    Allan Denis
+    Authors: Allan Denis
     '''
 
     figsize: tuple[float, float] = (6.0, 6.0)
@@ -348,9 +322,7 @@ class RadarPlotConfig:
         '''
         Return configuration options as a dictionary.
 
-        Authors
-        -------
-        Allan Denis
+        Authors: Allan Denis
         '''
 
         return {k: v for k, v in self.__dict__.items() if v is not None}
@@ -364,9 +336,7 @@ class RadarPlotConfig:
         **kwargs : dict
             Keyword arguments to override attributes of the config
 
-        Authors
-        -------
-        Allan Denis
+        Authors: Allan Denis
         '''
 
         for key, value in kwargs.items():
@@ -385,9 +355,7 @@ class BestFitPlotConfig:
     '''
     Dataclass to handle configurations for best fit plot.
 
-    Authors
-    -------
-    Allan Denis
+    Authors: Allan Denis
     '''
 
     color: str = 'black'
@@ -399,9 +367,7 @@ class BestFitPlotConfig:
         '''
         Return configuration options as a dictionary.
 
-        Authors
-        -------
-        Allan Denis
+        Authors: Allan Denis
         '''
 
         return {k: v for k, v in self.__dict__.items() if v is not None}
@@ -415,9 +381,7 @@ class BestFitPlotConfig:
         **kwargs : dict
             Keyword arguments to override attributes of the config
 
-        Authors
-        -------
-        Allan Denis
+        Authors: Allan Denis
         '''
 
         for key, value in kwargs.items():
@@ -432,9 +396,7 @@ class PlotsConfig:
     '''
     Dataclass to handle configurations for plots.
 
-    Authors
-    -------
-    Allan Denis
+    Authors: Allan Denis
     '''
 
     CornerPlot: CornerPlotConfig = field(default_factory = lambda: CORNER_PLOT)

@@ -27,9 +27,7 @@ class SubGridSet(object):
     log_level : str
         Logger level
 
-    Authors
-    -------
-    Allan Denis
+    Authors: Allan Denis
     '''
 
     def __init__(self, parent_grid: ModelGrid, logger: logging.Logger | None = None, log_level: str = "INFO") -> None:
@@ -125,9 +123,7 @@ class SubGridSet(object):
         "SubGridSet"
             Instance of SubGridSet
 
-        Authors
-        -------
-        Allan Denis
+        Authors: Allan Denis
         '''
 
         logger = logger or setup_logging(level=log_level, name='SubGridSet')
@@ -183,9 +179,7 @@ class SubGridSet(object):
             - If a `.nc` file is provided, provide a single argument (str | Path)
             - If an xr.Dataset is provided, provide a single argument
 
-        Authors
-        -------
-        Allan Denis
+        Authors: Allan Denis
         '''
 
         if len(args) == 1:
@@ -215,9 +209,7 @@ class SubGridSet(object):
         method : str
             Interpolation method
 
-        Authors
-        -------
-        Allan Denis
+        Authors: Allan Denis
         '''
 
         if not isinstance(method, str):
@@ -235,9 +227,7 @@ class SubGridSet(object):
         store_path : str | os.PathLike
             Directory where to save the subgrids
 
-        Authors
-        -------
-        Allan Denis
+        Authors: Allan Denis
         '''
 
         path = Path(path).expanduser() / 'Subgrids'

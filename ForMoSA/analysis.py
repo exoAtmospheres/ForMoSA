@@ -35,9 +35,7 @@ class Analysis(object):
     log_level : str
         Log level of the handler, by default ``'info'`` for all important informations.
 
-    Authors
-    -------
-    Allan Denis
+    Authors: Allan Denis
     '''
 
     def __init__(self, config_path: ConfigPath, adapted: bool = False, fitted: bool = False, log_level: str = 'info') -> None:
@@ -171,9 +169,7 @@ class Analysis(object):
         config_adapt : ConfigAdapt
             Instance of ConfigAdapt
 
-        Authors
-        -------
-        Simon Petrus, Matthieu Ravet and Allan Denis
+        Authors: Simon Petrus, Matthieu Ravet and Allan Denis
         '''
 
         # ==================
@@ -258,9 +254,7 @@ class Analysis(object):
         config_parameters : ConfigParameters
             Instance of class ConfigParameters
 
-        Authors
-        -------
-        Allan Denis
+        Authors: Allan Denis
         '''
 
         for config, config_type in zip([config_parameters, config_adapt, config_inversion, config_NS], [ConfigParameters, ConfigAdapt, ConfigInversion, Config_NS]):
@@ -327,9 +321,7 @@ class Analysis(object):
         plot_native_model : bool
             Whether to plot the native model
 
-        Authors
-        -------
-        Allan Denis
+        Authors: Allan Denis
         '''
 
         # Initial checks
@@ -388,9 +380,7 @@ class Analysis(object):
         save_results : bool
             Whether to save the results of the CCF computation
 
-        Authors
-        -------
-        Bhavesh Rajpoot (adapted from Allan Denis)
+        Authors: Bhavesh Rajpoot (adapted from Allan Denis)
         '''
 
         if self.ns is None or self.ns.results is None:
@@ -434,9 +424,7 @@ class Analysis(object):
         save_results : bool
             Whether to save the results of the RV-vsini map computation
 
-        Authors
-        -------
-        Bhavesh Rajpoot (adapted from Allan Denis)
+        Authors: Bhavesh Rajpoot (adapted from Allan Denis)
         '''
 
         if self.ns is None or self.ns.results is None:

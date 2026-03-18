@@ -47,9 +47,7 @@ class SpectralObservation(Observation):
     display_unit : WavelengthUnit
         Unit of the wavelength to display
 
-    Authors
-    -------
-    Allan Denis
+    Authors: Allan Denis
     '''
 
     def __init__(self, wave: np.ndarray, flux: np.ndarray, err: np.ndarray, res: np.ndarray, facility: str, instrument: str, native_unit: WavelengthUnit, cov: np.ndarray | None = None, transm: np.ndarray | None = None, star_flux: np.ndarray | None = None, system: np.ndarray | None = None, logger: logging.Logger | None = None, log_level: str = 'INFO', display_unit: WavelengthUnit = WavelengthUnit.MICROMETER) -> None:
@@ -222,9 +220,7 @@ class SpectralObservation(Observation):
         '''
         Do some checks on spectroscopic observations.
 
-        Authors
-        -------
-        Allan Denis
+        Authors: Allan Denis
         '''
 
         # Resolution
@@ -268,9 +264,7 @@ class SpectralObservation(Observation):
         Remove non-finite values from all observation vectors
         and adjust covariance matrix accordingly.
 
-        Authors
-        -------
-        Allan Denis
+        Authors: Allan Denis
         '''
 
         # --------------------------------------------------
@@ -341,9 +335,7 @@ class SpectralObservation(Observation):
         dict
             Dictionnary representation of the adapted observation
 
-        Authors
-        -------
-        Simon Petrus, Matthieu Ravet and Allan Denis
+        Authors: Simon Petrus, Matthieu Ravet and Allan Denis
         '''
 
         self.logger.info(f'      Target resolution for observation {self.name}: {target_resolution}')
@@ -425,9 +417,7 @@ class SpectralObservation(Observation):
         ax_filt : matplotlib.axes._axes.Axes
             Non updated ax_filt
 
-        Authors
-        -------
-        Allan Denis
+        Authors: Allan Denis
         '''
 
         self.logger.info(f'      Plotting data for observation {self.name}')
@@ -521,9 +511,7 @@ class SpectralObservation(Observation):
         SpectralObservation
             Restricted observation
 
-        Authors
-        -------
-        Allan Denis
+        Authors: Allan Denis
         '''
 
         # Dictionary of the observation

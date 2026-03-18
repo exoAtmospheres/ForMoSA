@@ -23,9 +23,7 @@ def decoupe(second):
         - float     : minutes
         - float     : seconds
 
-    Authors
-    -------
-    Simon Petrus
+    Authors: Simon Petrus
     """
 
     hour = second / 3600
@@ -55,9 +53,7 @@ def find_nearest(array, value):
         int
             Index of the closest values from the desire value
 
-    Authors
-    -------
-    Simon Petrus
+    Authors: Simon Petrus
     '''
 
     idx = (np.abs(array - value)).argmin()
@@ -88,9 +84,7 @@ def format_grid(grid, attr, free_comp, weights):
         xarray
             Xarray of the PCA or NMF weights grid
 
-    Authors
-    -------
-    Matthieu Ravet
+    Authors: Matthieu Ravet
     '''
 
     # Format the new grids in xarray
@@ -128,9 +122,7 @@ def get_weighted_percentile(n, data, weights=None):
             - shape (len(n),) if data is 1D
             - shape (len(n), M) if data is 2D
 
-    Authors
-    -------
-    Allan Denis
+    Authors: Allan Denis
     '''
 
     # Convert n to array
@@ -191,9 +183,7 @@ def scale_to_one_significant_digit(flux):
     '''
     Returns a tuple (scaled_flux, factor) such that flux ≈ scaled_flux * 10**factor
 
-    Authors
-    -------
-    Allan Denis
+    Authors: Allan Denis
     '''
 
     if len(flux) == 0:
@@ -222,9 +212,7 @@ def from_recarray_to_dic(data: fits.fitsrec.FITS_rec):
     data_dict : dic
         Dictionary representation of the data
 
-    Authors
-    -------
-    Allan Denis
+    Authors: Allan Denis
     '''
 
     return {name: np.asarray(data[name]) for name in data.names}
@@ -251,9 +239,7 @@ def normalize_list(value, name: str, converter=None):
     list
         Normalized list
 
-    Authors
-    -------
-    Allan Denis
+    Authors: Allan Denis
     '''
 
     # Ensure list
@@ -294,9 +280,7 @@ def to_float_if_possible(v):
     float
         Float if conversion succeeds, otherwise original value
 
-    Authors
-    -------
-    Allan Denis
+    Authors: Allan Denis
     '''
 
     if isinstance(v, (int, float)):

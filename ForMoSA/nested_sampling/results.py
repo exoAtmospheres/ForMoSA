@@ -8,9 +8,7 @@ class NSResults:
     '''
     Dataclass to handle reading and storing results of the Nested Sampling algorithm
 
-    Authors
-    -------
-    Allan Denis
+    Authors: Allan Denis
     '''
 
     samples: np.ndarray
@@ -103,9 +101,7 @@ class NSResults:
         NSResults
             Instance of class NSResults
 
-        Authors
-        -------
-        Allan Denis
+        Authors: Allan Denis
         '''
 
         return cls(
@@ -135,9 +131,7 @@ class NSResults:
         NestleResults
             An instance of NSResults
 
-        Authors
-        -------
-        Allan Denis
+        Authors: Allan Denis
         '''
 
         return cls(
@@ -166,9 +160,7 @@ class NSResults:
         NSResults
             An instance of NSResults
 
-        Authors
-        -------
-        Allan Denis
+        Authors: Allan Denis
         '''
 
         # Read global evidence and error
@@ -230,9 +222,7 @@ class NSResults:
         NSResults
             An instance of NSResults
 
-        Authors
-        -------
-        Allan Denis
+        Authors: Allan Denis
         """
 
         ws = res['weighted_samples']
@@ -304,9 +294,7 @@ class NSResults:
         dict[str, float]
             Dictionary of parameter name associated to its quantile
 
-        Authors
-        -------
-        Allan Denis
+        Authors: Allan Denis
         '''
 
         return {
@@ -330,9 +318,7 @@ class NSResults:
         -------
         dict[str, tuple[float, float]]: Dictionary of parameter name associated to its interval
 
-        Authors
-        -------
-        Allan Denis
+        Authors: Allan Denis
         '''
 
         if sigma == 1:
@@ -364,9 +350,7 @@ class NSResults:
         str
             Summary
 
-        Authors
-        -------
-        Allan Denis
+        Authors: Allan Denis
         '''
 
         lines = []

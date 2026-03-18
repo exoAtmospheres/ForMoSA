@@ -10,9 +10,7 @@ class ApplyPhysicsEffects:
     '''
     Apply physics effects to a model given parameters.
 
-    Authors
-    -------
-    Allan Denis
+    Authors: Allan Denis
     '''
 
     @staticmethod
@@ -32,9 +30,7 @@ class ApplyPhysicsEffects:
         observed_model : ObservedModel
             Instance of class ObservedModel Doppler shifted
 
-        Authors
-        -------
-        Allan Denis
+        Authors: Allan Denis
         '''
 
         observed_model.wave, observed_model.flux, observed_model.res = us.doppler_fct(observed_model.wave, observed_model.flux, observed_model.res, rv_value)
@@ -62,9 +58,7 @@ class ApplyPhysicsEffects:
         observed_model : ObservedModel
             Instance of class ObservedModel rotationally broadened
 
-        Authors
-        -------
-        Allan Denis
+        Authors: Allan Denis
         '''
 
         observed_model.flux, observed_model.res = us.vsini_fct(observed_model.wave, observed_model.flux, observed_model.res, ld_value, vsini_value, vsini_function.value)
@@ -88,9 +82,7 @@ class ApplyPhysicsEffects:
         observed_model : ObservedModel
             Instance of class ObservedModel redenned
 
-        Authors
-        -------
-        Allan Denis
+        Authors: Allan Denis
         '''
 
         observed_model.flux = us.reddening_fct(observed_model.wave, observed_model.flux, av_value)
@@ -117,9 +109,7 @@ class ApplyPhysicsEffects:
         -------
         (ObservedModel): Instance of class ObservedModel with a CPD effect
 
-        Authors
-        -------
-        Allan Denis
+        Authors: Allan Denis
         '''
 
         observed_model.flux = us.bb_cpd_fct(observed_model.wave, observed_model.flux, d_value, bb_T_value, bb_R_value)
@@ -145,9 +135,7 @@ class ApplyPhysicsEffects:
         flux_transformed : np.ndarray
             Scaled model
 
-        Authors
-        -------
-        Allan Denis
+        Authors: Allan Denis
         '''
 
         observed_model.flux, ck = us.calc_ck(observed_model.flux, [], [], r_value, d_value)
@@ -173,9 +161,7 @@ class ApplyObservationEffects:
         -------
         (ObservedModel): Instance of class ObservedModel degraded in resolution
 
-        Authors
-        -------
-        Allan Denis
+        Authors: Allan Denis
         '''
 
         if obs.res.all() == 0:
@@ -205,9 +191,7 @@ class ApplyObservationEffects:
         -------
         (ObservedModel): Instance of class ObservedModel scaled to the data
 
-        Authors
-        -------
-        Allan Denis
+        Authors: Allan Denis
         '''
 
         if observed_model.scaling == 'analytic':
@@ -234,9 +218,7 @@ class ApplyObservationEffects:
         -------
         (ObservedModel): Instance of class ObservedModel high-contrast modelled
 
-        Authors
-        -------
-        Allan Denis
+        Authors: Allan Denis
         '''
 
         # =================================

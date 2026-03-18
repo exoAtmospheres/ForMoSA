@@ -40,9 +40,7 @@ class SubGrid(ModelGrid, ABC):
     display_unit : WavelengthUnit
         Unit of the wavelength
 
-    Authors
-    -------
-    Allan Denis
+    Authors: Allan Denis
     '''
 
     def __init__(self, grid: xr.Dataset, parent_grid: ModelGrid, logger: logging.Logger | None = None, log_level: str = "INFO", name: str = 'Unknown', display_unit: WavelengthUnit = WavelengthUnit.MICROMETER):
@@ -95,9 +93,7 @@ class SubGrid(ModelGrid, ABC):
         xr.DataArray
             Adapted model
 
-        Authors
-        -------
-        Allan Denis
+        Authors: Allan Denis
         '''
 
         pass
@@ -112,9 +108,7 @@ class SubGrid(ModelGrid, ABC):
         tuple[float, float]
             Minimumn and maximum wavelengths of the restricted subgrid
 
-        Authors
-        -------
-        Allan Denis
+        Authors: Allan Denis
         '''
 
         pass
@@ -137,9 +131,7 @@ class SubGrid(ModelGrid, ABC):
         ObservedModel
             Instance of class ObservedModel transformed
 
-        Authors
-        -------
-        Allan Denis
+        Authors: Allan Denis
         '''
 
         pass
@@ -164,9 +156,7 @@ class SubGrid(ModelGrid, ABC):
         ObservedModel
             Instance of class ObservedModel transformed
 
-        Authors
-        -------
-        Allan Denis
+        Authors: Allan Denis
         '''
 
         pass
@@ -191,9 +181,7 @@ class SubGrid(ModelGrid, ABC):
         float
             logL value
 
-        Authors
-        -------
-        Simon Petrus, Matthieu Ravet and Allan Denis
+        Authors: Simon Petrus, Matthieu Ravet and Allan Denis
         '''
 
         pass
@@ -259,9 +247,7 @@ class SubGrid(ModelGrid, ABC):
         'SubGrid'
             An instance of class SubGrid
 
-        Authors
-        -------
-        Allan Denis
+        Authors: Allan Denis
         '''
 
         logger = logger or setup_logging(level=log_level, name="Observation")
@@ -306,9 +292,7 @@ class SubGrid(ModelGrid, ABC):
         'SubGrid'
             An instance of class SubGrid
 
-        Authors
-        -------
-        Allan Denis
+        Authors: Allan Denis
         '''
 
         logger = logger or setup_logging(level=log_level, name='SubGrid')
@@ -343,9 +327,7 @@ class SubGrid(ModelGrid, ABC):
         xr.Dataset
             Empty grid
 
-        Authors
-        -------
-        Allan Denis
+        Authors: Allan Denis
         '''
 
         self._logger.debug(f'Building empty grid from the native grid {self.parent_grid.grid_name}')
@@ -387,9 +369,7 @@ class SubGrid(ModelGrid, ABC):
         '''
         Adapt the entire grid to the observation.
 
-        Authors
-        -------
-        Arthur Vigan and Allan Denis
+        Authors: Arthur Vigan and Allan Denis
         '''
 
         # Get a restricted version of the parent grid to spped up the adaptation
@@ -450,9 +430,7 @@ class SubGrid(ModelGrid, ABC):
         float
             Loglikelihood
 
-        Authors
-        -------
-        Allan Denis
+        Authors: Allan Denis
         '''
 
         # Initial check
@@ -487,9 +465,7 @@ class SubGrid(ModelGrid, ABC):
         ObservedModel
             Model build with the values of the parameters
 
-        Authors
-        -------
-        Allan Denis
+        Authors: Allan Denis
         '''
 
         # Split parameters
@@ -533,9 +509,7 @@ class SubGrid(ModelGrid, ABC):
         observed_model : ObservedModel
             Instance of class ObservedModel
 
-        Authors
-        -------
-        Allan Denis
+        Authors: Allan Denis
         '''
 
         # Initial checks

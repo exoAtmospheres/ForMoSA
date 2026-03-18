@@ -40,9 +40,7 @@ def calc_ck(flx_mod: np.ndarray, flx_obs: np.ndarray, err_obs: np.ndarray, r_pic
     ck : float
         Scaling coefficient
 
-    Authors
-    -------
-    Simon Petrus and Allan Denis
+    Authors: Simon Petrus and Allan Denis
     '''
 
     # Fixed analytical scaling
@@ -91,9 +89,7 @@ def convolve_and_sample(wv_channels: list, sigmas_wvs: list, model_wvs: np.ndarr
         array
             the fluxes in each of the wavelength channels
 
-    Authors
-    -------
-    Jason Wang
+    Authors: Jason Wang
     """
 
     model_in_range = np.where((model_wvs >= np.min(wv_channels)) & (model_wvs < np.max(wv_channels)))
@@ -146,9 +142,7 @@ def resolution_decreasing(wav_input: np.ndarray, flx_input: np.ndarray, res_inpu
         array
             Flux at lower resolution, resampled to wav_output
 
-    Authors
-    -------
-    Simon Petrus
+    Authors: Simon Petrus
     """
 
     if len(flx_input) == 0 or len(wav_input) == 0:
@@ -199,9 +193,7 @@ def continuum_estimate(wav_input: np.ndarray, flx_input: np.ndarray, res_input: 
         np.ndarray
             Estimated continuum of the spectrum re-sampled on the data wavelength grid
 
-    Authors
-    -------
-    Simon Petrus, Matthieu Ravet
+    Authors: Simon Petrus, Matthieu Ravet
 
     """
 
@@ -265,9 +257,7 @@ def doppler_fct(wav_mod_spectro: np.ndarray, flx_mod_spectro: np.ndarray, res_mo
         array
             New resolution of the interpolated synthetic spectrum
 
-    Authors
-    -------
-    Simon Petrus, Allan Denis and Matthieu Ravet
+    Authors: Simon Petrus, Allan Denis and Matthieu Ravet
     """
 
     if len(flx_mod_spectro) != 0:
@@ -310,9 +300,7 @@ def reddening_fct(wav: np.ndarray, flx: np.ndarray, av_picked: float) -> tuple[n
         array
             New flux of the interpolated synthetic spectrum
 
-    Authors
-    -------
-    Simon Petrus
+    Authors: Simon Petrus
     """
 
     if len(flx) != 0:
@@ -354,9 +342,7 @@ def vsini_fct(wav_mod_spectro: np.ndarray, flx_mod_spectro: np.ndarray, res_mod_
         array
             New resolution of the broadened synthetic spectrum (photometry)
 
-    Authors
-    -------
-    Allan Denis
+    Authors: Allan Denis
     """
     if len(flx_mod_spectro) != 0:
         if vsini_picked != 0:
@@ -408,9 +394,7 @@ def vsini_fct_rot_broad(wav_mod_spectro: np.ndarray, flx_mod_spectro: np.ndarray
         array
             New flux of the interpolated synthetic spectrum
 
-    Authors
-    -------
-    Simon Petrus
+    Authors: Simon Petrus
     """
     # Correct irregulatities in the wavelength grid
     wav_interval = wav_mod_spectro[1:] - wav_mod_spectro[:-1]
@@ -450,9 +434,7 @@ def vsini_fct_fast_rot_broad(wav_mod_spectro: np.ndarray, flx_mod_spectro: np.nd
         array
             New flux of the interpolated synthetic spectrum
 
-    Authors
-    -------
-    Simon Petrus
+    Authors: Simon Petrus
     """
     # Correct irregulatities in the wavelength grid
     wav_interval = wav_mod_spectro[1:] - wav_mod_spectro[:-1]
@@ -502,9 +484,7 @@ def vsini_fct_accurate(wav_mod_spectro: np.ndarray, flx_mod_spectro: np.ndarray,
         array
             New flux of the interpolated synthetic spectrum
 
-    Authors
-    -------
-    Allan Denis
+    Authors: Allan Denis
     '''
 
     ns = np.copy(flx_mod_spectro)*0.0
@@ -552,9 +532,7 @@ def vsini_fct_accurate_fast_rot_broad(wav_mod_spectro: np.ndarray, flx_mod_spect
         array
             New flux of the interpolated synthetic spectrum
 
-    Authors
-    -------
-    Simon Petrus, Arthur Vigan and Allan Denis
+    Authors: Simon Petrus, Arthur Vigan and Allan Denis
     """
     # Correct irregulatities in the wavelength grid
     wav_interval = wav_mod_spectro[1:] - wav_mod_spectro[:-1]
@@ -594,9 +572,7 @@ def bb_cpd_fct(wav: np.ndarray, flx: np.ndarray, distance: np.ndarray, bb_t_pick
         array
             New flux of the interpolated synthetic spectrum
 
-    Authors
-    -------
-    Paulina Palma-Bifani
+    Authors: Paulina Palma-Bifani
     '''
 
     if len(flx) > 0:
@@ -647,9 +623,7 @@ def fit_linear_model(components: list[np.ndarray], flx_obs: np.ndarray, err_obs:
         reconstructed
         model
 
-    Authors
-    -------
-    Allan Denis
+    Authors: Allan Denis
     """
 
     n = len(components)
@@ -753,9 +727,7 @@ def build_linear_components(flx_mod: np.ndarray | None = None, transm: np.ndarra
     labels : list[str]
         Labels for each component
 
-    Authors
-    -------
-    Allan Denis
+    Authors: Allan Denis
     '''
 
     components = []
@@ -854,9 +826,7 @@ def compute_ccf(wav_mod_spectro: np.ndarray, flx_mod_spectro: np.ndarray, wav_ob
         rv_peak : float
             Peak of the RV
 
-    Authors
-    -------
-    Arthur Vigan and Allan Denis
+    Authors: Arthur Vigan and Allan Denis
     '''
 
     if not rv_sini_map and np.max(np.abs(rv_grid)) < 100:
@@ -1019,9 +989,7 @@ def compute_ccf_single_rv(rv: float, wav_mod_spectro: np.ndarray, flx_mod_spectr
         ccf_star : float
             Correlation between the template and the star data
 
-    Authors
-    -------
-    Arthur Vigan and Allan Denis
+    Authors: Arthur Vigan and Allan Denis
     '''
 
     # Doppler shift + resolution match

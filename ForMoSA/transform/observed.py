@@ -12,9 +12,7 @@ class ObservedParameters:
     '''
     Parameters drawn from the nested sampling.
 
-    Authors
-    -------
-    Allan Denis
+    Authors: Allan Denis
     '''
 
     # ======================
@@ -136,9 +134,7 @@ class ObservedParameters:
         float
             Value of the parameter
 
-        Authors
-        -------
-        Allan Denis
+        Authors: Allan Denis
         '''
 
         if not self.has_name(name):
@@ -162,9 +158,7 @@ class ObservedParameters:
         float
             Value of the parameter
 
-        Authors
-        -------
-        Allan Denis
+        Authors: Allan Denis
         '''
 
         if not self.has_kind(kind):
@@ -183,9 +177,7 @@ class ObservedParameters:
         *kind : ParameterKind
             kinds of required parameters
 
-        Authors
-        -------
-        Allan Denis
+        Authors: Allan Denis
         '''
 
         missing = [kind for kind in kinds if not self.has_kind(kind)]
@@ -197,9 +189,7 @@ class ObservedModel:
     '''
     Model drawn from the nested sampling.
 
-    Authors
-    -------
-    Allan Denis
+    Authors: Allan Denis
     '''
 
     # ======================
@@ -265,9 +255,7 @@ class ObservedModel:
         'ObservedModel'
             An instance of class ObservedModel
 
-        Authors
-        -------
-        Allan Denis
+        Authors: Allan Denis
         '''
 
         # Initial checks
@@ -359,9 +347,7 @@ class ObservedModel:
         np.ndarray
             Residuals
 
-        Authors
-        -------
-        Allan Denis
+        Authors: Allan Denis
         '''
 
         flux_obs = np.asarray(flux_obs, dtype=float)
@@ -388,9 +374,7 @@ class ObservedModel:
         float
             Standard deviation of the residuals
 
-        Authors
-        -------
-        Allan Denis
+        Authors: Allan Denis
         '''
 
         if len(self.wave) == 1:
@@ -411,9 +395,7 @@ class ObservedModel:
         ObservedModel
             Copy of ObservedModel
 
-        Authors
-        -------
-        Allan Denis
+        Authors: Allan Denis
         """
         return replace(self, **updates)
 
@@ -421,9 +403,7 @@ class ObservedModel:
         '''
         Sort by increasing wavelength
 
-        Authors
-        -------
-        Allan Denis
+        Authors: Allan Denis
         '''
 
         # Sort wave, flux, res and component

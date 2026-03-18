@@ -29,9 +29,7 @@ class ObservationSet(object):
     log_level : str
         Level of the logging
 
-    Authors
-    -------
-    Allan Denis
+    Authors: Allan Denis
     '''
 
     def __init__(self, logger: logging.Logger | None = None, log_level: str = "INFO") -> None:
@@ -175,9 +173,7 @@ class ObservationSet(object):
         "ObservationSet"
             An instance of ObservationSet
 
-        Authors
-        -------
-        Allan Denis
+        Authors: Allan Denis
         '''
 
         logger = logger or setup_logging(level=log_level, name='ObservationSet')
@@ -237,9 +233,7 @@ class ObservationSet(object):
         "ObservationSet"
             An instance of ObservationSet
 
-        Authors
-        -------
-        Allan Denis
+        Authors: Allan Denis
         '''
 
         logger = logger or setup_logging(level=log_level, name='ObservationSet')
@@ -313,9 +307,7 @@ class ObservationSet(object):
         'ParameterSet'
             An instance of class ParameterSet
 
-        Authors
-        -------
-        Allan Denis
+        Authors: Allan Denis
         '''
 
         logger = logger or setup_logging(level=log_level, name='ParameterSet')
@@ -352,9 +344,7 @@ class ObservationSet(object):
         'ParameterSet'
             An instance of class ParameterSet
 
-        Authors
-        -------
-        Allan Denis
+        Authors: Allan Denis
         '''
 
         logger = logger or setup_logging(level=log_level, name='ParameterSet')
@@ -392,9 +382,7 @@ class ObservationSet(object):
         'ParameterSet'
             An instance of class ParameterSet
 
-        Authors
-        -------
-        Allan Denis
+        Authors: Allan Denis
         '''
 
         logger = logger or setup_logging(level=log_level, name='ParameterSet')
@@ -437,9 +425,7 @@ class ObservationSet(object):
         - self.add_observation(data={"wavelength": ..., "flux": ...})
         - self.add_observation(name="spectral_obs", wavelength=..., flux=..., ...)
 
-        Authors
-        -------
-        Allan Denis
+        Authors: Allan Denis
         '''
 
         if len(args) == 1:
@@ -478,9 +464,7 @@ class ObservationSet(object):
         to_json : bool
             Whether to save all observations in a json file
 
-        Authors
-        -------
-        Allan Denis
+        Authors: Allan Denis
         '''
 
         path = Path(path).expanduser() / 'Observations'
@@ -514,9 +498,7 @@ class ObservationSet(object):
         res_cont : list[float]
             List os resolutions used for the continuum
 
-        Authors
-        -------
-        Simon Petrus, Matthieu Ravet and Allan Denis
+        Authors: Simon Petrus, Matthieu Ravet and Allan Denis
         '''
 
         # Initial checks
@@ -559,9 +541,7 @@ class ObservationSet(object):
         path : str | os.PathLike
             Path to save the set of parameters
 
-        Authors
-        -------
-        Allan Denis
+        Authors: Allan Denis
         '''
 
         if not isinstance(path, (str, os.PathLike)):
@@ -599,9 +579,7 @@ class ObservationSet(object):
         ax_filt : matplotlib.axes._axes.Axes
             New ax object for photometric filters
 
-        Authors
-        -------
-        Allan Denis
+        Authors: Allan Denis
         '''
 
         self.logger.info(f'    Plotting all the observations {self.observation_names}')
@@ -669,9 +647,7 @@ class ObservationSet(object):
         dict
             Stacked observations sorted by wavelength
 
-        Authors
-        -------
-        Allan Denis
+        Authors: Allan Denis
         '''
 
         if print_logger:

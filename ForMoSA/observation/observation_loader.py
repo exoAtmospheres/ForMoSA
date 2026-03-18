@@ -16,9 +16,7 @@ class ObservationLoader:
     '''
     Class responsible for observation loading from various inputs format
 
-    Authors
-    -------
-    Allan Denis
+    Authors: Allan Denis
     '''
 
     @staticmethod
@@ -33,9 +31,7 @@ class ObservationLoader:
         dict
             Dictionnary representation of the attributes
 
-        Authors
-        -------
-        Allan Denis
+        Authors: Allan Denis
         '''
 
         return {k: np.asarray(v) for k, v in kwargs.items() if v is not None}
@@ -58,9 +54,7 @@ class ObservationLoader:
         --------
         >>> normalize_keys(["wave", "flux", "err", "instrument"]) --> {'WAVELENGTH': 'wave', 'FLUX': 'flux', 'ERROR': 'err', 'INSTRUMENT': 'instrument'}
 
-        Authors
-        -------
-        Allan Denis
+        Authors: Allan Denis
         '''
 
         if not isinstance(keys, Iterable):
@@ -99,9 +93,7 @@ class ObservationLoader:
         Observation
             Instance of class Observation
 
-        Authors
-        -------
-        Allan Denis
+        Authors: Allan Denis
         '''
 
         logger = logger or setup_logging(log_level, name='Observation loader')
@@ -138,9 +130,7 @@ class ObservationLoader:
         Observation
             Instance of class Observation
 
-        Authors
-        -------
-        Allan Denis
+        Authors: Allan Denis
         '''
 
         logger = logger or setup_logging(log_level, name='Observation loader')
@@ -160,9 +150,7 @@ class ObservationLoader:
         -------
         Observation
 
-        Authors
-        -------
-        Allan Denis
+        Authors: Allan Denis
         '''
 
         # Retrieve logger arguments
@@ -195,9 +183,7 @@ class ObservationLoader:
         Observation
             instance of class Observation
 
-        Authors
-        -------
-        Allan Denis
+        Authors: Allan Denis
         '''
 
         logger = logger or setup_logging(log_level, name='Observation loader')
@@ -373,9 +359,7 @@ class ObservationLoader:
         None | np.ndarray
             Stacked columns
 
-        Authors
-        -------
-        Allan Denis
+        Authors: Allan Denis
         '''
 
         # Get the aliases corresponding to the key

@@ -24,9 +24,7 @@ def setup_logging(level: str ="INFO", logfile: str | os.PathLike = None, name: s
         Logger
 
 
-    Authors
-    -------
-    Arthur Vigan and Allan Denis
+    Authors: Arthur Vigan and Allan Denis
     '''
 
     logger = logging.getLogger(f"ForMoSA.{name}") if name else logging.getLogger("ForMoSA")

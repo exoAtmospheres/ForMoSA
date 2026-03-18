@@ -27,9 +27,7 @@ class Plotting(object):
         Logger used
     log_level         v(str): Level of the Logger
 
-    Authors
-    -------
-    Paulina Palma-Bifani, Matthieu Ravet and Allan Denis
+    Authors: Paulina Palma-Bifani, Matthieu Ravet and Allan Denis
     '''
 
     def __init__(self, results: NSResults, logger: logging.Logger, log_level: str = 'INFO') -> None:
@@ -77,9 +75,7 @@ class Plotting(object):
         matplotlib.figure.Figure
             Figure containin corner plots.
 
-        Authors
-        -------
-        Paulina Palma-Bifani, Matthieu Ravet and Allan Denis
+        Authors: Paulina Palma-Bifani, Matthieu Ravet and Allan Denis
         '''
 
         self._logger.info('    Plotting Corner plot')
@@ -112,9 +108,7 @@ class Plotting(object):
         tuple[matplotlib.figure.Figure, matplotlib.axes._axes.Axes]
             Tuple containing Figure and Ax objects
 
-        Authors
-        -------
-        Paulina Palma-Bifani, Matthieu Ravet and Allan Denis
+        Authors: Paulina Palma-Bifani, Matthieu Ravet and Allan Denis
         '''
 
         self._logger.info('    Plotting posterior chains for each parameter.')
@@ -170,9 +164,7 @@ class Plotting(object):
         tuple[matplotlib.figure.Figure, matplotlib.axes._axes.Axes]
             Tuple containing Figure and Ax objects
 
-        Authors
-        -------
-        Paulina Palma-Bifani, Matthieu Ravet and Allan Denis
+        Authors: Paulina Palma-Bifani, Matthieu Ravet and Allan Denis
         '''
 
         self._logger.info('    Plotting radar plot of the chains')
@@ -270,9 +262,7 @@ class Plotting(object):
         tuple[Figure, Axes, Axes, Axes, Axes]
             Figure and ax objects
 
-        Authors
-        -------
-        Paulina Palma-Bifani, Matthieu Ravet and Allan Denis
+        Authors: Paulina Palma-Bifani, Matthieu Ravet and Allan Denis
         '''
 
         self._logger.info('    Plotting best fit and residuals')
@@ -374,9 +364,7 @@ class Plotting(object):
         tuple[Figure, Axes]
             Figure and Axes objects
 
-        Authors
-        -------
-        Bhavesh Rajpoot and Allan Denis
+        Authors: Bhavesh Rajpoot and Allan Denis
         '''
 
         self._logger.info('    Plotting CCF')
@@ -424,9 +412,7 @@ class Plotting(object):
         tuple[Figure, Axes]
             Figure and Axes objects
 
-        Authors
-        -------
-        Bhavesh Rajpoot (adapted from Allan Denis)
+        Authors: Bhavesh Rajpoot (adapted from Allan Denis)
         '''
 
         self._logger.info('    Computing RV-vsini map')

@@ -19,9 +19,7 @@ def uniform_prior(bounds: list, theta: float) -> float:
     float
         Evaluated prior
 
-    Authors
-    -------
-    Simon Petrus
+    Authors: Simon Petrus
     '''
 
     if theta < 0 or theta > 1:
@@ -48,9 +46,7 @@ def loguniform_prior(prior_fct_arg: list, theta: float) -> float:
     float
         Evaluated prior
 
-    Authors
-    -------
-    Simon Petrus
+    Authors: Simon Petrus
     '''
 
     if theta < 0 or theta > 1:
@@ -79,9 +75,7 @@ def gaussian_prior(mean: float, std: float, theta: float):
     float
         Evaluated prior
 
-    Authors
-    -------
-    Simon Petrus
+    Authors: Simon Petrus
     '''
 
     if theta < 0 or theta > 1:

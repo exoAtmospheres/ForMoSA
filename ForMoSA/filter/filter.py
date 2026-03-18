@@ -39,9 +39,7 @@ class PhotometryFilter(object):
     display_unit : WavelengthUnit
         Unit of the wavelength to display
 
-    Authors
-    -------
-    Allan Denis
+    Authors: Allan Denis
     '''
 
     def __init__(self, facility: str, instrument: str, filter_id: str, filter_path: str | os.PathLike | None = None, log_level: str = 'info', logger: logging.Logger | None = None, display_unit: WavelengthUnit = WavelengthUnit.MICROMETER):
@@ -246,9 +244,7 @@ class PhotometryFilter(object):
         'PhotometryFilter'
             Instance of PhotometryFilter
 
-        Authors
-        -------
-        Allan Denis
+        Authors: Allan Denis
         '''
 
         facility, instrument, filter_id = filter_name.split('/')[0], filter_name.split('/')[1].split('.')[0], filter_name.split('/')[1].split('.')[1]
@@ -263,9 +259,7 @@ class PhotometryFilter(object):
         '''
         Validate the filter data.
 
-        Authors
-        -------
-        Allan Denis
+        Authors: Allan Denis
         '''
 
         if not isinstance(self._filter_path, (str, os.PathLike)):
@@ -290,9 +284,7 @@ class PhotometryFilter(object):
         '''
         Get the filter data either from a local FITS file or from the Spanish Virtual Observatory's Filter Profile Service.
 
-        Authors
-        -------
-        Allan Denis
+        Authors: Allan Denis
         '''
 
         try:
@@ -333,9 +325,7 @@ class PhotometryFilter(object):
         ax : matplotlib.axes._axes.Axes
             Updated ax
 
-        Authors
-        -------
-        Allan Denis
+        Authors: Allan Denis
         '''
 
         self._logger.info(f"      Plotting transmission curve of filter {self.name}")
@@ -365,9 +355,7 @@ class PhotometryFilter(object):
         unit : WavelengthUnit
             unit used (micrometer', 'nanometer', 'angstrom')
 
-        Authors
-        -------
-        Allan Denis
+        Authors: Allan Denis
         '''
 
         if not isinstance(unit, WavelengthUnit):
@@ -383,9 +371,7 @@ class PhotometryFilter(object):
         '''
         Save filter data and metadata into a FITS file.
 
-        Authors
-        -------
-        Allan Denis
+        Authors: Allan Denis
         '''
 
         path = self.file_path
@@ -461,9 +447,7 @@ class PhotometryFilter(object):
         '''
         Method to Query filter data in the Spanish Virtual Observatory's Filter Profile Service
 
-        Authors
-        -------
-        Mickael Bonnefoy and Allan Denis
+        Authors: Mickael Bonnefoy and Allan Denis
         '''
 
         data = SvoFps.get_transmission_data(self.name)
@@ -481,9 +465,7 @@ class PhotometryFilter(object):
         """
         Method to load filter data from the fits file.
 
-        Authors
-        -------
-        Allan Denis
+        Authors: Allan Denis
         """
 
         # Convert to Path if it's a string

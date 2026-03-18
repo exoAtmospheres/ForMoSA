@@ -30,9 +30,7 @@ class SubGridPhotometry(SubGrid):
     name : str
         Name of the subgrid
 
-    Authors
-    -------
-    Allan Denis
+    Authors: Allan Denis
     '''
 
     def __init__(self, grid: xr.Dataset, parent_grid: ModelGrid, Filter: np.ndarray[PhotometryFilter], logger: logging.Logger | None = None, log_level: str = "INFO", display_unit: WavelengthUnit = WavelengthUnit.MICROMETER, name: str = 'Unknown'):
@@ -118,9 +116,7 @@ class SubGridPhotometry(SubGrid):
         --------
         >>> subgrid = SubGridPhotometry.from_parent(parent_grid, Filter, name, logger, log_level, display_unit)
 
-        Authors
-        -------
-        Allan Denis
+        Authors: Allan Denis
         '''
 
         subgrid = cls(
@@ -169,9 +165,7 @@ class SubGridPhotometry(SubGrid):
         --------
         >>> subgrid = SubGridPhotometry.from_grid(ds, parent_grid, logger, log_level, display_unit)
 
-        Authors
-        -------
-        Allan Denis
+        Authors: Allan Denis
         '''
 
         logger = logger or setup_logging(level=log_level, name='SubGridPhotometry')
@@ -215,9 +209,7 @@ class SubGridPhotometry(SubGrid):
         '''
         Check the consistency between the target wavelength and the wavelengths of the filter.
 
-        Authors
-        -------
-        Allan Denis
+        Authors: Allan Denis
         '''
 
         for filt in self.Filter:
@@ -230,9 +222,7 @@ class SubGridPhotometry(SubGrid):
         '''
         Adapt the native grid to the target wavelength and resolution.
 
-        Authors
-        -------
-        Allan Denis
+        Authors: Allan Denis
         '''
 
         self.adapt_grid()
@@ -247,9 +237,7 @@ class SubGridPhotometry(SubGrid):
         tuple[float, float]
             Minimumn and maximum wavelengths of the restricted subgrid
 
-        Authors
-        -------
-        Allan Denis
+        Authors: Allan Denis
         '''
 
         margin = 0.05   # 5% margin
@@ -274,9 +262,7 @@ class SubGridPhotometry(SubGrid):
         -------
         model_adapted
 
-        Authors
-        -------
-        Allan Denis
+        Authors: Allan Denis
         '''
 
         model_adapted = self.integrate_filter_curve(model_to_adapt)
@@ -298,9 +284,7 @@ class SubGridPhotometry(SubGrid):
         -------
         (ObservedModel): observed_model transformed by the physics effects
 
-        Authors
-        -------
-        Allan Denis
+        Authors: Allan Denis
         '''
 
         # Parameters relevant to spectroscopy
@@ -328,9 +312,7 @@ class SubGridPhotometry(SubGrid):
         xr.DataArray
             Integrated value under the filter curve
 
-        Authors
-        -------
-        Allan Denis
+        Authors: Allan Denis
         '''
 
         if print_logger:
@@ -396,9 +378,7 @@ class SubGridPhotometry(SubGrid):
         ObservedModel
             Instance of class ObservedModel transformed
 
-        Authors
-        -------
-        Allan Denis
+        Authors: Allan Denis
         '''
 
         return PhotometricEffects._apply_observation(observed_model, obs, bounds_lsq)
@@ -421,9 +401,7 @@ class SubGridPhotometry(SubGrid):
         float
             logL value
 
-        Authors
-        -------
-        Simon Petrus, Matthieu Ravet and Allan Denis
+        Authors: Simon Petrus, Matthieu Ravet and Allan Denis
         '''
 
         return PhotometricEffects._compute_loglike(observed_model, obs, logL_type)

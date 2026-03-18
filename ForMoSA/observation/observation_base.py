@@ -38,9 +38,7 @@ class Observation(ABC):
     display_unit : WavelengthUnit
         Display unit of the wavelength array
 
-    Authors
-    -------
-    Allan Denis
+    Authors: Allan Denis
     '''
 
     def __init__(self, wave: np.ndarray, flux: np.ndarray, err: np.ndarray, native_unit: WavelengthUnit, facility: str, instrument: str, logger: logging.Logger | None = None, log_level:str = 'INFO', display_unit: WavelengthUnit = WavelengthUnit.MICROMETER, plot_config: ObsPlotConfig = ObsPlotConfig()) -> None:
@@ -99,9 +97,7 @@ class Observation(ABC):
         '''
         Adapt the spectral observation to the target resolution.
 
-        Authors
-        -------
-        Allan Denis
+        Authors: Allan Denis
         '''
         pass
 
@@ -121,9 +117,7 @@ class Observation(ABC):
         ax_filt : matplotlib.axes._axes.Axes
             Ax used to overplot the transmission filter on an existing ax
 
-        Authors
-        -------
-        Allan Denis
+        Authors: Allan Denis
         '''
 
     @abstractmethod
@@ -141,9 +135,7 @@ class Observation(ABC):
         dict
             Restricted observation data
 
-        Authors
-        -------
-        Allan Denis
+        Authors: Allan Denis
         '''
 
         pass
@@ -240,9 +232,7 @@ class Observation(ABC):
         --------
         >>> obs = Observation.from_dict(data, logger, log_level)
 
-        Authors
-        -------
-        Allan Denis
+        Authors: Allan Denis
         '''
 
         logger = logger or setup_logging(level=log_level, name="Observation")
@@ -278,9 +268,7 @@ class Observation(ABC):
         --------
         >>> obs = Observation._from_file(path, logger, log_level)
 
-        Authors
-        -------
-        Allan Denis
+        Authors: Allan Denis
         '''
 
         logger = logger or setup_logging(level=log_level, name="Observation")
@@ -320,9 +308,7 @@ class Observation(ABC):
         --------
         >>> obs = Observation._from_attributes(**attributes, logger, log_level)
 
-        Authors
-        -------
-        Allan Denis
+        Authors: Allan Denis
         '''
 
         logger = logger or setup_logging(level=log_level, name="Observation")
@@ -343,9 +329,7 @@ class Observation(ABC):
         '''
         Check consistency in wavelength, flux and error
 
-        Authors
-        -------
-        Allan Denis
+        Authors: Allan Denis
         '''
 
         if not (len(self._wave) == len(self._flux) == len(self._err) == len(self.instrument) == len(self.facility)):
@@ -374,9 +358,7 @@ class Observation(ABC):
         unit : WavelengthUnit
             Desired display unit
 
-        Authors
-        -------
-        Allan Denis
+        Authors: Allan Denis
         '''
 
         if not(isinstance(unit, WavelengthUnit)):
@@ -392,9 +374,7 @@ class Observation(ABC):
         store_path : str | os.PathLike
             Path where to store the observation file
 
-        Authors
-        -------
-        Allan Denis
+        Authors: Allan Denis
         '''
 
         self.logger.debug(f'Save observation {self.name} to path {store_path}')

@@ -9,9 +9,7 @@ class GridLoader:
     '''
     Class responsible for Grid loading.
 
-    Authors
-    -------
-    Allan Denis
+    Authors: Allan Denis
     '''
 
     @staticmethod
@@ -19,9 +17,7 @@ class GridLoader:
         '''
         Validate that an xarray.Dataset conforms to the ForMoSA grid specifications
 
-        Authors
-        -------
-        Allan Denis
+        Authors: Allan Denis
         '''
 
         # Grid key
@@ -71,9 +67,7 @@ class GridLoader:
         xr.Dataset
             Validated ForMoSA grid dataset.
 
-        Authors
-        -------
-        Allan Denis
+        Authors: Allan Denis
         '''
 
         path = Path(path)
@@ -116,9 +110,7 @@ class GridLoader:
         xr.Dataset
             Validated ForMoSA grid dataset.
 
-        Authors
-        -------
-        Allan Denis
+        Authors: Allan Denis
         '''
 
         # Data type

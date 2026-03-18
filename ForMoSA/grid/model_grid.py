@@ -27,9 +27,7 @@ class ModelGrid:
     display_unit : WavelengthUnit
         Unit of the wavelength to display
 
-    Authors
-    -------
-    Allan Denis
+    Authors: Allan Denis
     '''
 
     def __init__(self, dataset: xr.Dataset, model_path: str | os.PathLike | None = None, logger: logging.Logger | None = None, log_level: str = "INFO", display_unit: WavelengthUnit = WavelengthUnit.MICROMETER) -> None:
@@ -196,9 +194,7 @@ class ModelGrid:
         --------
         >>> grid = ModelGrid._from_file(path)
 
-        Authors
-        -------
-        Allan Denis
+        Authors: Allan Denis
         '''
 
         logger = logger or setup_logging(level=log_level, name = 'ModelGrid')
@@ -237,9 +233,7 @@ class ModelGrid:
         --------
         >>> grid = ModelGrid._from_attributes(data, coords, attrs)
 
-        Authors
-        -------
-        Allan Denis
+        Authors: Allan Denis
         '''
 
         logger = logger or setup_logging(level=log_level, name='ModelGrid')
@@ -262,9 +256,7 @@ class ModelGrid:
         unit : WavelengthUnit
             unit used (micrometer', 'nanometer', 'angstrom')
 
-        Authors
-        -------
-        Allan Denis
+        Authors: Allan Denis
         '''
 
         if not isinstance(unit, WavelengthUnit):
@@ -287,9 +279,7 @@ class ModelGrid:
         model_to_return : xr.DataArray
             Model at the specific index
 
-        Authors
-        -------
-        Allan Denis
+        Authors: Allan Denis
         '''
 
         if not isinstance(idx, tuple):
@@ -318,9 +308,7 @@ class ModelGrid:
         max_gap : int
             Maximum size of gap, a continuous sequence of NaNs, that will be filled
 
-        Authors
-        -------
-        Simon Petrus, Paulina Palma-Bifani, Matthieu Ravet and Allan Denis
+        Authors: Simon Petrus, Paulina Palma-Bifani, Matthieu Ravet and Allan Denis
         '''
 
         self.logger.info(f'    Interpolating between holes of the grid {self.grid_name}')
@@ -345,9 +333,7 @@ class ModelGrid:
         Return a 1D interpolated grid filled with NaNs,
         with the same structure as a valid interpolated grid.
 
-        Authors
-        -------
-        Allan Denis
+        Authors: Allan Denis
         '''
 
         ref_params = {k: 0.5 * (self.lims_params_grid[k][0] + self.lims_params_grid[k][1]) for k in self.keys}
@@ -379,9 +365,7 @@ class ModelGrid:
         xr.Dataset
             Interpolated 1D grid. If parameters are out-of-bounds, returns a 1D grid filled with NaNs.
 
-        Authors
-        -------
-        Simon Petrus, Paulina Palma-Bifani, Matthieu Ravet and Allan Denis
+        Authors: Simon Petrus, Paulina Palma-Bifani, Matthieu Ravet and Allan Denis
         '''
 
         if print_logger:
@@ -441,9 +425,7 @@ class ModelGrid:
         store_path : str | os.PathLike
             Path where to store the grid
 
-        Authors
-        -------
-        Simon Petrus, Paulina Palma-Bifani, Matthieu Ravet and Allan Denis
+        Authors: Simon Petrus, Paulina Palma-Bifani, Matthieu Ravet and Allan Denis
         '''
 
         if not isinstance(store_path, (str, os.PathLike)):
@@ -478,9 +460,7 @@ class ModelGrid:
         xr.Dataset
             Loaded grid
 
-        Authors
-        -------
-        Simon Petrus, Paulina Palma-Bifani, Matthieu Ravet and Allan Denis
+        Authors: Simon Petrus, Paulina Palma-Bifani, Matthieu Ravet and Allan Denis
         '''
 
         if not isinstance(store_path, (str, os.PathLike)):
@@ -520,9 +500,7 @@ class ModelGrid:
         'ModelGrid'
             An instance of class ModelGrid
 
-        Authors
-        -------
-        Allan Denis
+        Authors: Allan Denis
         '''
 
         if not isinstance(windows, str):

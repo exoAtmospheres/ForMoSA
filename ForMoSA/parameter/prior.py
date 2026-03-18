@@ -11,9 +11,7 @@ class Prior(ABC):
     """
     Abstract base class for prior distributions.
 
-    Authors
-    -------
-    Allan Denis
+    Authors: Allan Denis
     """
 
     def __init__(self, logger: logging.Logger | None = None, log_level: str='INFO') -> None:
@@ -57,9 +55,7 @@ class Prior(ABC):
         Prior
             An instance of Prior
 
-        Authors
-        -------
-        Allan Denis
+        Authors: Allan Denis
         '''
 
         logger = logger or setup_logging(level=log_level, name='Prior')
@@ -90,9 +86,7 @@ class Prior(ABC):
         float
             Sampled value from the prior distribution
 
-        Authors
-        -------
-        Allan Denis
+        Authors: Allan Denis
         '''
 
         pass
@@ -135,9 +129,7 @@ class Prior(ABC):
         --------
         >>> Prior = Prior.parse_prior(prior_type, params)
 
-        Authors
-        -------
-        Allan Denis
+        Authors: Allan Denis
         '''
 
         if prior_type.is_gaussian:
@@ -170,9 +162,7 @@ class UniformPrior(Prior):
     log_level : str
         Level of the Logger
 
-    Authors
-    -------
-    Allan Denis
+    Authors: Allan Denis
     '''
 
     def __init__(self, lower: float, upper: float, logger: logging.Logger | None = None, log_level: str='INFO') -> None:
@@ -237,9 +227,7 @@ class UniformPrior(Prior):
         '''
         Validation
 
-        Authors
-        -------
-        Allan Denis
+        Authors: Allan Denis
         '''
 
         if self.lower >= self.upper:
@@ -275,9 +263,7 @@ class UniformPrior(Prior):
         dict
             Dictionary of the parameter
 
-        Authors
-        -------
-        Allan Denis
+        Authors: Allan Denis
         '''
 
         return {"lower": self.lower, "upper": self.upper}
@@ -301,9 +287,7 @@ class LogUniformPrior(Prior):
     log_level : str
         Level of the Logger
 
-    Authors
-    -------
-    Allan Denis
+    Authors: Allan Denis
     '''
 
     def __init__(self, lower: float, upper: float, logger: logging.Logger | None = None, log_level: str = 'INFO') -> None:
@@ -368,9 +352,7 @@ class LogUniformPrior(Prior):
         '''
         Validation.
 
-        Authors
-        -------
-        Allan Denis
+        Authors: Allan Denis
         '''
 
         if self.lower <= 0 or self.upper <= 0:
@@ -408,9 +390,7 @@ class LogUniformPrior(Prior):
         dict
             Dictionary of the parameter
 
-        Authors
-        -------
-        Allan Denis
+        Authors: Allan Denis
         '''
 
         return {"lower": self.lower, "upper": self.upper}
@@ -431,9 +411,7 @@ class ConstantPrior(Prior):
     log_level : str
         Level of the Logger
 
-    Authors
-    -------
-    Allan Denis
+    Authors: Allan Denis
     '''
 
     def __init__(self, value: float, logger: logging.Logger | None = None, log_level: str = 'INFO') -> None:
@@ -506,9 +484,7 @@ class ConstantPrior(Prior):
         dict
             Dictionary of the parameter
 
-        Authors
-        -------
-        Allan Denis
+        Authors: Allan Denis
         '''
 
         return {"value": self.value}
@@ -531,9 +507,7 @@ class GaussianPrior(Prior):
     log_level : str
         Level of the Logger
 
-    Authors
-    -------
-    Allan Denis
+    Authors: Allan Denis
     '''
 
     def __init__(self, mean: float, stddev: float, logger: logging.Logger | None = None, log_level: str = 'INFO') -> None:
@@ -596,9 +570,7 @@ class GaussianPrior(Prior):
         '''
         Validation.
 
-        Authors
-        -------
-        Allan Denis
+        Authors: Allan Denis
         '''
 
         if self.stddev <= 0:
@@ -634,9 +606,7 @@ class GaussianPrior(Prior):
         dict
             Dictionary of the parameter
 
-        Authors
-        -------
-        Allan Denis
+        Authors: Allan Denis
         '''
 
         return {"mean": self.mean, "stddev": self.stddev}

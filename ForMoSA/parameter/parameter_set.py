@@ -18,9 +18,7 @@ class ParameterSet(object):
     logger         (logging.Logger): Logger
     log_level                 (str): Level of the logging
 
-    Authors
-    -------
-    Allan Denis
+    Authors: Allan Denis
     """
 
     def __init__(self, logger: logging.Logger | None = None, log_level: str = 'INFO') -> None:
@@ -109,9 +107,7 @@ class ParameterSet(object):
         "ParameterSet"
             As instance of ParameterSet
 
-        Authors
-        -------
-        Allan Denis
+        Authors: Allan Denis
         '''
 
         logger = logger or setup_logging(level=log_level, name='ParameterSet')
@@ -156,9 +152,7 @@ class ParameterSet(object):
         'ParameterSet'
             An instance of class ParameterSet
 
-        Authors
-        -------
-        Allan Denis
+        Authors: Allan Denis
         '''
 
         logger = logger or setup_logging(level=log_level, name='ParameterSet')
@@ -191,9 +185,7 @@ class ParameterSet(object):
         'ParameterSet'
             An instance of class ParameterSet
 
-        Authors
-        -------
-        Allan Denis
+        Authors: Allan Denis
         '''
 
         logger = logger or setup_logging(level=log_level, name='ParameterSet')
@@ -229,9 +221,7 @@ class ParameterSet(object):
         -------
         list[float] : physical values in the same ordering as self.free_parameters
 
-        Authors
-        -------
-        Allan Denis
+        Authors: Allan Denis
         '''
 
         # Initial checks
@@ -257,9 +247,7 @@ class ParameterSet(object):
         parameter : Parameter
             Instance of class Parameter to add
 
-        Authors
-        -------
-        Allan Denis
+        Authors: Allan Denis
         '''
 
         if not isinstance(parameter, Parameter):
@@ -286,9 +274,7 @@ class ParameterSet(object):
         pandas.DataFrame | str
             Summary of parameters
 
-        Authors
-        -------
-        Allan Denis
+        Authors: Allan Denis
         '''
 
         rows = []
@@ -325,9 +311,7 @@ class ParameterSet(object):
         path : str | os.PathLike
             Path to save the set of parameters
 
-        Authors
-        -------
-        Allan Denis
+        Authors: Allan Denis
         '''
 
         if not isinstance(path, (str, os.PathLike)):

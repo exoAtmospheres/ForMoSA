@@ -30,9 +30,7 @@ class NSAnalysis(object):
     log_level : str
         Level of the Logger
 
-    Authors
-    -------
-    Allan Denis
+    Authors: Allan Denis
     '''
 
     def __init__(self, ns: NestedSampling, logger: logging.Logger | None = None, log_level: str = 'INFO') -> None:
@@ -87,9 +85,7 @@ class NSAnalysis(object):
         '''
         Validation for NSAnalysis.
 
-        Authors
-        -------
-        Allan Denis
+        Authors: Allan Denis
         '''
 
         if not isinstance(self.ns, NestedSampling):
@@ -109,9 +105,7 @@ class NSAnalysis(object):
         list[ObservedModel]
             List of instances of class ObservedModel
 
-        Authors
-        -------
-        Allan Denis
+        Authors: Allan Denis
         '''
 
         return self.ns.build_models_from_theta(theta)
@@ -134,9 +128,7 @@ class NSAnalysis(object):
         ObservedModel
             Native observed model
 
-        Authors
-        -------
-        Allan Denis
+        Authors: Allan Denis
         '''
 
         if not isinstance(grid, ModelGrid):
@@ -216,9 +208,7 @@ class NSAnalysis(object):
         tuple[ObservedModel, ObservedModel]
             lower and higher values of the flux for the confidence interval
 
-        Authors
-        -------
-        Allan Denis
+        Authors: Allan Denis
         '''
 
         perc = float(perc)
@@ -272,9 +262,7 @@ class NSAnalysis(object):
         dict[str, np.ndarray]
             Dictionary of CCF results keyed by observation name
 
-        Authors
-        -------
-        Bhavesh Rajpoot and Allan Denis
+        Authors: Bhavesh Rajpoot and Allan Denis
         '''
 
         if theta is not None:
@@ -369,9 +357,7 @@ class NSAnalysis(object):
         dict[str, np.ndarray]
             Dictionary of RV-vsini map results keyed by observation name
 
-        Authors
-        -------
-        Bhavesh Rajpoot and Allan Denis
+        Authors: Bhavesh Rajpoot and Allan Denis
         '''
 
         if theta is not None:

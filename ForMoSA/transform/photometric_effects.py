@@ -9,9 +9,7 @@ class PhotometricEffects:
     '''
     Physical effects applied to a photometric model.
 
-    Authors
-    -------
-    Allan Denis
+    Authors: Allan Denis
     '''
 
     @staticmethod
@@ -30,9 +28,7 @@ class PhotometricEffects:
         -------
         (ObservedModel): Instance of class ObservedModel transformed by the physics effects
 
-        Authors
-        -------
-        Allan Denis
+        Authors: Allan Denis
         '''
 
         # ======================
@@ -100,9 +96,7 @@ class PhotometricEffects:
         ObservedModel
             Instance of class ObservedModel transformed by the observational effects
 
-        Authors
-        -------
-        Allan Denis
+        Authors: Allan Denis
         '''
 
         # ======================
@@ -149,9 +143,7 @@ class PhotometricEffects:
         float
             logL value
 
-        Authors
-        -------
-        Simon Petrus, Matthieu Ravet and Allan Denis
+        Authors: Simon Petrus, Matthieu Ravet and Allan Denis
         '''
 
         # ======================

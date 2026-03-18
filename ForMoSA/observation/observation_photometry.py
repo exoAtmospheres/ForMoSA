@@ -39,9 +39,7 @@ class PhotometryObservation(Observation):
     display_unit : WavelengthUnit
         Unit of the wavelength to display
 
-    Authors
-    -------
-    Allan Denis
+    Authors: Allan Denis
     '''
 
     def __init__(self, wave: np.ndarray, flux: np.ndarray, err: np.ndarray, instrument: np.ndarray, facility: np.ndarray, filter_id: np.ndarray, native_unit: WavelengthUnit, logger: logging.Logger | None = None, log_level: str = 'INFO', display_unit: WavelengthUnit = WavelengthUnit.MICROMETER) -> None:
@@ -153,9 +151,7 @@ class PhotometryObservation(Observation):
         '''
         Do some checks on photometric observations.
 
-        Authors
-        -------
-        Allan Denis
+        Authors: Allan Denis
         '''
 
         if not len(self.filter_id) == len(self.instrument):
@@ -172,9 +168,7 @@ class PhotometryObservation(Observation):
         '''
         For photometry, this function does not implement anything.
 
-        Authors
-        -------
-        Allan Denis
+        Authors: Allan Denis
         '''
 
         self.logger.info(f'      Observation {self.name} is photometric. No adaptation')
@@ -203,9 +197,7 @@ class PhotometryObservation(Observation):
         ax_filt : matplotlib.axes._axes.Axes
             Updated ax_filt
 
-        Authors
-        -------
-        Allan Denis
+        Authors: Allan Denis
         '''
 
         self.logger.info(f'      Plotting data for observation {self.name}')
@@ -313,9 +305,7 @@ class PhotometryObservation(Observation):
         PhotometryObservation
             Restricted observation
 
-        Authors
-        -------
-        Allan Denis
+        Authors: Allan Denis
         '''
 
         # Dictionary of the observation
