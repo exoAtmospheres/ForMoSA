@@ -30,6 +30,7 @@
 
     <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
     <link rel="stylesheet" type="text/css" href="_static/styles/sphinx-book-theme.css?v=eba8b062" />
+    <link rel="stylesheet" type="text/css" href="_static/graphviz.css?v=4ae1632d" />
     <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
     <link rel="stylesheet" type="text/css" href="_static/custom.css?v=d0b3e03c" />
   
@@ -49,6 +50,7 @@
     <link rel="icon" href="_static/favicon.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="What’s New in v2.0.0" href="whats_new.html" />
     <link rel="prev" title="Plotting" href="plotting.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
@@ -192,6 +194,7 @@
 <li class="toctree-l2 current active"><a class="current reference internal" href="#">Utilities</a></li>
 </ul>
 </details></li>
+<li class="toctree-l1"><a class="reference internal" href="whats_new.html">What’s New in v2.0.0</a></li>
 </ul>
 
     </div>
@@ -461,17 +464,17 @@ array normalization, percentile computations, etc.).</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p><ul class="simple">
-<li><ul>
 <li><p>float     : hours</p></li>
 <li><p>float     : minutes</p></li>
 <li><p>float     : seconds</p></li>
 </ul>
-</li>
-<li><p><strong>Authors</strong> (<em>Simon Petrus</em>)</p></li>
-</ul>
 </p>
 </dd>
 </dl>
+<div class="admonition-notes admonition">
+<p class="admonition-title">Notes</p>
+<p>Authors: Simon Petrus</p>
+</div>
 </dd></dl>
 
 <dl class="py function">
@@ -486,17 +489,17 @@ array normalization, percentile computations, etc.).</p>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p><ul class="simple">
-<li><dl class="simple">
+<dd class="field-even"><p><dl class="simple">
 <dt>int</dt><dd><p>Index of the closest values from the desire value</p>
 </dd>
 </dl>
-</li>
-<li><p><strong>Authors</strong> (<em>Simon Petrus</em>)</p></li>
-</ul>
 </p>
 </dd>
 </dl>
+<div class="admonition-notes admonition">
+<p class="admonition-title">Notes</p>
+<p>Authors: Simon Petrus</p>
+</div>
 </dd></dl>
 
 <dl class="py function">
@@ -513,17 +516,17 @@ array normalization, percentile computations, etc.).</p>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p><ul class="simple">
-<li><dl class="simple">
+<dd class="field-even"><p><dl class="simple">
 <dt>xarray</dt><dd><p>Xarray of the PCA or NMF weights grid</p>
 </dd>
 </dl>
-</li>
-<li><p><strong>Authors</strong> (<em>Matthieu Ravet</em>)</p></li>
-</ul>
 </p>
 </dd>
 </dl>
+<div class="admonition-notes admonition">
+<p class="admonition-title">Notes</p>
+<p>Authors: Matthieu Ravet</p>
+</div>
 </dd></dl>
 
 <dl class="py function">
@@ -543,26 +546,29 @@ array normalization, percentile computations, etc.).</p>
 </dl>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p><ul class="simple">
-<li><dl class="simple">
+<dd class="field-odd"><p><dl class="simple">
 <dt>percentiles<span class="classifier">array</span></dt><dd><p>Weighted percentile values.
 - shape (len(n),) if data is 1D
 - shape (len(n), M) if data is 2D</p>
 </dd>
 </dl>
-</li>
-<li><p><strong>Authors</strong> (<em>Allan Denis</em>)</p></li>
-</ul>
 </p>
 </dd>
 </dl>
+<div class="admonition-notes admonition">
+<p class="admonition-title">Notes</p>
+<p>Authors: Allan Denis</p>
+</div>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="ForMoSA.utils.misc.scale_to_one_significant_digit">
 <span class="sig-prename descclassname"><span class="pre">ForMoSA.utils.misc.</span></span><span class="sig-name descname"><span class="pre">scale_to_one_significant_digit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">flux</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ForMoSA/utils/misc.html#scale_to_one_significant_digit"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ForMoSA.utils.misc.scale_to_one_significant_digit" title="Link to this definition">#</a></dt>
 <dd><p>Returns a tuple (scaled_flux, factor) such that flux ≈ scaled_flux * 10**factor</p>
+<div class="admonition-notes admonition">
+<p class="admonition-title">Notes</p>
 <p>Authors: Allan Denis</p>
+</div>
 </dd></dl>
 
 <dl class="py function">
@@ -574,13 +580,13 @@ array normalization, percentile computations, etc.).</p>
 <dd class="field-odd"><p><strong>data</strong> (<em>fits.fitsred.FITS_rec</em>) – Data from a fits file</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p><ul class="simple">
-<li><p><strong>data_dict</strong> (<em>dic</em>) – Dictionary representation of the data</p></li>
-<li><p><strong>Authors</strong> (<em>Allan Denis</em>)</p></li>
-</ul>
-</p>
+<dd class="field-even"><p><strong>data_dict</strong> (<em>dic</em>) – Dictionary representation of the data</p>
 </dd>
 </dl>
+<div class="admonition-notes admonition">
+<p class="admonition-title">Notes</p>
+<p>Authors: Allan Denis</p>
+</div>
 </dd></dl>
 
 <dl class="py function">
@@ -596,13 +602,13 @@ array normalization, percentile computations, etc.).</p>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p><ul class="simple">
-<li><p><em>list</em> – Normalized list</p></li>
-<li><p><strong>Authors</strong> (<em>Allan Denis</em>)</p></li>
-</ul>
-</p>
+<dd class="field-even"><p><em>list</em> – Normalized list</p>
 </dd>
 </dl>
+<div class="admonition-notes admonition">
+<p class="admonition-title">Notes</p>
+<p>Authors: Allan Denis</p>
+</div>
 </dd></dl>
 
 <dl class="py function">
@@ -614,13 +620,13 @@ array normalization, percentile computations, etc.).</p>
 <dd class="field-odd"><p><strong>v</strong> (<em>Any</em>) – Value to convert</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p><ul class="simple">
-<li><p><em>float</em> – Float if conversion succeeds, otherwise original value</p></li>
-<li><p><strong>Authors</strong> (<em>Allan Denis</em>)</p></li>
-</ul>
-</p>
+<dd class="field-even"><p><em>float</em> – Float if conversion succeeds, otherwise original value</p>
 </dd>
 </dl>
+<div class="admonition-notes admonition">
+<p class="admonition-title">Notes</p>
+<p>Authors: Allan Denis</p>
+</div>
 </dd></dl>
 
 </section>
@@ -651,11 +657,14 @@ rotational broadening, reddening, continuum estimation, and more.</p>
 <dd class="field-odd"><p><ul class="simple">
 <li><p><strong>flx_mod_ck</strong> (<em>np.ndarray</em>) – Scaled model flux</p></li>
 <li><p><strong>ck</strong> (<em>float</em>) – Scaling coefficient</p></li>
-<li><p><strong>Authors</strong> (<em>Simon Petrus and Allan Denis</em>)</p></li>
 </ul>
 </p>
 </dd>
 </dl>
+<div class="admonition-notes admonition">
+<p class="admonition-title">Notes</p>
+<p>Authors: Simon Petrus and Allan Denis</p>
+</div>
 </dd></dl>
 
 <dl class="py function">
@@ -678,17 +687,17 @@ spectral channel.</p>
 <dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.4)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></a></span></p>
 </dd>
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p><ul class="simple">
-<li><dl class="simple">
+<dd class="field-odd"><p><dl class="simple">
 <dt>array</dt><dd><p>the fluxes in each of the wavelength channels</p>
 </dd>
 </dl>
-</li>
-<li><p><strong>Authors</strong> (<em>Jason Wang</em>)</p></li>
-</ul>
 </p>
 </dd>
 </dl>
+<div class="admonition-notes admonition">
+<p class="admonition-title">Notes</p>
+<p>Authors: Jason Wang</p>
+</div>
 </dd></dl>
 
 <dl class="py function">
@@ -709,17 +718,17 @@ spectral channel.</p>
 <dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.4)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></a></span></p>
 </dd>
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p><ul class="simple">
-<li><dl class="simple">
+<dd class="field-odd"><p><dl class="simple">
 <dt>array</dt><dd><p>Flux at lower resolution, resampled to wav_output</p>
 </dd>
 </dl>
-</li>
-<li><p><strong>Authors</strong> (<em>Simon Petrus</em>)</p></li>
-</ul>
 </p>
 </dd>
 </dl>
+<div class="admonition-notes admonition">
+<p class="admonition-title">Notes</p>
+<p>Authors: Simon Petrus</p>
+</div>
 </dd></dl>
 
 <dl class="py function">
@@ -743,17 +752,17 @@ the wavelength grid of the data.</p>
 <dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.4)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></a></span></p>
 </dd>
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p><ul class="simple">
-<li><dl class="simple">
+<dd class="field-odd"><p><dl class="simple">
 <dt>np.ndarray</dt><dd><p>Estimated continuum of the spectrum re-sampled on the data wavelength grid</p>
 </dd>
 </dl>
-</li>
-<li><p><strong>Authors</strong> (<em>Simon Petrus, Matthieu Ravet</em>)</p></li>
-</ul>
 </p>
 </dd>
 </dl>
+<div class="admonition-notes admonition">
+<p class="admonition-title">Notes</p>
+<p>Authors: Simon Petrus, Matthieu Ravet</p>
+</div>
 </dd></dl>
 
 <dl class="py function">
@@ -775,8 +784,7 @@ After the Doppler shifting, the model is then cut to the wavelength of the data.
 <dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code></a>[<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.4)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></a>, <a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.4)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></a>, <a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.4)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></a>]</span></p>
 </dd>
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p><ul class="simple">
-<li><dl class="simple">
+<dd class="field-odd"><p><dl class="simple">
 <dt>array</dt><dd><p>Wavelength grid after Doppler shifting</p>
 </dd>
 <dt>array</dt><dd><p>New flux of the interpolated synthetic spectrum</p>
@@ -784,12 +792,13 @@ After the Doppler shifting, the model is then cut to the wavelength of the data.
 <dt>array</dt><dd><p>New resolution of the interpolated synthetic spectrum</p>
 </dd>
 </dl>
-</li>
-<li><p><strong>Authors</strong> (<em>Simon Petrus, Allan Denis and Matthieu Ravet</em>)</p></li>
-</ul>
 </p>
 </dd>
 </dl>
+<div class="admonition-notes admonition">
+<p class="admonition-title">Notes</p>
+<p>Authors: Simon Petrus, Allan Denis and Matthieu Ravet</p>
+</div>
 </dd></dl>
 
 <dl class="py function">
@@ -809,17 +818,17 @@ extinction.fm07.</p>
 <dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code></a>[<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.4)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></a>, <a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.4)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></a>]</span></p>
 </dd>
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p><ul class="simple">
-<li><dl class="simple">
+<dd class="field-odd"><p><dl class="simple">
 <dt>array</dt><dd><p>New flux of the interpolated synthetic spectrum</p>
 </dd>
 </dl>
-</li>
-<li><p><strong>Authors</strong> (<em>Simon Petrus</em>)</p></li>
-</ul>
 </p>
 </dd>
 </dl>
+<div class="admonition-notes admonition">
+<p class="admonition-title">Notes</p>
+<p>Authors: Simon Petrus</p>
+</div>
 </dd></dl>
 
 <dl class="py function">
@@ -841,19 +850,19 @@ extinction.fm07.</p>
 <dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code></a>[<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.4)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></a>, <a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.4)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></a>]</span></p>
 </dd>
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p><ul class="simple">
-<li><dl class="simple">
+<dd class="field-odd"><p><dl class="simple">
 <dt>array</dt><dd><p>New flux of the broadened synthetic spectrum (spectroscopy)</p>
 </dd>
 <dt>array</dt><dd><p>New resolution of the broadened synthetic spectrum (photometry)</p>
 </dd>
 </dl>
-</li>
-<li><p><strong>Authors</strong> (<em>Allan Denis</em>)</p></li>
-</ul>
 </p>
 </dd>
 </dl>
+<div class="admonition-notes admonition">
+<p class="admonition-title">Notes</p>
+<p>Authors: Allan Denis</p>
+</div>
 </dd></dl>
 
 <dl class="py function">
@@ -874,17 +883,17 @@ extinction.fm07.</p>
 <dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.4)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></a></span></p>
 </dd>
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p><ul class="simple">
-<li><dl class="simple">
+<dd class="field-odd"><p><dl class="simple">
 <dt>array</dt><dd><p>New flux of the interpolated synthetic spectrum</p>
 </dd>
 </dl>
-</li>
-<li><p><strong>Authors</strong> (<em>Simon Petrus</em>)</p></li>
-</ul>
 </p>
 </dd>
 </dl>
+<div class="admonition-notes admonition">
+<p class="admonition-title">Notes</p>
+<p>Authors: Simon Petrus</p>
+</div>
 </dd></dl>
 
 <dl class="py function">
@@ -905,17 +914,17 @@ extinction.fm07.</p>
 <dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.4)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></a></span></p>
 </dd>
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p><ul class="simple">
-<li><dl class="simple">
+<dd class="field-odd"><p><dl class="simple">
 <dt>array</dt><dd><p>New flux of the interpolated synthetic spectrum</p>
 </dd>
 </dl>
-</li>
-<li><p><strong>Authors</strong> (<em>Simon Petrus</em>)</p></li>
-</ul>
 </p>
 </dd>
 </dl>
+<div class="admonition-notes admonition">
+<p class="admonition-title">Notes</p>
+<p>Authors: Simon Petrus</p>
+</div>
 </dd></dl>
 
 <dl class="py function">
@@ -949,17 +958,17 @@ This is a disk integration routine.</p>
 <dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.4)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></a></span></p>
 </dd>
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p><ul class="simple">
-<li><dl class="simple">
+<dd class="field-odd"><p><dl class="simple">
 <dt>array</dt><dd><p>New flux of the interpolated synthetic spectrum</p>
 </dd>
 </dl>
-</li>
-<li><p><strong>Authors</strong> (<em>Allan Denis</em>)</p></li>
-</ul>
 </p>
 </dd>
 </dl>
+<div class="admonition-notes admonition">
+<p class="admonition-title">Notes</p>
+<p>Authors: Allan Denis</p>
+</div>
 </dd></dl>
 
 <dl class="py function">
@@ -979,17 +988,17 @@ This is a disk integration routine.</p>
 <dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.4)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></a></span></p>
 </dd>
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p><ul class="simple">
-<li><dl class="simple">
+<dd class="field-odd"><p><dl class="simple">
 <dt>array</dt><dd><p>New flux of the interpolated synthetic spectrum</p>
 </dd>
 </dl>
-</li>
-<li><p><strong>Authors</strong> (<em>Simon Petrus, Arthur Vigan and Allan Denis</em>)</p></li>
-</ul>
 </p>
 </dd>
 </dl>
+<div class="admonition-notes admonition">
+<p class="admonition-title">Notes</p>
+<p>Authors: Simon Petrus, Arthur Vigan and Allan Denis</p>
+</div>
 </dd></dl>
 
 <dl class="py function">
@@ -1011,17 +1020,17 @@ This is a disk integration routine.</p>
 <dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code></a>[<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.4)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></a>, <a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.4)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></a>]</span></p>
 </dd>
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p><ul class="simple">
-<li><dl class="simple">
+<dd class="field-odd"><p><dl class="simple">
 <dt>array</dt><dd><p>New flux of the interpolated synthetic spectrum</p>
 </dd>
 </dl>
-</li>
-<li><p><strong>Authors</strong> (<em>Paulina Palma-Bifani</em>)</p></li>
-</ul>
 </p>
 </dd>
 </dl>
+<div class="admonition-notes admonition">
+<p class="admonition-title">Notes</p>
+<p>Authors: Paulina Palma-Bifani</p>
+</div>
 </dd></dl>
 
 <dl class="py function">
@@ -1046,15 +1055,15 @@ This is a disk integration routine.</p>
 <dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a></span></p>
 </dd>
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p><ul class="simple">
-<li><p><em>dict with keys</em> – coeffs
+<dd class="field-odd"><p><em>dict with keys</em> – coeffs
 reconstructed
-model</p></li>
-<li><p><strong>Authors</strong> (<em>Allan Denis</em>)</p></li>
-</ul>
-</p>
+model</p>
 </dd>
 </dl>
+<div class="admonition-notes admonition">
+<p class="admonition-title">Notes</p>
+<p>Authors: Allan Denis</p>
+</div>
 </dd></dl>
 
 <dl class="py function">
@@ -1082,11 +1091,14 @@ for fit_linear_model().</p>
 <li><p><strong>components</strong> (<em>list[np.ndarray]</em>) – Model components</p></li>
 <li><p><strong>fixed_coeffs</strong> (<em>dict[int, float]</em>) – Fixed coefficients</p></li>
 <li><p><strong>labels</strong> (<em>list[str]</em>) – Labels for each component</p></li>
-<li><p><strong>Authors</strong> (<em>Allan Denis</em>)</p></li>
 </ul>
 </p>
 </dd>
 </dl>
+<div class="admonition-notes admonition">
+<p class="admonition-title">Notes</p>
+<p>Authors: Allan Denis</p>
+</div>
 </dd></dl>
 
 <dl class="py function">
@@ -1115,8 +1127,7 @@ for fit_linear_model().</p>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p><ul class="simple">
-<li><dl class="simple">
+<dd class="field-even"><p><dl class="simple">
 <dt>ccf_norm<span class="classifier">np.ndarray</span></dt><dd><p>CCF function normalized by the SNR</p>
 </dd>
 <dt>acf_norm<span class="classifier">np.ndarray</span></dt><dd><p>ACF function rescaled and shifted at the peak of the RV</p>
@@ -1126,12 +1137,13 @@ for fit_linear_model().</p>
 <dt>rv_peak<span class="classifier">float</span></dt><dd><p>Peak of the RV</p>
 </dd>
 </dl>
-</li>
-<li><p><strong>Authors</strong> (<em>Arthur Vigan and Allan Denis</em>)</p></li>
-</ul>
 </p>
 </dd>
 </dl>
+<div class="admonition-notes admonition">
+<p class="admonition-title">Notes</p>
+<p>Authors: Arthur Vigan and Allan Denis</p>
+</div>
 </dd></dl>
 
 <dl class="py function">
@@ -1168,8 +1180,7 @@ for fit_linear_model().</p>
 <dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>, <a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>, <a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>]</span></p>
 </dd>
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p><ul class="simple">
-<li><dl class="simple">
+<dd class="field-odd"><p><dl class="simple">
 <dt>ccf<span class="classifier">float</span></dt><dd><p>Correlation between the template and the data</p>
 </dd>
 <dt>acf<span class="classifier">float</span></dt><dd><p>Autocorrelation between the template and itself</p>
@@ -1177,12 +1188,13 @@ for fit_linear_model().</p>
 <dt>ccf_star<span class="classifier">float</span></dt><dd><p>Correlation between the template and the star data</p>
 </dd>
 </dl>
-</li>
-<li><p><strong>Authors</strong> (<em>Arthur Vigan and Allan Denis</em>)</p></li>
-</ul>
 </p>
 </dd>
 </dl>
+<div class="admonition-notes admonition">
+<p class="admonition-title">Notes</p>
+<p>Authors: Arthur Vigan and Allan Denis</p>
+</div>
 </dd></dl>
 
 </section>
@@ -1207,6 +1219,15 @@ for fit_linear_model().</p>
         <p class="prev-next-subtitle">previous</p>
         <p class="prev-next-title">Plotting</p>
       </div>
+    </a>
+    <a class="right-next"
+       href="whats_new.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">What’s New in v2.0.0</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
     </a>
 </div>
                 </footer>

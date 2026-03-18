@@ -29,6 +29,7 @@
 
     <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/sphinx-book-theme.css?v=eba8b062" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
     <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
     <link rel="stylesheet" type="text/css" href="../../../_static/custom.css?v=d0b3e03c" />
   
@@ -192,6 +193,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../../../main_utilities.html">Utilities</a></li>
 </ul>
 </details></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../whats_new.html">What’s New in v2.0.0</a></li>
 </ul>
 
     </div>
@@ -383,18 +385,33 @@ document.write(`
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
+<span class="sd">    algorithm : NestedAlgorithm</span>
+<span class="sd">        Algorithm used for the nested sampling (&#39;nestle&#39;, &#39;ultranest&#39; or &#39;pymultinest&#39;)</span>
+<span class="sd">    npoints : int</span>
+<span class="sd">        Number of living points used for the nested sampling</span>
+<span class="sd">    logL_type : list[LogLikelihoodType]</span>
+<span class="sd">        List of loglikelihood types used in the nested sampling</span>
+<span class="sd">    config_NS : Config_NS</span>
+<span class="sd">        Instance of class Config_NS containing parameters of ns algorithms for each of the algorithm</span>
+<span class="sd">    observations : ObservationSet</span>
+<span class="sd">        Instance of ObservationSet</span>
+<span class="sd">    subgrids : SubGridSet</span>
+<span class="sd">        Instance of SubGridSet</span>
+<span class="sd">    parameters : ParameterSet</span>
+<span class="sd">        Instance of ParameterSet</span>
+<span class="sd">    wave_fit : list[str] | None</span>
+<span class="sd">        List of wavelength grid used for fitting</span>
+<span class="sd">    interp_method : str</span>
+<span class="sd">        Interpolation method (&#39;linear&#39;, &#39;cubic&#39;, &#39;spline&#39;, ...)</span>
+<span class="sd">    bounds_lsq : list[tuple[float, float]] | None</span>
+<span class="sd">        List of bounds used for the least squares (used for high contrast)</span>
+<span class="sd">    logger : logging.Logger</span>
+<span class="sd">        Logger</span>
+<span class="sd">    log_level : str</span>
+<span class="sd">        Level of the Logger</span>
 
-<span class="sd">    logger                         (Logger): Logger</span>
-<span class="sd">    algorithm                         (str): Algorithm used for the nested sampling (&#39;nestle&#39;, &#39;ultranest&#39; or &#39;pymultinest&#39;)</span>
-<span class="sd">    npoints                           (int): Number of living points used for the nested sampling</span>
-<span class="sd">    logL_type     (list[LogLikelihoodType]): List of loglikelihood types used in the nested sampling</span>
-<span class="sd">    config_NS                   (Config_NS): Instance of class Config_NS containing parameters of ns algorithms for each of the algorithm</span>
-<span class="sd">    interp_method                     (str): Interpolation method (&#39;linear&#39;, &#39;cubic&#39;, &#39;spline&#39;, ...)</span>
-<span class="sd">    wave_fit                    (list[str]): List of wavelength grid used for fitting</span>
-<span class="sd">    bounds_lsq                (list[float]): List of bounds used for the least squares (used for high contrast)</span>
-<span class="sd">    logger                 (logging.Logger): Logger</span>
-<span class="sd">    log_level                         (str): Level of the Logger</span>
-
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
 <span class="sd">    Authors: Allan Denis</span>
 <span class="sd">    &#39;&#39;&#39;</span>
 
@@ -429,67 +446,83 @@ document.write(`
     <span class="c1"># =================</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">algorithm</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>                             <span class="c1"># Algorithm</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">algorithm</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Algorithm.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_algorithm</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">logL_type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">:</span>                            <span class="c1"># logL functions</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">logL_type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;logL functions.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_logL_type</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">observations</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ObservationSet</span><span class="p">:</span>               <span class="c1"># Set of observations</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">observations</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ObservationSet</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Set of observations.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_observations</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">subgrids</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SubGridSet</span><span class="p">:</span>                       <span class="c1"># Set of subgrids</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">subgrids</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SubGridSet</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Set of subgrids.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_subgrids</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">parameters</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ParameterSet</span><span class="p">:</span>                   <span class="c1"># Priors parameters</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">parameters</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ParameterSet</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Priors parameters.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parameters</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">config_NS</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Config_NS</span><span class="p">:</span>                       <span class="c1"># Config_NS</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">config_NS</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Config_NS</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Config_NS.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_config_NS</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">interp_method</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>                         <span class="c1"># Interpolation method</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">interp_method</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Interpolation method.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_interp_method</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">wave_fit</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>                              <span class="c1"># Wavelengths for fitting</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">wave_fit</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Wavelengths for fitting.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_wave_fit</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">bounds_lsq</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>                    <span class="c1"># Bounds for the Least Squares estimation</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">bounds_lsq</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Bounds for the Least Squares estimation.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_bounds_lsq</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">ns_params</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>                            <span class="c1"># Dictionary of NS algo</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">ns_params</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Dictionary of NS algo.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config_NS</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">algorithm</span><span class="o">.</span><span class="n">lower</span><span class="p">())</span><span class="o">.</span><span class="n">to_dict</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">npoints</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>                               <span class="c1"># Nested sampling number of living points</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">npoints</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Nested sampling number of living points.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_npoints</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">restricted_observations</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ObservationSet</span><span class="p">:</span>    <span class="c1"># Set of restricted observations according to wave_fit</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">restricted_observations</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ObservationSet</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Set of restricted observations according to wave_fit.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_restricted_observations</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">restricted_subgrids</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SubGridSet</span><span class="p">:</span>            <span class="c1"># Set of restricted subgrids according to wave_fit</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">restricted_subgrids</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SubGridSet</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Set of restricted subgrids according to wave_fit.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_restricted_subgrids</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">results</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;NSResults&quot;</span><span class="p">:</span>                       <span class="c1"># Results</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">results</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;NSResults&quot;</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Results.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_results</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">logger</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">logging</span><span class="o">.</span><span class="n">Logger</span><span class="p">:</span>                     <span class="c1"># Logger</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">logger</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">logging</span><span class="o">.</span><span class="n">Logger</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Logger.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">to_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>                              <span class="c1"># Dictionary representation of NestedSampling</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">to_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Dictionary representation of NestedSampling.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="p">{</span>
             <span class="s1">&#39;algorithm&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">algorithm</span><span class="p">,</span>
             <span class="s1">&#39;npoints&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">npoints</span><span class="p">,</span>
@@ -530,6 +563,8 @@ document.write(`
 <span class="sd">        &#39;NestedSampling&#39;</span>
 <span class="sd">            An instance of class NestedSampling</span>
 
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
 <span class="sd">        Authors: Allan Denis</span>
 <span class="sd">        &#39;&#39;&#39;</span>
 
@@ -588,6 +623,8 @@ document.write(`
 <span class="sd">        &#39;NestedSampling&#39;</span>
 <span class="sd">            An instance of class NestedSampling</span>
 
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
 <span class="sd">        Authors: Allan Denis</span>
 <span class="sd">        &#39;&#39;&#39;</span>
 
@@ -625,8 +662,10 @@ document.write(`
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_validate</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
-<span class="sd">        Validation for NestedSamplin.</span>
+<span class="sd">        Validation for NestedSampling.</span>
 
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
 <span class="sd">        Authors: Allan Denis</span>
 <span class="sd">        &#39;&#39;&#39;</span>
 
@@ -671,6 +710,8 @@ document.write(`
 <span class="sd">        Create restricted versions of subgrids and observations according to wave_fit.</span>
 <span class="sd">        These restricted instances are stored internally and reused during the nested sampling.</span>
 
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
 <span class="sd">        Authors: Allan Denis</span>
 <span class="sd">        &#39;&#39;&#39;</span>
 
@@ -703,6 +744,8 @@ document.write(`
 <span class="sd">        results_path : str | os.PathLike</span>
 <span class="sd">            Path of the output</span>
 
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
 <span class="sd">        Authors: Simon Petrus, Matthieu Ravet and Allan Denis</span>
 <span class="sd">        &#39;&#39;&#39;</span>
 
@@ -822,6 +865,8 @@ document.write(`
 <span class="sd">        np.ndarray[float]</span>
 <span class="sd">            Transformed values</span>
 
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
 <span class="sd">        Authors: Allan Denis</span>
 <span class="sd">        &#39;&#39;&#39;</span>
 
@@ -847,6 +892,8 @@ document.write(`
 <span class="sd">        list[ObservedModel]</span>
 <span class="sd">            List of instances of class ObservedModel</span>
 
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
 <span class="sd">        Authors: Allan Denis</span>
 <span class="sd">        &#39;&#39;&#39;</span>
 
@@ -878,6 +925,8 @@ document.write(`
 <span class="sd">        float</span>
 <span class="sd">            loglikelihood value</span>
 
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
 <span class="sd">        Authors: Allan Denis</span>
 <span class="sd">        &#39;&#39;&#39;</span>
 
@@ -907,6 +956,8 @@ document.write(`
 <span class="sd">        ObservedParameters</span>
 <span class="sd">            Intance of class ObservedParameters containing dictionary of parameters values (free + fixed) associated to the observation index</span>
 
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
 <span class="sd">        Authors: Allan Denis</span>
 <span class="sd">        &#39;&#39;&#39;</span>
 
@@ -946,6 +997,8 @@ document.write(`
 <span class="sd">            Path to save the results to</span>
 <span class="sd">        **kwargs                        = Additional parameters (wav_fit, interp_method, bounds_lsq)</span>
 
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
 <span class="sd">        Authors: Allan Denis</span>
 <span class="sd">        &#39;&#39;&#39;</span>
 
@@ -978,6 +1031,8 @@ document.write(`
 <span class="sd">        results_path : str | os.PathLike</span>
 <span class="sd">            Path to save the results to</span>
 
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
 <span class="sd">        Authors: Allan Denis</span>
 <span class="sd">        &#39;&#39;&#39;</span>
 

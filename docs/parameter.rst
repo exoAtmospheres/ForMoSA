@@ -28,6 +28,9 @@ Priors
 
 Prior distribution classes used to define parameter search ranges.
 
+.. inheritance-diagram:: ForMoSA.parameter.prior.UniformPrior ForMoSA.parameter.prior.LogUniformPrior ForMoSA.parameter.prior.ConstantPrior ForMoSA.parameter.prior.GaussianPrior
+   :parts: 1
+
 .. automodule:: ForMoSA.parameter.prior
 	:members:
 	:undoc-members:

@@ -8,6 +8,9 @@ Observation Base
 
 Abstract base class shared by all observation types.
 
+.. inheritance-diagram:: ForMoSA.observation.observation_spectroscopy.SpectralObservation ForMoSA.observation.observation_photometry.PhotometryObservation
+   :parts: 1
+
 .. automodule:: ForMoSA.observation.observation_base
 	:members:
 	:undoc-members:

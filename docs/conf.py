@@ -38,6 +38,7 @@ extensions = [
     'sphinx.ext.mathjax',          # Render LaTeX math
     'sphinx.ext.todo',             # Support .. todo:: directives
     'sphinx.ext.doctest',          # Test snippets  in the docs
+    'sphinx.ext.inheritance_diagram', # Class inheritance diagrams
 
     # Third-party
     'nbsphinx',                    # Source parser for .ipynb files

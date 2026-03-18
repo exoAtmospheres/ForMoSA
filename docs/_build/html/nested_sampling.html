@@ -30,6 +30,7 @@
 
     <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
     <link rel="stylesheet" type="text/css" href="_static/styles/sphinx-book-theme.css?v=eba8b062" />
+    <link rel="stylesheet" type="text/css" href="_static/graphviz.css?v=4ae1632d" />
     <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
     <link rel="stylesheet" type="text/css" href="_static/custom.css?v=d0b3e03c" />
   
@@ -193,6 +194,7 @@
 <li class="toctree-l2"><a class="reference internal" href="main_utilities.html">Utilities</a></li>
 </ul>
 </details></li>
+<li class="toctree-l1"><a class="reference internal" href="whats_new.html">What’s New in v2.0.0</a></li>
 </ul>
 
     </div>
@@ -512,111 +514,120 @@ document.write(`
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>(</strong><strong>Logger</strong><strong>)</strong> (<a class="reference internal" href="#ForMoSA.nested_sampling.nested_sampling.NestedSampling.logger" title="ForMoSA.nested_sampling.nested_sampling.NestedSampling.logger"><em>logger</em></a>)</p></li>
-<li><p><strong>(</strong><strong>str</strong><strong>)</strong> (<em>log_level</em>)</p></li>
-<li><p><strong>(</strong><strong>int</strong><strong>)</strong> (<a class="reference internal" href="#ForMoSA.nested_sampling.nested_sampling.NestedSampling.npoints" title="ForMoSA.nested_sampling.nested_sampling.NestedSampling.npoints"><em>npoints</em></a>)</p></li>
-<li><p><strong>(</strong><strong>list</strong><strong>[</strong><strong>LogLikelihoodType</strong><strong>]</strong><strong>)</strong> (<a class="reference internal" href="#ForMoSA.nested_sampling.nested_sampling.NestedSampling.logL_type" title="ForMoSA.nested_sampling.nested_sampling.NestedSampling.logL_type"><em>logL_type</em></a>)</p></li>
-<li><p><strong>(</strong><strong>Config_NS</strong><strong>)</strong> (<a class="reference internal" href="#ForMoSA.nested_sampling.nested_sampling.NestedSampling.config_NS" title="ForMoSA.nested_sampling.nested_sampling.NestedSampling.config_NS"><em>config_NS</em></a>)</p></li>
-<li><p><strong>(</strong><strong>str</strong><strong>)</strong></p></li>
-<li><p><strong>(</strong><strong>list</strong><strong>[</strong><strong>str</strong><strong>]</strong><strong>)</strong> (<a class="reference internal" href="#ForMoSA.nested_sampling.nested_sampling.NestedSampling.wave_fit" title="ForMoSA.nested_sampling.nested_sampling.NestedSampling.wave_fit"><em>wave_fit</em></a>)</p></li>
-<li><p><strong>(</strong><strong>list</strong><strong>[</strong><strong>float</strong><strong>]</strong><strong>)</strong> (<a class="reference internal" href="#ForMoSA.nested_sampling.nested_sampling.NestedSampling.bounds_lsq" title="ForMoSA.nested_sampling.nested_sampling.NestedSampling.bounds_lsq"><em>bounds_lsq</em></a>)</p></li>
-<li><p><strong>(</strong><strong>logging.Logger</strong><strong>)</strong> (<a class="reference internal" href="#ForMoSA.nested_sampling.nested_sampling.NestedSampling.logger" title="ForMoSA.nested_sampling.nested_sampling.NestedSampling.logger"><em>logger</em></a>)</p></li>
-<li><p><strong>(</strong><strong>str</strong><strong>)</strong></p></li>
-<li><p><strong>Authors</strong> (<em>Allan Denis</em>)</p></li>
-<li><p><strong>algorithm</strong> (<a class="reference internal" href="core.html#ForMoSA.core.enums.NestedAlgorithm" title="ForMoSA.core.enums.NestedAlgorithm"><em>NestedAlgorithm</em></a>)</p></li>
-<li><p><strong>npoints</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>)</p></li>
-<li><p><strong>logL_type</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><em>list</em></a><em>[</em><a class="reference internal" href="core.html#ForMoSA.core.enums.LogLikelihoodType" title="ForMoSA.core.enums.LogLikelihoodType"><em>LogLikelihoodType</em></a><em>]</em>)</p></li>
-<li><p><strong>config_NS</strong> (<a class="reference internal" href="config.html#ForMoSA.config.global_config.Config_NS" title="ForMoSA.config.global_config.Config_NS"><em>Config_NS</em></a>)</p></li>
-<li><p><strong>observations</strong> (<a class="reference internal" href="observation.html#ForMoSA.observation.observation_set.ObservationSet" title="ForMoSA.observation.observation_set.ObservationSet"><em>ObservationSet</em></a>)</p></li>
-<li><p><strong>subgrids</strong> (<a class="reference internal" href="grid.html#ForMoSA.grid.subgrid_set.SubGridSet" title="ForMoSA.grid.subgrid_set.SubGridSet"><em>SubGridSet</em></a>)</p></li>
-<li><p><strong>parameters</strong> (<a class="reference internal" href="parameter.html#ForMoSA.parameter.parameter_set.ParameterSet" title="ForMoSA.parameter.parameter_set.ParameterSet"><em>ParameterSet</em></a>)</p></li>
-<li><p><strong>wave_fit</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><em>list</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>] </em><em>| </em><em>None</em>)</p></li>
-<li><p><strong>interp_method</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>)</p></li>
-<li><p><strong>bounds_lsq</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><em>list</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.14)"><em>tuple</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><em>float</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><em>float</em></a><em>]</em><em>] </em><em>| </em><em>None</em>)</p></li>
-<li><p><strong>logger</strong> (<a class="reference external" href="https://docs.python.org/3/library/logging.html#logging.Logger" title="(in Python v3.14)"><em>Logger</em></a><em> | </em><em>None</em>)</p></li>
-<li><p><strong>log_level</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>)</p></li>
+<li><p><strong>algorithm</strong> (<a class="reference internal" href="core.html#ForMoSA.core.enums.NestedAlgorithm" title="ForMoSA.core.enums.NestedAlgorithm"><em>NestedAlgorithm</em></a>) – Algorithm used for the nested sampling (‘nestle’, ‘ultranest’ or ‘pymultinest’)</p></li>
+<li><p><strong>npoints</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – Number of living points used for the nested sampling</p></li>
+<li><p><strong>logL_type</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><em>list</em></a><em>[</em><a class="reference internal" href="core.html#ForMoSA.core.enums.LogLikelihoodType" title="ForMoSA.core.enums.LogLikelihoodType"><em>LogLikelihoodType</em></a><em>]</em>) – List of loglikelihood types used in the nested sampling</p></li>
+<li><p><strong>config_NS</strong> (<a class="reference internal" href="config.html#ForMoSA.config.global_config.Config_NS" title="ForMoSA.config.global_config.Config_NS"><em>Config_NS</em></a>) – Instance of class Config_NS containing parameters of ns algorithms for each of the algorithm</p></li>
+<li><p><strong>observations</strong> (<a class="reference internal" href="observation.html#ForMoSA.observation.observation_set.ObservationSet" title="ForMoSA.observation.observation_set.ObservationSet"><em>ObservationSet</em></a>) – Instance of ObservationSet</p></li>
+<li><p><strong>subgrids</strong> (<a class="reference internal" href="grid.html#ForMoSA.grid.subgrid_set.SubGridSet" title="ForMoSA.grid.subgrid_set.SubGridSet"><em>SubGridSet</em></a>) – Instance of SubGridSet</p></li>
+<li><p><strong>parameters</strong> (<a class="reference internal" href="parameter.html#ForMoSA.parameter.parameter_set.ParameterSet" title="ForMoSA.parameter.parameter_set.ParameterSet"><em>ParameterSet</em></a>) – Instance of ParameterSet</p></li>
+<li><p><strong>wave_fit</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><em>list</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>] </em><em>| </em><em>None</em>) – List of wavelength grid used for fitting</p></li>
+<li><p><strong>interp_method</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Interpolation method (‘linear’, ‘cubic’, ‘spline’, …)</p></li>
+<li><p><strong>bounds_lsq</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><em>list</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.14)"><em>tuple</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><em>float</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><em>float</em></a><em>]</em><em>] </em><em>| </em><em>None</em>) – List of bounds used for the least squares (used for high contrast)</p></li>
+<li><p><strong>logger</strong> (<a class="reference external" href="https://docs.python.org/3/library/logging.html#logging.Logger" title="(in Python v3.14)"><em>logging.Logger</em></a>) – Logger</p></li>
+<li><p><strong>log_level</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Level of the Logger</p></li>
 </ul>
 </dd>
 </dl>
+<div class="admonition-notes admonition">
+<p class="admonition-title">Notes</p>
+<p>Authors: Allan Denis</p>
+</div>
 <dl class="py property">
 <dt class="sig sig-object py" id="ForMoSA.nested_sampling.nested_sampling.NestedSampling.algorithm">
 <span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">algorithm</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span><a class="headerlink" href="#ForMoSA.nested_sampling.nested_sampling.NestedSampling.algorithm" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Algorithm.</p>
+</dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="ForMoSA.nested_sampling.nested_sampling.NestedSampling.logL_type">
 <span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">logL_type</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><span class="pre">list</span></a></span><a class="headerlink" href="#ForMoSA.nested_sampling.nested_sampling.NestedSampling.logL_type" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>logL functions.</p>
+</dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="ForMoSA.nested_sampling.nested_sampling.NestedSampling.observations">
 <span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">observations</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="observation.html#ForMoSA.observation.observation_set.ObservationSet" title="ForMoSA.observation.observation_set.ObservationSet"><span class="pre">ObservationSet</span></a></span><a class="headerlink" href="#ForMoSA.nested_sampling.nested_sampling.NestedSampling.observations" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Set of observations.</p>
+</dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="ForMoSA.nested_sampling.nested_sampling.NestedSampling.subgrids">
 <span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">subgrids</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="grid.html#ForMoSA.grid.subgrid_set.SubGridSet" title="ForMoSA.grid.subgrid_set.SubGridSet"><span class="pre">SubGridSet</span></a></span><a class="headerlink" href="#ForMoSA.nested_sampling.nested_sampling.NestedSampling.subgrids" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Set of subgrids.</p>
+</dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="ForMoSA.nested_sampling.nested_sampling.NestedSampling.parameters">
 <span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">parameters</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="parameter.html#ForMoSA.parameter.parameter_set.ParameterSet" title="ForMoSA.parameter.parameter_set.ParameterSet"><span class="pre">ParameterSet</span></a></span><a class="headerlink" href="#ForMoSA.nested_sampling.nested_sampling.NestedSampling.parameters" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Priors parameters.</p>
+</dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="ForMoSA.nested_sampling.nested_sampling.NestedSampling.config_NS">
 <span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">config_NS</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="config.html#ForMoSA.config.global_config.Config_NS" title="ForMoSA.config.global_config.Config_NS"><span class="pre">Config_NS</span></a></span><a class="headerlink" href="#ForMoSA.nested_sampling.nested_sampling.NestedSampling.config_NS" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Config_NS.</p>
+</dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="ForMoSA.nested_sampling.nested_sampling.NestedSampling.interp_method">
 <span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">interp_method</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span><a class="headerlink" href="#ForMoSA.nested_sampling.nested_sampling.NestedSampling.interp_method" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Interpolation method.</p>
+</dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="ForMoSA.nested_sampling.nested_sampling.NestedSampling.wave_fit">
 <span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">wave_fit</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span><a class="headerlink" href="#ForMoSA.nested_sampling.nested_sampling.NestedSampling.wave_fit" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Wavelengths for fitting.</p>
+</dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="ForMoSA.nested_sampling.nested_sampling.NestedSampling.bounds_lsq">
 <span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">bounds_lsq</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><span class="pre">float</span></a><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#ForMoSA.nested_sampling.nested_sampling.NestedSampling.bounds_lsq" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Bounds for the Least Squares estimation.</p>
+</dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="ForMoSA.nested_sampling.nested_sampling.NestedSampling.ns_params">
 <span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">ns_params</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><span class="pre">dict</span></a></span><a class="headerlink" href="#ForMoSA.nested_sampling.nested_sampling.NestedSampling.ns_params" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Dictionary of NS algo.</p>
+</dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="ForMoSA.nested_sampling.nested_sampling.NestedSampling.npoints">
 <span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">npoints</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span><a class="headerlink" href="#ForMoSA.nested_sampling.nested_sampling.NestedSampling.npoints" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Nested sampling number of living points.</p>
+</dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="ForMoSA.nested_sampling.nested_sampling.NestedSampling.restricted_observations">
 <span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">restricted_observations</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="observation.html#ForMoSA.observation.observation_set.ObservationSet" title="ForMoSA.observation.observation_set.ObservationSet"><span class="pre">ObservationSet</span></a></span><a class="headerlink" href="#ForMoSA.nested_sampling.nested_sampling.NestedSampling.restricted_observations" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Set of restricted observations according to wave_fit.</p>
+</dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="ForMoSA.nested_sampling.nested_sampling.NestedSampling.restricted_subgrids">
 <span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">restricted_subgrids</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="grid.html#ForMoSA.grid.subgrid_set.SubGridSet" title="ForMoSA.grid.subgrid_set.SubGridSet"><span class="pre">SubGridSet</span></a></span><a class="headerlink" href="#ForMoSA.nested_sampling.nested_sampling.NestedSampling.restricted_subgrids" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Set of restricted subgrids according to wave_fit.</p>
+</dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="ForMoSA.nested_sampling.nested_sampling.NestedSampling.results">
 <span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">results</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#ForMoSA.nested_sampling.results.NSResults" title="ForMoSA.nested_sampling.results.NSResults"><span class="pre">NSResults</span></a></span><a class="headerlink" href="#ForMoSA.nested_sampling.nested_sampling.NestedSampling.results" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Results.</p>
+</dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="ForMoSA.nested_sampling.nested_sampling.NestedSampling.logger">
 <span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">logger</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/logging.html#logging.Logger" title="(in Python v3.14)"><span class="pre">Logger</span></a></span><a class="headerlink" href="#ForMoSA.nested_sampling.nested_sampling.NestedSampling.logger" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Logger.</p>
+</dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="ForMoSA.nested_sampling.nested_sampling.NestedSampling.to_dict">
 <span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">to_dict</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><span class="pre">dict</span></a></span><a class="headerlink" href="#ForMoSA.nested_sampling.nested_sampling.NestedSampling.to_dict" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Dictionary representation of NestedSampling.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="ForMoSA.nested_sampling.nested_sampling.NestedSampling.from_dict">
@@ -636,13 +647,13 @@ document.write(`
 <dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="#ForMoSA.nested_sampling.nested_sampling.NestedSampling" title="ForMoSA.nested_sampling.nested_sampling.NestedSampling"><code class="xref py py-class docutils literal notranslate"><span class="pre">NestedSampling</span></code></a></span></p>
 </dd>
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p><ul class="simple">
-<li><p><em>‘NestedSampling’</em> – An instance of class NestedSampling</p></li>
-<li><p><strong>Authors</strong> (<em>Allan Denis</em>)</p></li>
-</ul>
-</p>
+<dd class="field-odd"><p><em>‘NestedSampling’</em> – An instance of class NestedSampling</p>
 </dd>
 </dl>
+<div class="admonition-notes admonition">
+<p class="admonition-title">Notes</p>
+<p>Authors: Allan Denis</p>
+</div>
 </dd></dl>
 
 <dl class="py method">
@@ -663,13 +674,13 @@ document.write(`
 <dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="#ForMoSA.nested_sampling.nested_sampling.NestedSampling" title="ForMoSA.nested_sampling.nested_sampling.NestedSampling"><code class="xref py py-class docutils literal notranslate"><span class="pre">NestedSampling</span></code></a></span></p>
 </dd>
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p><ul class="simple">
-<li><p><em>‘NestedSampling’</em> – An instance of class NestedSampling</p></li>
-<li><p><strong>Authors</strong> (<em>Allan Denis</em>)</p></li>
-</ul>
-</p>
+<dd class="field-odd"><p><em>‘NestedSampling’</em> – An instance of class NestedSampling</p>
 </dd>
 </dl>
+<div class="admonition-notes admonition">
+<p class="admonition-title">Notes</p>
+<p>Authors: Allan Denis</p>
+</div>
 </dd></dl>
 
 <dl class="py method">
@@ -678,15 +689,16 @@ document.write(`
 <dd><p>Method to run the nested sampling algorithm using the model, observation and nested sampling parameters.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>results_path</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em> | </em><a class="reference external" href="https://docs.python.org/3/library/os.html#os.PathLike" title="(in Python v3.14)"><em>os.PathLike</em></a>) – Path of the output</p></li>
-<li><p><strong>Authors</strong> (<em>Simon Petrus</em><em>, </em><em>Matthieu Ravet and Allan Denis</em>)</p></li>
-</ul>
+<dd class="field-odd"><p><strong>results_path</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em> | </em><a class="reference external" href="https://docs.python.org/3/library/os.html#os.PathLike" title="(in Python v3.14)"><em>os.PathLike</em></a>) – Path of the output</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
 <dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></span></p>
 </dd>
 </dl>
+<div class="admonition-notes admonition">
+<p class="admonition-title">Notes</p>
+<p>Authors: Simon Petrus, Matthieu Ravet and Allan Denis</p>
+</div>
 </dd></dl>
 
 <dl class="py method">
@@ -697,11 +709,11 @@ document.write(`
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>theta</strong> (<em>np.ndarray</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><em>float</em></a><em>]</em>) – Values randomly drawn by the Nested Sampling</p>
 </dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p><strong>logL</strong> – Final loglikelihood</p>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a></span></p>
 </dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)">float</a></p>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>logL</strong> (<em>float</em>) – Final loglikelihood</p>
 </dd>
 </dl>
 </dd></dl>
@@ -718,13 +730,13 @@ document.write(`
 <dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.4)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>]</span></p>
 </dd>
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p><ul class="simple">
-<li><p><em>np.ndarray[float]</em> – Transformed values</p></li>
-<li><p><strong>Authors</strong> (<em>Allan Denis</em>)</p></li>
-</ul>
-</p>
+<dd class="field-odd"><p><em>np.ndarray[float]</em> – Transformed values</p>
 </dd>
 </dl>
+<div class="admonition-notes admonition">
+<p class="admonition-title">Notes</p>
+<p>Authors: Allan Denis</p>
+</div>
 </dd></dl>
 
 <dl class="py method">
@@ -739,13 +751,13 @@ document.write(`
 <dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a>[<a class="reference internal" href="transform.html#ForMoSA.transform.observed.ObservedModel" title="ForMoSA.transform.observed.ObservedModel"><code class="xref py py-class docutils literal notranslate"><span class="pre">ObservedModel</span></code></a>]</span></p>
 </dd>
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p><ul class="simple">
-<li><p><em>list[ObservedModel]</em> – List of instances of class ObservedModel</p></li>
-<li><p><strong>Authors</strong> (<em>Allan Denis</em>)</p></li>
-</ul>
-</p>
+<dd class="field-odd"><p><em>list[ObservedModel]</em> – List of instances of class ObservedModel</p>
 </dd>
 </dl>
+<div class="admonition-notes admonition">
+<p class="admonition-title">Notes</p>
+<p>Authors: Allan Denis</p>
+</div>
 </dd></dl>
 
 <dl class="py method">
@@ -759,13 +771,16 @@ document.write(`
 <li><p><strong>(</strong><strong>wav_fit</strong> (<em>**kwargs                        = Additional parameters</em>)</p></li>
 <li><p><strong>interp_method</strong></p></li>
 <li><p><strong>bounds_lsq</strong><strong>)</strong></p></li>
-<li><p><strong>Authors</strong> (<em>Allan Denis</em>)</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
 <dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></span></p>
 </dd>
 </dl>
+<div class="admonition-notes admonition">
+<p class="admonition-title">Notes</p>
+<p>Authors: Allan Denis</p>
+</div>
 </dd></dl>
 
 <dl class="py method">
@@ -774,15 +789,16 @@ document.write(`
 <dd><p>Method to load the results from the path results_paths</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>results_path</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em> | </em><a class="reference external" href="https://docs.python.org/3/library/os.html#os.PathLike" title="(in Python v3.14)"><em>os.PathLike</em></a>) – Path to save the results to</p></li>
-<li><p><strong>Authors</strong> (<em>Allan Denis</em>)</p></li>
-</ul>
+<dd class="field-odd"><p><strong>results_path</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em> | </em><a class="reference external" href="https://docs.python.org/3/library/os.html#os.PathLike" title="(in Python v3.14)"><em>os.PathLike</em></a>) – Path to save the results to</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
 <dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></span></p>
 </dd>
 </dl>
+<div class="admonition-notes admonition">
+<p class="admonition-title">Notes</p>
+<p>Authors: Allan Denis</p>
+</div>
 </dd></dl>
 
 </dd></dl>
@@ -802,33 +818,38 @@ It includes the reconstructions of models, best fit, computations of ccf, …</p
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>ns</strong> (<a class="reference internal" href="#ForMoSA.nested_sampling.nested_sampling.NestedSampling" title="ForMoSA.nested_sampling.nested_sampling.NestedSampling"><em>NestedSampling</em></a>) – Instance of class NestedSampling</p></li>
-<li><p><strong>observations</strong> (<a class="reference internal" href="observation.html#ForMoSA.observation.observation_set.ObservationSet" title="ForMoSA.observation.observation_set.ObservationSet"><em>ObservationSet</em></a>) – Instance of class ObservationSet</p></li>
-<li><p><strong>subgrids</strong> (<a class="reference internal" href="grid.html#ForMoSA.grid.subgrid_set.SubGridSet" title="ForMoSA.grid.subgrid_set.SubGridSet"><em>SubGridSet</em></a>) – Instance of class SubGridSet</p></li>
 <li><p><strong>logger</strong> (<a class="reference external" href="https://docs.python.org/3/library/logging.html#logging.Logger" title="(in Python v3.14)"><em>logging.Logger</em></a>) – Logger</p></li>
 <li><p><strong>log_level</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Level of the Logger</p></li>
-<li><p><strong>Authors</strong> (<em>Allan Denis</em>)</p></li>
 </ul>
 </dd>
 </dl>
+<div class="admonition-notes admonition">
+<p class="admonition-title">Notes</p>
+<p>Authors: Allan Denis</p>
+</div>
 <dl class="py property">
 <dt class="sig sig-object py" id="ForMoSA.nested_sampling.ns_analysis.NSAnalysis.logger">
 <span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">logger</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/logging.html#logging.Logger" title="(in Python v3.14)"><span class="pre">Logger</span></a></span><a class="headerlink" href="#ForMoSA.nested_sampling.ns_analysis.NSAnalysis.logger" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Logger.</p>
+</dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="ForMoSA.nested_sampling.ns_analysis.NSAnalysis.ns">
 <span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">ns</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#ForMoSA.nested_sampling.nested_sampling.NestedSampling" title="ForMoSA.nested_sampling.nested_sampling.NestedSampling"><span class="pre">NestedSampling</span></a></span><a class="headerlink" href="#ForMoSA.nested_sampling.ns_analysis.NSAnalysis.ns" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Instance of NestedSampling.</p>
+</dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="ForMoSA.nested_sampling.ns_analysis.NSAnalysis.best_fit">
 <span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">best_fit</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="transform.html#ForMoSA.transform.observed.ObservedModel" title="ForMoSA.transform.observed.ObservedModel"><span class="pre">ObservedModel</span></a><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#ForMoSA.nested_sampling.ns_analysis.NSAnalysis.best_fit" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Best fit.</p>
+</dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="ForMoSA.nested_sampling.ns_analysis.NSAnalysis.native_best_fit">
 <span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">native_best_fit</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="transform.html#ForMoSA.transform.observed.ObservedModel" title="ForMoSA.transform.observed.ObservedModel"><span class="pre">ObservedModel</span></a></span><a class="headerlink" href="#ForMoSA.nested_sampling.ns_analysis.NSAnalysis.native_best_fit" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Best fit parameters applied to the native model.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="ForMoSA.nested_sampling.ns_analysis.NSAnalysis.build_models_from_theta">
@@ -839,13 +860,13 @@ It includes the reconstructions of models, best fit, computations of ccf, …</p
 <dd class="field-odd"><p><strong>theta</strong> (<em>np.ndarray</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><em>float</em></a><em>]</em>) – List of values picked by the Nested Sampling for the free parameters</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p><ul class="simple">
-<li><p><em>list[ObservedModel]</em> – List of instances of class ObservedModel</p></li>
-<li><p><strong>Authors</strong> (<em>Allan Denis</em>)</p></li>
-</ul>
-</p>
+<dd class="field-even"><p><em>list[ObservedModel]</em> – List of instances of class ObservedModel</p>
 </dd>
 </dl>
+<div class="admonition-notes admonition">
+<p class="admonition-title">Notes</p>
+<p>Authors: Allan Denis</p>
+</div>
 </dd></dl>
 
 <dl class="py method">
@@ -860,13 +881,13 @@ It includes the reconstructions of models, best fit, computations of ccf, …</p
 <dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code></a>[<a class="reference internal" href="transform.html#ForMoSA.transform.observed.ObservedModel" title="ForMoSA.transform.observed.ObservedModel"><code class="xref py py-class docutils literal notranslate"><span class="pre">ObservedModel</span></code></a>, <a class="reference internal" href="transform.html#ForMoSA.transform.observed.ObservedModel" title="ForMoSA.transform.observed.ObservedModel"><code class="xref py py-class docutils literal notranslate"><span class="pre">ObservedModel</span></code></a>]</span></p>
 </dd>
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p><ul class="simple">
-<li><p><em>tuple[ObservedModel, ObservedModel]</em> – lower and higher values of the flux for the confidence interval</p></li>
-<li><p><strong>Authors</strong> (<em>Allan Denis</em>)</p></li>
-</ul>
-</p>
+<dd class="field-odd"><p><em>tuple[ObservedModel, ObservedModel]</em> – lower and higher values of the flux for the confidence interval</p>
 </dd>
 </dl>
+<div class="admonition-notes admonition">
+<p class="admonition-title">Notes</p>
+<p>Authors: Allan Denis</p>
+</div>
 </dd></dl>
 
 <dl class="py method">
@@ -885,13 +906,13 @@ It includes the reconstructions of models, best fit, computations of ccf, …</p
 <dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>, <a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.4)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></a>]</span></p>
 </dd>
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p><ul class="simple">
-<li><p><em>dict[str, np.ndarray]</em> – Dictionary of CCF results keyed by observation name</p></li>
-<li><p><strong>Authors</strong> (<em>Bhavesh Rajpoot and Allan Denis</em>)</p></li>
-</ul>
-</p>
+<dd class="field-odd"><p><em>dict[str, np.ndarray]</em> – Dictionary of CCF results keyed by observation name</p>
 </dd>
 </dl>
+<div class="admonition-notes admonition">
+<p class="admonition-title">Notes</p>
+<p>Authors: Bhavesh Rajpoot and Allan Denis</p>
+</div>
 </dd></dl>
 
 <dl class="py method">
@@ -911,13 +932,13 @@ It includes the reconstructions of models, best fit, computations of ccf, …</p
 <dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>, <a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.4)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></a>]</span></p>
 </dd>
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p><ul class="simple">
-<li><p><em>dict[str, np.ndarray]</em> – Dictionary of RV-vsini map results keyed by observation name</p></li>
-<li><p><strong>Authors</strong> (<em>Bhavesh Rajpoot and Allan Denis</em>)</p></li>
-</ul>
-</p>
+<dd class="field-odd"><p><em>dict[str, np.ndarray]</em> – Dictionary of RV-vsini map results keyed by observation name</p>
 </dd>
 </dl>
+<div class="admonition-notes admonition">
+<p class="admonition-title">Notes</p>
+<p>Authors: Bhavesh Rajpoot and Allan Denis</p>
+</div>
 </dd></dl>
 
 </dd></dl>
@@ -931,7 +952,10 @@ It includes the reconstructions of models, best fit, computations of ccf, …</p
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">ForMoSA.nested_sampling.results.</span></span><span class="sig-name descname"><span class="pre">NSResults</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">samples</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">weights</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logl</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logvol</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logz</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">free_parameters</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">burn_in</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ForMoSA/nested_sampling/results.html#NSResults"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ForMoSA.nested_sampling.results.NSResults" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <p>Dataclass to handle reading and storing results of the Nested Sampling algorithm</p>
+<div class="admonition-notes admonition">
+<p class="admonition-title">Notes</p>
 <p>Authors: Allan Denis</p>
+</div>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -983,22 +1007,26 @@ It includes the reconstructions of models, best fit, computations of ccf, …</p
 <dl class="py property">
 <dt class="sig sig-object py" id="ForMoSA.nested_sampling.results.NSResults.to_dict">
 <span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">to_dict</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><span class="pre">dict</span></a></span><a class="headerlink" href="#ForMoSA.nested_sampling.results.NSResults.to_dict" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Dictionary view of the results.</p>
+</dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="ForMoSA.nested_sampling.results.NSResults.median_parameters">
 <span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">median_parameters</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><span class="pre">dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><span class="pre">float</span></a><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#ForMoSA.nested_sampling.results.NSResults.median_parameters" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Weighted posterior median for each parameter.</p>
+</dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="ForMoSA.nested_sampling.results.NSResults.param_samples_dict">
 <span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">param_samples_dict</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><span class="pre">dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><span class="pre">float</span></a><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#ForMoSA.nested_sampling.results.NSResults.param_samples_dict" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Samples of each parameter.</p>
+</dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="ForMoSA.nested_sampling.results.NSResults.best_logL">
 <span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">best_logL</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><span class="pre">float</span></a></span><a class="headerlink" href="#ForMoSA.nested_sampling.results.NSResults.best_logL" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Averaged value of logL.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="ForMoSA.nested_sampling.results.NSResults.from_dict">
@@ -1015,13 +1043,13 @@ It includes the reconstructions of models, best fit, computations of ccf, …</p
 <dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="#ForMoSA.nested_sampling.results.NSResults" title="ForMoSA.nested_sampling.results.NSResults"><code class="xref py py-class docutils literal notranslate"><span class="pre">NSResults</span></code></a></span></p>
 </dd>
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p><ul class="simple">
-<li><p><em>NSResults</em> – Instance of class NSResults</p></li>
-<li><p><strong>Authors</strong> (<em>Allan Denis</em>)</p></li>
-</ul>
-</p>
+<dd class="field-odd"><p><em>NSResults</em> – Instance of class NSResults</p>
 </dd>
 </dl>
+<div class="admonition-notes admonition">
+<p class="admonition-title">Notes</p>
+<p>Authors: Allan Denis</p>
+</div>
 </dd></dl>
 
 <dl class="py method">
@@ -1039,13 +1067,13 @@ It includes the reconstructions of models, best fit, computations of ccf, …</p
 <dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="#ForMoSA.nested_sampling.results.NSResults" title="ForMoSA.nested_sampling.results.NSResults"><code class="xref py py-class docutils literal notranslate"><span class="pre">NSResults</span></code></a></span></p>
 </dd>
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p><ul class="simple">
-<li><p><em>NestleResults</em> – An instance of NSResults</p></li>
-<li><p><strong>Authors</strong> (<em>Allan Denis</em>)</p></li>
-</ul>
-</p>
+<dd class="field-odd"><p><em>NestleResults</em> – An instance of NSResults</p>
 </dd>
 </dl>
+<div class="admonition-notes admonition">
+<p class="admonition-title">Notes</p>
+<p>Authors: Allan Denis</p>
+</div>
 </dd></dl>
 
 <dl class="py method">
@@ -1063,13 +1091,13 @@ It includes the reconstructions of models, best fit, computations of ccf, …</p
 <dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="#ForMoSA.nested_sampling.results.NSResults" title="ForMoSA.nested_sampling.results.NSResults"><code class="xref py py-class docutils literal notranslate"><span class="pre">NSResults</span></code></a></span></p>
 </dd>
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p><ul class="simple">
-<li><p><em>NSResults</em> – An instance of NSResults</p></li>
-<li><p><strong>Authors</strong> (<em>Allan Denis</em>)</p></li>
-</ul>
-</p>
+<dd class="field-odd"><p><em>NSResults</em> – An instance of NSResults</p>
 </dd>
 </dl>
+<div class="admonition-notes admonition">
+<p class="admonition-title">Notes</p>
+<p>Authors: Allan Denis</p>
+</div>
 </dd></dl>
 
 <dl class="py method">
@@ -1087,13 +1115,13 @@ It includes the reconstructions of models, best fit, computations of ccf, …</p
 <dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="#ForMoSA.nested_sampling.results.NSResults" title="ForMoSA.nested_sampling.results.NSResults"><code class="xref py py-class docutils literal notranslate"><span class="pre">NSResults</span></code></a></span></p>
 </dd>
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p><ul class="simple">
-<li><p><em>NSResults</em> – An instance of NSResults</p></li>
-<li><p><strong>Authors</strong> (<em>Allan Denis</em>)</p></li>
-</ul>
-</p>
+<dd class="field-odd"><p><em>NSResults</em> – An instance of NSResults</p>
 </dd>
 </dl>
+<div class="admonition-notes admonition">
+<p class="admonition-title">Notes</p>
+<p>Authors: Allan Denis</p>
+</div>
 </dd></dl>
 
 <dl class="py method">
@@ -1111,13 +1139,13 @@ It includes the reconstructions of models, best fit, computations of ccf, …</p
 <dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a></span></p>
 </dd>
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p><ul class="simple">
-<li><p><em>str</em> – Summary</p></li>
-<li><p><strong>Authors</strong> (<em>Allan Denis</em>)</p></li>
-</ul>
-</p>
+<dd class="field-odd"><p><em>str</em> – Summary</p>
 </dd>
 </dl>
+<div class="admonition-notes admonition">
+<p class="admonition-title">Notes</p>
+<p>Authors: Allan Denis</p>
+</div>
 </dd></dl>
 
 </dd></dl>
@@ -1142,13 +1170,13 @@ It includes the reconstructions of models, best fit, computations of ccf, …</p
 <dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a></span></p>
 </dd>
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p><ul class="simple">
-<li><p><em>float</em> – Evaluated prior</p></li>
-<li><p><strong>Authors</strong> (<em>Simon Petrus</em>)</p></li>
-</ul>
-</p>
+<dd class="field-odd"><p><em>float</em> – Evaluated prior</p>
 </dd>
 </dl>
+<div class="admonition-notes admonition">
+<p class="admonition-title">Notes</p>
+<p>Authors: Simon Petrus</p>
+</div>
 </dd></dl>
 
 <dl class="py function">
@@ -1166,13 +1194,13 @@ It includes the reconstructions of models, best fit, computations of ccf, …</p
 <dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a></span></p>
 </dd>
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p><ul class="simple">
-<li><p><em>float</em> – Evaluated prior</p></li>
-<li><p><strong>Authors</strong> (<em>Simon Petrus</em>)</p></li>
-</ul>
-</p>
+<dd class="field-odd"><p><em>float</em> – Evaluated prior</p>
 </dd>
 </dl>
+<div class="admonition-notes admonition">
+<p class="admonition-title">Notes</p>
+<p>Authors: Simon Petrus</p>
+</div>
 </dd></dl>
 
 <dl class="py function">
@@ -1188,13 +1216,13 @@ It includes the reconstructions of models, best fit, computations of ccf, …</p
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p><ul class="simple">
-<li><p><em>float</em> – Evaluated prior</p></li>
-<li><p><strong>Authors</strong> (<em>Simon Petrus</em>)</p></li>
-</ul>
-</p>
+<dd class="field-even"><p><em>float</em> – Evaluated prior</p>
 </dd>
 </dl>
+<div class="admonition-notes admonition">
+<p class="admonition-title">Notes</p>
+<p>Authors: Simon Petrus</p>
+</div>
 </dd></dl>
 
 </section>
@@ -1215,13 +1243,13 @@ under the assumption of gaussian and spectrally uncorrelated noise.</p>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p><ul class="simple">
-<li><p><em>float</em> – the loglikelihood value</p></li>
-<li><p><strong>Authors</strong> (<em>Matthieu Ravet</em>)</p></li>
-</ul>
-</p>
+<dd class="field-even"><p><em>float</em> – the loglikelihood value</p>
 </dd>
 </dl>
+<div class="admonition-notes admonition">
+<p class="admonition-title">Notes</p>
+<p>Authors: Matthieu Ravet</p>
+</div>
 </dd></dl>
 
 <dl class="py function">
@@ -1239,13 +1267,13 @@ under the assumption of gaussian and spectrally correlated noise.</p>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p><ul class="simple">
-<li><p><em>float</em> – the loglikelihood value</p></li>
-<li><p><strong>Authors</strong> (<em>Matthieu Ravet</em>)</p></li>
-</ul>
-</p>
+<dd class="field-even"><p><em>float</em> – the loglikelihood value</p>
 </dd>
 </dl>
+<div class="admonition-notes admonition">
+<p class="admonition-title">Notes</p>
+<p>Authors: Matthieu Ravet</p>
+</div>
 </dd></dl>
 
 <dl class="py function">
@@ -1262,13 +1290,13 @@ under the assumption of gaussian and spectrally uncorrelated noise.</p>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p><ul class="simple">
-<li><p><em>float</em> – the loglikelihood value</p></li>
-<li><p><strong>Authors</strong> (<em>Allan Denis and Matthieu Ravet</em>)</p></li>
-</ul>
-</p>
+<dd class="field-even"><p><em>float</em> – the loglikelihood value</p>
 </dd>
 </dl>
+<div class="admonition-notes admonition">
+<p class="admonition-title">Notes</p>
+<p>Authors: Allan Denis and Matthieu Ravet</p>
+</div>
 </dd></dl>
 
 <dl class="py function">
@@ -1286,13 +1314,13 @@ under the assumption of gaussian and spectrally correlated noise.</p>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p><ul class="simple">
-<li><p><em>float</em> – the loglikelihood value</p></li>
-<li><p><strong>Authors</strong> (<em>Allan Denis and Matthieu Ravet</em>)</p></li>
-</ul>
-</p>
+<dd class="field-even"><p><em>float</em> – the loglikelihood value</p>
 </dd>
 </dl>
+<div class="admonition-notes admonition">
+<p class="admonition-title">Notes</p>
+<p>Authors: Allan Denis and Matthieu Ravet</p>
+</div>
 </dd></dl>
 
 <dl class="py function">
@@ -1308,13 +1336,13 @@ under the assumption of gaussian and spectrally constant noise.</p>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p><ul class="simple">
-<li><p><em>float</em> – the loglikelihood value</p></li>
-<li><p><strong>Authors</strong> (<em>Matthieu Ravet</em>)</p></li>
-</ul>
-</p>
+<dd class="field-even"><p><em>float</em> – the loglikelihood value</p>
 </dd>
 </dl>
+<div class="admonition-notes admonition">
+<p class="admonition-title">Notes</p>
+<p>Authors: Matthieu Ravet</p>
+</div>
 </dd></dl>
 
 <dl class="py function">
@@ -1330,13 +1358,13 @@ under the assumption of gaussian and spectrally constant noise.</p>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p><ul class="simple">
-<li><p><em>float</em> – the loglikelihood value</p></li>
-<li><p><strong>Authors</strong> (<em>Matthieu Ravet</em>)</p></li>
-</ul>
-</p>
+<dd class="field-even"><p><em>float</em> – the loglikelihood value</p>
 </dd>
 </dl>
+<div class="admonition-notes admonition">
+<p class="admonition-title">Notes</p>
+<p>Authors: Matthieu Ravet</p>
+</div>
 </dd></dl>
 
 <dl class="py function">
@@ -1353,13 +1381,13 @@ under the assumption of gaussian and spectrally constant noise.</p>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p><ul class="simple">
-<li><p><em>float</em> – the loglikelihood value</p></li>
-<li><p><strong>Authors</strong> (<em>Matthieu Ravet</em>)</p></li>
-</ul>
-</p>
+<dd class="field-even"><p><em>float</em> – the loglikelihood value</p>
 </dd>
 </dl>
+<div class="admonition-notes admonition">
+<p class="admonition-title">Notes</p>
+<p>Authors: Matthieu Ravet</p>
+</div>
 </dd></dl>
 
 </section>

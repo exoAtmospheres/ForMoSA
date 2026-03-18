@@ -29,6 +29,9 @@ SubGrid Base
 
 Abstract base class for spectroscopic and photometric subgrids.
 
+.. inheritance-diagram:: ForMoSA.grid.subgrid_spectroscopy.SubGridSpectroscopy ForMoSA.grid.subgrid_photometry.SubGridPhotometry
+   :parts: 1
+
 .. automodule:: ForMoSA.grid.subgrid_base
 	:members:
 	:undoc-members:

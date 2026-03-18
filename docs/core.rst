@@ -36,6 +36,9 @@ Plot Configuration
 Dataclasses that control the visual style of every plot type produced by
 ForMoSA (corner, chains, radar, best-fit, etc.).
 
+.. inheritance-diagram:: ForMoSA.core.config.SpectralPlotConfig ForMoSA.core.config.PhotometricPlotConfig
+   :parts: 1
+
 .. automodule:: ForMoSA.core.config
 	:members:
 	:undoc-members:
