@@ -149,4 +149,4 @@ inheritance_graph_attrs = dict(rankdir="TB", splines='polyline')
 inheritance_node_attrs = dict(height=0.02, margin=0.055, penwidth=1, width=0.01)
 inheritance_edge_attrs = dict(penwidth=1)
 
-graphviz_output_format = 'svg'
+graphviz_output_format = 'png'
