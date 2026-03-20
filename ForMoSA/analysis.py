@@ -206,7 +206,7 @@ class Analysis(object):
         # Compute target resolution to reach for the observations
         target_resolution = config_adapt._compute_obs_target_resolution(self.observations, self.grid)
         # Adapt observations
-        self.observations.adapt_all(target_resolution = target_resolution, wave_cont = config_inversion.wav_fit, res_cont = config_adapt.res_cont)
+        self.observations.adapt_all(target_resolution = target_resolution, wave_cont = config_inversion.wav_cont, res_cont = config_adapt.res_cont)
 
         # Save observations
         self.observations.save_all(self.paths.result_path, to_json=to_json)
@@ -226,7 +226,7 @@ class Analysis(object):
                 # ==================
 
                 # Loop in observations
-                for obs, wave, res, remove_cont, res_cont, wave_cont in zip(self.observations.observations, target_wave, target_res, remove_continuum, config_adapt.res_cont, config_inversion.wav_fit):
+                for obs, wave, res, remove_cont, res_cont, wave_cont in zip(self.observations.observations, target_wave, target_res, remove_continuum, config_adapt.res_cont, config_inversion.wav_cont):
                     # Spectroscopic observation
                     if obs.ObsType == ObservationType.SPECTROSCOPIC.obstype:
                         subgrid = SubGridSpectroscopy.from_parent(parent_grid = self.grid, target_wavelength=wave, target_resolution=res, name = obs.name, logger = self.logger, remove_continuum=remove_cont, res_cont=res_cont, wave_cont=wave_cont)

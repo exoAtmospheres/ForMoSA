@@ -57,6 +57,7 @@ class ConfigAdapt:
     emulator: list[str] = field(default_factory=lambda: ["NA"])
     target_res_obs: list[Union[str, float]] = field(default_factory=lambda: ["obs"])
     target_res_mod: list[Union[str, float]] = field(default_factory=lambda: ["obs"])
+    wav_cont: list[Union[str, float]] = field(default_factory=lambda: ["NA"])
     res_cont: list[Union[str, float]] = field(default_factory=lambda: ["NA"])
 
     def __post_init__(self) -> None:
@@ -78,6 +79,8 @@ class ConfigAdapt:
         self.target_res_obs = um.normalize_list(self.target_res_obs, "target_res_obs", um.to_float_if_possible)
 
         self.target_res_mod = um.normalize_list(self.target_res_mod, "target_res_mod", um.to_float_if_possible)
+
+        self.wav_cont = um.normalize_list(self.wav_cont, "wav_cont", um.to_float_if_possible)
 
         self.res_cont = um.normalize_list(self.res_cont, "res_cont", um.to_float_if_possible)
 
@@ -102,7 +105,7 @@ class ConfigAdapt:
         if (not isinstance(n_obs, int)) or (n_obs < 1):
             raise ForMoSAError(f' n_obs ({n_obs}) must be an integer greater than 0')
 
-        for name in ['target_res_obs', 'target_res_mod', 'res_cont']:
+        for name in ['target_res_obs', 'target_res_mod', 'wav_cont', 'res_cont']:
             value = getattr(self, name)
             if len(value) > 1:
                 if len(value) != n_obs:
@@ -1090,6 +1093,11 @@ class ConfigGenerator:
             "target_res_mod": [
                 "    # Target resolution to reach for the model.",
                 "    # Format : float or 'obs' or 'mod' (if you want to keep the model's resolution during inversion)",
+                "    # MOSAIC : Yes"
+            ],
+            "wav_cont": [
+                "    # Wavelength range used to estimate the continuum.",
+                "    # Format : 'NA' or 'window1_min / window1_max, window2_min / ... / windowN_max'",
                 "    # MOSAIC : Yes"
             ],
             "res_cont": [
