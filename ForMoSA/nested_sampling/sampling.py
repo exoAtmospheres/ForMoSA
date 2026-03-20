@@ -285,20 +285,28 @@ class NestedSampling(object):
                 self._logger.error(msg)
                 raise ForMoSAError(msg)
 
-            res = pymultinest.solve(LogLikelihood=loglike_gp,
-                                    Prior=prior_transform_gp,
-                                    n_dims=n_free_parameters,
-                                    n_live_points=self.npoints,
-                                    outputfiles_basename=str(results_path) + '/pymultinest/' + 'RAW_',
-                                    **self.ns_params)
+            # MultiNest v3.10 can fail with long output basenames; run from the
+            # target folder and use a short basename to avoid file-open conflicts.
+            pymultinest_dir = os.path.join(str(results_path), 'pymultinest')
+            prev_cwd = os.getcwd()
+            try:
+                os.chdir(pymultinest_dir)
+                res = pymultinest.solve(LogLikelihood=loglike_gp,
+                                        Prior=prior_transform_gp,
+                                        n_dims=n_free_parameters,
+                                        n_live_points=self.npoints,
+                                        outputfiles_basename='RAW_',
+                                        **self.ns_params)
+            finally:
+                os.chdir(prev_cwd)
 
             # Reformat the result file
-            with open(str(results_path) + '/pymultinest/' + 'RAW_stats.dat', 'rb') as f:
+            with open(os.path.join(pymultinest_dir, 'RAW_stats.dat'), 'rb') as f:
                 line = f.readline().strip().split()
                 logz = [float(line[5]), float(line[7])]
 
             sample_multi, logl_multi, logvol_multi = [], [], []
-            with open(str(results_path) + '/pymultinest/' + 'RAW_ev.dat', 'rb') as f:
+            with open(os.path.join(pymultinest_dir, 'RAW_ev.dat'), 'rb') as f:
                 for line in f:
                     parts = line.strip().split()
                     sample_multi.append([float(p) for p in parts[:-3]])
@@ -306,7 +314,7 @@ class NestedSampling(object):
                     logvol_multi.append(float(parts[-2]))
 
             samples, weights, logl, logvol = [], [], [], []
-            with open(str(results_path) + '/pymultinest/' + 'RAW_.txt', 'rb') as f:
+            with open(os.path.join(pymultinest_dir, 'RAW_.txt'), 'rb') as f:
                 for line in f:
                     parts = line.strip().split()
                     point = [float(p) for p in parts[2:]]

@@ -769,7 +769,12 @@ class ModelGrid(object):
         # Building dictionary of interpolation parameters
         interp_kwargs = {}
         for i, name in enumerate(self.keys):
-            interp_kwargs[name] = theta[i]
+            # xarray expects plain Python scalars as interpolation indexers.
+            # Numpy scalar objects (np.float64, etc.) may raise TypeError.
+            value = theta[i]
+            if isinstance(value, np.generic):
+                value = value.item()
+            interp_kwargs[name] = value
 
         # Adding 'method' and 'fill_value' options
         interp_kwargs['method'] = method
