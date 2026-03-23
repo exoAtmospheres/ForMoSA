@@ -438,12 +438,20 @@ class NestedSampling(object):
             if not Path(output_path).exists():
                 Path(output_path).mkdir(exist_ok=True, parents=True)
 
-            res = pymultinest.solve(LogLikelihood=loglike_gp,
-                                    Prior=prior_transform_gp,
-                                    n_dims=n_free_parameters,
-                                    n_live_points=self.npoints,
-                                    outputfiles_basename=str(results_path) + '/pymultinest/' + 'RAW_',
-                                    **self.ns_params)
+            # MultiNest v3.10 can fail with long output basenames; run from the
+            # target folder and use a short basename to avoid file-open conflicts.
+            pymultinest_dir = os.path.join(str(results_path), 'pymultinest')
+            prev_cwd = os.getcwd()
+            try:
+                os.chdir(pymultinest_dir)
+                res = pymultinest.solve(LogLikelihood=loglike_gp,
+                                        Prior=prior_transform_gp,
+                                        n_dims=n_free_parameters,
+                                        n_live_points=self.npoints,
+                                        outputfiles_basename='RAW_',
+                                        **self.ns_params)
+            finally:
+                os.chdir(prev_cwd)
 
             self._results = NSResults.from_pymultinest(output_path, self.parameters.free_titles)
 

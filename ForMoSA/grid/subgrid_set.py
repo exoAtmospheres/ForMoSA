@@ -251,7 +251,7 @@ class SubGridSet(object):
         Authors: Allan Denis
         '''
 
-        path = Path(path).expanduser() / 'Subgrids'
+        path = Path(path).expanduser() / 'SubGrids'
         if not path.exists():
             self.logger.warning(f'path {path} does not exist. Creating it')
             path.mkdir(exist_ok=True, parents=True)

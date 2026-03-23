@@ -5,7 +5,6 @@ import numpy as np
 from pathlib import Path
 from configobj import ConfigObj
 from typing import Any, List, Union
-from scipy.interpolate import interp1d
 from dataclasses import dataclass, field, asdict
 
 import ForMoSA.utils.misc as um
@@ -154,7 +153,7 @@ class ConfigAdapt:
                 output_target_res.append(0)
             elif obs.ObsType == ObservationType.SPECTROSCOPIC.obstype:
                 # Interpolate model resolution onto observation wavelength grid
-                interp_model_to_obs = interp1d(grid.wave, grid.res, fill_value="extrapolate")
+                interp_model_to_obs = np.interp(grid.wave, grid.res, fill_value="extrapolate")
 
                 res_model_obs = interp_model_to_obs(obs.wave)
 
