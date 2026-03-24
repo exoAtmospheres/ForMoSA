@@ -2,6 +2,7 @@ import os
 import ast
 import logging
 import numpy as np
+from scipy.interpolate import interp1d
 from pathlib import Path
 from configobj import ConfigObj
 from typing import Any, List, Union
@@ -153,7 +154,7 @@ class ConfigAdapt:
                 output_target_res.append(0)
             elif obs.ObsType == ObservationType.SPECTROSCOPIC.obstype:
                 # Interpolate model resolution onto observation wavelength grid
-                interp_model_to_obs = np.interp(grid.wave, grid.res, fill_value="extrapolate")
+                interp_model_to_obs = interp1d(grid.wave, grid.res, fill_value="extrapolate")
 
                 res_model_obs = interp_model_to_obs(obs.wave)
 
@@ -727,6 +728,18 @@ class ConfigPyMultiNest:
 
             elif (not (isinstance(value, int)) and (value is not None)):
                 raise ForMoSAError(f" {name} must be int, got {type(value)}")
+
+        # Optional callback is not serializable from ini files.
+        # Convert placeholder strings to None and reject non-callable values.
+        if isinstance(self.dump_callback, str):
+            if self.dump_callback.strip().lower() in ('none', 'na', ''):
+                self.dump_callback = None
+            else:
+                raise ForMoSAError(
+                    f" dump_callback must be None when read from config files, got '{self.dump_callback}'"
+                )
+        elif self.dump_callback is not None and not callable(self.dump_callback):
+            raise ForMoSAError(f" dump_callback must be callable or None, got {type(self.dump_callback)}")
 
     # =======================
     # Properties

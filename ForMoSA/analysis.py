@@ -86,14 +86,14 @@ class Analysis(object):
             obs.plot_config.set_plot_config(color=obs.plot_config.cmap(self._observations.mcolors_normalize(obs.central_wavelength)))
 
         # Upade main plot configuration
-        MAIN_PLOT.legend_ncol = (np.sum(
+        MAIN_PLOT.legend_ncol = max(1, (np.sum(
             [obs.nb_filters for obs in self.observations.photometry_observations])
             + np.sum([obs.nb_instruments for obs in self.observations.spectral_observations])
-            + 6 - len(self.observations.high_contrast_observations)) // 7
+            + 6 - len(self.observations.high_contrast_observations)) // 7)
 
-        MAIN_PLOT.legend_hc_ncol = (np.sum([obs.nb_instruments for obs in self.observations.high_contrast_observations]) + 6) // 7
+        MAIN_PLOT.legend_hc_ncol = max(1, (np.sum([obs.nb_instruments for obs in self.observations.high_contrast_observations]) + 6) // 7)
 
-        MAIN_PLOT.legend_filt_ncol = (np.sum([obs.nb_filters for obs in self.observations.photometry_observations]) + 4) // 5
+        MAIN_PLOT.legend_filt_ncol = max(1, (np.sum([obs.nb_filters for obs in self.observations.photometry_observations]) + 4) // 5)
 
     # =======================
     # Properties
@@ -206,7 +206,7 @@ class Analysis(object):
         # Compute target resolution to reach for the observations
         target_resolution = config_adapt._compute_obs_target_resolution(self.observations, self.grid)
         # Adapt observations
-        self.observations.adapt_all(target_resolution = target_resolution, wave_cont = config_inversion.wav_cont, res_cont = config_adapt.res_cont)
+        self.observations.adapt_all(target_resolution = target_resolution, wave_cont = config_inversion.wav_fit, res_cont = config_adapt.res_cont)
 
         # Save observations
         self.observations.save_all(self.paths.result_path, to_json=to_json)
@@ -226,7 +226,7 @@ class Analysis(object):
                 # ==================
 
                 # Loop in observations
-                for obs, wave, res, remove_cont, res_cont, wave_cont in zip(self.observations.observations, target_wave, target_res, remove_continuum, config_adapt.res_cont, config_inversion.wav_cont):
+                for obs, wave, res, remove_cont, res_cont, wave_cont in zip(self.observations.observations, target_wave, target_res, remove_continuum, config_adapt.res_cont, config_inversion.wav_fit):
                     # Spectroscopic observation
                     if obs.ObsType == ObservationType.SPECTROSCOPIC.obstype:
                         subgrid = SubGridSpectroscopy.from_parent(parent_grid = self.grid, target_wavelength=wave, target_resolution=res, name = obs.name, logger = self.logger, remove_continuum=remove_cont, res_cont=res_cont, wave_cont=wave_cont)

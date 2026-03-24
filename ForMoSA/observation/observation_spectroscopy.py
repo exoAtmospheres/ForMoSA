@@ -511,8 +511,11 @@ class SpectralObservation(Observation):
         # Legend (only once)
         # --------------------------------------------------
         if plot_config.label:
-            plot_config.legend_ncol = (self.nb_instruments + 6) // 7
-            ax.legend(fontsize=main_plot_config.legend_fontsize, ncol=main_plot_config.legend_ncol, frameon=False)
+            if self.hc_mode:
+                ncol = max(1, int(main_plot_config.legend_hc_ncol))
+            else:
+                ncol = max(1, int(main_plot_config.legend_ncol))
+            ax.legend(fontsize=main_plot_config.legend_fontsize, ncol=ncol, frameon=False)
 
         # --------------------------------------------------
         # Axis labels

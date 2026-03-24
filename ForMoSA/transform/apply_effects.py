@@ -253,6 +253,26 @@ class ApplyObservationEffects:
         if len(wave) != len(observed_model.wave):
             raise ForMoSAError(f'Wrong length for model wavelength: {len(observed_model.wave)}. Expected the same length as the observations: {len(wave)}' )
 
+        # In adapted=True workflows, continuum metadata can be missing on observations.
+        # Fallbacks avoid runtime crashes and keep high-contrast modeling operational.
+        if wave_cont is None or wave_cont == 'NA':
+            wave_cont = f"{float(np.nanmin(wave))},{float(np.nanmax(wave))}"
+            obs._wave_cont = wave_cont
+
+        if res_cont is None or res_cont == 'NA':
+            finite_res = np.asarray(res)[np.isfinite(res)]
+            if finite_res.size == 0:
+                raise ForMoSAError('Cannot estimate continuum: observation resolution contains no finite values')
+            res_cont = float(np.nanmedian(finite_res))
+            obs._res_cont = res_cont
+
+        if obs.flux_cont is None:
+            obs._flux_cont = us.continuum_estimate(wave, obs.flux, res, wave_cont, res_cont)
+
+        if obs.star_flux is not None and obs.star_flux_cont is None:
+            mid = obs.star_flux.shape[1] // 2
+            obs._star_flux_cont = us.continuum_estimate(wave, obs.star_flux[:, mid], res, wave_cont, res_cont)
+
         observed_model.flux_cont = us.continuum_estimate(wave, observed_model.flux * obs.transm, res, wave_cont, res_cont)
 
         # =================================

@@ -623,6 +623,7 @@ class ObservationSet(object):
         self.logger.info(f'    Plotting all the observations {self.observation_names}')
 
         main_plot_config = MAIN_PLOT
+        ax_hc = None
 
         # Create figure if not provided
         if fig is None:
@@ -639,9 +640,15 @@ class ObservationSet(object):
             else:
                 if self.has_high_contrast:
                     ax_hc = fig.add_subplot(gs[2:9, 0:10])
+                    ax = ax_hc
 
                 else:
                     ax = fig.add_subplot(gs[2:9, 0:10])
+
+        # If caller provides an axis and high-contrast data are present,
+        # use that axis by default for high-contrast plotting.
+        elif self.has_high_contrast:
+            ax_hc = ax
 
         # Create photometric filter axis only if not provided
         if self.has_photometry and ax_filt is None:
@@ -656,20 +663,32 @@ class ObservationSet(object):
                 fig, ax, ax_filt = obs.plot_data(fig=fig, ax=ax, ax_filt=ax_filt)
 
             else:
+                if ax_hc is None:
+                    ax_hc = ax
                 fig, ax_hc, ax_filt = obs.plot_data(fig=fig, ax=ax_hc, ax_filt=ax_filt)
 
-        ax.legend(ncol=main_plot_config.legend_ncol, frameon=False, loc='upper right', fontsize=main_plot_config.legend_fontsize)
+        # Use whichever axis was effectively used for spectral plotting.
+        plot_axis = ax if ax is not None else ax_hc
+        if plot_axis is None:
+            raise ForMoSAError('No plotting axis available for observations', self.logger)
+
+        if self.has_high_contrast and len(self.high_contrast_observations) == self.n_observations:
+            ncol = max(1, int(main_plot_config.legend_hc_ncol))
+        else:
+            ncol = max(1, int(main_plot_config.legend_ncol))
+
+        plot_axis.legend(ncol=ncol, frameon=False, loc='upper right', fontsize=main_plot_config.legend_fontsize)
         if ax_filt is not None:
-            ax_filt.legend(ncol=main_plot_config.legend_filt_ncol, frameon=False)
+            ax_filt.legend(ncol=max(1, int(main_plot_config.legend_filt_ncol)), frameon=False)
 
         # Rescale y axis with a power of 10
-        ymin, ymax = ax.get_ylim()
+        ymin, ymax = plot_axis.get_ylim()
         ymax_abs = max(abs(ymin), abs(ymax))
         exponent = int(np.floor(np.log10(ymax_abs)))
-        ax.yaxis.set_major_formatter(ticker.FuncFormatter(lambda y, pos: f"{y/10**exponent:.1f}"))
-        ax.set_ylabel(rf'Flux ($10^{{{exponent}}}$  W.m$^{{-2}}$.$\mu$m$^{{-1}}$)')
+        plot_axis.yaxis.set_major_formatter(ticker.FuncFormatter(lambda y, pos: f"{y/10**exponent:.1f}"))
+        plot_axis.set_ylabel(rf'Flux ($10^{{{exponent}}}$  W.m$^{{-2}}$.$\mu$m$^{{-1}}$)')
 
-        return fig, ax, ax_filt
+        return fig, plot_axis, ax_filt
 
     def _stack(self, ind_obs: list[int] | None = None, print_logger: bool = False) -> dict:
         '''

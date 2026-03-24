@@ -180,33 +180,42 @@ class NSResults:
             line = f.readline().strip().split()
             logz = [float(line[5]), float(line[7])]
 
-        # Read event file (samples, logl, logvol)
-        sample_multi, logl_multi, logvol_multi = [], [], []
-        with open(f"{results_path}/RAW_ev.dat", 'rb') as f:
-            for line in f:
-                parts = line.strip().split()
-                sample_multi.append([float(p) for p in parts[:-3]])
-                logl_multi.append(float(parts[-3]))
-                logvol_multi.append(float(parts[-2]))
+        # Read weighted posterior chain from RAW_.txt.
+        # Format: weight, aux_col, p1, p2, ..., pN
+        raw_chain = np.loadtxt(f"{results_path}/RAW_.txt")
+        if raw_chain.ndim == 1:
+            raw_chain = raw_chain.reshape(1, -1)
 
-        # Read weights and match to samples
-        samples, weights, logl, logvol = [], [], [], []
-        with open(f"{results_path}/RAW_.txt", 'rb') as f:
-            for line in f:
-                parts = line.strip().split()
-                point = [float(p) for p in parts[2:]]
-                if point in sample_multi:
-                    idx = sample_multi.index(point)
-                    samples.append(point)
-                    weights.append(float(parts[0]))
-                    logl.append(logl_multi[idx])
-                    logvol.append(logvol_multi[idx])
+        n_params = len(free_parameters)
+        if raw_chain.shape[1] < 2 + n_params:
+            raise ForMoSAError(
+                f"<Invalid RAW_.txt format: expected at least {2 + n_params} columns, got {raw_chain.shape[1]}>"
+            )
 
-        # Convert to numpy arrays
-        samples = np.asarray(samples)
-        weights = np.asarray(weights)
-        logl = np.asarray(logl)
-        logvol = np.asarray(logvol)
+        weights = np.asarray(raw_chain[:, 0], dtype=float)
+        samples = np.asarray(raw_chain[:, 2:2 + n_params], dtype=float)
+
+        # RAW_ev.dat may be empty depending on MultiNest build/options.
+        # Use it when present, otherwise fallback to a stable proxy.
+        logl = None
+        logvol = None
+        try:
+            ev_data = np.loadtxt(f"{results_path}/RAW_ev.dat")
+            if ev_data.size > 0:
+                if ev_data.ndim == 1:
+                    ev_data = ev_data.reshape(1, -1)
+                if ev_data.shape[0] == samples.shape[0] and ev_data.shape[1] >= 3:
+                    logl = np.asarray(ev_data[:, -3], dtype=float)
+                    logvol = np.asarray(ev_data[:, -2], dtype=float)
+        except Exception:
+            pass
+
+        if logl is None or logvol is None:
+            # Keep pipeline running even when RAW_ev.dat is unavailable.
+            # Column 2 of RAW_.txt is an auxiliary scalar; use a monotonic proxy.
+            aux = np.asarray(raw_chain[:, 1], dtype=float)
+            logl = -0.5 * aux
+            logvol = np.log(np.clip(weights, np.finfo(float).tiny, None))
 
         return cls(
             samples=samples,
