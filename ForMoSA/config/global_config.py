@@ -257,7 +257,7 @@ class ConfigAdapt:
 
             # High-contrast mode → never remove continuum from models
             elif len(obs.star_flux) > 0:
-                remove_cont = True
+                remove_cont = False
 
             # Not high-contrast mode → remove continuum from models
             else:
