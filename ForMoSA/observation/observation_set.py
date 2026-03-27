@@ -593,7 +593,7 @@ class ObservationSet(object):
         with open(path / 'observations.json', 'w') as f:
             json.dump(self.to_dict, f, indent=4)
 
-    def plot_all(self, fig: Figure | None = None, ax: Axes | None = None, ax_filt: Axes | None = None) -> None:
+    def plot_all(self, fig: Figure | None = None, ax: Axes | None = None, ax_hc: Axes | None = None, ax_filt: Axes | None = None) -> tuple[Figure, Axes, Axes | None]:
         '''
         Plot all the observations and photometric filters.
 
@@ -602,7 +602,10 @@ class ObservationSet(object):
         fig : matplotlib.figure.Figure
             Figure (used to overplot on an existing figure)
         ax : matplotlib.axes._axes.Axes
-            Ax (used to overplot the observations)
+            Ax (used to overplot non-high-contrast observations)
+        ax_hc : matplotlib.axes._axes.Axes
+            Ax used to overplot high-contrast observations. When None and ax is
+            provided, HC observations fall back to ax (e.g. inside plot_fit).
         ax_filt : matplotlib.axes._axes.Axes
             Ax used to overplot the transmission filter
 
@@ -623,49 +626,50 @@ class ObservationSet(object):
         self.logger.info(f'    Plotting all the observations {self.observation_names}')
 
         main_plot_config = MAIN_PLOT
-        ax_hc = None
 
         # Create figure if not provided
         if fig is None:
             fig = plt.figure(figsize=main_plot_config.figsize)
 
-        # Create main axis if not provided
-        if ax is None:
+        # Create axes for observations if not provided
+        if ax is None and ax_hc is None:
+
+            # Create a gridspec to have more control over the layout of the axes
             gs = gridspec.GridSpec(9, 10)
 
+            # If we have both high-contrast and non-high-contrast observations, we create two separate axes for them
             if self.has_high_contrast and len(self.high_contrast_observations) != self.n_observations:
                 ax = fig.add_subplot(gs[2:6, 0:10])
                 ax_hc = fig.add_subplot(gs[6:9, 0:10], sharex=ax)
 
+            # If we only have high-contrast observations, we use the whole space for the high-contrast axis
             else:
                 if self.has_high_contrast:
                     ax_hc = fig.add_subplot(gs[2:9, 0:10])
-                    ax = ax_hc
-
                 else:
                     ax = fig.add_subplot(gs[2:9, 0:10])
-
-        # If caller provides an axis and high-contrast data are present,
-        # use that axis by default for high-contrast plotting.
-        elif self.has_high_contrast:
-            ax_hc = ax
 
         # Create photometric filter axis only if not provided
         if self.has_photometry and ax_filt is None:
             gs = gridspec.GridSpec(9, 10)
-            ax_filt = fig.add_subplot(gs[0:2, 0:10], sharex=ax)
+            ax_filt = fig.add_subplot(gs[0:2, 0:10], sharex=(ax if ax is not None else ax_hc))
 
-        # Plot each observation
+        # Plot each observation — legend is suppressed here; 
+        # plot_all renders a single consolidated legend below.
         for obs in self.observations:
 
             if not obs.hc_mode:
-                # Plot on the appropriate axes
-                fig, ax, ax_filt = obs.plot_data(fig=fig, ax=ax, ax_filt=ax_filt)
+                fig, ax, ax_filt = obs.plot_data(fig=fig, ax=ax, ax_filt=ax_filt, draw_legend=False)
 
             else:
-                if ax_hc is None:
-                    ax_hc = ax
-                fig, ax_hc, ax_filt = obs.plot_data(fig=fig, ax=ax_hc, ax_filt=ax_filt)
+                # When ax_hc is not set (e.g. called with a pre-existing ax from
+                # plot_fit), fall back to ax so data lands on the main axes.
+                _target_hc = ax_hc if ax_hc is not None else ax
+                fig, _target_hc, ax_filt = obs.plot_data(fig=fig, ax=_target_hc, ax_filt=ax_filt, draw_legend=False)
+                if ax_hc is not None:
+                    ax_hc = _target_hc
+                else:
+                    ax = _target_hc
 
         # Use whichever axis was effectively used for spectral plotting.
         plot_axis = ax if ax is not None else ax_hc
@@ -677,16 +681,23 @@ class ObservationSet(object):
         else:
             ncol = max(1, int(main_plot_config.legend_ncol))
 
-        plot_axis.legend(ncol=ncol, frameon=False, loc='upper right', fontsize=main_plot_config.legend_fontsize)
+        handles, labels = plot_axis.get_legend_handles_labels()
+        if handles:
+            plot_axis.legend(ncol=ncol, frameon=False, loc='upper right', fontsize=main_plot_config.legend_fontsize)
+        
+        # Add legend for photometric filters if we have photometry and an axis for the filters
         if ax_filt is not None:
             ax_filt.legend(ncol=max(1, int(main_plot_config.legend_filt_ncol)), frameon=False)
 
         # Rescale y axis with a power of 10
         ymin, ymax = plot_axis.get_ylim()
         ymax_abs = max(abs(ymin), abs(ymax))
-        exponent = int(np.floor(np.log10(ymax_abs)))
-        plot_axis.yaxis.set_major_formatter(ticker.FuncFormatter(lambda y, pos: f"{y/10**exponent:.1f}"))
-        plot_axis.set_ylabel(rf'Flux ($10^{{{exponent}}}$  W.m$^{{-2}}$.$\mu$m$^{{-1}}$)')
+        if ymax_abs > 0:
+            exponent = int(np.floor(np.log10(ymax_abs)))
+            plot_axis.yaxis.set_major_formatter(ticker.FuncFormatter(lambda y, pos: f"{y/10**exponent:.1f}"))
+            plot_axis.set_ylabel(rf'Flux ($10^{{{exponent}}}$  W.m$^{{-2}}$.$\mu$m$^{{-1}}$)')
+        else:
+            plot_axis.set_ylabel(r'Flux (W.m$^{-2}$.$\mu$m$^{-1}$)')
 
         return fig, plot_axis, ax_filt
 

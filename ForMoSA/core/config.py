@@ -90,7 +90,7 @@ class ObsPlotConfig:
 
     # --- Color management
     cmap: mcolors.Colormap = field(default_factory = lambda: cm.jet)
-    color: str = "red"
+    color: str = "#7A1E22"
     edgecolor: str = None
     norm: mcolors.Normalize = field(default_factory = lambda: plt.Normalize(vmin=1.0, vmax=15))
 
@@ -157,7 +157,7 @@ class SpectralPlotConfig(ObsPlotConfig):
     Authors: Allan Denis
     '''
 
-    color: str = "red"
+    color: str = "#7A1E22"
     marker: str = "None"
 
 # ==================================================
@@ -196,7 +196,7 @@ class CornerPlotConfig:
     '''
 
     figsize: tuple[float, float] = (15.0, 15.0)
-    color: str = "magenta"
+    color: str = '#A12A1F'
     bins: int = 80
     smooth: float = 1
     smooth1d: float | None = None
@@ -205,13 +205,14 @@ class CornerPlotConfig:
     plot_contours: bool = True
     fill_contours: bool = True
     quantiles: tuple = (0.16, 0.5, 0.84)
-    levels: list = field(default_factory = lambda: [0.997, 0.95, 0.68])
+    # levels: list = field(default_factory = lambda: [0.997, 0.95, 0.68]) # 3-sigma, 2-sigma, 1-sigma but for 1D Gaussian
+    levels: list = field(default_factory = lambda: [0.3935, 0.8647, 0.9889]) # 1-sigma, 2-sigma, 2-sigma for 2D Gaussian 
     show_titles: bool = True
     title_fmt: str = " .2f"
-    hist_kwargs: dict | None = None
-    contour_kwargs: dict | None = None
-    contour_kwargs: dict = field(default_factory = lambda: dict(colors='magenta', linewidths=0.7))
-    pcolor_kwargs: dict = field(default_factory = lambda: dict(color='red'))
+    hist_kwargs: dict = field(default_factory = lambda: dict(color='#A12A1F', histtype='stepfilled', alpha=0.6, edgecolor='#5B1218', linewidth=0.8))
+    # contour_kwargs: dict | None = None
+    contour_kwargs: dict = field(default_factory = lambda: dict(colors='#A12A1F', linewidths=0.8))
+    pcolor_kwargs: dict = field(default_factory = lambda: dict(color='#5B1218'))
     title_kwargs: dict = field(default_factory = lambda: dict(fontsize=14))
     label_kwargs: dict = field(default_factory= lambda: dict(fontsize=14))
     max_n_ticks: int = 4
@@ -263,27 +264,27 @@ class ChainsPlotConfig:
     Authors: Allan Denis
     '''
 
-    figsize: tuple[float, float] = (15.0, 15.0)
+    figsize: tuple[float, float] = (18.0, 12.0)
 
-    color_chains: str = 'magenta'
+    color_chains: str = "violet"
     alpha_chains: float = 0.8
 
-    color_plot_burn_in: str = 'red'
+    color_plot_burn_in: str = '#A12A1F'
     fontsize_burn_in: int = 14
     text_burn_in: tuple[float, float] = 0.8, 0.8
-    color_text_burn_in: str = 'red'
+    color_text_burn_in: str = '#A12A1F'
     linestyle_burn_in: str = '--'
 
     show_weights: bool = True
-    color_plot_weights: str = 'black'
+    color_plot_weights: str = '#1F1F1F'
     fontsize_weights: int = 14
     alpha_weights: float = 0.4
     text_weights: tuple[float, float] = 0.8, 0.7
-    color_text_weights: str = 'grey'
+    color_text_weights: str = '#1F1F1F'
 
     plot_best_value: bool = True
     color_best_value: str = 'black'
-    linestyle_best_value: str = '--'
+    linestyle_best_value: str = '-.'
 
     @property
     def to_dict(self) -> dict:
@@ -334,18 +335,25 @@ class RadarPlotConfig:
 
     figsize: tuple[float, float] = (6.0, 6.0)
 
-    color_radar: str = 'magenta'
+    # Improved color scheme - using a sophisticated blue-purple gradient
+    main_color = '#4A5FD9'  # Deep blue
+    fill_color = '#6B7FE8'  # Lighter blue
+    uncertainty_color = '#A8B3F5'  # Very light blue
+
+    color_radar: str = '#4A5FD9'
+    color_uncertainty: str = '#4A5FD9'  # Use the same deep blue for quantiles
     linewidth: float = 2.0
 
-    fontsize_names: int = 12
+    fontsize_names: int = 11
 
-    fontisze_ticks: int = 8
-    color_ticks: str = 'black'
+    fontisze_ticks: int = 11
+    color_ticks: str = '#24292E'
 
-    alpha_fill: float = 0.2
+    alpha_fill: float = 0.35
     quantiles: tuple[float, float] = (0.16, 0.84)
-    size_quantiles: int = 20
-    color_quantiles: str = 'black'
+    size_quantiles: int = 80
+    color_quantiles: str = '#4A5FD9'
+    lw_quantiles: float = 2.0
 
     @property
     def to_dict(self) -> dict:
@@ -394,8 +402,9 @@ class BestFitPlotConfig:
     Authors: Allan Denis
     '''
 
-    color: str = 'black'
-    linewidth: float = 2.0
+    color_fit: str = 'black'
+    color_residuals: str = "#2C2C2C"
+    linewidth: float = 1.0
     zorder: int = 100
 
     @property

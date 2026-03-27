@@ -256,7 +256,7 @@ class ConfigAdapt:
                 remove_cont = False
 
             # High-contrast mode → never remove continuum from models
-            elif len(obs.star_flux) > 0:
+            elif obs.hc_mode:
                 remove_cont = False
 
             # Not high-contrast mode → remove continuum from models
@@ -298,7 +298,7 @@ class ConfigInversion:
 
         # Normalize fields
         self.logL_type = um.normalize_list(self.logL_type, "logL_type")
-        self.wav_fit = um.normalize_list(self.wav_fit, "wav_fit")
+        self.wav_fit = um.normalize_list(self.wav_fit, "wav_fit", um.to_float_if_possible)
         self.hc_lower_bounds_lsq = um.normalize_list(self.hc_lower_bounds_lsq, "hc_lower_bounds_lsq", um.to_float_if_possible)
         self.hc_higher_bounds_lsq = um.normalize_list(self.hc_higher_bounds_lsq, "hc_higher_bounds_lsq", um.to_float_if_possible)
 

@@ -398,10 +398,17 @@ class SpectralObservation(Observation):
         # Continuum handling
         # ========================
 
+        # Always propagate wave_cont so that HC-mode observations can
+        # compute the model continuum later in _hc_modeling, even when
+        # res_cont is 'NA' (i.e. no continuum subtraction is requested).
+        if wave_cont is not None and wave_cont != 'NA':
+            adapted_obs._wave_cont = wave_cont
+
         if (res_cont is not None and res_cont != 'NA'):
             if (wave_cont is None or wave_cont == 'NA'):
                 self.logger.warning('Wave_cont is not defined for continuum estimation. Using the observation wavelength')
                 wave_cont = str(self.wavelength_range[0]) + ',' + str(self.wavelength_range[1])
+                adapted_obs._wave_cont = wave_cont
 
             # ========================
             # Continuum
@@ -416,13 +423,12 @@ class SpectralObservation(Observation):
                 adapted_obs._star_flux_cont = continuum_estimate(self.wave, self.star_flux[:, self.star_flux.shape[1] // 2], adapted_obs.res, wave_cont, res_cont)
 
             adapted_obs._res_cont = res_cont
-            adapted_obs._wave_cont = wave_cont
 
         self._logger.info(f'    Spectral observation {self.name} adapted to target resolution')
 
         return adapted_obs
 
-    def plot_data(self, fig: Figure | None = None, ax: Axes | None = None, ax_filt: Axes | None = None) -> tuple[Figure, Axes, Axes]:
+    def plot_data(self, fig: Figure | None = None, ax: Axes | None = None, ax_filt: Axes | None = None, draw_legend: bool = True) -> tuple[Figure, Axes, Axes]:
         '''
         Plot spectroscopic data.
 
@@ -434,6 +440,9 @@ class SpectralObservation(Observation):
             Ax (used to overplot on an existing ax)
         ax_filt : matplotlib.axes._axes.Axes
             Ax used to overplot the transmission filter on an existing ax
+        draw_legend : bool
+            Whether to draw the legend. Set to False when called from a
+            parent function (e.g. plot_all) that manages the legend itself.
 
         Returns
         -------
@@ -508,14 +517,13 @@ class SpectralObservation(Observation):
                 )
 
         # --------------------------------------------------
-        # Legend (only once)
+        # Legend (only once; suppressed when called from plot_all)
         # --------------------------------------------------
-        if plot_config.label:
-            if self.hc_mode:
-                ncol = max(1, int(main_plot_config.legend_hc_ncol))
-            else:
-                ncol = max(1, int(main_plot_config.legend_ncol))
-            ax.legend(fontsize=main_plot_config.legend_fontsize, ncol=ncol, frameon=False)
+        if draw_legend and plot_config.label:
+            handles, labels = ax.get_legend_handles_labels()
+            if handles:
+                ncol = max(1, int(main_plot_config.legend_hc_ncol if self.hc_mode else main_plot_config.legend_ncol))
+                ax.legend(fontsize=main_plot_config.legend_fontsize, ncol=ncol, frameon=False)
 
         # --------------------------------------------------
         # Axis labels

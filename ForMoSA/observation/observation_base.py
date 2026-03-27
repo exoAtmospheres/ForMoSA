@@ -114,20 +114,21 @@ class Observation(ABC):
         pass
 
     @abstractmethod
-    def plot_data(self, figsize: tuple = (12, 7), fig: Figure | None = None, ax: Axes | None = None, ax_filt: Axes | None = None) -> tuple[Figure, Axes, Axes]:
+    def plot_data(self, fig: Figure | None = None, ax: Axes | None = None, ax_filt: Axes | None = None, draw_legend: bool = True) -> tuple[Figure, Axes, Axes]:
         '''
         Plot the observation.
 
         Parameters
         ----------
-        figsize : tuple
-            Size of the figure
-        figure : matplotlib.figure.Figure
+        fig : matplotlib.figure.Figure
             Figure (used to overplot on an existing figure)
         ax : matplotlib.axes._axes.Axes
             Ax (used to overplot on an existing ax)
         ax_filt : matplotlib.axes._axes.Axes
             Ax used to overplot the transmission filter on an existing ax
+        draw_legend : bool
+            Whether to draw the legend. Set to False when called from a
+            parent function (e.g. plot_all) that manages the legend itself.
 
         Notes
         -----

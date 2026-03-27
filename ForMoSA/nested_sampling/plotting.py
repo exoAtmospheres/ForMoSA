@@ -6,8 +6,9 @@ import matplotlib.pyplot as plt
 from matplotlib.figure import Figure
 import matplotlib.gridspec as gridspec
 from matplotlib.axes._axes import Axes
+import matplotlib.patheffects as path_effects
 
-from ForMoSA.core.config import PLOTS_CONFIG
+from ForMoSA.core.config import PLOTS_CONFIG, MAIN_PLOT
 from ForMoSA.core.errors import ForMoSAError
 from ForMoSA.core.loggings import setup_logging
 from ForMoSA.transform.observed import ObservedModel
@@ -228,29 +229,107 @@ class Plotting(object):
 
         fig, ax = plt.subplots(figsize=(6, 6), subplot_kw=dict(polar=True))
 
-        ax.fill_between(angles, q_low_norm, q_high_norm, color=config.color_radar, alpha=config.alpha_fill)
-        ax.plot(angles, q_med_norm, color=config.color_radar, linewidth=2)
-        ax.scatter(angles[:-1], q_med_norm[:-1], color=config.color_quantiles, s=config.size_quantiles)
+        # Plot uncertainty band with gradient effect
+        ax.fill_between(angles, q_low_norm, q_high_norm, color=config.color_uncertainty, alpha=config.alpha_fill, zorder=2)
 
+        # Plot main line with enhanced styling
+        ax.plot(angles, q_med_norm, color=config.color_radar, linewidth=2.5, zorder=3, solid_capstyle='round')
+
+        # Add larger, styled markers at each point
+        for i in range(len(angles[:-1])):
+            # Outer white ring for contrast
+            ax.scatter(angles[i], q_med_norm[i], color='white', s=config.size_quantiles+40, zorder=4, 
+                    edgecolors='none')
+            # Main point
+            ax.scatter(angles[i], q_med_norm[i], color=config.color_quantiles, s=config.size_quantiles, zorder=5, 
+                    edgecolors='white', linewidths=config.lw_quantiles)
+
+        # Set parameter labels with improved styling - positioned further out
         ax.set_xticks(angles[:-1])
-        ax.set_xticklabels(self.ns_results.free_parameters, fontsize=config.fontsize_names)
+        ax.set_xticklabels(self.ns_results.free_parameters, fontsize=config.fontsize_names, fontweight='600', color='#24292E')
+
+        # Remove default radial labels
         ax.set_yticklabels([])
-        # ax.set_title('Radar plot', size=14, pad=20)
-        ax.grid(True)
+
+        # Customize gridlines for cleaner look
+        ax.grid(True, color='gray', linewidth=1.2, alpha=0.5, linestyle='--', zorder=1)
+
+        # Style the radial gridlines
+        ax.spines['polar'].set_color("#808183")
+        ax.spines['polar'].set_linewidth(1.5)
 
         # Display ticks
+        # for i, angle in enumerate(angles[:-1]):
+        #     min_val = prior_mins[i]
+        #     max_val = prior_maxs[i]
+        #     ticks = np.linspace(min_val, max_val, num=5)
+        #     range_val = max_val - min_val if max_val != min_val else 1.0
+        #     for i in range(len(ticks)-2):
+        #         radius = (ticks[i+1] - min_val) / range_val
+        #         ax.text(angle, radius, f'{ticks[i+1]:.2f}', ha='center', va='center', fontsize=config.fontisze_ticks, color=config.color_ticks)
+
+        # Add value annotations with improved positioning and styling
+        # Only show values at the median points, positioned outside the plot
         for i, angle in enumerate(angles[:-1]):
-            min_val = prior_mins[i]
-            max_val = prior_maxs[i]
-            ticks = np.linspace(min_val, max_val, num=5)
-            range_val = max_val - min_val if max_val != min_val else 1.0
-            for i in range(len(ticks)-2):
-                radius = (ticks[i+1] - min_val) / range_val
-                ax.text(angle, radius, f'{ticks[i+1]:.2f}', ha='center', va='center', fontsize=config.fontisze_ticks, color=config.color_ticks)
+            # Position the value label slightly offset from the data point
+            # We'll offset it radially outward from the median point
+            data_radius = q_med_norm[i]
+            
+            # Calculate offset: place label slightly outside the data point
+            label_radius = data_radius + 0.14  # Offset by a small amount
+            
+            # If the point is too close to center, push label further out
+            if data_radius < 0.15:
+                label_radius = 0.45
+             
+            # Get the median and quantile values for annotation
+            med = q_med[i]
+            low = med - q_low[i]
+            high = q_high[i] - med
+            
+            # Format the values nicely
+            if abs(med) >= 1000:
+                med_str = f'{med:.0f}'
+            elif abs(med) >= 10:
+                med_str = f'{med:.1f}'
+            else:
+                med_str = f'{med:.2f}'
+
+            # Format the quantile values nicely
+            if abs(low) >= 1000:
+                q_low_str = f'{low:.0f}'
+            elif abs(low) >= 10:
+                q_low_str = f'{low:.1f}'
+            else:
+                q_low_str = f'{low:.2f}'
+
+            if abs(high) >= 1000:
+                q_high_str = f'{high:.0f}'
+            elif abs(high) >= 10:
+                q_high_str = f'{high:.1f}'
+            else:
+                q_high_str = f'{high:.2f}'
+
+            # Create text with shadow effect for better readability 
+            text = ax.text(angle+0.15, label_radius, f'${med_str}_{{-{q_low_str}}}^{{+{q_high_str}}}$',
+                        ha='center', va='center', 
+                        fontsize=config.fontisze_ticks, fontweight='600',
+                        color=config.color_ticks,
+                        zorder=10,
+                        bbox=dict(boxstyle='round,pad=0.4', 
+                                facecolor='white', 
+                                edgecolor='none',
+                                alpha=0.85))
+            
+            # Add subtle shadow effect
+            text.set_path_effects([
+                path_effects.Stroke(linewidth=2, foreground='#E1E4E8', alpha=0.5),
+                path_effects.Normal()
+            ])
 
         return fig, ax
 
-    def plot_fit(self, observations: ObservationSet, best_fit: list[ObservedModel], figsize: tuple=(12,7), plot_native_model: bool = False, native_model: ObservedModel | None = None) -> tuple[Figure, Axes, Axes, Axes, Axes]:
+    def plot_fit(self, observations: ObservationSet, best_fit: list[ObservedModel], figsize: tuple[float, float] = (18, 8), plot_native_model: bool = False, native_model: ObservedModel | None = None) -> tuple[Figure, Axes, Axes, Axes, Axes]:
         '''
         Plot best fit
 
@@ -283,7 +362,7 @@ class Plotting(object):
         # Initial checks
 
         if not isinstance(best_fit, list) or len(best_fit) != observations.n_observations:
-            raise ForMoSAError(f'best_fit must be a list with {observations.n_observations}', self.logger)
+            raise ForMoSAError(f'best_fit must be a list of length {observations.n_observations}', self.logger)
 
         if plot_native_model is True:
             if not isinstance(native_model, ObservedModel):
@@ -292,21 +371,23 @@ class Plotting(object):
         # Get config for best fit
         config = PLOTS_CONFIG.BestFitPlot
 
-        obs_set_transformed = ObservationSet(self.logger)
+        # obs_set_transformed = ObservationSet(self.logger)
 
-        for i, obs in enumerate(observations.observations):
-            # Create a copy of the observations to optionally remove component estimated by high-contrast module
-            obs_transformed = copy.deepcopy(obs)
-            obs_transformed._flux -= best_fit[i].component
+        # for i, obs in enumerate(observations.observations):
+        #     # Create a copy of the observations to optionally remove component estimated by high-contrast module
+        #     obs_transformed = copy.deepcopy(obs)
+        #     obs_transformed._flux -= best_fit[i].component
 
-            obs_set_transformed.add_observation(obs_transformed)
+        #     obs_set_transformed.add_observation(obs_transformed)
+
+        # Reserve top rows for filter axis only when photometry is present
+        ax_row_start = 2 if observations.has_photometry else 0
 
         fig = plt.figure(figsize=figsize)
-        fig.clf()
         gs = gridspec.GridSpec(9, 11)
 
         # Main axis for observations + best-fit
-        ax = fig.add_subplot(gs[2:7, 0:10])
+        ax = fig.add_subplot(gs[ax_row_start:7, 0:10])
 
         # Axis for photometric filters
         ax_filt = None
@@ -321,7 +402,8 @@ class Plotting(object):
         if plot_native_model:
             ax.plot(native_model.wave, native_model.flux, color=config.color, linewidth=config.linewidth, zorder=config.zorder)
 
-        # concatenate all residuals first
+        # concatenate all residuals first to compute a global standard deviation for normalization, 
+        # which is crucial for a consistent residuals plot across different observations
         all_residuals = []
 
         for i, obs in enumerate(observations.observations):
@@ -332,28 +414,47 @@ class Plotting(object):
         global_std = np.std(all_residuals)
 
         # Plot observations
-        obs_set_transformed.plot_all(fig=fig, ax=ax, ax_filt=ax_filt)
+        # obs_set_transformed.plot_all(fig=fig, ax=ax, ax_filt=ax_filt)
+        observations.plot_all(fig=fig, ax=ax, ax_filt=ax_filt)
 
         # Plot best-fit and residuals
         for i, obs in enumerate(observations.observations):
-            res = best_fit[i].residuals(obs.flux)
+            # Compute residuals and normalize by global std
+            res_norm = best_fit[i].residuals(obs.flux) / global_std
 
+            # Plot best-fit and residuals for photometric data
             if obs.is_photometric:
-                if not plot_native_model:
-                    ax.scatter(best_fit[i].wave,  best_fit[i].flux, marker='o', c = config.color, zorder=config.zorder)
-                axr.scatter(obs.wave, res / global_std, c = config.color, marker='o')
+                if not plot_native_model: # For photometric data, we only plot the best-fit as scatter points
+                    ax.scatter(best_fit[i].wave,  
+                               best_fit[i].total_flux, #best_fit[i].flux,
+                               marker='o', c = config.color_fit, zorder=config.zorder, label='Best fit')
 
+                # Plot residuals as scatter points for photometric data
+                axr.scatter(obs.wave, res_norm, c = config.color_residuals, marker='o')
+
+            # Plot best-fit and residuals for spectroscopic data
             else:
-                if not plot_native_model:
-                    ax.plot(best_fit[i].wave, best_fit[i].flux, color=config.color, linewidth=config.linewidth, zorder=config.zorder)  # Best-fit
-                axr.plot(obs.wave, res / global_std, c=config.color)               # Residuals
+                if not plot_native_model: # For spectroscopic data, we plot the best-fit as a line
+                    ax.plot(best_fit[i].wave, 
+                            best_fit[i].total_flux, #best_fit[i].flux,
+                            color=config.color_fit, linewidth=config.linewidth, zorder=config.zorder, label='Best fit')
+                
+                # Plot residuals as a line for spectroscopic data
+                axr.plot(obs.wave, res_norm, c=config.color_residuals, linewidth=config.linewidth)
 
-            axr2.hist(res/global_std, orientation='horizontal', bins=100, color=config.color, alpha=0.8, density=True)
+            axr2.hist(res_norm, orientation='horizontal', bins=60, color=config.color_residuals, alpha=0.8, density=True)
 
         axr.set_xlabel(r'Wavelength ($\mu$m)')
         axr.set_ylabel(r'Residuals ($\sigma$)')
-        axr.axhline(y=0, linestyle='--', color = 'lightgrey')
+        axr.axhline(y=0, linestyle='--', color='grey')
         axr2.axis('off')
+
+        # Re-render the main legend so the 'Best fit' line is included
+        handles, labels = ax.get_legend_handles_labels()
+        if handles:
+            ax.legend(handles=handles, labels=labels, frameon=False, loc='upper right', fontsize=MAIN_PLOT.legend_fontsize)
+
+        fig.tight_layout()
 
         return fig, ax, ax_filt, axr, axr2
 

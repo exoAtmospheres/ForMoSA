@@ -191,7 +191,7 @@ class PhotometryObservation(Observation):
 
         return self
 
-    def plot_data(self, fig: Figure | None = None, ax: Axes | None = None, ax_filt: Axes | None = None) -> tuple[Figure, Axes, Axes]:
+    def plot_data(self, fig: Figure | None = None, ax: Axes | None = None, ax_filt: Axes | None = None, draw_legend: bool = True) -> tuple[Figure, Axes, Axes]:
         '''
         Plot photometric data.
 
@@ -289,21 +289,16 @@ class PhotometryObservation(Observation):
         # --------------------------------------------------
         # Legend upper panel (Photometric data)
         # --------------------------------------------------
-
-        if plot_config.label_filter:
+        if draw_legend and plot_config.label_filter:
             ax_filt.legend(filt_handles, filt_labels, fontsize=main_plot_config.legend_fontsize, ncol=main_plot_config.legend_filt_ncol, frameon=False)
 
         # --------------------------------------------------
         # Legend mid panel (Photometric data)
         # --------------------------------------------------
-        if plot_config.label_data:
-            ax.legend(fontsize=main_plot_config.legend_fontsize, ncol=main_plot_config.legend_ncol, frameon=False)
-
-        # --------------------------------------------------
-        # Axis labels
-        # --------------------------------------------------
-        ax.set_xlabel(f"Wavelength ({getattr(self, 'unit', '')})")
-        ax.set_ylabel("Flux")
+        if draw_legend and plot_config.label_data:
+            handles, labels = ax.get_legend_handles_labels()
+            if handles:
+                ax.legend(fontsize=main_plot_config.legend_fontsize, ncol=main_plot_config.legend_ncol, frameon=False)
 
         return fig, ax, ax_filt
 

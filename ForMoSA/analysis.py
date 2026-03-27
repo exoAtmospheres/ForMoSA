@@ -57,8 +57,21 @@ class Analysis(object):
         # ModelGrid
         self._grid = ModelGrid.from_file(self._paths.model_path)
 
-        # Adapt Observations
-        self._observations = ObservationSet.from_fits(self._paths.observation_path, logger=self._logger)
+        # Adapted Observations
+        # When running with adapted=True, prefer adapted observations saved on disk
+        # because they include continuum metadata (wave_cont/res_cont) required by
+        # high-contrast modeling.
+        if self._adapted:
+            try:
+                self._observations = ObservationSet.from_npz(self._paths.result_path, logger=self._logger)
+                self._logger.info('    Loaded adapted observations from result path')
+            except ForMoSAError as e:
+                self._logger.warning(f'Recovery of adapted observations from result path {self._paths.result_path} produced the following error: {e}')
+
+                # self._logger.warning('    Could not load adapted observations from result path; falling back to raw FITS observations')
+                # self._observations = ObservationSet.from_fits(self._paths.observation_path, logger=self._logger)
+        # else:
+        #     self._observations = ObservationSet.from_fits(self._paths.observation_path, logger=self._logger)
 
         # Adapted SubGrids
         if self._adapted:
@@ -84,6 +97,15 @@ class Analysis(object):
         # Update configurations for plotting
         for obs in self._observations:
             obs.plot_config.set_plot_config(color=obs.plot_config.cmap(self._observations.mcolors_normalize(obs.central_wavelength)))
+
+        # Propagate the computed colors to restricted_observations.
+        # These are deep-copied from self._observations before the loop above,
+        # so they keep the default color unless explicitly updated here.
+        if self._ns is not None:
+            color_by_name = {obs.name: obs.plot_config.color for obs in self._observations}
+            for obs in self._ns.restricted_observations:
+                if obs.name in color_by_name:
+                    obs.plot_config.set_plot_config(color=color_by_name[obs.name])
 
         # Upade main plot configuration
         MAIN_PLOT.legend_ncol = max(1, (np.sum(
@@ -206,7 +228,7 @@ class Analysis(object):
         # Compute target resolution to reach for the observations
         target_resolution = config_adapt._compute_obs_target_resolution(self.observations, self.grid)
         # Adapt observations
-        self.observations.adapt_all(target_resolution = target_resolution, wave_cont = config_inversion.wav_fit, res_cont = config_adapt.res_cont)
+        self.observations.adapt_all(target_resolution = target_resolution, wave_cont = config_adapt.wav_cont, res_cont = config_adapt.res_cont)
 
         # Save observations
         self.observations.save_all(self.paths.result_path, to_json=to_json)
@@ -226,7 +248,7 @@ class Analysis(object):
                 # ==================
 
                 # Loop in observations
-                for obs, wave, res, remove_cont, res_cont, wave_cont in zip(self.observations.observations, target_wave, target_res, remove_continuum, config_adapt.res_cont, config_inversion.wav_fit):
+                for obs, wave, res, remove_cont, res_cont, wave_cont in zip(self.observations.observations, target_wave, target_res, remove_continuum, config_adapt.res_cont, config_adapt.wav_cont):
                     # Spectroscopic observation
                     if obs.ObsType == ObservationType.SPECTROSCOPIC.obstype:
                         subgrid = SubGridSpectroscopy.from_parent(parent_grid = self.grid, target_wavelength=wave, target_resolution=res, name = obs.name, logger = self.logger, remove_continuum=remove_cont, res_cont=res_cont, wave_cont=wave_cont)
@@ -354,19 +376,19 @@ class Analysis(object):
 
         if save:
             path = self.paths.result_path / 'corner.pdf'
-            fig_corner.savefig(path)
+            fig_corner.savefig(path, dpi=300, bbox_inches='tight')
 
         fig_chains, axs = self.plots.plot_chains()
 
         if save:
             path = self.paths.result_path / 'chains.pdf'
-            fig_chains.savefig(path)
+            fig_chains.savefig(path, dpi=300, bbox_inches='tight')
 
         fig_radar, ax = self.plots.plot_radars()
 
         if save:
             path = self.paths.result_path / 'radar.pdf'
-            fig_radar.savefig(path)
+            fig_radar.savefig(path, dpi=300, bbox_inches='tight')
 
         native_best_fit = None
         if plot_native_model:
@@ -382,7 +404,7 @@ class Analysis(object):
 
         if save:
             path = self.paths.result_path / 'best_fit.pdf'
-            fig_best_fit.savefig(path)
+            fig_best_fit.savefig(path, dpi=300, bbox_inches='tight')
 
     # =========================================
     # CCF Plotting Functions
@@ -467,7 +489,7 @@ class Analysis(object):
 
             if save_path:
                 path = self.paths.result_path / f'rv_vsini_map_{file_tag}.pdf'
-                fig.savefig(path)
+                fig.savefig(path, dpi=300, bbox_inches='tight')
 
             if save_results:
                 results_path = self.paths.result_path / f'rv_vsini_map_results_{file_tag}.npz'

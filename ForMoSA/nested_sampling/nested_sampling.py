@@ -434,26 +434,7 @@ class NestedSampling(object):
                 self._logger.error(msg)
                 raise ForMoSAError(msg)
 
-            # Config files can store optional values as strings (e.g. "None").
-            # Sanitize them before forwarding kwargs to PyMultiNest.
-            ns_params = dict(self.ns_params)
-
-            dump_callback = ns_params.get('dump_callback', None)
-            if isinstance(dump_callback, str):
-                if dump_callback.strip().lower() in ('none', 'na', ''):
-                    ns_params['dump_callback'] = None
-                else:
-                    self.logger.warning(f"Invalid dump_callback value '{dump_callback}' in config; ignoring it.")
-                    ns_params['dump_callback'] = None
-            elif dump_callback is not None and not callable(dump_callback):
-                self.logger.warning(f"Invalid dump_callback type {type(dump_callback)}; ignoring it.")
-                ns_params['dump_callback'] = None
-
-            wrapped_params = ns_params.get('wrapped_params', None)
-            if isinstance(wrapped_params, str) and wrapped_params.strip().lower() in ('none', 'na', ''):
-                ns_params['wrapped_params'] = None
-
-            output_path = f"{results_path}/pymultinest/"
+            output_path = f"{results_path}/pymultinest"
             if not Path(output_path).exists():
                 Path(output_path).mkdir(exist_ok=True, parents=True)
 
@@ -468,7 +449,7 @@ class NestedSampling(object):
                                         n_dims=n_free_parameters,
                                         n_live_points=self.npoints,
                                         outputfiles_basename='RAW_',
-                                        **ns_params)
+                                        **self.ns_params)
             finally:
                 os.chdir(prev_cwd)
 
@@ -513,15 +494,8 @@ class NestedSampling(object):
 
         '''
 
-        try:
-            observed_models = self.build_models_from_theta(theta)
-            logL = self._compute_loglikelihood(observed_models)
-            return float(logL)
-        except Exception as e:
-            self.logger.error(f"Error in loglikelihood calculation: {type(e).__name__}: {str(e)}")
-            import traceback
-            self.logger.error(traceback.format_exc())
-            return -np.inf
+        observed_models = self.build_models_from_theta(theta)
+        return self._compute_loglikelihood(observed_models)
 
     def prior_transform(self, theta: np.ndarray[float]) -> np.ndarray[float]:
         '''
