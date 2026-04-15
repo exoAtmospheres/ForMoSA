@@ -268,19 +268,49 @@ class ObservationLoader:
             native_unit = WavelengthUnit[str(unit_value)]
 
         # --------------------------------
+        # Detect photometric observation
+        # --------------------------------
+        missing_photo = ObservationKeys.validate_photometric(set(normalized.keys()))
+        is_photo = len(missing_photo) == 0
+
+        # --------------------------------
         # Detect spectroscopic observation
         # --------------------------------
-        is_spectro = (ObservationKeys.RESOLUTION.canonical in normalized and np.any(np.array(data[normalized["RESOLUTION"]]) > 0))
+        missing_spectro = ObservationKeys.validate_spectroscopic(set(normalized.keys()))
+        is_spectro = len(missing_spectro) == 0
+
+        # =============================
+        # Photometric observation
+        # =============================
+        if is_photo:
+            missing_photo = ObservationKeys.validate_photometric(set(normalized.keys()))
+            if missing_photo:
+                raise ForMoSAError(f"Missing required observation keys: {', '.join(missing_photo)}", logger)
+
+            # Facility, ins and filter_id
+            facility = np.asarray(data[normalized["FACILITY"]], dtype=str)
+            ins = np.asarray(data[normalized["INSTRUMENT"]], dtype=str)
+            filter_id = np.asarray(data[normalized["FILTER_ID"]], dtype=str)
+
+            logger.info(f'    Detected photometric observation with filter {np.unique(filter_id)}')
+
+            # Error
+            err = data[normalized["ERROR"]]
+
+            obs = PhotometryObservation(
+                wave=wave,
+                flux=flux,
+                err=err,
+                native_unit=native_unit,
+                facility=facility,
+                instrument=ins,
+                filter_id=filter_id,
+            )
 
         # =============================
         # Spectroscopic observation
         # =============================
-        if is_spectro:
-
-            missing_spectro = ObservationKeys.validate_spectroscopic(set(normalized.keys()))
-            if missing_spectro:
-                raise ForMoSAError(f"Missing required observation keys: {', '.join(missing_spectro)}", logger)
-
+        elif is_spectro:
             # Facility and instrument
             for canonical, key in zip([ObservationKeys.FACILITY.canonical, ObservationKeys.INSTRUMENT.canonical], ['FACILITY', 'INSTRUMENT']):
                 if canonical not in set(normalized.keys()):
@@ -299,6 +329,8 @@ class ObservationLoader:
 
             # Resolution
             res = data[normalized["RESOLUTION"]]
+            if np.any(res <= 0):
+                raise ForMoSAError("Resolution must be strictly positive for spectroscopic observations", logger)
 
             # ----------------------------
             # Optional inputs
@@ -353,32 +385,12 @@ class ObservationLoader:
             obs._res_cont = res_cont
             obs._wave_cont = wave_cont
 
-        # =============================
-        # Photometric observation
-        # =============================
         else:
-            missing_photo = ObservationKeys.validate_photometric(set(normalized.keys()))
-            if missing_photo:
-                raise ForMoSAError(f"Missing required observation keys: {', '.join(missing_photo)}", logger)
-
-            # Facility, ins and filter_id
-            facility = np.asarray(data[normalized["FACILITY"]], dtype=str)
-            ins = np.asarray(data[normalized["INSTRUMENT"]], dtype=str)
-            filter_id = np.asarray(data[normalized["FILTER_ID"]], dtype=str)
-
-            logger.info(f'    Detected photometric observation with filter {np.unique(filter_id)}')
-
-            # Error
-            err = data[normalized["ERROR"]]
-
-            obs = PhotometryObservation(
-                wave=wave,
-                flux=flux,
-                err=err,
-                native_unit=native_unit,
-                facility=facility,
-                instrument=ins,
-                filter_id=filter_id,
+            raise ForMoSAError(
+                "Invalid observation: keys do not satisfy spectroscopic nor photometric requirements\n"
+                f"Missing spectroscopic keys: {missing_spectro}\n"
+                f"Missing photometric keys: {missing_photo}",
+                logger
             )
 
         return obs
