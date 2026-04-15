@@ -325,8 +325,6 @@ class ObservationLoader:
 
             # Resolution
             res = data[normalized["RESOLUTION"]]
-            if np.any(res <= 0):
-                raise ForMoSAError("Resolution must be strictly positive for spectroscopic observations", logger)
 
             # ----------------------------
             # Optional inputs
