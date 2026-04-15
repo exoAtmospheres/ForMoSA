@@ -66,12 +66,10 @@ class Analysis(object):
                 self._observations = ObservationSet.from_npz(self._paths.result_path, logger=self._logger)
                 self._logger.info('    Loaded adapted observations from result path')
             except ForMoSAError as e:
-                self._logger.warning(f'Recovery of adapted observations from result path {self._paths.result_path} produced the following error: {e}')
-
-                # self._logger.warning('    Could not load adapted observations from result path; falling back to raw FITS observations')
-                # self._observations = ObservationSet.from_fits(self._paths.observation_path, logger=self._logger)
-        # else:
-        #     self._observations = ObservationSet.from_fits(self._paths.observation_path, logger=self._logger)
+                self._logger.warning(f'Recovery of adapted observations from result path {self._paths.result_path} produced the following error: {e}. Trying with the raw FITS observations')
+                self._observations = ObservationSet.from_fits(self._paths.observation_path, logger=self._logger)
+        else:
+            self._observations = ObservationSet.from_fits(self._paths.observation_path, logger=self._logger)
 
         # Adapted SubGrids
         if self._adapted:
