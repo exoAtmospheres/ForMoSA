@@ -116,39 +116,6 @@ class ObservationLoader:
             logger.info(f'    Loading Observation from FITS file: {path}')
             data = misc.from_recarray_to_dic(hdul[1].data)
 
-            # Recover scalar metadata from FITS headers when absent from table columns.
-            # This keeps backward compatibility with files storing FACILITY/INSTRUMENT
-            # as header cards instead of per-row columns.
-            upper_data_keys = {str(k).upper() for k in data.keys()}
-            n_rows = len(hdul[1].data)
-
-            fallback_keys = [
-                ObservationKeys.FACILITY,
-                ObservationKeys.INSTRUMENT,
-                ObservationKeys.FILTER_ID,
-                ObservationKeys.WAVELENGTH_UNIT,
-            ]
-
-            for obs_key in fallback_keys:
-                has_column_alias = any(alias in upper_data_keys for alias in obs_key.aliases)
-                if has_column_alias:
-                    continue
-
-                # Check extension header first, then primary header.
-                header_value = None
-                for header in (hdul[1].header, hdul[0].header):
-                    if obs_key.canonical in header:
-                        header_value = header[obs_key.canonical]
-                        break
-
-                if header_value is None:
-                    continue
-
-                if obs_key in [ObservationKeys.FACILITY, ObservationKeys.INSTRUMENT, ObservationKeys.FILTER_ID]:
-                    data[obs_key.canonical] = np.array([str(header_value)] * n_rows, dtype=str)
-                else:
-                    data[obs_key.canonical] = np.asarray([str(header_value)], dtype=str)
-
             return ObservationLoader._from_mapping(data=data, logger= logger, **kwargs)
 
     @staticmethod
