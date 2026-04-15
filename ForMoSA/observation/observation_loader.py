@@ -283,10 +283,6 @@ class ObservationLoader:
         # Photometric observation
         # =============================
         if is_photo:
-            missing_photo = ObservationKeys.validate_photometric(set(normalized.keys()))
-            if missing_photo:
-                raise ForMoSAError(f"Missing required observation keys: {', '.join(missing_photo)}", logger)
-
             # Facility, ins and filter_id
             facility = np.asarray(data[normalized["FACILITY"]], dtype=str)
             ins = np.asarray(data[normalized["INSTRUMENT"]], dtype=str)
