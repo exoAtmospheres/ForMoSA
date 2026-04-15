@@ -246,6 +246,33 @@ class ObservationLoader:
         missing_spectro = ObservationKeys.validate_spectroscopic(set(normalized.keys()))
         is_spectro = len(missing_spectro) == 0
 
+        # --------------------------------------------------------------------
+        # NEW: If FILTER_ID exists but is only a placeholder (e.g., "NA"),
+        # treat the observation as NOT photometric (prevents SVO filter lookup).
+        # --------------------------------------------------------------------
+        if is_photo and ObservationKeys.FILTER_ID.canonical in normalized:
+            raw_filter = np.asarray(data[normalized["FILTER_ID"]], dtype=str)
+
+            # Normalize (strip spaces, uppercase)
+            filt_norm = np.char.upper(np.char.strip(raw_filter.astype(str)))
+
+            # Tokens meaning "no filter" / placeholder
+            null_tokens = {"", "NA"}
+
+            # Keep only "real" filter ids
+            valid_mask = ~np.isin(filt_norm, list(null_tokens))
+            has_any_valid_filter = bool(np.any(valid_mask))
+
+            if not has_any_valid_filter:
+                logger.warning(
+                    f"Observations FITS has a FILT column with values {sorted(null_tokens)};"
+                    " If Observations are spectroscopic, please remove the FILT column for future use."
+                    " Treating this observation as spectroscopic."
+                )
+                is_photo = False
+                # Recompute missing_photo for correct error reporting if we end up in the final else:
+                missing_photo = ObservationKeys.validate_photometric(set(normalized.keys()))
+
         # =============================
         # Photometric observation
         # =============================
