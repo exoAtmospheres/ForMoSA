@@ -556,3 +556,174 @@ class Plotting(object):
 
         return fig, ax
 
+    def _get_PT_chem(self, path_PT_chem_grid, theta, grid_used='original'):
+        '''
+        Function to extract the pressure, temperature and chemical profiles from the PT grid.
+        This function interpolates the PT grid at the best-fit parameters and computes the brightness temperature of the photosphere.
+        It also extracts the P/T profile of the photosphere based on the brightness temperature.
+        This is useful for plotting the P/T profile and the photosphere in the final figure.
+
+        Parameters
+        ----------
+            path_PT_chem_grid : str
+                path to the PT grid in xarray format
+            theta : list
+                parameter values to use to compute the photosphere
+            grid_used : str
+                (default = 'original') Path to the grid from where to extract the spectrum. If 'original', the current grid will be used.
+     
+        Returns
+        -------
+            PT_chem : dict
+                Dictionary containing the pressure, temperature and chemical arrays
+            photosphere : dict 
+                Dictionary containing the P/T profile of the photosphere
+
+        Notes
+        -----
+        Authors: Matthieu Ravet (adapted from Nathan Zimniak)
+        '''
+
+        ds = xr.open_dataset(path_PT_chem_grid, decode_cf=False, engine='netcdf4')
+        var_names = list(ds.data_vars.keys())  # Save original keys
+        P = ds.coords['pressure']
+
+        # Prepare storage per variable
+        best_fit_vars = {var: [] for var in var_names}
+
+        for j in tqdm(range(len(self.ns_results.samples)), desc=f"Interpolating grid", unit="sample"):
+            sample = self.ns_results.samples[j]
+            interp_kwargs = {f"par{k+1}": sample[k] for k in range(len(ds.coords)-1)}
+            interp = ds.interp(**interp_kwargs, method=self.config_adapt.method, kwargs={"fill_value": "extrapolate"}).to_array()
+            
+            for v_idx, var in enumerate(var_names):
+                best_fit_vars[var].append(interp[v_idx].values)
+        ds.close()
+
+        # Convert lists to arrays and compute percentiles
+        PT_chem = {}
+        PT_chem["pressure"] = P.values
+
+        for var in var_names:
+            grid = np.array(best_fit_vars[var])
+            PT_chem[var + '_q2'] = np.percentile(grid, 2, axis=0)
+            PT_chem[var + '_q16'] = np.percentile(grid, 16, axis=0)
+            PT_chem[var + '_q50'] = np.percentile(grid, 50, axis=0)
+            PT_chem[var + '_q84'] = np.percentile(grid, 84, axis=0)
+            PT_chem[var + '_q98'] = np.percentile(grid, 98, axis=0)
+
+        # - - - - 
+
+        # Recover the original grid
+        if grid_used == 'original':
+            path_grid = self.global_params.model_path
+        else:
+            path_grid = grid_used
+
+        # Extract spectrum for photosphere estimation
+        ds = xr.open_dataset(path_grid, decode_cf=False, engine='netcdf4')
+        grid = ds['grid']
+        wav = grid["wavelength"].values
+        interp_kwargs = {f"par{k+1}": theta[k] for k in range(len(ds.coords)-1)}
+        flx = np.array(grid.interp(**interp_kwargs, method=self.config_adapt.method, kwargs={"fill_value": "extrapolate"}))
+        ds.close()
+
+        # Photosphere range (in µm) and conversion
+        photosphere_wav = np.asarray([0, 10])
+        mask = (wav > photosphere_wav[0]) & (wav < photosphere_wav[1])
+        wav = wav[mask] * 1e-6  # m
+        flx = flx[mask] * 1e6   # W/m²/m
+
+        # Compute brightness temperatures
+        brightness_temperature = np.zeros_like(wav)
+        for j in range(len(wav)):
+            brightness_temperature[j] = (
+                cst.h.value * cst.c.value / (cst.k_B.value * wav[j]) /
+                np.log(1 + (2 * cst.h.value * cst.c.value ** 2) /
+                        (wav[j] ** 5 * (flx[j] / np.pi)))
+            )
+
+        brightness_temperature = brightness_temperature[np.isfinite(brightness_temperature)]
+        T_min = brightness_temperature.min()
+        T_max = brightness_temperature.max()
+
+        # Match to thermal profile
+        P, T = PT_chem["pressure"], PT_chem["temperature_q50"] # Taking the 'best' profile as reference
+        mask = (T >= T_min) & (T <= T_max)
+
+        # Store photosphere info
+        photosphere = {
+            "pressure": P[mask],
+            "temperature": T[mask],
+            "brightness_temperature_range": [T_min, T_max]
+        }
+    
+        return PT_chem, photosphere
+
+    def plot_PT_chem(self, PT_chem, photosphere={}, par_to_plot=['temperature'], figsize=(10,5)):
+        '''
+        Function to plot the Pressure-Temperature profiles and associated vmr/molecular profiles.
+
+        Parameters
+        ----------
+            PT_chem : dict
+                Dictionary containing the pressure, temperature and chemical arrays
+            photosphere : dict
+                Dictionary containing the P/T profile of the photosphere
+            par_to_plot : list(str)
+                Key list of the parameters from the PT_chem you want to plot 
+
+        Returns
+        -------
+            fig : object
+                matplotlib figure object
+            ax : object
+                matplotlib axes objects
+            ax_twin : object
+                matplotlib axes objects
+
+        Notes
+        -----
+        Authors: Matthieu Ravet (adapted from Nathan Zimniak)
+        '''
+
+        self._logger.info('    Plotting PT and chemistry')
+
+        # Initialize plot
+        fig, ax = plt.subplots(1,1, figsize=figsize)
+        ax_twin = ax.twiny()
+
+        # Iterate on each parameter
+        for i_par, par in enumerate(par_to_plot):
+
+            # Temperature
+            if par == 'temperature':
+                ax.plot(PT_chem["temperature_q50"], PT_chem["pressure"], color=config.color_fit, label='Best-fit')
+                ax.fill_betweenx(PT_chem["pressure"], PT_chem["temperature_q16"], PT_chem["temperature_q84"], color=config.color_fit, alpha=0.1, label=r'2 $\sigma$')
+                ax.fill_betweenx(PT_chem["pressure"], PT_chem["temperature_q2"], PT_chem["temperature_q98"], color=config.color_fit, alpha=0.2, label=r'1 $\sigma$')
+            else:
+                ax_twin.plot(PT_chem[par + '_q50'], PT_chem["pressure"], label=par)
+
+        # Add photosphere if necessary
+        if len(photosphere) != 0:
+            ax.plot(photosphere["temperature"], photosphere["pressure"], color='red', linestyle='--', label='photosphere')
+
+        # Plot the legend
+
+        # First ax
+        ax.set_xlabel('Temperature (K)')
+        ax.set_ylabel('Pressure (bar)')
+        ax.set_yscale('log')
+        ax.tick_params(axis='both', which='both')
+
+        # Second ax
+        ax_twin.set_xlabel('abundance/vmr')
+        ax_twin.set_xscale('log')
+
+        # ask matplotlib for the plotted objects and their labels
+        lines, labels = ax.get_legend_handles_labels()
+        lines2, labels2 = ax_twin.get_legend_handles_labels()
+        ax_twin.legend(lines + lines2, labels + labels2)
+        ax_twin.tick_params(axis='both', which='both')
+
+        return fig, ax, ax_twin
