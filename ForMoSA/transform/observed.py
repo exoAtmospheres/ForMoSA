@@ -267,7 +267,7 @@ class ObservedModel:
         ----------
         grid : ModelGrid
             An instance of ModelGrid
-        parmas : ObservedParameters
+        params : ObservedParameters
             An instance of ObservedParameters
         interp_method : str
             Interpolation method
@@ -341,13 +341,11 @@ class ObservedModel:
         # Scaling (R, D, alpha)
         # ======================
 
-        try:
-            alpha = physics_params.get_kind(ParameterKind.ALPHA)
-        except ForMoSAError:
-            alpha = 1
-
         if physics_params.has_kind(ParameterKind.DISTANCE) and physics_params.has_kind(ParameterKind.RADIUS):
-            observed_model = ApplyPhysicsEffects._apply_scaling(observed_model, alpha, physics_params.get_kind(ParameterKind.RADIUS), physics_params.get_kind(ParameterKind.DISTANCE))
+            observed_model = ApplyPhysicsEffects._apply_scaling(observed_model, physics_params.get_kind(ParameterKind.RADIUS), physics_params.get_kind(ParameterKind.DISTANCE))
+
+        alpha = physics_params.values_by_kind.get(ParameterKind.ALPHA, 1.0)
+        observed_model.flux *= alpha
 
         return observed_model
 
