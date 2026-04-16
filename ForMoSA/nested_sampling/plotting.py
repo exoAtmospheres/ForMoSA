@@ -238,10 +238,10 @@ class Plotting(object):
         # Add larger, styled markers at each point
         for i in range(len(angles[:-1])):
             # Outer white ring for contrast
-            ax.scatter(angles[i], q_med_norm[i], color='white', s=config.size_quantiles+40, zorder=4, 
+            ax.scatter(angles[i], q_med_norm[i], color='white', s=config.size_quantiles+40, zorder=4,
                     edgecolors='none')
             # Main point
-            ax.scatter(angles[i], q_med_norm[i], color=config.color_quantiles, s=config.size_quantiles, zorder=5, 
+            ax.scatter(angles[i], q_med_norm[i], color=config.color_quantiles, s=config.size_quantiles, zorder=5,
                     edgecolors='white', linewidths=config.lw_quantiles)
 
         # Set parameter labels with improved styling - positioned further out
@@ -274,19 +274,19 @@ class Plotting(object):
             # Position the value label slightly offset from the data point
             # We'll offset it radially outward from the median point
             data_radius = q_med_norm[i]
-            
+
             # Calculate offset: place label slightly outside the data point
             label_radius = data_radius + 0.14  # Offset by a small amount
-            
+
             # If the point is too close to center, push label further out
             if data_radius < 0.15:
                 label_radius = 0.45
-             
+
             # Get the median and quantile values for annotation
             med = q_med[i]
             low = med - q_low[i]
             high = q_high[i] - med
-            
+
             # Format the values nicely
             if abs(med) >= 1000:
                 med_str = f'{med:.0f}'
@@ -310,17 +310,17 @@ class Plotting(object):
             else:
                 q_high_str = f'{high:.2f}'
 
-            # Create text with shadow effect for better readability 
+            # Create text with shadow effect for better readability
             text = ax.text(angle+0.15, label_radius, f'${med_str}_{{-{q_low_str}}}^{{+{q_high_str}}}$',
-                        ha='center', va='center', 
+                        ha='center', va='center',
                         fontsize=config.fontisze_ticks, fontweight='600',
                         color=config.color_ticks,
                         zorder=10,
-                        bbox=dict(boxstyle='round,pad=0.4', 
-                                facecolor='white', 
+                        bbox=dict(boxstyle='round,pad=0.4',
+                                facecolor='white',
                                 edgecolor='none',
                                 alpha=0.85))
-            
+
             # Add subtle shadow effect
             text.set_path_effects([
                 path_effects.Stroke(linewidth=2, foreground='#E1E4E8', alpha=0.5),
@@ -400,9 +400,9 @@ class Plotting(object):
 
         # Plot native model if required
         if plot_native_model:
-            ax.plot(native_model.wave, native_model.flux, color=config.color, linewidth=config.linewidth, zorder=config.zorder)
+            ax.plot(native_model.wave, native_model.flux, color=config.color_fit, linewidth=config.linewidth, zorder=config.zorder)
 
-        # concatenate all residuals first to compute a global standard deviation for normalization, 
+        # concatenate all residuals first to compute a global standard deviation for normalization,
         # which is crucial for a consistent residuals plot across different observations
         all_residuals = []
 
@@ -425,7 +425,7 @@ class Plotting(object):
             # Plot best-fit and residuals for photometric data
             if obs.is_photometric:
                 if not plot_native_model: # For photometric data, we only plot the best-fit as scatter points
-                    ax.scatter(best_fit[i].wave,  
+                    ax.scatter(best_fit[i].wave,
                                best_fit[i].total_flux, #best_fit[i].flux,
                                marker='o', c = config.color_fit, zorder=config.zorder, label='Best fit')
 
@@ -435,10 +435,10 @@ class Plotting(object):
             # Plot best-fit and residuals for spectroscopic data
             else:
                 if not plot_native_model: # For spectroscopic data, we plot the best-fit as a line
-                    ax.plot(best_fit[i].wave, 
+                    ax.plot(best_fit[i].wave,
                             best_fit[i].total_flux, #best_fit[i].flux,
                             color=config.color_fit, linewidth=config.linewidth, zorder=config.zorder, label='Best fit')
-                
+
                 # Plot residuals as a line for spectroscopic data
                 axr.plot(obs.wave, res_norm, c=config.color_residuals, linewidth=config.linewidth)
 
