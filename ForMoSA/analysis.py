@@ -397,17 +397,21 @@ class Analysis(object):
             path = self.paths.result_path / 'radar.pdf'
             fig_radar.savefig(path, dpi=300, bbox_inches='tight')
 
+        # Get native best fit from ns_analysis if plot_native_model is True, otherwise set it to None to avoid unnecessary computations in the plot_fit function
         native_best_fit = None
-        if plot_native_model:
+        if plot_native_model: 
             native_best_fit = self.ns_analysis.native_best_fit
 
+        # Plot best fit for each observation, with the native model if requested
         fig_best_fit, ax, ax_filt, axr, axr2 = self.plots.plot_fit(self.ns.restricted_observations, self.ns_analysis.best_fit, plot_native_model=plot_native_model, native_model=native_best_fit)
+        
+        # If requested, plot the 1-sigma and 2-sigma confidence intervals of the best fit in the best fit plot
         if plot_native_model:
             lower_1_sigma, higher_1_sigma = self.ns_analysis.best_fit_interval(perc=0.68)
             lower_2_sigma, higher_2_sigma = self.ns_analysis.best_fit_interval(perc=0.95)
 
-            ax.fill_between(lower_1_sigma.wave, lower_1_sigma.flux, higher_1_sigma.flux, color='grey', alpha=0.5, zorder=PLOTS_CONFIG.BestFitPlot.zorder)
-            ax.fill_between(lower_2_sigma.wave, lower_2_sigma.flux, higher_2_sigma.flux, color='grey', alpha=0.2, zorder=PLOTS_CONFIG.BestFitPlot.zorder)
+            ax.fill_between(lower_1_sigma.wave, lower_1_sigma.flux, higher_1_sigma.flux, color='grey', alpha=0.5, zorder=PLOTS_CONFIG.BestFitPlot.zorder_native, label='1-sig interval')
+            ax.fill_between(lower_2_sigma.wave, lower_2_sigma.flux, higher_2_sigma.flux, color='grey', alpha=0.2, zorder=PLOTS_CONFIG.BestFitPlot.zorder_native, label='2-sig interval')
 
         if save:
             path = self.paths.result_path / 'best_fit.pdf'

@@ -497,8 +497,22 @@ class PhotometryFilter(object):
         '''
 
         data = SvoFps.get_transmission_data(self.name)
-        metadata = SvoFps.get_filter_list(facility=self.facility, instrument=self.instrument)
+
+        # Some facilities (e.g. 2MASS) expose valid filter IDs but do not return
+        # metadata for a Facility+Instrument query. Fall back to Facility only.
+        try:
+            metadata = SvoFps.get_filter_list(facility=self.facility, instrument=self.instrument)
+        except IndexError:
+            self._logger.warning(
+                f"No SVO metadata for Facility={self.facility} and Instrument={self.instrument}. "
+                "Retrying with Facility only."
+            )
+            metadata = SvoFps.get_filter_list(facility=self.facility, instrument=None)
+
         metadata = metadata[metadata['filterID'] == self.name]
+
+        if len(metadata) == 0:
+            raise IndexError(f"No metadata row found in SVO for filter {self.name}")
 
         SvoFps.clear_cache()
 
