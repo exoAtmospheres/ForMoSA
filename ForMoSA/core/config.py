@@ -407,11 +407,6 @@ class BestFitPlotConfig:
     linewidth: float = 1.0
     zorder: int = 200
 
-    color_native: str = '#4A5FD9'
-    linewidth_native: float = 0.5
-    zorder_native: int = 50
-    alpha_native: float = 0.8
-
     @property
     def to_dict(self) -> dict:
         '''

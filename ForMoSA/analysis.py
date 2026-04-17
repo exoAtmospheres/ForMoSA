@@ -410,8 +410,8 @@ class Analysis(object):
             lower_1_sigma, higher_1_sigma = self.ns_analysis.best_fit_interval(perc=0.68)
             lower_2_sigma, higher_2_sigma = self.ns_analysis.best_fit_interval(perc=0.95)
 
-            ax.fill_between(lower_1_sigma.wave, lower_1_sigma.flux, higher_1_sigma.flux, color='grey', alpha=0.5, zorder=PLOTS_CONFIG.BestFitPlot.zorder_native, label='1-sig interval')
-            ax.fill_between(lower_2_sigma.wave, lower_2_sigma.flux, higher_2_sigma.flux, color='grey', alpha=0.2, zorder=PLOTS_CONFIG.BestFitPlot.zorder_native, label='2-sig interval')
+            ax.fill_between(lower_1_sigma.wave, lower_1_sigma.flux, higher_1_sigma.flux, color='grey', alpha=0.5, zorder=PLOTS_CONFIG.BestFitPlot.zorder, label='1-sig interval')
+            ax.fill_between(lower_2_sigma.wave, lower_2_sigma.flux, higher_2_sigma.flux, color='grey', alpha=0.2, zorder=PLOTS_CONFIG.BestFitPlot.zorder, label='2-sig interval')
 
         if save:
             path = self.paths.result_path / 'best_fit.pdf'

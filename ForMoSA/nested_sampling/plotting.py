@@ -400,8 +400,8 @@ class Plotting(object):
         # Plot native model if required
         if plot_native_model:
             ax.plot(native_model.wave, native_model.flux, 
-                    color=config.color_native, linewidth=config.linewidth_native, 
-                    zorder=config.zorder_native, alpha=config.alpha_native, label='Best fit native model')
+                    color=config.color_fit, linewidth=config.linewidth, 
+                    zorder=config.zorder, alpha=config.alpha, label='Best fit native model')
 
         # concatenate all residuals first to compute a global standard deviation for normalization,
         # which is crucial for a consistent residuals plot across different observations
