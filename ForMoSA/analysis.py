@@ -302,6 +302,15 @@ class Analysis(object):
         config_adapt._check_with_n_obs(self.observations.n_observations)
         config_inversion._check_with_n_obs(self.observations.n_observations)
 
+        # Propagate the configurations to restricted_observations.
+        # In case they have been changed in the observations, they need to be deep copied in the restricted observations
+        if self._ns is not None:
+            config_by_name = {obs.name: obs._plot_config.to_dict() for obs in self._observations}
+
+            for obs in self._ns.restricted_observations.observations:
+                if obs.name in config_by_name:
+                    obs._plot_config.set_plot_config(**config_by_name[obs.name])
+
         if not self.fitted:
 
             # ==================

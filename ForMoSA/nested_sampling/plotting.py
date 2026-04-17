@@ -346,7 +346,6 @@ class Plotting(object):
         native_model : ObservedModel
             As instance of ObservedModel
 
-
         Returns
         -------
         tuple[Figure, Axes, Axes, Axes, Axes]
