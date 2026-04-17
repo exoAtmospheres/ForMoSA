@@ -30,7 +30,7 @@ class ParameterSet(object):
     def __init__(self, logger: logging.Logger | None = None, log_level: str = 'INFO') -> None:
         self._parameters: list[Parameter] = []
 
-        self._logger = logger or setup_logging(level=log_level, name='ParameterSet')
+        self._logger = logger if logger is not None else setup_logging(level=log_level, name='ParameterSet')
 
     # ===========================
     # Representation
@@ -176,7 +176,7 @@ class ParameterSet(object):
         Authors: Allan Denis
         '''
 
-        logger = logger or setup_logging(level=log_level, name='ParameterSet')
+        logger = logger if logger is not None else setup_logging(level=log_level, name='ParameterSet')
         param_set = cls(logger=logger)
 
         logger.debug('Building instance of ParameterSet from dictionary')
@@ -211,7 +211,7 @@ class ParameterSet(object):
         Authors: Allan Denis
         '''
 
-        logger = logger or setup_logging(level=log_level, name='ParameterSet')
+        logger = logger if logger is not None else setup_logging(level=log_level, name='ParameterSet')
 
         if not isinstance(path, (str, os.PathLike)):
             raise ForMoSAError(f'Wrong type for path: {type(path)}. Expected a string or os.PathLike', logger)
@@ -225,7 +225,7 @@ class ParameterSet(object):
         with open(filepath, "r") as f:
             data = json.load(f)
 
-        return cls.from_dict(data, logger=logger, log_level=log_level)
+        return cls.from_dict(data, logger=logger)
 
     # ==========================
     # Methods

@@ -34,7 +34,7 @@ class SubGridSet(object):
 
     def __init__(self, parent_grid: ModelGrid, logger: logging.Logger | None = None, log_level: str = "INFO") -> None:
 
-        self._logger = logger or setup_logging(log_level)
+        self._logger = logger if logger is not None else setup_logging(log_level, name='SubGridSet')
 
         if not isinstance(parent_grid, ModelGrid):
             raise ForMoSAError(" parent_grid must be a ModelGrid instance", self.logger)

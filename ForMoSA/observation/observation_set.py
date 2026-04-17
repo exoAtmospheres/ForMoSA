@@ -36,7 +36,7 @@ class ObservationSet(object):
 
     def __init__(self, logger: logging.Logger | None = None, log_level: str = "INFO") -> None:
 
-        self._logger = logger or setup_logging(level=log_level, name="ObservationSet")
+        self._logger = logger if logger is not None else setup_logging(level=log_level, name="ObservationSet")
         self._observations: list[Observation] = []
 
     # ==================================================
@@ -196,7 +196,7 @@ class ObservationSet(object):
         Authors: Allan Denis
         '''
 
-        logger = logger or setup_logging(level=log_level, name='ObservationSet')
+        logger = logger if logger is not None else setup_logging(level=log_level, name='ObservationSet')
 
         logger.debug(f'Generating a set of observations from path {path}')
 
@@ -258,7 +258,7 @@ class ObservationSet(object):
         Authors: Allan Denis
         '''
 
-        logger = logger or setup_logging(level=log_level, name='ObservationSet')
+        logger = logger if logger is not None else setup_logging(level=log_level, name='ObservationSet')
 
         logger.debug(f'Generating a set of observations from path {path}')
 
@@ -334,7 +334,7 @@ class ObservationSet(object):
         Authors: Allan Denis
         '''
 
-        logger = logger or setup_logging(level=log_level, name='ParameterSet')
+        logger = logger if logger is not None else setup_logging(level=log_level, name='ParameterSet')
 
         if not isinstance(data, dict):
             raise ForMoSAError(f'Wrong type for data: {type(data)}. Expected a dictionary', logger)
@@ -373,7 +373,7 @@ class ObservationSet(object):
         Authors: Allan Denis
         '''
 
-        logger = logger or setup_logging(level=log_level, name='ParameterSet')
+        logger = logger if logger is not None else setup_logging(level=log_level, name='ParameterSet')
 
         if not isinstance(path, (str, os.PathLike)):
             raise ForMoSAError(f'Wrong type for path: {type(path)}. Expected a string or os.PathLike', logger)
@@ -387,7 +387,7 @@ class ObservationSet(object):
         with open(filepath, "r") as f:
             data = json.load(f)
 
-        return cls.from_dict(data, logger=logger, log_level=log_level)
+        return cls.from_dict(data, logger=logger)
 
     @classmethod
     def from_list(cls, obs_list: list[Observation], logger: logging.Logger | None = None, log_level: str = 'INFO') -> 'ObservationSet':
@@ -413,7 +413,7 @@ class ObservationSet(object):
         Authors: Allan Denis
         '''
 
-        logger = logger or setup_logging(level=log_level, name='ParameterSet')
+        logger = logger if logger is not None else setup_logging(level=log_level, name='ParameterSet')
 
         if not isinstance(obs_list, list):
             raise ForMoSAError(f'Wrong type for obs_list: {type(obs_list)}. Expected a list', logger)
@@ -654,7 +654,7 @@ class ObservationSet(object):
             gs = gridspec.GridSpec(9, 10)
             ax_filt = fig.add_subplot(gs[0:2, 0:10], sharex=(ax if ax is not None else ax_hc))
 
-        # Plot each observation — legend is suppressed here; 
+        # Plot each observation — legend is suppressed here;
         # plot_all renders a single consolidated legend below.
         for obs in self.observations:
 
@@ -684,7 +684,7 @@ class ObservationSet(object):
         handles, labels = plot_axis.get_legend_handles_labels()
         if handles:
             plot_axis.legend(ncol=ncol, frameon=False, loc='upper right', fontsize=main_plot_config.legend_fontsize)
-        
+
         # Add legend for photometric filters if we have photometry and an axis for the filters
         if ax_filt is not None:
             ax_filt.legend(ncol=max(1, int(main_plot_config.legend_filt_ncol)), frameon=False)

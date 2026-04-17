@@ -1053,7 +1053,7 @@ class ConfigGenerator:
     '''
 
     def __init__(self, sections: dict = None, logger: logging.Logger | None = None, log_level: str = 'INFO') -> None:
-        self.logger = logger or setup_logging(level=log_level, name='ConfigGenerator')
+        self.logger = logger if logger is not None else setup_logging(level=log_level, name='ConfigGenerator')
         if sections is not None:
             # If we provide the sections
             self.config = sections
@@ -1283,7 +1283,8 @@ class ConfigLoader:
     def __init__(self, path: str | os.PathLike, logger: logging.Logger | None = None, log_level: str = 'INFO') -> None:
         self.path = path
         self.config_ini = ConfigObj(self.path, list_values=True, encoding='utf-8', file_error=False)
-        self.logger = logger or setup_logging(level=log_level, name='ConfigLoader')
+
+        self.logger = logger if logger is not None else setup_logging(level=log_level, name='ConfigLoader')
 
         self.defaults = ConfigGenerator().config
         self.config = {}
@@ -1297,7 +1298,7 @@ class ConfigLoader:
         Authors: Allan Denis
         '''
 
-        self.logger.debug(f' Load config file {self.path}')
+        self.logger.debug(f'Load config file {self.path}')
         # Default config file
         self._fill_defaults()
         # mapping section name -> dataclass

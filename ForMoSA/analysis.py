@@ -32,6 +32,8 @@ class Analysis(object):
         Whether the model is adapted to the data, by default False. Can be set to True if the model has already been adapted to the data
     fitted : bool
         Whether the data have already been fitted for
+    logger : logging.Logger
+        Logger
     log_level : str
         Log level of the handler, by default ``'info'`` for all important informations.
 
@@ -40,9 +42,9 @@ class Analysis(object):
     Authors: Allan Denis
     '''
 
-    def __init__(self, config_path: ConfigPath, adapted: bool = False, fitted: bool = False, log_level: str = 'info') -> None:
+    def __init__(self, config_path: ConfigPath, adapted: bool = False, fitted: bool = False, logger: logging.Logger = None, log_level: str = 'info') -> None:
 
-        self._logger = setup_logging(level=log_level, name='ForMoSA Analysis')
+        self._logger = logger or setup_logging(level=log_level, name='ForMoSA Analysis')
 
         self._config_path = config_path
         self._adapted = adapted
@@ -52,10 +54,10 @@ class Analysis(object):
         self._ns_analysis = None
 
         # Paths
-        self._paths = Paths(config_path)
+        self._paths = Paths(config_path, logger=self._logger)
 
         # ModelGrid
-        self._grid = ModelGrid.from_file(self._paths.model_path)
+        self._grid = ModelGrid.from_file(self._paths.model_path, logger=self._logger)
 
         # Adapted Observations
         # When running with adapted=True, prefer adapted observations saved on disk
@@ -399,12 +401,12 @@ class Analysis(object):
 
         # Get native best fit from ns_analysis if plot_native_model is True, otherwise set it to None to avoid unnecessary computations in the plot_fit function
         native_best_fit = None
-        if plot_native_model: 
+        if plot_native_model:
             native_best_fit = self.ns_analysis.native_best_fit
 
         # Plot best fit for each observation, with the native model if requested
         fig_best_fit, ax, ax_filt, axr, axr2 = self.plots.plot_fit(self.ns.restricted_observations, self.ns_analysis.best_fit, plot_native_model=plot_native_model, native_model=native_best_fit)
-        
+
         # If requested, plot the 1-sigma and 2-sigma confidence intervals of the best fit in the best fit plot
         if plot_native_model:
             lower_1_sigma, higher_1_sigma = self.ns_analysis.best_fit_interval(perc=0.68)

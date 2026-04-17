@@ -36,7 +36,7 @@ class Plotting(object):
 
     def __init__(self, results: NSResults, logger: logging.Logger, log_level: str = 'INFO') -> None:
 
-        self._logger = logger or setup_logging(log_level)
+        self._logger = logger if logger is not None else setup_logging(log_level,  name='Plotting')
         self._ns_results = results
 
         if not isinstance(results, NSResults):
@@ -399,8 +399,8 @@ class Plotting(object):
 
         # Plot native model if required
         if plot_native_model:
-            ax.plot(native_model.wave, native_model.flux, 
-                    color=config.color_fit, linewidth=config.linewidth, 
+            ax.plot(native_model.wave, native_model.flux,
+                    color=config.color_fit, linewidth=config.linewidth,
                     zorder=config.zorder, alpha=config.alpha, label='Best fit native model')
 
         # concatenate all residuals first to compute a global standard deviation for normalization,

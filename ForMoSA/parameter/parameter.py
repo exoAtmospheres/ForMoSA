@@ -46,7 +46,7 @@ class Parameter(object):
         self._obs_index = obs_index
         self._vsini_function = vsini_function
         self._title = title
-        self._logger = logger or setup_logging(log_level, name = 'Parameter')
+        self._logger = logger if logger is not None else setup_logging(log_level, name = 'Parameter')
 
         self._validate()
 
@@ -158,7 +158,7 @@ class Parameter(object):
         Authors: Allan Denis
         '''
 
-        logger = logger or setup_logging(level=log_level, name='Parameter')
+        logger = logger if logger is not None else setup_logging(level=log_level, name='Parameter')
         logger.debug('Extract Parameter from dictionary')
 
         name, prior, kind, scope, title, obs_index = data['name'], data['prior'], data['kind'], data['scope'], data['title'], data['obs_index']
@@ -166,7 +166,7 @@ class Parameter(object):
         logger.info(f'    {kind} parameter detected with name {name}')
 
         vsini_function = VsiniFunction(vsini_function) if vsini_function is not None else None
-        return cls(name=name, prior=Prior.from_dict(prior), kind=ParameterKind[kind], scope=scope, title=title, obs_index=obs_index, vsini_function=vsini_function, logger=logger)
+        return cls(name=name, prior=Prior.from_dict(prior, logger=logger), kind=ParameterKind[kind], scope=scope, title=title, obs_index=obs_index, vsini_function=vsini_function, logger=logger)
 
     # ======================
     # Methods

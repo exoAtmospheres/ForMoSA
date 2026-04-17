@@ -33,7 +33,7 @@ class NSAnalysis(object):
 
     def __init__(self, ns: NestedSampling, logger: logging.Logger | None = None, log_level: str = 'INFO') -> None:
 
-        self._logger = logger or setup_logging()
+        self._logger = logger if logger is not None else setup_logging(level=log_level, name='NSAnalysis')
         self._ns = ns
         self._validate()
 

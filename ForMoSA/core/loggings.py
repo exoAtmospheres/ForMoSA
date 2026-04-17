@@ -4,6 +4,7 @@ from rich.theme import Theme
 from rich.console import Console
 import os
 
+NO_LOGGING = 100
 
 def setup_logging(level: str ="INFO", logfile: str | os.PathLike = None, name: str = None):
     '''
@@ -23,20 +24,32 @@ def setup_logging(level: str ="INFO", logfile: str | os.PathLike = None, name: s
     logger : logging.Logger
         Logger
 
-
     Notes
     -----
     Authors: Arthur Vigan and Allan Denis
     '''
 
-    logger = logging.getLogger(f"ForMoSA.{name}") if name else logging.getLogger("ForMoSA")
-    logger.setLevel(level.upper())
+    logger_name = f"ForMoSA.{name}" if name else "ForMoSA"
+    logger = logging.getLogger(logger_name)
+
+    # Normalization
+    level = level.upper()
+
+    if level in {"OFF", "NONE"}:
+        logger.setLevel(NO_LOGGING)
+    else:
+        logger.setLevel(getattr(logging, level, logging.INFO))
+
     logger.propagate = False
 
     if logger.hasHandlers():
-        for hdlr in logger.handlers:
-            logger.removeHandler(hdlr)
+        logger.handlers.clear()
 
+    if level in {"OFF", "NONE"}:
+        # If no logging, we return the logger earlier
+        return logger
+
+    # Theme Rich
     theme = Theme({
         "logging.level.debug": "dim",
         "logging.level.info": "green",
@@ -46,14 +59,20 @@ def setup_logging(level: str ="INFO", logfile: str | os.PathLike = None, name: s
     })
 
     console = Console(theme=theme)
-    handler = RichHandler(show_time=False, show_path=False, console=console)
+
+    # Handler console
+    handler = RichHandler(
+        show_time=False,
+        show_path=False,
+        console=console,
+        markup=True,
+    )
     logger.addHandler(handler)
 
+    # Handler (optional)
     if logfile:
         fh = logging.FileHandler(logfile, mode="a")
-        formatter = logging.Formatter(
-            "%(asctime)s | %(name)s | %(levelname)s | %(message)s"
-        )
+        formatter = logging.Formatter("%(asctime)s | %(name)s | %(levelname)s | %(message)s")
         fh.setFormatter(formatter)
         logger.addHandler(fh)
 

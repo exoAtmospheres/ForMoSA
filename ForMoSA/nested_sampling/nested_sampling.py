@@ -68,7 +68,7 @@ class NestedSampling(object):
     '''
 
     def __init__(self, algorithm: NestedAlgorithm, npoints: int, logL_type: list[LogLikelihoodType], config_NS: Config_NS, observations: ObservationSet, subgrids: SubGridSet, parameters: ParameterSet, wave_fit: list[str] | None = None, interp_method: str = 'linear', bounds_lsq: list[tuple[float, float]] | None = None, logger: logging.Logger | None=None, log_level: str='INFO'):
-        self._logger = logger or setup_logging(log_level, name='NestedSampling')
+        self._logger = logger if logger is not None else setup_logging(log_level, name='NestedSampling')
         self._logL_type = logL_type
 
         self._algorithm = algorithm.algo
@@ -218,7 +218,7 @@ class NestedSampling(object):
         Authors: Allan Denis
         '''
 
-        logger = logger or setup_logging(level=log_level, name='NestedSampling')
+        logger = logger if logger is not None else setup_logging(level=log_level, name='NestedSampling')
         logger.debug('Building an instance of NestedSampling from dictionary')
 
         if not isinstance(data, dict):
@@ -231,7 +231,7 @@ class NestedSampling(object):
         algorithm = NestedAlgorithm[algorithm.upper()]
         logL_type = [LogLikelihoodType[logL_type.upper()] for logL_type in data['logLtype']]
         config_NS = Config_NS.from_dict(config_NS)
-        parameters = ParameterSet.from_dict(parameters)
+        parameters = ParameterSet.from_dict(parameters, logger=logger)
         bounds_lsq = [(float(lower), float(upper)) for lower, upper in bounds_lsq]
 
         return cls(
@@ -275,7 +275,7 @@ class NestedSampling(object):
         Authors: Allan Denis
         '''
 
-        logger = logger or setup_logging(level=log_level, name='NestedSampling')
+        logger = logger if logger is not None else setup_logging(level=log_level, name='NestedSampling')
 
         logger.debug(f'Building instance of NestedSampling from the path {path}')
 

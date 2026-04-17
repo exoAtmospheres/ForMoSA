@@ -17,7 +17,7 @@ class Prior(ABC):
     """
 
     def __init__(self, logger: logging.Logger | None = None, log_level: str='INFO') -> None:
-        self._logger = logger or setup_logging(log_level, name='Prior')
+        self._logger = logger if logger is not None else setup_logging(log_level, name='Prior')
 
     # ==================================================
     # Properties
@@ -64,14 +64,14 @@ class Prior(ABC):
         Authors: Allan Denis
         '''
 
-        logger = logger or setup_logging(level=log_level, name='Prior')
+        logger = logger if logger is not None else setup_logging(level=log_level, name='Prior')
         logger.debug('Extract Prior from dictionary')
 
         prior_type = PriorType(data["prior_type"])
         params = data["params"]
 
         logger.info(f'      {prior_type.priortype} prior extracted ({params})')
-        return cls.parse_prior(cls, prior_type, params, logger=logger, log_level=log_level)
+        return cls.parse_prior(cls, prior_type, params, logger=logger)
 
     # ==================================================
     # Abstract Methods

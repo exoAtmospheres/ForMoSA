@@ -104,7 +104,7 @@ class ObservationLoader:
         Authors: Allan Denis
         '''
 
-        logger = logger or setup_logging(log_level, name='Observation loader')
+        logger = logger if logger is not None else setup_logging(log_level, name='Observation loader')
 
         if not str(path).lower().endswith(".fits"):
             raise ForMoSAError(f'{path} is not a FITS file')
@@ -143,7 +143,7 @@ class ObservationLoader:
         Authors: Allan Denis
         '''
 
-        logger = logger or setup_logging(log_level, name='Observation loader')
+        logger = logger if logger is not None else setup_logging(log_level, name='Observation loader')
         logger.info('    Creating Observation from data')
         return ObservationLoader._from_mapping(data=data, logger=logger, **kwargs)
 
@@ -200,7 +200,7 @@ class ObservationLoader:
         Authors: Allan Denis
         '''
 
-        logger = logger or setup_logging(log_level, name='Observation loader')
+        logger = logger if logger is not None else setup_logging(log_level, name='Observation loader')
 
         if not isinstance(data, Mapping):
             raise ForMoSAError('data must be a mapping (dict-like)', logger)
@@ -295,6 +295,7 @@ class ObservationLoader:
                 facility=facility,
                 instrument=ins,
                 filter_id=filter_id,
+                logger=logger,
             )
 
         # =============================
@@ -367,6 +368,7 @@ class ObservationLoader:
                 transm=transm,
                 star_flux=star_flux,
                 system=system,
+                logger=logger,
             )
             obs._flux_cont = flux_cont
             obs._star_flux_cont = star_flux_cont

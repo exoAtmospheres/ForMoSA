@@ -36,7 +36,7 @@ class ModelGrid:
 
     def __init__(self, dataset: xr.Dataset, model_path: str | os.PathLike | None = None, logger: logging.Logger | None = None, log_level: str = "INFO", display_unit: WavelengthUnit = WavelengthUnit.MICROMETER) -> None:
 
-        self._logger = logger or setup_logging(log_level)
+        self._logger = logger if logger is not None else setup_logging(log_level, name='ModelGrid')
 
         # Validation
         try:

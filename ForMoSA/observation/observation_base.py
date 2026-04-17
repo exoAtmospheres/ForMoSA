@@ -47,7 +47,7 @@ class Observation(ABC):
 
     def __init__(self, wave: np.ndarray, flux: np.ndarray, err: np.ndarray, native_unit: WavelengthUnit, facility: str, instrument: str, logger: logging.Logger | None = None, log_level:str = 'INFO', display_unit: WavelengthUnit = WavelengthUnit.MICROMETER, plot_config: ObsPlotConfig = ObsPlotConfig()) -> None:
 
-        self._logger = logger or setup_logging(log_level)
+        self._logger = logger if logger is not None else setup_logging(log_level, name='Observation')
 
         self._wave = np.atleast_1d(np.asarray(wave, dtype=float))
         self._flux = np.atleast_1d(np.asarray(flux, dtype=float))
@@ -269,7 +269,7 @@ class Observation(ABC):
         Authors: Allan Denis
         '''
 
-        logger = logger or setup_logging(level=log_level, name="Observation")
+        logger = logger if logger is not None else setup_logging(level=log_level, name="Observation")
         logger.debug('Extracting Observation from dictionary')
 
         from ForMoSA.observation.observation_loader import ObservationLoader
@@ -307,7 +307,7 @@ class Observation(ABC):
         Authors: Allan Denis
         '''
 
-        logger = logger or setup_logging(level=log_level, name="Observation")
+        logger = logger if logger is not None else setup_logging(level=log_level, name="Observation")
         logger.debug(f'Extracting observation from file {path}')
 
         from ForMoSA.observation.observation_loader import ObservationLoader
@@ -349,7 +349,7 @@ class Observation(ABC):
         Authors: Allan Denis
         '''
 
-        logger = logger or setup_logging(level=log_level, name="Observation")
+        logger = logger if logger is not None else setup_logging(level=log_level, name="Observation")
         logger.debug('Extractin observation from attributes')
 
         from ForMoSA.observation.observation_loader import ObservationLoader

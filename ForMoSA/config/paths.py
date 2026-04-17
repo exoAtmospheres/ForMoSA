@@ -30,7 +30,7 @@ class Paths(object):
         if not isinstance(config_path, ConfigPath):
             raise ForMoSAError(f'<Wrong type for config_path: {type(config_path)}. Expected a ConfigPath>', logger)
 
-        self._logger = logger or setup_logging(level=log_level)
+        self._logger = logger or setup_logging(level=log_level, name='ForMoSAPaths')
 
         self._observation_path = [Path(obs_path).expanduser() for obs_path in config_path.observation_path]
         self._adapt_store_path = Path(config_path.adapt_store_path).expanduser()
