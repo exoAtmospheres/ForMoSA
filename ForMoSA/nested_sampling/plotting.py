@@ -1,4 +1,3 @@
-import copy
 import corner
 import logging
 import numpy as np
@@ -7,6 +6,7 @@ from matplotlib.figure import Figure
 import matplotlib.gridspec as gridspec
 from matplotlib.axes._axes import Axes
 import matplotlib.patheffects as path_effects
+from matplotlib.ticker import AutoMinorLocator
 
 from ForMoSA.core.config import PLOTS_CONFIG, MAIN_PLOT
 from ForMoSA.core.errors import ForMoSAError
@@ -369,6 +369,7 @@ class Plotting(object):
 
         # Get config for best fit
         config = PLOTS_CONFIG.BestFitPlot
+        main_config = MAIN_PLOT
 
         # obs_set_transformed = ObservationSet(self.logger)
 
@@ -446,8 +447,16 @@ class Plotting(object):
             axr2.hist(res_norm, orientation='horizontal', bins=60, color=config.color_residuals, alpha=0.8, density=True)
 
         axr.set_xlabel(r'Wavelength ($\mu$m)')
+        ax.set_xlabel(None)
         axr.set_ylabel(r'Residuals ($\sigma$)')
         axr.axhline(y=0, linestyle='--', color='grey')
+
+        # Minor ticks
+        if main_config.minor_ticks:
+            axr.xaxis.set_minor_locator(AutoMinorLocator(main_config.nb_minor_ticks))
+            axr.yaxis.set_minor_locator(AutoMinorLocator(main_config.nb_minor_ticks))
+
+        # Remove axis for axr2
         axr2.axis('off')
 
         # Re-render the main legend so the 'Best fit' line is included

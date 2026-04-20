@@ -9,6 +9,7 @@ from matplotlib.figure import Figure
 import matplotlib.gridspec as gridspec
 from matplotlib.axes._axes import Axes
 from matplotlib import colors as mcolors
+from matplotlib.ticker import AutoMinorLocator
 
 from ForMoSA.core.config import MAIN_PLOT
 from ForMoSA.core.errors import ForMoSAError
@@ -688,6 +689,17 @@ class ObservationSet(object):
         # Add legend for photometric filters if we have photometry and an axis for the filters
         if ax_filt is not None:
             ax_filt.legend(ncol=max(1, int(main_plot_config.legend_filt_ncol)), frameon=False)
+
+        # Minor ticks
+        if main_plot_config.minor_ticks:
+            # Principal axis
+            ax.xaxis.set_minor_locator(AutoMinorLocator(main_plot_config.nb_minor_ticks))
+            ax.yaxis.set_minor_locator(AutoMinorLocator(main_plot_config.nb_minor_ticks))
+
+            if ax_filt is not None:
+                # Filter axis
+                ax_filt.xaxis.set_minor_locator(AutoMinorLocator(main_plot_config.nb_minor_ticks))
+                ax_filt.yaxis.set_minor_locator(AutoMinorLocator(main_plot_config.nb_minor_ticks))
 
         # Rescale y axis with a power of 10
         ymin, ymax = plot_axis.get_ylim()

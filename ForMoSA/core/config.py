@@ -70,6 +70,8 @@ class MainPlotConfig:
     legend_hc_ncol: int = 1
     legend_filt_ncol: int = 1
     legend_fontsize: str = "small"
+    minor_ticks: bool = True
+    nb_minor_ticks: int = 5
 
 MAIN_PLOT = MainPlotConfig()
 
@@ -206,7 +208,7 @@ class CornerPlotConfig:
     fill_contours: bool = True
     quantiles: tuple = (0.16, 0.5, 0.84)
     # levels: list = field(default_factory = lambda: [0.997, 0.95, 0.68]) # 3-sigma, 2-sigma, 1-sigma but for 1D Gaussian
-    levels: list = field(default_factory = lambda: [0.3935, 0.8647, 0.9889]) # 1-sigma, 2-sigma, 2-sigma for 2D Gaussian 
+    levels: list = field(default_factory = lambda: [0.3935, 0.8647, 0.9889]) # 1-sigma, 2-sigma, 2-sigma for 2D Gaussian
     show_titles: bool = True
     title_fmt: str = " .2f"
     hist_kwargs: dict = field(default_factory = lambda: dict(color='#A12A1F', histtype='stepfilled', alpha=0.6, edgecolor='#5B1218', linewidth=0.8))
