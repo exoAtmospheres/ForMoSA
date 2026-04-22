@@ -1,5 +1,6 @@
 import os
 import logging
+import traceback
 import numpy as np
 import xarray as xr
 from tqdm import tqdm
@@ -408,36 +409,39 @@ class SubGrid(ModelGrid, ABC):
 
         # Build indices
         shape = self.grid.grid.values.shape[1:]
-        pbar = tqdm(total=np.prod(shape), leave=False)
+        indices = list(np.ndindex(shape))
+        total = len(indices)
 
         self._logger.debug(f'Adapting grid {self.grid_name}')
         self._logger.info("    Parallel adaptation")
 
-        def update_result(result, idx):
-            self._grid.grid[(..., ) + idx] = result
-            pbar.update(1)
+        def worker(idx):
+            model = restricted_grid._load_model_at_specific_index(idx)
+            result = self._adapt_model(model)
+            return idx, result
 
-        # Parallel loop
         try:
-            ncpu = mp.cpu_count()
-            with ThreadPool(processes=ncpu) as pool:
-                for idx in np.ndindex(shape):
-                    callback = partial(update_result, idx=idx)
-                    model_to_adapt = restricted_grid._load_model_at_specific_index(idx)
-                    pool.apply_async(self._adapt_model, args=(model_to_adapt,), callback=callback)
-                pool.close()
-                pool.join()
+            n_threads = min(8, mp.cpu_count())  # Limit number of threads to avoid memory overload
 
-        except Exception as e:
-            self._logger.warning(f"<Parallel adaptation failed: {e}. Falling back to serial mode>")
-            # Non parallel loop
+            with ThreadPool(processes=n_threads) as pool:
+                results = pool.imap_unordered(worker, indices, chunksize=10)
+
+                with tqdm(total=total, leave=False) as pbar:
+                    for idx, result in results:
+                        self._grid.grid[(...,) + idx] = result
+                        pbar.update(1)
+
+        except Exception:
+            self._logger.warning("ThreadPool adaptation failed, fallback to serial\n" + traceback.format_exc())
+
             try:
-                for idx in tqdm(np.ndindex(shape)):
-                    model_to_adapt = restricted_grid._load_model_at_specific_index(idx)
-                    result = self._adapt_model(model_to_adapt)
-                    self._grid.grid[(..., ) + idx] = result
+                for idx in tqdm(indices):
+                    model = restricted_grid._load_model_at_specific_index(idx)
+                    result = self._adapt_model(model)
+                    self._grid.grid[(...,) + idx] = result
             except Exception as e:
-                raise ForMoSAError(f'<Non parallel adaptation produced the following error: {e}>', self.logger)
+                self._logger.error(f"Non parallel adaptation produced the following error: {e}")
+
 
     def _compute_loglike_for_obs(self, observed_model: ObservedModel, observation: "Observation", logL_type: LogLikelihoodType = LogLikelihoodType.CHI2, interp_method: str = 'linear', bounds_lsq: tuple[float, float] = (-np.inf, np.inf)) -> float:
         '''
