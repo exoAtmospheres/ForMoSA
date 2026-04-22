@@ -10,12 +10,12 @@ from matplotlib.axes._axes import Axes
 
 from pathlib import Path
 from astropy.io import fits
-from ForMoSA.core.config import FILTER_PATH
 from ForMoSA.core.errors import ForMoSAError
 from ForMoSA.core.enums import WavelengthUnit
 from ForMoSA.core.loggings import setup_logging
 from astropy.table import Table, MaskedColumn, Column
 from ForMoSA.core.config import  MainPlotConfig, MAIN_PLOT, PhotometricPlotConfig
+import ForMoSA.core.config as config
 
 class PhotometryFilter(object):
     '''
@@ -53,7 +53,7 @@ class PhotometryFilter(object):
         self._facility = facility
         self._instrument = instrument
         self._filter_id = filter_id
-        self._filter_path = filter_path if filter_path is not None else FILTER_PATH
+        self._filter_path = filter_path if filter_path is not None else config.FILTER_PATH
 
         self._data = []
         self._medata = []
