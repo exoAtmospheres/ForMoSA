@@ -248,10 +248,10 @@ class Analysis(object):
                 # ==================
 
                 # Loop in observations
-                for obs, wave, res, remove_cont, res_cont, wave_cont in zip(self.observations.observations, target_wave, target_res, remove_continuum, config_adapt.res_cont, config_adapt.wav_cont):
+                for obs, wave, res, remove_cont in zip(self.observations.observations, target_wave, target_res, remove_continuum):
                     # Spectroscopic observation
                     if obs.ObsType == ObservationType.SPECTROSCOPIC.obstype:
-                        subgrid = SubGridSpectroscopy.from_parent(parent_grid = self.grid, target_wavelength=wave, target_resolution=res, name = obs.name, logger = self.logger, remove_continuum=remove_cont, res_cont=res_cont, wave_cont=wave_cont)
+                        subgrid = SubGridSpectroscopy.from_parent(parent_grid = self.grid, target_wavelength=wave, target_resolution=res, name = obs.name, logger = self.logger, remove_continuum=remove_cont, res_cont=obs._res_cont, wave_cont=obs._wave_cont)
                     # Photometric observation
                     elif obs.ObsType == ObservationType.PHOTOMETRIC.obstype:
                         Filter_list = []
