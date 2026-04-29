@@ -101,7 +101,7 @@ class SubGridSpectroscopy(SubGrid):
     # ======================================================
 
     @classmethod
-    def from_parent(cls, parent_grid: ModelGrid, target_wavelength: np.ndarray, target_resolution: np.ndarray, remove_continuum: bool = False, wave_cont: np.ndarray | None = None, res_cont: float | None = None, name: str = 'unknown', logger: logging.Logger | None = None, log_level: str = 'INFO', display_unit: WavelengthUnit = WavelengthUnit.MICROMETER) -> 'SubGridSpectroscopy':
+    def from_parent(cls, parent_grid: ModelGrid, target_wavelength: np.ndarray, target_resolution: np.ndarray, remove_continuum: bool = False, wave_cont: np.ndarray | None = None, res_cont: float | None = None, name: str = 'unknown', logger: logging.Logger | None = None, log_level: str = 'INFO', display_unit: WavelengthUnit = WavelengthUnit.MICROMETER, backend: str = 'loky', n_jobs: int = -1) -> 'SubGridSpectroscopy':
         '''
         Build spectroscopic subgrid from the parent grid, target_wavelength.
 
@@ -154,7 +154,7 @@ class SubGridSpectroscopy(SubGrid):
             display_unit=display_unit,
         )
         subgrid._grid = subgrid._build_empty_adapted_grid(target_wavelength=target_wavelength, target_resolution=target_resolution)
-        subgrid.adapt()
+        subgrid.adapt(backend=backend, n_jobs=n_jobs)
 
         return subgrid
 
@@ -233,14 +233,14 @@ class SubGridSpectroscopy(SubGrid):
         if (self.remove_continuum) and (self.wave_cont is None or self.res_cont is None):
             raise ForMoSAError('If you want to remove the continuum, set values for wave_cont and res_cont', self.logger)
 
-    def adapt(self) -> None:
+    def adapt(self, backend: str = 'loky', n_jobs: int = -1) -> None:
         '''
         Adapt the native grid to the target wavelength and resolution. Optionally remove the continuum.
 
         '''
 
         try:
-            self.adapt_grid()
+            self.adapt_grid(backend=backend, n_jobs=n_jobs)
         except ForMoSAError as e:
             raise ForMoSAError(e, self.logger)
 

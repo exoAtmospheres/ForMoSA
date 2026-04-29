@@ -100,7 +100,7 @@ class SubGridPhotometry(SubGrid):
     # ======================================================
 
     @classmethod
-    def from_parent(cls, parent_grid: ModelGrid, Filter: np.ndarray[PhotometryFilter], name: str = 'unknown', logger: logging.Logger | None = None, log_level: str = 'INFO', display_unit: WavelengthUnit = WavelengthUnit.MICROMETER) -> 'SubGridPhotometry':
+    def from_parent(cls, parent_grid: ModelGrid, Filter: np.ndarray[PhotometryFilter], name: str = 'unknown', logger: logging.Logger | None = None, log_level: str = 'INFO', display_unit: WavelengthUnit = WavelengthUnit.MICROMETER, backend: str = 'loky', n_jobs: int = -1) -> 'SubGridPhotometry':
         '''
         Build Photometric subgrid from the parent grid, target_wavelength.
 
@@ -148,7 +148,7 @@ class SubGridPhotometry(SubGrid):
             target_wavelength = np.append(target_wavelength, filt.central_wavelength)
 
         subgrid._grid = subgrid._build_empty_adapted_grid(target_wavelength=target_wavelength, target_resolution=np.array([0] * len(target_wavelength)))
-        subgrid.adapt()
+        subgrid.adapt(backend=backend, n_jobs=n_jobs)
 
         return subgrid
 
@@ -236,7 +236,7 @@ class SubGridPhotometry(SubGrid):
 
             filt._set_unit(WavelengthUnit[str(self.unit)])
 
-    def adapt(self) -> None:
+    def adapt(self, backend: str = 'loky', n_jobs: int = -1) -> None:
         '''
         Adapt the native grid to the target wavelength and resolution.
 
@@ -245,7 +245,7 @@ class SubGridPhotometry(SubGrid):
         Authors: Allan Denis
         '''
 
-        self.adapt_grid()
+        self.adapt_grid(backend=backend, n_jobs=n_jobs)
         self._grid.attrs['filter_name'] = [filt.name for filt in self.Filter]
 
     def _get_restriction_bounds(self) -> tuple[float, float]:

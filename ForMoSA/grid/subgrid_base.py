@@ -4,11 +4,11 @@ import traceback
 import numpy as np
 import xarray as xr
 from tqdm import tqdm
+from tqdm.contrib.logging import logging_redirect_tqdm
 import astropy.units as u
-import multiprocessing as mp
 from functools import partial
 from abc import ABC, abstractmethod
-from multiprocessing.pool import ThreadPool
+from joblib import Parallel, delayed
 
 from ForMoSA.core.errors import ForMoSAError
 from ForMoSA.grid.model_grid import ModelGrid
@@ -18,6 +18,27 @@ from ForMoSA.parameter.parameter import Parameter
 from ForMoSA.observation.observation_base import Observation
 from ForMoSA.transform.observed import ObservedModel, ObservedParameters
 from ForMoSA.core.enums import ObservationType, WavelengthUnit, ParameterKind, LogLikelihoodType
+
+
+def _adapt_worker(subgrid, restricted_grid, idx):
+    import logging
+    # Silence the root logger in spawned worker processes to prevent direct stderr
+    # writes that would interleave with tqdm in the main process.
+    logging.disable(logging.WARNING)
+    try:
+        try:
+            from threadpoolctl import threadpool_limits
+            _ctx = threadpool_limits(limits=1, user_api='blas')
+        except ImportError:
+            from contextlib import nullcontext
+            _ctx = nullcontext()
+        with _ctx:
+            model = restricted_grid._load_model_at_specific_index(idx)
+            extraction_ok = not np.any(np.isnan(model.values))
+            result = subgrid._adapt_model(model)
+    finally:
+        logging.disable(logging.NOTSET)
+    return idx, result, extraction_ok
 
 
 class SubGrid(ModelGrid, ABC):
@@ -394,9 +415,17 @@ class SubGrid(ModelGrid, ABC):
 
         self.logger.info(f"    Initialized empty subgrid with shape {self._grid['grid'].shape}")
 
-    def adapt_grid(self) -> None:
+    def adapt_grid(self, backend: str = 'loky', n_jobs: int = -1) -> None:
         '''
         Adapt the entire grid to the observation.
+
+        Parameters
+        ----------
+        backend : str
+            Joblib parallel backend. Built-in options: 'loky' (default), 'multiprocessing',
+            'threading', 'sequential'. Third-party: 'dask', 'ray'.
+        n_jobs : int
+            Number of parallel jobs. -1 uses all available CPUs. Passed to joblib.Parallel.
 
         Notes
         -----
@@ -413,32 +442,32 @@ class SubGrid(ModelGrid, ABC):
         total = len(indices)
 
         self._logger.debug(f'Adapting grid {self.grid_name}')
-        self._logger.info("    Parallel adaptation")
-
-        def worker(idx):
-            model = restricted_grid._load_model_at_specific_index(idx)
-            result = self._adapt_model(model)
-            return idx, result
+        self._logger.info(f"    Parallel adaptation (backend='{backend}', n_jobs={n_jobs})")
 
         try:
-            n_threads = min(8, mp.cpu_count())  # Limit number of threads to avoid memory overload
-
-            with ThreadPool(processes=n_threads) as pool:
-                results = pool.imap_unordered(worker, indices, chunksize=10)
-
-                with tqdm(total=total, leave=False) as pbar:
-                    for idx, result in results:
+            with logging_redirect_tqdm(loggers=[logging.getLogger('ForMoSA')]):
+                with tqdm(total=total, leave=True, desc=self.grid_name, unit='model') as pbar:
+                    for idx, result, extraction_ok in Parallel(n_jobs=n_jobs, backend=backend, return_as='generator_unordered')(
+                        delayed(_adapt_worker)(self, restricted_grid, idx)
+                        for idx in indices
+                    ):
+                        if not extraction_ok:
+                            msg = 'Extraction of model failed : '
+                            for i, (key, title) in enumerate(zip(restricted_grid.keys, restricted_grid.titles)):
+                                msg += f'{title}={restricted_grid.key_values[key][idx[i]]}, '
+                            self._logger.warning(msg)
                         self._grid.grid[(...,) + idx] = result
                         pbar.update(1)
 
         except Exception:
-            self._logger.warning("ThreadPool adaptation failed, fallback to serial\n" + traceback.format_exc())
+            self._logger.warning("Parallel adaptation failed, fallback to serial\n" + traceback.format_exc())
 
             try:
-                for idx in tqdm(indices):
-                    model = restricted_grid._load_model_at_specific_index(idx)
-                    result = self._adapt_model(model)
-                    self._grid.grid[(...,) + idx] = result
+                with logging_redirect_tqdm(loggers=[logging.getLogger('ForMoSA')]):
+                    for idx in tqdm(indices, leave=True, desc=self.grid_name, unit='model'):
+                        model = restricted_grid._load_model_at_specific_index(idx)
+                        result = self._adapt_model(model)
+                        self._grid.grid[(...,) + idx] = result
             except Exception as e:
                 self._logger.error(f"Non parallel adaptation produced the following error: {e}")
 

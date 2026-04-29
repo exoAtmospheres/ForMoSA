@@ -251,13 +251,13 @@ class Analysis(object):
                 for obs, wave, res, remove_cont in zip(self.observations.observations, target_wave, target_res, remove_continuum):
                     # Spectroscopic observation
                     if obs.ObsType == ObservationType.SPECTROSCOPIC.obstype:
-                        subgrid = SubGridSpectroscopy.from_parent(parent_grid = self.grid, target_wavelength=wave, target_resolution=res, name = obs.name, logger = self.logger, remove_continuum=remove_cont, res_cont=obs._res_cont, wave_cont=obs._wave_cont)
+                        subgrid = SubGridSpectroscopy.from_parent(parent_grid = self.grid, target_wavelength=wave, target_resolution=res, name = obs.name, logger = self.logger, remove_continuum=remove_cont, res_cont=obs._res_cont, wave_cont=obs._wave_cont, backend=config_adapt.backend, n_jobs=config_adapt.n_jobs)
                     # Photometric observation
                     elif obs.ObsType == ObservationType.PHOTOMETRIC.obstype:
                         Filter_list = []
                         for facility, instrument, filter_id in zip(obs.facility, obs.instrument, obs.filter_id):
                             Filter_list.append(PhotometryFilter(facility, instrument, filter_id))
-                        subgrid = SubGridPhotometry.from_parent(parent_grid = self.grid, Filter = Filter_list, name = obs.name, logger = self.logger)
+                        subgrid = SubGridPhotometry.from_parent(parent_grid = self.grid, Filter = Filter_list, name = obs.name, logger = self.logger, backend=config_adapt.backend, n_jobs=config_adapt.n_jobs)
                     # Unknown type
                     else:
                         raise ForMoSAError(f'Unknown ObservationType: {obs.ObsType}')

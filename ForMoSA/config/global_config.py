@@ -51,6 +51,8 @@ class ConfigPath:
         if not all(isinstance(obs_path, (str | os.PathLike)) for obs_path in self.observation_path):
             raise ForMoSAError("observation_path must be a list of str or os.PathLike")
 
+_JOBLIB_BACKENDS = ('loky', 'multiprocessing', 'threading', 'sequential', 'dask', 'ray')
+
 @dataclass
 class ConfigAdapt:
     method: str = "linear"
@@ -59,6 +61,8 @@ class ConfigAdapt:
     target_res_mod: list[Union[str, float]] = field(default_factory=lambda: ["obs"])
     wav_cont: list[Union[str, float]] = field(default_factory=lambda: ["NA"])
     res_cont: list[Union[str, float]] = field(default_factory=lambda: ["NA"])
+    backend: str = "loky"
+    n_jobs: int = -1
 
     def __post_init__(self) -> None:
         '''
@@ -72,6 +76,27 @@ class ConfigAdapt:
         # Check method
         if not isinstance(self.method, str):
             raise ForMoSAError(f" method must be a string, got {type(self.method)}")
+
+        # Check backend
+        if not isinstance(self.backend, str):
+            raise ForMoSAError(f" backend must be a string, got {type(self.backend)}")
+        if self.backend not in _JOBLIB_BACKENDS:
+            raise ForMoSAError(f" backend must be one of {_JOBLIB_BACKENDS}, got '{self.backend}'")
+
+        # Coerce n_jobs from INI scalar strings before type checks.
+        if isinstance(self.n_jobs, str):
+            try:
+                self.n_jobs = int(self.n_jobs.strip())
+            except ValueError as exc:
+                raise ForMoSAError(
+                    f" n_jobs must be -1 (all CPUs) or a positive integer, got {self.n_jobs}"
+                ) from exc
+        elif isinstance(self.n_jobs, float) and self.n_jobs.is_integer():
+            self.n_jobs = int(self.n_jobs)
+
+        # Check n_jobs
+        if isinstance(self.n_jobs, bool) or not isinstance(self.n_jobs, int) or self.n_jobs == 0 or self.n_jobs < -1:
+            raise ForMoSAError(f" n_jobs must be -1 (all CPUs) or a positive integer, got {self.n_jobs}")
 
         # Normalize fields
         self.emulator = um.normalize_list(self.emulator, "emulator")
@@ -1116,6 +1141,17 @@ class ConfigGenerator:
                 "    # Resolution used to estimate the continuum.",
                 "    # Format : 'NA' or float",
                 "    # MOSAIC : Yes"
+            ],
+            "backend": [
+                "    # Joblib parallel backend used during grid adaptation.",
+                "    # Built-in options : 'loky' (default, true multiprocessing), 'multiprocessing', 'threading', 'sequential' (no parallelism)",
+                "    # Third-party options (require extra install) : 'dask', 'ray'",
+                "    # MOSAIC : No"
+            ],
+            "n_jobs": [
+                "    # Number of parallel jobs used during grid adaptation.",
+                "    # Format : -1 (use all available CPUs) or a positive integer (e.g. 4)",
+                "    # MOSAIC : No"
             ]
         }
 
