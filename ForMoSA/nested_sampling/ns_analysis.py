@@ -287,7 +287,7 @@ class NSAnalysis(object):
         subgrid = self.ns.restricted_subgrids.subgrids[index]
 
         if not obs.is_spectroscopic:
-            raise ForMoSAError('observation {obs.name} is not spectroscopic. You cannot compute the CCF')
+            raise ForMoSAError(f'observation {obs.name} is not spectroscopic. You cannot compute the CCF')
 
         if theta is None:
             theta = list(self.ns.results.median_parameters.values())
@@ -384,7 +384,7 @@ class NSAnalysis(object):
         subgrid = self.ns.restricted_subgrids.subgrids[index]
 
         if not obs.is_spectroscopic:
-            raise ForMoSAError('observation {obs.name} is not spectroscopic. You cannot compute the CCF')
+            raise ForMoSAError(f'observation {obs.name} is not spectroscopic. You cannot compute the CCF')
 
         if theta is None:
             theta = list(self.ns.results.median_parameters.values())
