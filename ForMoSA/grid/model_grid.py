@@ -376,7 +376,7 @@ class ModelGrid:
         for idx, (key, title) in enumerate(zip(self.keys, self.titles)):
             self.logger.info(f' {idx + 1}/{len(self.keys)} - {title}')
 
-            if self.grid.isnull().any(dim=key).any():
+            if bool(self.grid["grid"].isnull().any(dim=key).any().item()):
                 self._grid = self.grid.interpolate_na(dim=key, **interp_kwargs)
 
     def _nan_interpolated_grid(self):
