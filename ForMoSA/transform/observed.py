@@ -107,7 +107,7 @@ class ObservedParameters:
         '''
 
         if not isinstance(name, str):
-            raise ForMoSAError('Wrong type for name: {type(name)}. Expected a string')
+            raise ForMoSAError(f'Wrong type for name: {type(name)}. Expected a string')
 
         return any(p.name == name for p in self.values)
 
@@ -128,7 +128,7 @@ class ObservedParameters:
         '''
 
         if not isinstance(kind, ParameterKind):
-            raise ForMoSAError('Wrong type for kind: {type(kind)}. Expected a ParameterKind')
+            raise ForMoSAError(f'Wrong type for kind: {type(kind)}. Expected a ParameterKind')
 
         return any(p.kind == kind for p in self.values)
 

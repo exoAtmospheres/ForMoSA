@@ -349,7 +349,7 @@ class NestedSampling(object):
 
         for i, ll in enumerate(self.logL_type):
             if ll not in valid_logL_type:
-                raise ForMoSAError('Invalid logL_type ({ll}). Choose from {valid_logL_type}', self.logger)
+                raise ForMoSAError(f'Invalid logL_type ({ll}). Choose from {valid_logL_type}', self.logger)
 
     def _restricted_models_and_data(self) -> None:
         '''

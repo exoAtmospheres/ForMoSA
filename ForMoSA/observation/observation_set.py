@@ -538,10 +538,10 @@ class ObservationSet(object):
 
         # Initial checks
         if not isinstance(target_resolution, list):
-            raise ForMoSAError(' Wrong type for target_resolution: {type(target_resolution)}. Expected a list', self.logger)
+            raise ForMoSAError(f' Wrong type for target_resolution: {type(target_resolution)}. Expected a list', self.logger)
 
         if len(target_resolution) != self.n_observations:
-            raise ForMoSAError(' Wrong length for target_resolution: {len(target_resolution)}. Expected {self.n_observations}', self.logger)
+            raise ForMoSAError(f' Wrong length for target_resolution: {len(target_resolution)}. Expected {self.n_observations}', self.logger)
 
         if wave_cont is None:
             wave_cont = [None] * self.n_observations
