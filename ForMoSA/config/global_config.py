@@ -328,7 +328,7 @@ class ConfigInversion:
         self.hc_higher_bounds_lsq = um.normalize_list(self.hc_higher_bounds_lsq, "hc_higher_bounds_lsq", um.to_float_if_possible)
 
         # Check lower and higher hc bounds
-        if len(self.hc_higher_bounds_lsq) != len(self.hc_higher_bounds_lsq):
+        if len(self.hc_lower_bounds_lsq) != len(self.hc_higher_bounds_lsq):
             raise ForMoSAError('hc_lower_bounds_lsq and hc_higher_bounds_lsq must have same lengths')
 
         self._hc_bounds = None
@@ -515,7 +515,7 @@ class ConfigParameters:
             elif prior_type == PriorType.UNIFORM:
                 prior = Prior.UniformPrior(value[1].strip(), value[2].strip())
             elif prior_type == PriorType.LOG_UNIFORM:
-                prior = Prior.UniformPrior(value[1].strip(), value[2].strip())
+                prior = Prior.LogUniformPrior(value[1].strip(), value[2].strip())
             else:
                 prior = Prior.GaussianPrior(value[1].strip(), value[2].strip())
 

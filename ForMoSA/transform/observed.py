@@ -332,7 +332,7 @@ class ObservedModel:
             if not physics_params.has_kind(ParameterKind.BB_R):
                 raise ForMoSAError(' Black Body radius is required when a Black Body temperature is given')
 
-            if physics_params.has_kind(ParameterKind.DISTANCE):
+            if not physics_params.has_kind(ParameterKind.DISTANCE):
                 raise ForMoSAError(' Distance is required to add a CPD contribution')
 
             observed_model = ApplyPhysicsEffects._apply_cpd(observed_model, physics_params.get_kind(ParameterKind.BB_T), physics_params.get_kind(ParameterKind.BB_R), physics_params.get_kind(ParameterKind.DISTANCE))

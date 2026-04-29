@@ -185,7 +185,7 @@ class NSAnalysis(object):
         stacked_obs = self.ns.restricted_observations._stack(ind_obs_list, print_logger=print_logger)
 
         if np.any(np.isnan(stacked_model.flux)):
-            return ObservedModel(native_model.wave, [np.nan] * len(native_model.wave), native_model.flux)
+            return ObservedModel(native_model.wave, [np.nan] * len(native_model.wave), native_model.res)
 
         # analytic scaling
         stacked_model.flux, ck = us.calc_ck(

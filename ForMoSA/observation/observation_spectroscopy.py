@@ -185,7 +185,7 @@ class SpectralObservation(Observation):
                 data[f'{ObservationKeys.STAR_FLUX.canonical}{i}'] = self.star_flux[:,i].tolist()
 
         if self.system is not None and self.system.size != 0:
-            for i in range(self.star_system.shape[1]):
+            for i in range(self.system.shape[1]):
                 data[f'{ObservationKeys.SYSTEMATICS.canonical}{i}'] = self.system[:,i].tolist()
 
         if self.star_flux_cont is not None:
@@ -279,7 +279,7 @@ class SpectralObservation(Observation):
 
         # Systematics
         if self.system is not None:
-            if self(self.system) != self.n_points:
+            if len(self.system) != self.n_points:
                 raise ForMoSAError('Systematics must have same length as wave', self.logger)
 
     def _clean_nans(self) -> None:

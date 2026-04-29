@@ -688,13 +688,15 @@ class ObservationSet(object):
 
         # Add legend for photometric filters if we have photometry and an axis for the filters
         if ax_filt is not None:
-            ax_filt.legend(ncol=max(1, int(main_plot_config.legend_filt_ncol)), frameon=False)
+            filt_handles, filt_labels = ax_filt.get_legend_handles_labels()
+            if filt_handles:
+                ax_filt.legend(ncol=max(1, int(main_plot_config.legend_filt_ncol)), frameon=False)
 
         # Minor ticks
         if main_plot_config.minor_ticks:
             # Principal axis
-            ax.xaxis.set_minor_locator(AutoMinorLocator(main_plot_config.nb_minor_ticks))
-            ax.yaxis.set_minor_locator(AutoMinorLocator(main_plot_config.nb_minor_ticks))
+            plot_axis.xaxis.set_minor_locator(AutoMinorLocator(main_plot_config.nb_minor_ticks))
+            plot_axis.yaxis.set_minor_locator(AutoMinorLocator(main_plot_config.nb_minor_ticks))
 
             if ax_filt is not None:
                 # Filter axis

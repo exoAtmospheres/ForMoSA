@@ -564,11 +564,11 @@ class ModelGrid:
         Authors: Allan Denis
         '''
 
+        if windows is None:
+            windows = f'{self.wave[0]}, {self.wave[-1]}'
+
         if not isinstance(windows, str):
             raise ForMoSAError(f'<Wrong type for windows: {type(windows)}. Requires a string>', self.logger)
-
-        if windows is None:
-            windows = f'{self.wavelength[0]}, {self.wavelength[1]}'
 
         if print_logger:
             self.logger.debug(f'Restrict grid {self.grid_name} onto windows {windows}')
