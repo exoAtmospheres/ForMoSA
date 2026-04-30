@@ -4,11 +4,10 @@ import traceback
 import numpy as np
 import xarray as xr
 from tqdm import tqdm
-from tqdm.contrib.logging import logging_redirect_tqdm
 import astropy.units as u
-from functools import partial
 from abc import ABC, abstractmethod
 from joblib import Parallel, delayed
+from tqdm.contrib.logging import logging_redirect_tqdm
 
 from ForMoSA.core.errors import ForMoSAError
 from ForMoSA.grid.model_grid import ModelGrid
