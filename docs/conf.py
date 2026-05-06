@@ -20,7 +20,7 @@ copyright = '2024, Simon Petrus, Paulina Palma-Bifani, Matthieu Ravet, Allan Den
 author = 'Simon Petrus, Paulina Palma-Bifani, Matthieu Ravet, Allan Denis, Bhavesh Rajpoot, Mickaël Bonnefoy and Gaël Chauvin'
 
 # Version — keep in sync with pyproject.toml
-release = '1.1.6'
+release = '2.0.0'
 root_doc = 'index'
 
 language = 'en'
