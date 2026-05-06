@@ -20,8 +20,9 @@ We encourage the community to exploit its capabilities!
    :caption: Contents
 
    installation
-   guidelines/index
-   demos/index
+   getting_started/index
+   tutorials/index
+   scaling/index
    api/index
    whats_new
 
