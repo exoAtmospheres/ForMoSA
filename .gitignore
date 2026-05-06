@@ -98,3 +98,8 @@ ENV/
 # Rope project settings
 .ropeproject
 *_flymake.py
+
+# AI stuff
+CLAUME.md
+.claude/
+.code-review-graph/
