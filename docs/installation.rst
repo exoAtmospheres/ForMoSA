@@ -3,108 +3,158 @@
 Installation
 ============
 
-The installation procedure for ForMoSA remains close to the v1.1.6 workflow.
-The main difference in v2.0.0 is the public API, not the dependency story.
+Creation of a conda environment
++++++++++++++++++++++++++++++++
 
-Create An Environment
----------------------
+We strongly recommend using a dedicated ``conda`` environment to avoid any potential conflict with other tools. You can `learn more about conda here <https://conda.io/docs/user-guide/tasks/manage-environments.html>`_ .
 
-We strongly recommend a dedicated environment.
+(For all users)
 
-.. code-block:: console
-
-   $ conda create -n env_formosa python=3.11
-   $ conda activate env_formosa
-
-On Apple Silicon, users who plan to rely on ``pymultinest`` should make sure the
-environment is created under the ``osx-arm64`` architecture.
+You can create your environment as:
 
 .. code-block:: console
 
-   $ CONDA_SUBDIR=osx-arm64 conda create -n env_formosa python=3.11 numpy -c conda-forge
-   $ conda activate env_formosa
-   $ conda config --env --set subdir osx-arm64
+    $ conda create -n env_formosa python=3.11
+    $ conda activate env_formosa 
 
-Install From PyPI
------------------
+(For macOS users) 
 
-.. code-block:: console
-
-   $ pip install ForMoSA
-   $ conda install dask netCDF4 bottleneck
-
-Install From Source
--------------------
+To install and use our package in macOS with an M1 chip, a few extra steps are required. 
+To use PyMultiNest to paralelize the processes, make sure you are building your conda environment under an OSX-ARM64 architecture. You can `learn more here <https://stackoverflow.com/questions/65415996/how-to-specify-the-architecture-or-platform-for-a-new-conda-environment-apple>`_ .
 
 .. code-block:: console
 
-   $ git clone https://github.com/exoAtmospheres/ForMoSA.git
-   $ cd ForMoSA
-   $ pip install -e .
-   $ conda install dask netCDF4 bottleneck
+    $ CONDA_SUBDIR=osx-arm64 conda create -n env_formosa python=3.11 numpy -c conda-forge
+    $ conda activate env_formosa 
+    $ conda config --env --set subdir osx-arm64
 
-Optional Nested-Sampling Backends
----------------------------------
 
-ForMoSA supports three nested-sampling backends in the current code:
+A. Installation though PyPI
++++++++++++++++++++++++++++
 
-* ``nestle``
-* ``pymultinest``
-* ``ultranest``
-
-``nestle`` and ``ultranest`` are Python packages. ``pymultinest`` additionally
-requires a working ``MultiNest`` installation.
-
-PyMultiNest Users
------------------
-
-If you want to use ``pymultinest``, follow the upstream installation
-instructions from `PyMultiNest <https://johannesbuchner.github.io/PyMultiNest/install.html>`_.
-The repository's current installation workflow is:
+PyPI is the `pip package manager <https://packaging.python.org/tutorials/installing-packages/>`_, which will automatically install for you almost all the required dependencies in your environment.
+To install the latest version, run: 
 
 .. code-block:: console
 
-   $ git clone https://github.com/JohannesBuchner/PyMultiNest/
-   $ cd PyMultiNest
-   $ python setup.py install
+    $ pip install ForMoSA
 
-Make sure your system provides a C/C++ compiler, a Fortran compiler, and MPI.
-One documented path on macOS is:
+A few more packages need to be installed with ``conda install``:
 
 .. code-block:: console
 
-   $ brew install cmake
-   $ brew install gcc
-   $ brew install open-mpi
-   $ pip install mpi4py
+    $ conda install dask
+    $ conda install netCDF4
+    $ conda install bottleneck
 
-Then install ``MultiNest`` itself:
+
+B. Installation though GitHub
++++++++++++++++++++++++++++++
+
+ForMoSA can be cloned from the main branch from our `GitHub repository <https://github.com/exoAtmospheres/ForMoSA.git>`_ . 
+To clone the latest version, run: 
 
 .. code-block:: console
 
-   $ git clone https://github.com/JohannesBuchner/MultiNest
-   $ cd MultiNest/build
-   $ cmake ..
-   $ make
+    $ cd /YOUR_PATH/formosa_desk/
+    $ git clone https://github.com/exoAtmospheres/ForMoSA.git
 
+Be sure to add the path of ForMoSA to your ``$PYTHONPATH`` by adding the following line into your ``.bashrc``.
+
+.. code-block:: console
+
+    export PYTHONPATH="/YOUR_PATH/formosa_desk/ForMoSA:$PYTHONPATH"
+
+Install the following packages in your environment with ``pip install``: 
+
+.. code-block:: console  
+
+    $ pip install numpy==1.26.4
+    $ pip install matplotlib
+    $ pip install corner
+    $ pip install astropy
+    $ pip install scipy
+    $ pip install scikit-learn
+    $ pip install configobj
+    $ pip install extinction
+    $ pip install nestle
+    $ pip install ultranest
+    $ pip install PyAstronomy
+    $ pip install spectres
+    $ pip install pyyaml 
+    $ pip install importlib-metadata==4.13.0
+    $ pip install xarray==2023.10.1
+    $ pip install rich
+    $ pip install tqdm
+    $ pip install astroquery
+
+Install the following packages in your environment with ``conda install``: 
+
+.. code-block:: console
+
+    $ conda install dask
+    $ conda install netCDF4
+    $ conda install bottleneck
+
+
+PyMultiNest users
++++++++++++++++++
+
+If you want to use Pymultinest to run your inversion, follow the installation instructions from `PyMultinest <https://johannesbuchner.github.io/PyMultiNest/install.html>`_, detailed below. 
+
+First, you need to clone PyMultinest from GitHub and install it.
+
+.. code-block:: console
+
+    $ cd /YOUR_PATH/formosa_desk/
+    $ git clone https://github.com/JohannesBuchner/PyMultiNest/
+    $ cd PyMultiNest
+    $ python setup.py install
+
+Second, you need to corroborate that your system has a C++ and a Fortran interpreter. 
+If you need to install brew, follow `these instructions <https://brew.sh/>`_.
+
+.. code-block:: console
+
+    $ brew install cmake
+    $ brew install gcc
+    $ brew install open-mpi
+
+Next, in your ForMoSA environment, install mpi4pi as:
+
+.. code-block:: console
+
+    $ pip install mpi4py
+
+Then, install MultiNest by cloning the GitHub repository and building it.
+Make sure you empty the build folder if you run this step more than once. 
+    
+.. code-block:: console
+
+    $ cd ~/YOUR_PATH/formosa_desk/
+    $ git clone https://github.com/JohannesBuchner/MultiNest
+    $ cd MultiNest/build
+    $ cmake ..
+    $ make
+    
 .. note::
+    An error can occur during the ``cmake ..`` asking you to launch ``cmake .. -DCMAKE_POLICY_VERSION_MINIMUM=3.5`` instead  
+    
 
-   If ``cmake ..`` fails with a policy warning, the current docs tree records
-   the workaround ``cmake .. -DCMAKE_POLICY_VERSION_MINIMUM=3.5``.
-
-Finally, copy the built libraries into the active environment if required by
-your local ``PyMultiNest`` setup.
-
-Torch Users
------------
-
-Torch is used for emulator-related workflows.
-
-For CPU usage:
+Finally, copy the files that were generated by building MultiNest onto your conda environment by doing:
 
 .. code-block:: console
 
-   $ conda install torch torchvision torchaudio torchnmf
+    $ cp -v /YOUR_PATH/MultiNest/lib/* /YOUR_PATH/opt/anaconda3/envs/env_formosa/lib/
 
-For GPU usage, follow the installation guidance from
-`PyTorch <https://pytorch.org/>`_ for your CUDA setup.
+
+torch users
++++++++++++
+
+Torch is used for the emulators. If you wish to simply use it on CPU, you can do:
+
+.. code-block:: console
+
+    $ conda install torch torchvision torchaudio torchnmf
+
+Otherwise, if you wish to use torch on GPU, you will need to have the right version on CUDA install on your device. Please follow the installation instructions from `PyTorch <https://pytorch.org/>`_.
