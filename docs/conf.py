@@ -14,13 +14,15 @@ import sys
 base_dir = os.path.abspath("..")
 sys.path.insert(0, base_dir)
 
+from ForMoSA import __version__
+
 # -- Project information -----------------------------------------------
 project = 'ForMoSA'
 copyright = '2024, Simon Petrus, Paulina Palma-Bifani, Matthieu Ravet, Allan Denis, Bhavesh Rajpoot, Mickaël Bonnefoy and Gaël Chauvin'
 author = 'Simon Petrus, Paulina Palma-Bifani, Matthieu Ravet, Allan Denis, Bhavesh Rajpoot, Mickaël Bonnefoy and Gaël Chauvin'
 
-# Version — keep in sync with pyproject.toml
-release = '1.1.6'
+# Version — imported from the package to avoid documentation drift
+release = __version__
 root_doc = 'index'
 
 language = 'en'

@@ -23,7 +23,7 @@ ForMoSA is an open-source Python package for modeling exoplanetary atmospheres u
 - **Photometry filter service** — automatic retrieval and caching of filter curves from the [SVO Filter Profile Service](https://svo2.cab.inta-csic.es/theory/fps/)
 - **Configurable prior distributions** — uniform, log-uniform, Gaussian, and constant priors
 - **Comprehensive plotting** — corner plots, chain diagnostics, radar diagrams, best-fit spectra, CCFs, and RV–v sin i maps
-- **Flexible configuration** — INI-based config files or direct Python dataclass instantiation
+- **Flexible configuration** — direct Python dataclass instantiation, with `config.ini` generation/loading still available
 
 ---
 
@@ -46,6 +46,15 @@ conda install dask netCDF4 bottleneck
 ```
 
 See the [installation guide](https://formosa.readthedocs.io/en/latest/installation.html) for PyMultiNest, GPU/torch, and macOS Apple Silicon instructions.
+
+---
+
+## Documentation Map
+
+- **Welcome / overview** — package scope, workflow, and migration context
+- **Tutorials** — general workflow plus photometry, spectroscopy, high-contrast, MOSAIC, plotting, and cluster notes
+- **Guidelines** — input-format and project-layout advice
+- **API** — auto-generated from the current docstrings
 
 ---
 
@@ -87,6 +96,11 @@ analysis.nested_sampling(config_parameters, config_adapt, config_inversion)
 # 6. Plot results
 analysis.plot(analysis.ns.results)
 ```
+
+If you prefer an INI-driven workflow, v2.0.0 still ships
+`ConfigGenerator` and `ConfigLoader`. The maintained example notebooks in
+`docs/demos/` use that route and then hand the loaded dataclasses to the same
+`Analysis` API shown above.
 
 ---
 
@@ -176,4 +190,3 @@ If you encounter any problems, please open an issue on [GitHub](https://github.c
 ## Acknowledgments
 
 Our sincere thanks to [Code/Astro](https://semaphorep.github.io/codeastro/).
-
