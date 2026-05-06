@@ -3,6 +3,9 @@
 Scaling
 =======
 
+Choosing the right scaling strategy is one of the more consequential decisions
+in a ForMoSA analysis. These pages explain the options and when to use each.
+
 .. toctree::
    :maxdepth: 1
 
