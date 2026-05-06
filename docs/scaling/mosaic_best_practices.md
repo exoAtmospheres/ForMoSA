@@ -11,9 +11,9 @@ In standard mode, ForMoSA evaluates a single log-likelihood against one
 observation. In MOSAIC mode, it evaluates one log-likelihood per observation
 and combines them into a **meta-likelihood**:
 
-$$
+```{math}
 \ln \mathcal{L}_\text{total} = \sum_{i=0}^{N-1} \ln \mathcal{L}_i
-$$
+```
 
 Each observation can have its own wavelength range (`wav_fit_i`), likelihood
 type (`logL_type_i`), and intercalibration factor (`alpha_i`). Physical
@@ -75,7 +75,7 @@ config_inversion = ConfigInversion(
 ```{note}
 See [Ravet et al. (2025)](https://ui.adsabs.harvard.edu/abs/2023A%26A...670L...9P)
 for a detailed study of how MOSAIC handles biases in heterogeneous datasets for
-β Pic b.
+$\beta$ Pic b.
 ```
 
 ## Common pitfalls

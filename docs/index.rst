@@ -29,7 +29,7 @@ Features
 - **High-contrast mode** — model stellar speckles and systematics alongside the companion signal.
 - **Automatic photometry filters** — filter curves retrieved and cached on the fly from the `SVO Filter Profile Service <https://svo2.cab.inta-csic.es/theory/fps/>`_.
 - **Configurable priors** — uniform, log-uniform, Gaussian, and constant priors for every fitted parameter.
-- **Comprehensive plotting** — corner plots, chain diagnostics, radar diagrams, best-fit spectra, CCFs, and RV–v sin i maps.
+- **Comprehensive plotting** — corner plots, chain diagnostics, radar diagrams, best-fit spectra, CCFs, and :math:`\mathrm{RV}-v \sin i` maps.
 - **Flexible configuration** — Python dataclasses or INI files; both load into the same objects.
 
 
@@ -78,18 +78,6 @@ emerge naturally from the nested-sampling evidence accumulation.
 Example Results
 ---------------
 
-.. figure:: _static/priors_teff_plot.png
-   :alt: Example posterior on effective temperature
-   :width: 80%
-
-   Example posterior distribution on effective temperature from a
-   nested-sampling run with ForMoSA.
-
-.. figure:: _static/rv.png
-   :alt: RV map example
-   :width: 80%
-
-   Radial-velocity log-likelihood map produced by ``analysis.plot_rv_vsini_map()``.
 
 
 .. toctree::

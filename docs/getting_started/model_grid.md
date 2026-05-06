@@ -9,12 +9,12 @@ how to inspect one before starting an analysis.
 
 A model grid is a multi-dimensional array of synthetic spectra computed by an
 atmospheric code (e.g. BT-Settl, Exo-REM, ATMO) over a regular grid of physical
-parameters such as effective temperature (T_eff), surface gravity (log g),
-metallicity ([M/H]), and C/O ratio.
+parameters such as effective temperature ($T_{eff}$), surface gravity ($\log g$),
+metallicity ($\mathrm{[M/H]}$), and $\mathrm{[C/O]}$ ratio.
 
 ForMoSA uses `xarray.Dataset` to represent grids. The dataset has:
 
-- **Coordinates** — one per physical parameter (e.g. `par1` = T_eff, `par2` = log g).
+- **Coordinates** — one per physical parameter (e.g. `par1` = $T_{eff}$, `par2` = $\log g$).
   The names `par1`–`par4` are fixed; what they *mean* depends on the grid.
 - **Data variable `flux`** — shape `(N_par1, N_par2, …, N_wavelength)`.
 - **Data variable `res`** — the native spectral resolution at each wavelength point,

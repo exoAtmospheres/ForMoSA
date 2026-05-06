@@ -7,23 +7,18 @@ how to verify your file before running an analysis.
 
 ## Required extensions
 
-| Extension | Aliases accepted | Description | Spectroscopic | Photometric | HCHR |
-|-----------|-----------------|-------------|:---:|:---:|:---:|
-| `WAV` | `WAVELENGTH`, `WAVE`, `LAMBDA` | Wavelength array | Yes | Yes | Yes |
-| `WAVE_UNIT` | — | Wavelength unit string (e.g. `"µm"`) | Yes | Yes | Yes |
-| `FLX` | `FLUX` | Flux array | Yes | Yes | Yes |
-| `ERR` | `ERROR`, `SIGMA` | 1-D flux uncertainty (use instead of `COV`) | Yes | Yes | Yes |
-| `COV` | — | Full covariance matrix — shape `(N, N)` — alternative to `ERR` | Yes | No | Yes |
-| `RES` | `RESOLUTION` | Spectral resolution λ/Δλ per wavelength point | Yes | No | Yes |
-| `FAC` | `FACILITY` | Observatory identifier, must match [SVO](https://svo2.cab.inta-csic.es/theory/fps/) | No | Yes | No |
-| `INS` | `INSTRUMENT` | Instrument identifier, must match [SVO](https://svo2.cab.inta-csic.es/theory/fps/) | No | Yes | No |
-| `FILT` | `FILTER`, `FILTER_ID` | Filter identifier, must match [SVO](https://svo2.cab.inta-csic.es/theory/fps/) | No | Yes | No |
-| `STAR_FLUX` | — | Stellar speckle reference spectrum (high-contrast mode only) | No | No | Yes |
-
-```{note}
-ForMoSA uses the **first matching alias** it finds. If your file uses `WAVE`
-instead of `WAV`, that is fine — both are accepted.
-```
+| Extension | Description | Spectroscopic | Photometric | HCHR |
+|-----------|-------------|:---:|:---:|:---:|
+| `WAV` | Wavelength array | Yes | Yes | Yes |
+| `WAVE_UNIT` | Wavelength unit string (e.g. `"µm"`) | Yes | Yes | Yes |
+| `FLX` | Flux array | Yes | Yes | Yes |
+| `ERR` | 1-D flux uncertainty (use instead of `COV`) | Yes | Yes | Yes |
+| `COV` | Full covariance matrix — shape `(N, N)` — alternative to `ERR` | Yes | No | Yes |
+| `RES` | Spectral resolution λ/Δλ per wavelength point | Yes | No | Yes |
+| `FAC` | Observatory identifier, must match [SVO](https://svo2.cab.inta-csic.es/theory/fps/) | No | Yes | No |
+| `INS` | Instrument identifier, must match [SVO](https://svo2.cab.inta-csic.es/theory/fps/) | No | Yes | No |
+| `FILT` | Filter identifier, must match [SVO](https://svo2.cab.inta-csic.es/theory/fps/) | No | Yes | No |
+| `STAR_FLUX` | Stellar speckle reference spectrum (high-contrast mode only) | No | No | Yes |
 
 ```{important}
 For photometric observations, `FAC`, `INS`, and `FILT` must be consistent with

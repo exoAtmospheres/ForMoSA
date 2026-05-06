@@ -96,6 +96,8 @@ Every parameter in `ConfigParameters` accepts a list in the form:
 | `constant` | `["constant", "value"]` | Fixed value, not sampled |
 | `NA` | `["NA"]` | Parameter disabled |
 
+![Plot of different priors](../_static/priors_teff_plot.png "priors_teff_plot")
+
 ## Mode validity matrix
 
 The table below shows which parameters are relevant in each analysis mode.
@@ -104,12 +106,12 @@ Parameters marked "No" will be ignored if provided but are not required.
 | Parameter | Standard | MOSAIC | Photometry-only | HCHR |
 |-----------|:---:|:---:|:---:|:---:|
 | `par1`–`par4` | Yes | Yes | Yes | Yes |
-| `r` | Yes | Yes | Yes | Yes |
-| `d` | Yes | Yes | Yes | Yes |
+| `r` | Yes | Yes | Yes | No |
+| `d` | Yes | Yes | Yes | No |
 | `rv` | Yes | Yes | No | Yes |
 | `vsini` | Yes | Yes | No | Yes |
-| `ld` | Yes | Yes | No | No |
-| `alpha` | Yes | Yes | Yes | Yes |
+| `ld` | Yes | Yes | No | Yes |
+| `alpha` | Yes | Yes | Yes | No |
 | `bb_T` | Yes | Yes | No | No |
 
 In MOSAIC mode, any parameter can be made **instrument-local** by appending
@@ -118,7 +120,7 @@ its observation index: `rv_0`, `rv_1`, `alpha_2`, etc. Global parameters
 
 ## Parameter reference
 
-### `ConfigPath`
+### `[ConfigPath]`
 
 **`observation_path`** *(list of str or Path)*
 : Paths to your `.fits` observation files. Single observation: one-element list.
@@ -137,7 +139,7 @@ its observation index: `rv_0`, `rv_1`, `alpha_2`, etc. Global parameters
 
 ---
 
-### `ConfigAdapt`
+### `[ConfigAdapt]`
 
 **`method`** *(str, default `"linear"`)*
 : Interpolation method used to resample the model grid onto the observation
@@ -170,7 +172,7 @@ its observation index: `rv_0`, `rv_1`, `alpha_2`, etc. Global parameters
 
 ---
 
-### `ConfigInversion`
+### `[ConfigInversion]`
 
 **`ns_algo`** *(str, default `"pymultinest"`)*
 : Nested-sampling back-end. Options: `"pymultinest"`, `"nestle"`, `"ultranest"`.
@@ -194,12 +196,11 @@ its observation index: `rv_0`, `rv_1`, `alpha_2`, etc. Global parameters
 
 **`hc_lower_bounds_lsq`** / **`hc_higher_bounds_lsq`** *(list, default `["NA"]`)*
 : Lower and upper bounds for the least-squares optimisation in HCHR mode.
-  `"NA"` means unbounded. These are only relevant when `hc_mode = True` in
-  the observation file.
+  `"NA"` means unbounded. These are only relevant when the observation file has `STAR_FLX`.
 
 ---
 
-### `ConfigParameters` — fitted parameters
+### `[ConfigParameters]` — fitted parameters
 
 All parameters share the same prior syntax: `["prior_type", "arg1", "arg2"]`.
 Set to `["NA"]` to disable.
@@ -221,11 +222,14 @@ Set to `["NA"]` to disable.
 : Doppler shift applied to the model spectrum before comparison. Not applicable
   to photometry-only observations.
 
+![Radial velocity shift applied to model spectrum](../_static/rv.png "rv_shift")
+
 **`vsini`** — rotational broadening (km/s)
 : Rotational broadening applied to the model via a convolution kernel.
   Requires specifying the kernel function as a fourth element:
-  `["uniform", "0", "100", "PyAstronomy"]`. The only currently supported
-  function is `"PyAstronomy"`.
+  `["uniform", "0", "100", "FastRotBroad"]`. You need to define both vsini and ld so that ForMoSA can compute the broadening of the spectral lines. Constraints obtained on this parameter for observations at a resolution <100,000 are not robust for slow rotators. To avoid edge effects during reinterpolation, we also recommend to fit rv as well. Since this parameter can be computationally expensive to fit, ForMoSA allows you to choose between four methods : `RotBroad` or `FastRotBroad` or `Accurate` or `AccurateFastRotBroad`. You should always specify your method after the priors. Please refer to the API documentation for more information.
+
+  ![Rotational broadnening applied to model spectrum](../_static/vsini.png "rot_broad")
 
 **`ld`** — limb-darkening coefficient
 : Linear limb-darkening coefficient applied to the model before scaling.

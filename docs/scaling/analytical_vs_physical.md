@@ -9,9 +9,9 @@ approaches.
 
 Physical scaling applies the inverse-square law:
 
-$$
+```{math}
 F_\text{obs}(\lambda) = F_\text{model}(\lambda) \times \left(\frac{r}{d}\right)^2
-$$
+```
 
 where `r` is the companion radius in Jupiter radii and `d` is the distance in
 parsecs. This scaling is physically motivated and lets you retrieve the radius
@@ -37,9 +37,9 @@ config_parameters = ConfigParameters(
 
 Analytical scaling multiplies the model by a constant factor:
 
-$$
+```{math}
 F_\text{obs}(\lambda) = F_\text{model}(\lambda) \times \alpha
-$$
+```
 
 This is a pure nuisance parameter: it absorbs any flux-level offset without
 making any physical claim about the radius or distance.
