@@ -7,11 +7,6 @@
 
    <br />
 
-.. image:: ForMoSA.png
-   :width: 150px
-   :height: 105px
-   :align: center
-
 Forward Modeling Tool for Spectral Analysis
 ===========================================
 
@@ -46,6 +41,8 @@ If you run into any other problem, please create an issue on `GitHub <https://gi
 
 Version Track
 +++++++++++++
+
+- ``1.1.5`` Addition of high-contrast models, ultranest and automatically generated config files.
 
 - ``1.1.2`` Version adapted for including multiple instruments and high spectral resolution observations.
 

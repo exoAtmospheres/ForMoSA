@@ -1,33 +1,31 @@
+
+
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" data-content_root="../">
 <head>
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>demo AB Pic b &mdash; ForMoSA 2.0.0 documentation</title>
-      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
-      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=19f00094" />
+  <title>One observation : AB Pic b &mdash; ForMoSA 1.1.5 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../_static/nbsphinx-code-cells.css?v=2aa19091" />
 
   
     <link rel="shortcut icon" href="../_static/favicon.ico"/>
-  <!--[if lt IE 9]>
-    <script src="../_static/js/html5shiv.min.js"></script>
-  <![endif]-->
-  
-        <script src="../_static/jquery.js?v=5d32c60e"></script>
-        <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="../_static/documentation_options.js?v=51b770b3"></script>
-        <script src="../_static/doctools.js?v=9a2dae69"></script>
-        <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
-        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
-        <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
-        <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=a48ae3df"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+      <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="ForMoSA API" href="../api.html" />
-    <link rel="prev" title="Exo-REM" href="exorem_info.html" /> 
+    <link rel="next" title="MOSAIC : β Pic b" href="demobetapic.html" />
+    <link rel="prev" title="Create a config.ini" href="config_file.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -40,6 +38,7 @@
           
           <a href="../index.html" class="icon icon-home">
             ForMoSA
+              <img src="../_static/ForMoSA.png" class="logo" alt="Logo"/>
           </a>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
@@ -53,9 +52,11 @@
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="../demo.html">Tutorials</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../demo.html#observation-s">Observation(s)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../demo.html#atmospheric-grids">Atmospheric grids</a></li>
-<li class="toctree-l2 current"><a class="reference internal" href="../demo.html#list-of-tutorials">List of tutorials:</a><ul class="current">
-<li class="toctree-l3 current"><a class="current reference internal" href="#">demo AB Pic b</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../demo.html#configuration-file">Configuration file</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="../demo.html#demos">Demos</a><ul class="current">
+<li class="toctree-l3 current"><a class="current reference internal" href="#">One observation : AB Pic b</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#Imports">Imports</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#0.-Setup">0. Setup</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#1.-Interpolate-the-grid">1. Interpolate the grid</a></li>
@@ -63,6 +64,7 @@
 <li class="toctree-l4"><a class="reference internal" href="#3.-Plotting-the-outcomes">3. Plotting the outcomes</a></li>
 </ul>
 </li>
+<li class="toctree-l3"><a class="reference internal" href="demobetapic.html">MOSAIC : β Pic b</a></li>
 </ul>
 </li>
 </ul>
@@ -85,7 +87,7 @@
   <ul class="wy-breadcrumbs">
       <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
           <li class="breadcrumb-item"><a href="../demo.html">Tutorials</a></li>
-      <li class="breadcrumb-item active">demo AB Pic b</li>
+      <li class="breadcrumb-item active">One observation : AB Pic b</li>
       <li class="wy-breadcrumbs-aside">
             <a href="../_sources/tutorials/demoabpic.ipynb.txt" rel="nofollow"> View page source</a>
       </li>
@@ -95,41 +97,41 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="demo-AB-Pic-b">
-<h1>demo AB Pic b<a class="headerlink" href="#demo-AB-Pic-b" title="Link to this heading"></a></h1>
-<p>This tutorial is intended as a quick start.</p>
+  <section id="One-observation-:-AB-Pic-b">
+<h1>One observation : AB Pic b<a class="headerlink" href="#One-observation-:-AB-Pic-b" title="Link to this heading"></a></h1>
+<p>This tutorial is intended as a quick start when using a single observation.</p>
 <p>We will use medium resolution VLT/SINFONI K-band data of AB Pic b. These observations and example model were published in <a class="reference external" href="https://www.aanda.org/articles/aa/pdf/2023/02/aa44294-22.pdf">P. Palma-Bifani et al (2023)</a>.</p>
 <section id="Imports">
 <h2>Imports<a class="headerlink" href="#Imports" title="Link to this heading"></a></h2>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[33]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Generic packages</span>
-<span class="kn">import</span> <span class="nn">sys</span><span class="o">,</span> <span class="nn">time</span><span class="o">,</span> <span class="nn">os</span>
-<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">time</span><span class="o">,</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
 
 <span class="c1"># ForMoSA modules</span>
-<span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="s1">&#39;/Users/ppalmabifani/opt/anaconda3/envs/exo_formosa_multi_pip2/lib/python3.11/site-packages/ForMoSA/&#39;</span><span class="p">))</span>
 <span class="c1"># For the interpolation &amp; sampling</span>
-<span class="kn">from</span> <span class="nn">ForMoSA.main_utilities</span> <span class="kn">import</span> <span class="n">GlobFile</span>
-<span class="kn">from</span> <span class="nn">ForMoSA.adapt.adapt_obs_mod</span> <span class="kn">import</span> <span class="n">launch_adapt</span>
-<span class="kn">from</span> <span class="nn">ForMoSA.nested_sampling.nested_sampling</span> <span class="kn">import</span> <span class="n">launch_nested_sampling</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">ForMoSA.global_file</span><span class="w"> </span><span class="kn">import</span> <span class="n">GlobFile</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">ForMoSA.adapt.adapt_obs_mod</span><span class="w"> </span><span class="kn">import</span> <span class="n">launch_adapt</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">ForMoSA.nested_sampling.nested_sampling</span><span class="w"> </span><span class="kn">import</span> <span class="n">launch_nested_sampling</span>
 <span class="c1"># For the plots</span>
-<span class="kn">from</span> <span class="nn">ForMoSA.plotting.plotting_class</span> <span class="kn">import</span> <span class="n">PlottingForMoSA</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">ForMoSA.plotting.plotting_class</span><span class="w"> </span><span class="kn">import</span> <span class="n">PlottingForMoSA</span>
 </pre></div>
 </div>
 </div>
 </section>
 <section id="0.-Setup">
 <h2>0. Setup<a class="headerlink" href="#0.-Setup" title="Link to this heading"></a></h2>
-<p>You need to create a config file with extension &lt;.ini&gt; and modify the parameters. Learn more about our config files in it’s specific tutorial.</p>
-<p>To initialize ForMoSA we need to read the config.ini file and setup the outputs directory and global parameters as follows</p>
+<p>You need to create a config file with extension <code class="docutils literal notranslate"><span class="pre">.ini</span></code> and modify the parameters. Learn more about our config files in it’s specific tutorial.</p>
+<p>To initialize ForMoSA we need to read the config.ini file and setup the outputs directory and global parameters as follows.</p>
+<p>Here we also create a sub-directory. This can be usefull when doing multiple tests on the same target.</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[34]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">base_path</span> <span class="o">=</span> <span class="s1">&#39;data_abpic/&#39;</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">base_path</span> <span class="o">=</span> <span class="s1">&#39;/home/mravet/Documents/These/FORMOSA/OUTPUTS/Channel1/&#39;</span>
 
 <span class="c1"># CONFIG_FILE</span>
 <span class="c1"># reading and defining global parameters</span>
@@ -148,7 +150,7 @@
 <span class="n">global_params</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">filename</span> <span class="o">=</span> <span class="n">global_params</span><span class="o">.</span><span class="n">result_path</span> <span class="o">+</span> <span class="s1">&#39;config_used.ini&#39;</span>
 <span class="n">global_params</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;config_path&#39;</span><span class="p">][</span><span class="s1">&#39;result_path&#39;</span><span class="p">]</span><span class="o">=</span><span class="n">global_params</span><span class="o">.</span><span class="n">result_path</span>
 <span class="n">global_params</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">write</span><span class="p">()</span>
-<br/></pre></div>
+</pre></div>
 </div>
 </div>
 </section>
@@ -158,7 +160,7 @@
 <p>The grid of models is interpolated for this, but you don’t need to repeat this step once you’ve adapted the grid for a specific dataset.</p>
 <p>(Answer ‘no’ only the first time)</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Have you already interpolated the grids for this data?</span>
@@ -174,7 +176,7 @@
 <h2>2. Lunch Nested Sampling<a class="headerlink" href="#2.-Lunch-Nested-Sampling" title="Link to this heading"></a></h2>
 <p>Once the grid is interpolated, we proceed with the nested sampling. For this case we are using the Python package nestle.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">launch_nested_sampling</span><span class="p">(</span><span class="n">global_params</span><span class="p">)</span>
@@ -189,24 +191,22 @@
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 -&gt; Likelihood functions check-ups
 
-ABPicb_SINFONI_K will be computed with chi2_classic
+test_data_ABPicb will be computed with chi2
 
 Done !
 
-it=  1330 logz=-1071.92517042
+it=  2169 logz=-788.68245842
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 -&gt; Nestle
 
-The code spent 234.33751487731934 sec to run.
-niter: 1331
-ncall: 13109
-nsamples: 1431
-logz: -1071.101 +/-  0.347
-h: 12.010
+The code spent 34.9 min to run.
+niter: 2170
+ncall: 46932
+nsamples: 2270
+logz: -788.170 +/-  0.440
+h: 19.343
 
 
-
--&gt; Voilà, on est prêt
 </pre></div></div>
 </div>
 </section>
@@ -217,30 +217,32 @@ h: 12.010
 <li><p>Plotting corner-plots</p></li>
 <li><p>Plotting spectra and residuals</p></li>
 <li><p>Plotting chains</p></li>
+<li><p>Plotting radar</p></li>
+<li><p>Plotting PT and vmr (if you have the corresponding grids !!)</p></li>
 <li><p>Accessing the different parameters</p></li>
 </ul>
 <p>All plotting functions return the fig object. Therefore you can edit the axes, overplot text/curves, save, etc…</p>
 <p>We need to start by initializing the plotting class as follows.</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[26]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Path to output file created in the first step</span>
-<span class="n">config_file_path_pl</span> <span class="o">=</span> <span class="s1">&#39;data_abpic/outputs/test_t20240807_005025&#39;</span>
+<span class="n">config_file_path_pl</span> <span class="o">=</span> <span class="n">base_path</span> <span class="o">+</span> <span class="s1">&#39;/test_t20250423_225135&#39;</span>
 
 <span class="c1"># Initialize the plotting class and set the color</span>
 <span class="n">plotForMoSA</span> <span class="o">=</span> <span class="n">PlottingForMoSA</span><span class="p">(</span><span class="n">config_file_path_pl</span><span class="o">+</span><span class="s1">&#39;/config_used.ini&#39;</span><span class="p">,</span> <span class="s1">&#39;red&#39;</span><span class="p">)</span>
-<br/></pre></div>
-</div>
-</div>
-<section id="PLOT-Corner">
-<h3>PLOT Corner<a class="headerlink" href="#PLOT-Corner" title="Link to this heading"></a></h3>
-<div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[27]:
+<span class="n">plotForMoSA</span><span class="o">.</span><span class="n">_get_posteriors</span><span class="p">(</span><span class="n">burn_in</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span> <span class="c1"># Burn in controls how much of the convergence chain you keep to estimate your final values</span>
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">fig</span> <span class="o">=</span> <span class="n">plotForMoSA</span><span class="o">.</span><span class="n">plot_corner</span><span class="p">(</span><span class="n">levels_sig</span><span class="o">=</span><span class="p">[</span><span class="mf">0.997</span><span class="p">,</span> <span class="mf">0.95</span><span class="p">,</span> <span class="mf">0.68</span><span class="p">],</span> <span class="n">bins</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">quantiles</span><span class="o">=</span><span class="p">(</span><span class="mf">0.16</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.84</span><span class="p">),</span> <span class="n">burn_in</span><span class="o">=</span><span class="mi">1100</span><span class="p">)</span>
-<span class="c1">#plt.savefig(&#39;&#39;)</span>
+</div>
+<section id="Plot-Corner">
+<h3>Plot Corner<a class="headerlink" href="#Plot-Corner" title="Link to this heading"></a></h3>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">fig</span> <span class="o">=</span> <span class="n">plotForMoSA</span><span class="o">.</span><span class="n">plot_corner</span><span class="p">(</span><span class="n">levels_sig</span><span class="o">=</span><span class="p">[</span><span class="mf">0.997</span><span class="p">,</span> <span class="mf">0.95</span><span class="p">,</span> <span class="mf">0.68</span><span class="p">],</span> <span class="n">bins</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">quantiles</span><span class="o">=</span><span class="p">(</span><span class="mf">0.16</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.84</span><span class="p">))</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </pre></div>
 </div>
@@ -261,13 +263,13 @@ ForMoSA - Corner plot
 </div>
 </div>
 </section>
-<section id="PLOT-Spectrum-and-Residuals">
-<h3>PLOT Spectrum and Residuals<a class="headerlink" href="#PLOT-Spectrum-and-Residuals" title="Link to this heading"></a></h3>
+<section id="Plot-Spectrum-and-Residuals">
+<h3>Plot Spectrum and Residuals<a class="headerlink" href="#Plot-Spectrum-and-Residuals" title="Link to this heading"></a></h3>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[32]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">fig</span><span class="p">,</span> <span class="n">ax</span><span class="p">,</span> <span class="n">axr</span><span class="p">,</span> <span class="n">axr2</span> <span class="o">=</span> <span class="n">plotForMoSA</span><span class="o">.</span><span class="n">plot_fit</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">5</span><span class="p">),</span> <span class="n">uncert</span><span class="o">=</span><span class="s1">&#39;no&#39;</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">fig</span><span class="p">,</span> <span class="n">ax</span><span class="p">,</span> <span class="n">axr</span><span class="p">,</span> <span class="n">axr2</span> <span class="o">=</span> <span class="n">plotForMoSA</span><span class="o">.</span><span class="n">plot_fit</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">5</span><span class="p">),</span> <span class="n">uncert</span><span class="o">=</span><span class="s1">&#39;no&#39;</span><span class="p">,</span> <span class="n">trans</span><span class="o">=</span><span class="s1">&#39;no&#39;</span><span class="p">,</span> <span class="n">logy</span><span class="o">=</span><span class="s1">&#39;no&#39;</span><span class="p">,</span> <span class="n">logx</span><span class="o">=</span><span class="s1">&#39;no&#39;</span><span class="p">,</span> <span class="n">norm</span><span class="o">=</span><span class="s1">&#39;no&#39;</span><span class="p">)</span>
 
 <span class="c1"># You can modify the different axes and includ further plotting features</span>
 <span class="n">axr</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">(</span><span class="o">-</span><span class="mi">5</span><span class="p">,</span><span class="mi">5</span><span class="p">)</span>
@@ -285,32 +287,21 @@ ForMoSA - Corner plot
 ForMoSA - Best fit and residuals plot
 </pre></div></div>
 </div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
-/Users/ppalmabifani/opt/anaconda3/envs/exo_formosa_multi_pip2/lib/python3.11/site-packages/ForMoSA/plotting/plotting_class.py:723: UserWarning: No artists with labels found to put in legend.  Note that artists whose label start with an underscore are ignored when legend() is called with no argument.
-  axr2.legend(frameon=False,handlelength=0)
-</pre></div></div>
-</div>
 <div class="nboutput nblast docutils container">
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<img alt="../_images/tutorials_demoabpic_13_2.png" src="../_images/tutorials_demoabpic_13_2.png" />
+<img alt="../_images/tutorials_demoabpic_13_1.png" src="../_images/tutorials_demoabpic_13_1.png" />
 </div>
 </div>
 </section>
-<section id="PLOT-Chains-of-posteriors">
-<h3>PLOT Chains of posteriors<a class="headerlink" href="#PLOT-Chains-of-posteriors" title="Link to this heading"></a></h3>
+<section id="Plot-Chains-of-posteriors">
+<h3>Plot Chains of posteriors<a class="headerlink" href="#Plot-Chains-of-posteriors" title="Link to this heading"></a></h3>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[29]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">fig</span><span class="p">,</span> <span class="n">axs</span> <span class="o">=</span> <span class="n">plotForMoSA</span><span class="o">.</span><span class="n">plot_chains</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span><span class="mi">6</span><span class="p">))</span>
-<span class="c1">#axs[i, j] #i=cols, j=0,1</span>
-<span class="c1">#plt.savefig(&#39;&#39;)</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </pre></div>
 </div>
@@ -331,11 +322,51 @@ ForMoSA - Posteriors chains for each parameter
 </div>
 </div>
 </section>
+<section id="Plot-Radar">
+<h3>Plot Radar<a class="headerlink" href="#Plot-Radar" title="Link to this heading"></a></h3>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">fig</span> <span class="o">=</span> <span class="n">plotForMoSA</span><span class="o">.</span><span class="n">plot_radar</span><span class="p">([(</span><span class="mi">1000</span><span class="p">,</span> <span class="mi">2000</span><span class="p">),</span>
+                        <span class="p">(</span><span class="mf">3.</span><span class="p">,</span> <span class="mf">5.</span><span class="p">),</span>
+                        <span class="p">(</span><span class="o">-</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">),</span>
+                        <span class="p">(</span><span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.8</span><span class="p">),</span>
+                        <span class="p">(</span><span class="o">-</span><span class="mi">50</span><span class="p">,</span> <span class="mi">50</span><span class="p">),</span>
+                        <span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">100</span><span class="p">)])</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+ForMoSA - Radar plot
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+/home/mravet/ForMoSA/ForMoSA/plotting/plotting_class.py:420: UserWarning: No artists with labels found to put in legend.  Note that artists whose label start with an underscore are ignored when legend() is called with no argument.
+  radar.ax.legend(loc=&#39;center&#39;, bbox_to_anchor=(0.5, -0.20),frameon=False, ncol=2)
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/tutorials_demoabpic_17_2.png" src="../_images/tutorials_demoabpic_17_2.png" />
+</div>
+</div>
+</section>
 <section id="Access-information">
 <h3>Access information<a class="headerlink" href="#Access-information" title="Link to this heading"></a></h3>
 <p>You can access different parametes since we are working with a class</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[30]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">posteriors_chains</span> <span class="o">=</span> <span class="n">plotForMoSA</span><span class="o">.</span><span class="n">posterior_to_plot</span>
@@ -351,8 +382,8 @@ ForMoSA - Posteriors chains for each parameter
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="exorem_info.html" class="btn btn-neutral float-left" title="Exo-REM" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="../api.html" class="btn btn-neutral float-right" title="ForMoSA API" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="config_file.html" class="btn btn-neutral float-left" title="Create a config.ini" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="demobetapic.html" class="btn btn-neutral float-right" title="MOSAIC : β Pic b" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

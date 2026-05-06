@@ -11,8 +11,8 @@ To get started, we recomend you to keep the following structure locally.
 
    ~/YOUR/PATH/formosa_desk/
    ├── atm_grids/
-   ├── demo_ABPicb/      
-   │   ├── data.fits       
+   ├── inversion_targetname/      
+   │   ├── inputs/      
    │   ├── config.ini      
    │   ├── adapted_grid/ 
    │   └── outputs/
@@ -23,10 +23,36 @@ To get started, we recomend you to keep the following structure locally.
 Depending on the way you installed ForMoSA, the ForMoSA, PyMultiNest, and MultiNest subfolders need to be cloned from GitHub. 
 Follow the :doc:`installation` 
 
+
+Observation(s)
+++++++++++++++
+
+First, you need to format the observation you wish to invert in a ``.fits`` file. It should have (at least) the following extensions:
+
+* **'WAV'**
+* **'FLX'** 
+* **'ERR'** or **'COV'** 
+* **'RES'** 
+* **'INS'** 
+
+If you wish to invert on multiple observations, we recommend that you define separate files (``data_1.fits``, ``data_2.fits``, ect...)
+
+Ideally, save it/them inside the ``inputs/`` subdirectory.
+
+Learn more about how to format your observation(s):
+
+.. toctree::
+   :maxdepth: 1
+
+   tutorials/format_obs
+
+
 Atmospheric grids
 +++++++++++++++++
 
-This is the list of the publically available atmospheric grids which we have formated for ForMoSA. 
+You now need an atmospheric grid on which to run your inversion.
+
+This is the list of the publically available grids which we have formated for ForMoSA. 
 
 Download the grid you want to use by clicking over it's name. Ideally, save it inside the ``atm_grids/`` subdirectory.
 
@@ -47,18 +73,26 @@ Learn more about:
    tutorials/exorem_info.ipynb
 
 
-
-
-List of tutorials:
+Configuration file
 ++++++++++++++++++
 
+Finally, you need to prepare a configuration file.
+
+This file (``config.ini``) allows you to communicate with ForMoSA. 
+
+Learn how to set it up in various cases:
 
 .. toctree::
    :maxdepth: 1
 
-   tutorials/inputs
+   tutorials/config_file.ipynb
 
-   tutorials/demoabpic
-..
-   demo_mosaic.rst
-   demo_pymultinest.rst
+
+Demos
++++++
+
+.. toctree::
+   :maxdepth: 1
+
+   tutorials/demoabpic.ipynb
+   tutorials/demobetapic.ipynb

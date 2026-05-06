@@ -3,9 +3,11 @@ matplotlib
 corner
 astropy
 scipy
+scikit-learn
 configobj
 extinction
 nestle
+ultranest
 PyAstronomy
 spectres
 pyyaml

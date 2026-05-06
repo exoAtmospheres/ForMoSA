@@ -1,27 +1,25 @@
+
+
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" data-content_root="./">
 <head>
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Forward Modeling Tool for Spectral Analysis &mdash; ForMoSA 2.0.0 documentation</title>
-      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=fa44fd50" />
-      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=19f00094" />
+  <title>Forward Modeling Tool for Spectral Analysis &mdash; ForMoSA 1.1.5 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
 
   
     <link rel="shortcut icon" href="_static/favicon.ico"/>
-  <!--[if lt IE 9]>
-    <script src="_static/js/html5shiv.min.js"></script>
-  <![endif]-->
-  
-        <script src="_static/jquery.js?v=5d32c60e"></script>
-        <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="_static/documentation_options.js?v=51b770b3"></script>
-        <script src="_static/doctools.js?v=9a2dae69"></script>
-        <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
-        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
-        <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
-        <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=a48ae3df"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+      <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -38,6 +36,7 @@
           
           <a href="#" class="icon icon-home">
             ForMoSA
+              <img src="_static/ForMoSA.png" class="logo" alt="Logo"/>
           </a>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -78,9 +77,7 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <a class="reference internal image-reference" href="_images/ForMoSA.png"><img alt="_images/ForMoSA.png" class="align-center" src="_images/ForMoSA.png" style="width: 150px; height: 105px;" />
-</a>
-<section id="forward-modeling-tool-for-spectral-analysis">
+  <section id="forward-modeling-tool-for-spectral-analysis">
 <h1>Forward Modeling Tool for Spectral Analysis<a class="headerlink" href="#forward-modeling-tool-for-spectral-analysis" title="Link to this heading"></a></h1>
 <p>Welcome to the documentation of ForMoSA, an open-source Python package.
 Using a forward modeling approach, we designed this tool to model exoplanetary atmospheres.
@@ -93,11 +90,14 @@ We encourage the community to exploit its capabilities!</p>
 <li class="toctree-l2"><a class="reference internal" href="installation.html#a-installation-though-pypi">A. Installation though PyPI</a></li>
 <li class="toctree-l2"><a class="reference internal" href="installation.html#b-installation-though-github">B. Installation though GitHub</a></li>
 <li class="toctree-l2"><a class="reference internal" href="installation.html#pymultinest-users">PyMultiNest users</a></li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#torch-users">torch users</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="demo.html">Tutorials</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="demo.html#observation-s">Observation(s)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="demo.html#atmospheric-grids">Atmospheric grids</a></li>
-<li class="toctree-l2"><a class="reference internal" href="demo.html#list-of-tutorials">List of tutorials:</a></li>
+<li class="toctree-l2"><a class="reference internal" href="demo.html#configuration-file">Configuration file</a></li>
+<li class="toctree-l2"><a class="reference internal" href="demo.html#demos">Demos</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="api.html">ForMoSA API</a><ul>
@@ -120,6 +120,7 @@ We encourage the community to exploit its capabilities!</p>
 <section id="version-track">
 <h2>Version Track<a class="headerlink" href="#version-track" title="Link to this heading"></a></h2>
 <ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">1.1.5</span></code> Addition of high-contrast models, ultranest and automatically generated config files.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">1.1.2</span></code> Version adapted for including multiple instruments and high spectral resolution observations.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">1.0.13</span></code> First version distributed, presented at <a class="reference external" href="https://alienearths.space/cloud-academy-3/">Cloud Academy 3.</a>.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">1.0.5</span></code> First operational release.</p></li>
