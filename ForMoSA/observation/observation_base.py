@@ -3,6 +3,7 @@ import logging
 import numpy as np
 from pathlib import Path
 import astropy.units as u
+from astropy.io import fits
 from abc import ABC, abstractmethod
 from matplotlib.figure import Figure
 from matplotlib.axes._axes import Axes
@@ -407,7 +408,7 @@ class Observation(ABC):
             raise ForMoSAError(f'unit must be an instance of WavelengthUnit enum. Instead got {type(unit)}', self.logger)
         self._display_unit = unit
 
-    def save_observation(self, store_path: str | os.PathLike) -> None:
+    def save_observation(self, store_path: str | os.PathLike, file_format: str = 'npz') -> None:
         '''
         Save observation to disk as .npz files.
 
@@ -415,6 +416,8 @@ class Observation(ABC):
         ----------
         store_path : str | os.PathLike
             Path where to store the observation file
+        file_format: str 
+            Format of the file to save ('npz' or 'fits')
 
         Notes
         -----
@@ -426,13 +429,79 @@ class Observation(ABC):
         if not isinstance(store_path, str | os.PathLike):
             raise ForMoSAError(f'Wrong type for store_path: {type(store_path)}. Expected a string or os.PathLike', self.logger)
 
+        file_format = file_format.lower()
+
+        if file_format not in ['npz', 'fits']:
+            raise ForMoSAError(f'Unknown file format: {file_format}. Choose between "npz" and "fits"', self.logger)
+
         path = Path(store_path).expanduser()
-        filename = f"Observation_{self.name}.npz"
-        self.logger.info(f"      Saving Observation Observation_{self.name}.npz")
 
         if not path.exists():
             self.logger.warning(f'{path} does not exist. Creating it')
             path.mkdir(exist_ok=True, parents=True)
+            
+        # ===================
+        # npz format
+        # ===================
+        if file_format == 'npz':
+            filename = f"Observation_{self.name}.npz"
+            self.logger.info(f"      Saving Observation {filename}")
 
-        # Save dictionnary of observation to path
-        np.savez(path / filename, **self.to_dict)
+            # Save dictionnary of observation to path
+            np.savez(path / filename, **self.to_dict)
+            
+        # ===================
+        # fits format
+        # ===================
+        elif file_format == 'fits':
+            filename = f"Observation_{self.name}.fits"
+            self.logger.info(f"      Saving Observation {filename}")
+        
+            # ===================
+            # Primary header
+            # ===================
+        
+            primary_hdu = fits.PrimaryHDU()
+        
+            # ===================
+            # Build FITS table 
+            # ===================
+        
+            cols = []
+        
+            for key, value in self.to_dict.items():
+                arr = np.atleast_1d(value)
+        
+                # --------------------------------------------------
+                # Strings
+                # --------------------------------------------------
+                if arr.dtype.kind in ['U', 'S', 'O']:
+                    arr = arr.astype(str)
+                    max_len = max(len(v) for v in arr)
+                    fmt = f'{max_len}A'
+        
+                # --------------------------------------------------
+                # Integers
+                # --------------------------------------------------
+                elif np.issubdtype(arr.dtype, np.integer):
+                    fmt = 'K'
+        
+                # --------------------------------------------------
+                # Floats
+                # --------------------------------------------------
+                elif np.issubdtype(arr.dtype, np.floating):
+                    fmt = 'D'
+        
+                # --------------------------------------------------
+                # Unsupported dtype
+                # --------------------------------------------------
+                else:
+                    raise ForMoSAError(f'Unsupported dtype for key "{key}": {arr.dtype}', self.logger)
+        
+                cols.append(fits.Column(name=key.upper(), array=arr, format=fmt))
+        
+            table_hdu = fits.BinTableHDU.from_columns(cols)
+        
+            hdul = fits.HDUList([primary_hdu, table_hdu])
+            hdul.writeto(path / filename, overwrite=True)
+                    

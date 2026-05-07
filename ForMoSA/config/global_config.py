@@ -50,6 +50,29 @@ class ConfigPath:
 
         if not all(isinstance(obs_path, (str | os.PathLike)) for obs_path in self.observation_path):
             raise ForMoSAError("observation_path must be a list of str or os.PathLike")
+            
+    def set_params(self, **kwargs) -> None:
+        '''
+        Update paths
+
+        Parameters
+        ----------
+        **kwargs : dict
+            Keyword arguments to override attributes of the config
+
+        Notes
+        -----
+        Authors: Allan Denis
+        '''
+
+        for key, value in kwargs.items():
+            if not hasattr(self, key):
+                raise ForMoSAError(f'Unknown ConfigPath key: {key}')
+            setattr(self, key, value)
+            
+        # Validation of the format
+        self.__post_init__()
+        
 
 _JOBLIB_BACKENDS = ('loky', 'multiprocessing', 'threading', 'sequential', 'dask', 'ray')
 
@@ -291,6 +314,28 @@ class ConfigAdapt:
             remove_continuum.append(remove_cont)
 
         return remove_continuum
+    
+    def set_params(self, **kwargs) -> None:
+        '''
+        Update parameters of ConfigAdapt
+
+        Parameters
+        ----------
+        **kwargs : dict
+            Keyword arguments to override attributes of the config
+
+        Notes
+        -----
+        Authors: Allan Denis
+        '''
+
+        for key, value in kwargs.items():
+            if not hasattr(self, key):
+                raise ForMoSAError(f'Unknown ConfigPath key: {key}')
+            setattr(self, key, value)
+            
+        # Validation of the format
+        self.__post_init__()
 
 @dataclass
 class ConfigInversion:
@@ -382,6 +427,28 @@ class ConfigInversion:
 
             elif len(value) == 1 and n_obs > 1:
                 setattr(self, name, n_obs * value)
+                
+    def set_params(self, **kwargs) -> None:
+        '''
+        Update parameters of ConfigInversion
+
+        Parameters
+        ----------
+        **kwargs : dict
+            Keyword arguments to override attributes of the config
+
+        Notes
+        -----
+        Authors: Allan Denis
+        '''
+
+        for key, value in kwargs.items():
+            if not hasattr(self, key):
+                raise ForMoSAError(f'Unknown ConfigPath key: {key}')
+            setattr(self, key, value)
+
+        # Validation of the format
+        self.__post_init__()
 
 @dataclass
 class ConfigParameters:
@@ -408,7 +475,18 @@ class ConfigParameters:
 
         for name, value in self.__dict__.items():
             if not isinstance(value, list):
-                setattr(self, name, ast.literal_eval(value))
+                try:
+                    value = ast.literal_eval(value)
+
+                except Exception as e:
+                    raise ForMoSAError(f"{name} cannot be parsed as list") from e
+
+                setattr(self, name, value)
+        
+            if not all(isinstance(v, str) for v in value):
+                wrong_types = {type(v).__name__ for v in value if not isinstance(v, str)}
+
+                raise ForMoSAError(f"{name} must contain only strings. (got {wrong_types})")
 
     # =======================
     # Representation
@@ -439,7 +517,7 @@ class ConfigParameters:
         ----------
         param : str
             Name of the parameter
-        value : str
+        value : list[str]
             Value of the parameter
 
         Notes
@@ -448,6 +526,7 @@ class ConfigParameters:
         '''
 
         setattr(self, str(param), value)
+        self.__post_init__()
 
     def _parse_param_name(self, name: str) -> tuple[str, str, list | None]:
         '''
@@ -562,6 +641,28 @@ class ConfigParameters:
 
         # Prior is NA
         return None
+    
+    def set_params(self, **kwargs) -> None:
+        '''
+        Update parameters of ConfigParameters
+
+        Parameters
+        ----------
+        **kwargs : dict
+            Keyword arguments to override attributes of the config
+
+        Notes
+        -----
+        Authors: Allan Denis
+        '''
+
+        for key, value in kwargs.items():
+            if not hasattr(self, key):
+                raise ForMoSAError(f'Unknown ConfigPath key: {key}')
+            setattr(self, key, value)
+            
+        # Validation of the format
+        self.__post_init__()
 
 @dataclass
 class ConfigNestle:
@@ -660,6 +761,28 @@ class ConfigNestle:
             raise ForMoSAError(f'Wrong type for data: {type(data)}. Expected a dictionary')
 
         return cls(**data['nestle'])
+    
+    def set_params(self, **kwargs) -> None:
+        '''
+        Update parameters of ConfigNestle
+
+        Parameters
+        ----------
+        **kwargs : dict
+            Keyword arguments to override attributes of the config
+
+        Notes
+        -----
+        Authors: Allan Denis
+        '''
+
+        for key, value in kwargs.items():
+            if not hasattr(self, key):
+                raise ForMoSAError(f'Unknown ConfigPath key: {key}')
+            setattr(self, key, value)
+            
+        # Validation of the format
+        self.__post_init__()
 
 @dataclass
 class ConfigPyMultiNest:
@@ -803,6 +926,28 @@ class ConfigPyMultiNest:
             raise ForMoSAError(f'Wrong type for data: {type(data)}. Expected a dictionary')
 
         return cls(**data['pymultinest'])
+    
+    def set_params(self, **kwargs) -> None:
+        '''
+        Update parameters of ConfigPyMultiNest
+
+        Parameters
+        ----------
+        **kwargs : dict
+            Keyword arguments to override attributes of the config
+
+        Notes
+        -----
+        Authors: Allan Denis
+        '''
+
+        for key, value in kwargs.items():
+            if not hasattr(self, key):
+                raise ForMoSAError(f'Unknown ConfigPath key: {key}')
+            setattr(self, key, value)
+            
+        # Validation of the format
+        self.__post_init__()
 
 @dataclass
 class ConfigUltraNest:
@@ -981,6 +1126,28 @@ class ConfigUltraNest:
             raise ForMoSAError(f'Wrong type for data: {type(data)}. Expected a dictionary')
 
         return cls(**data['ultranest']['ReactiveNS'], **data['ultranest']['runNS'])
+    
+    def set_params(self, **kwargs) -> None:
+        '''
+        Update parameters of ConfigUltraNest
+
+        Parameters
+        ----------
+        **kwargs : dict
+            Keyword arguments to override attributes of the config
+
+        Notes
+        -----
+        Authors: Allan Denis
+        '''
+
+        for key, value in kwargs.items():
+            if not hasattr(self, key):
+                raise ForMoSAError(f'Unknown ConfigPath key: {key}')
+            setattr(self, key, value)
+            
+        # Validation of the format
+        self.__post_init__()
 
 @dataclass
 class Config_NS:
@@ -1053,7 +1220,28 @@ class Config_NS:
             pymultinest = ConfigPyMultiNest.from_dict(data),
             ultranest=ConfigUltraNest.from_dict(data)
             )
+    
+    def set_params(self, **kwargs) -> None:
+        '''
+        Update parameters of Config_NS
 
+        Parameters
+        ----------
+        **kwargs : dict
+            Keyword arguments to override attributes of the config
+
+        Notes
+        -----
+        Authors: Allan Denis
+        '''
+
+        for key, value in kwargs.items():
+            if not hasattr(self, key):
+                raise ForMoSAError(f'Unknown ConfigPath key: {key}')
+            setattr(self, key, value)
+            
+        # Validation of the format
+        self.__post_init__()
 
 # ----------------------------
 # Config file generator
