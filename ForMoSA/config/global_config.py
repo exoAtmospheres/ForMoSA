@@ -475,7 +475,18 @@ class ConfigParameters:
 
         for name, value in self.__dict__.items():
             if not isinstance(value, list):
-                setattr(self, name, ast.literal_eval(value))
+                try:
+                    value = ast.literal_eval(value)
+
+                except Exception as e:
+                    raise ForMoSAError(f"{name} cannot be parsed as list") from e
+
+                setattr(self, name, value)
+        
+            if not all(isinstance(v, str) for v in value):
+                wrong_types = {type(v).__name__ for v in value if not isinstance(v, str)}
+
+                raise ForMoSAError(f"{name} must contain only strings. (got {wrong_types})")
 
     # =======================
     # Representation
@@ -515,6 +526,7 @@ class ConfigParameters:
         '''
 
         setattr(self, str(param), value)
+        self.__post_init__()
 
     def _parse_param_name(self, name: str) -> tuple[str, str, list | None]:
         '''
