@@ -445,7 +445,6 @@ class Observation(ABC):
         # ===================
         if file_format == 'npz':
             filename = f"Observation_{self.name}.npz"
-    
             self.logger.info(f"      Saving Observation {filename}")
 
             # Save dictionnary of observation to path
@@ -455,9 +454,7 @@ class Observation(ABC):
         # fits format
         # ===================
         elif file_format == 'fits':
-        
             filename = f"Observation_{self.name}.fits"
-        
             self.logger.info(f"      Saving Observation {filename}")
         
             # ===================
