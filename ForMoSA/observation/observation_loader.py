@@ -347,14 +347,14 @@ class ObservationLoader:
 
             # Wavelength and resolution for the continuum
             try:
-                wave_cont = (str(data[normalized['WAVE_CONT']]) if ObservationKeys.WAVE_CONT.canonical in normalized else kwargs.get('wave_cont', None))
+                wave_cont = (str(data[normalized['WAVE_CONT']]) if ObservationKeys.WAVE_CONT.canonical in normalized else kwargs.get('wave_cont', 'NA'))
             except TypeError:  # wave_cont is None
-                wave_cont = None
+                wave_cont = 'NA'
 
             try:
-                res_cont = (float(data[normalized['RES_CONT']]) if ObservationKeys.RES_CONT.canonical in normalized else kwargs.get('res_cont', None))
+                res_cont = (float(data[normalized['RES_CONT']]) if ObservationKeys.RES_CONT.canonical in normalized else kwargs.get('res_cont', 'NA'))
             except TypeError:  # res_cont is None
-                res_cont = None
+                res_cont = 'NA'
 
             obs = SpectralObservation(
                 wave=wave,
