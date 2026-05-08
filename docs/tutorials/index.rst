@@ -3,43 +3,79 @@
 Tutorials
 =========
 
-End-to-end worked examples showing ForMoSA in action.
+End-to-end worked examples showing ForMoSA v2.0 in action.
+Each notebook is self-contained: it checks for required files and
+downloads them automatically if they are missing.
 
-The notebooks below cover two of the most common use cases.
-The remaining tutorials are under active development — see the
-:ref:`whats_new` page for the latest roadmap.
+.. note::
 
-Spectroscopic: AB Pic b (SINFONI K-band)
------------------------------------------
+   All notebooks use the **dataclass API** (v2.0) as the primary
+   approach. An INI-file alternative is shown at the end of each
+   notebook for reference.
 
-Medium-resolution K-band spectrum of the planetary-mass companion AB Pic b,
-fitted with BT-Settl using PyMultiNest.
+Tutorial 1 — Photometry: VHS 1256 b
+-------------------------------------
 
-.. toctree::
-   :maxdepth: 1
-
-   sinfoni/abpicb/end_to_end_abpicb.ipynb
-
-Photometric: VHS 1256 b
-------------------------
-
-Broadband photometry of VHS 1256 b, fitted with BT-Settl using Nestle.
+Multi-instrument broadband photometry fitted with BT-Settl using Nestle.
+Covers SVO filter retrieval, physical and analytical scaling.
 
 .. toctree::
    :maxdepth: 1
 
-   photo/vhs1256b/end_to_end_vhs1256b.ipynb
+   photo/vhs1256b/tutorial_photometry.ipynb
 
-Planned tutorials
------------------
+Tutorial 2 — Spectroscopy: AB Pic b
+--------------------------------------
 
-.. todo::
+VLT/SINFONI K-band medium-resolution spectrum fitted with BT-Settl.
+Covers resolution adaptation, wavelength windowing, and radial velocity.
 
-   The following tutorials are in preparation:
+.. toctree::
+   :maxdepth: 1
 
-   - **HCHR mode** — AF Lep b with VLT/HiRISE and Exo-REM cloudless
-     (parallelisation with PyMultiNest)
-   - **MOSAIC mode** — Beta Pic b combining spectroscopy and photometry
-   - **Advanced plotting** — modifying default plots, computing BIC, χ²_red,
-     molecular absorption, best-fit quantiles, interactive matplotlib views
-   - **Cluster deployment** — running ForMoSA on an HPC cluster using MPI
+   spectroscopy/abpicb/tutorial_spectroscopy.ipynb
+
+Tutorial 3 — HCHR mode: AF Lep b
+-----------------------------------
+
+VLT/HiRISE high-contrast high-resolution data fitted with Exo-REM.
+Covers the ``STAR_FLUX`` extension and high-contrast modeling.
+
+.. toctree::
+   :maxdepth: 1
+
+   hchr/aflep/tutorial_hchr.ipynb
+
+Tutorial 4 — MOSAIC mode: β Pic b
+------------------------------------
+
+Combining spectroscopy and photometry in a single simultaneous fit.
+Covers MOSAIC meta-likelihood and per-instrument intercalibration.
+
+.. toctree::
+   :maxdepth: 1
+
+   mosaic/betapicb/tutorial_mosaic.ipynb
+
+Tutorial 5 — Advanced plotting
+--------------------------------
+
+Customising every ForMoSA plot, computing χ²_red and BIC, and
+saving publication-quality figures. Runs without fitting anything —
+uses pre-computed results from Tutorial 2.
+
+.. toctree::
+   :maxdepth: 1
+
+   plotting/tutorial_advanced_plotting.ipynb
+
+Tutorial 6 — Cluster / MPI deployment
+----------------------------------------
+
+Running ForMoSA on an HPC cluster with PyMultiNest and MPI.
+Covers both ``nohup`` (single-node) and SLURM (multi-node) patterns.
+
+.. toctree::
+   :maxdepth: 1
+
+   cluster/tutorial_cluster.md
