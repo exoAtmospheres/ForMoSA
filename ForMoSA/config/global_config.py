@@ -376,8 +376,6 @@ class ConfigInversion:
         if len(self.hc_lower_bounds_lsq) != len(self.hc_higher_bounds_lsq):
             raise ForMoSAError('hc_lower_bounds_lsq and hc_higher_bounds_lsq must have same lengths')
 
-        self._hc_bounds = None
-
     # =======================
     # Properties
     # =======================
