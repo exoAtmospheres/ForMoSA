@@ -103,7 +103,7 @@ class SubGridSpectroscopy(SubGrid):
     @classmethod
     def from_parent(cls, parent_grid: ModelGrid, target_wavelength: np.ndarray, target_resolution: np.ndarray, remove_continuum: bool = False, wave_cont: np.ndarray | None = None, res_cont: float | None = None, name: str = 'unknown', logger: logging.Logger | None = None, log_level: str = 'INFO', display_unit: WavelengthUnit = WavelengthUnit.MICROMETER, backend: str = 'loky', n_jobs: int = -1) -> 'SubGridSpectroscopy':
         '''
-        Build spectroscopic subgrid from the parent grid, target_wavelength.
+        Build spectroscopic subgrid from the parent grid, target_wavelength and target resolution to reach. 
 
         Parameters
         ----------
@@ -135,7 +135,7 @@ class SubGridSpectroscopy(SubGrid):
 
         Examples
         --------
-        >>> subgrid = SubGridSpectroscopy.from_parent(parent_grid, target_wavelength, target_resolution remove_continuum, wave_cont, res_cont, name, logger, log_level, display_unit)
+        >>> subgrid = SubGridSpectroscopy.from_parent(parent_grid, target_wavelength, target_resolution, remove_continuum, wave_cont, res_cont, name, logger, log_level, display_unit)
 
         Notes
         -----
