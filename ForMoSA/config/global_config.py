@@ -2,10 +2,10 @@ import os
 import ast
 import logging
 import numpy as np
-from scipy.interpolate import interp1d
 from pathlib import Path
 from configobj import ConfigObj
 from typing import Any, List, Union
+from scipy.interpolate import interp1d
 from dataclasses import dataclass, field, asdict
 
 import ForMoSA.utils.misc as um
@@ -375,8 +375,6 @@ class ConfigInversion:
         # Check lower and higher hc bounds
         if len(self.hc_lower_bounds_lsq) != len(self.hc_higher_bounds_lsq):
             raise ForMoSAError('hc_lower_bounds_lsq and hc_higher_bounds_lsq must have same lengths')
-
-        self._hc_bounds = None
 
     # =======================
     # Properties
@@ -1477,7 +1475,7 @@ class ConfigGenerator:
         config = ConfigObj(indent_type='    ', list_values=True)
         for sec_name, sec_obj in self.config.items():
             config[sec_name] = {}
-            sec_dict = asdict(sec_obj)
+            sec_dict = sec_obj.__dict__
             for key, val in sec_dict.items():
                 config[sec_name][key] = val
                 if sec_name in self.comments and key in self.comments[sec_name]:
