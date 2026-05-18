@@ -46,7 +46,7 @@ Covers the ``STAR_FLUX`` extension and high-contrast modeling.
 
    hchr/aflep/tutorial_hchr.ipynb
 
-Tutorial 4 — MOSAIC mode: β Pic b
+Tutorial 4 — MOSAIC mode: HIP 65426 b
 ------------------------------------
 
 Combining spectroscopy and photometry in a single simultaneous fit.

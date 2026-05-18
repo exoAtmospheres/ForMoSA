@@ -155,8 +155,13 @@ def resolution_decreasing(wav_input: np.ndarray, flx_input: np.ndarray, res_inpu
         return np.array([])
 
     # Interpolation to common resolution
-    res_in_interp = interp1d(wav_input, res_input, kind='linear', bounds_error=False)
-    res_out_interp = interp1d(wav_output, res_output, kind='linear', bounds_error=False)
+    # Use edge fill values so that observation points just outside the (RV-trimmed) model
+    # range get the nearest edge resolution rather than NaN, which would propagate through
+    # fwhm_conv -> sigma_conv and crash convolve_and_sample.
+    res_in_interp = interp1d(wav_input, res_input, kind='linear', bounds_error=False,
+                             fill_value=(res_input[0], res_input[-1]))
+    res_out_interp = interp1d(wav_output, res_output, kind='linear', bounds_error=False,
+                              fill_value=(res_output[0], res_output[-1]))
     res_in = res_in_interp(wav_output)
     res_out = res_out_interp(wav_output)
 
