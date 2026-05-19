@@ -318,6 +318,7 @@ def vsini_fct(wav_mod_spectro, flx_mod_spectro, res_mod_obs_spectro, ld_picked, 
         # Because of the v.sini correction, the resolution of the model has been downgraded, so we update it 
         if vsini_picked != 0:
             res_mod_obs_spectro_broad = const.c.to('km/s').value / vsini_picked * np.ones(len(res_mod_obs_spectro))
+            res_mod_obs_spectro_broad = np.min([res_mod_obs_spectro_broad, res_mod_obs_spectro], axis=0) # Making sure we don't artificially add information
     else:
         flx_mod_spectro_broad, res_mod_obs_spectro_broad = flx_mod_spectro, res_mod_obs_spectro
         
