@@ -40,8 +40,8 @@
             "ReactiveNS": {
                 "wrapped_params": null,
                 "vectorized": false,
-                "resume": true,
-                "run_num": null,
+                "resume": "True",
+                "run_num": "None",
                 "num_bootstraps": 30,
                 "storage_backend": "hdf5",
                 "warmstart_max_tau": -1
@@ -108,7 +108,7 @@
             "prior": {
                 "prior_type": "constant",
                 "params": {
-                    "value": 22.1
+                    "value": 21.15
                 }
             },
             "kind": "d",
