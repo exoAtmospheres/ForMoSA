@@ -33,6 +33,46 @@ Features
 - **Flexible configuration** — Python dataclasses or INI files; both load into the same objects.
 
 
+Why ForMoSA?
+-----------
+
+.. list-table::
+   :widths: 5 95
+   :header-rows: 0
+
+   * - 🔭
+     - **One tool, every instrument.** From low-resolution photometry to
+       high-resolution cross-correlation spectroscopy (GRAVITY, HiRISE, JWST NIRSpec),
+       ForMoSA handles them all in a single fit via its MOSAIC multi-instrument mode.
+
+   * - 🪐
+     - **Forward modeling on self-consistent grids.** Rather than parameterising
+       spectra on the fly, ForMoSA interpolates pre-computed, physically motivated
+       atmospheric model grids (BT-Settl, Sonora, ATMO, ExoREM, …). This anchors
+       retrieved parameters to established theory.
+
+   * - 📐
+     - **Proper Bayesian uncertainties, not best-fit guesses.** Nested sampling
+       (PyMultiNest, UltraNest, nestle) delivers joint posteriors and log-evidence
+       for rigorous model comparison — not just a χ² minimum.
+
+   * - ⚡
+     - **Fast to set up, fast to run.** Grid adaptation is parallelised out of
+       the box (joblib / Dask / Ray). A typical fit on a laptop takes minutes to hours,
+       not days. Cluster scaling via MPI is supported through PyMultiNest.
+
+   * - 🔬
+     - **High-contrast ready.** Native support for the HCHR (High-Contrast
+       High-Resolution) regime: stellar speckle templates, telluric transmission
+       weighting, and systematic component decorrelation are first-class features.
+
+   * - 🛠
+     - **Hackable and extensible.** Every stage — observation loading, grid
+       adaptation, likelihood evaluation, plotting — is a clean Python class.
+       Custom likelihoods, new parameters, and novel grid formats can be plugged
+       in without touching core code.
+
+
 Statement of Need
 -----------------
 

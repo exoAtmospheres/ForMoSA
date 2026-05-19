@@ -189,6 +189,100 @@ its observation index: `rv_0`, `rv_1`, `alpha_2`, etc. Global parameters
   `"CCF_Brogi"`, `"CCF_custom"`.
   One value per observation in MOSAIC mode (or broadcast).
 
+#### Log-likelihood equations and when to use each
+
+Let $\Delta f_i = f_i^{\rm obs} - f_i^{\rm mod}$ be the residual at wavelength point $i$,
+$\sigma_i$ the 1-σ uncertainty, $\mathbf{C}$ the covariance matrix, and $N$ the number of data points.
+
+---
+
+**`chi2`** — standard χ²
+
+$$\ln\mathcal{L} = -\frac{1}{2} \sum_{i=1}^{N} \left(\frac{\Delta f_i}{\sigma_i}\right)^2$$
+
+Assumes Gaussian, spectrally **uncorrelated** noise with well-calibrated uncertainties.
+**Use when:** your error bars are reliable and the noise is pixel-independent
+(e.g. photon-noise dominated spectra where the pipeline correctly propagates errors).
+
+---
+
+**`chi2_covariance`** — generalised χ² with a covariance matrix
+
+$$\ln\mathcal{L} = -\frac{1}{2}\, \boldsymbol{\Delta f}^{\!\top} \mathbf{C}^{-1} \boldsymbol{\Delta f}$$
+
+Accounts for correlated noise between wavelength channels (e.g. from spline-based
+continuum removal, interpolation, or detector persistence).
+**Use when:** you have a full covariance matrix in the `COVARIANCE` FITS extension.
+Computationally more expensive than `chi2`.
+
+---
+
+**`chi2_noisescaling`** — χ² with marginalised noise-scaling
+
+$$\ln\mathcal{L} = -\frac{N}{2} \ln\!\left(\frac{1}{N}\sum_{i=1}^{N}\left(\frac{\Delta f_i}{\sigma_i}\right)^2\right)$$
+
+Marginalises analytically over a global noise-scaling factor $s$ (i.e. assumes the
+true noise is $s \cdot \sigma_i$ for some unknown $s$). This makes the likelihood
+robust to a systematic over- or under-estimation of the error bars.
+**Use when:** you distrust the absolute scale of your uncertainties but believe
+their relative values (shape) are correct. Recommended default for medium-resolution
+ground-based spectra where sky-subtraction residuals inflate errors unevenly.
+
+---
+
+**`chi2_noisescaling_covariance`** — generalised χ² with marginalised noise-scaling
+
+$$\ln\mathcal{L} = -\frac{N}{2} \ln\!\left(\frac{1}{N}\, \boldsymbol{\Delta f}^{\!\top} \mathbf{C}^{-1} \boldsymbol{\Delta f}\right)$$
+
+Combines the covariance matrix and noise-scaling marginalisation.
+**Use when:** you have correlated noise *and* uncertain absolute error scaling.
+
+---
+
+**`CCF_Brogi`** — cross-correlation log-likelihood (Brogi & Line 2019)
+
+$$\ln\mathcal{L} = -\frac{N}{2} \ln\!\left(\langle f^2\rangle - 2\langle f \cdot g\rangle + \langle g^2\rangle\right)$$
+
+where $f$ and $g$ are the mean-subtracted observed and model spectra,
+and $\langle \cdot \rangle$ denotes the mean over wavelength points.
+**Use when:** the absolute flux level is unknown or poorly calibrated
+(e.g. high-contrast residual spectra after speckle subtraction). The CCF-based
+likelihood is insensitive to multiplicative continuum offsets.
+
+---
+
+**`CCF_Zucker`** — cross-correlation log-likelihood (Zucker 2003)
+
+$$\ln\mathcal{L} = -\frac{N}{2} \ln\!\left(1 - \frac{\langle f g\rangle^2}{\langle f^2\rangle \langle g^2\rangle}\right)$$
+
+Related to `CCF_Brogi` but normalised by the individual variances, making it
+equivalent to the Pearson correlation coefficient.
+**Use when:** similar to `CCF_Brogi`. Tends to be slightly more conservative
+(flatter posterior) near the peak. Prefer `CCF_Brogi` in most cases.
+
+---
+
+**`CCF_custom`** — noise-weighted cross-correlation
+
+$$\ln\mathcal{L} = -\frac{N}{2\sigma^2_w}\left(\langle f^2\rangle + \langle g^2\rangle - 2\langle fg\rangle\right)$$
+
+where $\sigma^2_w = \left(\frac{1}{N}\sum_i \sigma_i^{-2}\right)^{-1}$ is the
+harmonic-mean noise variance.
+**Use when:** you have per-pixel uncertainties *and* want a CCF-style likelihood
+that down-weights noisy channels. Bridges `chi2_noisescaling` and `CCF_Brogi`.
+
+---
+
+```{tip}
+**Quick decision guide:**
+
+- Well-calibrated errors, no correlated noise → `chi2`
+- Uncertain absolute error scale → `chi2_noisescaling` *(recommended default for most ground-based spectra)*
+- Known correlated noise (covariance matrix available) → `chi2_covariance`
+- Continuum-subtracted or speckle-dominated spectra (HCHR) → `CCF_Brogi`
+- MOSAIC with mixed instruments → mix logL types, e.g. `["chi2_noisescaling", "CCF_Brogi"]`
+```
+
 **`wav_fit`** *(list, default `["0.9, 5.0"]`)*
 : Wavelength range (µm) used for the likelihood evaluation. Syntax:
   `["min, max"]`. Points outside this range are masked.
@@ -235,11 +329,28 @@ Set to `["NA"]` to disable.
 : Linear limb-darkening coefficient applied to the model before scaling.
   Spectroscopic mode only.
 
+**`av`** — dust extinction (magnitudes)
+: ISM-like dust extinction applied to the model spectrum using the Cardelli (1989)
+  extinction law with R_V = 3.1. The value is in V-band magnitudes (A_V).
+  Useful when the companion is seen through significant foreground or circumstellar dust.
+  Prior example: `["uniform", "0", "10"]`.
+
+  ![Extinction applied to model spectrum](../_static/av.png "dust_extinction")
+
 **`alpha`** — analytical scaling factor
 : Multiplies the model flux by a constant: `flux_obs = flux_model × α`.
   Use instead of `r`+`d` when you do not want to constrain the radius.
   See [Analytical vs Physical Scaling](../scaling/analytical_vs_physical.md).
 
-**`bb_T`** — blackbody temperature (K)
-: Adds a blackbody component at temperature `bb_T` to the model spectrum.
-  Useful when modelling circumplanetary disk contributions or thermal excess.
+**`bb_T`** — blackbody component temperature (K)
+: Adds a Planck blackbody spectrum at temperature `bb_T` scaled by radius `bb_R`
+  to the model spectrum. Useful when modelling a circumplanetary disk contribution,
+  a thermal excess from a hot inner disk, or a secondary stellar component.
+  Must be used together with `bb_R`. Prior example: `["uniform", "500", "3000"]`.
+
+**`bb_R`** — blackbody component radius (R_Jup)
+: Effective radius of the blackbody component added by `bb_T`. Scales the
+  blackbody flux so that `bb_flux = Planck(bb_T) × (bb_R / d)²`.
+  Prior example: `["uniform", "0.1", "5.0"]`.
+
+  ![Blackbody component added to model spectrum](../_static/bb.png "blackbody_component")

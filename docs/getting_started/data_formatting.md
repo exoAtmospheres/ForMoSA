@@ -7,21 +7,29 @@ how to verify your file before running an analysis.
 
 ## Required extensions
 
-| Extension | Description | Spectroscopic | Photometric | HCHR |
-|-----------|-------------|:---:|:---:|:---:|
-| `WAV` | Wavelength array | Yes | Yes | Yes |
-| `WAVE_UNIT` | Wavelength unit string (e.g. `"µm"`) | Yes | Yes | Yes |
-| `FLX` | Flux array | Yes | Yes | Yes |
-| `ERR` | 1-D flux uncertainty (use instead of `COV`) | Yes | Yes | Yes |
-| `COV` | Full covariance matrix — shape `(N, N)` — alternative to `ERR` | Yes | No | Yes |
-| `RES` | Spectral resolution λ/Δλ per wavelength point | Yes | No | Yes |
-| `FAC` | Observatory identifier, must match [SVO](https://svo2.cab.inta-csic.es/theory/fps/) | No | Yes | No |
-| `INS` | Instrument identifier, must match [SVO](https://svo2.cab.inta-csic.es/theory/fps/) | No | Yes | No |
-| `FILT` | Filter identifier, must match [SVO](https://svo2.cab.inta-csic.es/theory/fps/) | No | Yes | No |
-| `STAR_FLUX` | Stellar speckle reference spectrum (high-contrast mode only) | No | No | Yes |
+The canonical name is what ForMoSA stores internally. Any alias in the **Accepted aliases** column
+is equally valid when writing your FITS file — ForMoSA resolves them automatically.
+`WAVELENGTH_UNIT` defaults to `"um"` (microns) if omitted.
+
+| Canonical name | Accepted aliases | Description | Spectroscopic | Photometric | HCHR |
+|----------------|-----------------|-------------|:---:|:---:|:---:|
+| `WAVELENGTH` | `WAVE`, `WAV`, `LAMBDA` | Wavelength array | Required | Required | Required |
+| `WAVELENGTH_UNIT` | `WAVE_UNIT`, `UNIT` | Wavelength unit string — one value repeated `N` times, e.g. `"um"`, `"nm"`, `"AA"`. Defaults to `"um"` if absent. | Optional | Optional | Optional |
+| `FLUX` | `FLX` | Flux array | Required | Required | Required |
+| `ERROR` | `ERR`, `SIGMA` | 1-σ flux uncertainty per point (use instead of `COVARIANCE`) | Required* | Required | Required* |
+| `COVARIANCE` | `COV` | Full covariance matrix — shape `(N, N)` — alternative to `ERROR` | Required* | — | Required* |
+| `RESOLUTION` | `RES` | Spectral resolution λ/Δλ per wavelength point | Required | — | Required |
+| `FACILITY` | `FAC`, `Facility` | Observatory identifier, must match [SVO](https://svo2.cab.inta-csic.es/theory/fps/) | — | Required | — |
+| `INSTRUMENT` | `INS` | Instrument identifier, must match [SVO](https://svo2.cab.inta-csic.es/theory/fps/) | — | Required | — |
+| `FILTER_ID` | `FILT`, `FILTER`, `FILT_ID` | Filter identifier, must match [SVO](https://svo2.cab.inta-csic.es/theory/fps/) | — | Required | — |
+| `STAR_FLUX` | `STAR_FLX` | Stellar speckle reference spectrum | — | — | Required |
+| `TRANSMISSION` | `TRANSM` | Telluric or instrumental transmission spectrum applied to the model before comparison | Optional | — | Optional |
+| `SYSTEMATICS` | `SYS` | One or more systematic noise components (shape `(N, M)` for `M` components) used for linear decorrelation in HCHR mode | — | — | Optional |
+
+\* `ERROR` or `COVARIANCE` — one of the two is required for spectroscopic observations; `COVARIANCE` is not supported for photometry.
 
 ```{important}
-For photometric observations, `FAC`, `INS`, and `FILT` must be consistent with
+For photometric observations, `FACILITY`, `INSTRUMENT`, and `FILTER_ID` must be consistent with
 the [SVO Filter Profile Service](https://svo2.cab.inta-csic.es/theory/fps/)
 naming convention. ForMoSA uses these strings to automatically download and
 cache the filter transmission curve.
@@ -39,15 +47,16 @@ flx  = np.random.normal(1.0, 0.05, 500)
 err  = np.full(500, 0.05)
 res  = np.full(500, 4000.0)            # R ~ 4000
 
+unit = np.full(500, "um", dtype="U10")   # one string per wavelength point
+
 hdul = fits.HDUList([
     fits.PrimaryHDU(),
-    fits.ImageHDU(wav,  name="WAV"),
-    fits.ImageHDU(flx,  name="FLX"),
-    fits.ImageHDU(err,  name="ERR"),
-    fits.ImageHDU(res,  name="RES"),
+    fits.ImageHDU(wav,  name="WAVELENGTH"),
+    fits.ImageHDU(unit, name="WAVELENGTH_UNIT"),
+    fits.ImageHDU(flx,  name="FLUX"),
+    fits.ImageHDU(err,  name="ERROR"),
+    fits.ImageHDU(res,  name="RESOLUTION"),
 ])
-# WAVE_UNIT stored as a header keyword on the WAV extension
-hdul["WAV"].header["BUNIT"] = "µm"
 
 hdul.writeto("my_observation.fits", overwrite=True)
 ```
@@ -60,10 +69,10 @@ import matplotlib.pyplot as plt
 from astropy.io import fits
 
 with fits.open("my_observation.fits") as hdul:
-    hdul.info()          # prints all extensions and their shapes
-    wav = hdul["WAV"].data
-    flx = hdul["FLX"].data
-    err = hdul["ERR"].data
+    hdul.info()                    # prints all extensions and their shapes
+    wav = hdul["WAVELENGTH"].data
+    flx = hdul["FLUX"].data
+    err = hdul["ERROR"].data
 
 plt.figure(figsize=(10, 4))
 plt.plot(wav, flx, label="flux")
