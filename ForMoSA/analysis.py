@@ -256,7 +256,7 @@ class Analysis(object):
                     elif obs.ObsType == ObservationType.PHOTOMETRIC.obstype:
                         Filter_list = []
                         for facility, instrument, filter_id in zip(obs.facility, obs.instrument, obs.filter_id):
-                            Filter_list.append(PhotometryFilter(facility, instrument, filter_id))
+                            Filter_list.append(PhotometryFilter(facility, instrument, filter_id, logger=self.logger))
                         subgrid = SubGridPhotometry.from_parent(parent_grid = self.grid, Filter = Filter_list, name = obs.name, logger = self.logger, backend=config_adapt.backend, n_jobs=config_adapt.n_jobs)
                     # Unknown type
                     else:
@@ -342,7 +342,8 @@ class Analysis(object):
                 parameters=self.parameters,
                 wave_fit=config_inversion.wav_fit,
                 interp_method=config_adapt.method,
-                bounds_lsq=config_inversion.hc_bounds
+                bounds_lsq=config_inversion.hc_bounds,
+                logger=self.logger
                 )
 
             # Launch NestedSampling

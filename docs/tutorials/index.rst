@@ -44,9 +44,9 @@ Covers the ``STAR_FLUX`` extension and high-contrast modeling.
 .. toctree::
    :maxdepth: 1
 
-   hchr/aflep/tutorial_hchr.ipynb
+   hchr/aflepb/tutorial_hchr.ipynb
 
-Tutorial 4 — MOSAIC mode: HIP 65426 b
+Tutorial 4 — MOSAIC mode: HIP 64892 b
 ------------------------------------
 
 Combining spectroscopy and photometry in a single simultaneous fit.
@@ -55,7 +55,7 @@ Covers MOSAIC meta-likelihood and per-instrument intercalibration.
 .. toctree::
    :maxdepth: 1
 
-   mosaic/betapicb/tutorial_mosaic.ipynb
+   mosaic/hip64892b/tutorial_mosaic.ipynb
 
 Tutorial 5 — Advanced plotting
 --------------------------------
@@ -67,7 +67,18 @@ uses pre-computed results from Tutorial 2.
 .. toctree::
    :maxdepth: 1
 
-   plotting/tutorial_advanced_plotting.ipynb
+   plotting/tutorial_advanced_plotting_custom.ipynb
+
+Tutorial 7 — Statistical tests
+---------------------------------
+
+Model comparison and goodness-of-fit statistics: χ²_red, BIC, and
+Bayes factors. Uses pre-computed results and requires no new fits.
+
+.. toctree::
+   :maxdepth: 1
+
+   plotting/tutorial_statistical_tests.ipynb
 
 Tutorial 6 — Cluster / MPI deployment
 ----------------------------------------
