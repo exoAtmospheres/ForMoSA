@@ -458,6 +458,7 @@ class ConfigParameters:
     d: list[str] = field(default_factory=lambda: ["NA"])
     alpha: list[str] = field(default_factory=lambda: ["NA"])
     bb_T: list[str] = field(default_factory=lambda: ["NA"])
+    bb_R: list[str] = field(default_factory=lambda: ["NA"])
     rv: list[str] = field(default_factory=lambda: ["NA"])
     vsini: list[str] = field(default_factory=lambda: ["NA"])
     ld: list[str] = field(default_factory=lambda: ["NA"])
