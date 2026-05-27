@@ -103,5 +103,5 @@ ENV/
 CLAUME.md
 .claude/
 .code-review-graph/
-./docs/superpowers/
+docs/superpowers/
 .superpowers/
