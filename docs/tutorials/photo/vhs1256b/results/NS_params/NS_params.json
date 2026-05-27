@@ -1,5 +1,5 @@
 {
-    "algorithm": "nestle",
+    "algorithm": "pymultinest",
     "npoints": 100,
     "logLtype": [
         "chi2"
@@ -63,8 +63,8 @@
             "prior": {
                 "prior_type": "uniform",
                 "params": {
-                    "lower": 1200.0,
-                    "upper": 2800.0
+                    "lower": 400.0,
+                    "upper": 2000.0
                 }
             },
             "kind": "grid",
@@ -78,8 +78,8 @@
             "prior": {
                 "prior_type": "uniform",
                 "params": {
-                    "lower": 2.5,
-                    "upper": 5.5
+                    "lower": 3.0,
+                    "upper": 5.0
                 }
             },
             "kind": "grid",
@@ -88,33 +88,34 @@
             "title": "log(g)",
             "vsini_function": null
         },
-        "r": {
-            "name": "r",
+        "par3": {
+            "name": "par3",
             "prior": {
                 "prior_type": "uniform",
                 "params": {
-                    "lower": 0.5,
-                    "upper": 2.0
+                    "lower": -0.5,
+                    "upper": 1.0
                 }
             },
-            "kind": "r",
+            "kind": "grid",
             "scope": "global",
             "obs_index": null,
-            "title": "r",
+            "title": "[M/H]",
             "vsini_function": null
         },
-        "d": {
-            "name": "d",
+        "par4": {
+            "name": "par4",
             "prior": {
-                "prior_type": "constant",
+                "prior_type": "uniform",
                 "params": {
-                    "value": 21.15
+                    "lower": 0.1,
+                    "upper": 0.8
                 }
             },
-            "kind": "d",
+            "kind": "grid",
             "scope": "global",
             "obs_index": null,
-            "title": "d",
+            "title": "C/O",
             "vsini_function": null
         }
     },
