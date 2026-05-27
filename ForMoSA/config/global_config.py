@@ -85,7 +85,7 @@ class ConfigAdapt:
     wav_cont: list[Union[str, float]] = field(default_factory=lambda: ["NA"])
     res_cont: list[Union[str, float]] = field(default_factory=lambda: ["NA"])
     backend: str = "loky"
-    n_jobs: int = -1
+    n_jobs: int = 4
 
     def __post_init__(self) -> None:
         '''

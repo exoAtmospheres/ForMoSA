@@ -219,7 +219,8 @@ Computationally more expensive than `chi2`.
 
 **`chi2_noisescaling`** — χ² with marginalised noise-scaling
 
-$$\ln\mathcal{L} = -\frac{N}{2} \ln\!\left(\frac{1}{N}\sum_{i=1}^{N}\left(\frac{\Delta f_i}{\sigma_i}\right)^2\right)$$
+.. math::
+  $$\ln\mathcal{L} = -\frac{N}{2} \ln\!\left(\frac{1}{N}\sum_{i=1}^{N}\left(\frac{\Delta f_i}{\sigma_i}\right)^2\right)$$
 
 Marginalises analytically over a global noise-scaling factor $s$ (i.e. assumes the
 true noise is $s \cdot \sigma_i$ for some unknown $s$). This makes the likelihood
@@ -232,7 +233,8 @@ ground-based spectra where sky-subtraction residuals inflate errors unevenly.
 
 **`chi2_noisescaling_covariance`** — generalised χ² with marginalised noise-scaling
 
-$$\ln\mathcal{L} = -\frac{N}{2} \ln\!\left(\frac{1}{N}\, \boldsymbol{\Delta f}^{\!\top} \mathbf{C}^{-1} \boldsymbol{\Delta f}\right)$$
+.. math::
+  $$\ln\mathcal{L} = -\frac{N}{2} \ln\!\left(\frac{1}{N}\, \boldsymbol{\Delta f}^{\!\top} \mathbf{C}^{-1} \boldsymbol{\Delta f}\right)$$
 
 Combines the covariance matrix and noise-scaling marginalisation.
 **Use when:** you have correlated noise *and* uncertain absolute error scaling.
@@ -241,7 +243,8 @@ Combines the covariance matrix and noise-scaling marginalisation.
 
 **`CCF_Brogi`** — cross-correlation log-likelihood (Brogi & Line 2019)
 
-$$\ln\mathcal{L} = -\frac{N}{2} \ln\!\left(\langle f^2\rangle - 2\langle f \cdot g\rangle + \langle g^2\rangle\right)$$
+.. math::
+  $$\ln\mathcal{L} = -\frac{N}{2} \ln\!\left(\langle f^2\rangle - 2\langle f \cdot g\rangle + \langle g^2\rangle\right)$$
 
 where $f$ and $g$ are the mean-subtracted observed and model spectra,
 and $\langle \cdot \rangle$ denotes the mean over wavelength points.
@@ -252,8 +255,8 @@ likelihood is insensitive to multiplicative continuum offsets.
 ---
 
 **`CCF_Zucker`** — cross-correlation log-likelihood (Zucker 2003)
-
-$$\ln\mathcal{L} = -\frac{N}{2} \ln\!\left(1 - \frac{\langle f g\rangle^2}{\langle f^2\rangle \langle g^2\rangle}\right)$$
+.. math::
+  $$\ln\mathcal{L} = -\frac{N}{2} \ln\!\left(1 - \frac{\langle f g\rangle^2}{\langle f^2\rangle \langle g^2\rangle}\right)$$
 
 Related to `CCF_Brogi` but normalised by the individual variances, making it
 equivalent to the Pearson correlation coefficient.
@@ -263,8 +266,8 @@ equivalent to the Pearson correlation coefficient.
 ---
 
 **`CCF_custom`** — noise-weighted cross-correlation
-
-$$\ln\mathcal{L} = -\frac{N}{2\sigma^2_w}\left(\langle f^2\rangle + \langle g^2\rangle - 2\langle fg\rangle\right)$$
+.. math::
+  $$\ln\mathcal{L} = -\frac{N}{2\sigma^2_w}\left(\langle f^2\rangle + \langle g^2\rangle - 2\langle fg\rangle\right)$$
 
 where $\sigma^2_w = \left(\frac{1}{N}\sum_i \sigma_i^{-2}\right)^{-1}$ is the
 harmonic-mean noise variance.

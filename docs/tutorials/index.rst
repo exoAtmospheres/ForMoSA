@@ -16,7 +16,7 @@ downloads them automatically if they are missing.
 Tutorial 1 — Photometry: VHS 1256 b
 -------------------------------------
 
-Multi-instrument broadband photometry fitted with BT-Settl using Nestle.
+Multi-instrument broadband photometry fitted with ExoREM using Nestle.
 Covers SVO filter retrieval, physical and analytical scaling.
 
 .. toctree::
@@ -27,7 +27,7 @@ Covers SVO filter retrieval, physical and analytical scaling.
 Tutorial 2 — Spectroscopy: AB Pic b
 --------------------------------------
 
-VLT/SINFONI K-band medium-resolution spectrum fitted with BT-Settl.
+VLT/SINFONI K-band medium-resolution spectrum fitted with BT-Settl using PyMultiNest.
 Covers resolution adaptation, wavelength windowing, and radial velocity.
 
 .. toctree::
@@ -35,29 +35,30 @@ Covers resolution adaptation, wavelength windowing, and radial velocity.
 
    spectroscopy/abpicb/tutorial_spectroscopy.ipynb
 
-Tutorial 3 — HCHR mode: AF Lep b
------------------------------------
+.. Tutorial 3 — HCHR mode: AF Lep b
+.. -----------------------------------
 
-VLT/HiRISE high-contrast high-resolution data fitted with Exo-REM.
-Covers the ``STAR_FLUX`` extension and high-contrast modeling.
+.. VLT/HiRISE high-contrast high-resolution data fitted with Exo-REM.
+.. Covers the ``STAR_FLUX`` extension and high-contrast modeling.
 
-.. toctree::
-   :maxdepth: 1
+.. 
+   .. toctree::
+..    :maxdepth: 1
 
-   hchr/aflepb/tutorial_hchr.ipynb
+..    hchr/aflepb/tutorial_hchr.ipynb
 
-Tutorial 4 — MOSAIC mode: HIP 64892 b
-------------------------------------
+.. Tutorial 4 — MOSAIC mode: HIP 64892 b
+.. ------------------------------------
 
-Combining spectroscopy and photometry in a single simultaneous fit.
-Covers MOSAIC meta-likelihood and per-instrument intercalibration.
+.. Combining spectroscopy and photometry in a single simultaneous fit.
+.. Covers MOSAIC meta-likelihood and per-instrument intercalibration.
+..
+   .. toctree::
+..    :maxdepth: 1
 
-.. toctree::
-   :maxdepth: 1
+..    mosaic/hip64892b/tutorial_mosaic.ipynb
 
-   mosaic/hip64892b/tutorial_mosaic.ipynb
-
-Tutorial 5 — Advanced plotting
+Tutorial 3 — Advanced plotting
 --------------------------------
 
 Customising every ForMoSA plot, computing χ²_red and BIC, and
@@ -69,7 +70,7 @@ uses pre-computed results from Tutorial 2.
 
    plotting/tutorial_advanced_plotting_custom.ipynb
 
-Tutorial 7 — Statistical tests
+Tutorial 4 — Statistical tests
 ---------------------------------
 
 Model comparison and goodness-of-fit statistics: χ²_red, BIC, and
@@ -80,11 +81,11 @@ Bayes factors. Uses pre-computed results and requires no new fits.
 
    plotting/tutorial_statistical_tests.ipynb
 
-Tutorial 6 — Cluster / MPI deployment
+Tutorial 5 — Cluster / MPI deployment
 ----------------------------------------
 
 Running ForMoSA on an HPC cluster with PyMultiNest and MPI.
-Covers both ``nohup`` (single-node) and SLURM (multi-node) patterns.
+Covers ``nohup`` pattern.
 
 .. toctree::
    :maxdepth: 1
