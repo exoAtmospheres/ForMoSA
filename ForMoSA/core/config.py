@@ -348,8 +348,9 @@ class RadarPlotConfig:
 
     fontsize_names: int = 11
 
-    fontisze_ticks: int = 11
+    fontsize_ticks: int = 11
     color_ticks: str = '#24292E'
+    show_ticks: bool = False
 
     alpha_fill: float = 0.35
     quantiles: tuple[float, float] = (0.16, 0.84)

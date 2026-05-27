@@ -7,6 +7,12 @@ import matplotlib.gridspec as gridspec
 from matplotlib.axes._axes import Axes
 import matplotlib.patheffects as path_effects
 from matplotlib.ticker import AutoMinorLocator
+from matplotlib.patches import RegularPolygon
+from matplotlib.path import Path as MplPath
+from matplotlib.projections import register_projection
+from matplotlib.projections.polar import PolarAxes
+from matplotlib.spines import Spine
+from matplotlib.transforms import Affine2D
 
 from ForMoSA.core.config import PLOTS_CONFIG, MAIN_PLOT
 from ForMoSA.core.errors import ForMoSAError
@@ -15,6 +21,57 @@ from ForMoSA.transform.observed import ObservedModel
 from ForMoSA.nested_sampling.results import NSResults
 from ForMoSA.observation.observation_set import ObservationSet
 
+# Cache so we don't re-register the projection on every plot call
+_REGISTERED_RADARS: set[int] = set()
+
+
+def _radar_polygon_factory(num_vars: int) -> tuple[np.ndarray, str]:
+    """
+    Register (once) a polygon-frame radar projection for `num_vars` spokes.
+
+    Authors: Bhavesh Rajpoot (Adapted from matplotlib's radar chart gallery example:
+    https://matplotlib.org/stable/gallery/specialty_plots/radar_chart.html)
+    """
+    name  = f'_formosa_radar_{num_vars}'
+    theta = np.linspace(0.0, 2.0 * np.pi, num_vars, endpoint=False)
+
+    if num_vars in _REGISTERED_RADARS:
+        return theta, name
+    class RadarTransform(PolarAxes.PolarTransform):
+        def transform_path_non_affine(self, path):
+            if path._interpolation_steps > 1:
+                path = path.interpolated(num_vars)
+            return MplPath(self.transform(path.vertices), path.codes)
+    class RadarAxes(PolarAxes):
+        PolarTransform = RadarTransform
+
+        def __init__(self, *args, **kwargs):
+            super().__init__(*args, **kwargs)
+            self.set_theta_zero_location('N')   # first axis at top
+
+        def fill(self, *args, closed=True, **kwargs):
+            return super().fill(closed=closed, *args, **kwargs)
+
+        def plot(self, *args, **kwargs):
+            lines = super().plot(*args, **kwargs)
+            for line in lines:
+                x, y = line.get_data()
+                if x[0] != x[-1]:
+                    line.set_data(np.append(x, x[0]), np.append(y, y[0]))
+
+        def _gen_axes_patch(self):
+            return RegularPolygon((0.5, 0.5), num_vars, radius=0.5, edgecolor='none')
+
+        def _gen_axes_spines(self):
+            spine = Spine(axes=self, spine_type='circle',
+                          path=MplPath.unit_regular_polygon(num_vars))
+            spine.set_transform(Affine2D().scale(0.5).translate(0.5, 0.5) + self.transAxes)
+            return {'polar': spine}
+
+    RadarAxes.name = name
+    register_projection(RadarAxes)
+    _REGISTERED_RADARS.add(num_vars)
+    return theta, name
 
 class Plotting(object):
     '''
@@ -161,172 +218,156 @@ class Plotting(object):
 
     def plot_radars(self) -> tuple[Figure, Axes]:
         '''
-        Radar plot the samples.
+        Plot spider plot of the samples results.
 
         Parameters
         ----------
-        config : RadarPlotConfig
-            Instance of class RadarPlotConfig
-
 
         Returns
         -------
         tuple[matplotlib.figure.Figure, matplotlib.axes._axes.Axes]
-            Tuple containing Figure and Ax objects
 
         Notes
         -----
-        Authors: Paulina Palma-Bifani, Matthieu Ravet and Allan Denis
+        Authors: Bhavesh Rajpoot (adapted from Paulina Palma-Bifani, Matthieu Ravet, Allan Denis)
         '''
 
-        self._logger.info('    Plotting radar plot of the chains')
+        self._logger.info('    Plotting spider plot of the chains')
 
-        samples, weights = self.ns_results.samples[self.ns_results.burn_in:], self.ns_results.weights[self.ns_results.burn_in:]
+        samples = self.ns_results.samples[self.ns_results.burn_in:]
+        weights = self.ns_results.weights[self.ns_results.burn_in:]
+        params  = self.ns_results.free_parameters
+        N       = len(params)
 
-        samples = self.ns_results.samples
-
-        # Get config for radar plot
         config = PLOTS_CONFIG.RadarPlot
 
-        # Compute quantiles for each parameter
-        q_low, q_med, q_high = [], [], []
+        # Step-size registry for known parameters 
+        _STEPS: dict[str, float] = {
+            'rv':      5.0,    # km/s
+            'vsini':   10.0,   # km/s
+            'd':       1.0,    # pc
+            'r':       1.0,    # Rjup
+            'teff':    100.0,  # K
+            'logg':    0.5,    # dex
+            'feh':     0.5,
+            '[m/h]':   0.5,
+            'co':      0.1,
+        }
+
+        def _nice(dr: float) -> float:
+            if dr <= 0.0:
+                return 1.0
+            raw = dr / 5.0
+            mag = 10.0 ** np.floor(np.log10(abs(raw)))
+            r   = raw / mag
+            if   r < 1.5: return 1.0 * mag
+            elif r < 3.5: return 2.0 * mag
+            elif r < 7.5: return 5.0 * mag
+            else:         return 10.0 * mag
+
+        def _step(name: str, dr: float) -> float:
+            return _STEPS.get(name.lower().strip(), _nice(dr))
+
+        def _snap(lo: float, hi: float, s: float) -> tuple[float, float]:
+            return np.floor(lo / s) * s, np.ceil(hi / s) * s
+
+        def _norm(v: float, lo: float, hi: float) -> float:
+            return (v - lo) / (hi - lo) if hi != lo else 0.0
+
+        def _fmt(v: float) -> str:
+            if   abs(v) >= 1000: return f'{v:.0f}'
+            elif abs(v) >= 10:   return f'{v:.1f}'
+            else:                return f'{v:.2f}'
+
+        # Weighted quantiles 
+        q_lo, q_med, q_hi = [], [], []
         for i in range(samples.shape[1]):
-            q_low.append(self.ns_results._weighted_quantile(samples[:,i], weights, config.quantiles[0]))
-            q_med.append(self.ns_results._weighted_quantile(samples[:,i], weights, 0.5))
-            q_high.append(self.ns_results._weighted_quantile(samples[:,i], weights, config.quantiles[1]))
+            q_lo.append( self.ns_results._weighted_quantile(samples[:, i], weights, config.quantiles[0]))
+            q_med.append(self.ns_results._weighted_quantile(samples[:, i], weights, 0.5))
+            q_hi.append( self.ns_results._weighted_quantile(samples[:, i], weights, config.quantiles[1]))
+        q_lo, q_med, q_hi = np.asarray(q_lo), np.asarray(q_med), np.asarray(q_hi)
 
-        q_low = np.array(q_low)
-        q_med = np.array(q_med)
-        q_high = np.array(q_high)
+        # Per-axis snapped bounds: based on CI width, not sample range 
+        # This is the key change that removes the large empty space around
+        # tight posteriors.  K_MARGIN = 3 puts the median at ~50% radius and
+        # the 1-sigma band at ~33% to ~66% radius before snapping.
+        K_MARGIN = 3.0
+        ax_lo, ax_hi, step_sizes = [], [], []
+        for i, p in enumerate(params):
+            width = q_hi[i] - q_lo[i]
+            if width <= 0:
+                width = max(float(np.std(samples[:, i])), 1e-6)
+            raw_lo = q_med[i] - K_MARGIN * width
+            raw_hi = q_med[i] + K_MARGIN * width
+            s = _step(p, raw_hi - raw_lo)
+            lo, hi = _snap(raw_lo, raw_hi, s)
+            ax_lo.append(lo); ax_hi.append(hi); step_sizes.append(s)
 
-        # Use min/max of samples to simulate prior bounds
-        prior_mins = np.min(samples, axis=0)
-        prior_maxs = np.max(samples, axis=0)
+        # Normalize quantiles to [0, 1]; clip prevents excursions outside the ring
+        med_n = np.clip([_norm(q_med[i], ax_lo[i], ax_hi[i]) for i in range(N)], 0.0, 1.0)
+        lo_n  = np.clip([_norm(q_lo[i],  ax_lo[i], ax_hi[i]) for i in range(N)], 0.0, 1.0)
+        hi_n  = np.clip([_norm(q_hi[i],  ax_lo[i], ax_hi[i]) for i in range(N)], 0.0, 1.0)
 
-        # Normalize based on "prior-like" range
-        q_low_norm, q_med_norm, q_high_norm = [], [], []
-        for i in range(len(q_low)):
-            min_val = prior_mins[i]
-            max_val = prior_maxs[i]
-            range_val = max_val - min_val if max_val != min_val else 1.0
-            q_low_norm.append((q_low[i] - min_val) / range_val)
-            q_med_norm.append((q_med[i] - min_val) / range_val)
-            q_high_norm.append((q_high[i] - min_val) / range_val)
+        # Polygon-frame polar projection 
+        theta, proj = _radar_polygon_factory(N)
 
-        # Close the circle
-        q_low_norm.append(q_low_norm[0])
-        q_med_norm.append(q_med_norm[0])
-        q_high_norm.append(q_high_norm[0])
-        q_med = np.append(q_med, q_med[0])
-        q_low = np.append(q_low, q_low[0])
-        q_high = np.append(q_high, q_high[0])
-        prior_mins = np.append(prior_mins, prior_mins[0])
-        prior_maxs = np.append(prior_maxs, prior_maxs[0])
+        fig = plt.figure(figsize=(8, 8))
+        ax  = fig.add_subplot(projection=proj)
 
-        # Angles for the radar plot
-        angles = np.linspace(0, 2 * np.pi, len(self.ns_results.free_parameters), endpoint=False).tolist()
-        angles.append(angles[0])
+        # Grid rings & limits
+        N_RINGS     = 4
+        ring_levels = np.linspace(0.0, 1.0, N_RINGS + 1)[1:]   # [0.25, 0.5, 0.75, 1.0]
+        ax.set_rgrids(ring_levels, labels=[''] * len(ring_levels))   # hide default radial labels
+        ax.set_ylim(0.0, 1.0)
+        ax.grid(True, color='gray', linewidth=0.8, alpha=0.5, linestyle='--')
+        ax.spines['polar'].set_color('#808183')
+        ax.spines['polar'].set_linewidth(1.2)
 
-        fig, ax = plt.subplots(figsize=(6, 6), subplot_kw=dict(polar=True))
+        # Uncertainty band 
+        ax.fill_between(theta, lo_n, hi_n,  color=config.color_uncertainty, alpha=config.alpha_fill, zorder=2)
 
-        # Plot uncertainty band with gradient effect
-        ax.fill_between(angles, q_low_norm, q_high_norm, color=config.color_uncertainty, alpha=config.alpha_fill, zorder=2)
+        # Median polygon + markers 
+        ax.plot(theta, med_n, color=config.color_radar, linewidth=2.0, zorder=3)
+        for k in range(N):
+            ax.scatter(theta[k], med_n[k], color='white', s=config.size_quantiles + 40,
+                    zorder=4, edgecolors='none')
+            ax.scatter(theta[k], med_n[k], color=config.color_quantiles, s=config.size_quantiles,
+                    zorder=5, edgecolors='white', linewidths=config.lw_quantiles)
 
-        # Plot main line with enhanced styling
-        ax.plot(angles, q_med_norm, color=config.color_radar, linewidth=2.5, zorder=3, solid_capstyle='round')
+        # Parameter name labels at spoke tips (native matplotlib) 
+        ax.set_thetagrids(np.degrees(theta), labels=params, fontsize=config.fontsize_names)
+        ax.tick_params(axis='x', pad=50, colors='#24292E')
 
-        # Add larger, styled markers at each point
-        for i in range(len(angles[:-1])):
-            # Outer white ring for contrast
-            ax.scatter(angles[i], q_med_norm[i], color='white', s=config.size_quantiles+40, zorder=4,
-                    edgecolors='none')
-            # Main point
-            ax.scatter(angles[i], q_med_norm[i], color=config.color_quantiles, s=config.size_quantiles, zorder=5,
-                    edgecolors='white', linewidths=config.lw_quantiles)
+        # Value annotations: between polygon and parameter name 
+        # Fixed radius along each spoke — independent of the data value, so
+        # the labels never crowd the centre or escape the outer ring.
+        VAL_R = 1.12
+        for k in range(N):
+            dlo = q_med[k] - q_lo[k]
+            dhi = q_hi[k]  - q_med[k]
+            lbl = f'${_fmt(q_med[k])}_{{-{_fmt(dlo)}}}^{{+{_fmt(dhi)}}}$'
+            ax.text(theta[k], VAL_R, lbl,
+                    ha='center', va='center',
+                    fontsize=config.fontsize_ticks, fontweight='600',
+                    color=config.color_radar, zorder=10, clip_on=False,
+                    bbox=dict(boxstyle='round,pad=0.3',
+                            facecolor='white', edgecolor='none', alpha=0.85))
 
-        # Set parameter labels with improved styling - positioned further out
-        ax.set_xticks(angles[:-1])
-        ax.set_xticklabels(self.ns_results.free_parameters, fontsize=config.fontsize_names, fontweight='600', color='#24292E')
+        # Per-spoke tick labels: ONLY at grid-ring radii 
+        # Fixes the original "label every step" overflow by reusing the same
+        # 4 radii used for the visual grid.
+        if getattr(config, 'show_ticks', False):
+            for k in range(N):
+                for rl in ring_levels[:-1]:   # skip outermost (overlaps with VAL_R)
+                    actual = ax_lo[k] + rl * (ax_hi[k] - ax_lo[k])
+                    ax.text(theta[k], rl, _fmt(actual),
+                            ha='center', va='center',
+                            fontsize=max(config.fontsize_ticks - 2, 11),
+                            color=config.color_ticks, zorder=6, clip_on=False,
+                            bbox=dict(boxstyle='round,pad=0.15',
+                                    facecolor='white', edgecolor='none', alpha=0.5))
 
-        # Remove default radial labels
-        ax.set_yticklabels([])
-
-        # Customize gridlines for cleaner look
-        ax.grid(True, color='gray', linewidth=1.2, alpha=0.5, linestyle='--', zorder=1)
-
-        # Style the radial gridlines
-        ax.spines['polar'].set_color("#808183")
-        ax.spines['polar'].set_linewidth(1.5)
-
-        # Display ticks
-        # for i, angle in enumerate(angles[:-1]):
-        #     min_val = prior_mins[i]
-        #     max_val = prior_maxs[i]
-        #     ticks = np.linspace(min_val, max_val, num=5)
-        #     range_val = max_val - min_val if max_val != min_val else 1.0
-        #     for i in range(len(ticks)-2):
-        #         radius = (ticks[i+1] - min_val) / range_val
-        #         ax.text(angle, radius, f'{ticks[i+1]:.2f}', ha='center', va='center', fontsize=config.fontisze_ticks, color=config.color_ticks)
-
-        # Add value annotations with improved positioning and styling
-        # Only show values at the median points, positioned outside the plot
-        for i, angle in enumerate(angles[:-1]):
-            # Position the value label slightly offset from the data point
-            # We'll offset it radially outward from the median point
-            data_radius = q_med_norm[i]
-
-            # Calculate offset: place label slightly outside the data point
-            label_radius = data_radius + 0.14  # Offset by a small amount
-
-            # If the point is too close to center, push label further out
-            if data_radius < 0.15:
-                label_radius = 0.45
-
-            # Get the median and quantile values for annotation
-            med = q_med[i]
-            low = med - q_low[i]
-            high = q_high[i] - med
-
-            # Format the values nicely
-            if abs(med) >= 1000:
-                med_str = f'{med:.0f}'
-            elif abs(med) >= 10:
-                med_str = f'{med:.1f}'
-            else:
-                med_str = f'{med:.2f}'
-
-            # Format the quantile values nicely
-            if abs(low) >= 1000:
-                q_low_str = f'{low:.0f}'
-            elif abs(low) >= 10:
-                q_low_str = f'{low:.1f}'
-            else:
-                q_low_str = f'{low:.2f}'
-
-            if abs(high) >= 1000:
-                q_high_str = f'{high:.0f}'
-            elif abs(high) >= 10:
-                q_high_str = f'{high:.1f}'
-            else:
-                q_high_str = f'{high:.2f}'
-
-            # Create text with shadow effect for better readability
-            text = ax.text(angle+0.15, label_radius, f'${med_str}_{{-{q_low_str}}}^{{+{q_high_str}}}$',
-                        ha='center', va='center',
-                        fontsize=config.fontisze_ticks, fontweight='600',
-                        color=config.color_ticks,
-                        zorder=10,
-                        bbox=dict(boxstyle='round,pad=0.4',
-                                facecolor='white',
-                                edgecolor='none',
-                                alpha=0.85))
-
-            # Add subtle shadow effect
-            text.set_path_effects([
-                path_effects.Stroke(linewidth=2, foreground='#E1E4E8', alpha=0.5),
-                path_effects.Normal()
-            ])
-
+        fig.tight_layout()
         return fig, ax
 
     def plot_fit(self, observations: ObservationSet, best_fit: list[ObservedModel], figsize: tuple[float, float] = (18, 8), plot_native_model: bool = False, native_model: ObservedModel | None = None) -> tuple[Figure, Axes, Axes, Axes, Axes]:
