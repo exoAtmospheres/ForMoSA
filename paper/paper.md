@@ -51,6 +51,7 @@ authors:
     equal-contrib: true
     affiliation: "2, 3, 10" 
   - name: Pablo Requeijo
+    orcid: 0009-0007-9285-5952
     equal-contrib: true
     affiliation: "6"
 affiliations:
@@ -274,6 +275,9 @@ We gratefully acknowledge the funding and support for the ForM-X workshops held 
 
 Furthermore, this work has been supported by the French National Research Agency (ANR) through the MIRAGES project (PI: A. Vigan, ANR-20-CE31-0017).
 
+We acknowledge support in France from the French National Research Agency (ANR) through project grant ANR-20-CE31-0012.
+
+S. Petrus was supported by an appointment to the NASA Postdoctoral Program at the NASA-Goddard Space Flight Center, administered by Oak Ridge Associated Universities under contract with NASA.
 
 # Appendix A: State of the field on developments of atmospheric modeling tools
 
