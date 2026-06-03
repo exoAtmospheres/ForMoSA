@@ -1,0 +1,132 @@
+{
+    "algorithm": "pymultinest",
+    "npoints": 100,
+    "logLtype": [
+        "chi2"
+    ],
+    "config_NS": {
+        "nestle": {
+            "method": "single",
+            "update_interval": null,
+            "npdim": null,
+            "maxiter": null,
+            "maxcall": null,
+            "dlogz": null,
+            "decline_factor": null,
+            "rstate": null
+        },
+        "pymultinest": {
+            "importance_nested_sampling": true,
+            "multimodal": true,
+            "const_efficiency_mode": false,
+            "evidence_tolerance": 0.5,
+            "sampling_efficiency": 0.8,
+            "n_iter_before_update": 100,
+            "null_log_evidence": -1e+90,
+            "max_modes": 100,
+            "mode_tolerance": -1e+90,
+            "seed": -1,
+            "verbose": true,
+            "resume": false,
+            "context": 0,
+            "log_zero": -1e+100,
+            "max_iter": 0,
+            "init_MPI": false,
+            "wrapped_params": null,
+            "dump_callback": null,
+            "use_MPI": true
+        },
+        "ultranest": {
+            "ReactiveNS": {
+                "wrapped_params": null,
+                "vectorized": false,
+                "resume": "True",
+                "run_num": "None",
+                "num_bootstraps": 30,
+                "storage_backend": "hdf5",
+                "warmstart_max_tau": -1
+            },
+            "runNS": {
+                "dlogz": 0.5,
+                "max_iters": null,
+                "max_ncalls": null,
+                "min_ess": 400,
+                "frac_remain": 0.01,
+                "cluster_num_live_points": 40,
+                "Lepsilon": 0.001
+            }
+        }
+    },
+    "parameters": {
+        "par1": {
+            "name": "par1",
+            "prior": {
+                "prior_type": "uniform",
+                "params": {
+                    "lower": 400.0,
+                    "upper": 2000.0
+                }
+            },
+            "kind": "grid",
+            "scope": "global",
+            "obs_index": null,
+            "title": "Teff",
+            "vsini_function": null
+        },
+        "par2": {
+            "name": "par2",
+            "prior": {
+                "prior_type": "uniform",
+                "params": {
+                    "lower": 3.0,
+                    "upper": 5.0
+                }
+            },
+            "kind": "grid",
+            "scope": "global",
+            "obs_index": null,
+            "title": "log(g)",
+            "vsini_function": null
+        },
+        "par3": {
+            "name": "par3",
+            "prior": {
+                "prior_type": "uniform",
+                "params": {
+                    "lower": -0.5,
+                    "upper": 1.0
+                }
+            },
+            "kind": "grid",
+            "scope": "global",
+            "obs_index": null,
+            "title": "[M/H]",
+            "vsini_function": null
+        },
+        "par4": {
+            "name": "par4",
+            "prior": {
+                "prior_type": "uniform",
+                "params": {
+                    "lower": 0.1,
+                    "upper": 0.8
+                }
+            },
+            "kind": "grid",
+            "scope": "global",
+            "obs_index": null,
+            "title": "C/O",
+            "vsini_function": null
+        }
+    },
+    "wave_fit": [
+        "2.0, 16.0"
+    ],
+    "interp_method": "linear",
+    "bounds_lsq": [
+        [
+            "-inf",
+            "inf"
+        ]
+    ]
+}

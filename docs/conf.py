@@ -20,7 +20,7 @@ copyright = '2024, Simon Petrus, Paulina Palma-Bifani, Matthieu Ravet, Allan Den
 author = 'Simon Petrus, Paulina Palma-Bifani, Matthieu Ravet, Allan Denis, Bhavesh Rajpoot, Mickaël Bonnefoy and Gaël Chauvin'
 
 # Version — keep in sync with pyproject.toml
-release = '1.1.6'
+release = '2.0.0'
 root_doc = 'index'
 
 language = 'en'
@@ -63,6 +63,12 @@ master_doc = 'index'
 templates_path = []
 
 # Disable notebook timeout
+# Enable MyST extensions for math rendering in .md files
+myst_enable_extensions = [
+    "dollarmath",   # enables $...$ and $$...$$ syntax
+    "amsmath",      # enables \begin{equation} etc.
+]
+
 nbsphinx_timeout = -1
 
 # Allow errors from notebooks
@@ -72,7 +78,7 @@ nbsphinx_allow_errors = True
 autoclass_content = 'both'
 
 # Patterns to exclude
-exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store', 'tutorials/.ipynb_checkpoints/*', 'README.md']
+exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store', 'tutorials/.ipynb_checkpoints/*', 'README.md', 'superpowers/**']
 
 # -- Napoleon (NumPy docstring) settings --------------------------------
 napoleon_google_docstring = False
