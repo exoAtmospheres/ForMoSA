@@ -1,6 +1,6 @@
 [build-system]
 requires = ["setuptools>=68", "wheel"]
-build-backend = "setuptools.backends.legacy:build"
+build-backend = "setuptools.build_meta"
 
 [project]
 name = "ForMoSA"
@@ -21,11 +21,36 @@ authors = [
   { name = "K. Hoy", email = "kevinmhoy@gmail.com"},
   { name = "P. Requejio", email = "prequeijo03@gmail.com"}
 ]
-requires-python = ">=3.9"
+requires-python = ">=3.10"
 classifiers = [
   "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
   "License :: OSI Approved :: BSD Software License",
   "Topic :: Scientific/Engineering :: Astronomy",
+]
+
+[project.optional-dependencies]
+# Developer profile: testing, packaging, and documentation-building tools.
+# The public install (`pip install ForMoSA`) pulls runtime dependencies only.
+dev = [
+  # Testing
+  "pytest",
+  "pytest-cov",
+  # Packaging / release
+  "build",
+  "twine",
+  # Documentation (mirrors docs/requirements.txt, which Read the Docs reads directly)
+  "sphinx>=9.1",
+  "ipykernel",
+  "nbsphinx",
+  "pandoc",
+  "jupyter",
+  "sphinx-book-theme>=1.1",
+  "sphinx-autodoc-typehints>=3.9.8",
+  "sphinx-copybutton>=0.5",
+  "myst-parser>=2.0",
 ]
 
 [project.urls]

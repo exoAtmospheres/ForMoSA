@@ -46,7 +46,21 @@ pip install -e .
 conda install dask netCDF4 bottleneck
 ```
 
-See the [installation guide](https://formosa.readthedocs.io/en/latest/installation.html) for PyMultiNest, GPU/torch, and macOS Apple Silicon instructions.
+### For developers
+
+The optional `dev` extra adds the testing, packaging, and documentation-building
+tools on top of the runtime dependencies:
+
+```bash
+pip install -e ".[dev]"
+```
+
+A plain `pip install ForMoSA` installs only what is needed to run analyses — no
+test or documentation tooling.
+
+ForMoSA requires **Python ≥ 3.10**. See the
+[installation guide](https://formosa.readthedocs.io/en/latest/installation.html)
+for PyMultiNest, GPU/torch, and macOS Apple Silicon instructions.
 
 ---
 
@@ -114,6 +128,12 @@ ForMoSA/
 > **v2.0.0 is a complete rewrite and is not backwards-compatible with v1.x.**
 > See the [full migration guide](https://formosa.readthedocs.io/en/latest/whats_new.html) in the docs.
 
+**Project updates since the v2.0.0 rewrite:**
+
+- **Automated testing** — every push and pull request is install- and import-checked and the test suite is run on Python 3.10, 3.11, and 3.12.
+- **One-tag releases** — pushing a `v*` tag builds the package and publishes it to PyPI via a [Trusted Publisher](https://docs.pypi.org/trusted-publishers/), with auto-generated GitHub release notes.
+- **JOSS paper** — a software paper accompanying the v2.0.0 release is in preparation.
+
 | Area | v1.x | v2.0.0 |
 |---|---|---|
 | Entry point | `main.py` script + `launch_adapt()` / `launch_nested_sampling()` | Single `Analysis` class |
@@ -165,6 +185,44 @@ If you need the old behaviour in the short term, pin to `formosa==1.1.6`.
 ## Attribution
 
 If you use ForMoSA in your research, please cite [Petrus et al. (2023)](https://ui.adsabs.harvard.edu/abs/2023A%26A...670L...9P/abstract).
+
+---
+
+## Contributing
+
+Contributions are welcome — bug reports, fixes, new features, and documentation
+improvements alike. To set up a development environment:
+
+```bash
+git clone https://github.com/exoAtmospheres/ForMoSA.git
+cd ForMoSA
+pip install -e ".[dev]"
+conda install dask netCDF4 bottleneck
+```
+
+Then:
+
+1. **Branch off `activ_dev`** (the integration branch), not `main`:
+   ```bash
+   git checkout activ_dev
+   git checkout -b my-feature
+   ```
+2. **Run the test suite** before opening a pull request:
+   ```bash
+   pytest
+   ```
+   > **Note:** the `tests/` suite is currently being updated to the v2.0.0
+   > module layout; some modules are temporarily skipped. Continuous integration
+   > checks that the package installs and imports cleanly on Python 3.10–3.12.
+3. **Build the documentation locally** if your change touches the docs:
+   ```bash
+   cd docs && make html
+   ```
+4. **Open a pull request** against `activ_dev` describing the change.
+
+Releases are automated: once changes are merged and a maintainer pushes a
+`v*` tag (e.g. `v2.0.0`), the package is built and published to PyPI and a
+GitHub release is created automatically.
 
 ---
 
