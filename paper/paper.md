@@ -32,27 +32,27 @@ authors:
     affiliation: "7, 9" 
   - name: Arthur Vigan
     orcid: 0000-0002-5902-7828
-    equal-contrib: true
+    equal-contrib: false
     affiliation: "8" 
   - name: Mickaël Bonnefoy
     orcid: 0000-0001-5579-5339
-    equal-contrib: true
+    equal-contrib: false
     affiliation: "4" 
   - name: Gaël Chauvin
     orcid: 0000-0003-4022-8598
-    equal-contrib: true
+    equal-contrib: false
     affiliation: "7" 
   - name: Alice Radcliffe
     orcid: 0009-0003-9345-019X
-    equal-contrib: true
+    equal-contrib: false
     affiliation: "6"  
   - name: Kevin Hoy
     orcid: 0009-0004-5870-9562
-    equal-contrib: true
+    equal-contrib: false
     affiliation: "2, 3, 10" 
   - name: Pablo Requeijo
     orcid: 0009-0007-9285-5952
-    equal-contrib: true
+    equal-contrib: false
     affiliation: "6"
 affiliations:
  - name: NASA-Goddard Space Flight Center, Greenbelt, MD 20771, USA
@@ -73,10 +73,10 @@ affiliations:
    index: 8
  - name: Department of Physics and Astronomy, Heidelberg University, Im Neuenheimer Feld 226, D-69120 Heidelberg, Germany
    index: 9
- - name: EuropeanSouthernObservatory, AlonsodeCordova 3107,Vitacura, Santiago, Chile 
+ - name: European Southern Observatory, Alonso de Cordova 3107, Vitacura, Santiago, Chile 
    index: 10
-date: 19 August 2025
-bibliography: /Users/spetrus/Desktop/paper/paper.bib
+date: 04 June 2026
+bibliography: paper.bib
 
 
 
@@ -128,7 +128,7 @@ At the beginning, the user must input a grid of self-consistent, precomputed atm
 Later, at each iteration of the nested sampling, random parameter values are drawn from the prior distribution specified by the user for each parameter. The transformations related to these parameters are applied to the sub-grids, before comparing them to each observation by computing the log-likelihood function. For a given run, the data, sub-grids, parameters, and results are automatically saved to paths specified by the user, and can be easily recovered by the modules of **`ForMoSA`** for subsequent analysis.   The results can also be visualized through the Plotting class.
 
 
-![**`ForMoSA`** workflow diagram. The shaded gray area on the right represents the core functionalities required to run the Nested Sampling. The left dark-gray area represents utility and support functions. The boxes contain the classes of modules of **`ForMoSA`**. The main methods of each class are depicted as subtext below each box. The larger dashed boxes represent the contents of each folder, while the smaller dashed boxes represent sub-modules. The larger boxes represent the main modules.](/Users/spetrus/Desktop/paper/schema_ForMoSA.png)
+![**`ForMoSA`** workflow diagram. The shaded gray area on the right represents the core functionalities required to run the Nested Sampling. The left dark-gray area represents utility and support functions. The boxes contain the classes of modules of **`ForMoSA`**. The main methods of each class are depicted as subtext below each box. The larger dashed boxes represent the contents of each folder, while the smaller dashed boxes represent sub-modules. The larger boxes represent the main modules.](schema_ForMoSA.png)
 
 
 **Table 1:** Main modules of **`ForMoSA`**
@@ -215,7 +215,7 @@ The computational cost of **`ForMoSA`** is primarily driven by the number of for
 As astrophysicists, even though computing-time optimization is useful and important, we are in practice primarily driven by the retrieval accuracy. We complement this analysis by evaluating the accuracy for a specific test case in Appendix B.
 
 
-![Performance comparison between the nested sampling algorithms `PyMultiNest` (squares) and `Nestle` (crosses). Different colors show the number of free parameters used (from 1 to 5). From left to right: Inversion time as a function of spectral resolution (R$_{\lambda}$), signal-to-noise (S/N), and number of live points. The default setup is R$_{\lambda}$ = 368, S/N = 22, and 215 live points. This is intended to inform the user of the order of magnitude in time they should expect for their fit to converge.](/Users/spetrus/Desktop/paper/inversion_time_formosa_comp.pdf)
+![Performance comparison between the nested sampling algorithms `PyMultiNest` (squares) and `Nestle` (crosses). Different colors show the number of free parameters used (from 1 to 5). From left to right: Inversion time as a function of spectral resolution (R$_{\lambda}$), signal-to-noise (S/N), and number of live points. The default setup is R$_{\lambda}$ = 368, S/N = 22, and 215 live points. This is intended to inform the user of the order of magnitude in time they should expect for their fit to converge.](inversion_time_formosa_comp.pdf)
 
 
 The total inversion time is a multi-dimensional function depending on several factors, including the spectral resolution (R$_{\lambda}$), the signal-to-noise ratio (S/N), the number of live points, the dimensionality of the parameter space, and the machine used. Figure 2 illustrates how these various parameters scale the inversion time using synthetic observations.
@@ -320,7 +320,7 @@ Figure 3 illustrates the retrieval accuracy for the five parameters of the `Exo-
 The synthetic spectra simulate a K-band observation (1.9–2.4 $\mu$m), which significantly limits the coverage of the spectral energy distribution (SED). At low resolution and low S/N, the impact is most pronounced for parameters sensitive to the SED shape ($T_{eff}$, log(g), and $f_{sed}$). Overall, above ~30, the number of live points has minimal effect on the retrieval accuracy.
 
 
-![Accuracy comparison using `PyMultiNest` with varying spectral resolution (R$_{\lambda}$), signal-to-noise (S/N), and number of live points. Each dotted red line represents the expected value and black points the retrieved posteriors for each parameter explored during the nested sampling. The default setup is R$_{\lambda}$ = 368, S/N = 22, and 215 live points. Each plot illustrates the effect of varying one parameter while keeping the others fixed.](/Users/spetrus/Desktop/paper/accuracy_formosa.png)
+![Accuracy comparison using `PyMultiNest` with varying spectral resolution (R$_{\lambda}$), signal-to-noise (S/N), and number of live points. Each dotted red line represents the expected value and black points the retrieved posteriors for each parameter explored during the nested sampling. The default setup is R$_{\lambda}$ = 368, S/N = 22, and 215 live points. Each plot illustrates the effect of varying one parameter while keeping the others fixed.](accuracy_formosa.png)
 
 
 
@@ -391,7 +391,7 @@ The spectra provided by a given instrument are inherently limited by its spectra
 
 @Hoch2025 used **`ForMoSA`** to model the circumplanetary disk (CPD) detected around the exoplanet YSES 1 b. They combined the `Exo-REM` atmospheric model with a simple CPD model consisting of a single blackbody component. From this analysis, they derived a disk effective temperature Teff = 371 ± 50 K and a radius of 7.35 ± 2.25 RJup, consistent with results obtained using the parametric model `petitRADTRANS`.
 
-Radcliffe et al., (accepted) implemented a two-column approach within **`ForMoSA`** to improve the fitting performance of heterogeneous atmospheres using 1D atmospheric models. This strategy consists of calling the same grid of precomputed synthetic spectra twice at each iteration and combining them into a single synthetic spectrum using a weighting coefficient treated as a free parameter. This approach effectively simulates a heterogeneous atmosphere composed of two types of cloud patches distributed across the surface. They tested this method using a new version of the `Exo-REM` grid, which now includes the sedimentation factor fsed as a free parameter. The dataset analyzed was the JWST spectrum of VHS 1256 b. Their results show a significant improvement in fit quality compared to previous analyses.
+@Radcliffe26 implemented a two-column approach within **`ForMoSA`** to improve the fitting performance of heterogeneous atmospheres using 1D atmospheric models. This strategy consists of calling the same grid of precomputed synthetic spectra twice at each iteration and combining them into a single synthetic spectrum using a weighting coefficient treated as a free parameter. This approach effectively simulates a heterogeneous atmosphere composed of two types of cloud patches distributed across the surface. They tested this method using a new version of the `Exo-REM` grid, which now includes the sedimentation factor fsed as a free parameter. The dataset analyzed was the JWST spectrum of VHS 1256 b. Their results show a significant improvement in fit quality compared to previous analyses.
 
 
 
