@@ -19,8 +19,22 @@ project = 'ForMoSA'
 copyright = '2024, Simon Petrus, Paulina Palma-Bifani, Matthieu Ravet, Allan Denis, Bhavesh Rajpoot, Mickaël Bonnefoy and Gaël Chauvin'
 author = 'Simon Petrus, Paulina Palma-Bifani, Matthieu Ravet, Allan Denis, Bhavesh Rajpoot, Mickaël Bonnefoy and Gaël Chauvin'
 
-# Version — keep in sync with pyproject.toml
-release = '2.0.0'
+# Version — pulled dynamically from the package so it never drifts from
+# pyproject.toml / ForMoSA.__version__.
+from importlib.metadata import version as _pkg_version, PackageNotFoundError
+
+try:
+    # Preferred: read the version from the installed distribution metadata
+    # (Read the Docs installs the package, so this is available there).
+    release = _pkg_version("ForMoSA")
+except PackageNotFoundError:
+    # Fallback for a bare source checkout that hasn't been installed.
+    import ForMoSA
+    release = ForMoSA.__version__
+
+# Short X.Y version used in some theme elements.
+version = ".".join(release.split(".")[:2])
+
 root_doc = 'index'
 
 language = 'en'
