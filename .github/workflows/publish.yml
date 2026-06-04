@@ -30,15 +30,6 @@ jobs:
       - name: Build package
         run: python -m build
 
-      - name: Generate changelog since last tag
-        id: changelog
-        uses: orhun/git-cliff-action@v3
-        with:
-          config: cliff.toml
-          args: --latest --strip header
-        env:
-          OUTPUT: CHANGELOG_RELEASE.md
-
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
