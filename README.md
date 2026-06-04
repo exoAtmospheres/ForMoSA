@@ -211,9 +211,8 @@ Then:
    ```bash
    pytest
    ```
-   > **Note:** the `tests/` suite is currently being updated to the v2.0.0
-   > module layout; some modules are temporarily skipped. Continuous integration
-   > checks that the package installs and imports cleanly on Python 3.10–3.12.
+   > **Note:** continuous integration checks that the package installs, imports,
+   > and passes the test suite cleanly on Python 3.10–3.12.
 3. **Build the documentation locally** if your change touches the docs:
    ```bash
    cd docs && make html

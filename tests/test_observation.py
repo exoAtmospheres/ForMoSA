@@ -45,7 +45,7 @@ def sample_data():
 
 @pytest.fixture
 def fake_path(tmp_path):
-    return tmp_path / "fake_obs.npz"
+    return tmp_path / "fake_obs.fits"
 
 # ======================
 # Tests Observation base
@@ -66,8 +66,8 @@ def test_spectral_observation_creation(spectral_data):
         wave=wave,
         flux=flux,
         res=res,
-        facility="TEST",
-        instrument="TEST",
+        facility=np.full(wave.shape, "TEST"),
+        instrument=np.full(wave.shape, "TEST"),
         err=err,
         native_unit=WavelengthUnit.MICROMETER,
     )
@@ -112,8 +112,8 @@ def test_spectral_observation_no_nan(spectral_data):
         wave=wave,
         flux=flux_with_nan,
         res=res,
-        facility="TEST",
-        instrument="TEST",
+        facility=np.full(wave.shape, "TEST"),
+        instrument=np.full(wave.shape, "TEST"),
         err=err,
         native_unit=WavelengthUnit.MICROMETER,
     )
@@ -125,8 +125,8 @@ def test_restricted_spectral_observation(spectral_data):
         wave=wave,
         flux=flux,
         res=res,
-        facility="TEST",
-        instrument="TEST",
+        facility=np.full(wave.shape, "TEST"),
+        instrument=np.full(wave.shape, "TEST"),
         err=err,
         native_unit=WavelengthUnit.MICROMETER,
     )
@@ -178,13 +178,13 @@ def test_observation_metadata(spectral_data):
         wave=wave,
         flux=flux,
         res=res,
-        facility="JWST",
-        instrument="NIRSpec",
+        facility=np.full(wave.shape, "JWST"),
+        instrument=np.full(wave.shape, "NIRSpec"),
         err=err,
         native_unit=WavelengthUnit.MICROMETER,
     )
-    assert obs.facility == "JWST"
-    assert obs.instrument == "NIRSpec"
+    assert np.all(obs.facility == "JWST")
+    assert np.all(obs.instrument == "NIRSpec")
 
 def test_adapt_to_resolution_basic(spectral_data, target_resolution):
     wave, flux, res, err = spectral_data
@@ -194,8 +194,8 @@ def test_adapt_to_resolution_basic(spectral_data, target_resolution):
         flux=flux,
         res=res,
         err=err,
-        facility="TEST",
-        instrument="TEST",
+        facility=np.full(wave.shape, "TEST"),
+        instrument=np.full(wave.shape, "TEST"),
         native_unit=WavelengthUnit.MICROMETER,
     )
 
@@ -220,8 +220,8 @@ def test_adapt_to_resolution_is_capped(spectral_data):
         flux=flux,
         res=res,
         err=err,
-        facility="TEST",
-        instrument="TEST",
+        facility=np.full(wave.shape, "TEST"),
+        instrument=np.full(wave.shape, "TEST"),
         native_unit=WavelengthUnit.MICROMETER,
     )
 
@@ -237,8 +237,8 @@ def test_adapt_to_resolution_does_not_modify_original(spectral_data, target_reso
         flux=flux.copy(),
         res=res.copy(),
         err=err,
-        facility="TEST",
-        instrument="TEST",
+        facility=np.full(wave.shape, "TEST"),
+        instrument=np.full(wave.shape, "TEST"),
         native_unit=WavelengthUnit.MICROMETER,
     )
 
@@ -255,8 +255,8 @@ def test_adapt_to_resolution_with_continuum(spectral_data, target_resolution):
         flux=flux,
         res=res,
         err=err,
-        facility="TEST",
-        instrument="TEST",
+        facility=np.full(wave.shape, "TEST"),
+        instrument=np.full(wave.shape, "TEST"),
         native_unit=WavelengthUnit.MICROMETER,
     )
 
@@ -280,8 +280,8 @@ def test_adapt_to_resolution_continuum_without_wave_cont(spectral_data, target_r
         flux=flux,
         res=res,
         err=err,
-        facility="TEST",
-        instrument="TEST",
+        facility=np.full(wave.shape, "TEST"),
+        instrument=np.full(wave.shape, "TEST"),
         native_unit=WavelengthUnit.MICROMETER,
     )
 
@@ -303,8 +303,8 @@ def test_adapt_to_resolution_high_contrast(spectral_data, target_resolution):
         res=res,
         err=err,
         star_flux=star_flux,
-        facility="TEST",
-        instrument="TEST",
+        facility=np.full(wave.shape, "TEST"),
+        instrument=np.full(wave.shape, "TEST"),
         native_unit=WavelengthUnit.MICROMETER,
     )
 
@@ -321,9 +321,11 @@ def test_from_dict_calls_loader(sample_data):
         mock_loader._from_data.return_value = mock_instance
 
         from ForMoSA.observation.observation_base import Observation
-        obs = Observation._from_dict(sample_data, log_level="DEBUG")
+        obs = Observation.from_dict(sample_data, log_level="DEBUG")
 
-        mock_loader._from_data.assert_called_once_with(sample_data, logger=None, log_level="DEBUG")
+        mock_loader._from_data.assert_called_once()
+        args, _ = mock_loader._from_data.call_args
+        assert args[0] is sample_data
         assert obs is mock_instance
 
 def test_from_attributes_calls_loader(sample_data):
@@ -332,9 +334,11 @@ def test_from_attributes_calls_loader(sample_data):
         mock_loader._from_attributes.return_value = mock_instance
 
         from ForMoSA.observation.observation_base import Observation
-        obs = Observation._from_attributes(**sample_data)
+        obs = Observation.from_attributes(**sample_data)
 
-        mock_loader._from_attributes.assert_called_once_with(**sample_data)
+        mock_loader._from_attributes.assert_called_once()
+        _, kwargs = mock_loader._from_attributes.call_args
+        assert set(sample_data).issubset(kwargs)
         assert obs is mock_instance
 
 def test_from_file_calls_loader(fake_path):
@@ -343,9 +347,11 @@ def test_from_file_calls_loader(fake_path):
         mock_loader._from_fits.return_value = mock_instance
 
         from ForMoSA.observation.observation_base import Observation
-        obs = Observation._from_file(fake_path, log_level="INFO")
+        obs = Observation.from_file(fake_path, log_level="INFO")
 
-        mock_loader._from_fits.assert_called_once_with(fake_path, logger=None, log_level="INFO")
+        mock_loader._from_fits.assert_called_once()
+        args, _ = mock_loader._from_fits.call_args
+        assert args[0] == fake_path
         assert obs is mock_instance
 
 

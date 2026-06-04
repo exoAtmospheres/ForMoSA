@@ -5,12 +5,13 @@ from unittest.mock import patch, MagicMock
 import xarray as xr
 
 from ForMoSA.grid.model_grid import ModelGrid
-from ForMoSA.subgrid.subgrid_set import SubGridSet
-from ForMoSA.Filter.Filter import PhotometryFilter
-from ForMoSA.subgrid.subgrid_spectroscopy import SubGridSpectroscopy
-from ForMoSA.subgrid.subgrid_photometry import SubGridPhotometry
-from ForMoSA.core.enums import WavelengthUnit
+from ForMoSA.grid.subgrid_set import SubGridSet
+from ForMoSA.filter.filter import PhotometryFilter
+from ForMoSA.grid.subgrid_spectroscopy import SubGridSpectroscopy
+from ForMoSA.grid.subgrid_photometry import SubGridPhotometry
+from ForMoSA.core.enums import WavelengthUnit, ObservationType
 from ForMoSA.core.errors import ForMoSAError
+from ForMoSA.grid.subgrid_base import SubGrid
 
 
 # ==================================================
@@ -41,7 +42,7 @@ def mock_spectro_subgrid(mock_model_grid):
     target_wavelength = np.linspace(2, 4, 5)
     target_resolution = np.ones(5) * 0.5
     wave_cont, res_cont = target_wavelength, 0.3
-    return SubGridSpectroscopy._from_parent(
+    return SubGridSpectroscopy.from_parent(
         parent_grid=mock_model_grid,
         target_wavelength=target_wavelength,
         target_resolution=target_resolution,
@@ -54,7 +55,7 @@ def mock_spectro_subgrid(mock_model_grid):
 @pytest.fixture
 def mock_photo_subgrid(mock_model_grid):
     filt = PhotometryFilter('Keck', 'NIRC2', 'lp')
-    return SubGridPhotometry._from_parent(mock_model_grid, filt)
+    return SubGridPhotometry.from_parent(mock_model_grid, np.array([filt]))
 
 
 # ==================================================
@@ -74,7 +75,7 @@ def test_init_invalid_parent_grid():
 
 def test_add_subgrid(mock_model_grid, mock_spectro_subgrid):
     sgset = SubGridSet(parent_grid=mock_model_grid)
-    sgset._add_subgrid(mock_spectro_subgrid)
+    sgset.add_subgrid(mock_spectro_subgrid)
     assert sgset.n_subgrids == 1
     assert not sgset.is_empty
 
@@ -82,21 +83,21 @@ def test_add_subgrid(mock_model_grid, mock_spectro_subgrid):
 def test_add_subgrid_invalid_type(mock_model_grid):
     sgset = SubGridSet(parent_grid=mock_model_grid)
     with pytest.raises(ForMoSAError):
-        sgset._add_subgrid("not a subgrid")
+        sgset.add_subgrid("not a subgrid")
 
 
 def test_has_spectroscopy_and_photometry(mock_model_grid, mock_spectro_subgrid, mock_photo_subgrid):
     sgset = SubGridSet(parent_grid=mock_model_grid)
-    sgset._add_subgrid(mock_spectro_subgrid)
-    sgset._add_subgrid(mock_photo_subgrid)
+    sgset.add_subgrid(mock_spectro_subgrid)
+    sgset.add_subgrid(mock_photo_subgrid)
     assert sgset.has_spectroscopy
     assert sgset.has_photometry
 
 
 def test_subgrid_filters(mock_model_grid, mock_spectro_subgrid, mock_photo_subgrid):
     sgset = SubGridSet(parent_grid=mock_model_grid)
-    sgset._add_subgrid(mock_spectro_subgrid)
-    sgset._add_subgrid(mock_photo_subgrid)
+    sgset.add_subgrid(mock_spectro_subgrid)
+    sgset.add_subgrid(mock_photo_subgrid)
     assert sgset.spectroscopic_subgrids == [mock_spectro_subgrid]
     assert sgset.photometric_subgrids == [mock_photo_subgrid]
 
@@ -108,81 +109,67 @@ def test_wavelength_range_empty(mock_model_grid):
 
 def test_wavelength_range_non_empty(mock_model_grid, mock_spectro_subgrid, mock_photo_subgrid):
     sgset = SubGridSet(parent_grid=mock_model_grid)
-    sgset._add_subgrid(mock_spectro_subgrid)
-    sgset._add_subgrid(mock_photo_subgrid)
+    sgset.add_subgrid(mock_spectro_subgrid)
+    sgset.add_subgrid(mock_photo_subgrid)
     assert sgset.wavelength_range == (2.0, 4.0)
 
 
 def test_save_subgrids(mock_model_grid, mock_spectro_subgrid, mock_photo_subgrid):
     sgset = SubGridSet(parent_grid=mock_model_grid)
-    sgset._add_subgrid(mock_spectro_subgrid)
-    sgset._add_subgrid(mock_photo_subgrid)
+    sgset.add_subgrid(mock_spectro_subgrid)
+    sgset.add_subgrid(mock_photo_subgrid)
     with tempfile.TemporaryDirectory() as tmp_dir:
-        sgset._save_all(tmp_dir)
-        sgset._load_all(
-            tmp_dir,
-            suffixes=['adapted', 'adapted'],
-            grid_names=['in-memory-grid_unknown_spectro', 'in-memory-grid_unknown_photo']
-        )
-        assert sgset.has_spectroscopy
-        assert sgset.has_photometry
-        assert sgset.n_subgrids == 2
+        sgset.save_all(tmp_dir)
+        reloaded = SubGridSet.from_path(tmp_dir, parent_grid=mock_model_grid)
+        assert reloaded.has_spectroscopy
+        assert reloaded.has_photometry
+        assert reloaded.n_subgrids == 2
 
 def test_add_subgrid_from_file(mock_model_grid):
     sgset = SubGridSet(parent_grid=mock_model_grid)
     fake_path = "fake_file.nc"
 
-    with patch("ForMoSA.subgrid.subgrid_set.GridLoader._from_file") as mock_loader:
-        dataset_mock = xr.Dataset()
-        mock_loader.return_value = dataset_mock
+    with patch("ForMoSA.grid.subgrid_set.SubGrid.from_file", return_value=MagicMock()) as mock_loader:
+        sgset.add_subgrid(fake_path)
 
-        with patch.object(SubGridSet, "_create_subgrid_from_dataset", return_value=MagicMock()) as mock_create:
-            sgset._add_subgrid(fake_path)
-
-            mock_loader.assert_called_once_with(fake_path)
-            mock_create.assert_called_once_with(dataset_mock)
-            assert sgset.n_subgrids == 1
+        mock_loader.assert_called_once_with(fake_path, sgset.parent_grid, logger=sgset.logger)
+        assert sgset.n_subgrids == 1
 
 def test_add_subgrid_from_dataset(mock_model_grid):
     sgset = SubGridSet(parent_grid=mock_model_grid)
-    dataset_mock = xr.Dataset(attrs={"grid_type": "spectroscopic"})
+    dataset_mock = xr.Dataset(attrs={"grid_type": ObservationType.SPECTROSCOPIC.value})
 
-    with patch.object(SubGridSet, "_create_subgrid_from_dataset", return_value=MagicMock()) as mock_create:
-        sgset._add_subgrid(dataset_mock)
+    with patch("ForMoSA.grid.subgrid_set.SubGrid.from_dataset", return_value=MagicMock()) as mock_create:
+        sgset.add_subgrid(dataset_mock)
 
-        mock_create.assert_called_once_with(dataset_mock)
+        mock_create.assert_called_once_with(dataset_mock, sgset.parent_grid, logger=sgset.logger)
         assert sgset.n_subgrids == 1
 
-def test_create_subgrid_from_dataset_missing_grid_type(mock_model_grid):
-    sgset = SubGridSet(parent_grid=mock_model_grid)
-    dataset_mock = xr.Dataset()  # attrs vide
-
+def test_from_dataset_missing_grid_type(mock_model_grid):
     with pytest.raises(ForMoSAError):
-        sgset._create_subgrid_from_dataset(dataset_mock)
+        SubGrid.from_dataset(xr.Dataset(), mock_model_grid)  # no grid_type attr
 
-def test_create_subgrid_from_dataset_types(mock_model_grid):
-    sgset = SubGridSet(parent_grid=mock_model_grid)
-    dataset_s = xr.Dataset(attrs={"grid_type": "spectro"})
-    dataset_p = xr.Dataset(attrs={"grid_type": "photo"})
+def test_from_dataset_dispatches_by_type(mock_model_grid):
+    dataset_s = xr.Dataset(attrs={"grid_type": ObservationType.SPECTROSCOPIC.value})
+    dataset_p = xr.Dataset(attrs={"grid_type": ObservationType.PHOTOMETRIC.value})
 
-    with patch("ForMoSA.subgrid.subgrid_spectroscopy.SubGridSpectroscopy._from_grid", return_value=MagicMock()) as mock_s:
-        subgrid_s = sgset._create_subgrid_from_dataset(dataset_s)
-        mock_s.assert_called_once_with(dataset_s, sgset.parent_grid, logger=sgset.logger)
+    with patch("ForMoSA.grid.subgrid_spectroscopy.SubGridSpectroscopy.from_grid", return_value=MagicMock()) as mock_s:
+        subgrid_s = SubGrid.from_dataset(dataset_s, mock_model_grid)
+        mock_s.assert_called_once()
         assert subgrid_s is mock_s.return_value
 
-    with patch("ForMoSA.subgrid.subgrid_photometry.SubGridPhotometry._from_grid", return_value=MagicMock()) as mock_p:
-        subgrid_p = sgset._create_subgrid_from_dataset(dataset_p)
-        mock_p.assert_called_once_with(dataset_p, sgset.parent_grid, logger=sgset.logger)
+    with patch("ForMoSA.grid.subgrid_photometry.SubGridPhotometry.from_grid", return_value=MagicMock()) as mock_p:
+        subgrid_p = SubGrid.from_dataset(dataset_p, mock_model_grid)
+        mock_p.assert_called_once()
         assert subgrid_p is mock_p.return_value
 
-def test_create_subgrid_from_dataset_invalid_type(mock_model_grid):
-    sgset = SubGridSet(parent_grid=mock_model_grid)
+def test_from_dataset_invalid_type(mock_model_grid):
     dataset_mock = xr.Dataset(attrs={"grid_type": "unknown_type"})
 
     with pytest.raises(ForMoSAError):
-        sgset._create_subgrid_from_dataset(dataset_mock)
+        SubGrid.from_dataset(dataset_mock, mock_model_grid)
 
 def test_add_subgrid_no_args(mock_model_grid):
     sgset = SubGridSet(parent_grid=mock_model_grid)
     with pytest.raises(ForMoSAError):
-        sgset._add_subgrid()
+        sgset.add_subgrid()

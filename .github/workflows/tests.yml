@@ -33,3 +33,9 @@ jobs:
           import ForMoSA
           print(f'ForMoSA {ForMoSA.__version__} imported successfully on Python ${{ matrix.python-version }}')
           "
+
+      - name: Install runtime extras
+        run: pip install dask netCDF4 bottleneck
+
+      - name: Run tests
+        run: pytest -q
