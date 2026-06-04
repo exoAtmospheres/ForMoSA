@@ -76,7 +76,7 @@ affiliations:
  - name: EuropeanSouthernObservatory, AlonsodeCordova 3107,Vitacura, Santiago, Chile 
    index: 10
 date: 19 August 2025
-bibliography: paper/paper.bib
+bibliography: paper.bib
 
 
 
