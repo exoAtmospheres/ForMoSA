@@ -128,7 +128,7 @@ At the beginning, the user must input a grid of self-consistent, precomputed atm
 Later, at each iteration of the nested sampling, random parameter values are drawn from the prior distribution specified by the user for each parameter. The transformations related to these parameters are applied to the sub-grids, before comparing them to each observation by computing the log-likelihood function. For a given run, the data, sub-grids, parameters, and results are automatically saved to paths specified by the user, and can be easily recovered by the modules of **`ForMoSA`** for subsequent analysis.   The results can also be visualized through the Plotting class.
 
 
-![**`ForMoSA`** workflow diagram. The shaded gray area on the right represents the core functionalities required to run the Nested Sampling. The left dark-gray area represents utility and support functions. The boxes contain the classes of modules of **`ForMoSA`**. The main methods of each class are depicted as subtext below each box. The larger dashed boxes represent the contents of each folder, while the smaller dashed boxes represent sub-modules. The larger boxes represent the main modules.](/Users/spetrus/Desktop/paper/schema_ForMoSA.png)
+![**`ForMoSA`** workflow diagram. The shaded gray area on the right represents the core functionalities required to run the Nested Sampling. The left dark-gray area represents utility and support functions. The boxes contain the classes of modules of **`ForMoSA`**. The main methods of each class are depicted as subtext below each box. The larger dashed boxes represent the contents of each folder, while the smaller dashed boxes represent sub-modules. The larger boxes represent the main modules.](schema_ForMoSA.png)
 
 
 **Table 1:** Main modules of **`ForMoSA`**
@@ -215,7 +215,7 @@ The computational cost of **`ForMoSA`** is primarily driven by the number of for
 As astrophysicists, even though computing-time optimization is useful and important, we are in practice primarily driven by the retrieval accuracy. We complement this analysis by evaluating the accuracy for a specific test case in Appendix B.
 
 
-![Performance comparison between the nested sampling algorithms `PyMultiNest` (squares) and `Nestle` (crosses). Different colors show the number of free parameters used (from 1 to 5). From left to right: Inversion time as a function of spectral resolution (R$_{\lambda}$), signal-to-noise (S/N), and number of live points. The default setup is R$_{\lambda}$ = 368, S/N = 22, and 215 live points. This is intended to inform the user of the order of magnitude in time they should expect for their fit to converge.](/Users/spetrus/Desktop/paper/inversion_time_formosa_comp.pdf)
+![Performance comparison between the nested sampling algorithms `PyMultiNest` (squares) and `Nestle` (crosses). Different colors show the number of free parameters used (from 1 to 5). From left to right: Inversion time as a function of spectral resolution (R$_{\lambda}$), signal-to-noise (S/N), and number of live points. The default setup is R$_{\lambda}$ = 368, S/N = 22, and 215 live points. This is intended to inform the user of the order of magnitude in time they should expect for their fit to converge.](inversion_time_formosa_comp.pdf)
 
 
 The total inversion time is a multi-dimensional function depending on several factors, including the spectral resolution (R$_{\lambda}$), the signal-to-noise ratio (S/N), the number of live points, the dimensionality of the parameter space, and the machine used. Figure 2 illustrates how these various parameters scale the inversion time using synthetic observations.
@@ -320,7 +320,7 @@ Figure 3 illustrates the retrieval accuracy for the five parameters of the `Exo-
 The synthetic spectra simulate a K-band observation (1.9–2.4 $\mu$m), which significantly limits the coverage of the spectral energy distribution (SED). At low resolution and low S/N, the impact is most pronounced for parameters sensitive to the SED shape ($T_{eff}$, log(g), and $f_{sed}$). Overall, above ~30, the number of live points has minimal effect on the retrieval accuracy.
 
 
-![Accuracy comparison using `PyMultiNest` with varying spectral resolution (R$_{\lambda}$), signal-to-noise (S/N), and number of live points. Each dotted red line represents the expected value and black points the retrieved posteriors for each parameter explored during the nested sampling. The default setup is R$_{\lambda}$ = 368, S/N = 22, and 215 live points. Each plot illustrates the effect of varying one parameter while keeping the others fixed.](/Users/spetrus/Desktop/paper/accuracy_formosa.png)
+![Accuracy comparison using `PyMultiNest` with varying spectral resolution (R$_{\lambda}$), signal-to-noise (S/N), and number of live points. Each dotted red line represents the expected value and black points the retrieved posteriors for each parameter explored during the nested sampling. The default setup is R$_{\lambda}$ = 368, S/N = 22, and 215 live points. Each plot illustrates the effect of varying one parameter while keeping the others fixed.](accuracy_formosa.png)
 
 
 
