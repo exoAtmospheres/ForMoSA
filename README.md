@@ -1,4 +1,4 @@
-<p align="center"><img src="docs/_static/ForMoSA.png" alt="ForMoSA" width="250"/></p>
+<p align="center"><img src="https://github.com/exoAtmospheres/ForMoSA/blob/main/docs/_static/ForMoSA.png" alt="ForMoSA" width="250"/></p>
 
 # ForMoSA — Forward Modeling Tool for Spectral Analysis
 
