@@ -100,7 +100,8 @@ ENV/
 *_flymake.py
 
 # AI stuff
-CLAUME.md
+CLAUDE.md
+AGENTS.md
 .claude/
 .code-review-graph/
 docs/superpowers/
