@@ -1,12 +1,12 @@
-<p align="left"><img src="docs/_static/ForMoSA.png" alt="ForMoSA" width="250"/></p>
+<p align="center"><img src="docs/_static/ForMoSA.png" alt="ForMoSA" width="250"/></p>
 
 # ForMoSA — Forward Modeling Tool for Spectral Analysis
 
-[![PyPI version](https://badge.fury.io/py/formosa.svg)](https://badge.fury.io/py/formosa)
-[![PyPI downloads](https://img.shields.io/pypi/dm/formosa.svg)](https://pypistats.org/packages/formosa)
-[![Documentation Status](https://readthedocs.org/projects/formosa/badge/?version=latest)](https://formosa.readthedocs.io/en/latest/?badge=latest)
+[![PyPI - Version](https://img.shields.io/pypi/v/ForMoSA?style=for-the-badge)](https://pypi.org/project/ForMoSA/)
+[![PyPI - Downloads](https://img.shields.io/pypi/dm/ForMoSA?style=for-the-badge)](https://pypistats.org/packages/formosa)
+[![Read the Docs](https://img.shields.io/readthedocs/ForMoSA?style=for-the-badge)](https://formosa.readthedocs.io/en/latest/?badge=latest)
+![GitHub License](https://img.shields.io/github/license/exoAtmospheres/ForMoSA?style=for-the-badge&color=blue)
 [![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/exoAtmospheres/ForMoSA)
-[![License](https://img.shields.io/badge/License-BSD%203--Clause-blue.svg)](https://opensource.org/licenses/BSD-3-Clause)
 [![Made at Code/Astro](https://img.shields.io/badge/Made%20at-Code/Astro-blueviolet.svg)](https://semaphorep.github.io/codeastro/)
 
 ForMoSA is an open-source Python package for modeling exoplanetary atmospheres using a forward modeling approach. It compares observed spectra and photometry against grids of atmospheric models via nested sampling to derive posterior distributions on physical parameters.
@@ -17,7 +17,7 @@ ForMoSA is an open-source Python package for modeling exoplanetary atmospheres u
 
 ## Features
 
-- **Class-based API** centred around a single `Analysis` entry point
+- **Class-based API** centered around a single `Analysis` entry point
 - **Multi-instrument support (MOSAIC)** — fit spectroscopic and photometric data simultaneously from multiple instruments
 - **Three nested-sampling back-ends** — [nestle](http://kylebarbary.com/nestle/), [PyMultiNest](https://github.com/JohannesBuchner/PyMultiNest), and [UltraNest](https://johannesbuchner.github.io/UltraNest/)
 - **High-contrast mode** — model stellar speckles and systematics alongside the companion signal
@@ -80,7 +80,7 @@ config_path = ConfigPath(
     model_path="path/to/model_grid.nc",
 )
 
-# 2. Initialise the analysis
+# 2. Initialize the analysis
 analysis = Analysis(config_path)
 
 # 3. Configure adaptation & inversion
@@ -178,7 +178,7 @@ analysis.nested_sampling(ConfigParameters(par1=["uniform","500","3000"], r=["uni
 analysis.plot(analysis.ns.results)
 ```
 
-If you need the old behaviour in the short term, pin to `formosa==1.1.6`.
+If you need the old behavior in the short term, pin to `formosa==1.1.6`.
 
 ---
 
@@ -202,9 +202,9 @@ conda install dask netCDF4 bottleneck
 
 Then:
 
-1. **Branch off `activ_dev`** (the integration branch), not `main`:
+1. **Branch off `ForMoSA_class`** (the integration branch), not `main`:
    ```bash
-   git checkout activ_dev
+   git checkout ForMoSA_class
    git checkout -b my-feature
    ```
 2. **Run the test suite** before opening a pull request:
@@ -217,11 +217,9 @@ Then:
    ```bash
    cd docs && make html
    ```
-4. **Open a pull request** against `activ_dev` describing the change.
+4. **Open a pull request** against `ForMoSA_class` describing the change.
 
-Releases are automated: once changes are merged and a maintainer pushes a
-`v*` tag (e.g. `v2.0.0`), the package is built and published to PyPI and a
-GitHub release is created automatically.
+Releases are automated: once changes are merged and a maintainer pushes a `v*` tag (e.g. `v2.0.0`), the package is built and published to PyPI, and a GitHub release is created automatically.
 
 ---
 
@@ -233,5 +231,22 @@ If you encounter any problems, please open an issue on [GitHub](https://github.c
 
 ## Acknowledgments
 
-Our sincere thanks to [Code/Astro](https://semaphorep.github.io/codeastro/).
+Our sincere thanks to [Code/Astro](https://semaphorep.github.io/codeastro/), which provided the foundational training that enabled us to transform ForMoSA into a professional, open-source Python package.
 
+We gratefully acknowledge the funding and support for the ForM-X workshops held in Nice (2023), Heidelberg (2024/2025), and Grenoble (2025). These collaborative sessions were instrumental in developing and refining the code. We also thank the various laboratories and institutions, especially IPAG, Lagrange, and MPIA, for their continued support.
+
+Furthermore, this work has been supported by the French National Research Agency (ANR) through the MIRAGES project (PI: A. Vigan, ANR-20-CE31-0017). We also acknowledge support from the French National Research Agency (ANR) through the project grant ANR-20-CE31-0012.
+
+S. Petrus was supported by an appointment to the NASA Postdoctoral Program at the NASA-Goddard Space Flight Center, administered by Oak Ridge Associated Universities under contract with NASA.
+
+---
+
+## Star History
+
+<a href="https://www.star-history.com/?repos=exoAtmospheres%2FForMoSA&type=date&legend=top-left">
+ <picture>
+   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/chart?repos=exoAtmospheres/ForMoSA&type=date&theme=dark&legend=top-left" />
+   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/chart?repos=exoAtmospheres/ForMoSA&type=date&legend=top-left" />
+   <img alt="Star History Chart" src="https://api.star-history.com/chart?repos=exoAtmospheres/ForMoSA&type=date&legend=top-left" />
+ </picture>
+</a>
