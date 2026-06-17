@@ -34,7 +34,7 @@ Features
 
 
 Why ForMoSA?
------------
+------------
 
 .. list-table::
    :widths: 5 95
@@ -109,11 +109,6 @@ emerge naturally from the nested-sampling evidence accumulation.
    required for nested sampling; the left dark-grey area contains utility and
    support functions. See the :doc:`api/index` for full module documentation.
 
-.. todo::
-
-   Add an interactive code-dependency graph here once the graph tooling is
-   integrated into the build.
-
 
 Example Results
 ---------------
@@ -145,7 +140,7 @@ Version Track
 
 - ``2.0.0`` Complete rewrite with a class-based API (``Analysis``), Python dataclass
   configuration, restructured package layout, automatic photometry filter retrieval,
-  CCF / RV–v sin i analysis, structured logging, and typed error handling.
+  CCF / :math:`\mathrm{RV}-v \sin i` analysis, structured logging, and typed error handling.
   **Not backwards-compatible with v1.x.** See :ref:`whats_new` for the full details.
 
 - ``1.1.6`` Addition of high-contrast models, UltraNest, and automatically generated

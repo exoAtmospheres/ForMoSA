@@ -63,6 +63,12 @@ master_doc = 'index'
 templates_path = []
 
 # Disable notebook timeout
+# Enable MyST extensions for math rendering in .md files
+myst_enable_extensions = [
+    "dollarmath",   # enables $...$ and $$...$$ syntax
+    "amsmath",      # enables \begin{equation} etc.
+]
+
 nbsphinx_timeout = -1
 
 # Allow errors from notebooks
@@ -72,7 +78,7 @@ nbsphinx_allow_errors = True
 autoclass_content = 'both'
 
 # Patterns to exclude
-exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store', 'tutorials/.ipynb_checkpoints/*', 'README.md']
+exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store', 'tutorials/.ipynb_checkpoints/*', 'README.md', 'superpowers/**']
 
 # -- Napoleon (NumPy docstring) settings --------------------------------
 napoleon_google_docstring = False
