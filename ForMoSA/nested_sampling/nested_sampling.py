@@ -626,9 +626,6 @@ class NestedSampling(object):
             # Local parameters are included only if obs_index matches
             elif p.is_local and obs_index in p.obs_index:
                 params[p] = p.prior.value if p.is_fixed else next(free_iter)
-                
-            else:
-                next(free_iter)
 
         return ObservedParameters(params)
 
