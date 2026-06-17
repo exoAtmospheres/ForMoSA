@@ -155,10 +155,11 @@ def resolution_decreasing(wav_input: np.ndarray, flx_input: np.ndarray, res_inpu
         return np.array([])
 
     # Interpolation to common resolution
-    res_in_interp = interp1d(wav_input, res_input, kind='linear', bounds_error=False)
-    res_out_interp = interp1d(wav_output, res_output, kind='linear', bounds_error=False)
-    res_in = res_in_interp(wav_output)
-    res_out = res_out_interp(wav_output)
+    # Use edge fill values so that observation points just outside the (RV-trimmed) model
+    # range get the nearest edge resolution rather than NaN, which would propagate through
+    # fwhm_conv -> sigma_conv and crash convolve_and_sample.
+    res_in = np.interp(wav_output, wav_input, res_input)
+    res_out = res_output
 
     # FWHM and convolution width
     fwhm_in = wav_output / res_in
@@ -170,6 +171,45 @@ def resolution_decreasing(wav_input: np.ndarray, flx_input: np.ndarray, res_inpu
     # Apply convolution
     flx_output = convolve_and_sample(wav_output, sigma_conv, wav_input, flx_input, force_int=True)
     return flx_output
+
+
+# ----------------------------------------------------------------------------------------------------------------------
+
+
+def integrate_filter(wav_filt: np.ndarray, trans_filt: np.ndarray, wav_input: np.ndarray, flux_input: np.ndarray) -> float:
+    """
+    Integrate the input flux on a filter transmission curve.
+
+    Parameters
+    ----------
+    wav_filt : np.ndarray
+        Wavelength grid of the filter
+    trans_filt : np.ndarray
+        Transmission of the filter
+    wav_input : np.ndarray
+        Wavelength grid of the flux
+    flux_input : np.ndarray
+        Flux we want to integrate on the filter
+
+    Returns
+    -------
+    float: Integrated flux
+
+    Notes
+    -----
+    Authors: Allan Denis
+    """
+    
+    trans_interp = np.interp(wav_input, wav_filt, trans_filt, left=0, right=0)
+    numerator = np.trapz(flux_input * trans_interp, wav_input)
+    denominator = np.trapz(trans_interp, wav_input)
+
+    if denominator == 0:
+        flux = np.nan
+    else:
+        flux = numerator / denominator
+        
+    return flux
 
 
 # ----------------------------------------------------------------------------------------------------------------------
@@ -230,8 +270,7 @@ def continuum_estimate(wav_input: np.ndarray, flx_input: np.ndarray, res_input: 
         flx_cont = np.concatenate((flx_cont, cont))
 
     # Reinterpolate onto the original wavelength grid
-    continuum_interp = interp1d(wav_cont, flx_cont, kind='linear', fill_value = 'extrapolate')
-    continuum = continuum_interp(wav_input)
+    continuum = np.interp(wav_input, wav_cont, flx_cont)
 
     return continuum
 
@@ -242,7 +281,7 @@ def continuum_estimate(wav_input: np.ndarray, flx_input: np.ndarray, res_input: 
 
 def doppler_fct(wav_mod_spectro: np.ndarray, flx_mod_spectro: np.ndarray, res_mod_spectro: np.ndarray, rv_picked: float) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
     """
-    Application of a Doppler shifting to the interpolated synthetic spectrum using the function pyasl.dopplerShift.
+    Application of a Doppler shifting to the interpolated synthetic spectrum.
     The side effects of the Doppler shifting are taking into account by using a model interpolated on a larger wavelength grid as the wavelength grid of the data.
     After the Doppler shifting, the model is then cut to the wavelength of the data.
 
@@ -272,8 +311,7 @@ def doppler_fct(wav_mod_spectro: np.ndarray, flx_mod_spectro: np.ndarray, res_mo
 
     if len(flx_mod_spectro) != 0:
         new_wav = wav_mod_spectro * ((rv_picked / const.c.to(u.km/u.s).value) + 1)
-        rv_interp = interp1d(new_wav, flx_mod_spectro, bounds_error=False)
-        flx_post_doppler = rv_interp(wav_mod_spectro)
+        flx_post_doppler = np.interp(new_wav, wav_mod_spectro, flx_mod_spectro, left=np.nan, right=np.nan)
 
         # Remove the nans caused by the RV correction
         # Note: this step is not problematic as the wavelength range of the model is slightly larger than the wavelength range of the data
@@ -415,12 +453,10 @@ def vsini_fct_rot_broad(wav_mod_spectro: np.ndarray, flx_mod_spectro: np.ndarray
     # Correct irregulatities in the wavelength grid
     wav_interval = wav_mod_spectro[1:] - wav_mod_spectro[:-1]
     wav_to_vsini = np.arange(min(wav_mod_spectro), max(wav_mod_spectro), min(wav_interval) * 2/3)
-    vsini_interp = interp1d(wav_mod_spectro, flx_mod_spectro, fill_value="extrapolate")
-    flx_to_vsini = vsini_interp(wav_to_vsini)
+    flx_to_vsini = np.interp(wav_to_vsini, wav_mod_spectro, flx_mod_spectro)
     # Apply the v.sin(i)
     new_flx = rotBroad(wav_to_vsini, flx_to_vsini, ld_picked, vsini_picked)
-    vsini_interp = interp1d(wav_to_vsini, new_flx, fill_value="extrapolate")
-    flx_mod_spectro_broad = vsini_interp(wav_mod_spectro)
+    flx_mod_spectro_broad = np.interp(wav_mod_spectro, wav_to_vsini, new_flx)
 
     return flx_mod_spectro_broad
 
@@ -457,12 +493,10 @@ def vsini_fct_fast_rot_broad(wav_mod_spectro: np.ndarray, flx_mod_spectro: np.nd
     # Correct irregulatities in the wavelength grid
     wav_interval = wav_mod_spectro[1:] - wav_mod_spectro[:-1]
     wav_to_vsini = np.arange(min(wav_mod_spectro), max(wav_mod_spectro), min(wav_interval) * 2/3)
-    vsini_interp = interp1d(wav_mod_spectro, flx_mod_spectro, fill_value="extrapolate")
-    flx_to_vsini = vsini_interp(wav_to_vsini)
+    flx_to_vsini = np.interp(wav_to_vsini, wav_mod_spectro, flx_mod_spectro)
     # Apply the v.sin(i)
     new_flx = fastRotBroad(wav_to_vsini, flx_to_vsini, ld_picked, vsini_picked)
-    vsini_interp = interp1d(wav_to_vsini, new_flx, fill_value="extrapolate")
-    flx_mod_spectro_broad = vsini_interp(wav_mod_spectro)
+    flx_mod_spectro_broad = np.interp(wav_mod_spectro, wav_to_vsini, new_flx)
 
     return flx_mod_spectro_broad
 
@@ -559,12 +593,10 @@ def vsini_fct_accurate_fast_rot_broad(wav_mod_spectro: np.ndarray, flx_mod_spect
     # Correct irregulatities in the wavelength grid
     wav_interval = wav_mod_spectro[1:] - wav_mod_spectro[:-1]
     wav_to_vsini = np.arange(min(wav_mod_spectro), max(wav_mod_spectro), min(wav_interval) * 2/3)
-    vsini_interp = interp1d(wav_mod_spectro, flx_mod_spectro, fill_value="extrapolate")
-    flx_to_vsini = vsini_interp(wav_to_vsini)
+    flx_to_vsini = np.interp(wav_to_vsini, wav_mod_spectro, flx_mod_spectro)
     # Apply the v.sin(i)
     new_flx = vsini_fct_accurate(wav_to_vsini, flx_to_vsini, ld_picked, vsini_picked, nr=10, ntheta=100, dif=0.0)
-    vsini_interp = interp1d(wav_to_vsini, new_flx, fill_value="extrapolate")
-    flx_mod_spectro_broad = vsini_interp(wav_mod_spectro)
+    flx_mod_spectro_broad = np.interp(wav_mod_spectro, wav_to_vsini, new_flx)
 
     return flx_mod_spectro_broad
 
