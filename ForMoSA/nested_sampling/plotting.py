@@ -370,7 +370,7 @@ class Plotting(object):
         fig.tight_layout()
         return fig, ax
 
-    def plot_fit(self, observations: ObservationSet, best_fit: list[ObservedModel], figsize: tuple[float, float] = (18, 8), plot_native_model: bool = False, native_model: ObservedModel | None = None) -> tuple[Figure, Axes, Axes, Axes, Axes]:
+    def plot_fit(self, observations: ObservationSet, best_fit: list[ObservedModel], plot_native_model: bool = False, native_model: ObservedModel | None = None) -> tuple[Figure, Axes, Axes, Axes, Axes]:
         '''
         Plot best fit
 
@@ -380,8 +380,6 @@ class Plotting(object):
             Instance of class ObservationSet
         best_fit : list[ObservedModel]
             List of instances of class ObservedModel corresponding to the best-fit model for each observation
-        figsize : tuple[float, float]
-            Size of the figure
         plot_native_model : bool
             Whether to plot the native model
         native_model : ObservedModel
@@ -424,7 +422,7 @@ class Plotting(object):
         # Reserve top rows for filter axis only when photometry is present
         ax_row_start = 2 if observations.has_photometry else 0
 
-        fig = plt.figure(figsize=figsize)
+        fig = plt.figure(figsize=main_config.figsize)
         gs = gridspec.GridSpec(9, 11)
 
         # Main axis for observations + best-fit
