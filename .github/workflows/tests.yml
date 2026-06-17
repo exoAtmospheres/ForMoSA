@@ -1,0 +1,42 @@
+name: Compatibility Check
+
+on:
+  push:
+    branches: [main, ForMoSA_class]
+  pull_request:
+    branches: [main]
+
+jobs:
+  check-install:
+    name: Python ${{ matrix.python-version }} install check
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.9"]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install ForMoSA
+        run: pip install -e .
+
+      - name: Check core import and version
+        run: |
+          python -c "
+          import ForMoSA
+          print(f'ForMoSA {ForMoSA.__version__} imported successfully on Python ${{ matrix.python-version }}')
+          "
+
+      - name: Check submodule imports
+        run: |
+          python -c "
+          from ForMoSA.grid_utility.utils_adapt import SubGrid
+          from ForMoSA.nested_sampling.nested_modelling import ObservedModel
+          print('Core submodules OK')
+          "
