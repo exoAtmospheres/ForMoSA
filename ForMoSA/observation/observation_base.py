@@ -281,7 +281,7 @@ class Observation(ABC):
         if self._labels is None:
             return self.default_labels
     
-        return self._labels
+        return self._normalize_labels(self._labels)
     
     @labels.setter
     def labels(self, labels: str | list[str] | None) -> None:
