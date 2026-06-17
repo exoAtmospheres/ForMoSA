@@ -469,15 +469,38 @@ class Observation(ABC):
         
             cols = []
         
+            # --------------------------------------------------
+            # Determine number of rows (spectral dimension)
+            # --------------------------------------------------
+            lengths = [len(np.atleast_1d(value)) for value in self.to_dict.values()]
+            n_rows = max(lengths)
+        
             for key, value in self.to_dict.items():
+        
                 arr = np.atleast_1d(value)
+                arr = np.asarray(arr)
+        
+                # --------------------------------------------------
+                # Replicate scalars to match spectrum length
+                # --------------------------------------------------
+                if len(arr) == 1 and n_rows > 1:
+                    arr = np.repeat(arr, n_rows)
+        
+                # --------------------------------------------------
+                # Consistency check
+                # --------------------------------------------------
+                if len(arr) != n_rows:
+                    raise ForMoSAError(
+                        f'Column "{key}" has length {len(arr)} while expected {n_rows}',
+                        self.logger
+                    )
         
                 # --------------------------------------------------
                 # Strings
                 # --------------------------------------------------
                 if arr.dtype.kind in ['U', 'S', 'O']:
                     arr = arr.astype(str)
-                    max_len = max(len(v) for v in arr)
+                    max_len = max(len(str(v)) for v in arr)
                     fmt = f'{max_len}A'
         
                 # --------------------------------------------------
