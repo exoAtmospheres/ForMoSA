@@ -628,7 +628,7 @@ class NestedSampling(object):
                 params[p] = p.prior.value if p.is_fixed else next(free_iter)
                 
             else:
-                next(iter)
+                next(free_iter)
 
         return ObservedParameters(params)
 
