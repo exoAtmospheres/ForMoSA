@@ -286,6 +286,27 @@ class ObservationLoader:
 
             # Error
             err = data[normalized["ERROR"]]
+            
+            # Name
+            # ---- Facilities
+            facilities = sorted(set(facility.astype(str)))
+            facility_str = f'[{"+".join(facilities)}]'
+
+            # ---- Instruments
+            instruments = sorted(set(ins.astype(str)))
+            instrument_str = f'[{"+".join(instruments)}]'
+            
+            # ---- Filters
+            filters = sorted(set(filter_id.astype(str)))
+            nfilters = len(filters)
+            
+            # Condense if too many filters
+            if nfilters <= 6:
+                filter_str = f'[{"+".join(filters)}]'
+            else:
+                filter_str = f"[{nfilters}filters]"
+
+            name = f"{facility_str}_{instrument_str}_{filter_str}"
 
             obs = PhotometryObservation(
                 wave=wave,
@@ -294,6 +315,7 @@ class ObservationLoader:
                 native_unit=native_unit,
                 facility=facility,
                 instrument=ins,
+                name=name,
                 filter_id=filter_id,
                 logger=logger,
             )
@@ -359,6 +381,17 @@ class ObservationLoader:
                 res_cont = 'NA'
             except ValueError:
                 res_cont = 'NA'
+                
+            # Name
+            # ---- Facilities
+            facilities = sorted(set(facility.astype(str)))
+            facility_str = f'[{"+".join(facilities)}]'
+
+            # ---- Instruments
+            instruments = sorted(set(ins.astype(str)))
+            instrument_str = f'[{"+".join(instruments)}]'
+            
+            name = f"{facility_str}_{instrument_str}"
 
             obs = SpectralObservation(
                 wave=wave,
@@ -368,6 +401,7 @@ class ObservationLoader:
                 native_unit=native_unit,
                 facility=facility,
                 instrument=ins,
+                name=name,
                 cov=cov,
                 transm=transm,
                 star_flux=star_flux,

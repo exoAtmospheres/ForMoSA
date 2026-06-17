@@ -32,6 +32,10 @@ class PhotometryObservation(Observation):
         Filter ID
     native_unit : WavelengthUnit
         native unit of the wavelength
+    name : str
+        Name of the observation
+    labels : list 
+        Labels to use for plotting the data
     logger : logging.Logger
         Logger
     log_level : str
@@ -44,11 +48,11 @@ class PhotometryObservation(Observation):
     Authors: Allan Denis
     '''
 
-    def __init__(self, wave: np.ndarray, flux: np.ndarray, err: np.ndarray, instrument: np.ndarray, facility: np.ndarray, filter_id: np.ndarray, native_unit: WavelengthUnit, logger: logging.Logger | None = None, log_level: str = 'INFO', display_unit: WavelengthUnit = WavelengthUnit.MICROMETER) -> None:
+    def __init__(self, wave: np.ndarray, flux: np.ndarray, err: np.ndarray, instrument: np.ndarray, facility: np.ndarray, filter_id: np.ndarray, native_unit: WavelengthUnit, name: str = 'unknown', labels: list | None = None, logger: logging.Logger | None = None, log_level: str = 'INFO', display_unit: WavelengthUnit = WavelengthUnit.MICROMETER) -> None:
 
         self._filter_id = np.atleast_1d(np.asarray(filter_id, dtype=str))
         # Inherit from Observation class
-        super().__init__(wave=wave, flux=flux, err=err, facility=facility, instrument=instrument, native_unit=native_unit, logger=logger, log_level=log_level, display_unit=display_unit, plot_config=PhotometricPlotConfig())
+        super().__init__(wave=wave, flux=flux, err=err, facility=facility, instrument=instrument, name=name, labels=labels, native_unit=native_unit, logger=logger, log_level=log_level, display_unit=display_unit, plot_config=PhotometricPlotConfig())
 
         self._Filter = np.array([])
 
@@ -107,29 +111,6 @@ class PhotometryObservation(Observation):
         return self._filter_id
 
     @property
-    def name(self) -> str:
-        """Observation name."""
-        # ---- Facilities
-        facilities = sorted(set(self.facility.astype(str)))
-        facility_str = f'[{"+".join(facilities)}]'
-
-        # ---- Instruments
-        instruments = sorted(set(self.instrument.astype(str)))
-        instrument_str = f'[{"+".join(instruments)}]'
-
-        # ---- Filters
-        filters = sorted(set(self.filter_id.astype(str)))
-        nfilters = len(filters)
-
-        # Condense if too many filters
-        if nfilters <= 6:
-            filter_str = f'[{"+".join(filters)}]'
-        else:
-            filter_str = f"[{nfilters}filters]"
-
-        return f"{facility_str}_{instrument_str}_{filter_str}"
-
-    @property
     def wavelength_range(self) -> tuple:
         """Wavelength range of the observation."""
         wmin = np.min([filt.wavelength_min for filt in self.Filter])
@@ -154,6 +135,17 @@ class PhotometryObservation(Observation):
     def nb_filters(self) -> int:
         """Number of filters."""
         return len(self.filter_idxs) - 1
+    
+    @property
+    def default_labels(self) -> list[str]:
+        """Default labels used for plotting."""
+    
+        labels = []
+    
+        for Filter in self.Filter:
+            labels.append(f'{Filter.name}')
+    
+        return labels
 
     # ==================================================
     # Methods
@@ -177,6 +169,42 @@ class PhotometryObservation(Observation):
 
         if (self.wave[0] < self.wavelength_range[0]) or (self.wave[0] > self.wavelength_range[1]):
             raise ForMoSAError(f'Wrong value for wave: {self.wave}. Expected a value between {list(self.wavelength_range)}', self.logger)
+        
+    def _normalize_labels(self, labels: str | list[str] | None) -> list[str] | None:
+        '''
+        Normalize plotting labels.
+    
+        Parameters
+        ----------
+        labels : str | list[str] | None
+            Labels to normalize
+    
+        Returns
+        -------
+        list[str] | None
+            Normalized labels
+    
+        Notes
+        -----
+        Authors: Allan Denis
+        '''
+    
+        if labels is None:
+            return None
+    
+        if isinstance(labels, str):
+            labels = [labels]
+    
+        if len(labels) == 1 and len(self.Filter) > 1:
+            labels = labels * len(self.Filter)
+    
+        if len(labels) != len(self.Filter):
+            raise ForMoSAError(
+                f'Expected {len(self.Filter)} labels, got {len(labels)}',
+                self.logger
+            )
+    
+        return labels
 
     def _adapt_to_resolution(self, target_resolution: float | None = None, wave_cont: str | None = None, res_cont: float | None = None) -> "PhotometryObservation":
         '''
@@ -265,7 +293,7 @@ class PhotometryObservation(Observation):
                 s=plot_config.markersize,
                 linewidths=plot_config.linewidth,
                 zorder=plot_config.zorder_data,
-                label=f'{filt.name}'
+                label=self.labels[i]
             )
 
             ax.errorbar(
@@ -284,7 +312,7 @@ class PhotometryObservation(Observation):
             # Get handles of ax_filt
             lines = ax_filt.get_lines()
             filt_handles.extend(lines)
-            filt_labels.append(f"{filt.name}")
+            filt_labels.append(self.labels[i])
 
         # --------------------------------------------------
         # Legend upper panel (Photometric data)

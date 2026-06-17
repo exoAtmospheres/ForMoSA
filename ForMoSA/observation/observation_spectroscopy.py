@@ -32,6 +32,10 @@ class SpectralObservation(Observation):
         Instrument name
     native_unit : WavelengthUnit
         Native unit of the wavelength
+    name : str
+        Name of the observation
+    labels : list 
+        Labels used for plotting the data
     cov : np.ndarray
         Covariance matrix
     transm : np.ndarray
@@ -52,10 +56,10 @@ class SpectralObservation(Observation):
     Authors: Allan Denis
     '''
 
-    def __init__(self, wave: np.ndarray, flux: np.ndarray, err: np.ndarray, res: np.ndarray, facility: str, instrument: str, native_unit: WavelengthUnit, cov: np.ndarray | None = None, transm: np.ndarray | None = None, star_flux: np.ndarray | None = None, system: np.ndarray | None = None, logger: logging.Logger | None = None, log_level: str = 'INFO', display_unit: WavelengthUnit = WavelengthUnit.MICROMETER) -> None:
+    def __init__(self, wave: np.ndarray, flux: np.ndarray, err: np.ndarray, res: np.ndarray, facility: str, instrument: str, native_unit: WavelengthUnit, name: str = 'unknown', labels: list | None = None, cov: np.ndarray | None = None, transm: np.ndarray | None = None, star_flux: np.ndarray | None = None, system: np.ndarray | None = None, logger: logging.Logger | None = None, log_level: str = 'INFO', display_unit: WavelengthUnit = WavelengthUnit.MICROMETER) -> None:
 
         # Inherit from Observation class
-        super().__init__(wave=wave, flux=flux, err=err, facility=facility, instrument=instrument, native_unit=native_unit, logger=logger, log_level=log_level, display_unit=display_unit, plot_config=SpectralPlotConfig())
+        super().__init__(wave=wave, flux=flux, err=err, facility=facility, instrument=instrument, name=name, labels=labels, native_unit=native_unit, logger=logger, log_level=log_level, display_unit=display_unit, plot_config=SpectralPlotConfig())
 
         # Spectral-specific attributes
         self._res = np.atleast_1d(np.asarray(res, dtype=float))
@@ -197,19 +201,6 @@ class SpectralObservation(Observation):
         return data
 
     @property
-    def name(self) -> str:
-        """Observation name."""
-        # ---- Facilities
-        facilities = sorted(set(self.facility.astype(str)))
-        facility_str = f'[{"+".join(facilities)}]'
-
-        # ---- Instruments
-        instruments = sorted(set(self.instrument.astype(str)))
-        instrument_str = f'[{"+".join(instruments)}]'
-
-        return f"{facility_str}_{instrument_str}"
-
-    @property
     def wavelength_range(self) -> tuple[float, float]:
         """Wavelength range of the observation."""
         return float(self.wave.min()), float(self.wave.max())
@@ -232,6 +223,18 @@ class SpectralObservation(Observation):
     def nb_instruments(self) -> int:
         """Number of instruments."""
         return len(self.instrument_idxs) - 1
+    
+    @property
+    def default_labels(self) -> list[str]:
+        """Default labels used for plotting."""
+    
+        labels = []
+    
+        for i in range(self.nb_instruments):
+            idx = self.instrument_idxs[i]
+            labels.append(f'{self.facility[idx]}/{self.instrument[idx]}')
+    
+        return labels
 
     # ==================================================
     # Methods
@@ -339,6 +342,42 @@ class SpectralObservation(Observation):
 
         if self.cov is not None:
             self._cov = self.cov[np.ix_(mask, mask)]
+            
+    def _normalize_labels(self, labels: str | list[str] | None) -> list[str] | None:
+        '''
+        Normalize plotting labels.
+    
+        Parameters
+        ----------
+        labels : str | list[str] | None
+            Labels to normalize
+    
+        Returns
+        -------
+        list[str] | None
+            Normalized labels
+    
+        Notes
+        -----
+        Authors: Allan Denis
+        '''
+    
+        if labels is None:
+            return None
+    
+        if isinstance(labels, str):
+            labels = [labels]
+    
+        if len(labels) == 1 and self.nb_instruments > 1:
+            labels = labels * self.nb_instruments
+    
+        if len(labels) != self.nb_instruments:
+            raise ForMoSAError(
+                f'Expected {self.nb_instruments} labels, got {len(labels)}',
+                self.logger
+            )
+    
+        return labels
 
     def _adapt_to_resolution(self, target_resolution: np.ndarray, wave_cont: str | None = None, res_cont: float | None = None) -> Observation:
         '''
@@ -478,7 +517,7 @@ class SpectralObservation(Observation):
             idx0 = self.instrument_idxs[i]
             idx1 = self.instrument_idxs[i + 1]
 
-            label = f"{self.facility[idx0]}/{self.instrument[idx0]}"
+            label = self.labels[i]
 
             if plot_config.marker == 'None':
 

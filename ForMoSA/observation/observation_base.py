@@ -32,6 +32,10 @@ class Observation(ABC):
         Facility name
     instrument : str
         Instrument name
+    name : str 
+        Name of the observation
+    labels : list 
+        Labels to use for plotting
     logger : logging.Logger
         Logger
     log_level : str
@@ -46,7 +50,7 @@ class Observation(ABC):
     Authors: Allan Denis
     '''
 
-    def __init__(self, wave: np.ndarray, flux: np.ndarray, err: np.ndarray, native_unit: WavelengthUnit, facility: str, instrument: str, logger: logging.Logger | None = None, log_level:str = 'INFO', display_unit: WavelengthUnit = WavelengthUnit.MICROMETER, plot_config: ObsPlotConfig = ObsPlotConfig()) -> None:
+    def __init__(self, wave: np.ndarray, flux: np.ndarray, err: np.ndarray, native_unit: WavelengthUnit, facility: str, instrument: str, name: str = 'unknown', labels: list | None = None, logger: logging.Logger | None = None, log_level:str = 'INFO', display_unit: WavelengthUnit = WavelengthUnit.MICROMETER, plot_config: ObsPlotConfig = ObsPlotConfig()) -> None:
 
         self._logger = logger if logger is not None else setup_logging(log_level, name='Observation')
 
@@ -57,6 +61,8 @@ class Observation(ABC):
         self._display_unit = display_unit
         self._facility  = np.atleast_1d(np.asarray(facility, dtype=str))
         self._instrument  = np.atleast_1d(np.asarray(instrument, dtype=str))
+        self._name = name
+        self._labels = labels
 
         self._plot_config = plot_config
 
@@ -81,12 +87,6 @@ class Observation(ABC):
 
     @property
     @abstractmethod
-    def name(self) -> str:
-        """Observation name."""
-        pass
-
-    @property
-    @abstractmethod
     def wavelength_range(self) -> tuple[float, float]:
         """Wavelength range."""
         pass
@@ -101,6 +101,33 @@ class Observation(ABC):
     @abstractmethod
     def hc_mode(self) -> bool:
         """Whether observation is in high-contrast mode."""
+        pass
+    
+    @property
+    @abstractmethod
+    def default_labels(self) -> list[str]:
+        """Default labels used for plotting."""
+        pass
+    
+    @abstractmethod  
+    def _normalize_labels(self, labels: str | list[str] | None) -> list[str] | None:
+        '''
+        Normalize plotting labels.
+    
+        Parameters
+        ----------
+        labels : str | list[str] | None
+            Labels to normalize
+    
+        Returns
+        -------
+        list[str] | None
+            Normalized labels
+    
+        Notes
+        -----
+        Authors: Allan Denis
+        '''
         pass
 
     @abstractmethod
@@ -236,6 +263,31 @@ class Observation(ABC):
     def plot_config(self, config: ObsPlotConfig):
         """Configuration plotting setter."""
         self._plot_config = config
+        
+    @property 
+    def name(self) -> str:
+        """Observation name."""
+        return self._name
+    
+    @name.setter
+    def name(self, new_name) -> str:
+        """Observation name setter."""
+        self._name = new_name
+
+    @property
+    def labels(self) -> list[str]:
+        """Labels used for plotting."""
+    
+        if self._labels is None:
+            return self.default_labels
+    
+        return self._labels
+    
+    @labels.setter
+    def labels(self, labels: str | list[str] | None) -> None:
+        """Set plotting labels."""
+    
+        self._labels = self._normalize_labels(labels)
 
     # ================================================
     # Class methods
@@ -389,6 +441,8 @@ class Observation(ABC):
 
         if np.any(self.err <= 0):
             raise ForMoSAError('Error must be strictly positive', self.logger)
+            
+        self._labels = self._normalize_labels(self.labels)
 
     def _set_unit(self, unit: WavelengthUnit) -> None:
         '''
