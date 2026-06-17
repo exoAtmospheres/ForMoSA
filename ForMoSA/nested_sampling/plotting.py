@@ -311,7 +311,7 @@ class Plotting(object):
         # Polygon-frame polar projection 
         theta, proj = _radar_polygon_factory(N)
 
-        fig = plt.figure(figsize=(8, 8))
+        fig = plt.figure(figsize=config.figsize)
         ax  = fig.add_subplot(projection=proj)
 
         # Grid rings & limits
