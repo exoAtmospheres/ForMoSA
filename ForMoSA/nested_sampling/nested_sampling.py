@@ -604,7 +604,7 @@ class NestedSampling(object):
         '''
 
         if len(free_values) != self.parameters.n_free_parameters:
-            raise ForMoSAError("Invalid free_values length", self.logger)
+            raise ForMoSAError(f"Invalid free_values length ({len(free_values)}. Expected {self.parameters.n_free_parameters})", self.logger)
 
         params = {}
         # Convert numpy array to list of Python floats to avoid numpy.float64 scalars

@@ -311,7 +311,7 @@ def doppler_fct(wav_mod_spectro: np.ndarray, flx_mod_spectro: np.ndarray, res_mo
 
     if len(flx_mod_spectro) != 0:
         new_wav = wav_mod_spectro * ((rv_picked / const.c.to(u.km/u.s).value) + 1)
-        flx_post_doppler = np.interp(new_wav, wav_mod_spectro, flx_mod_spectro, left=np.nan, right=np.nan)
+        flx_post_doppler = np.interp(wav_mod_spectro, new_wav, flx_mod_spectro, left=np.nan, right=np.nan)
 
         # Remove the nans caused by the RV correction
         # Note: this step is not problematic as the wavelength range of the model is slightly larger than the wavelength range of the data
