@@ -592,7 +592,7 @@ class Plotting(object):
         # plot rv/vsini map
         fig, ax = plt.subplots(figsize=(8, 6))
         extent = [rv_grid[0], rv_grid[-1], vsini_grid[0], vsini_grid[-1]]
-        im = ax.imshow(logL_map, aspect='auto', origin='lower', extent=extent, cmap='viridis')
+        im = ax.imshow(logL_map - np.nanmin(logL_map), aspect='auto', origin='lower', extent=extent, cmap='viridis')
         ax.scatter(best_rv, best_vsini, marker='x', color='red', s=100, label=f'Best: RV={best_rv:.1f}, vsini={best_vsini:.1f}')
         ax.set_xlabel('RV (km/s)')
         ax.set_ylabel(r'v.sin(i) (km/s)')
