@@ -157,9 +157,13 @@ def logL_CCF_Brogi(flx_obs, flx_mod):
     N = len(flx_mod)
     flx_obs -= np.mean(flx_obs)
     flx_mod -= np.mean(flx_mod)
-    Sf2 = 1/N * np.nansum(np.square(flx_obs))
-    Sg2 = 1/N * np.nansum(np.square(flx_mod))
-    R = 1/N * np.nansum(flx_obs * flx_mod)
+    
+    flx_obs /= np.sqrt(np.dot(flx_obs, flx_obs))
+    flx_mod /= np.sqrt(np.dot(flx_mod, flx_mod))
+    
+    Sf2 = 1/N * np.dot(flx_obs, flx_obs)
+    Sg2 = 1/N * np.dot(flx_mod, flx_mod)
+    R = 1/N * np.dot(flx_obs, flx_mod)
 
     logL = -N/2 * np.log(Sf2 - 2*R + Sg2)
 
