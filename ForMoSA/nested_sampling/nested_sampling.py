@@ -293,12 +293,8 @@ class NestedSampling(object):
 
         ns = cls.from_dict(data, observations = observations, subgrids = subgrids, logger = logger)
 
-        results_file = Path(path)  / 'NS_results' / f'results_{ns.algorithm}.json'
-
-        if not results_file.exists():
-            ns.logger.warning(f'{results_file} does not exist. Cannot load the results of the Nested Sampling', ns.logger)
-        else:
-            ns.load_results(path)
+        results_path = Path(path)  / 'NS_results' 
+        ns._results = ns.load_results(results_path)        
 
         return ns
 
@@ -688,8 +684,8 @@ class NestedSampling(object):
         if not(results_file.exists()):
             raise ForMoSAError(f'<{results_file} does not exist. Please make sure to use an existing result file>', self.logger)
 
-        self._logger.debug(f'< load {results_file}')
-        with open(results_file, 'r') as f:
-            results = json.load(f)
-
-        self._results = NSResults.from_dict(results)
+        self._logger.debug(f'< load {results_file}')  
+        try:
+            self._results = NSResults.from_json(results_path, f'{self.algorithm}')
+        except Exception as e:
+            raise ForMoSAError(e, self.logger)
