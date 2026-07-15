@@ -272,29 +272,47 @@ class ObservationLoader:
                 is_photo = False
                 # Recompute missing_photo for correct error reporting if we end up in the final else:
                 missing_photo = ObservationKeys.validate_photometric(set(normalized.keys()))
+                
+        meta = {}
+        
+        for key in ("FACILITY", "INSTRUMENT"):
+            canonical = getattr(ObservationKeys, key).canonical
+        
+            if canonical not in normalized:
+                logger.warning(f"Key {key} not in observation keys. Setting it to 'unknown'")
+                value = np.full(len(wave), "unknown", dtype=str)
+            else:
+                value = np.asarray(data[normalized[key]], dtype=str)
+        
+                if value.ndim == 0 or len(value) == 1:
+                    value = np.full(len(wave), str(value.item()))
+                elif len(value) != len(wave):
+                    raise ValueError(f"{key} has length {len(value)} but WAVE has length {len(wave)}")
+        
+            meta[key] = value
+        
+        facility = meta["FACILITY"]
+        ins = meta["INSTRUMENT"]
+        
+        # ---- Facilities
+        facilities = sorted(set(facility.astype(str)))
+        facility_str = f'[{"+".join(facilities)}]'
+
+        # ---- Instruments
+        instruments = sorted(set(ins.astype(str)))
+        instrument_str = f'[{"+".join(instruments)}]'
 
         # =============================
         # Photometric observation
         # =============================
         if is_photo:
-            # Facility, ins and filter_id
-            facility = np.asarray(data[normalized["FACILITY"]], dtype=str)
-            ins = np.asarray(data[normalized["INSTRUMENT"]], dtype=str)
+            # filter_id
             filter_id = np.asarray(data[normalized["FILTER_ID"]], dtype=str)
 
             logger.info(f'    Detected photometric observation with filter {np.unique(filter_id)}')
 
             # Error
             err = data[normalized["ERROR"]]
-            
-            # Name
-            # ---- Facilities
-            facilities = sorted(set(facility.astype(str)))
-            facility_str = f'[{"+".join(facilities)}]'
-
-            # ---- Instruments
-            instruments = sorted(set(ins.astype(str)))
-            instrument_str = f'[{"+".join(instruments)}]'
             
             # ---- Filters
             filters = sorted(set(filter_id.astype(str)))
@@ -306,6 +324,7 @@ class ObservationLoader:
             else:
                 filter_str = f"[{nfilters}filters]"
 
+            # Name
             name = f"{facility_str}_{instrument_str}_{filter_str}"
 
             obs = PhotometryObservation(
@@ -324,20 +343,6 @@ class ObservationLoader:
         # Spectroscopic observation
         # =============================
         elif is_spectro:
-            # Facility and instrument
-            for canonical, key in zip([ObservationKeys.FACILITY.canonical, ObservationKeys.INSTRUMENT.canonical], ['FACILITY', 'INSTRUMENT']):
-                if canonical not in set(normalized.keys()):
-                    logger.warning(f"Key {key} not in observation keys. Setting it to 'unknown'")
-                    if key == 'FACILITY':
-                        facility = np.array(['unknown'] * len(wave))
-                    elif key == 'INSTRUMENT':
-                        ins = np.array(['unknown'] * len(wave))
-                else:
-                    if key == 'FACILITY':
-                        facility = np.asarray(data[normalized["FACILITY"]], dtype=str)
-                    elif key == 'INSTRUMENT':
-                        ins = np.asarray(data[normalized["INSTRUMENT"]], dtype=str)
-
             logger.info(f'    Detected spectroscopic observation with instruments {np.unique(facility)}/{np.unique(ins)}')
 
             # Resolution
@@ -383,14 +388,6 @@ class ObservationLoader:
                 res_cont = 'NA'
                 
             # Name
-            # ---- Facilities
-            facilities = sorted(set(facility.astype(str)))
-            facility_str = f'[{"+".join(facilities)}]'
-
-            # ---- Instruments
-            instruments = sorted(set(ins.astype(str)))
-            instrument_str = f'[{"+".join(instruments)}]'
-            
             name = f"{facility_str}_{instrument_str}"
 
             obs = SpectralObservation(
