@@ -1,18 +1,5 @@
 ---
 title: 'ForMoSA: Forward Modeling tool for Spectral Analysis'
-author:
-  - 'ForMoSA Collaboration'
-  - 'Simon Petrus'
-  - 'Paulina Palma-Bifani'
-  - 'Matthieu Ravet'
-  - 'Allan Denis'
-  - 'Bhavesh Rajpoot'
-  - 'Mickaël Bonnefoy'
-  - 'Gaël Chauvin'
-  - 'Arthur Vigan'
-  - 'Alice Radcliffe'
-  - 'Pablo Requeijo'
-  - 'Kevin Hoy'
 tags:
   - python
   - astronomy
@@ -22,7 +9,7 @@ tags:
 authors:
   - name: ForMoSA Collaboration
     equal-contrib: true
-    affiliation: "4"
+    affiliation: "1,2,3,4,5,6,7,8,9,10"
   - name: Simon Petrus
     orcid: 0000-0003-0331-3654
     equal-contrib: true
