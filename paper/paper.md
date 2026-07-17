@@ -1,5 +1,18 @@
 ---
 title: 'ForMoSA: Forward Modeling tool for Spectral Analysis'
+author:
+  - 'ForMoSA Collaboration'
+  - 'Simon Petrus'
+  - 'Paulina Palma-Bifani'
+  - 'Matthieu Ravet'
+  - 'Allan Denis'
+  - 'Bhavesh Rajpoot'
+  - 'Mickaël Bonnefoy'
+  - 'Gaël Chauvin'
+  - 'Arthur Vigan'
+  - 'Alice Radcliffe'
+  - 'Pablo Requeijo'
+  - 'Kevin Hoy'
 tags:
   - python
   - astronomy
@@ -8,9 +21,8 @@ tags:
   - atmosphere
 authors:
   - name: ForMoSA Collaboration
-    orcid: 
     equal-contrib: true
-    affiliation: 
+    affiliation: "4"
   - name: Simon Petrus
     orcid: 0000-0003-0331-3654
     equal-contrib: true
@@ -110,7 +122,7 @@ The code **`ForMoSA`** was developed to address the growing need for an efficien
 - **High-Contrast module:** It incorporates the method of [@landman2024], allowing users to include reference stellar, atmospheric transmission, and systematics spectra to accurately fit contrast-limited data.
 
 
-[^1]: `xarray` documentation: https://docs.xarray.dev/en/stable
+[^1]: `xarray` documentation: <https://docs.xarray.dev/en/stable>
 
 
 # State of the field
@@ -139,7 +151,7 @@ At each iteration of the nested sampling, random parameter values are drawn from
 
 
 
-[^2]: **`ForMoSA`** documentation: https://ForMoSA.readthedocs.io/en/latest/index.html
+[^2]: **`ForMoSA`** documentation: <https://ForMoSA.readthedocs.io/en/latest/index.html>
 
 
 ![**`ForMoSA`** workflow diagram. The shaded gray area on the right represents the core functionalities required to run the Nested Sampling. The left dark-gray area represents utility and support functions. The small boxes contain the modules, and the dashed boxes represent the contents of each folder.](schema_ForMoSA.png)
@@ -156,7 +168,7 @@ A major strength of **`ForMoSA`** lies in its capacity to jointly fit multi-inst
 Finally, the modularity of **`ForMoSA`** include a high-contrast, high-resolution (HCHR) module applied to VLT/HiRISE data (R>100,000) to extract precise radial velocities and detailed orbital constraints [@Denis25; @Denis26].
 To track the ongoing scientific output associated with the tool, a continually updated list of peer-reviewed publications utilizing **`ForMoSA`** is maintained on our NASA ADS public library[^3].
 
-[^3]: NASA ADS Library: https://ui.adsabs.harvard.edu/user/libraries/PekELjOGR4yl3XOnGwOAng
+[^3]: NASA ADS Library: <https://ui.adsabs.harvard.edu/user/libraries/PekELjOGR4yl3XOnGwOAng>
 
 
 **`ForMoSA`** is an active project that has been used in multiple published projects of research. It will continue to evolve over time, with new functionalities being added to meet the requirements of future instruments (ELTs, HWO, etc.), updates to the included model grids, and the coupling of atmospheric models with additional physics to better fit the data (e.g., disks, extinction laws, multiple columns, time variability). For this reason, the official documentation at ReadTheDocs, which will be regularly updated, should be considered the reference description of the code.
@@ -174,7 +186,7 @@ Our team fully designed and authored the core architecture, logic, and implement
 
 The authors express their sincere thanks to the Code/Astro Workshop[^4], which provided the foundational training necessary to transform **`ForMoSA`** into a professional, open-source `Python` package.
 
-[^4]: Code/Astro Workshop: https://semaphorep.github.io/codeastro/
+[^4]: Code/Astro Workshop: <https://semaphorep.github.io/codeastro/>
 
 We gratefully acknowledge the funding and support for the ForM-X workshops held in Nice (2023), Heidelberg (2024/2025), and Grenoble (2025). These collaborative sessions were instrumental in the development and refinement of the code. We also thank the various laboratories and institutions, especially IPAG, Lagrange, and MPIA, for their continued support.
 
