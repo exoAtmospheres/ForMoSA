@@ -3,9 +3,9 @@ import numpy as np
 
 from ForMoSA.core.errors import ForMoSAError
 from ForMoSA.core.enums import ParameterKind
-from ForMoSA.Parameter.Prior import GaussianPrior
-from ForMoSA.Parameter.parameter import Parameter
-from ForMoSA.effects.observed import ObservedModel, ObservedParameters  # Remplace `your_module` par le nom du module
+from ForMoSA.parameter.prior import GaussianPrior
+from ForMoSA.parameter.parameter import Parameter
+from ForMoSA.transform.observed import ObservedModel, ObservedParameters
 
 # ======================
 # Fixtures
@@ -111,9 +111,9 @@ def test_get_method(parameters):
     obs_params = ObservedParameters(parameters)
     key = list(parameters.keys())[0]
     val = parameters[key]
-    assert obs_params.get(key.name) == val
+    assert obs_params.get_name(key.name) == val
     with pytest.raises(ForMoSAError):
-        obs_params.get("nonexistent")
+        obs_params.get_name("nonexistent")
 
 def test_grid_and_physics_properties(parameters):
     obs_params = ObservedParameters(parameters)

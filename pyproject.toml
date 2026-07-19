@@ -1,0 +1,66 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ForMoSA"
+dynamic = ["version", "dependencies"]
+description = "ForMoSA: Forward Modeling Tool for Spectral Analysis"
+readme = "README.md"
+license = { text = "BSD 3-Clause License" }
+authors = [
+  { name = "P. Palma-Bifani", email = "paulina.palma-bifani@oca.eu" },
+  { name = "S. Petrus", email = "simon.petrus.pro@gmail.com"},
+  { name = "M. Ravet", email = "matthieu.ravet@univ-grenoble-alpes.fr"},
+  { name = "A. Denis", email = "allan.denis@lam.fr"},
+  { name = "B. Rajpoot", email = "rajpoot@mpia.de"},
+  { name = "M. Bonnefoy", email = "mickael.bonnefoy@univ-grenoble-alpes.fr"},
+  { name = "G. Chauvin", email = "chauvin@mpia.de"},
+  { name = "A. Vigan", email = "arthur.vigan@lam.fr"},
+  { name = "A. Radcliffe", email = "Alice.RADCLIFFE@obspm.fr"},
+  { name = "K. Hoy", email = "kevinmhoy@gmail.com"},
+  { name = "P. Requejio", email = "prequeijo03@gmail.com"}
+]
+requires-python = ">=3.10"
+classifiers = [
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "License :: OSI Approved :: BSD License",
+  "Topic :: Scientific/Engineering :: Astronomy",
+]
+
+[project.optional-dependencies]
+# Developer profile: testing, packaging, and documentation-building tools.
+# The public install (`pip install ForMoSA`) pulls runtime dependencies only.
+dev = [
+  # Testing
+  "pytest",
+  "pytest-cov",
+  # Packaging / release
+  "build",
+  "twine",
+  # Documentation (mirrors docs/requirements.txt, which Read the Docs reads directly)
+  "sphinx>=9.1",
+  "ipykernel",
+  "nbsphinx",
+  "pandoc",
+  "jupyter",
+  "sphinx-book-theme>=1.1",
+  "sphinx-autodoc-typehints>=3.9.8",
+  "sphinx-copybutton>=0.5",
+  "myst-parser>=2.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/exoAtmospheres/ForMoSA"
+Documentation = "https://formosa.readthedocs.io"
+"Bug Tracker" = "https://github.com/exoAtmospheres/ForMoSA/issues"
+
+[tool.setuptools.dynamic]
+version = { attr = "ForMoSA.__version__" }
+dependencies = { file = ["requirements.txt"] }
+
+[tool.setuptools.packages.find]
+exclude = ["tests*"]

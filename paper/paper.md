@@ -46,6 +46,7 @@ authors:
     equal-contrib: false
     affiliation: "6"  
   - name: Pablo Requeijo
+    orcid: 0009-0007-9285-5952
     equal-contrib: false
     affiliation: "6"
   - name: Kevin Hoy
@@ -71,7 +72,7 @@ affiliations:
    index: 8
  - name: Department of Physics and Astronomy, Heidelberg University, Im Neuenheimer Feld 226, D-69120 Heidelberg, Germany
    index: 9
- - name: EuropeanSouthernObservatory, AlonsodeCordova 3107,Vitacura, Santiago, Chile 
+ - name: European Southern Observatory, Alonso de Cordova 3107, Vitacura, Santiago, Chile 
    index: 10
 date: 19 August 2025
 bibliography: paper_clean.bib
@@ -172,6 +173,7 @@ For this reason, the official documentation is regularly updated at `ReadTheDocs
 # AI usage disclosure
 
 Our team fully designed and authored the core architecture, logic, and implementation of the code without AI generation. We used AI strictly as an auxiliary tool for debugging and managing documentation. Additionally, we utilized Gemini to refine the English and Gemini coupled with Antigravity to format and compile the main text and the bibliography.
+
 
 
 
