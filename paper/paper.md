@@ -36,7 +36,7 @@ authors:
   - name: Gaël Chauvin
     orcid: 0000-0003-4022-8598
     equal-contrib: false
-    affiliation: "7" 
+    affiliation: "5, 7" 
   - name: Arthur Vigan
     orcid: 0000-0002-5902-7828
     equal-contrib: false
@@ -75,7 +75,7 @@ affiliations:
  - name: European Southern Observatory, Alonso de Cordova 3107, Vitacura, Santiago, Chile 
    index: 10
 date: 19 August 2025
-bibliography: paper_clean.bib
+bibliography: paper.bib
 
 
 
