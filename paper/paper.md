@@ -31,26 +31,26 @@ authors:
     affiliation: "7, 9" 
   - name: Mickaël Bonnefoy
     orcid: 0000-0001-5579-5339
-    equal-contrib: true
+    equal-contrib: false
     affiliation: "4" 
   - name: Gaël Chauvin
     orcid: 0000-0003-4022-8598
-    equal-contrib: true
+    equal-contrib: false
     affiliation: "7" 
   - name: Arthur Vigan
     orcid: 0000-0002-5902-7828
-    equal-contrib: true
+    equal-contrib: false
     affiliation: "8" 
   - name: Alice Radcliffe
     orcid: 0009-0003-9345-019X
-    equal-contrib: true
+    equal-contrib: false
     affiliation: "6"  
   - name: Pablo Requeijo
-    equal-contrib: true
+    equal-contrib: false
     affiliation: "6"
   - name: Kevin Hoy
     orcid: 0009-0004-5870-9562
-    equal-contrib: true
+    equal-contrib: false
     affiliation: "2, 3, 10" 
 affiliations:
  - name: NASA-Goddard Space Flight Center, Greenbelt, MD 20771, USA
