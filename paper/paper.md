@@ -21,7 +21,7 @@ authors:
   - name: Matthieu Ravet
     orcid: 0009-0000-4898-4713
     equal-contrib: true
-    affiliation: "5, 4, 7"
+    affiliation: "6, 4, 7"
   - name: Allan Denis
     equal-contrib: true
     affiliation: "8"
