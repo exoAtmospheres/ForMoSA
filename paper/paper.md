@@ -36,7 +36,7 @@ authors:
   - name: Gaël Chauvin
     orcid: 0000-0003-4022-8598
     equal-contrib: false
-    affiliation: "5, 7" 
+    affiliation: "7, 6" 
   - name: Arthur Vigan
     orcid: 0000-0002-5902-7828
     equal-contrib: false
@@ -44,11 +44,11 @@ authors:
   - name: Alice Radcliffe
     orcid: 0009-0003-9345-019X
     equal-contrib: false
-    affiliation: "6"  
+    affiliation: "5"  
   - name: Pablo Requeijo
     orcid: 0009-0007-9285-5952
     equal-contrib: false
-    affiliation: "6"
+    affiliation: "5"
   - name: Kevin Hoy
     orcid: 0009-0004-5870-9562
     equal-contrib: false
@@ -62,9 +62,9 @@ affiliations:
    index: 3
  - name: Univ. Grenoble Alpes, CNRS, IPAG, F-38000 Grenoble, France
    index: 4
- - name: Laboratoire J. L. Lagrange, Université Côte d’Azur, Observatoire de la Côte d’Azur, CNRS, 06304 Nice, France
-   index: 5
  - name: LIRA, Observatoire de Paris, Université PSL, Sorbonne Université, Université de Paris, 5 place Jules Janssen, 92195 Meudon, France
+   index: 5
+ - name: Laboratoire J. L. Lagrange, Université Côte d’Azur, Observatoire de la Côte d’Azur, CNRS, 06304 Nice, France
    index: 6
  - name: Max-Planck-Institut für Astronomie, Königstuhl 17, 69117 Heidelberg, Germany
    index: 7
@@ -88,7 +88,7 @@ bibliography: paper.bib
 # Summary
 
 **`ForMoSA` (FORward MOdeling tool for Spectral Analysis)** is an open-source `Python` package to fit spectroscopic and photometric observations using a Bayesian framework. It can utilize different self-consistent atmospheric models to perform robust parameter space exploration. It has been mainly designed for fitting directly imaged young planetary-mass brown dwarfs and exoplanets.
-The developments within **`ForMoSA`** are supported by an international collaboration of several laboratories in France (IPAG, LIRA, LAM, and Lagrange), Germany (MPIA), USA (NASA Goddard), and Chile (FCLA, Universidad Diego Portales, and Universidad de Chile). The evolution of the code and the growing interest from the scientific community has led to the need for this dedicated publicatio alongside the release of **`ForMoSA` v2.0**, which has been refactored into a class architecture with user-friendly features and new functionalities.
+The developments within **`ForMoSA`** are supported by an international collaboration of several laboratories in France (IPAG, LIRA, LAM, and Lagrange), Germany (MPIA), USA (NASA Goddard), and Chile (FCLA, Universidad Diego Portales, and Universidad de Chile). The evolution of the code and the growing interest from the scientific community has led to the need for this dedicated publication alongside the release of **`ForMoSA` v2.0**, which has been refactored into a class architecture with user-friendly features and extended functionalities.
 
 
 # Statement of need
@@ -150,8 +150,8 @@ At each iteration of the nested sampling, random parameter values are drawn from
 Initiated in 2020, **`ForMoSA`** has become a highly adaptable tool for the atmospheric characterization of substellar objects. Its computational efficiency and compatibility with diverse physical models have enabled the standard analysis of targets across a wide range of spectral resolutions, from broadband photometry to high-resolution spectroscopy. 
 
 A major strength of **`ForMoSA`** lies in its capacity to jointly fit multi-instrument, heterogeneous datasets to maximize wavelength coverage. Because combining data from diverse instruments often introduces biases, **`ForMoSA`** features the dedicated `MOSAIC` module. This framework utilizes customized likelihood scaling and parametric covariance models to mitigate inter-calibration offsets and complex noise structures, which can be tuned for each specific target and dataset. 
-Altogether, these features allow for the accurate characterization and publication of atmospheric properties of various benchmark companions such as HIP 65426 [@Petrus21; @Carter23], AB Pic b [@PalmaBifani2023], VHS 1256 b [@Petrus23; @Petrus24, @Radcliffe26], AF Lep b [@Palma24], $\beta$ Pic b [@Houlle2025; @Ravet25], YSES 1 b and c [@Hoch2025], and COCONUTS-2 b [@Ravet26]. 
-Furthermore, **`ForMoSA`**'s speed allows for the homogeneous analysis of large spectral libraries, such as those of brown dwarfs and planetary-mass companions [@Petrus2025; @PalmaBifani2025], resulting in the identification of parameter trends and structural systematics in atmospheric models.
+Altogether, these features allow for the accurate characterization and publication of atmospheric properties of various benchmark companions such as HIP 65426 [@Petrus21; @Carter23], AB Pic b [@PalmaBifani2023], VHS 1256 b [@Petrus23; @Petrus24; @Radcliffe26], AF Lep b [@Palma24], $\beta$ Pic b [@Houlle2025; @Ravet25], YSES 1 b and c [@Hoch2025], and COCONUTS-2 b [@Ravet26]. 
+Furthermore, **`ForMoSA`**'s speed allows for the homogeneous analysis of large spectral libraries, such as those of brown dwarfs and planetary-mass companions [@Petrus20; @Petrus2025; @PalmaBifani2025], resulting in the identification of parameter trends and structural systematics in atmospheric models.
 Finally, **`ForMoSA`** also includes a high-contrast, high-resolution (HCHR) module applied to contrast-limited, stellar-contaminated data (e.g. VLT/HiRISE) to extract precise radial velocities and detailed orbital constraints [@Denis25; @Denis26].
 
 
