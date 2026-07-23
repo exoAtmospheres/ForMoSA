@@ -317,7 +317,7 @@ class NSAnalysis(object):
 
         self._logger.info(f'      Computing RV CCF for observation {obs.name}')
 
-        ccf, acf, ccf_star, rv_peak, logL, ccf_raw = us.compute_ccf(
+        ccf_raw, acf, ccf_star, rv_peak, logL, ccf = us.compute_ccf(
             native_model.wave,
             native_model.flux,
             obs.wave,
@@ -347,7 +347,8 @@ class NSAnalysis(object):
             'acf': acf,
             'ccf_star': ccf_star,
             'rv_peak': rv_peak,
-            'logL': logL
+            'logL': logL,
+            'ccf_raw': ccf_raw
         }
 
         return results
