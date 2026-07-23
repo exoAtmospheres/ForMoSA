@@ -455,7 +455,7 @@ class Analysis(object):
         for index in range(self.observations.n_observations):
             ccf_dict = self.ns_analysis.compute_ccf(rv_grid, index=index, logL_type=logL_type)
             file_tag = list(ccf_dict.keys())[0]
-            rv_grid, ccf, acf, ccf_star, _, _ = list(ccf_dict[file_tag].values())
+            rv_grid, ccf, acf, ccf_star, _, _, _ = list(ccf_dict[file_tag].values())
             fig, ax = self.plots.plot_ccf(rv_grid, ccf, acf, ccf_star=ccf_star, title=file_tag)
 
             if save_path:
