@@ -293,7 +293,7 @@ class NestedSampling(object):
 
         ns = cls.from_dict(data, observations = observations, subgrids = subgrids, logger = logger)
 
-        results_path = Path(path)  / 'NS_results' 
+        results_path = Path(path)
         ns._results = ns.load_results(results_path)        
 
         return ns
@@ -687,5 +687,6 @@ class NestedSampling(object):
         self._logger.debug(f'< load {results_file}')  
         try:
             self._results = NSResults.from_json(results_path, f'{self.algorithm}')
+            return self._results
         except Exception as e:
             raise ForMoSAError(e, self.logger)
