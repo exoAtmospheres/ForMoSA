@@ -15,7 +15,7 @@ distributions on physical parameters.
 **Quick links:**
 :doc:`getting_started/index` |
 :doc:`tutorials/index` |
-:doc:`scaling/index` |
+:doc:`good_practices/index` |
 :doc:`api/index` |
 :doc:`whats_new`
 
@@ -123,7 +123,7 @@ Example Results
    installation
    getting_started/index
    tutorials/index
-   scaling/index
+   good_practices/index
    api/index
    whats_new
 
