@@ -6,10 +6,10 @@ from unittest.mock import patch, MagicMock
 
 from ForMoSA.core.errors import ForMoSAError
 from ForMoSA.grid.model_grid import ModelGrid
-from ForMoSA.Filter.Filter import PhotometryFilter
+from ForMoSA.filter.filter import PhotometryFilter
 from ForMoSA.core.enums import WavelengthUnit, ObservationType
-from ForMoSA.subgrid.subgrid_photometry import SubGridPhotometry
-from ForMoSA.subgrid.subgrid_spectroscopy import SubGridSpectroscopy
+from ForMoSA.grid.subgrid_photometry import SubGridPhotometry
+from ForMoSA.grid.subgrid_spectroscopy import SubGridSpectroscopy
 
 
 # ==================================================
@@ -148,7 +148,7 @@ def test_interpolate_between_gridpoints_mismatch(model_grid):
 
 def test_save_and_load_grid(model_grid):
     with tempfile.TemporaryDirectory() as tmp_dir:
-        model_grid._save_grid(tmp_dir)
+        model_grid.save_grid(tmp_dir)
         loaded_ds = model_grid._load_grid(tmp_dir)
     assert isinstance(loaded_ds, xr.Dataset)
     np.testing.assert_allclose(loaded_ds['grid'].values, model_grid.grid['grid'].values)
@@ -191,7 +191,7 @@ def test_spectroscopy_from_parent(model_grid):
     target_wave = np.linspace(1.0, 2.0, 5)
     target_res = np.ones(5) * 0.5
 
-    subgrid = SubGridSpectroscopy._from_parent(
+    subgrid = SubGridSpectroscopy.from_parent(
         parent_grid=model_grid,
         target_wavelength=target_wave,
         target_resolution=target_res,
@@ -206,9 +206,9 @@ def test_spectroscopy_from_parent(model_grid):
 
 def test_photometry_from_parent(model_grid, mock_filter):
     model_grid.grid.coords['wavelength'] = np.linspace(1, 10, 5)
-    subgrid = SubGridPhotometry._from_parent(model_grid, Filter=mock_filter, name="phot_sub")
+    subgrid = SubGridPhotometry.from_parent(model_grid, Filter=np.array([mock_filter]), name="phot_sub")
     assert isinstance(subgrid, SubGridPhotometry)
-    assert subgrid.Filter.name == "Keck/NIRC2.Lp"
+    assert subgrid.Filter[0].name == "Keck/NIRC2.Lp"
 
 
 # ==================================================
@@ -217,7 +217,7 @@ def test_photometry_from_parent(model_grid, mock_filter):
 
 def test_spectroscopy_from_grid(minimal_spectro_dataset, model_grid):
     with patch("ForMoSA.grid.grid_loader.GridLoader._validate_model_grid_dataset"):
-        subgrid = SubGridSpectroscopy._from_grid(minimal_spectro_dataset, parent_grid=model_grid)
+        subgrid = SubGridSpectroscopy.from_grid(minimal_spectro_dataset, parent_grid=model_grid)
     assert isinstance(subgrid, SubGridSpectroscopy)
     assert subgrid.remove_continuum is True
 
@@ -234,7 +234,7 @@ def test_spectroscopy_invalid_continuum_raises(model_grid):
 def test_spectroscopy_adapt_sets_attributes(model_grid):
     target_wave = np.linspace(1.0, 2.0, 5)
     target_res = np.ones(5) * 0.5
-    subgrid = SubGridSpectroscopy._from_parent(
+    subgrid = SubGridSpectroscopy.from_parent(
         parent_grid=model_grid,
         target_wavelength=target_wave,
         target_resolution=target_res,
@@ -250,13 +250,13 @@ def test_photometry_from_grid(model_grid, mock_filter):
     ds.attrs['grid_type'] = ObservationType.PHOTOMETRIC.value
     ds.attrs['filter_name'] = "mock"
     with patch("ForMoSA.grid.grid_loader.GridLoader._validate_model_grid_dataset"):
-        with patch("ForMoSA.Filter.Filter.PhotometryFilter._from_filter_name", return_value=mock_filter):
-            subgrid = SubGridPhotometry._from_grid(ds, parent_grid=model_grid)
+        with patch("ForMoSA.filter.filter.PhotometryFilter._from_filter_name", return_value=mock_filter):
+            subgrid = SubGridPhotometry.from_grid(ds, parent_grid=model_grid)
     assert isinstance(subgrid, SubGridPhotometry)
-    assert subgrid.Filter.name == "Keck/NIRC2.Lp"
+    assert subgrid.Filter[0].name == "Keck/NIRC2.Lp"
 
 def test_photometry_invalid_filter_type_raises(model_grid):
     from types import SimpleNamespace
     invalid_filter = SimpleNamespace()
     with pytest.raises(ForMoSAError):
-        SubGridPhotometry(model_grid.grid, model_grid, Filter=invalid_filter)
+        SubGridPhotometry(model_grid.grid, model_grid, Filter=np.array([invalid_filter], dtype=object))

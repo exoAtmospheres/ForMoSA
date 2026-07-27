@@ -100,8 +100,14 @@ ENV/
 *_flymake.py
 
 # AI stuff
-CLAUME.md
+CLAUDE.md
+AGENTS.md
 .claude/
 .code-review-graph/
 docs/superpowers/
 .superpowers/
+
+
+
+# ignore notes to compile by PPB
+paper/notes_to_compile.txt
