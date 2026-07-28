@@ -8,8 +8,11 @@ from PyAstronomy.pyasl import rotBroad, fastRotBroad
 import multiprocessing as mp
 from multiprocessing.pool import ThreadPool
 from tqdm import tqdm
-from ForMoSA.core.enums import VsiniFunction
 from scipy import optimize
+
+from ForMoSA.core.enums import VsiniFunction
+from ForMoSA.core.enums import LogLikelihoodType
+import ForMoSA.utils.logL_functions as logL_functions
 
 
 def calc_ck(flx_mod: np.ndarray, flx_obs: np.ndarray, err_obs: np.ndarray, r_picked: float, d_picked: float, analytic: str = 'no', bounds: tuple[float, float] = (-float('inf'), float('inf'))) -> tuple[np.ndarray, float]:
@@ -158,12 +161,8 @@ def resolution_decreasing(wav_input: np.ndarray, flx_input: np.ndarray, res_inpu
     # Use edge fill values so that observation points just outside the (RV-trimmed) model
     # range get the nearest edge resolution rather than NaN, which would propagate through
     # fwhm_conv -> sigma_conv and crash convolve_and_sample.
-    res_in_interp = interp1d(wav_input, res_input, kind='linear', bounds_error=False,
-                             fill_value=(res_input[0], res_input[-1]))
-    res_out_interp = interp1d(wav_output, res_output, kind='linear', bounds_error=False,
-                              fill_value=(res_output[0], res_output[-1]))
-    res_in = res_in_interp(wav_output)
-    res_out = res_out_interp(wav_output)
+    res_in = np.interp(wav_output, wav_input, res_input)
+    res_out = res_output
 
     # FWHM and convolution width
     fwhm_in = wav_output / res_in
@@ -175,6 +174,45 @@ def resolution_decreasing(wav_input: np.ndarray, flx_input: np.ndarray, res_inpu
     # Apply convolution
     flx_output = convolve_and_sample(wav_output, sigma_conv, wav_input, flx_input, force_int=True)
     return flx_output
+
+
+# ----------------------------------------------------------------------------------------------------------------------
+
+
+def integrate_filter(wav_filt: np.ndarray, trans_filt: np.ndarray, wav_input: np.ndarray, flux_input: np.ndarray) -> float:
+    """
+    Integrate the input flux on a filter transmission curve.
+
+    Parameters
+    ----------
+    wav_filt : np.ndarray
+        Wavelength grid of the filter
+    trans_filt : np.ndarray
+        Transmission of the filter
+    wav_input : np.ndarray
+        Wavelength grid of the flux
+    flux_input : np.ndarray
+        Flux we want to integrate on the filter
+
+    Returns
+    -------
+    float: Integrated flux
+
+    Notes
+    -----
+    Authors: Allan Denis
+    """
+    
+    trans_interp = np.interp(wav_input, wav_filt, trans_filt, left=0, right=0)
+    numerator = np.trapz(flux_input * trans_interp, wav_input)
+    denominator = np.trapz(trans_interp, wav_input)
+
+    if denominator == 0:
+        flux = np.nan
+    else:
+        flux = numerator / denominator
+        
+    return flux
 
 
 # ----------------------------------------------------------------------------------------------------------------------
@@ -235,8 +273,7 @@ def continuum_estimate(wav_input: np.ndarray, flx_input: np.ndarray, res_input: 
         flx_cont = np.concatenate((flx_cont, cont))
 
     # Reinterpolate onto the original wavelength grid
-    continuum_interp = interp1d(wav_cont, flx_cont, kind='linear', fill_value = 'extrapolate')
-    continuum = continuum_interp(wav_input)
+    continuum = np.interp(wav_input, wav_cont, flx_cont)
 
     return continuum
 
@@ -247,7 +284,7 @@ def continuum_estimate(wav_input: np.ndarray, flx_input: np.ndarray, res_input: 
 
 def doppler_fct(wav_mod_spectro: np.ndarray, flx_mod_spectro: np.ndarray, res_mod_spectro: np.ndarray, rv_picked: float) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
     """
-    Application of a Doppler shifting to the interpolated synthetic spectrum using the function pyasl.dopplerShift.
+    Application of a Doppler shifting to the interpolated synthetic spectrum.
     The side effects of the Doppler shifting are taking into account by using a model interpolated on a larger wavelength grid as the wavelength grid of the data.
     After the Doppler shifting, the model is then cut to the wavelength of the data.
 
@@ -277,8 +314,7 @@ def doppler_fct(wav_mod_spectro: np.ndarray, flx_mod_spectro: np.ndarray, res_mo
 
     if len(flx_mod_spectro) != 0:
         new_wav = wav_mod_spectro * ((rv_picked / const.c.to(u.km/u.s).value) + 1)
-        rv_interp = interp1d(new_wav, flx_mod_spectro, bounds_error=False)
-        flx_post_doppler = rv_interp(wav_mod_spectro)
+        flx_post_doppler = np.interp(wav_mod_spectro, new_wav, flx_mod_spectro, left=np.nan, right=np.nan)
 
         # Remove the nans caused by the RV correction
         # Note: this step is not problematic as the wavelength range of the model is slightly larger than the wavelength range of the data
@@ -420,12 +456,10 @@ def vsini_fct_rot_broad(wav_mod_spectro: np.ndarray, flx_mod_spectro: np.ndarray
     # Correct irregulatities in the wavelength grid
     wav_interval = wav_mod_spectro[1:] - wav_mod_spectro[:-1]
     wav_to_vsini = np.arange(min(wav_mod_spectro), max(wav_mod_spectro), min(wav_interval) * 2/3)
-    vsini_interp = interp1d(wav_mod_spectro, flx_mod_spectro, fill_value="extrapolate")
-    flx_to_vsini = vsini_interp(wav_to_vsini)
+    flx_to_vsini = np.interp(wav_to_vsini, wav_mod_spectro, flx_mod_spectro)
     # Apply the v.sin(i)
     new_flx = rotBroad(wav_to_vsini, flx_to_vsini, ld_picked, vsini_picked)
-    vsini_interp = interp1d(wav_to_vsini, new_flx, fill_value="extrapolate")
-    flx_mod_spectro_broad = vsini_interp(wav_mod_spectro)
+    flx_mod_spectro_broad = np.interp(wav_mod_spectro, wav_to_vsini, new_flx)
 
     return flx_mod_spectro_broad
 
@@ -462,12 +496,10 @@ def vsini_fct_fast_rot_broad(wav_mod_spectro: np.ndarray, flx_mod_spectro: np.nd
     # Correct irregulatities in the wavelength grid
     wav_interval = wav_mod_spectro[1:] - wav_mod_spectro[:-1]
     wav_to_vsini = np.arange(min(wav_mod_spectro), max(wav_mod_spectro), min(wav_interval) * 2/3)
-    vsini_interp = interp1d(wav_mod_spectro, flx_mod_spectro, fill_value="extrapolate")
-    flx_to_vsini = vsini_interp(wav_to_vsini)
+    flx_to_vsini = np.interp(wav_to_vsini, wav_mod_spectro, flx_mod_spectro)
     # Apply the v.sin(i)
     new_flx = fastRotBroad(wav_to_vsini, flx_to_vsini, ld_picked, vsini_picked)
-    vsini_interp = interp1d(wav_to_vsini, new_flx, fill_value="extrapolate")
-    flx_mod_spectro_broad = vsini_interp(wav_mod_spectro)
+    flx_mod_spectro_broad = np.interp(wav_mod_spectro, wav_to_vsini, new_flx)
 
     return flx_mod_spectro_broad
 
@@ -564,12 +596,10 @@ def vsini_fct_accurate_fast_rot_broad(wav_mod_spectro: np.ndarray, flx_mod_spect
     # Correct irregulatities in the wavelength grid
     wav_interval = wav_mod_spectro[1:] - wav_mod_spectro[:-1]
     wav_to_vsini = np.arange(min(wav_mod_spectro), max(wav_mod_spectro), min(wav_interval) * 2/3)
-    vsini_interp = interp1d(wav_mod_spectro, flx_mod_spectro, fill_value="extrapolate")
-    flx_to_vsini = vsini_interp(wav_to_vsini)
+    flx_to_vsini = np.interp(wav_to_vsini, wav_mod_spectro, flx_mod_spectro)
     # Apply the v.sin(i)
     new_flx = vsini_fct_accurate(wav_to_vsini, flx_to_vsini, ld_picked, vsini_picked, nr=10, ntheta=100, dif=0.0)
-    vsini_interp = interp1d(wav_to_vsini, new_flx, fill_value="extrapolate")
-    flx_mod_spectro_broad = vsini_interp(wav_mod_spectro)
+    flx_mod_spectro_broad = np.interp(wav_mod_spectro, wav_to_vsini, new_flx)
 
     return flx_mod_spectro_broad
 
@@ -620,6 +650,49 @@ def bb_cpd_fct(wav: np.ndarray, flx: np.ndarray, distance: np.ndarray, bb_t_pick
         flx_bb = flx
 
     return flx_bb
+
+
+# ----------------------------------------------------------------------------------------------------------------------
+
+
+def compute_loglike(flx_obs: np.ndarray, flx_mod: np.ndarray, err_obs: np.ndarray, logL_type: LogLikelihoodType = LogLikelihoodType.CHI2, cov_obs: np.ndarray | None = None, inv_cov_obs: np.ndarray | None = None) -> float:
+    '''
+    Compute the loglikelihood between an observed flux and a model
+
+    Parameters
+    ----------
+    flx_obs : np.ndarray
+        Observed flux
+    flx_mod: np.ndarray
+        Modeled flux
+    logL_type : LogLikelihoodType
+        Loglikelihood function
+    cov_obs : np.ndarray 
+        covariance of the data (if any)
+    inv_cov_obs : np.ndarray 
+        inverse of covariance of the data (if any)
+
+    Returns
+    -------
+    float
+        logL value
+
+    Notes
+    -----
+    Authors: Allan Denis
+    '''
+
+    logL_dict = {
+        LogLikelihoodType.CHI2: lambda: logL_functions.logL_chi2(flx_obs-flx_mod, err_obs),
+        LogLikelihoodType.CHI2_COVARIANCE: lambda: logL_functions.logL_chi2_covariance(flx_obs-flx_mod, cov_obs, inv_cov_obs),
+        LogLikelihoodType.CCF_BROGI: lambda: logL_functions.logL_CCF_Brogi(flx_obs, flx_mod),
+        LogLikelihoodType.CCF_ZUCKER: lambda: logL_functions.logL_CCF_Zucker(flx_obs, flx_mod),
+        LogLikelihoodType.CCF_CUSTOM: lambda: logL_functions.logL_CCF_custom(flx_obs, flx_mod, err_obs),
+        LogLikelihoodType.CHI2_NOISESCALING: lambda: logL_functions.logL_chi2_noisescaling(flx_obs - flx_mod, err_obs),
+        LogLikelihoodType.CHI2_NOISESCALING_COVARIANCE: lambda: logL_functions.logL_chi2_noisescaling_covariance(flx_obs - flx_mod, cov_obs, inv_cov_obs)
+    }
+
+    return logL_dict.get(logL_type, lambda: 0)()
 
 
 # ----------------------------------------------------------------------------------------------------------------------
@@ -721,10 +794,9 @@ def fit_linear_model(components: list[np.ndarray], flx_obs: np.ndarray, err_obs:
 # ----------------------------------------------------------------------------------------------------------------------
 
 
-def build_linear_components(flx_mod: np.ndarray | None = None, transm: np.ndarray | None = None, flx_cont_mod: np.ndarray | None = None, star_flx_obs: np.ndarray | None = None, flx_cont_obs: np.ndarray | None = None, star_flx_cont_obs: np.ndarray | None = None, system_obs: np.ndarray | None = None, analytic: str = "yes",  ck_value: float | None = None, bounds: tuple | None = None):
+def build_linear_components(flx_mod: np.ndarray | None = None, transm: np.ndarray | None = None, flx_cont_mod: np.ndarray | None = None, star_flx_obs: np.ndarray | None = None, flx_cont_obs: np.ndarray | None = None, star_flx_cont_obs: np.ndarray | None = None, system_obs: np.ndarray | None = None, analytic: str = "yes",  ck_value: float | None = None):
     '''
-    Build linear components, fixed coefficients and bounds
-    for fit_linear_model().
+    Build linear components, fixed coefficients for fit_linear_model().
 
     Parameters
     ----------
@@ -746,8 +818,6 @@ def build_linear_components(flx_mod: np.ndarray | None = None, transm: np.ndarra
         'yes' to fit for the model, 'no' to apply a constant scaling law
     ck_value : float | None
         Fixed scaling coefficient if scaling_mode is "fixed"
-    bounds : tuple | None
-        Bounds for the optimization
 
     Returns
     -------
@@ -779,7 +849,7 @@ def build_linear_components(flx_mod: np.ndarray | None = None, transm: np.ndarra
             speckles = star_flx_obs / star_flx_cont_obs[:, None]
             mid = speckles.shape[1] // 2
             comp = comp - flx_cont_mod * speckles[:, mid]
-
+            
         components.append(comp)
         labels.append("model")
 
@@ -804,14 +874,14 @@ def build_linear_components(flx_mod: np.ndarray | None = None, transm: np.ndarra
         for i in range(system_obs.shape[1]):
             components.append(system_obs[:, i])
             labels.append(f"systematic_{i}")
-
-    return components, fixed_coeffs, bounds, labels
+            
+    return components, fixed_coeffs, labels
 
 
 # ----------------------------------------------------------------------------------------------------------------------
 
 
-def compute_ccf(wav_mod_spectro: np.ndarray, flx_mod_spectro: np.ndarray, wav_obs_spectro: np.ndarray, flx_obs_spectro: np.ndarray, err_obs_spectro: np.ndarray, res_mod_spectro: np.ndarray, res_obs_spectro: np.ndarray, res_cont: float, wav_fit: str | np.ndarray,  star_flx_obs_spectro: np.ndarray = np.array([]), transm_obs_spectro: np.ndarray = np.array([]), system_obs_spectro: np.ndarray = np.array([]), rv_grid: np.ndarray = np.linspace(-300, 300, 600), rv_sini_map: bool = False, normalize: bool = True):
+def compute_ccf(wav_mod_spectro: np.ndarray, flx_mod_spectro: np.ndarray, wav_obs_spectro: np.ndarray, flx_obs_spectro: np.ndarray, err_obs_spectro: np.ndarray, res_mod_spectro: np.ndarray, res_obs_spectro: np.ndarray, res_cont: float, wav_fit: str | np.ndarray,  star_flx_obs_spectro: np.ndarray = np.array([]), transm_obs_spectro: np.ndarray = np.array([]), system_obs_spectro: np.ndarray = np.array([]), rv_grid: np.ndarray = np.linspace(-300, 300, 600), rv_sini_map: bool = False, logL_type: LogLikelihoodType = LogLikelihoodType.CHI2):
     '''
     Function to compute the ccf between a template and data
 
@@ -845,8 +915,8 @@ def compute_ccf(wav_mod_spectro: np.ndarray, flx_mod_spectro: np.ndarray, wav_ob
             Grid of RV for the CCF function
         rv_vsini_map : bool
             Whether to use this function to compute a rv / vsini map
-        normalize : bool
-            Whether to normalize ccf
+        logL_type : LogLikelihoodType 
+            Type of log-likelihood used
 
     Returns
     -------
@@ -919,7 +989,7 @@ def compute_ccf(wav_mod_spectro: np.ndarray, flx_mod_spectro: np.ndarray, wav_ob
                 pbar.update()
 
             for irv in rv_grid:
-                task = pool.apply_async(compute_ccf_single_rv, args=(irv, wav_mod_spectro, flx_mod_spectro, flx_mod_spectro_no_rv_hf, res_mod_spectro, wav_obs_spectro, flx_obs_spectro, flx_cont_obs_spectro, flx_obs_spectro_hf, res_obs_spectro, wav_fit, res_cont, err_obs_spectro, transm_obs_spectro, star_flx_obs_spectro, star_flx_cont_obs_spectro, star_flx_obs_spectro_hf, system_obs_spectro, speckles, 0.6), callback=update)
+                task = pool.apply_async(compute_ccf_single_rv, args=(irv, wav_mod_spectro, flx_mod_spectro, flx_mod_spectro_no_rv_hf, res_mod_spectro, wav_obs_spectro, flx_obs_spectro, flx_cont_obs_spectro, flx_obs_spectro_hf, res_obs_spectro, wav_fit, res_cont, err_obs_spectro, transm_obs_spectro, star_flx_obs_spectro, star_flx_cont_obs_spectro, star_flx_obs_spectro_hf, system_obs_spectro, speckles, 0.6, logL_type), callback=update)
                 results.append(task)
 
             pool.close()
@@ -932,7 +1002,7 @@ def compute_ccf(wav_mod_spectro: np.ndarray, flx_mod_spectro: np.ndarray, wav_ob
         print(f'Parallel computation of CCF produced the following error: {e}. Trying serial computation.')
         ccf, acf, ccf_star, logL = [], [], [], []
         for irv in tqdm(rv_grid):
-            res = compute_ccf_single_rv(irv, wav_mod_spectro, flx_mod_spectro, flx_mod_spectro_no_rv_hf, res_mod_spectro, wav_obs_spectro, flx_obs_spectro, flx_cont_obs_spectro, flx_obs_spectro_hf, res_obs_spectro, wav_fit, res_cont, err_obs_spectro, transm_obs_spectro, star_flx_obs_spectro, star_flx_cont_obs_spectro, star_flx_obs_spectro_hf, system_obs_spectro, speckles, 0.6)
+            res = compute_ccf_single_rv(irv, wav_mod_spectro, flx_mod_spectro, flx_mod_spectro_no_rv_hf, res_mod_spectro, wav_obs_spectro, flx_obs_spectro, flx_cont_obs_spectro, flx_obs_spectro_hf, res_obs_spectro, wav_fit, res_cont, err_obs_spectro, transm_obs_spectro, star_flx_obs_spectro, star_flx_cont_obs_spectro, star_flx_obs_spectro_hf, system_obs_spectro, speckles, 0.6, logL_type=logL_type)
             ccf.append(res[0])
             acf.append(res[1])
             ccf_star.append(res[2])
@@ -946,24 +1016,22 @@ def compute_ccf(wav_mod_spectro: np.ndarray, flx_mod_spectro: np.ndarray, wav_ob
         mask_valid = np.abs(rv_grid) <= 150
         imax = np.argmax(ccf)
         rv_peak = rv_grid[imax]
+        
+        for arr in [ccf, acf, ccf_star]:
+            arr -= np.mean(arr[mask_far])
 
-        if normalize:
+        # SNR normalization
+        acf_scale = np.max(ccf[mask_valid]) / np.max(acf)
+        sigma = np.sqrt(np.abs(np.nanvar(ccf[np.abs(rv_grid - rv_peak) > 100]) - np.nanvar(acf[mask_far] * acf_scale)))
+        max_peak = ccf[imax] / sigma
 
-            for arr in [ccf, acf, ccf_star]:
-                arr -= np.mean(arr[mask_far])
+        ccf_norm = ccf / sigma
+        ccf_star = ccf_star / np.std(ccf_star)
+        acf = acf * (max_peak / np.max(acf))
 
-            # SNR normalization
-            acf_scale = np.max(ccf[mask_valid]) / np.max(acf)
-            sigma = np.sqrt(np.abs(np.nanvar(ccf[np.abs(rv_grid - rv_peak) > 100]) - np.nanvar(acf[mask_far] * acf_scale)))
-            max_peak = ccf[imax] / sigma
+        print(f'Maximum peak for rv = {rv_peak:.1f} km/s (SNR = {max_peak:.1f})')
 
-            ccf = ccf / sigma
-            ccf_star = ccf_star / np.std(ccf_star)
-            acf = acf * (max_peak / np.max(acf))
-
-            print(f'Maximum peak for rv = {rv_peak:.1f} km/s (SNR = {max_peak:.1f})')
-
-        return ccf, acf, ccf_star, rv_peak, logL, ccf
+        return ccf, acf, ccf_star, rv_peak, logL, ccf_norm
 
     return logL
 
@@ -972,7 +1040,7 @@ def compute_ccf(wav_mod_spectro: np.ndarray, flx_mod_spectro: np.ndarray, wav_ob
 # ----------------------------------------------------------------------------------------------------------------------
 
 
-def compute_ccf_single_rv(rv: float, wav_mod_spectro: np.ndarray, flx_mod_spectro: np.ndarray, flx_mod_spectro_no_rv_hf: np.ndarray, res_mod_spectro: np.ndarray, wav_obs_spectro: np.ndarray, flx_obs_spectro: np.ndarray, flx_cont_obs_spectro: np.ndarray, flx_obs_spectro_hf: np.ndarray, res_obs_spectro: np.ndarray, wav_cont: str, res_cont: np.ndarray, err_obs_spectro: np.ndarray, transm_obs_spectro: int | np.ndarray = 1, star_flx_obs_spectro: np.ndarray = np.array([]), star_flx_cont_obs_spectro: (int | np.ndarray) = 1, star_flx_obs_spectro_hf: np.ndarray = np.array([]), system_obs_spectro: np.ndarray = np.array([]), speckles: (int | np.ndarray) = 1, ld: float = 0.6) -> tuple[float, float, float]:
+def compute_ccf_single_rv(rv: float, wav_mod_spectro: np.ndarray, flx_mod_spectro: np.ndarray, flx_mod_spectro_no_rv_hf: np.ndarray, res_mod_spectro: np.ndarray, wav_obs_spectro: np.ndarray, flx_obs_spectro: np.ndarray, flx_cont_obs_spectro: np.ndarray, flx_obs_spectro_hf: np.ndarray, res_obs_spectro: np.ndarray, wav_cont: str, res_cont: np.ndarray, err_obs_spectro: np.ndarray, transm_obs_spectro: int | np.ndarray = 1, star_flx_obs_spectro: np.ndarray = np.array([]), star_flx_cont_obs_spectro: (int | np.ndarray) = 1, star_flx_obs_spectro_hf: np.ndarray = np.array([]), system_obs_spectro: np.ndarray = np.array([]), speckles: (int | np.ndarray) = 1, ld: float = 0.6, logL_type: LogLikelihoodType = LogLikelihoodType.CHI2) -> tuple[float, float, float]:
     '''
     Function to compute the correlation between template and data for a specific rv value
 
@@ -1014,6 +1082,8 @@ def compute_ccf_single_rv(rv: float, wav_mod_spectro: np.ndarray, flx_mod_spectr
             Systematics
         speckles : int | np.ndarray
             Speckles
+        logL_type : LogLikelihoodType 
+            Type of log-likelihood used
 
     Returns
     -------
@@ -1036,12 +1106,8 @@ def compute_ccf_single_rv(rv: float, wav_mod_spectro: np.ndarray, flx_mod_spectr
     # Continuum estimation
     flx_cont = continuum_estimate(wav_obs_spectro, flx_shifted * transm_obs_spectro, res_obs_spectro, wav_cont, res_cont)
 
-    mid_idx = speckles.shape[1] // 2 if isinstance(speckles, np.ndarray) else 0
-    speckles_mid = speckles[:, mid_idx] if isinstance(speckles, np.ndarray) else speckles
-    flx_rv_hf = transm_obs_spectro * flx_shifted - flx_cont * speckles_mid
-
     # Estimate model signal
-    components, fixed_coeffs, bounds, labels = build_linear_components(
+    components, fixed_coeffs, labels = build_linear_components(
                                             flx_shifted,
                                             transm_obs_spectro,
                                             flx_cont,
@@ -1052,28 +1118,35 @@ def compute_ccf_single_rv(rv: float, wav_mod_spectro: np.ndarray, flx_mod_spectr
                                             analytic='yes'
                                             )
 
-    result = fit_linear_model(
-        components=components,
-        flx_obs=flx_obs_spectro,
-        err_obs=err_obs_spectro,
-        bounds=bounds,
-        fixed_coeffs=fixed_coeffs
-        )
-
-    ccf, best_model_hf = result['coeffs'][0], result['reconstructed'][0]
-
-    # ACF
-    acf = np.sum(flx_rv_hf * flx_mod_spectro_no_rv_hf) / (np.sqrt(np.sum(flx_rv_hf ** 2)) * np.sqrt(np.sum(flx_mod_spectro_no_rv_hf ** 2)))
+    if logL_type not in [LogLikelihoodType.CCF_BROGI, LogLikelihoodType.CCF_CUSTOM, LogLikelihoodType.CCF_ZUCKER]:
+        result = fit_linear_model(
+            components=components,
+            flx_obs=flx_obs_spectro,
+            err_obs=err_obs_spectro,
+            fixed_coeffs=fixed_coeffs
+            )
+        
+        components_fit = result['reconstructed']
+    else:
+        components_fit = components
+        
+    flx_obs_res = flx_obs_spectro - np.sum(components[1:], axis=0)
+    flx_mod_res = components[0]
+    
+    
+    ccf = np.dot(flx_obs_res, flx_mod_res) / (np.sqrt(np.dot(flx_obs_res, flx_obs_res)) * np.sqrt(np.dot(flx_mod_res, flx_mod_res)))
+    acf = np.dot(flx_mod_res, flx_mod_spectro_no_rv_hf) / (np.sqrt(np.dot(flx_mod_res, flx_mod_res)) * np.sqrt(np.dot(flx_mod_spectro_no_rv_hf, flx_mod_spectro_no_rv_hf)))
+    
 
     # CCF with star if available
     if star_flx_obs_spectro_hf.size > 0:
-        ccf_star = np.sum(flx_rv_hf * star_flx_obs_spectro_hf) / (np.sqrt(np.sum(flx_rv_hf ** 2)) * np.sqrt(np.sum(star_flx_obs_spectro_hf ** 2)))
+        ccf_star = np.dot(flx_mod_res, star_flx_obs_spectro_hf) / (np.sqrt(np.dot(flx_mod_res, flx_mod_res)) * np.sqrt(np.dot(star_flx_obs_spectro_hf, star_flx_obs_spectro_hf)))
     else:
         ccf_star = 1
+        
+    flx_mod_res = components_fit[0]
 
     # log-likelihood estimation
-    residuals = flx_obs_spectro_hf - best_model_hf
-    ki2 = np.sum((residuals / err_obs_spectro) ** 2)
-    logL = -0.5 * ki2 - 0.5 * np.nansum(np.log(2 * np.pi * err_obs_spectro ** 2))
+    logL = compute_loglike(flx_obs_res, flx_mod_res, err_obs_spectro, logL_type=logL_type)
 
     return ccf, acf, ccf_star, logL

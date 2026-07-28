@@ -6,6 +6,7 @@ import ForMoSA.utils.spec as us
 from ForMoSA.core.errors import ForMoSAError
 from ForMoSA.grid.model_grid import ModelGrid
 from ForMoSA.core.loggings import setup_logging
+from ForMoSA.core.enums import LogLikelihoodType
 from ForMoSA.transform.observed import ObservedModel
 from ForMoSA.utils.misc import get_weighted_percentile
 from ForMoSA.core.enums import ParameterKind, ObservationKeys
@@ -254,7 +255,7 @@ class NSAnalysis(object):
 
         return ObservedModel(observed_model.wave, perc_1sigma_lower, observed_model.res), ObservedModel(observed_model.wave, perc_1sigma_higher, observed_model.res)
 
-    def compute_ccf(self, rv_grid: np.ndarray, index: int = 0, theta: list | None = None) -> dict[str, np.ndarray]:
+    def compute_ccf(self, rv_grid: np.ndarray, index: int = 0, theta: list | None = None, logL_type: LogLikelihoodType = LogLikelihoodType.CHI2) -> dict[str, np.ndarray]:
         '''
         Compute and optionally plot the Cross-Correlation Function (CCF).
 
@@ -266,6 +267,8 @@ class NSAnalysis(object):
             Index of observation used for the ccf computation
         theta : list
             List of free values of the parameters. If not provided, the best fitted parameters are used
+        logL_type : LogLikelihoodType
+            Type of log-likelihood used
 
         Returns
         -------
@@ -314,7 +317,7 @@ class NSAnalysis(object):
 
         self._logger.info(f'      Computing RV CCF for observation {obs.name}')
 
-        ccf, acf, ccf_star, rv_peak, logL, ccf_raw = us.compute_ccf(
+        ccf_raw, acf, ccf_star, rv_peak, logL, ccf = us.compute_ccf(
             native_model.wave,
             native_model.flux,
             obs.wave,
@@ -329,7 +332,7 @@ class NSAnalysis(object):
             system_obs_spectro=system,
             rv_grid=rv_grid,
             rv_sini_map=False,
-            normalize=True
+            logL_type=logL_type
         )
 
         # Find best RV
@@ -344,12 +347,13 @@ class NSAnalysis(object):
             'acf': acf,
             'ccf_star': ccf_star,
             'rv_peak': rv_peak,
-            'logL': logL
+            'logL': logL,
+            'ccf_raw': ccf_raw
         }
 
         return results
 
-    def compute_rv_vsini_map(self, rv_grid: np.ndarray, vsini_grid: np.ndarray, index: int = 0, theta: list | None = None) -> dict[str, np.ndarray]:
+    def compute_rv_vsini_map(self, rv_grid: np.ndarray, vsini_grid: np.ndarray, index: int = 0, theta: list | None = None, logL_type: LogLikelihoodType = LogLikelihoodType.CHI2) -> dict[str, np.ndarray]:
         '''
         Compute and optionally plot the RV vs v.sin(i) loglikelihood map.
 
@@ -363,6 +367,8 @@ class NSAnalysis(object):
             Index of observation used for the ccf computation
         theta : list
             List of free values of the parameters. If not provided, the best fitted parameters are used
+        logL_type : LogLikelihoodType 
+            Type of log-likelihood used
 
         Returns
         -------
@@ -444,7 +450,7 @@ class NSAnalysis(object):
                 system_obs_spectro=system,
                 rv_grid=rv_grid,
                 rv_sini_map=True,
-                normalize=False
+                logL_type=logL_type
             )
 
             logL_map[j] = logL

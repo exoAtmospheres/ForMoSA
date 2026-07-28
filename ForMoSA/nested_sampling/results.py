@@ -1,4 +1,7 @@
+import os
+import json
 import numpy as np
+from pathlib import Path
 from dataclasses import dataclass
 
 from ForMoSA.core.errors import ForMoSAError
@@ -89,6 +92,42 @@ class NSResults:
     # ===================
     # Class methods
     # ===================
+    
+    @classmethod 
+    def from_json(cls, path: str | os.PathLike, algorithm: str = 'nestle') -> 'NSResults':
+        '''
+        Reconstruct a 
+
+        Parameters
+        ----------
+        path : str | os.PathLike
+            Path to the json file
+        algorithm : str 
+            Algorithm used (nestle, ultranest, pymultinest)
+
+        Returns
+        -------
+        'NSResults'
+            An instance of class NSResults
+
+        Notes
+        -----
+        Authors: Allan Denis
+        '''
+
+        # Initial checking
+        if not isinstance(path, (str, os.PathLike)):
+            raise ForMoSAError(f' Wrong type for path: {type(path)}. Expected a str or os.PathLike')
+
+        results_file = Path(path) / f'results_{algorithm}.json'
+        
+        if not results_file.exists():
+            raise ForMoSAError(f'{results_file} does not exist. Cannot load the results of the Nested Sampling')
+        else:
+            with open(results_file, 'r') as f:
+                results = json.load(f)
+                
+            return NSResults.from_dict(results)
 
     @classmethod
     def from_dict(cls, data: dict) -> "NSResults":
