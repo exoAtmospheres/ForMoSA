@@ -42,7 +42,7 @@ dev = [
   "build",
   "twine",
   # Documentation (mirrors docs/requirements.txt, which Read the Docs reads directly)
-  "sphinx>=9.1",
+  "sphinx>=7.1",
   "ipykernel",
   "nbsphinx",
   "pandoc",

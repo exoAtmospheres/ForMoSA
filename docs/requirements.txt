@@ -1,4 +1,4 @@
-sphinx>=9.1
+sphinx>=7.1
 ipykernel
 nbsphinx
 jupyter
