@@ -760,7 +760,7 @@ def fit_linear_model(components: list[np.ndarray], flx_obs: np.ndarray, err_obs:
     if err_obs is None:
         weights = np.ones_like(flx_obs)
     else:
-        weights = 1.0 / err_obs**2
+        weights = 1.0 / err_obs
 
     fixed_coeffs = fixed_coeffs or {}
     free_idx = [i for i in range(n) if i not in fixed_coeffs]
