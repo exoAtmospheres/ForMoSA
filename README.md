@@ -131,7 +131,8 @@ ForMoSA/
 **Project updates since the v2.0.0 rewrite:**
 
 - **Automated testing** — every push and pull request is install- and import-checked and the test suite is run on Python 3.10, 3.11, and 3.12.
-- **One-tag releases** — pushing a `v*` tag builds the package and publishes it to PyPI via a [Trusted Publisher](https://docs.pypi.org/trusted-publishers/), with auto-generated GitHub release notes.
+- **One-tag releases** — pushing a `v*` tag builds the package and publishes it to PyPI via a [Trusted Publisher](https://docs.pypi.org/trusted-publishers/).
+- **Auto-generated [CHANGELOG.md](CHANGELOG.md)** — updated on every push, grouped by author directly from commit history (no commit-message convention required); frozen into a dated version section whenever a release tag is pushed.
 - **JOSS paper** — a software paper accompanying the v2.0.0 release is in preparation.
 
 | Area | v1.x | v2.0.0 |
@@ -220,6 +221,8 @@ Then:
 4. **Open a pull request** against `ForMoSA_class` describing the change.
 
 Releases are automated: once changes are merged and a maintainer pushes a `v*` tag (e.g. `v2.0.0`), the package is built and published to PyPI, and a GitHub release is created automatically.
+
+[CHANGELOG.md](CHANGELOG.md) is auto-generated from commit history on every push — don't edit it by hand; your commits will show up in it automatically, grouped by author.
 
 ---
 

@@ -47,18 +47,18 @@ Covers resolution adaptation, wavelength windowing, and radial velocity.
 
 ..    hchr/aflepb/tutorial_hchr.ipynb
 
-.. Tutorial 4 — MOSAIC mode: HIP 64892 b
-.. ------------------------------------
+Tutorial 3 — MOSAIC mode: HIP 64892 b
+------------------------------------
 
-.. Combining spectroscopy and photometry in a single simultaneous fit.
-.. Covers MOSAIC meta-likelihood and per-instrument intercalibration.
-..
-   .. toctree::
-..    :maxdepth: 1
+Combining spectroscopy and photometry in a single simultaneous fit.
+Covers MOSAIC meta-likelihood and per-instrument intercalibration.
 
-..    mosaic/hip64892b/tutorial_mosaic.ipynb
+.. toctree::
+   :maxdepth: 1
 
-Tutorial 3 — Advanced plotting
+   mosaic/hip64892b/tutorial_mosaic.ipynb
+
+Tutorial 4 — Advanced plotting
 --------------------------------
 
 Customising every ForMoSA plot, computing χ²_red and BIC, and
@@ -70,7 +70,7 @@ uses pre-computed results from Tutorial 2.
 
    plotting/tutorial_advanced_plotting_custom.ipynb
 
-Tutorial 4 — Statistical tests
+Tutorial 5 — Statistical tests
 ---------------------------------
 
 Model comparison and goodness-of-fit statistics: χ²_red, BIC, and
@@ -81,7 +81,7 @@ Bayes factors. Uses pre-computed results and requires no new fits.
 
    plotting/tutorial_statistical_tests.ipynb
 
-Tutorial 5 — Cluster / MPI deployment
+Tutorial 6 — Cluster / MPI deployment
 ----------------------------------------
 
 Running ForMoSA on an HPC cluster with PyMultiNest and MPI.

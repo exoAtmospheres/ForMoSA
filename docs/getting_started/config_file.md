@@ -167,7 +167,7 @@ its observation index: `rv_0`, `rv_1`, `alpha_2`, etc. Global parameters
   `"multiprocessing"`, `"threading"`, `"sequential"`, `"dask"`, `"ray"`.
   Use `"sequential"` to disable parallelisation for debugging.
 
-**`n_jobs`** *(int, default `-1`)*
+**`n_jobs`** *(int, default `4`)*
 : Number of parallel workers. `-1` uses all available CPUs.
 
 ---
@@ -335,7 +335,7 @@ Set to `["NA"]` to disable.
 **`vsini`** — rotational broadening (km/s)
 : Rotational broadening applied to the model via a convolution kernel.
   Requires specifying the kernel function as a fourth element:
-  `["uniform", "0", "100", "FastRotBroad"]`. You need to define both vsini and ld so that ForMoSA can compute the broadening of the spectral lines. Constraints obtained on this parameter for observations at a resolution <100,000 are not robust for slow rotators. To avoid edge effects during reinterpolation, we also recommend to fit rv as well. Since this parameter can be computationally expensive to fit, ForMoSA allows you to choose between four methods : `RotBroad` or `FastRotBroad` or `Accurate` or `AccurateFastRotBroad`. You should always specify your method after the priors. Please refer to the API documentation for more information.
+  `["uniform", "0", "100", "FastRotBroad"]`. You need to define both vsini and ld so that ForMoSA can compute the broadening of the spectral lines. Constraints obtained on this parameter for observations at a resolution <100,000 are not robust for slow rotators. To avoid edge effects during reinterpolation, we also recommend to fit rv as well. Since this parameter can be computationally expensive to fit, ForMoSA allows you to choose between four methods : `RotBroad` or `FastRotBroad` or `Accurate` or `AccurateFast`. You should always specify your method after the priors. Please refer to the API documentation for more information.
 
   ![Rotational broadnening applied to model spectrum](../_static/vsini.png "rot_broad")
 

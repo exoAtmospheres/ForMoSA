@@ -138,6 +138,10 @@ If you use ForMoSA in your research, please cite
 Version Track
 -------------
 
+For the full, per-commit history, see `CHANGELOG.md
+<https://github.com/exoAtmospheres/ForMoSA/blob/main/CHANGELOG.md>`_ (auto-generated
+on every push). The summary below covers major-version highlights only.
+
 - ``2.0.0`` Complete rewrite with a class-based API (``Analysis``), Python dataclass
   configuration, restructured package layout, automatic photometry filter retrieval,
   CCF / :math:`\mathrm{RV}-v \sin i` analysis, structured logging, and typed error handling.

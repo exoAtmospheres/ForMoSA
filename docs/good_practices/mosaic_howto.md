@@ -39,18 +39,21 @@ config_path = ConfigPath(
 )
 ```
 
-Use per-instrument suffixes for local parameters:
+Use per-instrument suffixes for local parameters. `ConfigParameters` only
+declares the shared parameter names (`par1`, `r`, `d`, `alpha`, …) as
+constructor arguments, so a per-instrument name like `alpha_0` can't be passed
+directly to `ConfigParameters(...)` — add it afterward with `_add_parameter`:
 
 ```python
 config_parameters = ConfigParameters(
-    par1    = ["uniform", "800",  "2000"],   # Teff — shared
-    par2    = ["uniform", "3.0",  "5.5"],    # log g — shared
-    r       = ["uniform", "0.5",  "3.0"],    # radius — shared
-    d       = ["constant", "27.7"],          # distance — shared
-    alpha_0 = ["gaussian", "1", "0.1"],      # intercal. for SPHERE
-    alpha_1 = ["gaussian", "1", "0.1"],      # intercal. for GRAVITY
-    alpha_2 = ["gaussian", "1", "0.1"],      # intercal. for NIRCam
+    par1 = ["uniform", "800",  "2000"],   # Teff — shared
+    par2 = ["uniform", "3.0",  "5.5"],    # log g — shared
+    r    = ["uniform", "0.5",  "3.0"],    # radius — shared
+    d    = ["constant", "27.7"],          # distance — shared
 )
+config_parameters._add_parameter("alpha_0", ["gaussian", "1", "0.1"])  # intercal. for SPHERE
+config_parameters._add_parameter("alpha_1", ["gaussian", "1", "0.1"])  # intercal. for GRAVITY
+config_parameters._add_parameter("alpha_2", ["gaussian", "1", "0.1"])  # intercal. for NIRCam
 ```
 
 Per-instrument `logL_type` and `wav_fit` in `ConfigInversion`:

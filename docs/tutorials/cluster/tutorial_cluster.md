@@ -1,4 +1,4 @@
-# Tutorial 5 — Cluster / MPI Deployment
+# Tutorial 6 — Cluster / MPI Deployment
 
 This tutorial shows how to run ForMoSA on an HPC cluster using MPI parallelism
 with PyMultiNest. Two patterns are covered:

@@ -58,8 +58,52 @@ The ``-e`` flag installs in editable mode, so any local changes to the source
 are reflected immediately without reinstalling.
 
 
+Nested-Sampling Back-Ends
+--------------------------
+
+ForMoSA supports three interchangeable nested-sampling back-ends —
+`nestle <http://kylebarbary.com/nestle/>`_, `PyMultiNest
+<https://johannesbuchner.github.io/PyMultiNest/>`_, and `UltraNest
+<https://johannesbuchner.github.io/UltraNest/>`_ — selected via
+``ConfigInversion(ns_algo=...)``. None of them are installed by default (they're
+optional, lazily imported), so install whichever one you plan to use.
+
+Nestle (Optional, Easiest to Set Up)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+`nestle <http://kylebarbary.com/nestle/>`_ is a pure-Python implementation with no
+compiled dependencies — the quickest way to get a fit running, and what the
+photometry tutorial uses.
+
+.. code-block:: console
+
+   $ pip install nestle
+
+Verify the installation:
+
+.. code-block:: python
+
+   import nestle   # should import without error
+
+UltraNest (Optional)
+~~~~~~~~~~~~~~~~~~~~~
+
+`UltraNest <https://johannesbuchner.github.io/UltraNest/>`_ is also pip-installable
+with no compiled external library required, and can optionally use MPI
+(via ``mpi4py``) for parallel runs on a cluster, similar to PyMultiNest.
+
+.. code-block:: console
+
+   $ pip install ultranest
+
+Verify the installation:
+
+.. code-block:: python
+
+   import ultranest   # should import without error
+
 PyMultiNest (Optional, Recommended for Large Fits)
-----------------------------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 `PyMultiNest <https://johannesbuchner.github.io/PyMultiNest/>`_ wraps the Fortran
 `MultiNest <https://github.com/JohannesBuchner/MultiNest>`_ library and is the
