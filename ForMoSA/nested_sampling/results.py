@@ -87,7 +87,7 @@ class NSResults:
     @property
     def best_logL(self) -> float:
         """Averaged value of logL."""
-        return np.average(self.results.logl[self.burn_in:], weights = self.results.weights[self.burn_in:])
+        return np.average(self.logl[self.burn_in:], weights = self.weights[self.burn_in:])
 
     # ===================
     # Class methods

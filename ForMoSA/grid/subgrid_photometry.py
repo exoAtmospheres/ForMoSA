@@ -2,6 +2,7 @@ import logging
 import numpy as np
 import xarray as xr
 
+import ForMoSA.utils.spec as us
 from ForMoSA.core.errors import ForMoSAError
 from ForMoSA.grid.subgrid_base import SubGrid
 from ForMoSA.grid.model_grid import ModelGrid
@@ -368,8 +369,8 @@ class SubGridPhotometry(SubGrid):
             )
 
             # integration
-            numerator = np.trapz(flux_model * trans_interp, wave_model)
-            denominator = np.trapz(trans_interp, wave_model)
+            numerator = us.trapezoidal_integral(flux_model * trans_interp, wave_model)
+            denominator = us.trapezoidal_integral(trans_interp, wave_model)
 
             if denominator == 0:
                 flux = np.nan

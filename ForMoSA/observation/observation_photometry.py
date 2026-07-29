@@ -51,12 +51,17 @@ class PhotometryObservation(Observation):
     def __init__(self, wave: np.ndarray, flux: np.ndarray, err: np.ndarray, instrument: np.ndarray, facility: np.ndarray, filter_id: np.ndarray, native_unit: WavelengthUnit, name: str = 'unknown', labels: list | None = None, logger: logging.Logger | None = None, log_level: str = 'INFO', display_unit: WavelengthUnit = WavelengthUnit.MICROMETER) -> None:
 
         self._filter_id = np.atleast_1d(np.asarray(filter_id, dtype=str))
+        self._Filter = np.array([])
+
         # Inherit from Observation class
         super().__init__(wave=wave, flux=flux, err=err, facility=facility, instrument=instrument, name=name, labels=labels, native_unit=native_unit, logger=logger, log_level=log_level, display_unit=display_unit, plot_config=PhotometricPlotConfig())
 
-        self._Filter = np.array([])
-
         self._validate_photometry()
+
+        # Base __init__ computed default labels before filters existed; recompute now that
+        # self._Filter is populated, unless the caller passed explicit labels.
+        if labels is None:
+            self._labels = self._normalize_labels(self.default_labels)
 
     # ==================================================
     # Representation

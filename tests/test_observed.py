@@ -35,24 +35,24 @@ def parameters():
 # ======================
 
 def test_observed_model_init(wave, flux, component):
-    model = ObservedModel(wave, flux, res=100, component=component)
+    model = ObservedModel(wave, flux, res=100, components=[component])
     np.testing.assert_array_equal(model.wave, wave)
     np.testing.assert_array_equal(model.flux, flux)
-    np.testing.assert_array_equal(model.component, component)
+    np.testing.assert_array_equal(model.total_component, component)
     assert model.scaling == "analytic"
 
 def test_observed_model_component_default(wave, flux):
     model = ObservedModel(wave, flux, res=100)
-    np.testing.assert_array_equal(model.component, np.zeros_like(flux))
+    np.testing.assert_array_equal(model.total_component, np.zeros_like(flux))
 
 def test_observed_model_invalid_shapes(wave, flux):
     with pytest.raises(ForMoSAError):
         ObservedModel(wave[:-1], flux, res=100)
     with pytest.raises(ForMoSAError):
-        ObservedModel(wave, flux, res=100, component=np.array([1.0]))
+        ObservedModel(wave, flux, res=100, components=[np.array([1.0])])
 
 def test_total_flux_property(wave, flux, component):
-    model = ObservedModel(wave, flux, res=100, component=component)
+    model = ObservedModel(wave, flux, res=100, components=[component])
     expected = flux + component
     np.testing.assert_array_equal(model.total_flux, expected)
 
@@ -61,7 +61,7 @@ def test_npts_property(wave, flux):
     assert model.npts == flux.size
 
 def test_residuals_method(wave, flux, component):
-    model = ObservedModel(wave, flux, res=100, component=component)
+    model = ObservedModel(wave, flux, res=100, components=[component])
     obs_flux = flux + component + 1.0
     res_all = model.residuals(obs_flux)
     res_component_only = model.residuals(obs_flux, component_only=True)
@@ -74,7 +74,7 @@ def test_residuals_invalid_size(wave, flux):
         model.residuals(np.array([1.0, 2.0]))
 
 def test_copy_method(wave, flux, component):
-    model = ObservedModel(wave, flux, res=100, component=component)
+    model = ObservedModel(wave, flux, res=100, components=[component])
     copy_model = model.copy(flux=np.array([0.0, 0.0, 0.0]))
     np.testing.assert_array_equal(copy_model.flux, np.zeros_like(flux))
     # Original unchanged

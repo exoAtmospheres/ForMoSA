@@ -27,7 +27,7 @@ def logL_chi2(delta_flx, err, full=False):
     chi2 = np.nansum((delta_flx / err) ** 2)
     logL = - chi2 / 2
     if full == True:
-        logL += - N/2 * np.log(2*np.pi) - 1/2 * np.log(np.dot(err,err))
+        logL += - N/2 * np.log(2*np.pi) - 1/2 * np.sum(np.log(err**2))
 
     return logL
 
@@ -93,7 +93,7 @@ def logL_chi2_noisescaling(delta_flx, err, full=False):
     chi2 = np.nansum((delta_flx / err) ** 2)
     logL = -N/2 * np.log(chi2/N)
     if full == True:
-        logL += -N/2 - N/2 * np.log(2*np.pi) - 1/2 * np.log(np.dot(err,err)) # X²/s2 = N/2
+        logL += -N/2 - N/2 * np.log(2*np.pi) - 1/2 * np.sum(np.log(err**2)) # X²/s2 = N/2
 
     return logL
 

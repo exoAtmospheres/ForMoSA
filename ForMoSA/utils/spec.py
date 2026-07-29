@@ -179,6 +179,30 @@ def resolution_decreasing(wav_input: np.ndarray, flx_input: np.ndarray, res_inpu
 # ----------------------------------------------------------------------------------------------------------------------
 
 
+def trapezoidal_integral(y: np.ndarray, x: np.ndarray) -> float:
+    """
+    Trapezoidal integral of y over x.
+
+    Equivalent to np.trapezoid / the removed np.trapz, implemented directly since
+    neither name is available across all numpy versions this package supports
+    (trapezoid was added in numpy 2.0, trapz was removed in later 2.x releases).
+
+    Parameters
+    ----------
+        y : array
+            Values to integrate
+        x : array
+            Sample points
+
+    Returns
+    -------
+        float
+            Trapezoidal integral of y over x
+    """
+
+    return np.sum((y[1:] + y[:-1]) / 2 * np.diff(x))
+
+
 def integrate_filter(wav_filt: np.ndarray, trans_filt: np.ndarray, wav_input: np.ndarray, flux_input: np.ndarray) -> float:
     """
     Integrate the input flux on a filter transmission curve.
@@ -204,8 +228,8 @@ def integrate_filter(wav_filt: np.ndarray, trans_filt: np.ndarray, wav_input: np
     """
     
     trans_interp = np.interp(wav_input, wav_filt, trans_filt, left=0, right=0)
-    numerator = np.trapz(flux_input * trans_interp, wav_input)
-    denominator = np.trapz(trans_interp, wav_input)
+    numerator = trapezoidal_integral(flux_input * trans_interp, wav_input)
+    denominator = trapezoidal_integral(trans_interp, wav_input)
 
     if denominator == 0:
         flux = np.nan

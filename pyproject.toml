@@ -38,6 +38,7 @@ dev = [
   # Testing
   "pytest",
   "pytest-cov",
+  "nestle",  # NS backend used by the end-to-end Analysis smoke test
   # Packaging / release
   "build",
   "twine",
