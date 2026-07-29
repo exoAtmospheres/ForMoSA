@@ -18,8 +18,8 @@ authors = [
   { name = "G. Chauvin", email = "chauvin@mpia.de"},
   { name = "A. Vigan", email = "arthur.vigan@lam.fr"},
   { name = "A. Radcliffe", email = "Alice.RADCLIFFE@obspm.fr"},
-  { name = "P. Requejio", email = "prequeijo03@gmail.com"}
-  { name = "K. Hoy", email = "kevinmhoy@gmail.com"},
+  { name = "P. Requejio", email = "prequeijo03@gmail.com"},
+  { name = "K. Hoy", email = "kevinmhoy@gmail.com"}
 ]
 requires-python = ">=3.10"
 classifiers = [
