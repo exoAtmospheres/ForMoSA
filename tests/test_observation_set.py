@@ -58,6 +58,30 @@ def test_add_spectral_observation_from_attributes(obs_set):
     np.testing.assert_array_equal(obs_set[0]._wave, np.array([400, 500, 600]))
 
 
+def test_add_observation_duplicate_name_is_renamed(obs_set):
+    """Two observations from the same facility/instrument get the same
+    auto-generated name (GitHub issue #23): the first must keep its name,
+    and later collisions must be renamed rather than conflated -- downstream
+    code keys by name (saved file names, color-by-name maps in Analysis)."""
+    kwargs = dict(
+        wave=[400, 500, 600],
+        flux=[1.0, 1.1, 1.2],
+        res=[10, 10, 10],
+        err=[1, 1, 1],
+        facility=['Test', 'Test', 'Test'],
+        instrument=['Test', 'Test', 'Test'],
+        native_unit=WavelengthUnit.MICROMETER,
+    )
+
+    obs_set.add_observation(**kwargs)
+    obs_set.add_observation(**kwargs)
+    obs_set.add_observation(**kwargs)
+
+    names = [obs.name for obs in obs_set]
+    assert names == ['Test_Test', 'Test_Test_0', 'Test_Test_1']
+    assert len(set(names)) == 3
+
+
 def test_add_photometric_observation_from_dict(obs_set):
     """Add a photometric observation using a dictionary."""
     data = {
