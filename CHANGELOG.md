@@ -33,6 +33,7 @@ Auto-generated from commit history, grouped by author. Not hand-maintained -- se
 - Fixing issue in soving observation as fits.file ([ae89d48](https://github.com/exoAtmospheres/ForMoSA/commit/ae89d48f5eb34a8266ae827ae5d3c3435ef9b232))
 
 ### Bhavesh Rajpoot
+- BR: Add missing av field to ConfigParameters (fixes #34) ([fcb78bc](https://github.com/exoAtmospheres/ForMoSA/commit/fcb78bc020fef6c8c2e0f3216258c27ef418e000))
 - BR: Reconcile docs with the changelog automation and current v2.0 API ([8b57455](https://github.com/exoAtmospheres/ForMoSA/commit/8b574551808e7b6742007d856b4d25511038a84d))
 - BR: Added commit-based changelog ([3f24840](https://github.com/exoAtmospheres/ForMoSA/commit/3f24840ea58dcce3feb60581f68896f73e12d741))
 - BR: Fix Keck/NIRC2.Lp filter case typo, remove test's SVO network dependency ([f58eff2](https://github.com/exoAtmospheres/ForMoSA/commit/f58eff29bb115b58cb13d8781e557f880b23de16))
@@ -59,6 +60,9 @@ Auto-generated from commit history, grouped by author. Not hand-maintained -- se
 - Update ForMoSA Collaboration affiliations and compile final PDF draft ([945ee10](https://github.com/exoAtmospheres/ForMoSA/commit/945ee1025448b566ea7adf8a9f8967fccc38e689))
 - Fix overfull box warning and add flat author list for local PDF preview ([c21897d](https://github.com/exoAtmospheres/ForMoSA/commit/c21897d20f3763acd700ee5369ba63d28382f182))
 - Update paper draft, clean up bibliography database, and fix compilation warnings ([980a984](https://github.com/exoAtmospheres/ForMoSA/commit/980a98466f680f4625debe4a6067881862df086f))
+
+### Bhavesh012
+- chore: update changelog [skip ci] ([b4a4f0d](https://github.com/exoAtmospheres/ForMoSA/commit/b4a4f0da5aeb3ba8a7c2b0b3ec42debb8d2aa386))
 
 ### Matthieu Ravet
 - MR: Updating docs with paper sections Performances & Accuracy ([73d98dc](https://github.com/exoAtmospheres/ForMoSA/commit/73d98dc83870233d39698503222eb1ee60f8c9c9))
