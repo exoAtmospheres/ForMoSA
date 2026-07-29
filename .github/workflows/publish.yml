@@ -17,12 +17,12 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # full history for changelog
+          fetch-depth: 0  # full history for auto-generated release notes
 
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: "3.9"
+          python-version: "3.12"
 
       - name: Install build tools
         run: pip install build
@@ -33,8 +33,11 @@ jobs:
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          body_path: CHANGELOG_RELEASE.md
-          files: dist/*
+          generate_release_notes: true   # auto-built from merged PRs / commits
+          files: |
+            dist/*
+            docs/tutorials/spectroscopy/abpicb/data/ABPicb_SINFONI_K.fits
+            docs/tutorials/photo/vhs1256b/data/VHS1256b_photometry.fits
 
       - name: Publish to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1

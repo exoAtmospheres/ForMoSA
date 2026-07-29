@@ -1,9 +1,10 @@
 import pytest
+import numpy as np
 import pandas as pd
 
-from ForMoSA.Parameter.parameter_set import ParameterSet
-from ForMoSA.Parameter.parameter import Parameter
-from ForMoSA.Parameter.Prior import UniformPrior, ConstantPrior
+from ForMoSA.parameter.parameter_set import ParameterSet
+from ForMoSA.parameter.parameter import Parameter
+from ForMoSA.parameter.prior import UniformPrior, ConstantPrior
 from ForMoSA.core.enums import ParameterKind
 from ForMoSA.core.errors import ForMoSAError
 
@@ -104,7 +105,7 @@ def test_names_and_kinds(parameter_set):
 # ==========================================================
 
 def test_prior_transform_ok(parameter_set):
-    theta = [0.5]  # un seul paramètre libre
+    theta = np.array([0.5])  # un seul paramètre libre
     values = parameter_set.prior_transform(theta)
 
     assert isinstance(values, list)
@@ -119,7 +120,7 @@ def test_prior_transform_wrong_type(parameter_set):
 
 def test_prior_transform_wrong_length(parameter_set):
     with pytest.raises(ForMoSAError):
-        parameter_set.prior_transform([0.1, 0.2])
+        parameter_set.prior_transform(np.array([0.1, 0.2]))
 
 
 # ==========================================================
@@ -127,7 +128,7 @@ def test_prior_transform_wrong_length(parameter_set):
 # ==========================================================
 
 def test_summary_string(parameter_set):
-    summary = parameter_set.summary()
+    summary = parameter_set.summary(as_dataframe=False)
     assert isinstance(summary, str)
     assert "teff" in summary
     assert "logg" in summary
@@ -137,7 +138,7 @@ def test_summary_dataframe(parameter_set):
     df = parameter_set.summary(as_dataframe=True)
 
     assert isinstance(df, pd.DataFrame)
-    assert list(df.columns) == ["name", "kind", "prior", "value", "fixed"]
+    assert list(df.columns) == ["name", "kind", "prior", "value", "fixed", "scope", "obs_index"]
     assert len(df) == 2
 
     teff_row = df[df["name"] == "teff"].iloc[0]

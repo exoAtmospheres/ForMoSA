@@ -1,0 +1,246 @@
+{
+    "algorithm": "pymultinest",
+    "npoints": 50,
+    "logLtype": [
+        "chi2",
+        "chi2",
+        "chi2",
+        "chi2",
+        "chi2",
+        "chi2",
+        "chi2_covariance"
+    ],
+    "config_NS": {
+        "nestle": {
+            "method": "single",
+            "update_interval": null,
+            "npdim": null,
+            "maxiter": null,
+            "maxcall": null,
+            "dlogz": null,
+            "decline_factor": null,
+            "rstate": null
+        },
+        "pymultinest": {
+            "importance_nested_sampling": true,
+            "multimodal": true,
+            "const_efficiency_mode": false,
+            "evidence_tolerance": 0.5,
+            "sampling_efficiency": 0.8,
+            "n_iter_before_update": 100,
+            "null_log_evidence": -1e+90,
+            "max_modes": 100,
+            "mode_tolerance": -1e+90,
+            "seed": -1,
+            "verbose": true,
+            "resume": false,
+            "context": 0,
+            "log_zero": -1e+100,
+            "max_iter": 0,
+            "init_MPI": false,
+            "wrapped_params": null,
+            "dump_callback": null,
+            "use_MPI": true
+        },
+        "ultranest": {
+            "ReactiveNS": {
+                "wrapped_params": null,
+                "vectorized": false,
+                "resume": "True",
+                "run_num": "None",
+                "num_bootstraps": 30,
+                "storage_backend": "hdf5",
+                "warmstart_max_tau": -1
+            },
+            "runNS": {
+                "dlogz": 0.5,
+                "max_iters": null,
+                "max_ncalls": null,
+                "min_ess": 400,
+                "frac_remain": 0.01,
+                "cluster_num_live_points": 40,
+                "Lepsilon": 0.001
+            }
+        }
+    },
+    "parameters": {
+        "par1": {
+            "name": "par1",
+            "prior": {
+                "prior_type": "uniform",
+                "params": {
+                    "lower": 800.0,
+                    "upper": 3000.0
+                }
+            },
+            "kind": "grid",
+            "scope": "global",
+            "obs_index": null,
+            "title": "Teff",
+            "vsini_function": null
+        },
+        "par2": {
+            "name": "par2",
+            "prior": {
+                "prior_type": "uniform",
+                "params": {
+                    "lower": 2.5,
+                    "upper": 5.5
+                }
+            },
+            "kind": "grid",
+            "scope": "global",
+            "obs_index": null,
+            "title": "log(g)",
+            "vsini_function": null
+        },
+        "par3": {
+            "name": "par3",
+            "prior": {
+                "prior_type": "uniform",
+                "params": {
+                    "lower": -0.6,
+                    "upper": 0.6
+                }
+            },
+            "kind": "grid",
+            "scope": "global",
+            "obs_index": null,
+            "title": "[M/H]",
+            "vsini_function": null
+        },
+        "par4": {
+            "name": "par4",
+            "prior": {
+                "prior_type": "uniform",
+                "params": {
+                    "lower": 0.3,
+                    "upper": 0.7
+                }
+            },
+            "kind": "grid",
+            "scope": "global",
+            "obs_index": null,
+            "title": "C/O",
+            "vsini_function": null
+        },
+        "par5": {
+            "name": "par5",
+            "prior": {
+                "prior_type": "uniform",
+                "params": {
+                    "lower": 1.01,
+                    "upper": 1.05
+                }
+            },
+            "kind": "grid",
+            "scope": "global",
+            "obs_index": null,
+            "title": "gamma",
+            "vsini_function": null
+        },
+        "r": {
+            "name": "r",
+            "prior": {
+                "prior_type": "uniform",
+                "params": {
+                    "lower": 0.5,
+                    "upper": 3.0
+                }
+            },
+            "kind": "r",
+            "scope": "global",
+            "obs_index": null,
+            "title": "r",
+            "vsini_function": null
+        },
+        "d": {
+            "name": "d",
+            "prior": {
+                "prior_type": "constant",
+                "params": {
+                    "value": 120.8179
+                }
+            },
+            "kind": "d",
+            "scope": "global",
+            "obs_index": null,
+            "title": "d",
+            "vsini_function": null
+        },
+        "rv_6": {
+            "name": "rv_6",
+            "prior": {
+                "prior_type": "uniform",
+                "params": {
+                    "lower": -50.0,
+                    "upper": 50.0
+                }
+            },
+            "kind": "rv",
+            "scope": "local",
+            "obs_index": [
+                6
+            ],
+            "title": "rv_6",
+            "vsini_function": null
+        },
+        "rv_7": {
+            "name": "rv_7",
+            "prior": {
+                "prior_type": "uniform",
+                "params": {
+                    "lower": -50.0,
+                    "upper": 50.0
+                }
+            },
+            "kind": "rv",
+            "scope": "local",
+            "obs_index": [
+                7
+            ],
+            "title": "rv_7",
+            "vsini_function": null
+        }
+    },
+    "wave_fit": [
+        "0.9, 4.0",
+        "0.9, 4.0",
+        "0.9, 4.0",
+        "0.9, 4.0",
+        "0.9, 4.0",
+        "0.9, 4.0",
+        "0.9, 4.0"
+    ],
+    "interp_method": "linear",
+    "bounds_lsq": [
+        [
+            "-inf",
+            "inf"
+        ],
+        [
+            "-inf",
+            "inf"
+        ],
+        [
+            "-inf",
+            "inf"
+        ],
+        [
+            "-inf",
+            "inf"
+        ],
+        [
+            "-inf",
+            "inf"
+        ],
+        [
+            "-inf",
+            "inf"
+        ],
+        [
+            "-inf",
+            "inf"
+        ]
+    ]
+}
