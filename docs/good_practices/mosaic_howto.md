@@ -1,6 +1,7 @@
-# MOSAIC Best Practices
+# MOSAIC
 
-MOSAIC mode allows ForMoSA to fit **multiple datasets simultaneously**, each
+MOSAIC (Multimodal Option for Spectral Analysis and Improved Constraints) 
+allows ForMoSA to fit **multiple datasets simultaneously**, each
 with its own likelihood, while sharing a common set of physical parameters.
 This page explains how MOSAIC works, when to use it, and how to avoid common
 pitfalls.
@@ -45,10 +46,10 @@ config_parameters = ConfigParameters(
     par1    = ["uniform", "800",  "2000"],   # Teff — shared
     par2    = ["uniform", "3.0",  "5.5"],    # log g — shared
     r       = ["uniform", "0.5",  "3.0"],    # radius — shared
-    d       = ["constant", "27.7"],           # distance — shared
-    alpha_0 = ["uniform", "0.5", "2.0"],     # intercal. for SPHERE
-    alpha_1 = ["uniform", "0.5", "2.0"],     # intercal. for GRAVITY
-    alpha_2 = ["uniform", "0.5", "2.0"],     # intercal. for NIRCam
+    d       = ["constant", "27.7"],          # distance — shared
+    alpha_0 = ["gaussian", "1", "0.1"],      # intercal. for SPHERE
+    alpha_1 = ["gaussian", "1", "0.1"],      # intercal. for GRAVITY
+    alpha_2 = ["gaussian", "1", "0.1"],      # intercal. for NIRCam
 )
 ```
 
@@ -83,8 +84,14 @@ $\beta$ Pic b.
 **Too many `alpha` parameters**
 : If every observation has a free `alpha`, the likelihood surface can become
   degenerate — especially when observations overlap in wavelength. As a rule
-  of thumb, fix `alpha` for your most reliably calibrated dataset and let it
-  float for the others.
+  of thumb, either fix `alpha` for your most reliably calibrated dataset and let it
+  float for the others or use strong, centered gaussian priors on all of them and on `r`.
+
+**`alpha` or not `alpha`?**
+: When fitting multiple datasets with `r`, `d` and at least one `alpha`, a specific setup is triggered. 
+  Any dataset defined without `alpha` is automatically scaled using the analytical scaling, allowing 
+  continuum-subtracted and calibrated spectra to be fitted together. If you instead want such datasets 
+  to use the physical scaling then use `alpha = ["constant", "1"]`. 
 
 **Resolution mismatch across datasets**
 : The `target_res_mod` in `ConfigAdapt` must be set consistently. If one
