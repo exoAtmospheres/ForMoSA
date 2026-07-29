@@ -437,7 +437,8 @@ def vsini_fct(wav_mod_spectro: np.ndarray, flx_mod_spectro: np.ndarray, res_mod_
                 raise ValueError(f'Unknow rotational broadening method {vsini_type}')
 
             # Because of the v.sini correction, the resolution of the model has been downgraded, so we update it
-            res_mod_obs_spectro_broad = const.c.to('km/s').value / vsini_picked * np.ones(len(res_mod_obs_spectro))
+            res_mod_obs_spectro_broad = 299792.458 / vsini_picked * np.ones(len(res_mod_obs_spectro))
+            res_mod_obs_spectro_broad = np.min([res_mod_obs_spectro_broad, res_mod_obs_spectro], axis=0)
 
         else: # vsini_picked is 0
             res_mod_obs_spectro_broad, flx_mod_spectro_broad = res_mod_obs_spectro, flx_mod_spectro
