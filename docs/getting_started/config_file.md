@@ -344,8 +344,8 @@ Set to `["NA"]` to disable.
   Spectroscopic mode only.
 
 **`av`** — dust extinction (magnitudes)
-: ISM-like dust extinction applied to the model spectrum using the Cardelli (1989)
-  extinction law with R_V = 3.1. The value is in V-band magnitudes (A_V).
+: ISM-like dust extinction applied to the model spectrum using the
+  Fitzpatrick & Massa (2007) extinction law with R_V = 3.1. The value is in V-band magnitudes (A_V).
   Useful when the companion is seen through significant foreground or circumstellar dust.
   Prior example: `["uniform", "0", "10"]`.
 

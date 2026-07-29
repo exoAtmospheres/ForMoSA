@@ -463,6 +463,7 @@ class ConfigParameters:
     rv: list[str] = field(default_factory=lambda: ["NA"])
     vsini: list[str] = field(default_factory=lambda: ["NA"])
     ld: list[str] = field(default_factory=lambda: ["NA"])
+    av: list[str] = field(default_factory=lambda: ["NA"])
 
     def __post_init__(self) -> None:
         '''
