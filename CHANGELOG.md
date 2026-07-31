@@ -35,6 +35,10 @@ Auto-generated from commit history, grouped by author. Not hand-maintained -- se
 ### Bhavesh Rajpoot
 - BR: Revise README for environment setup and version changes ([c9deaa4](https://github.com/exoAtmospheres/ForMoSA/commit/c9deaa47fd85a90950d3db91c346a731bcc839f5))
 - BR: Bump version from 2.0.2 to 2.1.0 ([62bf9ed](https://github.com/exoAtmospheres/ForMoSA/commit/62bf9ed47a057aa5682664b8e528b46d64b4346f))
+- Revert "BR: Bump version from 2.0.2 to 2.1.0" ([9af8c8c](https://github.com/exoAtmospheres/ForMoSA/commit/9af8c8c37253408a8415f3d4ee06527d7b5c925c))
+- Revert "BR: Revise README for environment setup and version changes" ([2e499ea](https://github.com/exoAtmospheres/ForMoSA/commit/2e499ea7c6c8877e6d7b5ff46b2062884937ab33))
+- BR: Revise README for environment setup and version changes ([f013045](https://github.com/exoAtmospheres/ForMoSA/commit/f0130456c681c90257f6669eac6e1ece11df273c))
+- BR: Bump version from 2.0.2 to 2.1.0 ([f50921a](https://github.com/exoAtmospheres/ForMoSA/commit/f50921adbe7faba13864fb16046107e66908ca78))
 - BR: Fix the obs color in best fit plot ([1ea8929](https://github.com/exoAtmospheres/ForMoSA/commit/1ea8929f10a80fe3fd6fd2567855cbce7dfb8f8f))
 - BR: Completed the advanced plotting tutorial ([33423c6](https://github.com/exoAtmospheres/ForMoSA/commit/33423c60092d92073e5f6ec0e21bc192a3fe2e87))
 - BR: Add missing av field to ConfigParameters (fixes #34) ([fcb78bc](https://github.com/exoAtmospheres/ForMoSA/commit/fcb78bc020fef6c8c2e0f3216258c27ef418e000))
@@ -66,6 +70,7 @@ Auto-generated from commit history, grouped by author. Not hand-maintained -- se
 - Update paper draft, clean up bibliography database, and fix compilation warnings ([980a984](https://github.com/exoAtmospheres/ForMoSA/commit/980a98466f680f4625debe4a6067881862df086f))
 
 ### Bhavesh012
+- chore: update changelog [skip ci] ([c2b2558](https://github.com/exoAtmospheres/ForMoSA/commit/c2b255803b99b306e4c023f0e3ecfe6118320442))
 - chore: update changelog [skip ci] ([16ebda6](https://github.com/exoAtmospheres/ForMoSA/commit/16ebda6fd138b75bacba44679b9cca8b8a6262fc))
 - chore: update changelog [skip ci] ([2097326](https://github.com/exoAtmospheres/ForMoSA/commit/2097326809d8a69fab67e28a1905a83b726e0d6a))
 - chore: update changelog [skip ci] ([cd7add6](https://github.com/exoAtmospheres/ForMoSA/commit/cd7add6324b616f48fb2ac094eebbaa089f470bf))
