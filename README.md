@@ -30,6 +30,28 @@ ForMoSA is an open-source Python package for modeling exoplanetary atmospheres u
 
 ## Installation
 
+We recommend a dedicated miniconda or other Python environment to keep ForMoSA's dependencies isolated from the rest of your Python stack.
+
+
+Setting Up a miniconda Environment
+-------------------------------
+
+For all users:
+
+```bash
+conda create -n env_formosa python=3.12
+conda activate env_formosa
+```
+For macOS users with Apple Silicon (M1/M2/M3):
+
+```bash
+CONDA_SUBDIR=osx-arm64 conda create -n env_formosa python=3.12 numpy -c conda-forge
+conda activate env_formosa
+conda config --env --set subdir osx-arm64
+```
+
+Package Installation
+-------------------------------
 ### From PyPI
 
 ```bash
@@ -123,7 +145,7 @@ ForMoSA/
 
 ---
 
-## What's New in v2.0.0
+## What's New in v2.0.0 onwards
 
 > **v2.0.0 is a complete rewrite and is not backwards-compatible with v1.x.**
 > See the [full migration guide](https://formosa.readthedocs.io/en/latest/whats_new.html) in the docs.
@@ -135,7 +157,7 @@ ForMoSA/
 - **Auto-generated [CHANGELOG.md](CHANGELOG.md)** — updated on every push, grouped by author directly from commit history (no commit-message convention required); frozen into a dated version section whenever a release tag is pushed.
 - **JOSS paper** — a software paper accompanying the v2.0.0 release is in preparation.
 
-| Area | v1.x | v2.0.0 |
+| Area | v1.x | v2.x |
 |---|---|---|
 | Entry point | `main.py` script + `launch_adapt()` / `launch_nested_sampling()` | Single `Analysis` class |
 | Configuration | `config.ini` + `GlobFile` | Python dataclasses (`ConfigPath`, `ConfigAdapt`, …) |
