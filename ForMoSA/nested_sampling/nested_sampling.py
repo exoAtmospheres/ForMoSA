@@ -293,12 +293,8 @@ class NestedSampling(object):
 
         ns = cls.from_dict(data, observations = observations, subgrids = subgrids, logger = logger)
 
-        results_file = Path(path)  / 'NS_results' / f'results_{ns.algorithm}.json'
-
-        if not results_file.exists():
-            ns.logger.warning(f'{results_file} does not exist. Cannot load the results of the Nested Sampling', ns.logger)
-        else:
-            ns.load_results(path)
+        results_path = Path(path)
+        ns._results = ns.load_results(results_path)        
 
         return ns
 
@@ -604,7 +600,7 @@ class NestedSampling(object):
         '''
 
         if len(free_values) != self.parameters.n_free_parameters:
-            raise ForMoSAError("Invalid free_values length", self.logger)
+            raise ForMoSAError(f"Invalid free_values length ({len(free_values)}. Expected {self.parameters.n_free_parameters})", self.logger)
 
         params = {}
         # Convert numpy array to list of Python floats to avoid numpy.float64 scalars
@@ -626,6 +622,10 @@ class NestedSampling(object):
             # Local parameters are included only if obs_index matches
             elif p.is_local and obs_index in p.obs_index:
                 params[p] = p.prior.value if p.is_fixed else next(free_iter)
+                
+            else:
+                if not p.is_fixed:
+                    next(free_iter)
 
         return ObservedParameters(params)
 
@@ -684,8 +684,9 @@ class NestedSampling(object):
         if not(results_file.exists()):
             raise ForMoSAError(f'<{results_file} does not exist. Please make sure to use an existing result file>', self.logger)
 
-        self._logger.debug(f'< load {results_file}')
-        with open(results_file, 'r') as f:
-            results = json.load(f)
-
-        self._results = NSResults.from_dict(results)
+        self._logger.debug(f'< load {results_file}')  
+        try:
+            self._results = NSResults.from_json(results_path, f'{self.algorithm}')
+            return self._results
+        except Exception as e:
+            raise ForMoSAError(e, self.logger)

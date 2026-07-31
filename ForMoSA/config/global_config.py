@@ -454,6 +454,7 @@ class ConfigParameters:
     par2: list[str] = field(default_factory=lambda: ["NA"])
     par3: list[str] = field(default_factory=lambda: ["NA"])
     par4: list[str] = field(default_factory=lambda: ["NA"])
+    par5: list[str] = field(default_factory=lambda: ["NA"])
     r: list[str] = field(default_factory=lambda: ["NA"])
     d: list[str] = field(default_factory=lambda: ["NA"])
     alpha: list[str] = field(default_factory=lambda: ["NA"])
@@ -462,6 +463,7 @@ class ConfigParameters:
     rv: list[str] = field(default_factory=lambda: ["NA"])
     vsini: list[str] = field(default_factory=lambda: ["NA"])
     ld: list[str] = field(default_factory=lambda: ["NA"])
+    av: list[str] = field(default_factory=lambda: ["NA"])
 
     def __post_init__(self) -> None:
         '''

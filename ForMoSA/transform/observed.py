@@ -204,58 +204,82 @@ class ObservedParameters:
 
 @dataclass
 class ObservedModel:
-    '''
+    """
     Model drawn from the nested sampling.
 
     Notes
     -----
     Authors: Allan Denis
-    '''
+    """
 
     # ======================
     # Attributes
     # ======================
 
-    wave: np.ndarray                        # Wavelength array
-    flux: np.ndarray                        # Planet signal / model flux
-    res: np.ndarray | float                 # Spectral resolution
-    component: np.ndarray | None = None     # Additive HC components (speckles, systematics, etc.)
-    scaling: str = "analytic"               # Scaling method
+    wave: np.ndarray
+    flux: np.ndarray
+    res: np.ndarray | float
+
+    # Additive HC components (speckles, systematics, CPD, etc.)
+    components: list[np.ndarray] | None = None
+
+    labels: list[str] | None = None
+    scaling: str = "analytic"
 
     # ======================
     # Post-init checks
     # ======================
 
     def __post_init__(self):
+
         self.wave = np.asarray(self.wave, dtype=float)
         self.flux = np.asarray(self.flux, dtype=float)
-        if self.component is None:
-            self.component = np.zeros_like(self.flux)
-        else:
-            self.component = np.asarray(self.component, dtype=float)
+
+        if self.components is None:
+            self.components = []
 
         if self.wave.shape != self.flux.shape:
-            raise ForMoSAError('wave and flux must have the same shape')
+            raise ForMoSAError("wave and flux must have the same shape")
 
-        if self.component.shape != self.flux.shape:
-            raise ForMoSAError('component must have the same shape as flux')
+        validated_components = []
+
+        for i, component in enumerate(self.components):
+            component = np.asarray(component, dtype=float)
+
+            if component.shape != self.flux.shape:
+                raise ForMoSAError(f"Component {i} has shape {component.shape}, expected {self.flux.shape}")
+
+            validated_components.append(component)
+
+        self.components = validated_components
 
     # ======================
     # Properties
     # ======================
 
     @property
+    def total_component(self) -> np.ndarray:
+        """Sum of all additive components."""
+
+        if len(self.components) == 0:
+            return np.zeros_like(self.flux)
+
+        return np.sum(self.components, axis=0)
+
+    @property
     def total_flux(self) -> np.ndarray:
-        """Total flux including HC components."""
-        return self.flux + self.component
+        """Total flux including additive components."""
+
+        return self.flux + self.total_component
 
     @property
     def npts(self) -> int:
         """Number of points."""
+
         return self.flux.size
 
     # ======================
-    # Class methods
+    # Methods
     # ======================
 
     @classmethod
@@ -377,12 +401,12 @@ class ObservedModel:
         flux_obs = np.asarray(flux_obs, dtype=float)
 
         if flux_obs.size != self.npts:
-            raise ForMoSAError(f'Flux of the observation must have the same number of points ({flux_obs.size}) than ObservedModel ({self.npts})')
+            raise ForMoSAError(f"Flux of the observation must have the same number of points ({flux_obs.size}) than ObservedModel ({self.npts})")
 
         if component_only:
-            return flux_obs - self.component
-        else:
-            return flux_obs - self.total_flux
+            return flux_obs - self.total_component
+
+        return flux_obs - self.total_flux
 
     def std_residuals(self, flux_obs: np.ndarray) -> float:
         '''
@@ -425,17 +449,20 @@ class ObservedModel:
         -----
         Authors: Allan Denis
         """
+
         return replace(self, **updates)
 
     def _sort(self) -> None:
-        '''
-        Sort by increasing wavelength
+        """
+        Sort by increasing wavelength.
+        """
 
-        Notes
-        -----
-        Authors: Allan Denis
-        '''
-
-        # Sort wave, flux, res and component
         isort = np.argsort(self.wave)
-        self.wave, self.flux, self.res, self.component = self.wave[isort], self.flux[isort], self.res[isort], self.component[isort]
+
+        self.wave = self.wave[isort]
+        self.flux = self.flux[isort]
+
+        if isinstance(self.res, np.ndarray):
+            self.res = self.res[isort]
+
+        self.components = [component[isort] for component in self.components]

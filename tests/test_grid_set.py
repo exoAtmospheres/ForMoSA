@@ -54,7 +54,7 @@ def mock_spectro_subgrid(mock_model_grid):
 
 @pytest.fixture
 def mock_photo_subgrid(mock_model_grid):
-    filt = PhotometryFilter('Keck', 'NIRC2', 'lp')
+    filt = PhotometryFilter('Keck', 'NIRC2', 'Lp')
     return SubGridPhotometry.from_parent(mock_model_grid, np.array([filt]))
 
 

@@ -153,9 +153,9 @@ Typed observation classes
 Observations are now represented by proper Python classes instead of raw NumPy
 arrays read from an INI path list:
 
-* :class:`~ForMoSA.observation.observation_spectroscopy.ObservationSpectroscopy`
+* :class:`~ForMoSA.observation.observation_spectroscopy.SpectralObservation`
   — single spectroscopic dataset
-* :class:`~ForMoSA.observation.observation_photometry.ObservationPhotometry`
+* :class:`~ForMoSA.observation.observation_photometry.PhotometryObservation`
   — photometric dataset (filter list)
 * :class:`~ForMoSA.observation.observation_set.ObservationSet`
   — container that groups any mix of the above

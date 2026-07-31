@@ -392,6 +392,7 @@ class ModelGrid:
         ref_params = {k: 0.5 * (self.lims_params_grid[k][0] + self.lims_params_grid[k][1]) for k in self.keys}
 
         interp_kwargs = dict(ref_params)
+        interp_kwargs = {k: float(v) if isinstance(v, np.floating) else v for k, v in interp_kwargs.items()}
         interp_kwargs["method"] = "nearest"
         interp_kwargs["kwargs"] = {"fill_value": np.nan}
 

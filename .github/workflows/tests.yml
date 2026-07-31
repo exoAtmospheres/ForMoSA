@@ -2,9 +2,9 @@ name: Compatibility Check
 
 on:
   push:
-    branches: [main, activ_dev]
+    branches: [main, ForMoSA_class]
   pull_request:
-    branches: [main, activ_dev]
+    branches: [main, ForMoSA_class]
 
 jobs:
   check-install:

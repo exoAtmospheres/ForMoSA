@@ -1,0 +1,35 @@
+name: Changelog
+
+on:
+  push:
+    branches: [main, ForMoSA_class]
+    tags: ["v*"]
+
+permissions:
+  contents: write
+
+jobs:
+  update-changelog:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          # Tags are detached commits; the freeze step needs a real branch to
+          # commit the frozen section to, so check out main instead. Releases
+          # are always tagged from main in this repo.
+          ref: ${{ github.ref_type == 'tag' && 'main' || github.ref_name }}
+
+      - name: Freeze [Unreleased] into a dated version section
+        if: github.ref_type == 'tag'
+        run: python3 .github/scripts/generate_changelog.py --freeze "${{ github.ref_name }}"
+
+      - name: Regenerate [Unreleased] section
+        if: github.ref_type != 'tag'
+        run: python3 .github/scripts/generate_changelog.py
+
+      - name: Commit CHANGELOG.md if changed
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "chore: update changelog [skip ci]"
+          file_pattern: CHANGELOG.md

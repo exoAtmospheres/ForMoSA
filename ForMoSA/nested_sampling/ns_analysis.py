@@ -6,6 +6,7 @@ import ForMoSA.utils.spec as us
 from ForMoSA.core.errors import ForMoSAError
 from ForMoSA.grid.model_grid import ModelGrid
 from ForMoSA.core.loggings import setup_logging
+from ForMoSA.core.enums import LogLikelihoodType
 from ForMoSA.transform.observed import ObservedModel
 from ForMoSA.utils.misc import get_weighted_percentile
 from ForMoSA.core.enums import ParameterKind, ObservationKeys
@@ -201,6 +202,87 @@ class NSAnalysis(object):
 
         return native_model
 
+    def best_fit_intervals(self, percs: list[float] = (0.68,)) -> list[tuple[ObservedModel, ObservedModel]]:
+        '''
+        Confidence intervals of the native best fit, for one or several credible levels at once.
+
+        All requested levels share the same (expensive) pass over the posterior samples, so
+        requesting several levels here is much cheaper than calling `best_fit_interval` once
+        per level.
+
+        Parameters
+        ----------
+        percs : list[float]
+            Percentile values between 0 and 1 (0.68 for 1 sigma, 0.95 for 2 sigmas, ...)
+
+        Returns
+        -------
+        list[tuple[ObservedModel, ObservedModel]]
+            For each requested percentile, the lower and higher envelope of the flux.
+            All returned models share the same wavelength grid: the subset of the native
+            model's wavelength grid that is defined for every posterior sample (RV shifts
+            trim a few points at the edges differently for each sample; those edge points
+            are dropped here rather than mixed with NaNs).
+
+        Notes
+        -----
+        Authors: Allan Denis
+        '''
+
+        percs = [float(p) for p in percs]
+
+        # Initial checks
+        if self.ns.results is None:
+            raise ForMoSAError('Please first run the Nested Sampling before computing the best fit', self.logger)
+
+        for p in percs:
+            if p < 0 or p > 1:
+                raise ForMoSAError(f'perc must be a float between 0 and 1. Got {p} with type {type(p)}', self.logger)
+
+        # wavelength range
+        wrange = (self.ns.observations.wavelength_range[0] * 0.95, self.ns.observations.wavelength_range[1] * 1.05)
+
+        # build restricted grid
+        grid = self.ns.subgrids.parent_grid._restricted_grid(f'{wrange[0]},{wrange[1]}', print_logger=True)
+        # Interpolate nan values
+        grid._interpolate_missing_values()
+
+        # Fixed reference wavelength grid shared by every sample: `_build_native_observed_model`
+        # always builds its native model from this same `grid`, and RV Doppler-shifting only
+        # ever drops points from it (it never resamples), so every sample's wavelengths are an
+        # exact index-subset of `ref_wave`. This lets us align samples by index instead of
+        # interpolating them onto a common grid.
+        ref_wave = grid.wave
+        samples = self.ns.results.samples[self.ns.results.burn_in:]
+        weights = self.ns.results.weights[self.ns.results.burn_in:]
+
+        self.logger.info(f'    Computing confidence interval(s) for percentile(s) {np.round(percs, 2).tolist()}')
+
+        models_flux = np.full((len(samples), len(ref_wave)), np.nan)
+        res_ref = np.full(len(ref_wave), np.nan)
+        for i, sample in enumerate(tqdm(samples)):
+            observed_model = self._build_native_observed_model(grid, sample, print_logger=False)
+            idx = np.searchsorted(ref_wave, observed_model.wave)
+            models_flux[i, idx] = observed_model.flux
+            res_ref[idx] = observed_model.res
+
+        # Only keep wavelength points present for every sample (RV shifts trim a handful of
+        # points at the edges, differently per sample); get_weighted_percentile is not
+        # NaN-aware, so mixing in the missing edges would silently bias the percentiles there.
+        valid = ~np.any(np.isnan(models_flux), axis=0)
+        wave_valid = ref_wave[valid]
+        res_valid = res_ref[valid]
+        models_flux = models_flux[:, valid]
+
+        # Compute every requested percentile in a single vectorized call
+        n_requested = np.concatenate([[(1 - p) / 2 * 100, (1 + p) / 2 * 100] for p in percs])
+        percentiles = get_weighted_percentile(n_requested, models_flux, weights=weights)
+
+        return [
+            (ObservedModel(wave_valid, percentiles[2 * i], res_valid), ObservedModel(wave_valid, percentiles[2 * i + 1], res_valid))
+            for i in range(len(percs))
+        ]
+
     def best_fit_interval(self, perc: float = 0.68) -> tuple[ObservedModel, ObservedModel]:
         '''
         Confidence interval of the native best fit.
@@ -209,7 +291,6 @@ class NSAnalysis(object):
         ----------
         perc : float
             Percentile value between 0 and 1 (0.68 for 1 sigma, 0.95 for 2 sigmas)
-
 
         Returns
         -------
@@ -221,40 +302,9 @@ class NSAnalysis(object):
         Authors: Allan Denis
         '''
 
-        perc = float(perc)
+        return self.best_fit_intervals([perc])[0]
 
-        # Initial checks
-        if self.ns.results is None:
-            raise ForMoSAError('Please first run the Nested Sampling before computing the best fit', self.logger)
-
-        if perc < 0 or perc > 1:
-            raise ForMoSAError(f'perc must be a float between 0 and 1. Got {perc} with type {type(perc)}', self.logger)
-
-        lower = (1 - perc) / 2
-        upper = (1 + perc) / 2
-
-        models_flux = []
-
-        # wavelength range
-        wrange = (self.ns.observations.wavelength_range[0] * 0.95, self.ns.observations.wavelength_range[1] * 1.05)
-
-        # build restricted grid
-        grid = self.ns.subgrids.parent_grid._restricted_grid(f'{wrange[0]},{wrange[1]}', print_logger=True)
-        # Interpolate nan values
-        grid._interpolate_missing_values()
-
-        self.logger.info(f'    Computing confidence interval with percentiles [{np.round(lower,2)} - {np.round(upper,2)}]')
-        for sample in tqdm(self.ns.results.samples[self.ns.results.burn_in:]):
-            observed_model = self._build_native_observed_model(grid, sample, print_logger=False)
-            models_flux.append(observed_model.flux)
-
-        models_flux = np.array(models_flux)
-        perc_1sigma_lower = get_weighted_percentile(lower * 100, models_flux, weights=self.ns.results.weights[self.ns.results.burn_in:])
-        perc_1sigma_higher = get_weighted_percentile(upper * 100, models_flux, weights=self.ns.results.weights[self.ns.results.burn_in:])
-
-        return ObservedModel(observed_model.wave, perc_1sigma_lower, observed_model.res), ObservedModel(observed_model.wave, perc_1sigma_higher, observed_model.res)
-
-    def compute_ccf(self, rv_grid: np.ndarray, index: int = 0, theta: list | None = None) -> dict[str, np.ndarray]:
+    def compute_ccf(self, rv_grid: np.ndarray, index: int = 0, theta: list | None = None, logL_type: LogLikelihoodType = LogLikelihoodType.CHI2) -> dict[str, np.ndarray]:
         '''
         Compute and optionally plot the Cross-Correlation Function (CCF).
 
@@ -266,6 +316,8 @@ class NSAnalysis(object):
             Index of observation used for the ccf computation
         theta : list
             List of free values of the parameters. If not provided, the best fitted parameters are used
+        logL_type : LogLikelihoodType
+            Type of log-likelihood used
 
         Returns
         -------
@@ -314,7 +366,7 @@ class NSAnalysis(object):
 
         self._logger.info(f'      Computing RV CCF for observation {obs.name}')
 
-        ccf, acf, ccf_star, rv_peak, logL, ccf_raw = us.compute_ccf(
+        ccf_raw, acf, ccf_star, rv_peak, logL, ccf = us.compute_ccf(
             native_model.wave,
             native_model.flux,
             obs.wave,
@@ -329,7 +381,7 @@ class NSAnalysis(object):
             system_obs_spectro=system,
             rv_grid=rv_grid,
             rv_sini_map=False,
-            normalize=True
+            logL_type=logL_type
         )
 
         # Find best RV
@@ -344,12 +396,13 @@ class NSAnalysis(object):
             'acf': acf,
             'ccf_star': ccf_star,
             'rv_peak': rv_peak,
-            'logL': logL
+            'logL': logL,
+            'ccf_raw': ccf_raw
         }
 
         return results
 
-    def compute_rv_vsini_map(self, rv_grid: np.ndarray, vsini_grid: np.ndarray, index: int = 0, theta: list | None = None) -> dict[str, np.ndarray]:
+    def compute_rv_vsini_map(self, rv_grid: np.ndarray, vsini_grid: np.ndarray, index: int = 0, theta: list | None = None, logL_type: LogLikelihoodType = LogLikelihoodType.CHI2) -> dict[str, np.ndarray]:
         '''
         Compute and optionally plot the RV vs v.sin(i) loglikelihood map.
 
@@ -363,6 +416,8 @@ class NSAnalysis(object):
             Index of observation used for the ccf computation
         theta : list
             List of free values of the parameters. If not provided, the best fitted parameters are used
+        logL_type : LogLikelihoodType 
+            Type of log-likelihood used
 
         Returns
         -------
@@ -444,7 +499,7 @@ class NSAnalysis(object):
                 system_obs_spectro=system,
                 rv_grid=rv_grid,
                 rv_sini_map=True,
-                normalize=False
+                logL_type=logL_type
             )
 
             logL_map[j] = logL

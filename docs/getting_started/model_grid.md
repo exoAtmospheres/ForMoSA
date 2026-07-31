@@ -16,9 +16,9 @@ ForMoSA uses `xarray.Dataset` to represent grids. The dataset has:
 
 - **Coordinates** — one per physical parameter (e.g. `par1` = $T_{eff}$, `par2` = $\log g$).
   The names `par1`–`par4` are fixed; what they *mean* depends on the grid.
-- **Data variable `flux`** — shape `(N_par1, N_par2, …, N_wavelength)`.
-- **Data variable `res`** — the native spectral resolution at each wavelength point,
-  shape `(N_wavelength,)`.
+- **Data variable `grid`** — the model fluxes, shape `(N_wavelength, N_par1, N_par2, …)`.
+- **Attribute `res`** (`grid.attrs["res"]`) — the native spectral resolution at each
+  wavelength point, shape `(N_wavelength,)`. Not a queryable data variable.
 - **Coordinate `wavelength`** — the wavelength axis in microns.
 
 ## Available grids
@@ -65,7 +65,7 @@ import matplotlib.pyplot as plt
 grid = xr.open_dataset("atm_grids/BT-Settl.nc")
 
 # Select the model closest to Teff=1600 K, logg=4.0
-spectrum = grid.flux.sel(par1=1600, par2=4.0, method="nearest")
+spectrum = grid["grid"].sel(par1=1600, par2=4.0, method="nearest")
 
 plt.figure(figsize=(10, 4))
 plt.plot(grid.wavelength, spectrum, linewidth=0.8)
@@ -88,9 +88,9 @@ import matplotlib.pyplot as plt
 
 grid = xr.open_dataset("atm_grids/BT-Settl.nc")
 
-# Native resolution of the grid across wavelength
+# Native resolution of the grid across wavelength (stored as an attribute, not a data variable)
 plt.figure(figsize=(10, 3))
-plt.plot(grid.wavelength, grid.res)
+plt.plot(grid.wavelength, grid.attrs["res"])
 plt.xlabel("Wavelength (µm)")
 plt.ylabel("Spectral resolution λ/Δλ")
 plt.title("BT-Settl native resolution")

@@ -30,6 +30,28 @@ ForMoSA is an open-source Python package for modeling exoplanetary atmospheres u
 
 ## Installation
 
+We recommend a dedicated miniconda or other Python environment to keep ForMoSA's dependencies isolated from the rest of your Python stack.
+
+
+Setting Up a miniconda Environment
+-------------------------------
+
+For all users:
+
+```bash
+conda create -n env_formosa python=3.12
+conda activate env_formosa
+```
+For macOS users with Apple Silicon (M1/M2/M3):
+
+```bash
+CONDA_SUBDIR=osx-arm64 conda create -n env_formosa python=3.12 numpy -c conda-forge
+conda activate env_formosa
+conda config --env --set subdir osx-arm64
+```
+
+Package Installation
+-------------------------------
 ### From PyPI
 
 ```bash
@@ -123,7 +145,7 @@ ForMoSA/
 
 ---
 
-## What's New in v2.0.0
+## What's New in v2.0.0 onwards
 
 > **v2.0.0 is a complete rewrite and is not backwards-compatible with v1.x.**
 > See the [full migration guide](https://formosa.readthedocs.io/en/latest/whats_new.html) in the docs.
@@ -131,10 +153,11 @@ ForMoSA/
 **Project updates since the v2.0.0 rewrite:**
 
 - **Automated testing** — every push and pull request is install- and import-checked and the test suite is run on Python 3.10, 3.11, and 3.12.
-- **One-tag releases** — pushing a `v*` tag builds the package and publishes it to PyPI via a [Trusted Publisher](https://docs.pypi.org/trusted-publishers/), with auto-generated GitHub release notes.
+- **One-tag releases** — pushing a `v*` tag builds the package and publishes it to PyPI via a [Trusted Publisher](https://docs.pypi.org/trusted-publishers/).
+- **Auto-generated [CHANGELOG.md](CHANGELOG.md)** — updated on every push, grouped by author directly from commit history (no commit-message convention required); frozen into a dated version section whenever a release tag is pushed.
 - **JOSS paper** — a software paper accompanying the v2.0.0 release is in preparation.
 
-| Area | v1.x | v2.0.0 |
+| Area | v1.x | v2.x |
 |---|---|---|
 | Entry point | `main.py` script + `launch_adapt()` / `launch_nested_sampling()` | Single `Analysis` class |
 | Configuration | `config.ini` + `GlobFile` | Python dataclasses (`ConfigPath`, `ConfigAdapt`, …) |
@@ -220,6 +243,8 @@ Then:
 4. **Open a pull request** against `ForMoSA_class` describing the change.
 
 Releases are automated: once changes are merged and a maintainer pushes a `v*` tag (e.g. `v2.0.0`), the package is built and published to PyPI, and a GitHub release is created automatically.
+
+[CHANGELOG.md](CHANGELOG.md) is auto-generated from commit history on every push — don't edit it by hand; your commits will show up in it automatically, grouped by author.
 
 ---
 

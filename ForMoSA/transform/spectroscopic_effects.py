@@ -1,5 +1,5 @@
+import ForMoSA.utils.spec as us
 from ForMoSA.core.errors import ForMoSAError
-import ForMoSA.utils.logL_functions as logL_functions
 from ForMoSA.observation.observation_base import Observation
 from ForMoSA.transform.observed import ObservedModel, ObservedParameters
 from ForMoSA.core.enums import ParameterKind, ObservationType, LogLikelihoodType
@@ -203,22 +203,4 @@ class SpectralEffects:
         if len(observed_model.flux) != len(obs.flux):
             raise ForMoSAError(f' Wrong length for model: {len(observed_model.flux)}. Expected the same length as the observations: {len(obs.flux)}')
 
-        # Residuals and residuals with the componant only
-        residuals = observed_model.residuals(obs.flux)
-        residuals_componant = observed_model.residuals(obs.flux, component_only=True)
-
-        # =====================
-        # Compute loglikelihood
-        # =====================
-
-        logL_dict = {
-            LogLikelihoodType.CHI2: lambda: logL_functions.logL_chi2(residuals, obs.err),
-            LogLikelihoodType.CHI2_COVARIANCE: lambda: logL_functions.logL_chi2_covariance(residuals, obs.cov, obs.inv_cov),
-            LogLikelihoodType.CCF_BROGI: lambda: logL_functions.logL_CCF_Brogi(residuals_componant, observed_model.flux),
-            LogLikelihoodType.CCF_ZUCKER: lambda: logL_functions.logL_CCF_Zucker(residuals_componant, observed_model.flux),
-            LogLikelihoodType.CCF_CUSTOM: lambda: logL_functions.logL_CCF_custom(residuals_componant, observed_model.flux, obs.err),
-            LogLikelihoodType.CHI2_NOISESCALING: lambda: logL_functions.logL_chi2_noisescaling(residuals, obs.err),
-            LogLikelihoodType.CHI2_NOISESCALING_COVARIANCE: lambda: logL_functions.logL_chi2_noisescaling_covariance(residuals, obs.cov, obs.inv_cov)
-        }
-
-        return logL_dict.get(logL_type, lambda: 0)()
+        return us.compute_loglike(obs.flux - observed_model.total_component, observed_model.flux, obs.err, logL_type=logL_type, cov_obs = obs.cov, inv_cov_obs = obs.inv_cov)

@@ -18,8 +18,8 @@ authors = [
   { name = "G. Chauvin", email = "chauvin@mpia.de"},
   { name = "A. Vigan", email = "arthur.vigan@lam.fr"},
   { name = "A. Radcliffe", email = "Alice.RADCLIFFE@obspm.fr"},
-  { name = "K. Hoy", email = "kevinmhoy@gmail.com"},
-  { name = "P. Requejio", email = "prequeijo03@gmail.com"}
+  { name = "P. Requejio", email = "prequeijo03@gmail.com"},
+  { name = "K. Hoy", email = "kevinmhoy@gmail.com"}
 ]
 requires-python = ">=3.10"
 classifiers = [
@@ -38,19 +38,20 @@ dev = [
   # Testing
   "pytest",
   "pytest-cov",
+  "nestle",  # NS backend used by the end-to-end Analysis smoke test
   # Packaging / release
   "build",
   "twine",
   # Documentation (mirrors docs/requirements.txt, which Read the Docs reads directly)
-  "sphinx>=9.1",
+  "sphinx>=7.1",
   "ipykernel",
   "nbsphinx",
   "pandoc",
   "jupyter",
-  "sphinx-book-theme>=1.1",
-  "sphinx-autodoc-typehints>=3.9.8",
+  "sphinx-book-theme>=1.0",
+  "sphinx-autodoc-typehints>=1.19",
   "sphinx-copybutton>=0.5",
-  "myst-parser>=2.0",
+  "myst-parser>=1.0",
 ]
 
 [project.urls]

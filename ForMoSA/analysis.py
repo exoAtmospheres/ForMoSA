@@ -410,8 +410,7 @@ class Analysis(object):
 
         # If requested, plot the 1-sigma and 2-sigma confidence intervals of the best fit in the best fit plot
         if plot_native_model:
-            lower_1_sigma, higher_1_sigma = self.ns_analysis.best_fit_interval(perc=0.68)
-            lower_2_sigma, higher_2_sigma = self.ns_analysis.best_fit_interval(perc=0.95)
+            (lower_1_sigma, higher_1_sigma), (lower_2_sigma, higher_2_sigma) = self.ns_analysis.best_fit_intervals([0.68, 0.95])
 
             ax.fill_between(lower_1_sigma.wave, lower_1_sigma.flux, higher_1_sigma.flux, color='grey', alpha=0.5, zorder=PLOTS_CONFIG.BestFitPlot.zorder, label='1-sig interval')
             ax.fill_between(lower_2_sigma.wave, lower_2_sigma.flux, higher_2_sigma.flux, color='grey', alpha=0.2, zorder=PLOTS_CONFIG.BestFitPlot.zorder, label='2-sig interval')
@@ -423,7 +422,7 @@ class Analysis(object):
     # =========================================
     # CCF Plotting Functions
     # =========================================
-    def plot_ccf(self, rv_grid: np.ndarray, save_fig: bool = True, save_results: bool = False) -> None:
+    def plot_ccf(self, rv_grid: np.ndarray, save_fig: bool = True, save_results: bool = False, logL_type: LogLikelihoodType = LogLikelihoodType.CHI2) -> None:
         '''
         Compute and optionally plot the Cross-Correlation Function (CCF).
 
@@ -435,6 +434,8 @@ class Analysis(object):
             Whether to save the figure
         save_results : bool
             Whether to save the results of the CCF computation
+        logL_type : LogLikelihoodType
+            Type of log-likelihood used
 
         Notes
         -----
@@ -451,9 +452,9 @@ class Analysis(object):
         save_path = self.paths.result_path if (save_results or save_fig) else None
 
         for index in range(self.observations.n_observations):
-            ccf_dict = self.ns_analysis.compute_ccf(rv_grid, index=index)
+            ccf_dict = self.ns_analysis.compute_ccf(rv_grid, index=index, logL_type=logL_type)
             file_tag = list(ccf_dict.keys())[0]
-            rv_grid, ccf, acf, ccf_star, _, _ = list(ccf_dict[file_tag].values())
+            rv_grid, ccf, acf, ccf_star, _, _, _ = list(ccf_dict[file_tag].values())
             fig, ax = self.plots.plot_ccf(rv_grid, ccf, acf, ccf_star=ccf_star, title=file_tag)
 
             if save_path:
@@ -465,9 +466,11 @@ class Analysis(object):
 
                 # save the ccf_dict to a .npz file
                 np.savez(results_path, **ccf_dict[file_tag])
+                
+        return fig, ax
 
 
-    def plot_rv_vsini_map(self, rv_grid: np.ndarray, vsini_grid: np.ndarray, save_fig: bool = True, save_results: bool = False) -> None:
+    def plot_rv_vsini_map(self, rv_grid: np.ndarray, vsini_grid: np.ndarray, save_fig: bool = True, save_results: bool = False, logL_type: LogLikelihoodType = LogLikelihoodType.CHI2) -> None:
         '''
         Compute and optionally plot the RV vs v.sin(i) loglikelihood map.
 
@@ -481,6 +484,8 @@ class Analysis(object):
             Whether to save the figure
         save_results : bool
             Whether to save the results of the RV-vsini map computation
+        logL_type : LogLikelihoodType 
+            Type of log-likelihood used
 
         Notes
         -----
@@ -496,7 +501,7 @@ class Analysis(object):
         save_path = self.paths.result_path if (save_fig or save_results) else None
 
         for index in range(self.observations.n_observations):
-            rv_vsini_map = self.ns_analysis.compute_rv_vsini_map(rv_grid, vsini_grid, index=index)
+            rv_vsini_map = self.ns_analysis.compute_rv_vsini_map(rv_grid, vsini_grid, index=index, logL_type=logL_type)
             file_tag = list(rv_vsini_map.keys())[0]
             rv_grid, vsini_grid, logL_map, _, _ = tuple(rv_vsini_map[file_tag].values())
             fig, ax = self.plots.plot_rv_vsini_map(rv_grid, vsini_grid, logL_map, title=file_tag)
@@ -510,3 +515,5 @@ class Analysis(object):
 
                 # save the rv_vsini_map to a .npz file
                 np.savez(results_path, **rv_vsini_map[file_tag])
+                
+        return fig, ax

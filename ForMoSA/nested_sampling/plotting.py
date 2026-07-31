@@ -311,7 +311,7 @@ class Plotting(object):
         # Polygon-frame polar projection 
         theta, proj = _radar_polygon_factory(N)
 
-        fig = plt.figure(figsize=(8, 8))
+        fig = plt.figure(figsize=config.figsize)
         ax  = fig.add_subplot(projection=proj)
 
         # Grid rings & limits
@@ -370,7 +370,7 @@ class Plotting(object):
         fig.tight_layout()
         return fig, ax
 
-    def plot_fit(self, observations: ObservationSet, best_fit: list[ObservedModel], figsize: tuple[float, float] = (18, 8), plot_native_model: bool = False, native_model: ObservedModel | None = None) -> tuple[Figure, Axes, Axes, Axes, Axes]:
+    def plot_fit(self, observations: ObservationSet, best_fit: list[ObservedModel], plot_native_model: bool = False, native_model: ObservedModel | None = None) -> tuple[Figure, Axes, Axes, Axes, Axes]:
         '''
         Plot best fit
 
@@ -380,8 +380,6 @@ class Plotting(object):
             Instance of class ObservationSet
         best_fit : list[ObservedModel]
             List of instances of class ObservedModel corresponding to the best-fit model for each observation
-        figsize : tuple[float, float]
-            Size of the figure
         plot_native_model : bool
             Whether to plot the native model
         native_model : ObservedModel
@@ -424,7 +422,7 @@ class Plotting(object):
         # Reserve top rows for filter axis only when photometry is present
         ax_row_start = 2 if observations.has_photometry else 0
 
-        fig = plt.figure(figsize=figsize)
+        fig = plt.figure(figsize=main_config.figsize)
         gs = gridspec.GridSpec(9, 11)
 
         # Main axis for observations + best-fit
@@ -594,7 +592,7 @@ class Plotting(object):
         # plot rv/vsini map
         fig, ax = plt.subplots(figsize=(8, 6))
         extent = [rv_grid[0], rv_grid[-1], vsini_grid[0], vsini_grid[-1]]
-        im = ax.imshow(logL_map, aspect='auto', origin='lower', extent=extent, cmap='viridis')
+        im = ax.imshow(logL_map - np.nanmin(logL_map), aspect='auto', origin='lower', extent=extent, cmap='viridis')
         ax.scatter(best_rv, best_vsini, marker='x', color='red', s=100, label=f'Best: RV={best_rv:.1f}, vsini={best_vsini:.1f}')
         ax.set_xlabel('RV (km/s)')
         ax.set_ylabel(r'v.sin(i) (km/s)')

@@ -199,6 +199,10 @@ class ObservationLoader:
         -----
         Authors: Allan Denis
         '''
+        
+        def format_unique(values):
+            unique = sorted(set(np.asarray(values, dtype=str)))
+            return unique[0] if len(unique) == 1 else f'[{"+".join(unique)}]'
 
         logger = logger if logger is not None else setup_logging(log_level, name='Observation loader')
 
@@ -272,20 +276,62 @@ class ObservationLoader:
                 is_photo = False
                 # Recompute missing_photo for correct error reporting if we end up in the final else:
                 missing_photo = ObservationKeys.validate_photometric(set(normalized.keys()))
-
+                
+        meta = {}
+        
+        for key in ("FACILITY", "INSTRUMENT"):
+            canonical = getattr(ObservationKeys, key).canonical
+        
+            if canonical not in normalized:
+                logger.warning(f"Key {key} not in observation keys. Setting it to 'unknown'")
+                value = np.full(len(wave), "unknown", dtype=str)
+            else:
+                value = np.asarray(data[normalized[key]], dtype=str)
+        
+                if value.ndim == 0 or len(value) == 1:
+                    value = np.full(len(wave), str(value.item()))
+                elif len(value) != len(wave):
+                    raise ValueError(f"{key} has length {len(value)} but WAVE has length {len(wave)}")
+        
+            meta[key] = value
+        
+        facility = meta["FACILITY"]
+        ins = meta["INSTRUMENT"]
+        
+        facility_str = format_unique(facility)
+        ins_str = format_unique(ins)
+        
         # =============================
         # Photometric observation
         # =============================
         if is_photo:
-            # Facility, ins and filter_id
-            facility = np.asarray(data[normalized["FACILITY"]], dtype=str)
-            ins = np.asarray(data[normalized["INSTRUMENT"]], dtype=str)
+            # filter_id
+            
             filter_id = np.asarray(data[normalized["FILTER_ID"]], dtype=str)
+            
+            if filter_id.ndim == 0 or len(filter_id) == 1:
+                filter_id = np.full(len(wave), str(filter_id.item()))
+            elif len(filter_id) != len(wave):
+                raise ValueError(f"FILTER_ID has length {len(filter_id)} but wave has length {len(wave)}")
 
             logger.info(f'    Detected photometric observation with filter {np.unique(filter_id)}')
 
             # Error
             err = data[normalized["ERROR"]]
+            
+            # ---- Filters
+            filters = sorted(set(filter_id.astype(str)))
+            nfilters = len(filters)
+            
+            if nfilters == 1:
+                filter_str = filters[0]
+            elif nfilters <= 6:
+                filter_str = f'[{"+".join(filters)}]'
+            else:
+                filter_str = f'[{nfilters}filters]'
+
+            # Name
+            name = f"{facility_str}_{ins_str}_{filter_str}"
 
             obs = PhotometryObservation(
                 wave=wave,
@@ -294,6 +340,7 @@ class ObservationLoader:
                 native_unit=native_unit,
                 facility=facility,
                 instrument=ins,
+                name=name,
                 filter_id=filter_id,
                 logger=logger,
             )
@@ -302,21 +349,7 @@ class ObservationLoader:
         # Spectroscopic observation
         # =============================
         elif is_spectro:
-            # Facility and instrument
-            for canonical, key in zip([ObservationKeys.FACILITY.canonical, ObservationKeys.INSTRUMENT.canonical], ['FACILITY', 'INSTRUMENT']):
-                if canonical not in set(normalized.keys()):
-                    logger.warning(f"Key {key} not in observation keys. Setting it to 'unknown'")
-                    if key == 'FACILITY':
-                        facility = np.array(['unknown'] * len(wave))
-                    elif key == 'INSTRUMENT':
-                        ins = np.array(['unknown'] * len(wave))
-                else:
-                    if key == 'FACILITY':
-                        facility = np.asarray(data[normalized["FACILITY"]], dtype=str)
-                    elif key == 'INSTRUMENT':
-                        ins = np.asarray(data[normalized["INSTRUMENT"]], dtype=str)
-
-            logger.info(f'    Detected spectroscopic observation with instruments {np.unique(facility)}/{np.unique(ins)}')
+            logger.info(f'    Detected spectroscopic observation with instruments {facility_str}/{ins_str}')
 
             # Resolution
             res = data[normalized["RESOLUTION"]]
@@ -359,6 +392,9 @@ class ObservationLoader:
                 res_cont = 'NA'
             except ValueError:
                 res_cont = 'NA'
+                
+            # Name
+            name = f"{facility_str}_{ins_str}"
 
             obs = SpectralObservation(
                 wave=wave,
@@ -368,6 +404,7 @@ class ObservationLoader:
                 native_unit=native_unit,
                 facility=facility,
                 instrument=ins,
+                name=name,
                 cov=cov,
                 transm=transm,
                 star_flux=star_flux,
