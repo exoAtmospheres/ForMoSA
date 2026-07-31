@@ -33,6 +33,7 @@ Auto-generated from commit history, grouped by author. Not hand-maintained -- se
 - Fixing issue in soving observation as fits.file ([ae89d48](https://github.com/exoAtmospheres/ForMoSA/commit/ae89d48f5eb34a8266ae827ae5d3c3435ef9b232))
 
 ### Bhavesh Rajpoot
+- BR: Completed the advanced plotting tutorial ([33423c6](https://github.com/exoAtmospheres/ForMoSA/commit/33423c60092d92073e5f6ec0e21bc192a3fe2e87))
 - BR: Add missing av field to ConfigParameters (fixes #34) ([fcb78bc](https://github.com/exoAtmospheres/ForMoSA/commit/fcb78bc020fef6c8c2e0f3216258c27ef418e000))
 - BR: Reconcile docs with the changelog automation and current v2.0 API ([8b57455](https://github.com/exoAtmospheres/ForMoSA/commit/8b574551808e7b6742007d856b4d25511038a84d))
 - BR: Added commit-based changelog ([3f24840](https://github.com/exoAtmospheres/ForMoSA/commit/3f24840ea58dcce3feb60581f68896f73e12d741))
@@ -62,6 +63,7 @@ Auto-generated from commit history, grouped by author. Not hand-maintained -- se
 - Update paper draft, clean up bibliography database, and fix compilation warnings ([980a984](https://github.com/exoAtmospheres/ForMoSA/commit/980a98466f680f4625debe4a6067881862df086f))
 
 ### Bhavesh012
+- chore: update changelog [skip ci] ([cd7add6](https://github.com/exoAtmospheres/ForMoSA/commit/cd7add6324b616f48fb2ac094eebbaa089f470bf))
 - chore: update changelog [skip ci] ([b4a4f0d](https://github.com/exoAtmospheres/ForMoSA/commit/b4a4f0da5aeb3ba8a7c2b0b3ec42debb8d2aa386))
 
 ### Matthieu Ravet
