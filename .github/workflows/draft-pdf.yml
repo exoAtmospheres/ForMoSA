@@ -36,3 +36,7 @@ jobs:
           message: '(auto) Paper PDF Draft'
           # This should be the path to the paper within your repo.
           add: 'paper/paper.pdf' # 'paper/*.pdf' to commit all PDFs in the paper directory
+          # The PDF build takes long enough that the Changelog workflow (triggered by
+          # the same push) usually commits and pushes to the branch first; without a
+          # pull+rebase here this step's push is rejected as non-fast-forward.
+          pull: '--rebase --autostash'
