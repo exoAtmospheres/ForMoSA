@@ -4,7 +4,14 @@ Auto-generated from commit history, grouped by author. Not hand-maintained -- se
 
 ## [Unreleased]
 
-_No changes._
+### Bhavesh Rajpoot
+- BR: Have draft-pdf pull --rebase before pushing to avoid a race with Changelog ([a588267](https://github.com/exoAtmospheres/ForMoSA/commit/a58826794140fa6f247d76dee1ac730fada2500b))
+- BR: Fix changelog skip-ci landmine and draft-pdf detached-HEAD failure ([a3fba82](https://github.com/exoAtmospheres/ForMoSA/commit/a3fba8246d37d3a01d68e83e5e60f3d4190af65c))
+
+### Bhavesh012
+- chore: update changelog [skip ci] ([b83b571](https://github.com/exoAtmospheres/ForMoSA/commit/b83b571ee6f56fd4958c10f897d41318a979dbe9))
+- chore: update changelog [skip ci] ([cd1888a](https://github.com/exoAtmospheres/ForMoSA/commit/cd1888a037156e34aa66e6f9b132966238d36c18))
+
 ## [v2.1.0] - 2026-08-03
 
 ### Allan Denis
