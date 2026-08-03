@@ -4,6 +4,9 @@ Auto-generated from commit history, grouped by author. Not hand-maintained -- se
 
 ## [Unreleased]
 
+_No changes._
+## [v2.1.0] - 2026-08-03
+
 ### Allan Denis
 - small correction ([680bd6d](https://github.com/exoAtmospheres/ForMoSA/commit/680bd6df2d6cca3ad010bc439430ef943543872f))
 - Fixing issue in unnormalized ccf which was returned by the method compute_ccf of ns_analysis.py ([483360f](https://github.com/exoAtmospheres/ForMoSA/commit/483360f3aff48c1ead09dabf11a6151b0780247c))
