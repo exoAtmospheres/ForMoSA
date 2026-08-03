@@ -1,6 +1,10 @@
 name: Draft PDF
 on:
   push:
+    # Branch-restricted so a v* release tag pointing at a paper/ change never
+    # triggers this: EndBug/add-and-commit needs a real branch to push its
+    # auto-commit to, and tag refs leave the checkout in detached HEAD.
+    branches: [main, ForMoSA_class]
     paths:
       - paper/**
       - .github/workflows/draft-pdf.yml
