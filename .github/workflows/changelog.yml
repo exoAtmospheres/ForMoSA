@@ -31,5 +31,5 @@ jobs:
       - name: Commit CHANGELOG.md if changed
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
-          commit_message: "chore: update changelog [skip ci]"
+          commit_message: "chore: update changelog"
           file_pattern: CHANGELOG.md
