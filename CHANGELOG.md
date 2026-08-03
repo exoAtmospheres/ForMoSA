@@ -33,6 +33,8 @@ Auto-generated from commit history, grouped by author. Not hand-maintained -- se
 - Fixing issue in soving observation as fits.file ([ae89d48](https://github.com/exoAtmospheres/ForMoSA/commit/ae89d48f5eb34a8266ae827ae5d3c3435ef9b232))
 
 ### Bhavesh Rajpoot
+- test: trivial paper.md touch to validate draft-pdf.yml branch-trigger fix ([720ab67](https://github.com/exoAtmospheres/ForMoSA/commit/720ab67381859b4659523c4758c15a1012c2d50c))
+- BR: Fix changelog skip-ci landmine and draft-pdf detached-HEAD failure ([2ed33ae](https://github.com/exoAtmospheres/ForMoSA/commit/2ed33ae54235a49b29a8a3628c5b07ec11abb9a2))
 - BR: Revise README for environment setup and version changes ([c9deaa4](https://github.com/exoAtmospheres/ForMoSA/commit/c9deaa47fd85a90950d3db91c346a731bcc839f5))
 - BR: Bump version from 2.0.2 to 2.1.0 ([62bf9ed](https://github.com/exoAtmospheres/ForMoSA/commit/62bf9ed47a057aa5682664b8e528b46d64b4346f))
 - BR: Fix the obs color in best fit plot ([1ea8929](https://github.com/exoAtmospheres/ForMoSA/commit/1ea8929f10a80fe3fd6fd2567855cbce7dfb8f8f))
@@ -66,6 +68,7 @@ Auto-generated from commit history, grouped by author. Not hand-maintained -- se
 - Update paper draft, clean up bibliography database, and fix compilation warnings ([980a984](https://github.com/exoAtmospheres/ForMoSA/commit/980a98466f680f4625debe4a6067881862df086f))
 
 ### Bhavesh012
+- chore: update changelog [skip ci] ([c2b2558](https://github.com/exoAtmospheres/ForMoSA/commit/c2b255803b99b306e4c023f0e3ecfe6118320442))
 - chore: update changelog [skip ci] ([16ebda6](https://github.com/exoAtmospheres/ForMoSA/commit/16ebda6fd138b75bacba44679b9cca8b8a6262fc))
 - chore: update changelog [skip ci] ([2097326](https://github.com/exoAtmospheres/ForMoSA/commit/2097326809d8a69fab67e28a1905a83b726e0d6a))
 - chore: update changelog [skip ci] ([cd7add6](https://github.com/exoAtmospheres/ForMoSA/commit/cd7add6324b616f48fb2ac094eebbaa089f470bf))
