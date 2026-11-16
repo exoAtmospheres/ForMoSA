@@ -349,6 +349,13 @@ class ObservedModel:
             observed_model = ApplyPhysicsEffects._apply_reddening(observed_model, physics_params.get_kind(ParameterKind.AV))
 
         # ======================
+        # Scaling (R, D)
+        # ======================
+
+        if physics_params.has_kind(ParameterKind.DISTANCE) and physics_params.has_kind(ParameterKind.RADIUS):
+            observed_model = ApplyPhysicsEffects._apply_scaling(observed_model, physics_params.get_kind(ParameterKind.RADIUS), physics_params.get_kind(ParameterKind.DISTANCE))
+
+        # ======================
         # CPD
         # ======================
 
@@ -361,13 +368,10 @@ class ObservedModel:
 
             observed_model = ApplyPhysicsEffects._apply_cpd(observed_model, physics_params.get_kind(ParameterKind.BB_T), physics_params.get_kind(ParameterKind.BB_R), physics_params.get_kind(ParameterKind.DISTANCE))
 
-        # ======================
-        # Scaling (R, D, alpha)
-        # ======================
 
-        if physics_params.has_kind(ParameterKind.DISTANCE) and physics_params.has_kind(ParameterKind.RADIUS):
-            observed_model = ApplyPhysicsEffects._apply_scaling(observed_model, physics_params.get_kind(ParameterKind.RADIUS), physics_params.get_kind(ParameterKind.DISTANCE))
-
+        # ======================
+        # Scaling (alpha)
+        # ======================
         alpha = physics_params.values_by_kind.get(ParameterKind.ALPHA, 1.0)
         observed_model.flux *= alpha
 

@@ -57,6 +57,13 @@ class PhotometricEffects:
             observed_model = ApplyPhysicsEffects._apply_reddening(observed_model, values_by_kind[ParameterKind.AV])
 
         # ======================
+        # Scaling (R, D)
+        # ======================
+
+        if ParameterKind.DISTANCE in values_by_kind and ParameterKind.RADIUS in values_by_kind:
+            observed_model = ApplyPhysicsEffects._apply_scaling(observed_model, values_by_kind.get(ParameterKind.RADIUS), values_by_kind.get(ParameterKind.DISTANCE))
+
+        # ======================
         # CPD
         # ======================
 
@@ -70,11 +77,8 @@ class PhotometricEffects:
             observed_model = ApplyPhysicsEffects._apply_cpd(observed_model, values_by_kind[ParameterKind.BB_T], values_by_kind[ParameterKind.BB_R], values_by_kind[ParameterKind.DISTANCE],)
 
         # ======================
-        # Scaling (R, D, alpha)
+        # Scaling (alpha)
         # ======================
-
-        if ParameterKind.DISTANCE in values_by_kind and ParameterKind.RADIUS in values_by_kind:
-            observed_model = ApplyPhysicsEffects._apply_scaling(observed_model, values_by_kind.get(ParameterKind.RADIUS), values_by_kind.get(ParameterKind.DISTANCE))
 
         alpha = values_by_kind.get(ParameterKind.ALPHA, 1.0)
         observed_model.flux *= alpha
@@ -169,5 +173,5 @@ class PhotometricEffects:
 
         if len(observed_model.flux) != len(obs.flux):
             raise ForMoSAError(f' Wrong length for model: {len(observed_model.flux)}. Expected the same length as the observations: {len(obs.flux)}')
-        
+
         return us.compute_loglike(obs.flux, observed_model.flux, obs.err, logL_type=logL_type)
