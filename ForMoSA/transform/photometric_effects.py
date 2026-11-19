@@ -50,13 +50,6 @@ class PhotometricEffects:
         values_by_kind = observed_params.values_by_kind
 
         # ======================
-        # Reddening
-        # ======================
-
-        if ParameterKind.AV in values_by_kind:
-            observed_model = ApplyPhysicsEffects._apply_reddening(observed_model, values_by_kind[ParameterKind.AV])
-
-        # ======================
         # Scaling (R, D)
         # ======================
 
@@ -75,6 +68,13 @@ class PhotometricEffects:
                 raise ForMoSAError(' Distance is required to add a CPD contribution')
 
             observed_model = ApplyPhysicsEffects._apply_cpd(observed_model, values_by_kind[ParameterKind.BB_T], values_by_kind[ParameterKind.BB_R], values_by_kind[ParameterKind.DISTANCE],)
+
+        # ======================
+        # Reddening
+        # ======================
+
+        if ParameterKind.AV in values_by_kind:
+            observed_model = ApplyPhysicsEffects._apply_reddening(observed_model, values_by_kind[ParameterKind.AV])
 
         # ======================
         # Scaling (alpha)

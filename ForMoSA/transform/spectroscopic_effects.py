@@ -66,13 +66,6 @@ class SpectralEffects:
             observed_model = ApplyPhysicsEffects._apply_vsini(observed_model, values_by_kind[ParameterKind.VSINI], values_by_kind[ParameterKind.LD], vsini_param.vsini_function)
 
         # ======================
-        # Reddening
-        # ======================
-
-        if ParameterKind.AV in values_by_kind:
-            observed_model = ApplyPhysicsEffects._apply_reddening(observed_model, values_by_kind[ParameterKind.AV])
-
-        # ======================
         # Scaling (R, D)
         # ======================
 
@@ -91,6 +84,13 @@ class SpectralEffects:
                 raise ForMoSAError(' Distance is required to add a CPD contribution')
 
             observed_model = ApplyPhysicsEffects._apply_cpd(observed_model, values_by_kind[ParameterKind.BB_T], values_by_kind[ParameterKind.BB_R], values_by_kind[ParameterKind.DISTANCE])
+
+        # ======================
+        # Reddening
+        # ======================
+
+        if ParameterKind.AV in values_by_kind:
+            observed_model = ApplyPhysicsEffects._apply_reddening(observed_model, values_by_kind[ParameterKind.AV])
 
         # ======================
         # Scaling (alpha)

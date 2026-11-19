@@ -342,13 +342,6 @@ class ObservedModel:
             observed_model = ApplyPhysicsEffects._apply_vsini(observed_model, physics_params.get_kind(ParameterKind.VSINI), physics_params.get_kind(ParameterKind.LD), vsini_param.vsini_function)
 
         # ======================
-        # Reddening
-        # ======================
-
-        if physics_params.has_kind(ParameterKind.AV):
-            observed_model = ApplyPhysicsEffects._apply_reddening(observed_model, physics_params.get_kind(ParameterKind.AV))
-
-        # ======================
         # Scaling (R, D)
         # ======================
 
@@ -367,6 +360,13 @@ class ObservedModel:
                 raise ForMoSAError(' Distance is required to add a CPD contribution')
 
             observed_model = ApplyPhysicsEffects._apply_cpd(observed_model, physics_params.get_kind(ParameterKind.BB_T), physics_params.get_kind(ParameterKind.BB_R), physics_params.get_kind(ParameterKind.DISTANCE))
+
+        # ======================
+        # Reddening
+        # ======================
+
+        if physics_params.has_kind(ParameterKind.AV):
+            observed_model = ApplyPhysicsEffects._apply_reddening(observed_model, physics_params.get_kind(ParameterKind.AV))
 
 
         # ======================
