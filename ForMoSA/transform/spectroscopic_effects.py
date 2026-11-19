@@ -66,11 +66,11 @@ class SpectralEffects:
             observed_model = ApplyPhysicsEffects._apply_vsini(observed_model, values_by_kind[ParameterKind.VSINI], values_by_kind[ParameterKind.LD], vsini_param.vsini_function)
 
         # ======================
-        # Reddening
+        # Scaling (R, D)
         # ======================
 
-        if ParameterKind.AV in values_by_kind:
-            observed_model = ApplyPhysicsEffects._apply_reddening(observed_model, values_by_kind[ParameterKind.AV])
+        if ParameterKind.DISTANCE in values_by_kind and ParameterKind.RADIUS in values_by_kind:
+            observed_model = ApplyPhysicsEffects._apply_scaling(observed_model, values_by_kind.get(ParameterKind.RADIUS), values_by_kind.get(ParameterKind.DISTANCE))
 
         # ======================
         # CPD
@@ -86,11 +86,15 @@ class SpectralEffects:
             observed_model = ApplyPhysicsEffects._apply_cpd(observed_model, values_by_kind[ParameterKind.BB_T], values_by_kind[ParameterKind.BB_R], values_by_kind[ParameterKind.DISTANCE])
 
         # ======================
-        # Scaling (R, D, alpha)
+        # Reddening
         # ======================
 
-        if ParameterKind.DISTANCE in values_by_kind and ParameterKind.RADIUS in values_by_kind:
-            observed_model = ApplyPhysicsEffects._apply_scaling(observed_model, values_by_kind.get(ParameterKind.RADIUS), values_by_kind.get(ParameterKind.DISTANCE))
+        if ParameterKind.AV in values_by_kind:
+            observed_model = ApplyPhysicsEffects._apply_reddening(observed_model, values_by_kind[ParameterKind.AV])
+
+        # ======================
+        # Scaling (alpha)
+        # ======================
 
         alpha = values_by_kind.get(ParameterKind.ALPHA, 1.0)
         observed_model.flux *= alpha
